@@ -1,0 +1,18 @@
+using System.Reflection;
+using System.Runtime.CompilerServices;
+
+[assembly: AssemblyVersion("@MALMO_VERSION@")]
+[assembly: AssemblyTitle("@PROJECT_NAME@ C# @CSHARP_PLATFORM@ wrapper @MALMO_VERSION@")]
+[assembly: AssemblyCopyright("Copyright Microsoft (c) 2015")]
+[assembly: AssemblyDescription("MalmoNET C# @CSHARP_PLATFORM@ wrapper @MALMONET_VERSION_CSHARP_AssemblyVersion@, compiled with @CSHARP_TYPE@ @CSHARP_VERSION@")]
+[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyFileVersion("@MALMO_VERSION@")]
+[assembly: AssemblyCulture("")]
+[assembly: AssemblyTrademark("MalmoNET")]
+[assembly: AssemblyProduct("MalmoNET")]
+[assembly: AssemblyInformationalVersion("@MALMONET_VERSION_CSHARP_AssemblyVersion@")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyDelaySign(false)]
+[assembly: AssemblyKeyName("")]
+[assembly: AssemblyKeyFile("")]
+

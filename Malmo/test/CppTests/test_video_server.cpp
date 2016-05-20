@@ -1,0 +1,109 @@
+// --------------------------------------------------------------------------------------------------------------------
+// Copyright (C) Microsoft Corporation.  All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+
+// Malmo:
+#include <VideoServer.h>
+#include <TCPClient.h>
+using namespace malmo;
+
+// Boost:
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
+using namespace boost::posix_time;
+
+// STL:
+#include <atomic>
+#include <fstream>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+const short width = 240;
+const int channels = 3;
+const int port = 10013;
+const int num_pixels = width * width * channels;
+const milliseconds sleep_time(100);
+const int num_frames = 50;
+const std::string filename = "video_server_test.mp4";
+std::atomic<int> num_messages_received(0);
+
+void handleFrame(TimestampedVideoFrame frame)
+{
+    if (frame.pixels[0] != num_messages_received)
+    {
+        std::cout << "Pixel not set, frames passed out of order." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (frame.width != width || frame.height != width || frame.channels != channels)
+    {
+        cout << "Mismatch in frame dimensions." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    num_messages_received++;
+}
+
+int main()
+{
+    boost::filesystem::remove(filename);
+
+    try{
+        boost::asio::io_service io_service;
+        VideoServer server(io_service, port, width, width, channels, boost::function<void(const TimestampedVideoFrame)>(handleFrame));
+        server.recordMP4(filename, 10, 400000);
+        server.startRecording();
+        server.start();
+
+        // start the io_service on a background thread
+        boost::thread bt(boost::bind(&boost::asio::io_service::run, &io_service));
+
+        boost::this_thread::sleep(sleep_time);
+
+        vector<unsigned char> buffer(num_pixels);
+        for (int i = 0; i < num_frames; i++){
+            for (int r = width-1, p = 0; r >= 0; r--){
+                for (int c = 0; c < width; c++, p += 3){
+                    buffer[p] = width - c;
+                    buffer[p + 2] = r;
+                }
+            }
+
+            int boxPos = (i * 200) / num_frames;           
+            for (int r = 0; r < 40; r++){
+                for (int c = 0; c < 40; c++){
+                    int p = (width - boxPos - r - 1) * width * 3 + (boxPos + c) * 3;
+                    buffer[p] = 255;
+                    buffer[p + 1] = 255;
+                    buffer[p + 2] = 255;
+                }
+            }
+
+            buffer[(width - 1) * width * 3] = i;
+            SendOverTCP(io_service, "127.0.0.1", port, buffer, true);
+
+            boost::this_thread::sleep(sleep_time);
+        }
+
+        io_service.stop();
+        bt.join();
+    }
+    catch (runtime_error& error){
+        cout << "Error: " << error.what() << endl;
+        return EXIT_FAILURE;
+    }
+
+    if (num_messages_received != num_frames){
+        cout << num_messages_received << " != " << num_frames;
+        return EXIT_FAILURE;
+    }
+
+    if(!boost::filesystem::exists(filename))
+    {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}

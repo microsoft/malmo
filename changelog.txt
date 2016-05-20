@@ -1,0 +1,181 @@
+0.11.1 (2016-20-05)
+-------------------
+Add: Login feature and UI required for authentication in multi-agent missions
+Fix: Render size set correctly, avoiding aspect ratio distortion.
+Add: Support for multi-agent missions. New sample: MultiMaze.py
+
+0.11.0 (2016-05-12)
+-------------------
+Change: All project code renamed to 'Malmo'.
+Add: New ALEAgentHost, to use the Atari Learning Environment as a back-end instead of Minecraft.
+Add: Chat commands and observations now supported.
+Fix: MissionSpec::observeGrid and ::observeDistance were broken.
+
+0.10.4 (2016-04-20)
+-------------------
+Fix: discrete movement had interpolation when rendering and offsetting in the Mod when bumping against walls.
+Fix: tabular_q_learning.py was using deprecated API.
+
+0.10.3 (2016-04-01)
+-------------------
+Change: replaced MissionSpec::useDiscreteActions() with allowContinuousMovementCommand() etc. to control allow- and deny-lists through the API.
+Fix: 64-bit build now supported on Windows.
+Fix: Human Action Component now supports discrete actions again.
+Add: New visualization tool for heatmaps of agent movement.
+
+0.10.2 (2016-03-22)
+-------------------
+Fix: ffmpeg now a runtime dependency instead of an installation requirement.
+Fix: pitch and yaw speed now render-speed independent.
+
+0.10.1 (2016-03-03)
+-------------------
+Add: Tutorial pdf and scripts
+Fix: DefaultWorldGenerator wasn't generating if a flatworld was already running.
+Fix: ObservationFromGrid was never returning observations.
+Fix: Hotbar keys were broken for both agent and human.
+Fix: Initial yaw and pitch were being stomped on by ContinuousCommandHandler.
+Fix: The order of draw objects in the DrawingDecorator is now preserved.
+Fix: Command handler modifiers now called "allow-list" and "deny-list".
+Add: AI/Human toggle now bound to enter key and state is displayed in info text.
+Fix: Mouse can no longer move the AI in the gap between missions.
+Fix: AI/Human toggling of control fixed (no longer need to press toggle key twice).
+Fix: Empty JSON observations filtered out.
+Add: Tutorial in Python_Examples.
+
+0.10.0 (2016-02-26)
+------------------
+Add: WorldDecorators can now throw to cleanly abort missions.
+Fix: Mod error message lists weren't getting reset between missions.
+Add: New python example for DefaultWorldGenerator, timestamps etc.
+Fix: MissionSpec::useDiscreteActions() was broken.
+Fix: Timestamps weren't accessible in Python and Lua.
+Fix: Player now no longer remains on fire from the end of a previous mission.
+Fix: Player placement yaw and pitch were being ignored.
+Add: New python example for tabular Q learning.
+Add: ClassroomDecorator, providing random sampling from a parameterized mission space.
+
+0.9.9 (2016-02-12)
+------------------
+Fix: When running multiple missions, video/PNGs would only be saved in the first one.
+
+0.9.8 (2016-02-11)
+------------------
+Fix: Attempting to run without saving mission file (empty MissionRecordSpec) would cause crash.
+Fix: Torch support was missing.
+Add: Debian 7 support now available.
+
+0.9.7 (2016-02-09)
+------------------
+Fix: Reuses TCP connections to avoid leaving too many ports in TIME_WAIT.
+
+0.9.6 (2016-02-05)
+------------------
+Fix: getTorchTensorFromPixels now takes an allocated tensor, avoids memory leak.
+
+0.9.5 (2016-01-28)
+------------------
+Fix: Final reward now sent in MissionEnded message to guarantee arrival.
+
+0.9.4 (2016-01-27)
+------------------
+Add: RewardProducer for mission end.
+Add: XSD documentation in Schemas folder.
+
+0.9.3 (2016-01-20)
+------------------
+Add: Discrete movement handlers.
+
+0.9.1 (2016-01-07)
+------------------
+Add: Improved installation instructions.
+
+0.9.0 (2016-01-05)
+------------------
+Change: Rewrite of platform API to be cross-platform, multi-language and easier to use.
+Change: Large XML changes.
+Change: Removed ExperimentLauncher and ExperimentStudio.
+
+0.8 (2015-11-20)
+----------------
+Fix: Exceptions now passed on to Python agents - user should catch.
+Change: Malmo.StartListeningForMissionControlMessages() now doesn't take the port parameter.
+Change: Malmo.SendMissionEnded() now doesn't take the port parameter.
+Add: New ObservationsProducer: ObservationFromRecentCommands.
+Add: Can specify game mode in WorldFromBaseMapFile.
+Add: Can now specify a motor scaling for turning.
+Add: New VideoProducer: RGBDVideoGenerator gives RGB and depth.
+
+0.7 (2015-09-11)
+----------------
+Change: StartTime node in XML has changes.
+Change: Discrete.WorldFromGrid mission handler has been removed.
+Change: Malmo.saveUri is no longer available.
+Change: Malmo.logVideoEnabled is no longer available.
+Add: Malmo.StartListeningForVideo() now takes an optional parameter, to request raw image buffer instead of PIL image.
+Add: Communication between Python and Lua/Torch is now supported.
+Add: Communication between C# and Lua/Torch is now supported.
+Add: Malmo.SendMissionInitString() now validates the MissionInit string before sending, for easier debugging.
+Add: Malmo.GetMissionInitString() now allows the video size and save location to be specified.
+
+0.6 (2015-08-26)
+----------------
+Change: No longer saves mission file by default - call Malmo.SaveSession manually in OnMissionEndedMessage().
+Python agents no longer require bat files to launch from the launcher/experiment studio, and can train.
+Fix: timeout issue when launching missions from python ("no agent available" error)
+Fix: Sample Python agents were giving an error saying no module named malmo.
+Mod's observations now report agent's position using floats rather than ints.
+Mod shouldn't grab mouse pointer anymore (mostly).
+Fix: yaw and pitch should be set to sensible defaults at the start of each mission (fix weird camera angle error)
+Fix: XML block drawing no longer requires co-ords to be specified in low->high order.
+Additions to Mission XML: (full documentation of these is pending)
+  Inventory - can control exactly what blocks/items appear in which slots of player's inventory at start of each mission
+  Weather - can specify rain/thunder/clear weather for initial mission conditions
+  StartTime - can specify the Minecraft world time at the start of the Mission (will stop repeated runs of missions entering the night time)
+  AllowSpawning - can switch mob spawning on/off
+  Initial pitch and yaw can be specified.
+
+0.5 (2015-08-17)
+----------------
+Python agents can be run in the cloud
+HumanInstanceDownload - command line program to download human instance recordings
+DatasetCreation - create datasets from human instance data
+New missionhandler for teleport commands: CommandForAbsoluteMovement
+
+0.4.1 (2015-08-11)
+------------------
+Mod now quits the mission and returns to dormant state when it detects that its TCP video or reward signals are not being received by anything.
+New commands added to the Discrete.CommandForGridWalking handler.
+New whitelisting/blacklisting of individual commands in the command handlers
+
+0.3.1 (2015-07-27)
+------------------
+Change: In Python agents, the OnVideo callback now takes a PIL (Python Imaging Library) Image, instead of a raw buffer of bytes. See the sample scripts for usage hints.
+Change: Needs 'requests': pip install requests
+Change: You need an Experiment Studio human account created in order to log into Human Action.
+Change: OutputUri is now required in MissionInit nodes
+Add: Parameterisation added to the grid observation producer (the one that produces the hull of blocks around the player).
+Add: Parameterisation added to the discrete world builder (produces a flat maze-like grid of stained glass over lava).
+New MissionHandlers available (see the md files for details):
+  WorldBuilder: "WorldFromDefaultGame" - basically loads a default world.
+  ObservationProducers: "ObservationFromHotBar" and "ObservationFromFullInventory"
+  CommandHandler: "CommandForInventoryToHotBar" - allows basic manipulation of inventory.
+Fixes to Discrete MissionHandlers: Discrete.RewardForGridWalking should now give a negative reward for attempting to move, even if the move was unsuccessful (eg the agent tried to walk into a wall).
+Stabilisation - hopefully the Mod can now cope with thousands of missions without crashing, hanging, or otherwise doing weird things.
+
+0.2 (2015-07-15)
+----------------
+Change: XML files in new version cannot be used in old versions of the software.
+Change: For loading a base map, WorldFromBaseMapFile must be one of the WorldBuilder mission handlers. See notes below.
+Add: Mod now crashes far less often.
+Add: New world builders mean that there is no need to manually enter a world when launching minecraft.
+Add: Python agents now save out Malmo files with the session contents. Frames are timestamped png files.
+Add: XML files now include a SchemaVersion attribute, to help with future changes.
+
+0.1.1 (2015-07-07)
+------------------
+Change: Mission handlers now separate XML nodes, with ClassName attribute. See samples in ExperimentDefinitions.
+Change: MalmoStartListeningForMissionControlMessages now takes 3 parameters. See samples in NonPsiAgents.
+Change: Python scripts now require PyXB. See Tutorials.
+Add: Support for discrete action experiments. The D-Pad on the XBox controller can be used to navigate through the provided cliffWalkingTask.xml mission for example.
+Add: Lots of bugfixes. The Mod now crashes less often.

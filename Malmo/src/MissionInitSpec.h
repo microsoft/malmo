@@ -1,0 +1,124 @@
+// --------------------------------------------------------------------------------------------------------------------
+// Copyright (C) Microsoft Corporation.  All rights reserved.
+// --------------------------------------------------------------------------------------------------------------------
+
+#ifndef _MISSIONINITSPEC_H_
+#define _MISSIONINITSPEC_H_
+
+// Local:
+#include "ClientInfo.h"
+#include "MissionSpec.h"
+
+// Boost:
+#include <boost/shared_ptr.hpp>
+
+// Schemas:
+#include <MissionInit.h>
+
+namespace malmo
+{
+    //! Specifies a mission to be run together with the IP addresses and ports of the agents and Mod instances to run it on.
+    class MissionInitSpec
+    {
+        public:
+
+            //! Constructs a mission init specification with default settings from the supplied mission specification.
+            //! \param mission_spec The specification of the mission to run.
+            //! \param unique_experiment_id An arbitrary identifier that is used to disambiguate our mission from 
+            //! \param role Index of the agent that this agent host is to manage. Zero-based index. Use zero if there is only one agent in this mission.
+            MissionInitSpec( const MissionSpec& mission_spec, std::string unique_experiment_id, int role );
+
+            //! Constructs a mission init from the supplied XML.
+            //! \param xml The full XML of the mission init.
+            //! \param validate If true, then throws an xml_schema::exception if the XML is not compliant with the schema.
+            MissionInitSpec(const std::string& xml, bool validate);
+
+            //! Gets the mission init specification as an XML string. Only use if you want to save the mission init to file.
+            //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
+            //! \returns The mission init specification as an XML string.
+            std::string getAsXML( bool prettyPrint ) const;
+
+			//! Gets the IP address of the client.
+			//! \returns The IP address as a string.
+			std::string getClientAddress() const;
+
+			//! Sets the IP address of the client.
+			//! \param address The IP address as a string.
+			void setClientAddress(std::string address);
+
+            //! Gets the mission control port of the client.
+            //! \returns The port that the client listens to mission control messages on.
+            int getClientMissionControlPort() const;
+
+            //! Sets the mission control port of the client.
+            //! \param port The port that the client listens to mission control messages on.
+            void setClientMissionControlPort(int port);
+
+            //! Gets the commands port of the client.
+            //! \returns The port that the client listens to commands on.
+            int getClientCommandsPort() const;
+
+            //! Sets the commands port of the client.
+            //! \param port The port that the client listens to commands on.
+            void setClientCommandsPort(int port);
+
+            //! Gets the IP address of the agent.
+            //! \returns The IP address as a string.
+            std::string getAgentAddress() const;
+
+            //! Sets the IP address of the agent.
+            //! \param address The IP address as a string.
+            void setAgentAddress(std::string address);
+
+            //! Gets the mission control port of the agent.
+            //! \returns The port that the agent listens to mission control messages on.
+            int getAgentMissionControlPort() const;
+
+            //! Sets the mission control port of the agent.
+            //! Optional. The default behavior is to assign a port that is free.
+            //! \param port The port that the agent listens to mission control messages on.
+            void setAgentMissionControlPort(int port);
+
+            //! Gets the video port of the agent.
+            //! \returns The port that the agent listens to video frames on.
+            int getAgentVideoPort() const;
+
+            //! Sets the video port of the agent.
+            //! Optional. The default behavior is to assign a port that is free.
+            //! \param port The port that the agent listens to video frames on.
+            void setAgentVideoPort(int port);
+
+            //! Gets the observations port of the agent.
+            //! \returns The port that the agent listens to observations on.
+            int getAgentObservationsPort() const;
+
+            //! Sets the observations port of the agent.
+            //! Optional. The default behavior is to assign a port that is free.
+            //! \param port The port that the agent listens to observations on.
+            void setAgentObservationsPort(int port);
+
+            //! Gets the rewards port of the agent.
+            //! \returns The port that the agent listens to rewards on.
+            int getAgentRewardsPort() const;
+
+            //! Sets the rewards port of the agent.
+            //! Optional. The default behavior is to assign a port that is free.
+            //! \param port The port that the agent listens to rewards on.
+            void setAgentRewardsPort(int port);
+
+            //! Gets whether the Minecraft server port is known.
+            //! \returns True if the Minecraft server port is known.
+            bool hasMinecraftServerInformation() const;
+
+            //! Sets the Minecraft server information.
+            //! \param address The Minecraft server address.
+            //! \param port The Minecraft server port.
+            void setMinecraftServerInformation(const std::string& address, int port);
+
+        private:
+
+            boost::shared_ptr<schemas::MissionInit> mission_init;
+    };
+}
+
+#endif
