@@ -1,0 +1,167 @@
+/*
+// For those who want the bleeding edge
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+*/
+
+// for people who want stable
+plugins {
+    id "net.minecraftforge.gradle.forge" version "2.0.1"
+}
+
+group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "MalmoMod"
+
+minecraft {
+    version = "1.8-11.14.3.1543"
+    runDir = "run"
+    
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not allways work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings = "snapshot_20141130"
+    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+}
+
+dependencies {
+    // you may put jars on which you depend on in ./libs
+    // or you may define them like so..
+    //compile "some.group:artifact:version:classifier"
+    //compile "some.group:artifact:version"
+      
+    // real examples
+    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
+    // except that these dependencies get remapped to your current MCP mappings
+    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // for more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible())
+{
+    allprojects
+    {
+        tasks.withType(Javadoc)
+        {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+// -------------- Task 'jaxb' runs xjc to make java files from XSD files --------------------
+
+gradle.projectsEvaluated {
+    // compileJava target isn't available until after forge has initialized things
+    compileJava.dependsOn jaxb
+    compileJava.dependsOn copyModToClient
+    compileJava.dependsOn copyModToServer
+    jaxb.dependsOn copySchemas
+    copySchemas.dependsOn deleteSchemas
+}
+
+configurations {
+    jaxb
+}
+
+dependencies {
+    jaxb group: 'com.sun.xml.bind', name: 'jaxb-xjc', version: '2.2.4-1'
+}
+
+task jaxb() {
+    description 'Generate source files for our XML schemas using JAXB'
+    
+    inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
+    outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
+    
+    doLast {
+        // first clear the old .java files out of the folder in case some are no longer current
+        delete fileTree(dir: 'src/main/java/com/microsoft/Malmo/Schemas', include: '*.java')
+
+        // use xjc to generate java files from the XML schema
+        ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.jaxb.asPath)
+        ant.xjc( destdir: 'src/main/java', package: 'com.microsoft.Malmo.Schemas' )
+        {
+            schema( dir: 'src/main/resources', includes: '*.xsd' )
+        }
+    }
+}
+
+task deleteSchemas() {
+    doLast {
+        // first clear the old .xsd files out of the folder in case some are no longer current
+        delete fileTree(dir: 'src/main/resources', include: '*.xsd')
+    }
+}
+
+task copySchemas(type: Copy) {
+    from '../Schemas/'
+    into 'src/main/resources/'
+    include ('*.xsd')
+}
+
+// -------------- Task 'copyMds' copied the .md files into the javadoc folder --------------------
+
+task copyMds(type: Copy) {
+    from 'src/main/java/'
+    into 'build/docs/javadoc'
+    include ('**/*.md')
+}
+
+// -------------- Task 'copyMod' copies the Mod file into the Minecraft client and server mods folders --------------------
+
+task copyModToClient(type: Copy) {
+    from 'build/libs/'
+    into '../Minecraft/.minecraft/mods'
+    include ('*.jar')
+}
+
+task copyModToServer(type: Copy) {
+    from 'build/libs/'
+    into '../Minecraft/.minecraftserver/mods'
+    include ('*.jar')
+}
+
+javadoc.dependsOn copyMds

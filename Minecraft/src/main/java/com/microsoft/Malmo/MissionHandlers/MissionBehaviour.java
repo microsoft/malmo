@@ -1,0 +1,290 @@
+package com.microsoft.Malmo.MissionHandlers;
+
+import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
+import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ServerHandlers;
+
+/** Holder class for the various MissionHandler interfaces that together define the behaviour of the mission.<br>
+ */
+public class MissionBehaviour
+{
+    public IVideoProducer videoProducer = null;
+    public IAudioProducer audioProducer = null;
+    public ICommandHandler commandHandler = null;
+    public IObservationProducer observationProducer = null;
+    public IRewardProducer rewardProducer = null;
+    public IWorldDecorator worldDecorator = null;
+    public IWorldGenerator worldGenerator = null;
+    public IWantToQuit quitProducer = null;
+
+    private String failedHandlers = "";
+    
+    /** Create instances of the various mission handlers, according to the specifications in the MissionInit object.<br>
+     * The Mission object (inside MissionInit) contains an optional string for each type of handler, which specifies the class-name of the handler required.<br>
+     * This method will attempt to instantiate all the requested objects.<br>
+     * Any objects that are left unspecified by the MissionInit, or are unable to be created, are left as null.
+     * @param missionInit the MissionInit object for the current Mission, containing information about which handler objects to instantiate.
+     * @return a MissionBehaviour object that holds all the requested handlers (assuming they could be created).
+     */
+    public static MissionBehaviour createAgentHandlersFromMissionInit(MissionInit missionInit) throws Exception
+    {
+    	MissionBehaviour behaviour = new MissionBehaviour();
+    	behaviour.initAgent(missionInit);
+    	// TODO - can't throw and return a behaviour!!
+    	//if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
+    	//    throw new Exception(behaviour.getErrorReport());
+    	
+    	return behaviour;
+    }
+
+    public static MissionBehaviour createServerHandlersFromMissionInit(MissionInit missionInit) throws Exception
+    {
+    	MissionBehaviour behaviour = new MissionBehaviour();
+    	behaviour.initServer(missionInit);
+    	// TODO - can't throw and return a behaviour!!
+    	//if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
+    	//    throw new Exception(behaviour.getErrorReport());
+    	
+    	return behaviour;
+    }
+
+    public String getErrorReport()
+    {
+        return this.failedHandlers;
+    }
+
+    private void reset()
+    {
+        this.videoProducer = null;
+        this.audioProducer = null;
+        this.commandHandler = null;
+        this.observationProducer = null;
+        this.rewardProducer = null;
+        this.worldDecorator = null;
+        this.quitProducer = null;
+    }
+
+    private void initAgent(MissionInit missionInit)
+    {
+        reset();
+        AgentHandlers handlerset = missionInit.getMission().getAgentSection().get(missionInit.getClientRole()).getAgentHandlers();
+
+        // Instantiate the various handlers:
+        for (Object handler : handlerset.getAgentMissionHandlers())
+            createAndAddHandler(handler);
+    }
+
+    private void initServer(MissionInit missionInit)
+    {
+        reset();
+        ServerHandlers handlerset = missionInit.getMission().getServerSection().getServerHandlers();
+
+        // Instantiate the various handlers:
+        createAndAddHandler(handlerset.getWorldGenerator());
+        for (Object handler : handlerset.getWorldDecorators())
+            createAndAddHandler(handler);
+        for (Object handler : handlerset.getServerQuitProducers())
+            createAndAddHandler(handler);
+    }
+
+    private void createAndAddHandler(Object xmlObj)
+    {
+        if (xmlObj == null)
+            return;
+
+        Object handler = createHandlerFromParams(xmlObj);
+        if (handler != null)
+        {
+        	if (handler instanceof HandlerBase)
+        		((HandlerBase)(handler)).setParentBehaviour(this);
+            addHandler(handler);
+        }
+    }
+
+    /** Add this handler to our set, creating containers as needs be.
+     * @param handler The handler to add.
+     */
+    private void addHandler(Object handler)
+    {
+        // Would be nice to have a better way to do this,
+        // but the type information isn't preserved in the XML format anymore -
+        // and the number of types of handler is pretty unlikely to change, so this list
+        // won't have to be added to often, if at all.
+        if (handler == null)
+            return;
+        
+        if (handler instanceof IVideoProducer)
+            addVideoProducer((IVideoProducer)handler);
+        else if (handler instanceof IAudioProducer)
+            addAudioProducer((IAudioProducer)handler);
+        else if (handler instanceof ICommandHandler)
+            addCommandHandler((ICommandHandler)handler);
+        else if (handler instanceof IObservationProducer)
+            addObservationProducer((IObservationProducer)handler);
+        else if (handler instanceof IRewardProducer)
+            addRewardProducer((IRewardProducer)handler);
+        else if (handler instanceof IWorldGenerator)
+        	addWorldGenerator((IWorldGenerator)handler);
+        else if (handler instanceof IWorldDecorator)
+            addWorldDecorator((IWorldDecorator)handler);
+        else if (handler instanceof IWantToQuit)
+            addQuitProducer((IWantToQuit)handler);
+        else
+            this.failedHandlers += handler.getClass().getSimpleName() + " isn't of a recognised handler type.\n";
+    }
+    
+    private void addVideoProducer(IVideoProducer handler)
+    {
+        if (this.videoProducer != null)
+            this.failedHandlers += "Too many video producers specified - only one allowed at present.\n";
+        else
+            this.videoProducer = handler;
+    }
+    
+    private void addAudioProducer(IAudioProducer handler)
+    {
+        if (this.audioProducer != null)
+            this.failedHandlers += "Too many audio producers specified - only one allowed at present.\n";
+        else
+            this.audioProducer = handler;
+    }
+
+    private void addWorldGenerator(IWorldGenerator handler)
+    {
+        if (this.worldGenerator != null)
+            this.failedHandlers += "Too many world generators specified - only one allowed.\n";
+        else
+            this.worldGenerator = handler;
+    }
+    
+    private void addRewardProducer(IRewardProducer handler)
+    {
+        if (this.rewardProducer == null)
+        	this.rewardProducer = handler;
+        else
+        {
+        	if (!(this.rewardProducer instanceof RewardGroup))
+        	{
+        		// We have multiple reward handlers - group them.
+        		RewardGroup group = new RewardGroup();
+        		group.addRewardProducer(this.rewardProducer);
+        		this.rewardProducer = group;
+        	}
+        	((RewardGroup)this.rewardProducer).addRewardProducer(handler);
+        }
+    }
+
+    private void addCommandHandler(ICommandHandler handler)
+    {
+        if (this.commandHandler == null)
+            this.commandHandler = handler;
+        else
+        {
+            if (!(this.commandHandler instanceof CommandGroup))
+            {
+                // We have multiple command handlers - group them.
+                CommandGroup group = new CommandGroup();
+                group.addCommandHandler(this.commandHandler);
+                this.commandHandler = group;
+            }
+            ((CommandGroup)this.commandHandler).addCommandHandler(handler);
+        }
+    }
+    
+    private void addObservationProducer(IObservationProducer handler)
+    {
+        if (this.observationProducer == null)
+            this.observationProducer = handler;
+        else
+        {
+            if (!(this.observationProducer instanceof ObservationFromComposite))
+            {
+                ObservationFromComposite group = new ObservationFromComposite();
+                group.addObservationProducer(this.observationProducer);
+                this.observationProducer = group;
+            }
+            ((ObservationFromComposite)this.observationProducer).addObservationProducer(handler);
+        }
+    }
+ 
+    private void addWorldDecorator(IWorldDecorator handler)
+    {
+        if (this.worldDecorator == null)
+            this.worldDecorator = handler;
+        else
+        {
+            if (!(this.worldDecorator instanceof WorldFromComposite))
+            {
+                WorldFromComposite group = new WorldFromComposite();
+                group.addBuilder(this.worldDecorator);
+                this.worldDecorator = group;
+            }
+            ((WorldFromComposite)this.worldDecorator).addBuilder(handler);
+        }
+    }
+ 
+    private void addQuitProducer(IWantToQuit handler)
+    {
+        if (this.quitProducer == null)
+            this.quitProducer = handler;
+        else
+        {
+            if (!(this.quitProducer instanceof QuitFromComposite))
+            {
+                QuitFromComposite group = new QuitFromComposite();
+                group.addQuitter(this.quitProducer);
+                this.quitProducer = group;
+            }
+            ((QuitFromComposite)this.quitProducer).addQuitter(handler);
+        }
+    }
+   
+    /** Attempt to create an instance of the specified handler class, using reflection.
+     * @param xmlHandler the object which specifies both the name and the parameters of the requested handler.
+     * @return an instance of the requested class, if possible, or null if the class wasn't found.
+     */
+    private Object createHandlerFromParams(Object xmlHandler)
+    {
+        if (xmlHandler == null)
+            return null;
+        
+        Object handler = null;
+        String handlerClass = xmlHandler.getClass().getSimpleName();
+        if (handlerClass == null || handlerClass.length() == 0)
+        {
+            return null;
+        }
+        try
+        {
+            // To avoid name collisions, the java class will have the suffix "Implementation".
+            Class<?> c = Class.forName("com.microsoft.Malmo.MissionHandlers." + handlerClass + "Implementation");
+            handler = c.newInstance();
+            if (!((HandlerBase)handler).parseParameters(xmlHandler))
+                this.failedHandlers += handlerClass + " failed to parse parameters.\n";
+        }
+        catch (ClassNotFoundException e)
+        {
+            System.out.println("Duff MissionHandler requested: "+handlerClass);
+            this.failedHandlers += "Failed to find " + handlerClass + "\n";
+        }
+        catch (InstantiationException e)
+        {
+            System.out.println("Could not instantiate specified MissionHandler.");
+            this.failedHandlers += "Failed to create " + handlerClass + "\n";
+        }
+        catch (IllegalAccessException e)
+        {
+            System.out.println("Could not instantiate specified MissionHandler.");
+            this.failedHandlers += "Failed to access " + handlerClass + "\n";
+        }
+        return handler;
+    }
+}

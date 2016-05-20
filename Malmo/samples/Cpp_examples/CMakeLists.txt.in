@@ -1,0 +1,54 @@
+# --------------------------------------------------------------------------------------------------------------------
+# Copyright (C) Microsoft Corporation.  All rights reserved.
+# --------------------------------------------------------------------------------------------------------------------
+
+cmake_minimum_required( VERSION 2.8 )
+
+set( SOURCES
+  run_mission.cpp
+)
+
+# ------------ Find the libraries we need --------------------------
+
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
+
+SET(Boost_ADDITIONAL_VERSIONS "1.59" "1.59.0")
+if( MSVC )
+  set( Boost_USE_STATIC_LIBS ON )
+  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options regex system thread zlib REQUIRED )
+  set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_WIN32_WINNT=0x0501" ) # build for WinXP or later
+else()
+  set( Boost_USE_STATIC_LIBS OFF )
+  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options regex system thread REQUIRED )
+endif()
+
+find_package( Xsd REQUIRED )
+
+find_library( Malmo_LIBRARIES Malmo ${CMAKE_SOURCE_DIR}/lib )
+
+# ------------------- Settings --------------------------------------
+
+# use C++11
+if (CMAKE_VERSION VERSION_LESS "3.1")
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set (CMAKE_CXX_FLAGS "--std=gnu++11 ${CMAKE_CXX_FLAGS}")
+  endif ()
+else ()
+  set (CMAKE_CXX_STANDARD 11)
+endif ()
+  
+# ------------ Build the executable ---------------------------------
+
+add_executable( run_mission ${SOURCES} )
+
+include_directories( 
+  ${CMAKE_SOURCE_DIR}/include
+  ${Boost_INCLUDE_DIR}
+  ${XSD_INCLUDE_DIRS}
+)
+
+target_link_libraries( run_mission 
+  ${Malmo_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${XSD_LIBRARIES} 
+)

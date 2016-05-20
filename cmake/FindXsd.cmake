@@ -1,0 +1,97 @@
+# Locate Xsd from code synthesis include paths and binary
+# Xsd can be found at http://codesynthesis.com/products/xsd/
+# Written by Frederic Heem, frederic.heem _at_ telsey.it
+
+# This module defines
+# XSD_INCLUDE_DIR, where to find elements.hxx, etc.
+# XSD_EXECUTABLE, where is the xsd compiler
+# XSD_LIBRARIES, the libraries to include in the link
+# XSD_FOUND, If false, don't try to use xsd
+
+set(_XSD_SEARCHES)
+
+# Search XSD_ROOT first if it is set.
+if(XSD_ROOT)
+  set(_XSD_SEARCH_ROOT PATHS ${XSD_ROOT} NO_DEFAULT_PATH)
+  list(APPEND _XSD_SEARCHES _XSD_SEARCH_ROOT)
+endif()
+
+# Normal search.
+set(_XSD_SEARCH_NORMAL
+  PATHS "$ENV{PROGRAMFILES}/CodeSynthesis XSD 4.0"
+  )
+list(APPEND _XSD_SEARCHES _XSD_SEARCH_NORMAL)
+
+set(XSD_NAMES xsdcxx xsd xerces-c xerces-c_3)
+set(XSD_NAMES_DEBUG xerces-cD xerces-c_3D)
+
+# Try each search configuration.
+foreach(search ${_XSD_SEARCHES})
+  find_path(XSD_INCLUDE_DIR NAMES xercesc ${${search}} PATH_SUFFIXES include)
+  FIND_PROGRAM(XSD_EXECUTABLE NAMES xsdcxx xsd.exe ${${search}} PATH_SUFFIXES bin)
+endforeach()
+
+# Allow XSD_LIBRARY to be set manually, as the location of the xsd library
+if(NOT XSD_LIBRARY)
+  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    set( _XSD_LIB_DIR lib64 )
+  else()
+    set( _XSD_LIB_DIR lib )
+  endif()
+  
+  foreach(search ${_XSD_SEARCHES})
+    find_library(XSD_LIBRARY_RELEASE NAMES ${XSD_NAMES} ${${search}} PATH_SUFFIXES ${_XSD_LIB_DIR}/vc-12.0)
+    find_library(XSD_LIBRARY_DEBUG NAMES ${XSD_NAMES_DEBUG} ${${search}} PATH_SUFFIXES ${_XSD_LIB_DIR}/vc-12.0)
+  endforeach()
+
+  include(SelectLibraryConfigurations)
+  select_library_configurations(XSD)
+endif()
+
+unset(XSD_NAMES)
+unset(XSD_NAMES_DEBUG)
+
+MARK_AS_ADVANCED(
+  XSD_LIBRARY
+  XSD_INCLUDE_DIR
+  XSD_EXECUTABLE
+) 
+
+# if the include and the program are found then we have it
+IF(XSD_INCLUDE_DIR)
+  IF(XSD_EXECUTABLE)
+    SET( XSD_FOUND "YES" )
+  ENDIF(XSD_EXECUTABLE)
+
+    set(XSD_INCLUDE_DIRS ${XSD_INCLUDE_DIR})
+
+    if(NOT XSD_LIBRARIES)
+      set(XSD_LIBRARIES ${XSD_LIBRARY})
+    endif()
+
+    if(NOT TARGET XSD::XSD)
+      add_library(XSD::XSD UNKNOWN IMPORTED)
+      set_target_properties(XSD::XSD PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${XSD_INCLUDE_DIRS}")
+
+		if(XSD_LIBRARY_RELEASE)
+		set_property(TARGET XSD::XSD APPEND PROPERTY
+			IMPORTED_CONFIGURATIONS RELEASE)
+		set_target_properties(XSD::XSD PROPERTIES
+			IMPORTED_LOCATION_RELEASE "${XSD_LIBRARY_RELEASE}")
+		endif()
+
+		if(XSD_LIBRARY_DEBUG)
+		set_property(TARGET XSD::XSD APPEND PROPERTY
+			IMPORTED_CONFIGURATIONS DEBUG)
+		set_target_properties(XSD::XSD PROPERTIES
+			IMPORTED_LOCATION_DEBUG "${XSD_LIBRARY_DEBUG}")
+		endif()
+		
+		if(NOT XSD_LIBRARY_RELEASE AND NOT XSD_LIBRARY_DEBUG)
+        set_property(TARGET XSD::XSD APPEND PROPERTY
+          IMPORTED_LOCATION "${XSD_LIBRARY}")
+      endif()
+	ENDIF()
+ENDIF(XSD_INCLUDE_DIR)
+

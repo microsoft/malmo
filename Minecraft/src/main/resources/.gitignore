@@ -1,0 +1,4 @@
+# build.gradle copies schemas into this folder - we don't want these checked into git in this location.
+# If you want to make changes to the schema, edit the one in the Schemas folder and run 'gradlew build' or 'msbuild'
+# in the Mod folder.
+*.xsd

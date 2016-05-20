@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<links xmlns="http://titanium.dstc.edu.au/xml/xs3p">
+    <schema file-location="Mission.xsd" docfile-location="Mission.html"/>
+    <schema file-location="MissionHandlers.xsd" docfile-location="MissionHandlers.html"/>
+    <schema file-location="Types.xsd" docfile-location="Types.html"/>
+    <schema file-location="MissionEnded.xsd" docfile-location="MissionEnded.html"/>
+    <schema file-location="MissionInit.xsd" docfile-location="MissionInit.html"/>
+</links>

@@ -1,0 +1,101 @@
+# --------------------------------------------------------------------------------------------------------------------
+# Copyright (C) Microsoft Corporation.  All rights reserved.
+# --------------------------------------------------------------------------------------------------------------------
+# Tutorial sample #7: The Maze Decorator
+
+import MalmoPython
+import os
+import sys
+import time
+
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+
+def GetMissionXML( seed, gp ):
+    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+            <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+            
+              <About>
+                <Summary>Hello world!</Summary>
+              </About>
+              
+            <ServerSection>
+              <ServerInitialConditions>
+                <Time>
+                    <StartTime>1000</StartTime>
+                    <AllowPassageOfTime>false</AllowPassageOfTime>
+                </Time>
+                <Weather>clear</Weather>
+              </ServerInitialConditions>
+              <ServerHandlers>
+                  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"/>
+                  <DrawingDecorator>
+                    <DrawSphere x="-27" y="70" z="0" radius="30" type="air"/>
+                  </DrawingDecorator>
+                  <MazeDecorator>
+                    <Seed>'''+str(seed)+'''</Seed>
+                    <SizeAndPosition width="10" length="10" height="10" xOrigin="-32" yOrigin="69" zOrigin="-5"/>
+                    <StartBlock type="emerald_block" fixedToEdge="true"/>
+                    <EndBlock type="redstone_block" fixedToEdge="true"/>
+                    <PathBlock type="diamond_block"/>
+                    <FloorBlock type="air"/>
+                    <GapBlock type="air"/>
+                    <GapProbability>'''+str(gp)+'''</GapProbability>
+                    <AllowDiagonalMovement>false</AllowDiagonalMovement>
+                  </MazeDecorator>
+                  <ServerQuitFromTimeUp timeLimitMs="30000"/>
+                  <ServerQuitWhenAnyAgentFinishes/>
+                </ServerHandlers>
+              </ServerSection>
+              
+              <AgentSection mode="Survival">
+                <Name>MalmoTutorialBot</Name>
+                <AgentStart>
+                    <Placement x="0" y="56" z="0"/>
+                </AgentStart>
+                <AgentHandlers>
+                    <AgentQuitFromTouchingBlockType>
+                        <Block type="redstone_block"/>
+                    </AgentQuitFromTouchingBlockType>
+                </AgentHandlers>
+              </AgentSection>
+            </Mission>'''
+
+            
+
+# Create default Malmo objects:
+agent_host = MalmoPython.AgentHost()
+for i in range(10):
+    my_mission = MalmoPython.MissionSpec(GetMissionXML("random", float(i/10.0)), True)
+    my_mission_record = MalmoPython.MissionRecordSpec()
+
+    # Attempt to start a mission:
+    try:
+        agent_host.startMission( my_mission, my_mission_record )
+    except RuntimeError as e:
+        print "Error starting mission:",e
+        exit(1)
+
+    # Loop until mission starts:
+    print "Waiting for the mission to start ",
+    world_state = agent_host.getWorldState()
+    while not world_state.is_mission_running:
+        sys.stdout.write(".")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print "Error:",error.text
+
+    print
+    print "Mission running ",
+
+    # Loop until mission ends:
+    while world_state.is_mission_running:
+        sys.stdout.write(".")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print "Error:",error.text
+
+    print
+    print "Mission ended"
+    # Mission has ended.

@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunMission", "RunMission.csproj", "{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}.Debug|x64.ActiveCfg = Debug|x64
+		{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}.Debug|x64.Build.0 = Debug|x64
+		{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}.Release|x64.ActiveCfg = Release|x64
+		{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
