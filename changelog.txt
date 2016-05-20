@@ -1,4 +1,4 @@
-0.11.1 (2016-20-05)
+0.11.1 (2016-05-20)
 -------------------
 Add: Login feature and UI required for authentication in multi-agent missions
 Fix: Render size set correctly, avoiding aspect ratio distortion.
