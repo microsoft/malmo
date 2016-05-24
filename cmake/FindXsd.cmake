@@ -25,10 +25,17 @@ list(APPEND _XSD_SEARCHES _XSD_SEARCH_NORMAL)
 set(XSD_NAMES xsdcxx xsd xerces-c xerces-c_3)
 set(XSD_NAMES_DEBUG xerces-cD xerces-c_3D)
 
+# Malmo-specific thing: on some platforms we need to manually install CodeSynthesis XSD and so the standard
+# exectable name is 'xsd' instead of 'xsdcxx'. On others, 'xsd' matches an executable in Mono
+# and so we have to avoid that.
+if( ( ${SYSTEM_NAME} MATCHES "^Linux-Ubuntu-14.04.*$" ) OR ( ${SYSTEM_NAME} MATCHES "^Linux-Debian-7\\..*$" ) )
+  set( EXTRA_XSD_EXECUTABLE_NAMES "xsd" )
+endif()
+
 # Try each search configuration.
 foreach(search ${_XSD_SEARCHES})
   find_path(XSD_INCLUDE_DIR NAMES xercesc ${${search}} PATH_SUFFIXES include)
-  FIND_PROGRAM(XSD_EXECUTABLE NAMES xsdcxx xsd.exe ${${search}} PATH_SUFFIXES bin)
+  FIND_PROGRAM(XSD_EXECUTABLE NAMES ${EXTRA_XSD_EXECUTABLE_NAMES} xsdcxx xsd.exe ${${search}} PATH_SUFFIXES bin)
 endforeach()
 
 # Allow XSD_LIBRARY to be set manually, as the location of the xsd library
