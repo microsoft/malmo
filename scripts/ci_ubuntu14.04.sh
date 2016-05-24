@@ -40,10 +40,9 @@ make
 
 # build Malmo:
 
-cd ~
-# git clone <MalmoURL> ~/malmo  (our CI environment does this for us)
-wget https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl -P ~/malmo/Schemas
-cd malmo
+# git clone <MalmoURL> ~/Microsoft/malmo  (our CI environment does this for us)
+wget https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl -P $TRAVIS_BUILD_DIR/Schemas
+cd $TRAVIS_BUILD_DIR
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
