@@ -1,4 +1,7 @@
+[![Build Status](https://travis-ci.com/Microsoft/malmo.svg?token=xWXBEKTH7JwN7NGQm8oB&branch=master)](https://travis-ci.com/Microsoft/malmo)
+
 # Malmo
+
 Project Malmo is a platform for Artificial Intelligence experimentation and research built on top of Minecraft. We aim to inspire a new generation of research into challenging new problems presented by this unique environment.
 
 ---
