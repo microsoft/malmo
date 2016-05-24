@@ -14,12 +14,12 @@ sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev lib
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 sudo update-ca-certificates -f
 
-# install Torch:
+# install Torch: (turned off because the script halts for confirmation of a step)
 
-git clone https://github.com/torch/distro.git ~/torch --recursive
-cd ~/torch; bash install-deps;
-./install.sh
-source ~/.bashrc
+#git clone https://github.com/torch/distro.git ~/torch --recursive
+#cd ~/torch; bash install-deps;
+#./install.sh
+#source ~/.bashrc
 
 # install CodeSynthesis XSD:
 
