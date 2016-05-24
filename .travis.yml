@@ -1,0 +1,25 @@
+sudo: required
+dist: trusty
+
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - libpython2.7-dev
+      - lua5.1
+      - liblua5.1-0-dev
+      - openjdk-7-jdk
+      - swig
+      - libxerces-c-dev
+      - doxygen
+      - xsltproc
+      - libav-tools 
+
+language: cpp
+
+compiler:  
+    - gcc
+
+script: scripts/ci_ubuntu14.04.sh 
+
+

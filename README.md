@@ -1,4 +1,7 @@
+[![Build Status](https://travis-ci.com/Microsoft/malmo.svg?token=xWXBEKTH7JwN7NGQm8oB&branch=master)](https://travis-ci.com/Microsoft/malmo)
+
 # Malmo
+
 Project Malmo is a platform for Artificial Intelligence experimentation and research built on top of Minecraft. We aim to inspire a new generation of research into challenging new problems presented by this unique environment.
 
 ---
@@ -116,25 +119,25 @@ Project Malmo is a platform for Artificial Intelligence experimentation and rese
 2. Install dependencies.
     1. On Ubuntu 15.10:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
     2. On Ubuntu 14.04:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
     3. On Debian 8:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
     4. On Debian 7:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`
          
