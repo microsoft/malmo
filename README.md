@@ -194,12 +194,11 @@ Project Malmo is a platform for Artificial Intelligence experimentation and rese
     3. `cd ~/MalmoPlatform`
     4. `mkdir build`
     5. `cd build`
-    6. On Debian 7 and Ubuntu 14.04 only: edit ~/MalmoPlatform/cmake/FindXSD.cmake and add 'xsd' to `FIND_PROGRAM(XSD_EXECUTABLE NAMES` on line 31.
-    7. For a Debug build: `cmake -DCMAKE_BUILD_TYPE=Debug ..`
+    6. For a Debug build: `cmake -DCMAKE_BUILD_TYPE=Debug ..`
        On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
-    8. For a Release build: `cmake -DCMAKE_BUILD_TYPE=Release ..`
+    7. For a Release build: `cmake -DCMAKE_BUILD_TYPE=Release ..`
        On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
-    9. `make`
+    8. `make`
 
 10. Test Malmo:
     1. After building: `ctest`
