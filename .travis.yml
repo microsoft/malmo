@@ -1,0 +1,11 @@
+sudo: required
+dist: trusty
+
+language: cpp
+
+compiler:  
+    - gcc
+
+script: scripts/ci_ubuntu14.04.sh 
+
+
