@@ -1135,6 +1135,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             // Make sure we have mouse control:
             ClientStateMachine.this.inputController.setInputType(InputType.AI);
+            Minecraft.getMinecraft().inGameHasFocus = true; // Otherwise auto-repeat won't work for mouse clicks.
         }
 
         protected void onMissionEnded(IState nextState)
