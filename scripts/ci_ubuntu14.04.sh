@@ -10,7 +10,7 @@ sudo apt-get update
 
 # install dependencies:
 
-sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools mono-devel
+sudo apt-get install mono-devel
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 sudo update-ca-certificates -f
 
