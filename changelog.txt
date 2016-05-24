@@ -1,3 +1,7 @@
+0.11.2?
+-------------------
+Fix: Issue 22 (attack auto-repeat not working if Minecraft hasn't had focus).
+
 0.11.1 (2016-05-20)
 -------------------
 Add: Login feature and UI required for authentication in multi-agent missions
