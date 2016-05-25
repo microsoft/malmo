@@ -13,7 +13,7 @@ sudo apt-get -qq update
 
 # install dependencies:
 
-sudo apt-get -y install libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools mono-devel
+sudo apt-get -y -q install libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools mono-devel
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
 sudo update-ca-certificates -f
 
@@ -22,8 +22,8 @@ sudo update-ca-certificates -f
 git clone https://github.com/torch/distro.git ~/torch --recursive
 cd ~/torch
 bash install-deps
-./install.sh -b
-source ~/.bashrc
+./install.sh -s
+install/bin/torch-activate
 
 # install CodeSynthesis XSD:
 
