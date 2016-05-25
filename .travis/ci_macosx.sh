@@ -9,8 +9,15 @@ set -o pipefail
 
 brew update
 brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c mono doxygen xsd
+brew install ffmpeg swig boost-python xerces-c doxygen
 sudo brew cask install java
+
+# mono and CodeSynthesis XSD both contain 'xsd' executables and we want the CodeSynthesis
+# one, so we force it:
+brew install xsd
+brew unlink xsd
+brew install mono
+brew link --overwrite xsd
 
 # build Malmo:
 
