@@ -51,6 +51,12 @@ namespace malmo
     
     void VideoServer::handleMessage( TimestampedUnsignedCharVector message )
     {
+        if (message.data.size() != this->width * this->height * this->channels) 
+        {
+            // Have seen this happen during stress testing when a reward packet from (I think) a previous mission arrives during the next
+            // one when the same port has been reassigned. Could throw here but chose to silently ignore since very rare.
+            return;
+        }
         TimestampedVideoFrame frame(this->width, this->height, this->channels, message, TimestampedVideoFrame::REVERSE_SCANLINE);
         this->handle_frame(frame);
         
