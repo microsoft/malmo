@@ -9,19 +9,16 @@ set -o pipefail
 
 brew update
 brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c mono
+brew install ffmpeg swig boost-python xerces-c mono doxygen xsd
+brew cask install java
 
-# install JDK: (TODO)
-
-# install CodeSynthesis XSD: (TODO)
-
-# build Malmo: (TODO)
+# build Malmo:
 
 # git clone <MalmoURL> $TRAVIS_BUILD_DIR  (our CI environment does this for us)
-#wget https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl -P $TRAVIS_BUILD_DIR/Schemas
-#cd $TRAVIS_BUILD_DIR
-#mkdir build
-#cd build
-#cmake -DXSD_INCLUDE_DIR=~/xsd-4.0.0-i686-macosx/libxsd/ ..
-#make
-#ctest -VV
+wget https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl -P $TRAVIS_BUILD_DIR/Schemas
+cd $TRAVIS_BUILD_DIR
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+ctest -VV
