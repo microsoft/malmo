@@ -68,7 +68,7 @@ else()
   set( LUABIND_ROOT_DIR ~/rpavlik-luabind/build/src )
   set( ALE_ROOT_DIR ~/ALE )
   find_package( Luabind REQUIRED )
-  find_package( Torch QUIET) 
+  find_package( Torch QUIET HINTS ~/torch/install/share/cmake/torch ) 
   if( NOT Torch_FOUND )
     # for now Torch is only available on Ubuntu and a few other platforms, so we warn but continue
     message( "" )

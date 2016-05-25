@@ -28,7 +28,7 @@ set(XSD_NAMES_DEBUG xerces-cD xerces-c_3D)
 # Malmo-specific thing: on some platforms we need to manually install CodeSynthesis XSD and so the standard
 # exectable name is 'xsd' instead of 'xsdcxx'. On others, 'xsd' matches an executable in Mono
 # and so we have to avoid that.
-if( ( ${SYSTEM_NAME} MATCHES "^Linux-Ubuntu-14.04.*$" ) OR ( ${SYSTEM_NAME} MATCHES "^Linux-Debian-7\\..*$" ) )
+if( ( ${SYSTEM_NAME} MATCHES "^Linux-Ubuntu-14.04.*$" ) OR ( ${SYSTEM_NAME} MATCHES "^Linux-Debian-7\\..*$" ) OR ( ${SYSTEM_NAME} STREQUAL "Mac-64bit" ) )
   set( EXTRA_XSD_EXECUTABLE_NAMES "xsd" )
 endif()
 

@@ -1,25 +1,15 @@
-sudo: required
-dist: trusty
-
-addons:
-  apt:
-    packages:
-      - libboost-all-dev
-      - libpython2.7-dev
-      - lua5.1
-      - liblua5.1-0-dev
-      - openjdk-7-jdk
-      - swig
-      - libxerces-c-dev
-      - doxygen
-      - xsltproc
-      - libav-tools 
-
 language: cpp
 
-compiler:  
-    - gcc
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      dist: trusty
+      compiler: gcc
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
 
-script: scripts/ci_ubuntu14.04.sh 
-
-
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then travis_wait 30 .travis/ci_macosx.sh      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_wait 30 .travis/ci_ubuntu14.04.sh ; fi
