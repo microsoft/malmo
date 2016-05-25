@@ -10,7 +10,7 @@ set -o pipefail
 brew update
 brew install boost --with-python
 brew install ffmpeg swig boost-python xerces-c mono doxygen xsd
-brew cask install java
+sudo brew cask install java
 
 # build Malmo:
 
