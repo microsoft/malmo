@@ -17,7 +17,7 @@ namespace malmo
     
     void ClientConnection::send( std::string message )
     {
-        this->io_service.post( boost::bind( &ClientConnection::writeImpl, this, message ) );
+        this->io_service.post( boost::bind( &ClientConnection::writeImpl, shared_from_this(), message ) );
     }
 
     ClientConnection::ClientConnection( boost::asio::io_service& io_service, std::string address, int port )
