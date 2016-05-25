@@ -11,5 +11,5 @@ matrix:
       compiler: clang
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then .travis/ci_ubuntu14.04.sh ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then .travis/ci_macosx.sh      ; fi
+  - travis_wait if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then .travis/ci_ubuntu14.04.sh ; fi
+  - travis_wait if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then .travis/ci_macosx.sh      ; fi
