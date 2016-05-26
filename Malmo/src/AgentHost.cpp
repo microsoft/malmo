@@ -311,7 +311,7 @@ namespace malmo
         }
         catch( std::exception&e ) {
             TimestampedString error_message( xml );
-            error_message.text = std::string("Error parsing mission control message XML: ") + e.what();
+            error_message.text = std::string("Error parsing mission control message as XML: ") + e.what() + ":\n" + xml.text + "\n";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -333,7 +333,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing mission control message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
+                oss << "Error parsing MissionInit message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
@@ -384,7 +384,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing mission control message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
+                oss << "Error parsing MissionEnded message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
