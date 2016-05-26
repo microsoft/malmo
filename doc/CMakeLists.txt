@@ -6,6 +6,9 @@ set( README_FILES
   readme.html
   ../changelog.txt
   ../MSR-LA_2772.pdf
+  install_linux.md
+  install_macosx.md
+  install_windows.md
 )
 
 # copy these files into the root of the distribution zip

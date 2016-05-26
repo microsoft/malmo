@@ -758,9 +758,10 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @CMAKE_SOURCE_DIR@/readme.md
-INPUT                 += @CMAKE_SOURCE_DIR@/doc/install_readme.md
-INPUT                 += @CMAKE_SOURCE_DIR@/doc/cmake_readme.md
+INPUT                  = @CMAKE_SOURCE_DIR@/doc/install_readme.md
+INPUT                 += @CMAKE_SOURCE_DIR@/doc/install_linux.md
+INPUT                 += @CMAKE_SOURCE_DIR@/doc/install_macosx.md
+INPUT                 += @CMAKE_SOURCE_DIR@/doc/install_windows.md
 INPUT                 += @CMAKE_SOURCE_DIR@/Malmo/src 
 
 # This tag can be used to specify the character encoding of the source files
