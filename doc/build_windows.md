@@ -1,0 +1,99 @@
+## Build on Windows: ##
+
+1. Install CMake:
+    1. Download and run e.g. `cmake-3.5.0-win32-x86.msi` from https://cmake.org/download/
+    2. If you are new to CMake, see [some notes](doc/cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
+
+2. Install FFMPEG: 
+    1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
+    2. Unpack the contents of the zip (bin folder etc.) to `C:\ffmpeg`
+    3. Add `C:\ffmpeg\bin` to your `PATH` ([How To](https://support.microsoft.com/en-us/kb/310519))
+    4. Check that typing `ffmpeg` at a command prompt works.
+
+3. Install git and Visual Studio and Python 2.7 (64-bit) and the JDK (64-bit). Hints:
+    1. Get the latest Windows git from https://git-scm.com/downloads
+    2. Check that git and msbuild and python are on your path.  
+       N.B. MSBuild lives in an odd place: e.g. `C:\Program Files (x86)\MSBuild\12.0\Bin`
+    3. Set JAVA_HOME to be the location of the JDK installation, e.g. `C:\Program Files\Java\jdk1.8.0_71`
+    4. Add e.g. `C:\Program Files\Java\jdk1.8.0_71\bin` to your PATH variable. ([How To](https://support.microsoft.com/en-us/kb/310519))
+    5. Check that `java -version` and `javac -version` and `set JAVA_HOME` all report the same 64-bit version.
+    
+4. Download and install Doxygen
+    1. Download e.g. `doxygen-1.8.11-setup.exe` from http://www.stack.nl/~dimitri/doxygen/download.html
+    2. Run the exe to install.
+
+5. Download and install ZLib
+    1. Download e.g. `zlib-1.2.8.zip` from http://zlib.net/
+    2. Extract to `C:\zlib-1.2.8\`
+    3. Open a Visual Studio 2013 x64 command prompt with Admin rights ([How-To](https://technet.microsoft.com/en-us/library/cc947813(v=ws.10).aspx))
+    4. `cd C:\zlib-1.2.8\`
+    5. `cmake -G "Visual Studio 12 2013 Win64" .`
+    6. `cmake --build . --config Debug --target install`
+    7. `cmake --build . --config Release --target install`
+    8. Add `C:\Program Files\zlib\bin` to your PATH ([How To](https://support.microsoft.com/en-us/kb/310519))
+
+6. Install and build Boost 1.59.0 or later:
+    1. Download e.g. `boost_1_59_0.zip` from http://boost.org
+    2. Extract to `c:\boost`
+    3. Open a Visual Studio 2013 x64 command prompt with Admin rights ([How-To](https://technet.microsoft.com/en-us/library/cc947813(v=ws.10).aspx))
+    4. e.g. `cd c:\boost\boost_1_59_0`
+    5. `bootstrap.bat`
+    6. `b2.exe toolset=msvc-12.0 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.8"`   
+    7. For more information on installing Boost with ZLib support, see [here](http://www.boost.org/doc/libs/1_59_0/libs/iostreams/doc/installation.html)
+
+7. Install SWIG
+    1. Browse to http://swig.org/download.html and download the latest version of `swigwin`.
+    2. Unzip the directory and copy it to your `C:\` drive.
+    3. Add (e.g.) `C:\swigwin-3.0.7` to your PATH. CMake should then find swig automatically.
+    
+8. Install CodeSynthesis XSD to its default location (`C:\Program Files (x86)\CodeSynthesis XSD 4.0\`):
+    1. Download from: http://www.codesynthesis.com/products/xsd/download.xhtml
+    2. Install to the default location. You don't need to set up the VS search paths.
+    
+9. Install xsltproc:
+    1. Visit ftp://ftp.zlatkovic.com/libxml/ and download libxslt, libxml2, zlib and iconv:
+        1. Download e.g. `libxslt-1.1.26.win32.zip` and extract to `C:\XSLT`
+        2. Download e.g. `libxml2-2.7.8.win32.zip` and extract to `C:\XSLT`
+        3. Download e.g. `zlib-1.2.5.win32.zip` and extract to `C:\XSLT`
+        4. Download e.g. `iconv-1.9.2.win32.zip` and extract to `C:\XSLT`
+    2. Add their `bin` folders to your PATH: ([How To](https://support.microsoft.com/en-us/kb/310519))
+        1. Add `C:\XSLT\libxslt-1.1.26.win32\bin` to your PATH.
+        2. Add `C:\XSLT\libxml2-2.7.8.win32\bin` to your PATH.
+        3. Add `C:\XSLT\iconv-1.9.2.win32\bin` to your PATH.
+    3. Copy `C:\XSLT\zlib-1.2.5\bin\zlib1.dll` to `C:\XSLT\libxslt-1.1.26.win32\bin`
+    4. Check that running `xsltproc` from a new command prompt works, printing the options.
+
+10. Install the SlimDX SDK:
+    1. Visit https://slimdx.org/download.php and download the SDK.
+
+11. Build Malmo:
+    1. `mkdir MalmoPlatform` (wherever you want)
+    2. `cd MalmoPlatform`
+    3. `git clone <MALMO_URL> .`
+    4. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl to the Schemas folder.
+    5. `mkdir build`
+    6. `cd build`
+    7. `cmake -G "Visual Studio 12 2013 Win64" ..`
+    8. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
+       If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
+    9. For a Debug build: `msbuild Malmo.sln`  
+       For a Release build: `msbuild Malmo.sln /p:Configuration=Release`  
+       Or open `Malmo.sln` in Visual Studio.
+ 
+12. Test Malmo:
+    1. After building Debug: `ctest -C Debug`
+    2. After building Release: `ctest -C Release`
+    3. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
+    4. Add `-VV` to get verbose output.
+    5. For testing the scripts and samples: `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
+
+13. Make a distributable:
+    1. Run all the tests.
+    2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
+    3. (If a core dev) Tag the git commit:
+    
+       `git tag -a v0.1.1 -m "Version 0.1.1"`
+       
+       `git push origin v0.1.1`
+
+    4. `msbuild PACKAGE.vcxproj /p:Configuration=Release`
