@@ -1,4 +1,4 @@
-## Installing on Linux ##
+## Installing dependencies for Linux ##
 
 For a minimal installation of running a python agent, follow steps 1 and 3. Then see the Getting Started section below.
 
@@ -20,7 +20,7 @@ Then:
 
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
-### 2. Install Torch: ###
+### 2. Optional: Install Torch: ###
 
 If you don't want to use Malmo from Torch then you can skip this step.
 
@@ -28,13 +28,13 @@ Follow the instructions at http://torch.ch/docs/getting-started.html
 
 Check that typing `th` works.
 
-### 3. Install Mono: ###
+### 3. Optional: Install Mono: ###
 
 If you don't want to use Malmo from C# then you can skip this step.
 
 Follow the instructions here: http://www.mono-project.com/docs/getting-started/install/linux/
 
-### 4. Install ALE: ###
+### 4. Optional: Install ALE: ###
 
 If you want to use the Atari Learning Environment as an alternative back-end to Minecraft, you need a build that includes "_withALE"
 and will need to install ALE as described here. If you don't want to use ALE then use a build that doesn't have "_withALE".
