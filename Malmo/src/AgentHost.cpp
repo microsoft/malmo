@@ -311,7 +311,7 @@ namespace malmo
         }
         catch( std::exception&e ) {
             TimestampedString error_message( xml );
-            error_message.text = std::string("Error parsing mission control message as XML: ") + e.what() + ":\n" + xml.text + "\n";
+            error_message.text = std::string("Error parsing mission control message as XML: ") + e.what() + ":\n" + xml.text.substr(0,20) + "...\n";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -333,7 +333,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing MissionInit message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
+                oss << "Error parsing MissionInit message XML: " << e.what() << "\n" << e << ":\n" << xml.text.substr(0, 20) << "...\n";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
@@ -384,7 +384,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing MissionEnded message XML: " << e.what() << "\n" << e << "\n" << xml.text << "\n";
+                oss << "Error parsing MissionEnded message XML: " << e.what() << "\n" << e << ":\n" << xml.text.substr(0, 20) << "...\n";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
@@ -398,7 +398,7 @@ namespace malmo
         }
         else {
             TimestampedString error_message( xml );
-            error_message.text = "Unknown mission control message root node or at wrong time: " + root_node_name + " : " + xml.text;
+            error_message.text = "Unknown mission control message root node or at wrong time: " + root_node_name + " :\n" + xml.text.substr(0, 200) + "...\n";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -471,7 +471,7 @@ namespace malmo
         }
         catch( std::exception&e ) {
             TimestampedString error_message( json );
-            error_message.text = std::string("Error parsing reward JSON: ") + e.what();
+            error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":\n" + json.text.substr(0, 20) + "...\n";
             this->world_state->errors.push_back( error_message );
             return;
         }
