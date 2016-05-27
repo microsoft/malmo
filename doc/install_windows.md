@@ -1,4 +1,4 @@
-## Installing on Windows ##
+## Installing dependencies on Windows ##
 
 For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 6 and 7. Then see the Getting Started section below.
 
@@ -27,7 +27,7 @@ Run the downloaded file to install CodeSynthesis.
 
 ### 4. Install Python: ###
 
-If you don't want to use Malmo from Python then you can skip this step.
+If you don't want to use Malmo from Python then you can skip this step. But for testing your installation we recommend installing python.
 
 Visit https://www.python.org/ and download the latest version of Python 2.7 32-bit. e.g. `python-2.7.11.msi`
 
@@ -35,7 +35,7 @@ Run the downloaded file to install Python.
 
 Check that typing `python` works in a command prompt. You may need to add e.g. `C:\Python27` to your PATH.
 
-### 5. Install Lua: ###
+### 5. Optional: Install Lua: ###
 
 If you don't want to use Malmo from Lua then you can skip this step.
 
@@ -73,13 +73,13 @@ Visit: https://www.microsoft.com/en-us/download/details.aspx?id=40784
 
 Download `vcredist_x64.exe` and run.
 
-### 8. Install the dotNET runtime: ###
+### 8. Optional: Install the dotNET runtime: ###
 
 If you don't want to use Malmo from C# then you can skip this step.
 
 Visit https://www.microsoft.com/net to download and install the latest dotNET framework.
 
-### 9. Install SlimDX: ###
+### 9. Optional: Install SlimDX: ###
 
 If you don't want to use the Human Action component then you can skip this step.
 
