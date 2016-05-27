@@ -9,7 +9,7 @@ the jar file in this folder.
    Visit http://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.8.html
    and download version 11.14.3.1543 for your platform. Select 'install client' when it asks.
    Detailed instructions: http://www.minecraftforge.net/wiki/Main_Page
-3. Copy the .jar file in this folder to (on Windows) C:\Users\${USER}\AppData\Roaming\.minecraft\mods
+3. Copy the .jar file in this folder to (on Windows) `C:\Users\${USER}\AppData\Roaming\.minecraft\mods`
    or similar for your platform.
 4. Launch Minecraft through the standard Minecraft launcher (not launchClient) and log in.
    Make sure you select the forge profile in the launcher.
