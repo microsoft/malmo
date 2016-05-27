@@ -4,7 +4,7 @@
     
 2. Install dependencies:
     1. `brew install boost --with-python`
-    2. `brew install boost-python ffmpe xerces-c mono`
+    2. `brew install boost-python ffmpeg xerces-c mono`
     6. `sudo brew cask install java`
 
 These instructions were tested on MacOSX 10.11 (El Capitan). 
