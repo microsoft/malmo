@@ -820,6 +820,7 @@ EXCLUDE_PATTERNS      += */Malmo/src/*TCP*.h
 EXCLUDE_PATTERNS      += */Malmo/src/MissionInitSpec.h
 EXCLUDE_PATTERNS      += */Malmo/src/*FrameWriter.h
 EXCLUDE_PATTERNS      += */Malmo/src/MissionRecord.h
+EXCLUDE_PATTERNS      += */Malmo/src/ClientConnection.h
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
