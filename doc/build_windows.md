@@ -32,7 +32,7 @@
     7. `cmake --build . --config Release --target install`
     8. Add `C:\Program Files\zlib\bin` to your PATH ([How To](https://support.microsoft.com/en-us/kb/310519))
 
-6. Install and build Boost 1.59.0 or later:
+6. Install and build Boost 1.59.0 or later: (NOTE - if you have Python31 installed, ensure that it isn't picked up by the boost build - make sure it comes _after_ Python27 in your path)
     1. Download e.g. `boost_1_59_0.zip` from http://boost.org
     2. Extract to `c:\boost`
     3. Open a Visual Studio 2013 x64 command prompt with Admin rights ([How-To](https://technet.microsoft.com/en-us/library/cc947813(v=ws.10).aspx))
