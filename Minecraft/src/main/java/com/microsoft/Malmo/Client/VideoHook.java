@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
@@ -45,24 +47,24 @@ public class VideoHook {
      * MissionInit object for passing to the IVideoProducer.
      */
     private MissionInit missionInit;
-    
+
     /**
      * Object that will provide the actual video frame on demand.
      */
     private IVideoProducer videoProducer;
-    
+
     /**
      * Public count of consecutive TCP failures - used to terminate a mission if nothing is listening
      */
     public int failedTCPSendCount = 0;
-    
-	/**
-	 * Object which maintains our connection to the agent.
-	 */
-	private TCPSocketHelper.SocketChannelHelper connection = null;
+
+    /**
+     * Object which maintains our connection to the agent.
+     */
+    private TCPSocketHelper.SocketChannelHelper connection = null;
 
     ByteBuffer buffer = null;
-    
+
     /**
      * Resize the rendering and start sending video over TCP.
      */
@@ -78,25 +80,35 @@ public class VideoHook {
         this.videoProducer = videoProducer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
 
-        int width = videoProducer.getWidth(missionInit);
-        int height = videoProducer.getHeight(missionInit);
-        forceResize(width, height);
-        Display.setResizable(false); 
-        // We attempt to prevent the window from being resizing during a mission 
-        // because it would degrade the video quality since the rendered image would
-        // be squashed.
-        // TODO: Prevent F11 from making full-screen while a mission is running.
+        // resize the window if we need to
+        int oldRenderWidth = Display.getWidth(); 
+        int oldRenderHeight = Display.getHeight(); 
+        int renderWidth = videoProducer.getWidth(missionInit);
+        int renderHeight = videoProducer.getHeight(missionInit);
+        if( renderWidth != oldRenderWidth || renderHeight != oldRenderHeight )
+        {
+            try {
+                Display.setDisplayMode(new DisplayMode(renderWidth, renderHeight));
+                System.out.println("Resized the window");
+            } catch (LWJGLException e) {
+                System.out.println("Failed to resize the window!");
+                e.printStackTrace();
+            }
+            forceResize(renderWidth, renderHeight);
+        }
+        Display.setResizable(false); // prevent the user from resizing using the window borders
+        // (TODO: prevent F11 and minimize-restore too)
 
         ClientAgentConnection cac = missionInit.getClientAgentConnection();
         if (cac == null)
-        	return;	// Don't start up if we don't have any connection details.
+            return;	// Don't start up if we don't have any connection details.
 
         String agentIPAddress = cac.getAgentIPAddress();
         int agentPort = cac.getAgentVideoPort();
 
         this.connection = new TCPSocketHelper.SocketChannelHelper(agentIPAddress, agentPort);
         this.failedTCPSendCount = 0;
-        
+
         try
         {
             MinecraftForge.EVENT_BUS.register(this);
@@ -118,8 +130,8 @@ public class VideoHook {
             return;
         }
         if (this.videoProducer != null)
-        	this.videoProducer.cleanup();
-        
+            this.videoProducer.cleanup();
+
         // stop sending video frames
         try
         {
@@ -132,7 +144,7 @@ public class VideoHook {
         // Close our TCP socket:
         this.connection.close();
         this.isRunning = false;
-        
+
         // allow the user to resize the window again
         Display.setResizable(true);
     }
@@ -166,8 +178,8 @@ public class VideoHook {
             float ms_send = (time_after_ns - time_after_render_ns) / 1000000.0f;
             float ms_render = (time_after_render_ns - time_before_ns) / 1000000.0f;
             this.failedTCPSendCount = 0;    // Reset count of failed sends.
-//            System.out.format("Total: %.2fms; collecting took %.2fms; sending %d bytes took %.2fms\n", ms_send + ms_render, ms_render, size, ms_send);
-//            System.out.println("Collect: " + ms_render + "; Send: " + ms_send);
+            //            System.out.format("Total: %.2fms; collecting took %.2fms; sending %d bytes took %.2fms\n", ms_send + ms_render, ms_render, size, ms_send);
+            //            System.out.println("Collect: " + ms_render + "; Send: " + ms_send);
         }
         catch (Exception e)
         {
@@ -225,4 +237,4 @@ public class VideoHook {
             e.printStackTrace();
         }
     }
- }
+}
