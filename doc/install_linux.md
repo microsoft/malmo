@@ -47,9 +47,12 @@ and will need to install ALE as described here. If you don't want to use ALE the
 
 Then:
 
-`cd ~/ALE`
-`cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`
-`make`
+```
+cd ~/ALE
+git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .
+cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .
+make
+```
 
 (If you don't want a GUI, use `-DUSE_SDL=OFF`, or leave it unspecified - it's off by default.)
 
