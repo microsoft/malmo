@@ -333,7 +333,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing MissionInit message XML: " << e.what() << "\n" << e << ":\n" << xml.text.substr(0, 20) << "...\n";
+                oss << "Error parsing MissionInit message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
@@ -384,7 +384,7 @@ namespace malmo
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing MissionEnded message XML: " << e.what() << "\n" << e << ":\n" << xml.text.substr(0, 20) << "...\n";
+                oss << "Error parsing MissionEnded message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state->errors.push_back(error_message);
@@ -398,7 +398,7 @@ namespace malmo
         }
         else {
             TimestampedString error_message( xml );
-            error_message.text = "Unknown mission control message root node or at wrong time: " + root_node_name + " :\n" + xml.text.substr(0, 200) + "...\n";
+            error_message.text = "Unknown mission control message root node or at wrong time: " + root_node_name + " :" + xml.text.substr(0, 200) + "...";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -471,7 +471,7 @@ namespace malmo
         }
         catch( std::exception&e ) {
             TimestampedString error_message( json );
-            error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":\n" + json.text.substr(0, 20) + "...\n";
+            error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -482,7 +482,7 @@ namespace malmo
             reward.value = pt.get<float>( "Reward" );
         } catch( std::exception& e ) {
             TimestampedString error_message( json );
-            error_message.text = std::string("Error retrieving reward value from JSON: ") + e.what();
+            error_message.text = std::string("Error retrieving reward value from JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
             this->world_state->errors.push_back( error_message );
             return;
         }
@@ -535,15 +535,30 @@ namespace malmo
     void AgentHost::sendCommand(std::string command)
     {
         if( !this->commands_connection ) {
-            throw std::runtime_error( "AgentHost::sendCommand : commands connection is not open. Is the mission running?" );
+            TimestampedString error_message(
+                boost::posix_time::microsec_clock::universal_time(),
+                "AgentHost::sendCommand : commands connection is not open. Is the mission running?"
+                );
+            this->world_state->errors.push_back(error_message);
+            return;
+        }
+
+        try {
+            this->commands_connection->send(command);
+        }
+        catch (const std::runtime_error& e) {
+            TimestampedString error_message(
+                boost::posix_time::microsec_clock::universal_time(),
+                "AgentHost::sendCommand : failed to send command: " + std::string(e.what())
+                );
+            this->world_state->errors.push_back( error_message );
+            return;
         }
 
         if (this->commands_stream.is_open()){
             std::string timestamp = boost::posix_time::to_iso_string(boost::posix_time::microsec_clock::universal_time());
             this->commands_stream << timestamp << " " << command << std::endl;
         }
-        
-        this->commands_connection->send( command );
     }
 
     boost::shared_ptr<MissionInitSpec> AgentHost::getMissionInit()

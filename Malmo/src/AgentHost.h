@@ -84,7 +84,6 @@ namespace malmo
             void setObservationsPolicy(ObservationsPolicy observationsPolicy);
             
             //! Sends a command to the game client.
-            //! If the send fails it will throw an exception which you should catch since often it just means that the mission has ended since the last time you checked.
             //! See the mission handlers documentation for the permitted commands for your chosen command handler.
             //! \param command The command to send as a string. e.g. "move 1"
             void sendCommand(std::string command);
