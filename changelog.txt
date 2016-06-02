@@ -2,6 +2,7 @@
 -------------------
 Fix: Issue 22 (attack auto-repeat not working if Minecraft hasn't had focus).
 Fix: Issue 33 (framerate slowdown after 500+ missions).
+Fix: Issue 37 (occasional messages lost because two servers listening on same port).
 
 0.11.1 (2016-05-20)
 -------------------

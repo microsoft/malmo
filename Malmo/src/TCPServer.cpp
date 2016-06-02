@@ -112,6 +112,6 @@ namespace malmo
     void TCPServer::bindToPort(boost::asio::io_service& io_service, int port)
     {
         tcp::endpoint endpt = tcp::endpoint( tcp::v4(), port );
-        this->acceptor = boost::make_shared< tcp::acceptor >( io_service, endpt );
+        this->acceptor = boost::make_shared< tcp::acceptor >(io_service, endpt, false);
     }
 }
