@@ -28,7 +28,7 @@ We're building up a [Troubleshooting](https://github.com/Microsoft/malmo/wiki/Tr
 
 ----
 
-### Launching Minecraft with our Mod: ###
+## Launching Minecraft with our Mod: ##
 
 Minecraft needs to create windows and render to them with OpenGL, so the machine you do this from must have a desktop environment.
 
@@ -54,7 +54,7 @@ a machine for network use these TCP ports should be open.
 
 ----
 
-### Launch an agent: ###
+## Launch an agent: ##
 
 #### Running a Python agent: ####
 
