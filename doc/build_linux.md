@@ -82,7 +82,7 @@
        
 10. Build Malmo:
     1. `git clone <MALMO_URL> ~/MalmoPlatform`
-    2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl -P ~/MalmoPlatform/Schemas`
+    2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. `cd ~/MalmoPlatform`
     4. `mkdir build`
     5. `cd build`

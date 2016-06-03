@@ -40,7 +40,7 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
        (or to whatever destination folder you prefer)
 
 11. Install xs3p stylesheet:
-    1. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/master/xs3p.xsl to the Schemas folder.  
+    1. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.  
        (License: https://github.com/bitfehler/xs3p )
 
 12. Build Malmo:
