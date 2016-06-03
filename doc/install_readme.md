@@ -25,7 +25,7 @@ Go to the folder where you unzipped the release, then:
 
 `cd Minecraft`
 
-`launchClient` (On Windows)
+`launchClient` (On Windows)  
 `./launchClient.sh` (On Linux or MacOSX)
 
 or, e.g. `launchClient -port 10001` to launch Minecraft on a specific port.
@@ -51,6 +51,8 @@ a machine for network use these TCP ports should be open.
 `cd Python_Examples`
 
 `python run_mission.py`
+
+On MacOSX we currently only support the system python, so please use `/usr/bin/python run_mission.py` if it is not the default. 
 
 #### Running a Lua agent: ####
 
