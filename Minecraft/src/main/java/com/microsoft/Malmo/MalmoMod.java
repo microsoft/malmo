@@ -46,7 +46,7 @@ import com.microsoft.Malmo.Utils.ScreenHelper;
 public class MalmoMod
 {
     public static final String MODID = "malmomod";
-    public static final String VERSION = "0.11.1"; // N.B. Check that this version number matches the one in the root CMakeLists.txt
+    public static final String VERSION = "0.11.2"; // N.B. Check that this version number matches the one in the root CMakeLists.txt
     public static final String SOCKET_CONFIGS = "malmoports";
     public static final String DIAGNOSTIC_CONFIGS = "malmodiags";
     public static final String AUTHENTICATION_CONFIGS = "malmologins";
