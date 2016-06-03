@@ -123,7 +123,7 @@ eg:
 
 ## Next steps ##
 
-1. Explore the samples. 
-2. Follow the Tutorial in Python_Examples/Tutorial.pdf
-3. Explore the documentation. The 'Classes' tab above explains the API and the mission format.
+1. Explore the samples. You'll find most of them in the Python_Examples folder.
+2. Follow the Tutorial in [Python_Examples/Tutorial.pdf](../Python_Examples/Tutorial.pdf)
+3. Explore the documentation. The '[Classes](annotated.html)' tab above explains the API and the mission format is documented in the [Schemas folder](../Schemas/Mission.html).
 4. Report any problems. Please keep in touch at the web address above.
