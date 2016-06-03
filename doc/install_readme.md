@@ -124,5 +124,6 @@ eg:
 ## Next steps ##
 
 1. Explore the samples. 
-2. Explore the documentation. The 'Classes' tab above explains the API and the mission format.
-3. Report any problems. Please keep in touch at the web address above.
+2. Follow the Tutorial in Python_Examples/Tutorial.pdf
+3. Explore the documentation. The 'Classes' tab above explains the API and the mission format.
+4. Report any problems. Please keep in touch at the web address above.
