@@ -1,6 +1,6 @@
 0.11.3?
 -------------------
-Fix: Issue 40 (added tostring() methods to Lua classes).
+Fix: Issue 40 (added tostring() methods to Lua and Python classes).
 
 0.11.2 (2016-06-06)
 -------------------
