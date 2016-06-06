@@ -37,7 +37,7 @@ namespace malmo
             , agent_observations_port
             , agent_rewards_port
             );
-		this->mission_init = boost::make_shared<MissionInit>(
+        this->mission_init = boost::make_shared<MissionInit>(
               *mission_spec.mission
             , unique_experiment_id
             , role

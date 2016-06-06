@@ -111,18 +111,18 @@ namespace malmo
 
     std::ostream& operator<<(std::ostream& os, const MissionRecordSpec& msp)
     {
-	os << "MissionRecordSpec: ";
+        os << "MissionRecordSpec: ";
         os << "Recording? " << (msp.is_recording ? "Yes" : "No");
-	if (msp.is_recording_mp4)
-	   os << "\n  -MP4 (bitrate: " << msp.mp4_bit_rate << ", fps: " << msp.mp4_fps << ")";
-	if (msp.is_recording_observations)
-           os << "\n  -observations";
-	if (msp.is_recording_rewards)
-	   os << "\n  -rewards";
-	if (msp.is_recording_commands)
-	   os << "\n  -commands";
-	if (msp.destination.length())
-	   os << "\n to: " << msp.destination;
-    	return os;
+        if (msp.is_recording_mp4)
+            os << "\n  -MP4 (bitrate: " << msp.mp4_bit_rate << ", fps: " << msp.mp4_fps << ")";
+        if (msp.is_recording_observations)
+            os << "\n  -observations";
+        if (msp.is_recording_rewards)
+            os << "\n  -rewards";
+        if (msp.is_recording_commands)
+            os << "\n  -commands";
+        if (msp.destination.length())
+            os << "\n to: " << msp.destination;
+        return os;
     }
 }

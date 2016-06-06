@@ -441,8 +441,8 @@ namespace malmo
 
     std::ostream& operator<<(std::ostream& os, const MissionSpec& ms)
     {
-	os << "MissionSpec:\n";
-	os << ms.getAsXML(true);
-	return os;
+        os << "MissionSpec:\n";
+        os << ms.getAsXML(true);
+        return os;
     }
 }

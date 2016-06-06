@@ -25,9 +25,10 @@ namespace malmo
     {
         return this->text == other.text && this->timestamp == other.timestamp;
     }
+
     std::ostream& operator<<(std::ostream& os, const TimestampedString& tss)
     {
-	os << "TimestampedString: " << to_simple_string(tss.timestamp) << ", " << tss.text;
-	return os;
+        os << "TimestampedString: " << to_simple_string(tss.timestamp) << ", " << tss.text;
+        return os;
     }
 }

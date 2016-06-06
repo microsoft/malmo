@@ -14,15 +14,15 @@ namespace malmo
     }
     std::ostream& operator<<(std::ostream& os, const ClientPool& cp)
     {
-	os << "ClientPool";
-	if (cp.clients.size())
+        os << "ClientPool";
+        if (cp.clients.size())
             os << ":";
-	else
-	    os << " (empty)";
-	for (auto ci : cp.clients)
-	{
+        else
+            os << " (empty)";
+        for (auto ci : cp.clients)
+        {
             os << "\n    " << ci;
-	}
-	return os;
+        }
+        return os;
     }
 }

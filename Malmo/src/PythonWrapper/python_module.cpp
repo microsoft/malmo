@@ -26,6 +26,7 @@ using namespace malmo;
 // Python:
 #include <datetime.h>
 
+
 // Converts a python list to a vector of strings. Throws a python exception if the conversion fails.
 std::vector< std::string > listToStrings( const boost::python::list& list )
 {

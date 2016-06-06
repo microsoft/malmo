@@ -26,7 +26,7 @@ namespace malmo{
 
     std::ostream& operator<<(std::ostream& os, const ClientInfo& ci)
     {
-	os << "ClientInfo: " << ci.ip_address << ":" << ci.port;
-	return os;
+        os << "ClientInfo: " << ci.ip_address << ":" << ci.port;
+        return os;
     }
 }

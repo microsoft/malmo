@@ -16,7 +16,7 @@ namespace malmo
 
     std::ostream& operator<<(std::ostream& os, const TimestampedFloat& tsf)
     {
-	os << "TimestampedFloat: " << to_simple_string(tsf.timestamp) << ", " << tsf.value;
-	return os;
+        os << "TimestampedFloat: " << to_simple_string(tsf.timestamp) << ", " << tsf.value;
+        return os;
     }
 }

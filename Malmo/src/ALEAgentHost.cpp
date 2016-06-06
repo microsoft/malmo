@@ -44,7 +44,7 @@ namespace malmo
 
     ALEAgentHost::~ALEAgentHost()
     {
-    	this->close();
+        this->close();
     }
 
     void ALEAgentHost::startMission(const MissionSpec& mission, const MissionRecordSpec& mission_record)
@@ -70,7 +70,7 @@ namespace malmo
         this->ale_interface->loadROM(unique_experiment_id);
 
         if (this->video_frame_writer)
-        	this->video_frame_writer->open();
+            this->video_frame_writer->open();
     }
     
     void ALEAgentHost::initialize(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id)
@@ -81,9 +81,9 @@ namespace malmo
 
         if (mission.isVideoRequested(this->current_role) && this->current_mission_record->isRecordingMP4())
         {
-        	this->requested_width = mission.getVideoWidth(0);
-        	this->requested_height = mission.getVideoHeight(0);
-        	this->video_frame_writer = VideoFrameWriter::create(this->current_mission_record->getMP4Path(), this->requested_width, this->requested_height, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+            this->requested_width = mission.getVideoWidth(0);
+            this->requested_height = mission.getVideoHeight(0);
+            this->video_frame_writer = VideoFrameWriter::create(this->current_mission_record->getMP4Path(), this->requested_width, this->requested_height, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
         }
 
         if (this->commands_stream.is_open()){
@@ -133,17 +133,17 @@ namespace malmo
         }
 
         if (this->reward_stream.is_open()){
-        	this->reward_stream.close();
+            this->reward_stream.close();
         }
 
         if (this->video_frame_writer && this->video_frame_writer->isOpen())
-        	this->video_frame_writer->close();
+            this->video_frame_writer->close();
     }
 
     void ALEAgentHost::onVideo(TimestampedVideoFrame message)
     {
-    	if (this->video_frame_writer)
-    		this->video_frame_writer->write(message);
+        if (this->video_frame_writer)
+            this->video_frame_writer->write(message);
 
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
@@ -167,7 +167,7 @@ namespace malmo
        
         if (this->reward_stream && this->reward_stream.is_open())
         {
-        	this->reward_stream  << boost::posix_time::to_iso_string(reward.timestamp) << " " << reward.value << std::endl;
+            this->reward_stream  << boost::posix_time::to_iso_string(reward.timestamp) << " " << reward.value << std::endl;
         }
 
         switch( this->rewards_policy )
@@ -212,36 +212,36 @@ namespace malmo
     
     void ALEAgentHost::sendCommand(std::string command)
     {
-    	/*
-			PLAYER_A_NOOP           = 0,
-			PLAYER_A_FIRE           = 1,
-			PLAYER_A_UP             = 2,
-			PLAYER_A_RIGHT          = 3,
-			PLAYER_A_LEFT           = 4,
-			PLAYER_A_DOWN           = 5,
-			PLAYER_A_UPRIGHT        = 6,
-			PLAYER_A_UPLEFT         = 7,
-			PLAYER_A_DOWNRIGHT      = 8,
-			PLAYER_A_DOWNLEFT       = 9,
-			PLAYER_A_UPFIRE         = 10,
-			PLAYER_A_RIGHTFIRE      = 11,
-			PLAYER_A_LEFTFIRE       = 12,
-			PLAYER_A_DOWNFIRE       = 13,
-			PLAYER_A_UPRIGHTFIRE    = 14,
-			PLAYER_A_UPLEFTFIRE     = 15,
-			PLAYER_A_DOWNRIGHTFIRE  = 16,
-			PLAYER_A_DOWNLEFTFIRE   = 17,
-    	 */
-    	Action a = (Action)::atoi(command.c_str());
+        /*
+            PLAYER_A_NOOP           = 0,
+            PLAYER_A_FIRE           = 1,
+            PLAYER_A_UP             = 2,
+            PLAYER_A_RIGHT          = 3,
+            PLAYER_A_LEFT           = 4,
+            PLAYER_A_DOWN           = 5,
+            PLAYER_A_UPRIGHT        = 6,
+            PLAYER_A_UPLEFT         = 7,
+            PLAYER_A_DOWNRIGHT      = 8,
+            PLAYER_A_DOWNLEFT       = 9,
+            PLAYER_A_UPFIRE         = 10,
+            PLAYER_A_RIGHTFIRE      = 11,
+            PLAYER_A_LEFTFIRE       = 12,
+            PLAYER_A_DOWNFIRE       = 13,
+            PLAYER_A_UPRIGHTFIRE    = 14,
+            PLAYER_A_UPLEFTFIRE     = 15,
+            PLAYER_A_DOWNRIGHTFIRE  = 16,
+            PLAYER_A_DOWNLEFTFIRE   = 17,
+         */
+        Action a = (Action)::atoi(command.c_str());
 
-		boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
-		std::string timestamp = boost::posix_time::to_iso_string(ts);
-		this->commands_stream << timestamp << " " << command << std::endl;
-		float reward = this->ale_interface->act(a);
-		TimestampedFloat tsreward;
-		tsreward.timestamp = ts;
-		tsreward.value = reward;
-		onReward(tsreward);
+        boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
+        std::string timestamp = boost::posix_time::to_iso_string(ts);
+        this->commands_stream << timestamp << " " << command << std::endl;
+        float reward = this->ale_interface->act(a);
+        TimestampedFloat tsreward;
+        tsreward.timestamp = ts;
+        tsreward.value = reward;
+        onReward(tsreward);
 
         // Get the video frame:
         const ALEScreen& screen = this->ale_interface->getScreen();
@@ -257,9 +257,9 @@ namespace malmo
         int actual_height = screen.height();
 
         int pixels = requested_width * requested_height;
-		tsframe.pixels.resize(3 * pixels);
-		// AleInterfrace.getScreenRGB has a stupid bug whereby it only returns the top third of the screen,
-		// so we need to do this manually.
+        tsframe.pixels.resize(3 * pixels);
+        // AleInterfrace.getScreenRGB has a stupid bug whereby it only returns the top third of the screen,
+        // so we need to do this manually.
         // We also do the scaling at the same time, using nearest-neighbour for speed.
         double actual_to_requested_height = (double)requested_height / (double)actual_height;
         double actual_to_requested_width = (double)requested_width / (double)actual_width;
@@ -281,9 +281,9 @@ namespace malmo
                         int srcx = (int)((double)dstx * requested_to_actual_width);
                         unsigned int pix = this->ale_interface->theOSystem->colourPalette().getRGB(screen.getArray()[srcx + srcy * actual_width]);
                         int i = 3 * (dstx + dsty* requested_width);
-                        tsframe.pixels[i] = (unsigned char)(pix >> 16); 	// red
-                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8); 	// green
-                        tsframe.pixels[i + 2] = (unsigned char)pix;			// blue
+                        tsframe.pixels[i] = (unsigned char)(pix >> 16);     // red
+                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8);  // green
+                        tsframe.pixels[i + 2] = (unsigned char)pix;         // blue
                     }
                 }
                 else
@@ -294,9 +294,9 @@ namespace malmo
                         int dstx = (int)((double)srcx * actual_to_requested_width);
                         unsigned int pix = this->ale_interface->theOSystem->colourPalette().getRGB(screen.getArray()[srcx + srcy * actual_width]);
                         int i = 3 * (dstx + dsty* requested_width);
-                        tsframe.pixels[i] = (unsigned char)(pix >> 16); 	// red
-                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8); 	// green
-                        tsframe.pixels[i + 2] = (unsigned char)pix;			// blue
+                        tsframe.pixels[i] = (unsigned char)(pix >> 16);     // red
+                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8);  // green
+                        tsframe.pixels[i + 2] = (unsigned char)pix;         // blue
                     }
                 }
             }
@@ -316,9 +316,9 @@ namespace malmo
                         int srcx = (int)((double)dstx * requested_to_actual_width);
                         unsigned int pix = this->ale_interface->theOSystem->colourPalette().getRGB(screen.getArray()[srcx + srcy * actual_width]);
                         int i = 3 * (dstx + dsty* requested_width);
-                        tsframe.pixels[i] = (unsigned char)(pix >> 16); 	// red
-                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8); 	// green
-                        tsframe.pixels[i + 2] = (unsigned char)pix;			// blue
+                        tsframe.pixels[i] = (unsigned char)(pix >> 16);     // red
+                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8);  // green
+                        tsframe.pixels[i + 2] = (unsigned char)pix;         // blue
                     }
                 }
                 else
@@ -329,18 +329,18 @@ namespace malmo
                         int dstx = (int)((double)srcx * actual_to_requested_width);
                         unsigned int pix = this->ale_interface->theOSystem->colourPalette().getRGB(screen.getArray()[srcx + srcy * actual_width]);
                         int i = 3 * (dstx + dsty* requested_width);
-                        tsframe.pixels[i] = (unsigned char)(pix >> 16); 	// red
-                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8); 	// green
-                        tsframe.pixels[i + 2] = (unsigned char)pix;			// blue
+                        tsframe.pixels[i] = (unsigned char)(pix >> 16);     // red
+                        tsframe.pixels[i + 1] = (unsigned char)(pix >> 8);  // green
+                        tsframe.pixels[i + 2] = (unsigned char)pix;         // blue
                     }
                 }
             }
         }
-	onVideo(tsframe);
+        onVideo(tsframe);
 
-	// Is the game still running, or did we just die?
-  	if (this->ale_interface->game_over())
-	    this->close();
+        // Is the game still running, or did we just die?
+        if (this->ale_interface->game_over())
+            this->close();
     }
 
     std::ostream& operator<<(std::ostream& os, const ALEAgentHost& agent_host)

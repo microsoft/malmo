@@ -69,13 +69,13 @@ while world_state.is_mission_running do
     world_state = agent_host:getWorldState()
     print(world_state)
     for reward in world_state.rewards do
-	print(reward)
+        print(reward)
     end
     for frame in world_state.video_frames do
-	print(frame)
+        print(frame)
     end
     for obs in world_state.observations do
-	print(obs)
+        print(obs)
     end
     for error in world_state.errors do
         print( "Error: "..error.text )
