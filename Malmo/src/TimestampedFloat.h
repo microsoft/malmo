@@ -20,6 +20,7 @@ namespace malmo
         float value;
         
         bool operator==(const TimestampedFloat&) const;
+        friend std::ostream& operator<<(std::ostream& os, const TimestampedFloat& tsf);
     };
 }
 

@@ -93,7 +93,9 @@ namespace malmo
             //! (If port 0 is requested this means bind to any port that is available.)
             //! \returns A shared pointer to the MissionInitSpec.
             boost::shared_ptr<MissionInitSpec> getMissionInit();
+            const boost::shared_ptr<MissionInitSpec> getMissionInit() const;
 
+            friend std::ostream& operator<<(std::ostream& os, const AgentHost& ah);
         private:
         
             void initializeOurServers(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id);
@@ -138,6 +140,7 @@ namespace malmo
             boost::shared_ptr<MissionRecord> current_mission_record;
             int current_role;
     };
+
 }
 
 #endif

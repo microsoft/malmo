@@ -27,4 +27,17 @@ namespace malmo
         this->mission_control_messages.clear();
         this->errors.clear();
     }
+
+    std::ostream& operator<<(std::ostream& os, const WorldState& ws)
+    {
+	os << "WorldState (";
+	if (ws.is_mission_running)
+	    os << "running): ";
+	else
+	    os << "not running): ";
+	os << ws.number_of_observations_since_last_state << " obs, ";
+	os << ws.number_of_rewards_since_last_state << " rewards, ";
+        os << ws.number_of_video_frames_since_last_state << " frames since last state.";	
+        return os;
+    }
 }

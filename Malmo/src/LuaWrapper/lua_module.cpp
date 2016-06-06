@@ -22,6 +22,7 @@ using namespace malmo;
 #include <luabind/iterator_policy.hpp>
 #include <luabind/luabind.hpp>
 #include <luabind/return_reference_to_policy.hpp>
+#include <luabind/operator.hpp>
 
 // STL:
 #include <sstream>
@@ -115,6 +116,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def_readonly( "video_frames",                            &WorldState::video_frames,               return_stl_iterator )
             .def_readonly( "mission_control_messages",                &WorldState::mission_control_messages,   return_stl_iterator )
             .def_readonly( "errors",                                  &WorldState::errors,                     return_stl_iterator )
+            .def(tostring(self))
         ,
         class_< AgentHost, bases< ArgumentParser > >("AgentHost")
             .enum_( "ImagePolicy" )
@@ -141,6 +143,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("setRewardsPolicy",      &AgentHost::setRewardsPolicy)
             .def("setObservationsPolicy", &AgentHost::setObservationsPolicy)
             .def("sendCommand",           &AgentHost::sendCommand)
+            .def(tostring(self))
         ,
 #ifdef WRAP_ALE
 	class_< ALEAgentHost, bases< ArgumentParser > >("ALEAgentHost")
@@ -168,6 +171,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("setRewardsPolicy",      &ALEAgentHost::setRewardsPolicy)
             .def("setObservationsPolicy", &ALEAgentHost::setObservationsPolicy)
             .def("sendCommand",           &ALEAgentHost::sendCommand)
+            .def(tostring(self))
 	,
 #endif
         class_< MissionSpec >("MissionSpec")
@@ -209,6 +213,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("getVideoWidth",             &MissionSpec::getVideoWidth)
             .def("getVideoHeight",            &MissionSpec::getVideoHeight)
             .def("getVideoChannels",          &MissionSpec::getVideoChannels)
+            .def(tostring(self))
         ,
         class_< MissionRecordSpec >("MissionRecordSpec")
             .def(constructor<>())
@@ -218,6 +223,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("recordRewards",           &MissionRecordSpec::recordRewards)
             .def("recordCommands",          &MissionRecordSpec::recordCommands)
             .def("getTemporaryDirectory",   &MissionRecordSpec::getTemporaryDirectory)
+            .def(tostring(self))
         ,
         class_< ClientInfo >("ClientInfo")
             .def(constructor<>())
@@ -225,10 +231,12 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(constructor<const std::string &, int>())
             .def_readonly("ip_address",     &ClientInfo::ip_address)
             .def_readonly("port",           &ClientInfo::port)
+            .def(tostring(self))
         ,
         class_< ClientPool >("ClientPool")
             .def(constructor<>())
             .def("add",                     &ClientPool::add)
+            .def(tostring(self))
         ,
         class_<ParameterSet>("ParameterSet")
             .def(constructor<>())
@@ -246,10 +254,12 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
         class_< TimestampedString >("TimestampedString")
             .def("timestamp",             &getPosixTimeAsLong<TimestampedString>)
             .def_readonly("text",         &TimestampedString::text)
+            .def(tostring(self))
         ,
         class_< TimestampedFloat >("TimestampedFloat")
             .def("timestamp",             &getPosixTimeAsLong<TimestampedFloat>)
             .def_readonly("value",        &TimestampedFloat::value)
+            .def(tostring(self))
         ,
         class_< TimestampedVideoFrame >("TimestampedVideoFrame")
             .def("timestamp",             &getPosixTimeAsLong<TimestampedVideoFrame>)
@@ -257,6 +267,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def_readonly("height",       &TimestampedVideoFrame::height)
             .def_readonly("channels",     &TimestampedVideoFrame::channels)
             .def_readonly("pixels",       &TimestampedVideoFrame::pixels,               return_stl_iterator )
+            .def(tostring(self))
       #ifdef TORCH
         ,
         def("getTorchTensorFromPixels", &getTorchTensorFromPixels)

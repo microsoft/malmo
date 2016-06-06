@@ -66,6 +66,8 @@ namespace malmo
 
         //! If there are errors in receiving the messages then we log them here.
         std::vector< TimestampedString > errors;
+
+        friend std::ostream& operator<<(std::ostream& os, const WorldState& ws);
     };
 }
 

@@ -4,6 +4,7 @@
 
 set( SOURCES
   run_mission.lua
+  to_string_test.lua
 )
 
 install( FILES ${SOURCES} DESTINATION Lua_Examples )

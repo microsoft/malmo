@@ -550,4 +550,19 @@ namespace malmo
     {
         return this->current_mission_init;
     }
+
+    const boost::shared_ptr<MissionInitSpec> AgentHost::getMissionInit() const
+    {
+        return this->current_mission_init;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const AgentHost& agent_host)
+    {
+        os << "AgentHost";
+        if (agent_host.getMissionInit())
+            os << ": active (with mission)";
+        else
+            os << ": uninitialised (no mission init)";
+        return os;
+    }
 }
