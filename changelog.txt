@@ -1,4 +1,4 @@
-0.11.2 (2016-06-03)
+0.11.2 (2016-06-06)
 -------------------
 Fix: Issue 22 (attack auto-repeat not working if Minecraft hasn't had focus).
 Fix: Issue 33 (framerate slowdown after 500+ missions).
