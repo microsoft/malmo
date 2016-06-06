@@ -29,6 +29,7 @@ namespace malmo
         TimestampedString(const boost::posix_time::ptime& timestamp, const std::string& text);
         
         bool operator==(const TimestampedString& other) const;
+        friend std::ostream& operator<<(std::ostream& os, const TimestampedString& tss);
     };
 }
 

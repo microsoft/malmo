@@ -43,6 +43,7 @@ namespace malmo
         TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message, Transform transform = IDENTITY);
         
         bool operator==(const TimestampedVideoFrame& other) const;
+        friend std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe);
     };
 }
 

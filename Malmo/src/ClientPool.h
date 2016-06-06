@@ -21,6 +21,7 @@ namespace malmo
         void add(const ClientInfo& client_info);
 
         std::vector< ClientInfo > clients; //!< The list of clients.
+        friend std::ostream& operator<<(std::ostream& os, const ClientPool& cp);
     };
 }
 

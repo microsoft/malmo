@@ -342,4 +342,10 @@ namespace malmo
   	if (this->ale_interface->game_over())
 	    this->close();
     }
+
+    std::ostream& operator<<(std::ostream& os, const ALEAgentHost& agent_host)
+    {
+        os << "ALEAgentHost";
+        return os;
+    }
 }

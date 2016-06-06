@@ -438,4 +438,11 @@ namespace malmo
         }
         // (else silent continue - no need to alarm the user if the command is already there)
     }
+
+    std::ostream& operator<<(std::ostream& os, const MissionSpec& ms)
+    {
+	os << "MissionSpec:\n";
+	os << ms.getAsXML(true);
+	return os;
+    }
 }

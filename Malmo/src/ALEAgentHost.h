@@ -72,6 +72,7 @@ namespace malmo
             void sendCommand(std::string command);
 
             void close();
+            friend std::ostream& operator<<(std::ostream& os, const ALEAgentHost& ah);
 
         private:
             void initialize(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id);

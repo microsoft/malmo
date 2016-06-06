@@ -4,6 +4,8 @@
 
 // Local:
 #include "TimestampedString.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
 
 namespace malmo
 {
@@ -22,5 +24,10 @@ namespace malmo
     bool TimestampedString::operator==(const TimestampedString& other) const
     {
         return this->text == other.text && this->timestamp == other.timestamp;
+    }
+    std::ostream& operator<<(std::ostream& os, const TimestampedString& tss)
+    {
+	os << "TimestampedString: " << to_simple_string(tss.timestamp) << ", " << tss.text;
+	return os;
     }
 }
