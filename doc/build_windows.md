@@ -90,10 +90,4 @@
 13. Make a distributable:
     1. Run all the tests.
     2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
-    3. (If a core dev) Tag the git commit:
-    
-       `git tag -a v0.1.1 -m "Version 0.1.1"`
-       
-       `git push origin v0.1.1`
-
-    4. `msbuild PACKAGE.vcxproj /p:Configuration=Release`
+    3. `msbuild PACKAGE.vcxproj /p:Configuration=Release`
