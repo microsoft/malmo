@@ -27,6 +27,7 @@ set( SOURCES
   tutorial_7.py
   tutorial_8.py
   Tutorial.pdf
+  to_string_test.py
 )
 
 set( ALESOURCES
