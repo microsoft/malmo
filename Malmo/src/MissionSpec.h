@@ -247,6 +247,7 @@ namespace malmo
             //! \returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
             int getVideoChannels(int role) const;
 
+            friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
         private:
         
             void putVerbOnList( ::xsd::cxx::tree::optional< malmo::schemas::ModifierList >& mlo

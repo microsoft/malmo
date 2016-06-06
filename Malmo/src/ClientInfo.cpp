@@ -4,6 +4,7 @@
 
 // Header:
 #include "ClientInfo.h"
+#include <sstream>
 
 namespace malmo{
 
@@ -21,5 +22,11 @@ namespace malmo{
         : ip_address(ip_address)
         , port(port)
     {
+    }
+
+    std::ostream& operator<<(std::ostream& os, const ClientInfo& ci)
+    {
+        os << "ClientInfo: " << ci.ip_address << ":" << ci.port;
+        return os;
     }
 }

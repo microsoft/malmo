@@ -38,13 +38,13 @@ namespace malmo
             //! \returns The mission init specification as an XML string.
             std::string getAsXML( bool prettyPrint ) const;
 
-			//! Gets the IP address of the client.
-			//! \returns The IP address as a string.
-			std::string getClientAddress() const;
+            //! Gets the IP address of the client.
+            //! \returns The IP address as a string.
+            std::string getClientAddress() const;
 
-			//! Sets the IP address of the client.
-			//! \param address The IP address as a string.
-			void setClientAddress(std::string address);
+            //! Sets the IP address of the client.
+            //! \param address The IP address as a string.
+            void setClientAddress(std::string address);
 
             //! Gets the mission control port of the client.
             //! \returns The port that the client listens to mission control messages on.

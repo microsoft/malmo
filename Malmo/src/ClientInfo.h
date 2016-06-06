@@ -34,6 +34,8 @@ namespace malmo
 
         //! The port of the client.
         int port;
+
+        friend std::ostream& operator<<(std::ostream& os, const ClientInfo& ci);
     };
 }
 

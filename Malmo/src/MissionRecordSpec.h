@@ -51,6 +51,8 @@ namespace malmo
         //! \returns The temporary directory for the mission record.
         std::string getTemporaryDirectory();
 
+        friend std::ostream& operator<<(std::ostream& os, const MissionRecordSpec& msp);
+
     private:
 
         bool is_recording;

@@ -1,3 +1,7 @@
+0.11.3?
+-------------------
+Fix: Issue 40 (added tostring() methods to Lua and Python classes).
+
 0.11.2 (2016-06-06)
 -------------------
 Fix: Issue 22 (attack auto-repeat not working if Minecraft hasn't had focus).

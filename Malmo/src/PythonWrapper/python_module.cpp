@@ -26,6 +26,7 @@ using namespace malmo;
 // Python:
 #include <datetime.h>
 
+
 // Converts a python list to a vector of strings. Throws a python exception if the conversion fails.
 std::vector< std::string > listToStrings( const boost::python::list& list )
 {
@@ -104,6 +105,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "video_frames",                            &WorldState::video_frames )
         .def_readonly( "mission_control_messages",                &WorldState::mission_control_messages )
         .def_readonly( "errors",                                  &WorldState::errors )
+	.def(self_ns::str(self_ns::self))
     ;
     enum_< AgentHost::VideoPolicy >( "VideoPolicy" )
         .value( "LATEST_FRAME_ONLY",  AgentHost::LATEST_FRAME_ONLY )
@@ -126,6 +128,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "setRewardsPolicy",          &AgentHost::setRewardsPolicy )
         .def( "setObservationsPolicy",     &AgentHost::setObservationsPolicy )
         .def( "sendCommand",               &AgentHost::sendCommand )
+	.def(self_ns::str(self_ns::self))
     ;
 #ifdef WRAP_ALE
     class_< ALEAgentHost, bases< ArgumentParser >, boost::noncopyable >("ALEAgentHost", init<>())
@@ -136,6 +139,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("setRewardsPolicy", &ALEAgentHost::setRewardsPolicy)
         .def("setObservationsPolicy", &ALEAgentHost::setObservationsPolicy)
         .def("sendCommand", &ALEAgentHost::sendCommand)
+	.def(self_ns::str(self_ns::self))
         ;
 #endif
     class_< MissionSpec >( "MissionSpec", init<>() )
@@ -176,6 +180,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("getVideoWidth",             &MissionSpec::getVideoWidth)
         .def("getVideoHeight",            &MissionSpec::getVideoHeight)
         .def("getVideoChannels",          &MissionSpec::getVideoChannels)
+	.def(self_ns::str(self_ns::self))
     ;
     class_< MissionRecordSpec >("MissionRecordSpec", init<>())
         .def(init < std::string >())
@@ -184,15 +189,18 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("recordRewards",           &MissionRecordSpec::recordRewards)
         .def("recordCommands",          &MissionRecordSpec::recordCommands)
         .def("getTemporaryDirectory",   &MissionRecordSpec::getTemporaryDirectory)
+	.def(self_ns::str(self_ns::self))
     ;
     class_< ClientInfo >("ClientInfo", init<>())
         .def(init<const std::string &>())
         .def(init<const std::string &, int>())
         .def_readonly("ip_address",     &ClientInfo::ip_address)
         .def_readonly("port",           &ClientInfo::port)
+	.def(self_ns::str(self_ns::self))
     ;
     class_< ClientPool >("ClientPool", init<>())
         .def("add",                     &ClientPool::add)
+	.def(self_ns::str(self_ns::self))
     ;
     class_<ParameterSet>("ParameterSet", init<>())
         .def(init<const std::string &>())
@@ -209,10 +217,12 @@ BOOST_PYTHON_MODULE(MalmoPython)
     class_< TimestampedString >("TimestampedString", no_init)
         .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "text",        &TimestampedString::text )
+	.def(self_ns::str(self_ns::self))
     ;
     class_< TimestampedFloat >( "TimestampedFloat", no_init )
         .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "value",       &TimestampedFloat::value )
+	.def(self_ns::str(self_ns::self))
     ;
     class_< TimestampedVideoFrame >( "TimestampedVideoFrame", no_init )
         .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
@@ -220,6 +230,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "height",      &TimestampedVideoFrame::height )
         .def_readonly( "channels",    &TimestampedVideoFrame::channels )
         .def_readonly( "pixels",      &TimestampedVideoFrame::pixels )
+	.def(self_ns::str(self_ns::self))
     ;
     class_< std::vector< TimestampedString > >( "TimestampedStringVector" )
         .def( vector_indexing_suite< std::vector< TimestampedString > >() )

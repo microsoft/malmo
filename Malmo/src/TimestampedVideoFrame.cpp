@@ -4,6 +4,8 @@
 
 // Local:
 #include "TimestampedVideoFrame.h"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
 
 namespace malmo
 {
@@ -44,5 +46,11 @@ namespace malmo
     bool TimestampedVideoFrame::operator==(const TimestampedVideoFrame& other) const
     {
         return this->width == other.width && this->height == other.height && this->channels == other.channels && this->timestamp == other.timestamp && this->pixels == other.pixels;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe)
+    {
+        os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels;
+        return os;
     }
 }
