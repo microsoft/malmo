@@ -69,7 +69,7 @@
 11. Build Malmo:
     1. `mkdir MalmoPlatform` (wherever you want)
     2. `cd MalmoPlatform`
-    3. `git clone <MALMO_URL> .`
+    3. `git clone https://github.com/Microsoft/malmo.git .`
     4. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
     5. `mkdir build`
     6. `cd build`
