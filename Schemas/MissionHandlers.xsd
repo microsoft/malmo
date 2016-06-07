@@ -94,11 +94,21 @@
   <xs:element name="FileWorldGenerator">
     <xs:annotation>
       <xs:documentation>
-        Loads a saved world from disk.
+        Loads a saved world from disk. You can find the saved worlds in "{{{Minecraft\run\saves}}}". Use the full path to one of those folders.
+        
+        If Minecraft is running on a different machine then copy the folder to a readable network location and update the path accordingly. Example:
+        
+        {{{&lt;FileWorldGenerator src=&quot;\\\\msrc-3645239\\shared\\ProjectMalmo\\saved_maps\\arena&quot; /&gt;}}}
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:attribute name="src" use="required" type="xs:anyURI"/>
+      <xs:attribute name="src" use="required" type="xs:anyURI">
+        <xs:annotation>
+          <xs:documentation>
+            The path to the saved world folder.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
