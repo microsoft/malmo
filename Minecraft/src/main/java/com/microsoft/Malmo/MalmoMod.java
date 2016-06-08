@@ -62,7 +62,7 @@ public class MalmoMod
     Configuration permanentConfig = null;	// Configs that persist - not overwritten by LaunchClient.bat
 
     @Instance(value = MalmoMod.MODID) //Tell Forge what instance to use.
-        public static MalmoMod instance;
+    public static MalmoMod instance;
 
     public static SimpleNetworkWrapper network;
 
@@ -352,18 +352,18 @@ public class MalmoMod
                 else
                     mainThread = MinecraftServer.getServer();
                 mainThread.addScheduledTask(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        for (IMalmoMessageListener l : interestedParties)
                         {
-                            @Override
-                            public void run()
-                {
-                    for (IMalmoMessageListener l : interestedParties)
-                {
-                    // If the message's uid is set (ie non-zero), then use it to ensure that only the matching listener receives this message.
-                    // Otherwise, let all listeners who are interested get a look.
-                    if (message.uid == 0 || System.identityHashCode(l) == message.uid)
-                    l.onMessage(message.messageType,  message.data);
-                }
-                }
+                            // If the message's uid is set (ie non-zero), then use it to ensure that only the matching listener receives this message.
+                            // Otherwise, let all listeners who are interested get a look.
+                            if (message.uid == 0 || System.identityHashCode(l) == message.uid)
+                                l.onMessage(message.messageType,  message.data);
+                        }
+                    }
                 });
             }
             return null; // no response in this case
