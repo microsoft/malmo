@@ -7,16 +7,16 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
 
 2. Install dependencies:
 
-```
-brew update
-brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c doxygen git cmake
-sudo brew cask install java
-brew install xsd
-brew unlink xsd
-brew install mono
-brew link --overwrite xsd
-```
+  ```
+  brew update
+  brew install boost --with-python
+  brew install ffmpeg swig boost-python xerces-c doxygen git cmake
+  sudo brew cask install java
+  brew install xsd
+  brew unlink xsd
+  brew install mono
+  brew link --overwrite xsd
+  ```
 
 3. Clone and build Project Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`  
