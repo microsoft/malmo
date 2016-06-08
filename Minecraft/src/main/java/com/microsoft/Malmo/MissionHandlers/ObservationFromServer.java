@@ -112,6 +112,8 @@ public abstract class ObservationFromServer extends HandlerBase implements IMalm
 	    	synchronized (this.latestJsonStats)
 	    	{
 	    		this.latestJsonStats = data.get("json");
+                if (this.latestJsonStats == null)   // Shouldn't happen, but if it does
+                    this.latestJsonStats = "";      // we don't want to allow a null value.
 	    		onReturnedData(data);
 			}
     	}
