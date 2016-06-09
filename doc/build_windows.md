@@ -2,7 +2,7 @@
 
 1. Install CMake:
     1. Download and run e.g. `cmake-3.5.0-win32-x86.msi` from https://cmake.org/download/
-    2. If you are new to CMake, see [some notes](doc/cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
+    2. If you are new to CMake, see [some notes](cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
 
 2. Install FFMPEG: 
     1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
