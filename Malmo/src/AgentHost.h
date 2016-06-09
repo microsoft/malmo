@@ -123,7 +123,7 @@ namespace malmo
             boost::shared_ptr<StringServer>   rewards_server;
             boost::shared_ptr<StringServer>   observations_server;
             boost::optional<boost::asio::io_service::work> work;
-            boost::shared_ptr<boost::thread>  background_thread;
+            std::vector<boost::shared_ptr<boost::thread>> background_threads;
 
             boost::shared_ptr<ClientConnection> commands_connection;
             std::ofstream commands_stream;

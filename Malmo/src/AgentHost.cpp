@@ -39,16 +39,19 @@ namespace malmo
     {
         this->addOptionalFlag("help,h", "show description of allowed options");
 
-        // start the io_service on a background thread
+        // start the io_service on background threads
         this->work = boost::in_place(boost::ref(this->io_service));
-        this->background_thread = boost::make_shared<boost::thread>( boost::bind( &boost::asio::io_service::run, &this->io_service ) );
+        const int NUM_BACKGROUNDS_THREADS = 1; // can be increased if I/O becomes a bottleneck
+        for( int i = 0; i < NUM_BACKGROUNDS_THREADS; i++ )
+            this->background_threads.push_back( boost::make_shared<boost::thread>( boost::bind( &boost::asio::io_service::run, &this->io_service ) ) );
     }
 
     AgentHost::~AgentHost()
     {
         this->work = boost::none;
         this->io_service.stop();
-        this->background_thread->join();
+        for( auto& t : this->background_threads )
+            t->join();
         this->close();
     }
 
