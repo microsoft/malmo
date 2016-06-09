@@ -68,7 +68,7 @@ else()
   set( HEADERS ${HEADERS} PosixFrameWriter.h )
 endif()
 
-if( Torch_FOUND )
+if( INCLUDE_TORCH )
   set( SOURCES ${SOURCES} TorchTensorFromPixels.cpp )
   set( HEADERS ${HEADERS} TorchTensorFromPixels.h )
   set( TORCH_LIBRARIES TH )
@@ -77,7 +77,7 @@ else()
   set( TORCH_LIBRARIES "" )
 endif()
 
-if ( ALE_FOUND )
+if ( INCLUDE_ALE )
   set( SOURCES ${SOURCES} ALEAgentHost.cpp )
   set( HEADERS ${HEADERS} ALEAgentHost.h )
 endif()
@@ -100,7 +100,7 @@ set( MALMO_INCLUDE_FOLDERS
     ${XSD_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_BINARY_DIR}
 )
-if ( ALE_FOUND )
+if ( INCLUDE_ALE )
   set( MALMO_INCLUDE_FOLDERS ${MALMO_INCLUDE_FOLDERS} ${ALE_INCLUDE_DIRS} )
 endif()
 
@@ -110,12 +110,16 @@ add_library( Malmo STATIC ${SOURCES} ${HEADERS} )
 
 set( MALMO_LINK_LIBRARIES 
     ${Boost_LIBRARIES} 
-    ${PYTHON_LIBRARIES}
-    ${TORCH_LIBRARIES} 
     ${XSD_LIBRARIES}
 )
-if ( ALE_FOUND )
+if( INCLUDE_ALE )
   set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${ALE_LIBRARIES} )
+endif()
+if( INCLUDE_PYTHON )
+  set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${PYTHON_LIBRARIES} )
+endif()
+if( INCLUDE_TORCH )
+  set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${TORCH_LIBRARIES} )
 endif()
 if( UNIX AND NOT APPLE )
   set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} rt )
@@ -130,10 +134,15 @@ install( TARGETS Malmo DESTINATION Cpp_Examples/lib )
 install( FILES ${CMAKE_SOURCE_DIR}/cmake/FindXsd.cmake DESTINATION Cpp_Examples/cmake )
 
 # -------------------- Walk the subdirectories --------------------
-add_subdirectory( CSharpWrapper )
-add_subdirectory( JavaWrapper )
-add_subdirectory( PythonWrapper )
-
-IF( UNIX AND NOT APPLE )
+if( INCLUDE_CSHARP )
+  add_subdirectory( CSharpWrapper )
+endif()
+if( INCLUDE_JAVA )
+  add_subdirectory( JavaWrapper )
+endif()
+if( INCLUDE_PYTHON )
+  add_subdirectory( PythonWrapper )
+endif()
+IF( INCLUDE_LUA )
   add_subdirectory( LuaWrapper )
 ENDIF()

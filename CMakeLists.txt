@@ -15,9 +15,14 @@ set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION
 # N.B. Check that this version number matches the one in Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java
 
 set( WARNINGS_AS_ERRORS OFF )
-set( BUILD_MOD ON )
-set( BUILD_DOCUMENTATION ON )
-set( INCLUDE_ALE ON )
+set( BUILD_MOD           ON  CACHE BOOL "Specifies whether to build the Malmo Minecraft Mod" )
+set( BUILD_DOCUMENTATION ON  CACHE BOOL "Specifies whether to build the documentation for the API and XML" )
+set( INCLUDE_ALE         OFF CACHE BOOL "Specifies whether to build Malmo with bindings to the Atari Learning Environment" )
+set( INCLUDE_CSHARP      ON  CACHE BOOL "Specifies whether to build Malmo with C# bindings" )
+set( INCLUDE_JAVA        ON  CACHE BOOL "Specifies whether to build Malmo with Java bindings" )
+set( INCLUDE_LUA         ON  CACHE BOOL "Specifies whether to build Malmo with Lua bindings" )
+set( INCLUDE_PYTHON      ON  CACHE BOOL "Specifies whether to build Malmo with Python bindings" )
+set( INCLUDE_TORCH       ON  CACHE BOOL "Specifies whether to build Malmo with Torch bindings" )
 
 # ------------------- Detect the system -----------------------
 
@@ -61,13 +66,53 @@ endif()
 # suggested install paths - see readme.md
 if( WIN32)
   set( XSD_ROOT "C:/Program Files (x86)/CodeSynthesis XSD 4.0" )
+  set( INCLUDE_LUA OFF )   # We don't currently support Lua on Windows
+  set( INCLUDE_TORCH OFF ) # Torch is not currently available on Windows
 elseif( APPLE )
   set( CMAKE_MACOSX_RPATH ON )
   set( ALE_ROOT_DIR ~/ALE )
+  set( INCLUDE_LUA OFF )   # We don't currently support Lua on MacOSX
+  set( INCLUDE_TORCH OFF ) # Consequence of lack of Lua on MacOSX
 else()
-  set( LUABIND_ROOT_DIR ~/rpavlik-luabind/build/src )
   set( ALE_ROOT_DIR ~/ALE )
+endif()
+
+if( INCLUDE_CSHARP )
+  if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+    set( CSHARP_PLATFORM "x64" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
+  else()
+    set( CSHARP_PLATFORM "x86" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
+  endif()
+  find_package( CSharp REQUIRED )
+endif()
+
+if( BUILD_DOCUMENTATION )
+  find_package( Doxygen REQUIRED )
+endif()
+
+find_package( Git REQUIRED )
+find_package( Java REQUIRED COMPONENTS Runtime Development ) 
+
+if( INCLUDE_JAVA )
+  find_package( JNI REQUIRED) 
+endif()
+
+if( INCLUDE_PYTHON )
+  find_package( PythonInterp REQUIRED )
+  find_package( PythonLibs REQUIRED )
+endif()
+
+find_package( SWIG REQUIRED )
+find_package( Xsd REQUIRED )
+
+if( INCLUDE_LUA )
+  set( LUABIND_ROOT_DIR ~/rpavlik-luabind/build/src )
   find_package( Luabind REQUIRED )
+else()
+  set( INCLUDE_TORCH OFF ) # (can't build for Torch without Lua)
+endif()
+
+if( INCLUDE_TORCH )
   find_package( Torch QUIET HINTS ~/torch/install/share/cmake/torch ) 
   if( NOT Torch_FOUND )
     # for now Torch is only available on Ubuntu and a few other platforms, so we warn but continue
@@ -76,35 +121,19 @@ else()
     message( "" )
     message( " Torch was not found! Build will proceed but without the Torch parts included." )
     message( "" )
+    set( INCLUDE_TORCH OFF )
   endif()
 endif()
 
-if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  SET( CSHARP_PLATFORM "x64" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
-else()
-  SET( CSHARP_PLATFORM "x86" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
-endif()
-
-find_package( CSharp REQUIRED )
-if( BUILD_DOCUMENTATION )
-  find_package( Doxygen REQUIRED )
-endif()
-find_package( Git REQUIRED )
-find_package( Java REQUIRED COMPONENTS Runtime Development ) 
-find_package( JNI REQUIRED) 
-find_package( PythonInterp REQUIRED )
-find_package( PythonLibs REQUIRED )
-find_package( SWIG REQUIRED )
-find_package( Xsd REQUIRED )
-
 if( INCLUDE_ALE )
   find_package(ALE QUIET)
-  if ( NOT ALE_FOUND )
+  if( NOT ALE_FOUND )
     message( "" )
     message( " ====   WARNING: ====" )
     message( "" )
     message( " ALE was not found! Build will proceed but without the ALE parts included." )
     message( "" )
+    set( INCLUDE_ALE OFF )
   endif()
 endif()
 
@@ -183,12 +212,12 @@ if( BUILD_DOCUMENTATION )
   add_subdirectory( Schemas )
 endif()
 add_subdirectory( sample_missions )
-if( ALE_FOUND )
+if( INCLUDE_ALE )
   add_subdirectory( ALE_ROMS )
 endif()
 
 # -------------------- Package ------------------------------------
-if( INCLUDE_ALE AND ALE_FOUND )
+if( INCLUDE_ALE )
   set( SYSTEM_NAME "${SYSTEM_NAME}_withALE" )
 endif()
 set( CPACK_SYSTEM_NAME ${SYSTEM_NAME} )
