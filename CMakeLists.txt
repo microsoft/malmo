@@ -14,15 +14,29 @@ set( MALMO_VERSION_REVISION 2)
 set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION_REVISION} )
 # N.B. Check that this version number matches the one in Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java
 
+set( BUILD_MOD_DESC           "Specifies whether to build the Malmo Minecraft Mod" )
+set( BUILD_DOCUMENTATION_DESC "Specifies whether to build the documentation for the API and XML" )
+set( INCLUDE_ALE_DESC         "Specifies whether to build Malmo with bindings to the Atari Learning Environment" )
+set( INCLUDE_CSHARP_DESC      "Specifies whether to build Malmo with C# bindings" )
+set( INCLUDE_JAVA_DESC        "Specifies whether to build Malmo with Java bindings" )
+set( INCLUDE_LUA_DESC         "Specifies whether to build Malmo with Lua bindings (Linux only)" )
+set( INCLUDE_PYTHON_DESC      "Specifies whether to build Malmo with Python bindings" )
+set( INCLUDE_TORCH_DESC       "Specifies whether to build Malmo with Torch bindings (Linux only)" )
+set( BUILD_MOD           ON  CACHE BOOL ${BUILD_MOD_DESC} )
+set( BUILD_DOCUMENTATION ON  CACHE BOOL ${BUILD_DOCUMENTATION_DESC} )
+set( INCLUDE_ALE         OFF CACHE BOOL ${INCLUDE_ALE_DESC} )
+set( INCLUDE_CSHARP      ON  CACHE BOOL ${INCLUDE_CSHARP_DESC} )
+set( INCLUDE_JAVA        ON  CACHE BOOL ${INCLUDE_JAVA_DESC} )
+set( INCLUDE_PYTHON      ON  CACHE BOOL ${INCLUDE_PYTHON_DESC} )
+if( UNIX AND NOT APPLE )
+  set( INCLUDE_LUA         ON  CACHE BOOL ${INCLUDE_LUA_DESC} )
+  set( INCLUDE_TORCH       ON  CACHE BOOL ${INCLUDE_TORCH_DESC} )
+else()
+  # Lua and Torch not currently supported
+  set( INCLUDE_LUA         OFF  CACHE BOOL ${INCLUDE_LUA_DESC} )
+  set( INCLUDE_TORCH       OFF  CACHE BOOL ${INCLUDE_TORCH_DESC} )
+endif()
 set( WARNINGS_AS_ERRORS OFF )
-set( BUILD_MOD           ON  CACHE BOOL "Specifies whether to build the Malmo Minecraft Mod" )
-set( BUILD_DOCUMENTATION ON  CACHE BOOL "Specifies whether to build the documentation for the API and XML" )
-set( INCLUDE_ALE         OFF CACHE BOOL "Specifies whether to build Malmo with bindings to the Atari Learning Environment" )
-set( INCLUDE_CSHARP      ON  CACHE BOOL "Specifies whether to build Malmo with C# bindings" )
-set( INCLUDE_JAVA        ON  CACHE BOOL "Specifies whether to build Malmo with Java bindings" )
-set( INCLUDE_LUA         ON  CACHE BOOL "Specifies whether to build Malmo with Lua bindings" )
-set( INCLUDE_PYTHON      ON  CACHE BOOL "Specifies whether to build Malmo with Python bindings" )
-set( INCLUDE_TORCH       ON  CACHE BOOL "Specifies whether to build Malmo with Torch bindings" )
 
 # ------------------- Detect the system -----------------------
 
@@ -66,13 +80,6 @@ endif()
 # suggested install paths - see readme.md
 if( WIN32)
   set( XSD_ROOT "C:/Program Files (x86)/CodeSynthesis XSD 4.0" )
-  set( INCLUDE_LUA OFF )   # We don't currently support Lua on Windows
-  set( INCLUDE_TORCH OFF ) # Torch is not currently available on Windows
-elseif( APPLE )
-  set( CMAKE_MACOSX_RPATH ON )
-  set( ALE_ROOT_DIR ~/ALE )
-  set( INCLUDE_LUA OFF )   # We don't currently support Lua on MacOSX
-  set( INCLUDE_TORCH OFF ) # Consequence of lack of Lua on MacOSX
 else()
   set( ALE_ROOT_DIR ~/ALE )
 endif()
@@ -109,7 +116,7 @@ if( INCLUDE_LUA )
   set( LUABIND_ROOT_DIR ~/rpavlik-luabind/build/src )
   find_package( Luabind REQUIRED )
 else()
-  set( INCLUDE_TORCH OFF ) # (can't build for Torch without Lua)
+  set( INCLUDE_TORCH OFF CACHE BOOL ${INCLUDE_TORCH_DESC} FORCE ) # (can't build for Torch without Lua)
 endif()
 
 if( INCLUDE_TORCH )
@@ -121,7 +128,7 @@ if( INCLUDE_TORCH )
     message( "" )
     message( " Torch was not found! Build will proceed but without the Torch parts included." )
     message( "" )
-    set( INCLUDE_TORCH OFF )
+    set( INCLUDE_TORCH OFF CACHE BOOL ${INCLUDE_TORCH_DESC} FORCE )
   endif()
 endif()
 
@@ -133,7 +140,7 @@ if( INCLUDE_ALE )
     message( "" )
     message( " ALE was not found! Build will proceed but without the ALE parts included." )
     message( "" )
-    set( INCLUDE_ALE OFF )
+    set( INCLUDE_ALE OFF CACHE BOOL ${INCLUDE_ALE_DESC} FORCE )
   endif()
 endif()
 
@@ -170,6 +177,7 @@ endif()
 
 if( APPLE )
   add_definitions( -DAPPLE )
+  set( CMAKE_MACOSX_RPATH ON )
 endif()
 
 # -------------------- Testing ------------------------------------
