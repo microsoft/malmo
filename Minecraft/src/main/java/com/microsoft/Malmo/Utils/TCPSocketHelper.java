@@ -14,10 +14,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class TCPSocketHelper
 {
 	public static final int DEFAULT_SOCKET_TIMEOUT_MS = 100;
+	private static Logger logger = Logger.getLogger("com.microsoft.Malmo.TCPSocketHelper");
+	private static FileHandler filehandler = null;
+	private static boolean logging = false;
 
 	String address;
 	int port;
@@ -33,6 +40,30 @@ public class TCPSocketHelper
 		this.port = port;
 		createSocket();
 	}
+	
+    static void setLogging(boolean log)
+    {
+        logging = log;
+        if (log == true && filehandler == null)
+        {
+            try
+            {
+                filehandler = new FileHandler("TCPLog.txt");
+                filehandler.setFormatter(new SimpleFormatter());
+            }
+            catch (SecurityException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            logger.addHandler(filehandler);
+        }
+    }
 	
 	public void close()
 	{
@@ -62,33 +93,6 @@ public class TCPSocketHelper
 			System.out.println("WARNING: Failed to create socket: " + e);
 		}
 	}
-	
-    /** Send string over TCP.
-     * @param message string to be sent over TCP
-     * @param includeHeader if true, include a header indicating the length of the message
-     * @return true if message was successfully sent
-     */
-    public boolean sendTCPString(String message, boolean includeHeader)
-    {
-    	if (this.socket == null)
-    		return false;	// We have no socket, nothing is going to work.
-    	
-    	boolean success = false;
-    	try
-    	{
-    	    DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
-    	    if (includeHeader)
-    	    	dos.writeInt(message.length());
-    	    dos.writeBytes(message);
-    	    success = true;
-    	}
-    	catch (IOException e)
-    	{
-    	    System.out.println(String.format("Failed to send TCP message to %s:%d.", address, port));
-    	    System.out.println(e);
-    	}
-    	return success;
-    }
     
     /** Send string over TCP to the specified address via the specified port, including a header.
      * @param message string to be sent over TCP
@@ -96,7 +100,8 @@ public class TCPSocketHelper
      */
     public boolean sendTCPString(String message)
     {
-    	return sendTCPString(message, true);
+        byte[] bytes = message.getBytes();
+        return sendTCPBytes(bytes);
     }
     
     /** Send byte buffer over TCP, including a length header.
@@ -105,22 +110,35 @@ public class TCPSocketHelper
      */
     public boolean sendTCPBytes(byte[] buffer)
     {
-    	if (this.socket == null)
-    		return false;	// No socket, nothing will work.
+        if (this.socket == null)
+            return false;	// No socket, nothing will work.
 
-    	boolean success = false;
-    	try
-    	{
-	    	DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
-	        dos.writeInt(buffer.length);
-	        dos.write(buffer, 0, buffer.length);
-	        success = true;
-    	}
-    	catch (IOException e)
-    	{
-    	    System.out.println(String.format("Failed to send TCP bytes to %s:%d.", this.address, this.port));
-    	    System.out.println(e);
-    	}
+        boolean success = false;
+        try
+        {
+            DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
+            if (logging)
+            {
+                long t1 = System.nanoTime();
+                dos.writeInt(buffer.length);
+                dos.write(buffer, 0, buffer.length);
+                dos.flush();
+                long t2 = System.nanoTime();
+                double rate = 1000.0 * 1000.0 * 1000.0 * (double)(buffer.length) / (1024.0 * (double)(t2 - t1));
+                logger.log(Level.INFO, "Sent " + buffer.length + " bytes to " + this.address + ":" + this.port + " at " + rate + " Kb/s");
+            }
+            else
+            {
+                dos.writeInt(buffer.length);
+                dos.write(buffer, 0, buffer.length);
+            }
+            success = true;
+        }
+        catch (IOException e)
+        {
+            System.out.println(String.format("Failed to send TCP bytes to %s:%d.", this.address, this.port));
+            System.out.println(e);
+        }
         return success;
     }
 
@@ -194,26 +212,37 @@ public class TCPSocketHelper
 	     * @param buffer the bytes to send
 	     * @return true if the message was sent successfully
 	     */
-	    public boolean sendTCPBytes(ByteBuffer buffer, int length)
-	    {
-	    	boolean success = false;
-	    	try
-	    	{
-	    		ByteBuffer header = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(length);
-	    		header.flip();
-	    		ByteBuffer[] buffers = new ByteBuffer[2];
-	    		buffers[0] = header;
-	    		buffers[1] = buffer;
-	    		long bytesWritten = this.channel.write(buffers);
-		        success = true;
-	    	}
-	    	catch (Exception e)
-	    	{
-	    	    System.out.println(String.format("Failed to send TCP bytes to %s:%d.", this.address, this.port));
-	    	    System.out.println(e);
-	    	}
-	        return success;
-	    }
+        public boolean sendTCPBytes(ByteBuffer buffer, int length)
+        {
+            boolean success = false;
+            try
+            {
+                ByteBuffer header = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(length);
+                header.flip();
+                ByteBuffer[] buffers = new ByteBuffer[2];
+                buffers[0] = header;
+                buffers[1] = buffer;
+                if (logging)
+                {
+                    long t1 = System.nanoTime();
+                    long bytesWritten = this.channel.write(buffers);
+                    long t2 = System.nanoTime();
+                    double rate = 1000.0 * 1000.0 * 1000.0 * (double)(bytesWritten) / (1024.0 * (double)(t2 - t1));
+                    logger.log(Level.INFO, "Sent " + bytesWritten + " bytes to " + this.address + ":" + this.port + " at " + rate + " Kb/s");
+                }
+                else
+                {
+                    this.channel.write(buffers);
+                }
+                success = true;
+            }
+            catch (Exception e)
+            {
+                System.out.println(String.format("Failed to send TCP bytes to %s:%d.", this.address, this.port));
+                System.out.println(e);
+            }
+            return success;
+        }
     }
     
     /** Simple utility class for providing and tracking tokens.<br>
