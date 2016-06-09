@@ -1,5 +1,7 @@
 0.11.3?
 -------------------
+Fix: Issue 48 (Grid observer crippled by bad TCP string sending method).
+Fix: Issue 52 (Malmo's internal Minecraft client/server messages limited to 64k data per message).
 Fix: Issue 40 (added tostring() methods to Lua and Python classes).
 
 0.11.2 (2016-06-06)
