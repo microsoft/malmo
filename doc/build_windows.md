@@ -67,16 +67,17 @@
     1. Visit https://slimdx.org/download.php and download the SDK.
 
 11. Build Malmo:
-    1. `mkdir MalmoPlatform` (wherever you want)
-    2. `cd MalmoPlatform`
-    3. `git clone https://github.com/Microsoft/malmo.git .`
-    4. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
-    5. `mkdir build`
-    6. `cd build`
-    7. `cmake -G "Visual Studio 12 2013 Win64" ..`
-    8. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
+    1. Open a Visual Studio 2013 x64 command prompt
+    2. `mkdir MalmoPlatform` (wherever you want)
+    3. `cd MalmoPlatform`
+    4. `git clone https://github.com/Microsoft/malmo.git .`
+    5. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
+    6. `mkdir build`
+    7. `cd build`
+    8. `cmake -G "Visual Studio 12 2013 Win64" ..`
+    9. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
        If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
-    9. For a Debug build: `msbuild Malmo.sln`  
+    10. For a Debug build: `msbuild Malmo.sln`  
        For a Release build: `msbuild Malmo.sln /p:Configuration=Release`  
        Or open `Malmo.sln` in Visual Studio.
  
