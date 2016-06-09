@@ -39,8 +39,6 @@ public class TCPSocketHelper
 		this.address = address;
 		this.port = port;
 		createSocket();
-		
-		setLogging(true);
 	}
 	
     static void setLogging(boolean log)
