@@ -113,7 +113,29 @@ namespace malmo
                     break;
                 }
 
-                this->doWrite(frame, count);
+                if (frame.channels == 4)
+                {
+                    // extract DDD from RGBD
+                    // TODO: support other options, output multiple videos
+                    const DWORD num_out_bytes = frame.width * frame.height * 3;
+                    char *out_pixels = new char[num_out_bytes];
+                    int j = 0;
+                    for (int i = 0; i < frame.width*frame.height; i++)
+                    {
+                        out_pixels[j++] = frame.pixels[i * 4 + 3];
+                        out_pixels[j++] = frame.pixels[i * 4 + 3];
+                        out_pixels[j++] = frame.pixels[i * 4 + 3];
+                    }
+                    this->doWrite(out_pixels, frame.width, frame.height, count);
+
+                    delete[]out_pixels;
+                }
+                else if (frame.channels == 3)
+                {
+                    // write the RGB data directly
+                    this->doWrite((char*)&frame.pixels[0], frame.width, frame.height, count);
+                }
+                else throw std::runtime_error("Unsupported number of channels");
 
                 count++;
             }

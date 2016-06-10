@@ -33,7 +33,7 @@ namespace malmo
         //! The height of the image in pixels.
         short height;
         
-        //! The number of channels. e.g. 3 for RGB data, 4 for RGBA
+        //! The number of channels. e.g. 3 for RGB data, 4 for RGBD
         short channels;
         
         //! The pixels, stored as channels then columns then rows. Length should be width*height*channels.

@@ -34,7 +34,7 @@ namespace malmo
                
         //! Requests that video be recorded, at the specified quality.
         //! Ensure that the width of the video requested is divisible by 4, and the height of the video requested is divisible by 2.
-        //! \param frames_per_second The number of frames to record per second
+        //! \param frames_per_second The number of frames to record per second. e.g. 20.
         //! \param bit_rate The bit rate to record at. e.g. 400000 for 400kbps.
         void recordMP4(int frames_per_second, int64_t bit_rate);
 

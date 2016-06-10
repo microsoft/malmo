@@ -82,12 +82,12 @@ namespace malmo
         }
     }
 
-    void WindowsFrameWriter::doWrite(TimestampedVideoFrame message, int frame_index)
+    void WindowsFrameWriter::doWrite(char* rgb, int width, int height, int frame_index)
     {
         DWORD dwWritten;
         BOOL bSuccess = FALSE;
         std::stringstream header;
-        header << "P6\n" << message.width << " " << message.height << "\n255\n";
+        header << "P6\n" << width << " " << height << "\n255\n";
         std::string headerStr = header.str();        
 
         bSuccess = WriteFile(this->g_hChildStd_IN_Wr, headerStr.c_str(), (DWORD)headerStr.length(), &dwWritten, NULL);
@@ -95,7 +95,7 @@ namespace malmo
             throw std::runtime_error("Unable to write frame header to pipe.");
         }
 
-        bSuccess = WriteFile(this->g_hChildStd_IN_Wr, (char *)&message.pixels[0], (DWORD)message.pixels.size(), &dwWritten, NULL);        
+        bSuccess = WriteFile(this->g_hChildStd_IN_Wr, rgb, width*height*3, &dwWritten, NULL);
         if (!bSuccess){
             throw std::runtime_error("Unable to write frame pixels to pipe.");
         }
