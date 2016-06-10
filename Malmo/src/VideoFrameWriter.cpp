@@ -117,14 +117,10 @@ namespace malmo
                 {
                     // extract DDD from RGBD
                     // TODO: support other options, output multiple videos
-                    const DWORD num_out_bytes = frame.width * frame.height * 3;
-                    char *out_pixels = new char[num_out_bytes];
-                    int j = 0;
+                    char *out_pixels = new char[frame.width * frame.height * 3];
                     for (int i = 0; i < frame.width*frame.height; i++)
                     {
-                        out_pixels[j++] = frame.pixels[i * 4 + 3];
-                        out_pixels[j++] = frame.pixels[i * 4 + 3];
-                        out_pixels[j++] = frame.pixels[i * 4 + 3];
+                        out_pixels[i*3] = out_pixels[i*3 + 1] = out_pixels[i*3 + 2] = frame.pixels[i*4 + 3];
                     }
                     this->doWrite(out_pixels, frame.width, frame.height, count);
 
