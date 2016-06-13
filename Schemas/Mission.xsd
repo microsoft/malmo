@@ -78,8 +78,8 @@
             <xs:all>
                 <xs:element name="Time" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="StartTime" minOccurs="1" maxOccurs="1" >
+                        <xs:all>
+                            <xs:element name="StartTime" minOccurs="0" maxOccurs="1" >
                                 <xs:simpleType>
                                     <xs:restriction base="xs:int">
                                         <xs:minInclusive value="1" />
@@ -88,7 +88,19 @@
                                 </xs:simpleType>
                             </xs:element>
                             <xs:element name="AllowPassageOfTime" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true" />
-                        </xs:sequence>
+                            <xs:element name="MsPerTick" minOccurs="0" maxOccurs="1" >
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        Default is 50ms per tick (20hz). Double-speed would be 25ms/tick. For best results, stick to reasonable values (that the server might be able to cope with), which also result in a whole number of ticks per second.
+                                    </xs:documentation>
+                                </xs:annotation>
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:int">
+                                        <xs:minInclusive value="1" />
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:all>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="Weather" minOccurs="0" maxOccurs="1" default="normal">

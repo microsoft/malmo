@@ -116,7 +116,8 @@ namespace malmo
             }
             else {
                 StartTime st(t);
-                Time time(st);
+                Time time;
+                time.StartTime(st);
                 time.AllowPassageOfTime(allowTimeToPass);
                 timeq.set( time );
             }
@@ -124,7 +125,8 @@ namespace malmo
         else
         {
             StartTime st(t);
-            Time time(st);
+            Time time;
+            time.StartTime(st);
             time.AllowPassageOfTime(allowTimeToPass);
             ServerInitialConditions sic;
             sic.Time(time);

@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import com.microsoft.Malmo.Schemas.ContinuousMovementCommand;
 import com.microsoft.Malmo.Schemas.ContinuousMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 /** Class which overrides movement of the Minecraft player and exposes control of it to external agents.<br>
  * This allows the player to act as a robot with the ability to move backwards/forwards, strafe left/right, and turn clockwise/anticlockwise,
@@ -149,8 +150,9 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
     	this.lastAngularUpdateTime = timeNow;
     	
     	// Work out how much the yaw and pitch should have changed in that time:
-    	double deltaYaw = this.yawScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
-    	double deltaPitch = this.pitchScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
+    	double overclockScale = 50.0 / (double)TimeHelper.serverTickLength;
+    	double deltaYaw = this.yawScale * overclockScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
+    	double deltaPitch = this.pitchScale * overclockScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
 
     	// And update them:
         mYaw += deltaYaw;

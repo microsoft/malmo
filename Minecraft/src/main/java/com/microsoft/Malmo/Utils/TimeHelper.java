@@ -1,5 +1,10 @@
 package com.microsoft.Malmo.Utils;
 
+import java.lang.reflect.Field;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.util.Timer;
 import net.minecraft.world.World;
 
 /** Time-based methods and helpers.<br>
@@ -12,6 +17,7 @@ public class TimeHelper
 {
     public final static float MillisecondsPerWorldTick = 50.0f;
     public final static float MillisecondsPerSecond = 1000.0f;
+    public static long serverTickLength = 50;
     
     /** Very simple stopwatch-style timer class; times in WorldTicks.
      */
@@ -52,5 +58,38 @@ public class TimeHelper
             long duration = (stopTime != 0) ? this.stopTime - this.startTime : this.world.getTotalWorldTime() - this.startTime;
             return duration * MillisecondsPerWorldTick;
         }
-    }  
+    }
+    
+    static public boolean setMinecraftClientClockSpeed(float ticksPerSecond)
+    {
+        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        // We need to know, because the member name will either be obfuscated or not.
+        String timerMemberName = devEnv ? "timer" : "field_71428_T";
+        // NOTE: obfuscated name may need updating if Forge changes - search for "timer" in Malmo\Minecraft\build\tasklogs\retromapSources.log
+        Field timer;
+        try
+        {
+            timer = Minecraft.class.getDeclaredField(timerMemberName);
+            timer.setAccessible(true);
+            timer.set(Minecraft.getMinecraft(), new Timer(ticksPerSecond));
+            return true;
+        }
+        catch (SecurityException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
