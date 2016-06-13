@@ -13,6 +13,7 @@
 // Boost:
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/thread.hpp>
 
 namespace malmo
 {
@@ -51,6 +52,7 @@ namespace malmo
             boost::asio::io_service& io_service;
             boost::shared_ptr< boost::asio::ip::tcp::socket > socket;
             std::deque< std::string > outbox;
+            boost::mutex outbox_mutex;
     };
 }
 
