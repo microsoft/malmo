@@ -18,9 +18,9 @@ namespace malmo
         ~PosixFrameWriter();
         void open() override;
         void close() override;
-        void doWrite(TimestampedVideoFrame message, int frame_index) override;
 
     private:
+        void doWrite(char* rgb, int width, int height, int frame_index) override;
         std::string search_path();
         
         int64_t bit_rate;
