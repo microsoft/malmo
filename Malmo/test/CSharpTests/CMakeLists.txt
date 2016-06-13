@@ -19,37 +19,23 @@ if ( ALE_FOUND )
   )
 endif()
 
+if( WIN32 )
+  set( TEST_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG> )
+else()
+  set( TEST_FOLDER ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
+
 foreach( file ${CSHARP_TEST_SOURCES} )
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "CSharpTests_${test_name}" )  
-  
+
   csharp_add_executable( ${test_name} ${file} "${MALMO_CSHARP_DIR}/MalmoNET.dll" )
   add_dependencies( ${test_name} MalmoNET )
-  
-  IF( WIN32 )
-    ADD_CUSTOM_COMMAND(TARGET ${test_name} 
-    POST_BUILD
-    COMMAND set
-    ARGS malmonet_dir=$<TARGET_FILE_DIR:MalmoNETNative>
-    COMMAND set
-    ARGS malmonet_dir=%malmonet_dir:/=\\%
-    COMMAND copy
-    ARGS /Y %malmonet_dir%\\*.dll .
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)"
-    COMMENT "Copying dependencies"  
-    )
-  ELSE( UNIX )
-    ADD_CUSTOM_COMMAND(TARGET ${test_name}
-    POST_BUILD
-    COMMAND cp
-    ARGS $<TARGET_FILE_DIR:MalmoNETNative>/MalmoNET.dll .
-    COMMAND cp
-    ARGS $<TARGET_FILE_DIR:MalmoNETNative>/libMalmoNETNative.so .
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)"
-    COMMENT "Copying dependencies"
-    )
-  ENDIF( WIN32 )
-      
+
+  # copy the MalmoNET dynamic libraries to the test build folder
+  add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/MalmoNET.dll ${TEST_FOLDER}/MalmoNET.dll )
+  add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/${MALMO_NET_NATIVE} ${TEST_FOLDER}/${MALMO_NET_NATIVE} )
+
   if( NOT WIN32 )
     add_test( NAME ${test_name} COMMAND ${CSHARP_INTERPRETER} ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
   else()
@@ -60,12 +46,12 @@ endforeach()
 
 # copy the schema files to the test build folder
 foreach( xsd_file ${SCHEMA_FILES} )
-get_filename_component( out_file ${xsd_file} NAME )
-set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
-add_custom_command( 
-  TARGET ${test_name}
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND}
-  ARGS -E copy_if_different ${xsd_file} ${out_file}
-)
+  get_filename_component( out_file ${xsd_file} NAME )
+  set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
+  add_custom_command( 
+    TARGET ${test_name}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_if_different ${xsd_file} ${out_file}
+  )
 endforeach()

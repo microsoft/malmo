@@ -44,11 +44,13 @@ SWIG_ADD_MODULE(MalmoNETNative csharp MalmoNETNative.i )
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 SWIG_LINK_LIBRARIES(${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
 
-if ( UNIX )
-    set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".so")
-else ( WIN32 )
-    set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".dll")
-endif( UNIX )
+if( UNIX )
+  set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".so")
+  set( MALMO_NET_NATIVE "${SWIG_MODULE_MalmoNETNative_REAL_NAME}.so" CACHE INTERNAL "The MalmoNETNative built library" )
+else()
+  set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".dll")
+  set( MALMO_NET_NATIVE "${SWIG_MODULE_MalmoNETNative_REAL_NAME}.dll" CACHE INTERNAL "The MalmoNETNative built library" )
+endif()
 
 # Configure AssemblyInfo.cs
 configure_file(
