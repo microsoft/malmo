@@ -3,12 +3,23 @@
 # --------------------------------------------------------------------------------------------------------------------
 
 add_subdirectory( Cpp_examples )
-add_subdirectory( CSharp_examples )
-add_subdirectory( Java_examples )
-add_subdirectory( Python_examples )
-if( UNIX AND NOT APPLE )
+
+if( INCLUDE_CSHARP )
+  add_subdirectory( CSharp_examples )
+endif()
+
+if( INCLUDE_JAVA )
+  add_subdirectory( Java_examples )
+endif()
+
+if( INCLUDE_PYTHON )
+  add_subdirectory( Python_examples )
+endif()
+
+if( INCLUDE_LUA )
   add_subdirectory( Lua_examples )
-  if( Torch_FOUND )
-    add_subdirectory( Torch_examples )
-  endif()
+endif()
+
+if( INCLUDE_TORCH )
+  add_subdirectory( Torch_examples )
 endif()
