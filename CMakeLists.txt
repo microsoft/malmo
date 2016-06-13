@@ -16,7 +16,7 @@ set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION
 
 set( BUILD_MOD_DESC           "Specifies whether to build the Malmo Minecraft Mod" )
 set( BUILD_DOCUMENTATION_DESC "Specifies whether to build the documentation for the API and XML" )
-set( INCLUDE_ALE_DESC         "Specifies whether to build Malmo with bindings to the Atari Learning Environment" )
+set( INCLUDE_ALE_DESC         "Specifies whether to build Malmo with bindings to the Arcade Learning Environment" )
 set( INCLUDE_CSHARP_DESC      "Specifies whether to build Malmo with C# bindings" )
 set( INCLUDE_JAVA_DESC        "Specifies whether to build Malmo with Java bindings" )
 set( INCLUDE_LUA_DESC         "Specifies whether to build Malmo with Lua bindings (Linux only)" )
