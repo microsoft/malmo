@@ -28,6 +28,7 @@ set( SOURCES
   tutorial_8.py
   Tutorial.pdf
   to_string_test.py
+  overclock_test.py
 )
 
 set( ALESOURCES
