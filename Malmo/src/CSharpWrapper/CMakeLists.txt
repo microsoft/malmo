@@ -46,10 +46,10 @@ SWIG_LINK_LIBRARIES(${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
 
 if( UNIX )
   set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".so")
-  set( MALMO_NET_NATIVE "${SWIG_MODULE_MalmoNETNative_REAL_NAME}.so" CACHE INTERNAL "The MalmoNETNative built library" )
+  set( MALMO_NET_NATIVE libMalmoNETNative.so CACHE INTERNAL "The MalmoNETNative built library" )
 else()
   set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".dll")
-  set( MALMO_NET_NATIVE "${SWIG_MODULE_MalmoNETNative_REAL_NAME}.dll" CACHE INTERNAL "The MalmoNETNative built library" )
+  set( MALMO_NET_NATIVE MalmoNETNative.dll CACHE INTERNAL "The MalmoNETNative built library" )
 endif()
 
 # Configure AssemblyInfo.cs
