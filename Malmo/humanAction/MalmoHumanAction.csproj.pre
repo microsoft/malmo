@@ -62,10 +62,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MalmoNET">
-      <HintPath>..\..\build\Malmo\src\CSharpWrapper\$(Configuration)\MalmoNET.dll</HintPath>
+      <HintPath>${CMAKE_BINARY_DIR}\Malmo\src\CSharpWrapper\$(Configuration)\MalmoNET.dll</HintPath>
     </Reference>
     <Reference Include="SlimDX">
-      <HintPath>..\..\References\SlimDX.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -127,27 +126,27 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="..\..\Schemas\Mission.xsd">
+    <None Include="${CMAKE_SOURCE_DIR}\Schemas\Mission.xsd">
       <Link>Mission.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\Schemas\MissionEnded.xsd">
+    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionEnded.xsd">
       <Link>MissionEnded.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\Schemas\MissionHandlers.xsd">
+    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionHandlers.xsd">
       <Link>MissionHandlers.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\Schemas\MissionInit.xsd">
+    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionInit.xsd">
       <Link>MissionInit.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\Schemas\Types.xsd">
+    <None Include="${CMAKE_SOURCE_DIR}\Schemas\Types.xsd">
       <Link>Types.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -198,7 +197,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\build\Malmo\src\CSharpWrapper\$(Configuration)\MalmoNETNative.dll">
+    <Content Include="${CMAKE_BINARY_DIR}\Malmo\src\CSharpWrapper\$(Configuration)\MalmoNETNative.dll">
       <Link>MalmoNETNative.dll</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -16,6 +16,8 @@ ELSE()
   SET( CSHARP_BUILD xbuild )
 ENDIF()
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj.pre ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj )
+
 IF( WIN32 )
     ADD_CUSTOM_COMMAND(
        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
