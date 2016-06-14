@@ -23,10 +23,8 @@ set( SOURCES
   tutorial_5.py
   tutorial_5_solved.py
   tutorial_6.py
-  tutorial_6.xml
   tutorial_7.py
   tutorial_8.py
-  Tutorial.pdf
   to_string_test.py
 )
 
@@ -34,8 +32,28 @@ set( ALESOURCES
     ALE_HAC.py
 )
 
-install( FILES ${SOURCES} DESTINATION Python_Examples )
+set( OTHER_FILES
+  tutorial_6.xml
+  Tutorial.pdf
+)
+
+install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )
 
 if ( ALE_FOUND )
     install( FILES ${ALESOURCES} DESTINATION Python_Examples )
 endif()
+
+# add an integration test for each sample
+foreach( file ${SOURCES} )
+
+  get_filename_component( test_name "${file}" NAME_WE )
+  set( test_name "PythonIntegrationTests_${test_name}" )
+  
+  add_test(NAME ${test_name}
+    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
+  )
+  
+  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR}" )
+  
+endforeach()

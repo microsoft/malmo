@@ -38,6 +38,11 @@ foreach( file ${CPP_SAMPLE_SOURCES} )
 
   install( TARGETS ${sample_name} DESTINATION Cpp_Examples )
   
+  # add an integration test
+  get_filename_component( test_name "${file}" NAME_WE )
+  set( test_name "CppIntegrationTests_${test_name}" )
+  add_test(NAME ${test_name} COMMAND ${sample_name} --help )
+  
 endforeach()
 
 install( FILES ${CPP_SAMPLE_SOURCES} ${SCHEMA_FILES} DESTINATION Cpp_Examples )

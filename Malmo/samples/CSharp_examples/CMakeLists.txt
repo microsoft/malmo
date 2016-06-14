@@ -19,35 +19,41 @@ ENDIF()
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj.pre ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj )
 
 IF( WIN32 )
-    ADD_CUSTOM_COMMAND(
-       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
-       COMMAND ${CSHARP_BUILD}
-       ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
-    )
+  ADD_CUSTOM_COMMAND(
+     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
+     COMMAND ${CSHARP_BUILD}
+     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
+  )
     
-    ADD_CUSTOM_TARGET(
-       CSharpExamples_RunMission ALL
-       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
-       SOURCES ${CSHARP_SAMPLE_SOURCES}
-    )
+  ADD_CUSTOM_TARGET(
+    CSharpExamples_RunMission ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
+    SOURCES ${CSHARP_SAMPLE_SOURCES}
+  )
 
-    INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
+  INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
     
+  # add an integration test
+  add_test(NAME CSharpIntegrationTests_RunMission COMMAND CSharpIntegrationTests_RunMission.exe --help )
+  
 ELSE()
-    ADD_CUSTOM_COMMAND(
-       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
-       COMMAND ${CSHARP_BUILD}
-       ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}
-    )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
+    COMMAND ${CSHARP_BUILD}
+    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}
+  )
     
-    ADD_CUSTOM_TARGET(
-       CSharpExamples_RunMission ALL
-       DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
-       SOURCES ${CSHARP_SAMPLE_SOURCES}
-    )
+  ADD_CUSTOM_TARGET(
+    CSharpExamples_RunMission ALL
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
+    SOURCES ${CSHARP_SAMPLE_SOURCES}
+  )
     
-    INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
+  INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
     
+  # add an integration test
+  add_test(NAME CSharpIntegrationTests_RunMission COMMAND mono CSharpIntegrationTests_RunMission.exe --help )
+  
 ENDIF()
 
 ADD_DEPENDENCIES( CSharpExamples_RunMission MalmoNET )
