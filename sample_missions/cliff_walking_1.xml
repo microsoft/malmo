@@ -6,9 +6,14 @@
   </About>
 
   <ServerSection>
-    <ServerInitialConditions>
-        <Time><StartTime>1</StartTime></Time>
-    </ServerInitialConditions>
+	  <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+			<Weather>clear</Weather>
+			<AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
     <ServerHandlers>
       <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
       <DrawingDecorator>
@@ -31,13 +36,21 @@
     </AgentStart>
     <AgentHandlers>
       <ObservationFromFullStats/>
+	  <VideoProducer want_depth="false">
+          <Width>640</Width>
+          <Height>480</Height>
+      </VideoProducer>
+	  <ContinuousMovementCommands turnSpeedDegs="240">
+          <ModifierList type="deny-list">
+            <command>attack</command>
+          </ModifierList>
+      </ContinuousMovementCommands>
       <RewardForTouchingBlockType>
         <Block reward="-100.0" type="lava" behaviour="onceOnly"/>
         <Block reward="100.0" type="lapis_block" behaviour="onceOnly"/>
       </RewardForTouchingBlockType>
       <RewardForSendingCommand reward="-1" />
       <AgentQuitFromTouchingBlockType>
-          <Block type="lava" />
           <Block type="lapis_block" />
       </AgentQuitFromTouchingBlockType>
     </AgentHandlers>
