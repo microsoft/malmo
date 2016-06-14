@@ -96,6 +96,16 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
 itemdrawingxml = GetItemDrawingXML()
 
 for iRepeat in range(30000):

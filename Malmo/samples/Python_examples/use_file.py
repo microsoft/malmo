@@ -13,15 +13,21 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalStringArgument( "file", "An XML mission specification file to use - see Sample_missions folder.", "" )
-agent_host.parse( sys.argv )
-input_file_name = agent_host.getStringArgument( "file" )
-if input_file_name == "":
-    print '\nERROR: Supply a file to load on the command line.\n'
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
     print agent_host.getUsage()
     exit(1)
 if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
+
+input_file_name = agent_host.getStringArgument( "file" )
+if input_file_name == "":
+    print '\nERROR: Supply a file to load on the command line.\n'
+    print agent_host.getUsage()
+    exit(1)
     
 validate = True
 mission_file = open( agent_host.getStringArgument( "file" ), 'r' )
