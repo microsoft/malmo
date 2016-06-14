@@ -15,9 +15,14 @@ set( SAMPLE_MISSIONS
   default_mission.xml
 )
 
-# add tests to validate each sample file
+set( XML_MISSION_FILES
+  ${SAMPLE_MISSIONS}
+  ../Malmo/samples/Python_examples/tutorial_6.xml
+)
+
+# add tests to validate each mission file
 if( INCLUDE_PYTHON ) # (TODO: validate in C++ instead)
-    foreach( file ${SAMPLE_MISSIONS} )
+    foreach( file ${XML_MISSION_FILES} )
 
       get_filename_component( test_name "${file}" NAME_WE )
       set( test_name "ValidationTests_${test_name}" )
