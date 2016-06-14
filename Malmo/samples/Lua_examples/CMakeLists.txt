@@ -23,9 +23,13 @@ foreach( file ${SOURCES} )
     WORKING_DIRECTORY ${MALMO_LUA_DIR}
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
   )
+
+endforeach()
   
-  # If Torch is installed, each of these files can be tested in Torch too.
-  if( INCLUDE_TORCH )
+# If Torch is installed, each of these files can be tested in Torch too.
+if( INCLUDE_TORCH )
+
+  foreach( file ${SOURCES} )
   
     get_filename_component( test_name "${file}" NAME_WE )
     set( test_name "TorchIntegrationTests_${test_name}" )
@@ -34,7 +38,8 @@ foreach( file ${SOURCES} )
       WORKING_DIRECTORY ${MALMO_LUA_DIR}
       COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
     )
+    
+  endforeach()
   
-  endif()
+endif()
   
-endforeach()
