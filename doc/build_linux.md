@@ -63,14 +63,15 @@
     3. `mkdir build`
     4. `cd build`
     5. `cmake -DCMAKE_BUILD_TYPE=Release ..`  
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
     6. `make`
     7. Test: `ctest`  
        (A few of the tests fail currently but this doesn't seem to affect us.)
 
 9. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
-    2. If you want a GUI, you need to install SDL:
+    2. If you want a GUI, you need to install SDL:  
        `sudo apt-get install libsdl1.2-dev`
     3. `cd ~/ALE`  
        `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
@@ -87,10 +88,14 @@
     3. `cd ~/MalmoPlatform`
     4. `mkdir build`
     5. `cd build`
-    6. For a Debug build: `cmake -DCMAKE_BUILD_TYPE=Debug ..`
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
-    7. For a Release build: `cmake -DCMAKE_BUILD_TYPE=Release ..`
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
+    6. For a Debug build:  
+       `cmake -DCMAKE_BUILD_TYPE=Debug ..`  
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
+    7. For a Release build:  
+       `cmake -DCMAKE_BUILD_TYPE=Release ..`  
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
     8. `make`
 
 10. Test Malmo:
