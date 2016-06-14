@@ -41,7 +41,7 @@ foreach( file ${CPP_SAMPLE_SOURCES} )
   # add an integration test
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "CppIntegrationTests_${test_name}" )
-  add_test(NAME ${test_name} COMMAND ${sample_name} --help )
+  add_test(NAME ${test_name} COMMAND ${sample_name} ) #--help )
   
 endforeach()
 
