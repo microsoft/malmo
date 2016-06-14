@@ -3,16 +3,21 @@
 # --------------------------------------------------------------------------------------------------------------------
 
 set( SAMPLE_MISSIONS
+  default_world_1.xml
+  default_flat_1.xml
+  tricky_arena.xml
+  eating_1.xml
+  cliff_walking_1.xml
+  mazes/maze_1.xml
+  mazes/maze_2.xml
   classroom/basic.xml
   classroom/obstacles.xml
-  classroom/simpleMaze.xml
+  classroom/simpleRoomMaze.xml
+  classroom/attic.xml
   classroom/vertical.xml
+  classroom/complexity_usage.xml
   classroom/medium.xml
   classroom/hard.xml
-  classroom/complexity_usage.xml
-  classroom/specification_usage.xml
-  cliff_walking_1.xml
-  default_mission.xml
 )
 
 # add tests to validate each sample file
