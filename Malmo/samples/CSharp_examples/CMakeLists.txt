@@ -34,7 +34,10 @@ IF( WIN32 )
   INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
     
   # add an integration test
-  add_test(NAME CSharpIntegrationTests_RunMission COMMAND CSharpIntegrationTests_RunMission.exe --help )
+  add_test(
+    NAME CSharpIntegrationTests_RunMission 
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe --help 
+  )
   
 ELSE()
   ADD_CUSTOM_COMMAND(
@@ -52,7 +55,10 @@ ELSE()
   INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
     
   # add an integration test
-  add_test(NAME CSharpIntegrationTests_RunMission COMMAND mono CSharpIntegrationTests_RunMission.exe --help )
+  add_test(
+    NAME CSharpIntegrationTests_RunMission 
+    COMMAND mono ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe --help 
+  )
   
 ENDIF()
 
