@@ -45,13 +45,6 @@ def GetMissionXML():
 
     </Mission>'''
   
-def SendCommand(command): 
-    try:
-        agent_host.sendCommand( command )
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
-
 # Variety of strategies for dealing with loss of motion:
 commandSequences=[
     "jump 1; move 1; wait 1; jump 0; move 1; wait 2",   # attempt to jump over obstacle
@@ -124,7 +117,7 @@ while world_state.is_mission_running:
             if verb == "wait":  # "wait" isn't a Malmo command - it's just used here to pause execution of our "programme".
                 waitCycles = int(param.strip())
             else:
-                SendCommand(command)    # Send the command to Minecraft.
+                agent_host.sendCommand(command)    # Send the command to Minecraft.
                 
     if currentSequence == "" and currentSpeed < 50 and waitCycles == 0: # Are we stuck?
         currentSequence = random.choice(commandSequences)   # Choose a random action (or insert your own logic here for choosing more sensibly...)

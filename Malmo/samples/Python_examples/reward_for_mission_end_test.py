@@ -86,18 +86,10 @@ def GetMineDrawingXML():
     return xml
 
 def SetVelocity(vel): 
-    try:
-        agent_host.sendCommand( "move " + str(vel) )
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
+    agent_host.sendCommand( "move " + str(vel) )
 
 def SetTurn(turn):
-    try:
-        agent_host.sendCommand( "turn " + str(turn) )
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
+    agent_host.sendCommand( "turn " + str(turn) )
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 

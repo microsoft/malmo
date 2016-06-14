@@ -91,14 +91,10 @@ class TabQAgent:
             a = l[y]
             self.logger.info("Taking q action: %s" % self.actions[a])
 
-        # try to send the selected action, only update prev_s if this succeeds
-        try:
-            agent_host.sendCommand(self.actions[a])
-            self.prev_s = current_s
-            self.prev_a = a
-
-        except RuntimeError as e:
-            self.logger.error("Failed to send command: %s" % e)
+        # send the selected action
+        agent_host.sendCommand(self.actions[a])
+        self.prev_s = current_s
+        self.prev_a = a
 
         return current_r
 

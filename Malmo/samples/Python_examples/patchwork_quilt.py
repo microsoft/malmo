@@ -146,12 +146,8 @@ for iRepeat in range(0, 30000):
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = 1-abs(current_yaw_delta)
             
-            try:
-                agent_host.sendCommand( "move " + str(current_speed) )
-                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-            except RuntimeError as e:
-                print "Failed to send command:",e
-                pass
+            agent_host.sendCommand( "move " + str(current_speed) )
+            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
 
     print "Mission has stopped."
     time.sleep(0.5)  # Short pause to allow the Mod to get ready for the next mission.

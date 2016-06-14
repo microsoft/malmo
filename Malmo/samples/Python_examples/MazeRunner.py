@@ -114,12 +114,8 @@ for iRepeat in range(30000):
             current_speed = 1-abs(current_yaw_delta)
             print "Got observation: " + str(current_yaw_delta)
             
-            try:
-                agent_host.sendCommand( "move " + str(current_speed) )
-                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-            except RuntimeError as e:
-                print "Failed to send command:",e
-                pass
+            agent_host.sendCommand( "move " + str(current_speed) )
+            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
 
     print "Mission has stopped."
     time.sleep(0.5) # Give mod a little time to get back to dormant state.

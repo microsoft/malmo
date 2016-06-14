@@ -155,17 +155,13 @@ for iRepeat in range(0, 30000):
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = 1-abs(current_yaw_delta)
             
-            try:
-                agent_host.sendCommand( "move " + str(current_speed) )
-                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-                if num_steps_since_last_chat >= chat_frequency:
-                    agent_host.sendCommand( "chat " + "hello from agent " + str(role) )
-                    num_steps_since_last_chat = 0
-                else:
-                    num_steps_since_last_chat = num_steps_since_last_chat + 1
-            except RuntimeError as e:
-                print "Failed to send command:",e
-                pass
+            agent_host.sendCommand( "move " + str(current_speed) )
+            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
+            if num_steps_since_last_chat >= chat_frequency:
+                agent_host.sendCommand( "chat " + "hello from agent " + str(role) )
+                num_steps_since_last_chat = 0
+            else:
+                num_steps_since_last_chat = num_steps_since_last_chat + 1
 
     print "Mission has stopped."
 

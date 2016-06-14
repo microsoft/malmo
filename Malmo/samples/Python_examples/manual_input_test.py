@@ -93,11 +93,7 @@ print
 # main loop:
 while world_state.is_mission_running:
     nb = raw_input('Enter command: ')
-    try:
-        agent_host.sendCommand(nb)
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
+    agent_host.sendCommand(nb)
     world_state = agent_host.getWorldState()
 
 print "Mission has stopped."

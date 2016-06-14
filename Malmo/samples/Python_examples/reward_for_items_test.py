@@ -70,18 +70,10 @@ def GetItemDrawingXML():
     return xml
 
 def SetVelocity(vel): 
-    try:
-        agent_host.sendCommand( "move " + str(vel) )
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
+    agent_host.sendCommand( "move " + str(vel) )
 
 def SetTurn(turn):
-    try:
-        agent_host.sendCommand( "turn " + str(turn) )
-    except RuntimeError as e:
-        print "Failed to send command:",e
-        pass
+    agent_host.sendCommand( "turn " + str(turn) )
 
 recordingsDirectory="EatingRecordings"
 try:

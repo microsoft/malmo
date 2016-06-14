@@ -192,11 +192,7 @@ for iRepeat in range(30000):
         world_state = agent_host.getWorldState()
     print
 
-    try:
-        agent_host.sendCommand( "move 1" )
-    except RuntimeError as e:
-        logger.error("Failed to send command: %s" % e)
-        pass
+    agent_host.sendCommand( "move 1" )
 
     # main loop:
     while world_state.is_mission_running:
@@ -211,11 +207,7 @@ for iRepeat in range(30000):
         if world_state.is_mission_running:
             processFrame(world_state.video_frames[0].pixels)
             
-            try:
-                agent_host.sendCommand( "turn " + str(current_yaw_delta_from_depth) )
-            except RuntimeError as e:
-                logger.error("Failed to send command: %s" % e)
-                pass
+            agent_host.sendCommand( "turn " + str(current_yaw_delta_from_depth) )
 
     logger.info("Mission has stopped.")
     time.sleep(1) # let the Mod recover

@@ -41,7 +41,7 @@ def keyUp(event):
     if event.keysym == 'Escape':
         root.destroy()
     if event.keysym == 'Right':
-	right = 0
+    right = 0
     if event.keysym == 'Left':
         left = 0
     if event.keysym == 'Up':
@@ -54,48 +54,48 @@ def keyUp(event):
 def keyDown(event):
     global left, right, up, down, fire
     if event.keysym == 'Right':
-	right = 1
-	left = 0	# left and right are mutually exclusive
+    right = 1
+    left = 0    # left and right are mutually exclusive
     if event.keysym == 'Left':
         left = 1
-	right = 0
+    right = 0
     if event.keysym == 'Up':
         up = 1
-	down = 0	# up and down are mutally exclusive
+    down = 0    # up and down are mutally exclusive
     if event.keysym == 'Down':
         down = 1
-	up = 0
+    up = 0
     if event.keysym == 'space':
         fire = 1
 
 
 
 # ALE op-codes:
-#			PLAYER_A_NOOP           = 0,
-#			PLAYER_A_FIRE           = 1,
-#			PLAYER_A_UP             = 2,
-#			PLAYER_A_RIGHT          = 3,
-#			PLAYER_A_LEFT           = 4,
-#			PLAYER_A_DOWN           = 5,
-#			PLAYER_A_UPRIGHT        = 6,
-#			PLAYER_A_UPLEFT         = 7,
-#			PLAYER_A_DOWNRIGHT      = 8,
-#			PLAYER_A_DOWNLEFT       = 9,
-#			PLAYER_A_UPFIRE         = 10,
-#			PLAYER_A_RIGHTFIRE      = 11,
-#			PLAYER_A_LEFTFIRE       = 12,
-#			PLAYER_A_DOWNFIRE       = 13,
-#			PLAYER_A_UPRIGHTFIRE    = 14,
-#			PLAYER_A_UPLEFTFIRE     = 15,
-#			PLAYER_A_DOWNRIGHTFIRE  = 16,
-#			PLAYER_A_DOWNLEFTFIRE   = 17
+#           PLAYER_A_NOOP           = 0,
+#           PLAYER_A_FIRE           = 1,
+#           PLAYER_A_UP             = 2,
+#           PLAYER_A_RIGHT          = 3,
+#           PLAYER_A_LEFT           = 4,
+#           PLAYER_A_DOWN           = 5,
+#           PLAYER_A_UPRIGHT        = 6,
+#           PLAYER_A_UPLEFT         = 7,
+#           PLAYER_A_DOWNRIGHT      = 8,
+#           PLAYER_A_DOWNLEFT       = 9,
+#           PLAYER_A_UPFIRE         = 10,
+#           PLAYER_A_RIGHTFIRE      = 11,
+#           PLAYER_A_LEFTFIRE       = 12,
+#           PLAYER_A_DOWNFIRE       = 13,
+#           PLAYER_A_UPRIGHTFIRE    = 14,
+#           PLAYER_A_UPLEFTFIRE     = 15,
+#           PLAYER_A_DOWNRIGHTFIRE  = 16,
+#           PLAYER_A_DOWNLEFTFIRE   = 17
 
-allops=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]	# all allowed op-codes
-leftops=[4,7,9,12,15,17]	# op-codes with left pressed
-rightops=[3,6,8,11,14,16]	# op-codes with right pressed
-upops=[2,6,7,10,14,15]		# op-codes with up pressed
-downops=[5,8,9,13,16,17]	# op-codes with down pressed
-fireops=[1,10,11,12,13,14,15,16,17]	# op-codes with fire pressed
+allops=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]    # all allowed op-codes
+leftops=[4,7,9,12,15,17]    # op-codes with left pressed
+rightops=[3,6,8,11,14,16]   # op-codes with right pressed
+upops=[2,6,7,10,14,15]      # op-codes with up pressed
+downops=[5,8,9,13,16,17]    # op-codes with down pressed
+fireops=[1,10,11,12,13,14,15,16,17] # op-codes with fire pressed
 
 def startGame():
     #Find filename for the recording:
@@ -134,7 +134,7 @@ def startGame():
 
     gamestats = "Go " + str(gameNum+1) + " out of " + str(iterations) + "\n"
     canvas.delete("all")
-    canvas.create_text(80, 105, text=gamestats + "Click to begin!\nEscape to end")	# The window needs keyboard focus or no way to control game.
+    canvas.create_text(80, 105, text=gamestats + "Click to begin!\nEscape to end")  # The window needs keyboard focus or no way to control game.
 
 
 def sendCommand():
@@ -148,52 +148,48 @@ def sendCommand():
         ops = ops - set(leftops)
 
     if right:
-	ops = ops & set(rightops)
+    ops = ops & set(rightops)
     else:
         ops = ops - set(rightops)
 
     if up:
-	ops = ops & set(upops)
+    ops = ops & set(upops)
     else:
         ops = ops - set(upops)
 
     if down:
-	ops = ops & set(downops)
+    ops = ops & set(downops)
     else:
         ops = ops - set(downops)
 
     if fire:
-	ops = ops & set(fireops)
+    ops = ops & set(fireops)
     else:
         ops = ops - set(fireops)
 
     if len(ops) > 0:
-	    try:
-		agent_host.sendCommand( str(list(ops)[0]) ) # If no keys pressed will send no-op
-	    except RuntimeError as e:
-		#print "Failed to send command:",e
-		pass
-	    # The ALE only updates in response to a command, so get the new world state now.
-	    world_state = agent_host.getWorldState()
-	    for reward in world_state.rewards:
-		if reward.value > 0:
-                    print "Summed reward:",reward.value
-	    for error in world_state.errors:
-		print "Error:",error.text
-	    if world_state.number_of_video_frames_since_last_state > 0 and want_own_display:
-		# Turn the frame into an image to display on our canvas.
-		# On my system creating buff was too slow to be usable, whichever of these three apporaches I tried:
-		buff = str(bytearray(world_state.video_frames[-1].pixels))
-		# Or buff = pack('100800B', *(world_state.video_frames[-1].pixels))
-		# Or buff = array('B', world_state.video_frames[-1].pixels)
-		image = Image.frombytes('RGB', (320,420), buff)
-		photo = ImageTk.PhotoImage(image)
-		canvas.delete("all")
-		canvas.create_image(80,105, image=photo)
-		root.update()
+        agent_host.sendCommand( str(list(ops)[0]) ) # If no keys pressed will send no-op
+        # The ALE only updates in response to a command, so get the new world state now.
+        world_state = agent_host.getWorldState()
+        for reward in world_state.rewards:
+        if reward.value > 0:
+            print "Summed reward:",reward.value
+        for error in world_state.errors:
+            print "Error:",error.text
+        if world_state.number_of_video_frames_since_last_state > 0 and want_own_display:
+            # Turn the frame into an image to display on our canvas.
+            # On my system creating buff was too slow to be usable, whichever of these three apporaches I tried:
+            buff = str(bytearray(world_state.video_frames[-1].pixels))
+            # Or buff = pack('100800B', *(world_state.video_frames[-1].pixels))
+            # Or buff = array('B', world_state.video_frames[-1].pixels)
+            image = Image.frombytes('RGB', (320,420), buff)
+            photo = ImageTk.PhotoImage(image)
+            canvas.delete("all")
+            canvas.create_image(80,105, image=photo)
+            root.update()
 
     if world_state.is_mission_running:
-        canvas.after(0, sendCommand)	# Call sendCommand again as soon as possible within tkinter's event loop.
+        canvas.after(0, sendCommand)    # Call sendCommand again as soon as possible within tkinter's event loop.
     else:
         gameNum = gameNum + 1
         if gameNum < iterations:
@@ -237,7 +233,7 @@ except OSError as exception:
         raise
 
 startGame() # Get things up and ready...
-root.mainloop()	# and enter the event loop
+root.mainloop() # and enter the event loop
 print "Mission has stopped."
-os.system('xset r on')	# set auto-repeat back
+os.system('xset r on')  # set auto-repeat back
 
