@@ -18,57 +18,57 @@ ENDIF()
 
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj.pre ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj )
 
-IF( WIN32 )
+if( WIN32 )
+  set( CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG> )
   ADD_CUSTOM_COMMAND(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
      COMMAND ${CSHARP_BUILD}
-     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
+     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CURRENT_BUILD_DIR}
   )
-    
-  ADD_CUSTOM_TARGET(
-    CSharpExamples_RunMission ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
-    SOURCES ${CSHARP_SAMPLE_SOURCES}
+  add_custom_target( 
+    CSharpExamples_RunMission ALL 
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe 
+    SOURCES ${CSHARP_SAMPLE_SOURCES} 
   )
-
-  INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
-    
-  # add an integration test
-  add_test(
-    NAME CSharpIntegrationTests_RunMission_help 
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe --help 
-  )
-  add_test(
-    NAME CSharpIntegrationTests_RunMission
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe
-  )
-  
-ELSE()
+else()
+  set( CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR} )
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
     COMMAND ${CSHARP_BUILD}
     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}
   )
-    
-  ADD_CUSTOM_TARGET(
-    CSharpExamples_RunMission ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
-    SOURCES ${CSHARP_SAMPLE_SOURCES}
+  add_custom_target(
+    CSharpExamples_RunMission ALL 
+    DEPENDS ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe 
+    SOURCES ${CSHARP_SAMPLE_SOURCES} 
   )
-    
-  INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
-    
-  # add an integration test
-  add_test(
-    NAME CSharpIntegrationTests_RunMission_help 
-    COMMAND mono ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe --help 
+endif()
+
+# copy the schema files to the test build folder
+foreach( xsd_file ${SCHEMA_FILES} )
+  get_filename_component( out_file ${xsd_file} NAME )
+  set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
+  add_custom_command( 
+    TARGET CSharpExamples_RunMission
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND}
+    ARGS -E copy_if_different ${xsd_file} ${out_file}
   )
-  add_test(
-    NAME CSharpIntegrationTests_RunMission 
-    COMMAND mono ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
-  )
-  
-ENDIF()
+endforeach()
+
+INSTALL( FILES ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
+    
+# add integration tests
+add_test(
+  NAME CSharpIntegrationTests_RunMission_help 
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
+  COMMAND ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe --help 
+)
+add_test( 
+  NAME CSharpIntegrationTests_RunMission
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe
+)
 
 ADD_DEPENDENCIES( CSharpExamples_RunMission MalmoNET )
 
