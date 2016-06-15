@@ -18,7 +18,9 @@ public class TimeHelper
     public final static float MillisecondsPerWorldTick = 50.0f;
     public final static float MillisecondsPerSecond = 1000.0f;
     public static long serverTickLength = 50;
-    
+    public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
+    private static long lastUpdateTimeMs;
+
     /** Very simple stopwatch-style timer class; times in WorldTicks.
      */
     static public class WorldTimer
@@ -91,5 +93,15 @@ public class TimeHelper
             e.printStackTrace();
         }
         return false;
+    }
+    
+    static public void updateDisplay()
+    {
+        long timeNow = System.currentTimeMillis();
+        if (timeNow - lastUpdateTimeMs > displayGranularityMs)
+        {
+            Minecraft.getMinecraft().updateDisplay();
+            lastUpdateTimeMs = timeNow;
+        }
     }
 }
