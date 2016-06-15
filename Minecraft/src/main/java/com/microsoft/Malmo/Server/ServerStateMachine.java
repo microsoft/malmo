@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -27,12 +25,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 
-import org.xml.sax.SAXException;
-
-import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
-import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.IState;
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.StateEpisode;
 import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator.DecoratorException;
@@ -42,11 +38,11 @@ import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.InventoryBlock;
 import com.microsoft.Malmo.Schemas.InventoryItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
-import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
@@ -781,9 +777,11 @@ public class ServerStateMachine extends StateMachine
                             world.setWorldTime(sic.getTime().getStartTime());
                     }
                 }
-                if (sic.getTime().getMsPerTick() != null)
-                    TimeHelper.serverTickLength = (long)(sic.getTime().getMsPerTick());
             }
+            ModSettings modsettings = currentMissionInit().getMission().getModSettings();
+            if (modsettings != null && modsettings.getMsPerTick() != null)
+                TimeHelper.serverTickLength = (long)(modsettings.getMsPerTick());
+                
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
         }

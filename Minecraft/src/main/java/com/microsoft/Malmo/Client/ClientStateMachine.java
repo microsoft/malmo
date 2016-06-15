@@ -48,9 +48,7 @@ import com.microsoft.Malmo.Schemas.Mission;
 import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
-import com.microsoft.Malmo.Schemas.ServerInitialConditions;
-import com.microsoft.Malmo.Schemas.ServerInitialConditions.Time;
-import com.microsoft.Malmo.Schemas.ServerSection;
+import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
@@ -1141,13 +1139,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             ClientStateMachine.this.inputController.setInputType(InputType.AI);
             Minecraft.getMinecraft().inGameHasFocus = true; // Otherwise auto-repeat won't work for mouse clicks.
             
-            // Overclock:
-            // The time info is kept in the server initial conditions, but it's used to control both client and server tick speeds.
-            ServerSection ss = currentMissionInit().getMission().getServerSection();
-            ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
-            Time sictime = (sic != null) ? sic.getTime() : null;
-            if (sictime != null && sictime.getMsPerTick() != null)
-                TimeHelper.setMinecraftClientClockSpeed(1000 / sictime.getMsPerTick());
+            // Overclocking:
+            ModSettings modsettings = currentMissionInit().getMission().getModSettings();
+            if (modsettings != null && modsettings.getMsPerTick() != null)
+                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
+            if (modsettings != null && modsettings.isPrioritiseOffscreenRendering())
+                TimeHelper.displayGranularityMs = 1000;
         }
 
         protected void onMissionEnded(IState nextState)
