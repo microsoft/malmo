@@ -23,6 +23,9 @@ if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
 
+if agent_host.receivedArgument("test"):
+    exit(0) # TODO: find a way to usefully run this sample as an integration test
+
 input_file_name = agent_host.getStringArgument( "file" )
 if input_file_name == "":
     print '\nERROR: Supply a file to load on the command line.\n'
@@ -33,12 +36,7 @@ validate = True
 mission_file = open( agent_host.getStringArgument( "file" ), 'r' )
 my_mission = MalmoPython.MissionSpec(mission_file.read(),validate)
 
-if agent_host.receivedArgument("test"):
-    num_reps = 1
-else:
-    num_reps = 30000
-
-for iRepeat in range(num_reps):
+for iRepeat in range(30000):
 
     try:
         my_mission_record = MalmoPython.MissionRecordSpec()

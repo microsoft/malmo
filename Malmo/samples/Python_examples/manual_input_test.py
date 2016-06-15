@@ -103,12 +103,12 @@ while not world_state.is_mission_running:
     world_state = agent_host.getWorldState()
 print
 
-if agent_host.receivedArgument("test"):
-    exit(0)
-
 # main loop:
 while world_state.is_mission_running:
-    nb = raw_input('Enter command: ')
+    if agent_host.receivedArgument("test"):
+        nb = "movenorth 1"
+    else:
+        nb = raw_input('Enter command: ')
     agent_host.sendCommand(nb)
     world_state = agent_host.getWorldState()
 
