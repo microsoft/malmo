@@ -49,9 +49,13 @@ foreach( file ${SOURCES} )
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "PythonIntegrationTests_${test_name}" )
   
-  add_test(NAME ${test_name}
+  add_test(NAME ${test_name}_help
     WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
+  )
+  add_test(NAME ${test_name}
+    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
   )
   
   set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR}" )

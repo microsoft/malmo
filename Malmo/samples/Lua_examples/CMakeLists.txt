@@ -19,9 +19,13 @@ foreach( file ${SOURCES} )
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "LuaIntegrationTests_${test_name}" )
   
-  add_test(NAME ${test_name}
+  add_test(NAME ${test_name}_help
     WORKING_DIRECTORY ${MALMO_LUA_DIR}
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
+  )
+  add_test(NAME ${test_name}
+    WORKING_DIRECTORY ${MALMO_LUA_DIR}
+    COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
   )
 
 endforeach()
@@ -34,9 +38,13 @@ if( INCLUDE_TORCH )
     get_filename_component( test_name "${file}" NAME_WE )
     set( test_name "TorchIntegrationTests_${test_name}" )
     
-    add_test(NAME ${test_name}
+    add_test(NAME ${test_name}_help
       WORKING_DIRECTORY ${MALMO_LUA_DIR}
       COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
+    )
+    add_test(NAME ${test_name}
+      WORKING_DIRECTORY ${MALMO_LUA_DIR}
+      COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     )
     
   endforeach()
