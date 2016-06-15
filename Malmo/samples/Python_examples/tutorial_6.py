@@ -244,7 +244,11 @@ for x in range(1,4):
 
 max_retries = 3
 
-num_repeats = 150
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 150
+
 cumulative_rewards = []
 for i in range(num_repeats):
 

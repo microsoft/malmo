@@ -125,4 +125,3 @@ while world_state.is_mission_running:
 
 # mission has ended.
 print "Mission over - feel free to explore the world."
-exit(1)

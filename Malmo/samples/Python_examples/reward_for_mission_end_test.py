@@ -123,7 +123,12 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
     launchedMission=False
     while not launchedMission:
         try:

@@ -33,7 +33,12 @@ validate = True
 mission_file = open( agent_host.getStringArgument( "file" ), 'r' )
 my_mission = MalmoPython.MissionSpec(mission_file.read(),validate)
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
 
     try:
         my_mission_record = MalmoPython.MissionRecordSpec()

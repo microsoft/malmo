@@ -108,7 +108,12 @@ if agent_host.receivedArgument("help"):
 
 itemdrawingxml = GetItemDrawingXML()
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Nom nom nom run #" + str(iRepeat), itemdrawingxml),validate)
     launchedMission=False
     while not launchedMission:

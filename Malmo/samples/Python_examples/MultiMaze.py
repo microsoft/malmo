@@ -115,7 +115,12 @@ client_pool.add( MalmoPython.ClientInfo( "127.0.0.1", 10001 ) )
 chat_frequency = 30 # if we send chat messages too frequently the agent will be disconnected for spamming
 num_steps_since_last_chat = 0
 
-for iRepeat in range(0, 30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
 
     xorg = (iRepeat % 64) * 32
     zorg = ((iRepeat / 64) % 64) * 32

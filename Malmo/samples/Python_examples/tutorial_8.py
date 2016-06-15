@@ -77,7 +77,12 @@ if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
 
-for i in range(10):
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 10
+
+for i in range(num_repeats):
     my_mission = MalmoPython.MissionSpec(missionXML, True)
     my_mission_record = MalmoPython.MissionRecordSpec()
 

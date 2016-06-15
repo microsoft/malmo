@@ -86,7 +86,12 @@ if agent_host.receivedArgument("help"):
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
 
     try:
         my_mission_record = MalmoPython.MissionRecordSpec()
