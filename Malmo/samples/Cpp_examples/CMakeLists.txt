@@ -49,7 +49,7 @@ foreach( file ${CPP_SAMPLE_SOURCES} )
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "CppIntegrationTests_${test_name}" )
   add_test(NAME ${test_name}_help COMMAND ${sample_name} --help )
-  add_test(NAME ${test_name} COMMAND ${sample_name} )
+  add_test(NAME ${test_name} COMMAND ${sample_name} --test )
   
 endforeach()
 

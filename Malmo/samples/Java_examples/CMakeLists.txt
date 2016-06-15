@@ -34,7 +34,7 @@ foreach( file ${SOURCES} )
   endif()
   set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} --help )
   add_test( NAME ${decorated_test_name}_help COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
-  set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} )
+  set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} --test )
   add_test( NAME ${decorated_test_name} COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
   # copy the schema files to the test build folder
   foreach( xsd_file ${SCHEMA_FILES} )
@@ -47,7 +47,6 @@ foreach( file ${SOURCES} )
       ARGS -E copy_if_different ${xsd_file} ${out_file}
     )
   endforeach()
-        
 
 endforeach()
 

@@ -44,7 +44,7 @@ if( INCLUDE_TORCH )
     )
     add_test(NAME ${test_name}
       WORKING_DIRECTORY ${MALMO_LUA_DIR}
-      COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+      COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test
     )
     
   endforeach()

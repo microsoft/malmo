@@ -65,7 +65,7 @@ add_test(
 add_test( 
   NAME CSharpIntegrationTests_RunMission
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMAND ${CSHARP_RUN} ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe
+  COMMAND ${CSHARP_RUN} ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe --test
 )
 
 ADD_DEPENDENCIES( CSharpExamples_RunMission MalmoNET )
