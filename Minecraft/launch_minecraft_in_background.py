@@ -24,7 +24,7 @@ print 'Nothing is listening on port 10000 - will attempt to launch Minecraft fro
 if os.name == 'nt':
     os.startfile("launchClient.bat")
 else:
-    os.startfile("launchClient.sh")
+    subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", close_fds=True, shell=True )
 
 print 'Giving Minecraft some time to launch: ',
 for i in xrange( 100 ):
