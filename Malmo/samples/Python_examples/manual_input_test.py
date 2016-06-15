@@ -71,6 +71,9 @@ validate = True
 my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
 my_mission.observeRecentCommands()
 
+if agent_host.receivedArgument("test"):
+    my_mission.timeLimitInSeconds(20) # else mission runs forever
+
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
