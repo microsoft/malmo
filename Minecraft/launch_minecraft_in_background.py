@@ -1,10 +1,12 @@
-# Used for integration tests. (To launch Minecraft normally, see launchClient in the Minecraft folder.)
+# Used for integration tests.
 
 import os
 import socket
 import subprocess
 import sys
 import time
+
+print os.getcwd()
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
@@ -19,12 +21,10 @@ if PortHasListener(10000):
     exit(0)
     
 print 'Nothing is listening on port 10000 - will attempt to launch Minecraft from a new terminal.'
-
-path = os.path.join( os.getcwd(), "..", "Minecraft" )
 if os.name == 'nt':
-    subprocess.call( "start cmd /C \"cd " + path + " && launchClient -port 10000\"", shell=True )
+    os.startfile("launchClient.bat")
 else:
-    subprocess.call( "xterm -e \"cd " + path + " && ./launchClient.sh -port 10000\" &", shell=True )
+    os.startfile("launchClient.sh")
 
 print 'Giving Minecraft some time to launch: ',
 for i in xrange( 100 ):

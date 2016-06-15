@@ -4,8 +4,8 @@
 
 add_test(
   NAME PreIntegrationTests
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/launch_minecraft_in_background.py
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../Minecraft
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py
 )
 
 add_subdirectory( src )
