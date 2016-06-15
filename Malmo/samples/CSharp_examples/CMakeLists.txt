@@ -10,15 +10,11 @@ set( CSHARP_SAMPLE_SOURCES
   Program.cs 
 )
 
-IF( WIN32 )
-  SET( CSHARP_BUILD ${CMAKE_VS_MSBUILD_COMMAND} )
-ELSE()
-  SET( CSHARP_BUILD xbuild )
-ENDIF()
-
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj.pre ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj )
 
 if( WIN32 )
+  SET( CSHARP_BUILD ${CMAKE_VS_MSBUILD_COMMAND} )
+  set( CSHARP_RUN "" )
   set( CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG> )
   ADD_CUSTOM_COMMAND(
      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
@@ -31,6 +27,8 @@ if( WIN32 )
     SOURCES ${CSHARP_SAMPLE_SOURCES} 
   )
 else()
+  SET( CSHARP_BUILD xbuild )
+  set( CSHARP_RUN "mono" )
   set( CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR} )
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
@@ -62,12 +60,12 @@ INSTALL( FILES ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe DESTINATION CS
 add_test(
   NAME CSharpIntegrationTests_RunMission_help 
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} 
-  COMMAND ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe --help 
+  COMMAND ${CSHARP_RUN} ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe --help 
 )
 add_test( 
   NAME CSharpIntegrationTests_RunMission
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMAND ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe
+  COMMAND ${CSHARP_RUN} ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe
 )
 
 ADD_DEPENDENCIES( CSharpExamples_RunMission MalmoNET )
