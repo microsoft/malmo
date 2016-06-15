@@ -33,6 +33,8 @@ foreach( file ${SOURCES} )
     set( custom_classpath ${TestJarFile}:${MalmoJarFile} )
   endif()
   set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} --help )
+  add_test( NAME ${decorated_test_name}_help COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
+  set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} )
   add_test( NAME ${decorated_test_name} COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
   # copy the schema files to the test build folder
   foreach( xsd_file ${SCHEMA_FILES} )

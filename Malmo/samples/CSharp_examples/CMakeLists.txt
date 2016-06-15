@@ -35,8 +35,12 @@ IF( WIN32 )
     
   # add an integration test
   add_test(
-    NAME CSharpIntegrationTests_RunMission 
+    NAME CSharpIntegrationTests_RunMission_help 
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe --help 
+  )
+  add_test(
+    NAME CSharpIntegrationTests_RunMission
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe
   )
   
 ELSE()
@@ -56,8 +60,12 @@ ELSE()
     
   # add an integration test
   add_test(
-    NAME CSharpIntegrationTests_RunMission 
+    NAME CSharpIntegrationTests_RunMission_help 
     COMMAND mono ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe --help 
+  )
+  add_test(
+    NAME CSharpIntegrationTests_RunMission 
+    COMMAND mono ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
   )
   
 ENDIF()
