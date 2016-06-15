@@ -105,8 +105,9 @@ print
 
 # main loop:
 while world_state.is_mission_running:
-    if agent_host.receivedArgument("test"):
-        nb = "movenorth 1"
+    if agent_host.receivedArgument("test"): # when running as an integration test
+        nb = "movesouth 1"
+        time.sleep(1)
     else:
         nb = raw_input('Enter command: ')
     agent_host.sendCommand(nb)
