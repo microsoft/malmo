@@ -226,6 +226,9 @@ if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
 
+if agent_host.receivedArgument("test"):
+    exit(0) # can't test any further because mission_file path unknowable TODO: find a way to run this sample as an integration test
+
 # -- set up the python-side drawing -- #
 scale = 40
 world_x = 6

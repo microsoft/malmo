@@ -71,9 +71,6 @@ validate = True
 my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
 my_mission.observeRecentCommands()
 
-if agent_host.receivedArgument("test"):
-    my_mission.timeLimitInSeconds(20) # else mission runs forever
-
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
@@ -84,6 +81,9 @@ except RuntimeError as e:
 if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
+
+if agent_host.receivedArgument("test"):
+    my_mission.timeLimitInSeconds(20) # else mission runs forever
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
