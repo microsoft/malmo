@@ -11,6 +11,9 @@ import time
 import json
 import errno
 from timeit import default_timer as timer
+import matplotlib
+import numpy
+import pylab
 
 MISSION_LENGTH=30
 
@@ -65,7 +68,13 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
-sizes = [(1024,768), (860,480), (640,256), (432,240), (400,400), (400,300), (320,240), (256,256), (224,144), (84,84), (80,80), (80,60)]
+sizes = [(1920,1200), (1280, 920), (1024,768), (860,480), (640,256), (400,400), (400,300), (432,240), (320,240), (256,256), (224,144), (84,84), (80,80), (80,60)]
+
+num_pixels=[]
+fps_offscreen=[]
+fps_onscreen=[]
+datarate_offscreen=[]
+datarate_onscreen=[]
 
 agent_host = MalmoPython.AgentHost()
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
@@ -85,6 +94,8 @@ print "This will run the same simple mission with " + str(len(sizes)) + " differ
 for iRepeat in range(len(sizes) * 2):
     prioritiseOffscreen = "true" if iRepeat % 2 else "false"
     width,height = sizes[iRepeat/2]
+    if iRepeat % 2:
+        num_pixels.append(width*height)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(width), str(height), prioritiseOffscreen), validate)
     # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//RenderSpeed_Test" + str(iRepeat) + ".tgz");
@@ -121,16 +132,37 @@ for iRepeat in range(len(sizes) * 2):
     end = timer()
     missionTimeMs = (end - start) * 1000
     dataShifted = (width * height * 3 * numFrames) / (1024*1024)
+    averagefps = numFrames * 1000 / missionTimeMs
+    datarate = dataShifted * 1000 / missionTimeMs
     
     print "==============================================================================================="
     print "Result of test " + str(iRepeat + 1) + ":"
     print "==============================================================================================="
     print "Frame size: " + str(width) + " x " + str(height)
-    print "Priorising offscreen rendering: " + prioritiseOffscreen
+    print "Prioritising offscreen rendering: " + prioritiseOffscreen
     print "Frames received: " + str(numFrames)
-    print "Average fps: " + "{0:.2f}".format(numFrames * 1000 / missionTimeMs)
+    print "Average fps: " + "{0:.2f}".format(averagefps)
     print "Frame data transferred: " + "{0:.2f}".format(dataShifted) + "MB"
-    print "Data transfer rate: " + "{0:.2f}".format(dataShifted * 1000 / missionTimeMs) + "MB/s"
+    print "Data transfer rate: " + "{0:.2f}".format(datarate) + "MB/s"
     print "==============================================================================================="
     print
+
+    if iRepeat % 2:
+        fps_offscreen.append(averagefps)
+        datarate_offscreen.append(datarate)
+    else:
+        fps_onscreen.append(averagefps)
+        datarate_onscreen.append(datarate)
+        
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
+
+# Now plot some graphs:
+plot_fpsoff = pylab.plot(num_pixels, fps_offscreen, 'r', label='render speed (no onscreen updates)')
+plot_fpson = pylab.plot(num_pixels, fps_onscreen, 'g', label='render speed (with onscreen updates)')
+plot_dataoff = pylab.plot(num_pixels, datarate_offscreen, 'b', label='data transfer speed (no onscreen updates)')
+plot_dataon = pylab.plot(num_pixels, datarate_onscreen, 'y', label='datga transfer speed (with onscreen updates)')
+pylab.xlabel("Frame size (pixels)")
+pylab.ylabel("MB/s or frames/s")
+pylab.legend()
+pylab.title("Plot of render and data-transfer speeds for varying frame sizes, with and without onscreen rendering")
+pylab.show()
