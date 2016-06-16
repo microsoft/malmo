@@ -5,7 +5,7 @@
 set( SAMPLE_MISSIONS
   default_world_1.xml
   default_flat_1.xml
-  tricky_arena.xml
+  tricky_arena_1.xml
   eating_1.xml
   cliff_walking_1.xml
   mazes/maze_1.xml
