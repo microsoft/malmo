@@ -50,12 +50,8 @@ print
 
 # main loop:
 while world_state.is_mission_running:
-    try:
-        agent_host.sendCommand( "move 1" )
-        agent_host.sendCommand( "turn " + str(random.random()*2-1) )
-    except RuntimeError as e:
-        #print "Failed to send command:",e
-        pass
+    agent_host.sendCommand( "move 1" )
+    agent_host.sendCommand( "turn " + str(random.random()*2-1) )
     time.sleep(0.5)
     world_state = agent_host.getWorldState()
     print "video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state

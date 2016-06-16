@@ -64,7 +64,22 @@ def GetMissionXML( seed, gp ):
 
 # Create default Malmo objects:
 agent_host = MalmoPython.AgentHost()
-for i in range(10):
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 10
+
+for i in range(num_repeats):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("random", float(i/10.0)), True)
     my_mission_record = MalmoPython.MissionRecordSpec()
 

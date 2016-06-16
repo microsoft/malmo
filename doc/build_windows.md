@@ -2,7 +2,7 @@
 
 1. Install CMake:
     1. Download and run e.g. `cmake-3.5.0-win32-x86.msi` from https://cmake.org/download/
-    2. If you are new to CMake, see [some notes](doc/cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
+    2. If you are new to CMake, see [some notes](cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
 
 2. Install FFMPEG: 
     1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
@@ -67,25 +67,27 @@
     1. Visit https://slimdx.org/download.php and download the SDK.
 
 11. Build Malmo:
-    1. `mkdir MalmoPlatform` (wherever you want)
-    2. `cd MalmoPlatform`
-    3. `git clone https://github.com/Microsoft/malmo.git .`
-    4. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
-    5. `mkdir build`
-    6. `cd build`
-    7. `cmake -G "Visual Studio 12 2013 Win64" ..`
-    8. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
+    1. Open a Visual Studio 2013 x64 command prompt
+    2. `mkdir MalmoPlatform` (wherever you want)
+    3. `cd MalmoPlatform`
+    4. `git clone https://github.com/Microsoft/malmo.git .`
+    5. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
+    6. `mkdir build`
+    7. `cd build`
+    8. `cmake -G "Visual Studio 12 2013 Win64" ..`
+    9. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
        If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
-    9. For a Debug build: `msbuild Malmo.sln`  
+    10. For a Debug build: `msbuild Malmo.sln`  
        For a Release build: `msbuild Malmo.sln /p:Configuration=Release`  
        Or open `Malmo.sln` in Visual Studio.
  
 12. Test Malmo:
     1. After building Debug: `ctest -C Debug`
     2. After building Release: `ctest -C Release`
-    3. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
+    3. Add `-E Integration` to exclude the integration tests.
     4. Add `-VV` to get verbose output.
-    5. For testing the scripts and samples: `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
+    5. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
+    6. For testing the scripts and samples manually, use `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
 
 13. Make a distributable:
     1. Run all the tests.

@@ -116,10 +116,18 @@ namespace malmo
             void setModeToSpectator();
             
             //! Asks for image data to be sent from Minecraft for the agent. Only supports single agent missions.
+            //! Data will be delivered in a TimestampedVideoFrame structure as RGBRGBRGB...
             //! \param width The width of the image in pixels. Ensure this is divisible by 4.
             //! \param height The height of the image in pixels. Ensure this is divisible by 2.
             void requestVideo(int width, int height);
             
+            //! Asks for image data and depth data to be sent from Minecraft for the agent. Only supports single agent missions.
+            //! Data will be delivered in a TimestampedVideoFrame structure as RGBDRGBDRGBD...
+            //! If saving the video to file only the depth will be recorded, as greyscale.
+            //! \param width The width of the image in pixels. Ensure this is divisible by 4.
+            //! \param height The height of the image in pixels. Ensure this is divisible by 2.
+            void requestVideoWithDepth(int width, int height);
+
             //! Asks for a reward to be sent to the agent when it reaches a certain position. Only supports single agent missions.
             //! \param x The east-west location.
             //! \param y The up-down location.

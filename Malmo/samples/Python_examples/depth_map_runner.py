@@ -170,10 +170,25 @@ validate = True
 my_mission = MalmoPython.MissionSpec( missionXML, validate )
 
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 agent_host.setVideoPolicy(MalmoPython.VideoPolicy.LATEST_FRAME_ONLY)
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
 
     my_mission_record = MalmoPython.MissionRecordSpec()
 
@@ -192,11 +207,7 @@ for iRepeat in range(30000):
         world_state = agent_host.getWorldState()
     print
 
-    try:
-        agent_host.sendCommand( "move 1" )
-    except RuntimeError as e:
-        logger.error("Failed to send command: %s" % e)
-        pass
+    agent_host.sendCommand( "move 1" )
 
     # main loop:
     while world_state.is_mission_running:
@@ -211,11 +222,7 @@ for iRepeat in range(30000):
         if world_state.is_mission_running:
             processFrame(world_state.video_frames[0].pixels)
             
-            try:
-                agent_host.sendCommand( "turn " + str(current_yaw_delta_from_depth) )
-            except RuntimeError as e:
-                logger.error("Failed to send command: %s" % e)
-                pass
+            agent_host.sendCommand( "turn " + str(current_yaw_delta_from_depth) )
 
     logger.info("Mission has stopped.")
     time.sleep(1) # let the Mod recover

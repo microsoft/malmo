@@ -14,6 +14,13 @@ set( MALMO_INCLUDE_FOLDERS
 )
 include_directories( ${MALMO_INCLUDE_FOLDERS} )
 
+# before running the integration tests, launch Minecraft (if needed)
+add_test(
+  NAME PreIntegrationTests
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Minecraft
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py
+)
+
 foreach( file ${CPP_SAMPLE_SOURCES} )
 
   get_filename_component( sample_name ${file} NAME_WE )
@@ -37,6 +44,12 @@ foreach( file ${CPP_SAMPLE_SOURCES} )
   endforeach()
 
   install( TARGETS ${sample_name} DESTINATION Cpp_Examples )
+  
+  # add an integration test
+  get_filename_component( test_name "${file}" NAME_WE )
+  set( test_name "CppIntegrationTests_${test_name}" )
+  add_test(NAME ${test_name}_help COMMAND ${sample_name} --help )
+  add_test(NAME ${test_name} COMMAND ${sample_name} --test )
   
 endforeach()
 

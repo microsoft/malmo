@@ -115,7 +115,7 @@ client_pool.add( MalmoPython.ClientInfo( "127.0.0.1", 10001 ) )
 chat_frequency = 30 # if we send chat messages too frequently the agent will be disconnected for spamming
 num_steps_since_last_chat = 0
 
-for iRepeat in range(0, 30000):
+for iRepeat in range(30000):
 
     xorg = (iRepeat % 64) * 32
     zorg = ((iRepeat / 64) % 64) * 32
@@ -140,6 +140,8 @@ for iRepeat in range(0, 30000):
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
+        if agent_host.receivedArgument("test"):
+            exit(0) # for integration testing just exit now TODO: have integration tests support multi-agent missions
     print
 
     # main loop:
@@ -155,17 +157,13 @@ for iRepeat in range(0, 30000):
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = 1-abs(current_yaw_delta)
             
-            try:
-                agent_host.sendCommand( "move " + str(current_speed) )
-                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-                if num_steps_since_last_chat >= chat_frequency:
-                    agent_host.sendCommand( "chat " + "hello from agent " + str(role) )
-                    num_steps_since_last_chat = 0
-                else:
-                    num_steps_since_last_chat = num_steps_since_last_chat + 1
-            except RuntimeError as e:
-                print "Failed to send command:",e
-                pass
+            agent_host.sendCommand( "move " + str(current_speed) )
+            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
+            if num_steps_since_last_chat >= chat_frequency:
+                agent_host.sendCommand( "chat " + "hello from agent " + str(role) )
+                num_steps_since_last_chat = 0
+            else:
+                num_steps_since_last_chat = num_steps_since_last_chat + 1
 
     print "Mission has stopped."
 

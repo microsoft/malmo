@@ -292,6 +292,8 @@ public:
 
   void requestVideo(int width, int height);
   
+  void requestVideoWithDepth(int width, int height);
+  
   void rewardForReachingPosition(int x, int y, int z, float amount, float tolerance);
 
   void observeRecentCommands();

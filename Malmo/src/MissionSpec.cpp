@@ -219,6 +219,16 @@ namespace malmo
         vps.set( VideoProducer( width, height ) );
     }
     
+    void MissionSpec::requestVideoWithDepth(int width, int height)
+    {
+        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
+        if (vps.present())
+            throw runtime_error("MissionSpec::requestVideoWithDepth : video was already requested for this agent");
+        VideoProducer vp(width, height);
+        vp.want_depth(true);
+        vps.set(vp);
+    }
+
     void MissionSpec::rewardForReachingPosition(int x, int y, int z, float amount, float tolerance)
     {
         AgentHandlers::RewardForReachingPosition_optional& rrp = this->mission->AgentSection().front().AgentHandlers().RewardForReachingPosition();

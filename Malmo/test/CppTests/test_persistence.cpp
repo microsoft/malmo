@@ -141,7 +141,9 @@ int runAgentHost(std::string filename)
         return EXIT_FAILURE;
     }
     
-    ClientInfo client_info( "127.0.0.1" );
+    ClientInfo client_info( "127.0.0.1", 10031 );
+    ClientPool client_pool;
+    client_pool.add( client_info );
   
     boost::asio::io_service io_service;
     
@@ -160,7 +162,7 @@ int runAgentHost(std::string filename)
 
     AgentHost agent_host;
     try {
-        agent_host.startMission(mission, mission_record);
+        agent_host.startMission( mission, client_pool, mission_record, 0, "" );
     }
     catch (const exception& e) {
         cout << "Error starting mission: " << e.what() << "\n" << endl;

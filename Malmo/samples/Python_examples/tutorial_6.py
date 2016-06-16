@@ -220,6 +220,15 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 
 agent = TabQAgent()
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
 
 # -- set up the mission -- #
 mission_file = './tutorial_6.xml'
@@ -235,7 +244,11 @@ for x in range(1,4):
 
 max_retries = 3
 
-num_repeats = 150
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 150
+
 cumulative_rewards = []
 for i in range(num_repeats):
 

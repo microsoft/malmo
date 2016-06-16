@@ -63,16 +63,18 @@
     3. `mkdir build`
     4. `cd build`
     5. `cmake -DCMAKE_BUILD_TYPE=Release ..`  
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
     6. `make`
     7. Test: `ctest`  
        (A few of the tests fail currently but this doesn't seem to affect us.)
 
 9. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
-    2. If you want a GUI, you need to install SDL:
+    2. If you want a GUI, you need to install SDL:  
        `sudo apt-get install libsdl1.2-dev`
     3. `cd ~/ALE`  
+       `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
        `cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`  
        `make`  
        (If you don't want a GUI, use `-DUSE_SDL=OFF`, or leave it unspecified - it's off by default.)
@@ -86,16 +88,21 @@
     3. `cd ~/MalmoPlatform`
     4. `mkdir build`
     5. `cd build`
-    6. For a Debug build: `cmake -DCMAKE_BUILD_TYPE=Debug ..`
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
-    7. For a Release build: `cmake -DCMAKE_BUILD_TYPE=Release ..`
-       On Debian 7 only: `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
+    6. For a Debug build:  
+       `cmake -DCMAKE_BUILD_TYPE=Debug ..`  
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
+    7. For a Release build:  
+       `cmake -DCMAKE_BUILD_TYPE=Release ..`  
+       On Debian 7 only:  
+       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
     8. `make`
 
 10. Test Malmo:
-    1. After building: `ctest`
-    2. Or `ctest -VV` to get verbose output.
-    3. For testing the scripts and samples: `make install` This installs the executables in an 'install' folder from where you can run them.
+    1. `ctest`
+    2. `ctest -E Integration` to exclude the integration tests.
+    3. `ctest -VV` to get verbose output.
+    4. For testing the scripts and samples mnaually, use `make install` This installs the executables in an 'install' folder from where you can run them.
 
 11. Make a distributable:
     1. Run all the tests.
