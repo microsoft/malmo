@@ -184,7 +184,7 @@ if SHOW_PLOT:
     plot_fpsoff = pylab.plot(num_pixels, fps_offscreen, 'r', label='render speed (no onscreen updates)')
     plot_fpson = pylab.plot(num_pixels, fps_onscreen, 'g', label='render speed (with onscreen updates)')
     plot_dataoff = pylab.plot(num_pixels, datarate_offscreen, 'b', label='data transfer speed (no onscreen updates)')
-    plot_dataon = pylab.plot(num_pixels, datarate_onscreen, 'y', label='datga transfer speed (with onscreen updates)')
+    plot_dataon = pylab.plot(num_pixels, datarate_onscreen, 'y', label='data transfer speed (with onscreen updates)')
     pylab.xlabel("Frame size (pixels)")
     pylab.ylabel("MB/s or frames/s")
     pylab.legend()
