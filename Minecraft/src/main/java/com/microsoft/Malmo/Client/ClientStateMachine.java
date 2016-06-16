@@ -48,6 +48,7 @@ import com.microsoft.Malmo.Schemas.Mission;
 import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
+import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
@@ -56,6 +57,7 @@ import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
 import com.microsoft.Malmo.Utils.TCPSocketHelper;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -1136,6 +1138,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Make sure we have mouse control:
             ClientStateMachine.this.inputController.setInputType(InputType.AI);
             Minecraft.getMinecraft().inGameHasFocus = true; // Otherwise auto-repeat won't work for mouse clicks.
+            
+            // Overclocking:
+            ModSettings modsettings = currentMissionInit().getMission().getModSettings();
+            if (modsettings != null && modsettings.getMsPerTick() != null)
+                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
+            if (modsettings != null && modsettings.isPrioritiseOffscreenRendering())
+                TimeHelper.displayGranularityMs = 1000;
         }
 
         protected void onMissionEnded(IState nextState)
@@ -1160,6 +1169,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             closeSockets();
 
             this.videoHook.stop();
+            
+            // Return Minecraft speed to "normal":
+            TimeHelper.setMinecraftClientClockSpeed(20);
+            TimeHelper.displayGranularityMs = 0;
+
             ClientStateMachine.this.missionQuitCode = this.quitCode;
             episodeHasCompleted(nextState);
         }

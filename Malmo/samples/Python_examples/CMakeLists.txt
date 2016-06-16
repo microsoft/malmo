@@ -26,6 +26,8 @@ set( SOURCES
   tutorial_7.py
   tutorial_8.py
   to_string_test.py
+  overclock_test.py
+  render_speed_test.py
 )
 
 set( ALESOURCES

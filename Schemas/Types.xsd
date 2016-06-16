@@ -4,7 +4,7 @@
            targetNamespace="http://ProjectMalmo.microsoft.com"
            xmlns="http://ProjectMalmo.microsoft.com"
            elementFormDefault="qualified"
-           version="0.11">
+           version="0.12">
 
 <!-- The sixteen block colours allowed in the Minecraft world. -->
 <xs:simpleType name="Colour">

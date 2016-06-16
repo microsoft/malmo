@@ -33,6 +33,10 @@ If you preffer to use IntelliJ, steps are a little different.
 
 "gradlew genIntellijRuns" (./gradlew genIntellijRuns if you are on Mac/Linux)
 
+4. For overclocking to work, the JVM needs this argument:
+    -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin
+  Add it using whatever method IntelliJ provides.
+
 Step 5: Run "gradlew build" ("./gradlew build" if you are on Mac/Linux)
 
 Step 6: Open Eclipse and switch your workspace to /eclipse/ (if you use IDEA, it should automatically start on your project)

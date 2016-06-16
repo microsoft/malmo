@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -27,12 +25,10 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 
-import org.xml.sax.SAXException;
-
-import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
-import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.IState;
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.StateEpisode;
 import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator.DecoratorException;
@@ -42,12 +38,13 @@ import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.InventoryBlock;
 import com.microsoft.Malmo.Schemas.InventoryItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
-import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -718,6 +715,8 @@ public class ServerStateMachine extends StateMachine
     {
         ArrayList<String> runningAgents = new ArrayList<String>();
         boolean missionHasEnded = false;
+        long tickCount = 0;
+        long secondStartTimeMs = 0;
 
         protected RunningEpisode(ServerStateMachine machine)
         {
@@ -766,18 +765,23 @@ public class ServerStateMachine extends StateMachine
             ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
             if (sic != null && sic.getTime() != null)
             {
+                boolean allowTimeToPass = (sic.getTime().isAllowPassageOfTime() != Boolean.FALSE);  // Defaults to true if unspecified.
                 MinecraftServer server = MinecraftServer.getServer();
                 if (server.worldServers != null && server.worldServers.length != 0)
                 {
                     for (int i = 0; i < MinecraftServer.getServer().worldServers.length; ++i)
                     {
                         World world = MinecraftServer.getServer().worldServers[i];
-                        boolean allowTimeToPass = (sic.getTime().isAllowPassageOfTime() != Boolean.FALSE);	// Defaults to true if unspecified.
                         world.getGameRules().setOrCreateGameRule("doDaylightCycle", allowTimeToPass ? "true" : "false");
-                        world.setWorldTime(sic.getTime().getStartTime());
+                        if (sic.getTime().getStartTime() != null)
+                            world.setWorldTime(sic.getTime().getStartTime());
                     }
                 }
             }
+            ModSettings modsettings = currentMissionInit().getMission().getModSettings();
+            if (modsettings != null && modsettings.getMsPerTick() != null)
+                TimeHelper.serverTickLength = (long)(modsettings.getMsPerTick());
+                
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
         }
@@ -787,6 +791,24 @@ public class ServerStateMachine extends StateMachine
         {
             if (this.missionHasEnded)
                 return;	// In case we get in here after deciding the mission is over.
+            
+            if (ev.phase == Phase.START)
+            {
+                // Measure our performance - especially useful if we've been overclocked.
+                if (this.secondStartTimeMs == 0)
+                    this.secondStartTimeMs = System.currentTimeMillis();
+
+                long timeNow = System.currentTimeMillis();
+                if (timeNow - this.secondStartTimeMs > 1000)
+                {
+                    long targetTicks = 1000 / TimeHelper.serverTickLength;
+                    if (this.tickCount < targetTicks)
+                        System.out.println("Warning: managed " + this.tickCount + "/" + targetTicks + " ticks this second.");
+                    this.secondStartTimeMs = timeNow;
+                    this.tickCount = 0;
+                }
+                this.tickCount++;
+            }
 
             if (ev.phase == Phase.END && getHandlers() != null && getHandlers().worldDecorator != null)
             {
@@ -819,6 +841,8 @@ public class ServerStateMachine extends StateMachine
 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.cleanup();
+            
+            TimeHelper.serverTickLength = 50;   // Return tick length to 50ms default.
 
             // Mission is over - wait for all agents to stop.
             episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
