@@ -77,6 +77,15 @@ def GetMissionXML( current_seed, xorg, yorg, zorg, iteration ):
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 validate = True
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
 
 # Create a pool of Minecraft Mod clients:
 my_client_pool = MalmoPython.ClientPool()
@@ -98,8 +107,12 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-# Run 30000 missions consecutively:
-for iRepeat in range(0, 30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
     # Find the point at which to create the maze:
     xorg = (iRepeat % 64) * 16
     zorg = ((iRepeat / 64) % 64) * 16

@@ -226,6 +226,9 @@ if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
 
+if agent_host.receivedArgument("test"):
+    exit(0) # can't test any further because mission_file path unknowable TODO: find a way to run this sample as an integration test
+
 # -- set up the python-side drawing -- #
 scale = 40
 world_x = 6
@@ -236,10 +239,12 @@ canvas = tk.Canvas(root, width=world_x*scale, height=world_y*scale, borderwidth=
 canvas.grid()
 root.update()
 
-imap = 0
-while True: # for demo purposes, leave running on different missions each time
-    
-    imap += 1
+if agent_host.receivedArgument("test"):
+    num_maps = 1
+else:
+    num_maps = 30000
+
+for imap in xrange(num_maps):
 
     # -- set up the agent -- #
     #actionSet = ["movenorth 1", "movesouth 1", "movewest 1", "moveeast 1", "turn 1", "turn -1"]
@@ -322,5 +327,3 @@ while True: # for demo purposes, leave running on different missions each time
     print
     print "Cumulative rewards for all %d runs:" % num_repeats
     print cumulative_rewards
-
-#root.mainloop() # keep the visualization window alive for viewing until closed

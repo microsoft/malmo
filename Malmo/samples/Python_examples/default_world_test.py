@@ -57,7 +57,20 @@ commandSequences=[
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 my_mission = MalmoPython.MissionSpec(GetMissionXML(), True)
+
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
+if agent_host.receivedArgument("test"):
+    my_mission.timeLimitInSeconds(20) # else mission runs forever
 
 # Attempt to start the mission:
 try:

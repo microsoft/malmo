@@ -103,6 +103,15 @@ except OSError as exception:
 validate = True
 my_mission = MalmoPython.MissionSpec(GetMissionXML(),validate)
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
 
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,
@@ -114,7 +123,12 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
     launchedMission=False
     while not launchedMission:
         try:

@@ -38,6 +38,7 @@ namespace malmo
         , current_role( 0 )
     {
         this->addOptionalFlag("help,h", "show description of allowed options");
+        this->addOptionalFlag("test",   "run this as an integration test");
 
         // start the io_service on background threads
         this->work = boost::in_place(boost::ref(this->io_service));

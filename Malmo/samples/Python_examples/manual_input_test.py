@@ -72,6 +72,19 @@ my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
 my_mission.observeRecentCommands()
 
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
+if agent_host.receivedArgument("test"):
+    my_mission.timeLimitInSeconds(20) # else mission runs forever
+
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
 my_mission_record = MalmoPython.MissionRecordSpec()
@@ -92,7 +105,11 @@ print
 
 # main loop:
 while world_state.is_mission_running:
-    nb = raw_input('Enter command: ')
+    if agent_host.receivedArgument("test"): # when running as an integration test
+        nb = "movesouth 1"
+        time.sleep(1)
+    else:
+        nb = raw_input('Enter command: ')
     agent_host.sendCommand(nb)
     world_state = agent_host.getWorldState()
 
