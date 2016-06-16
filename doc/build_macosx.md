@@ -29,3 +29,4 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
 
 4. Run the tests:
     1. `ctest`
+    2. `ctest -E Integration` to exclude the integration tests.
