@@ -26,7 +26,7 @@ if os.name == 'nt':
 elif sys.platform == 'darwin':
     subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh'])
 else:
-    subprocess.Popen( "x-term-emulator -e ./launchClient.sh", close_fds=True, shell=True )
+    subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", close_fds=True, shell=True )
 
 print 'Giving Minecraft some time to launch... '
 for i in xrange( 100 ):
