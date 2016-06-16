@@ -11,11 +11,6 @@ import time
 import json
 import errno
 from timeit import default_timer as timer
-import matplotlib
-import numpy
-import pylab
-
-MISSION_LENGTH=30
 
 def GetMissionXML( width, height, prioritiseOffscreen ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
@@ -31,6 +26,11 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
         <ServerSection>
             <ServerInitialConditions>
                 <AllowSpawning>false</AllowSpawning>
+                <Time>
+                    <StartTime>1000</StartTime>
+                    <AllowPassageOfTime>false</AllowPassageOfTime>
+                </Time>
+                <Weather>clear</Weather>
             </ServerInitialConditions>
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
@@ -67,6 +67,30 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
   
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
+agent_host = MalmoPython.AgentHost()
+
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
+if agent_host.receivedArgument("test"):
+    MISSION_LENGTH=5
+    SHOW_PLOT=False
+else:
+    MISSION_LENGTH=10
+    SHOW_PLOT=True
+
+if SHOW_PLOT:
+    import matplotlib
+    import numpy
+    import pylab
+
 validate = True
 sizes = [(1920,1200), (1280, 920), (1024,768), (860,480), (640,256), (400,400), (400,300), (432,240), (320,240), (256,256), (224,144), (84,84), (80,80), (80,60)]
 
@@ -76,7 +100,6 @@ fps_onscreen=[]
 datarate_offscreen=[]
 datarate_onscreen=[]
 
-agent_host = MalmoPython.AgentHost()
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
 recordingsDirectory="Render_Speed_Test_Recordings"
@@ -156,13 +179,14 @@ for iRepeat in range(len(sizes) * 2):
         
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
 
-# Now plot some graphs:
-plot_fpsoff = pylab.plot(num_pixels, fps_offscreen, 'r', label='render speed (no onscreen updates)')
-plot_fpson = pylab.plot(num_pixels, fps_onscreen, 'g', label='render speed (with onscreen updates)')
-plot_dataoff = pylab.plot(num_pixels, datarate_offscreen, 'b', label='data transfer speed (no onscreen updates)')
-plot_dataon = pylab.plot(num_pixels, datarate_onscreen, 'y', label='datga transfer speed (with onscreen updates)')
-pylab.xlabel("Frame size (pixels)")
-pylab.ylabel("MB/s or frames/s")
-pylab.legend()
-pylab.title("Plot of render and data-transfer speeds for varying frame sizes, with and without onscreen rendering")
-pylab.show()
+if SHOW_PLOT:
+    # Now plot some graphs:
+    plot_fpsoff = pylab.plot(num_pixels, fps_offscreen, 'r', label='render speed (no onscreen updates)')
+    plot_fpson = pylab.plot(num_pixels, fps_onscreen, 'g', label='render speed (with onscreen updates)')
+    plot_dataoff = pylab.plot(num_pixels, datarate_offscreen, 'b', label='data transfer speed (no onscreen updates)')
+    plot_dataon = pylab.plot(num_pixels, datarate_onscreen, 'y', label='datga transfer speed (with onscreen updates)')
+    pylab.xlabel("Frame size (pixels)")
+    pylab.ylabel("MB/s or frames/s")
+    pylab.legend()
+    pylab.title("Plot of render and data-transfer speeds for varying frame sizes, with and without onscreen rendering")
+    pylab.show()
