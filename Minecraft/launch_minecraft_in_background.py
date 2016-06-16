@@ -23,10 +23,12 @@ if PortHasListener(10000):
 print 'Nothing is listening on port 10000 - will attempt to launch Minecraft from a new terminal.'
 if os.name == 'nt':
     os.startfile("launchClient.bat")
+elif sys.platform == 'darwin':
+    subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh'])
 else:
-    subprocess.Popen( "xterm -e ./launchClient.sh", close_fds=True, shell=True )
+    subprocess.Popen( "x-term-emulator -e ./launchClient.sh", close_fds=True, shell=True )
 
-print 'Giving Minecraft some time to launch: ',
+print 'Giving Minecraft some time to launch... '
 for i in xrange( 100 ):
     print '.',
     time.sleep( 3 )
