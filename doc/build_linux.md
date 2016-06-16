@@ -99,9 +99,10 @@
     8. `make`
 
 10. Test Malmo:
-    1. After building: `ctest`
-    2. Or `ctest -VV` to get verbose output.
-    3. For testing the scripts and samples: `make install` This installs the executables in an 'install' folder from where you can run them.
+    1. `ctest`
+    2. `ctest -E Integration` to exclude the integration tests.
+    3. `ctest -VV` to get verbose output.
+    4. For testing the scripts and samples mnaually, use `make install` This installs the executables in an 'install' folder from where you can run them.
 
 11. Make a distributable:
     1. Run all the tests.
