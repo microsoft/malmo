@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# run from the script directory
+cd "$(dirname "$0")"
+
 # Error if 1 argument or greater than 2 arguments
 if [ \( $# -eq 1 \) -o \( $# -gt 2 \) ]; then
   echo "Usage: launchClient"

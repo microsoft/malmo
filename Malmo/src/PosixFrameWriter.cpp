@@ -134,15 +134,15 @@ namespace malmo
         }
     }
 
-    void PosixFrameWriter::doWrite(TimestampedVideoFrame message, int frame_index)
+    void PosixFrameWriter::doWrite(char* rgb, int width, int height, int frame_index)
     {
         std::ostringstream oss;
-        oss << "P6\n" << message.width << " " << message.height << "\n255\n";
+        oss << "P6\n" << width << " " << height << "\n255\n";
         ssize_t ret = ::write( this->pipe_fd[1], oss.str().c_str(), oss.str().size() );
         if( ret < 0 )
             throw std::runtime_error( "Call to write failed." );
 
-        ret = ::write( this->pipe_fd[1], (char *)&message.pixels[0], message.pixels.size() );
+        ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
         if( ret < 0 )
             throw std::runtime_error( "Call to write failed." );
     }

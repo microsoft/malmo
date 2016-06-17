@@ -28,9 +28,9 @@ namespace malmo
         ~WindowsFrameWriter();
         void open() override;
         void close() override;
-        void doWrite(TimestampedVideoFrame message, int frame_index) override;
 
     private:
+        void doWrite(char* rgb, int width, int height, int frame_index) override;
         void runFFMPEG();
         std::string search_path();
 

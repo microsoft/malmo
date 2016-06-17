@@ -74,9 +74,24 @@ validate = True
 my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
 
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
-for iRepeat in range(30000):
+if agent_host.receivedArgument("test"):
+    num_reps = 1
+else:
+    num_reps = 30000
+
+for iRepeat in range(num_reps):
 
     try:
         my_mission_record = MalmoPython.MissionRecordSpec()
@@ -114,12 +129,8 @@ for iRepeat in range(30000):
             current_speed = 1-abs(current_yaw_delta)
             print "Got observation: " + str(current_yaw_delta)
             
-            try:
-                agent_host.sendCommand( "move " + str(current_speed) )
-                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-            except RuntimeError as e:
-                print "Failed to send command:",e
-                pass
+            agent_host.sendCommand( "move " + str(current_speed) )
+            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
 
     print "Mission has stopped."
     time.sleep(0.5) # Give mod a little time to get back to dormant state.

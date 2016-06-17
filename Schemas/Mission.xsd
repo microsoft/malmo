@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.11">
+           version="0.12">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -16,6 +16,7 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="About" />
+                <xs:element ref="ModSettings" minOccurs="0" maxOccurs="1" />
                 <xs:element ref="ServerSection" minOccurs="1" maxOccurs="1" />
                 <xs:element ref="AgentSection" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
@@ -23,6 +24,33 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- Section detailing the Mod settings. -->
+    <xs:element name="ModSettings">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="MsPerTick" minOccurs="0" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>
+                            Default is 50ms per tick (20hz). Double-speed would be 25ms/tick. For best results, stick to reasonable values (that the server might be able to cope with), which also result in a whole number of ticks per second.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:int">
+                            <xs:minInclusive value="1" />
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="PrioritiseOffscreenRendering" type="xs:boolean" minOccurs="0" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>
+                            If set to true, the Minecraft window will only be updated once per second during the run of the mission. This will allow the render pipeline to run much faster, resulting in the platform receiving frames at a higher rate.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    
     <!-- Section detailing the server setup. -->
     <xs:element name="ServerSection">
         <xs:complexType>
@@ -78,8 +106,8 @@
             <xs:all>
                 <xs:element name="Time" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="StartTime" minOccurs="1" maxOccurs="1" >
+                        <xs:all>
+                            <xs:element name="StartTime" minOccurs="0" maxOccurs="1" >
                                 <xs:simpleType>
                                     <xs:restriction base="xs:int">
                                         <xs:minInclusive value="1" />
@@ -88,7 +116,7 @@
                                 </xs:simpleType>
                             </xs:element>
                             <xs:element name="AllowPassageOfTime" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true" />
-                        </xs:sequence>
+                        </xs:all>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="Weather" minOccurs="0" maxOccurs="1" default="normal">

@@ -3,11 +3,20 @@
 # --------------------------------------------------------------------------------------------------------------------
 
 add_subdirectory( CppTests )
-add_subdirectory( CSharpTests )
-add_subdirectory( JavaTests )
-add_subdirectory( PythonTests )
 
-IF( UNIX AND NOT APPLE )
+if( INCLUDE_CSHARP )
+  add_subdirectory( CSharpTests )
+endif()
+
+if( INCLUDE_JAVA )
+  add_subdirectory( JavaTests )
+endif()
+
+if( INCLUDE_PYTHON )
+  add_subdirectory( PythonTests )
+endif()
+
+if( INCLUDE_LUA )
   add_subdirectory( LuaTests )
-ENDIF()
+endif()
 

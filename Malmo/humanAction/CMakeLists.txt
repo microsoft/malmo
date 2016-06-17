@@ -24,6 +24,8 @@ SET( MALMO_HUMAN_ACTION_SOURCES
   Score.cs
 )
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/MalmoHumanAction.csproj.pre ${CMAKE_CURRENT_SOURCE_DIR}/MalmoHumanAction.csproj )
+
 ADD_CUSTOM_COMMAND(
    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/MalmoHumanAction.exe
    COMMAND ${CMAKE_VS_MSBUILD_COMMAND}

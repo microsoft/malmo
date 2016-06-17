@@ -22,6 +22,7 @@ public class JavaExamples_run_mission
         try
         {
             StringVector args = new StringVector();
+            args.add("JavaExamples_run_mission");
             for( String arg : argv )
                 args.add( arg );
             agent_host.parse( args );

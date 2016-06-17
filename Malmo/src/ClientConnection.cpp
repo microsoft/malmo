@@ -37,7 +37,9 @@ namespace malmo
         
     void ClientConnection::writeImpl( std::string message )
     {
-        if( message.back() != '\n' )
+        boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
+
+        if (message.back() != '\n')
             message += '\n';
         this->outbox.push_back( message );
         if ( this->outbox.size() > 1 ) {
@@ -66,6 +68,8 @@ namespace malmo
     void ClientConnection::wrote( const boost::system::error_code& error,
                                   size_t bytes_transferred )
     {        
+        boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
+
         this->outbox.pop_front();
         if( !this->outbox.empty() )
             this->write();  

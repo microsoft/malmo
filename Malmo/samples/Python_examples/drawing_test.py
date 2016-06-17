@@ -97,6 +97,16 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 my_mission = MalmoPython.MissionSpec(missionXML,True)
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
 my_mission_record = MalmoPython.MissionRecordSpec()
 try:
     agent_host.startMission( my_mission, my_mission_record )
@@ -115,4 +125,3 @@ while world_state.is_mission_running:
 
 # mission has ended.
 print "Mission over - feel free to explore the world."
-exit(1)

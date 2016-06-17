@@ -84,9 +84,10 @@
 12. Test Malmo:
     1. After building Debug: `ctest -C Debug`
     2. After building Release: `ctest -C Release`
-    3. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
+    3. Add `-E Integration` to exclude the integration tests.
     4. Add `-VV` to get verbose output.
-    5. For testing the scripts and samples: `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
+    5. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
+    6. For testing the scripts and samples manually, use `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
 
 13. Make a distributable:
     1. Run all the tests.

@@ -36,6 +36,18 @@ minecraft {
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
+// Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
+jar {
+    manifest {
+        attributes  'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
+                    'FMLCorePluginContainsFMLMod': 'true'
+    }
+}
+
+// And add to the jvm args so that it is also loaded when running using gradle runClient:
+JavaExec exec = project.getTasks().getByName("runClient")
+exec.jvmArgs("-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin")
+
 dependencies {
     // you may put jars on which you depend on in ./libs
     // or you may define them like so..
