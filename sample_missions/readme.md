@@ -1,9 +1,5 @@
-The folder containt a repository of tasks (missions) in Malmo. 
-- MalmoMissionTable_CurrentTasks_2016_06_14.*: a description of the tasks.
+The folder contains a repository of tasks (missions) in Malmo. 
+- MalmoMissionTable_CurrentTasks_2016_06_14.pdf: a description of the tasks.
 - *.xml: All missions are .xml files. 
-- *.tgz: The tgz files include an instance trace with a recorded video.
 
-Some auxiliary files for testing the tasks:
-- CMakeLists.txt
-- sample_missions_loader.py
-- validate.py
+To explore the sample missions, see Python_Examples/sample_missions_loader.py.
