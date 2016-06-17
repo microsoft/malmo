@@ -44,16 +44,10 @@ public abstract class CommandBase extends HandlerBase implements ICommandHandler
             return false;
         }
 
-        // At the moment we expect commands to be of the form "verb parameter" (eg "move 0.34").
-        // Chuck out anything which doesn't fit this pattern, unless a chat command.
-        String[] parms = command.split(" ");
-        if(parms.length < 2)
-        {
-            System.out.println("command has too few parameters: "+command);
-            return false;
-        }
+        // We expect the first word to be the command, and the rest of the string to be parameters, if present.
+        String[] parms = command.split(" ", 2);
         String verb = parms[0].toLowerCase();
-        String parameter = command.substring( verb.length() + 1 );
+        String parameter = (parms.length > 1) ? parms[1] : "";
 
         // Also chuck out any commands which aren't on our allow list / are on our deny list:
         if (!isCommandAllowed(verb))
