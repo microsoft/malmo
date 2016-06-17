@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
-import com.microsoft.Malmo.Schemas.ChatCommand;
 import com.microsoft.Malmo.Schemas.CommandListModifier;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
