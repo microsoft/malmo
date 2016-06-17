@@ -8,47 +8,47 @@
   </About>
 
   <ServerSection>
-  	<ServerInitialConditions>
+    <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>true</AllowPassageOfTime>
             </Time>
-			<Weather>rain</Weather>
-			<AllowSpawning>true</AllowSpawning>
+            <Weather>rain</Weather>
+            <AllowSpawning>true</AllowSpawning>
     </ServerInitialConditions>
     <ServerHandlers>
       <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
-	  <DrawingDecorator>
+      <DrawingDecorator>
           <DrawBlock type="planks" x="19" y="227" z="18"/>
-		  <DrawBlock type="planks" x="19" y="227" z="20"/>
-		  <DrawBlock type="planks" x="18" y="227" z="18"/>
-		  <DrawBlock type="planks" x="18" y="227" z="20"/>
-		  <DrawBlock type="planks" x="20" y="227" z="18"/>
-		  <DrawBlock type="planks" x="20" y="227" z="19"/>
-		  <DrawBlock type="planks" x="20" y="227" z="20"/>
-		  
-		  <DrawBlock type="planks" x="19" y="228" z="18"/>
-		  <DrawBlock type="planks" x="19" y="228" z="20"/>
-		  <DrawBlock type="planks" x="18" y="228" z="18"/>
-		  <DrawBlock type="planks" x="18" y="228" z="20"/>
-		  <DrawBlock type="planks" x="20" y="228" z="18"/>
-		  <DrawBlock type="planks" x="20" y="228" z="19"/>
-		  <DrawBlock type="planks" x="20" y="228" z="20"/>		  
-		  
-		  <DrawBlock type="planks" x="19" y="229" z="18"/>
-		  <DrawBlock type="planks" x="19" y="229" z="19"/>
-		  <DrawBlock type="planks" x="19" y="229" z="20"/>
-		  <DrawBlock type="planks" x="18" y="229" z="18"/>
-		  <DrawBlock type="planks" x="18" y="229" z="19"/>
-		  <DrawBlock type="planks" x="18" y="229" z="20"/>
-		  <DrawBlock type="planks" x="20" y="229" z="18"/>
-		  <DrawBlock type="planks" x="20" y="229" z="19"/>
-		  <DrawBlock type="planks" x="20" y="229" z="20"/>
-		  
-		  <DrawBlock type="planks" x="19" y="230" z="19"/>
+          <DrawBlock type="planks" x="19" y="227" z="20"/>
+          <DrawBlock type="planks" x="18" y="227" z="18"/>
+          <DrawBlock type="planks" x="18" y="227" z="20"/>
+          <DrawBlock type="planks" x="20" y="227" z="18"/>
+          <DrawBlock type="planks" x="20" y="227" z="19"/>
+          <DrawBlock type="planks" x="20" y="227" z="20"/>
+          
+          <DrawBlock type="planks" x="19" y="228" z="18"/>
+          <DrawBlock type="planks" x="19" y="228" z="20"/>
+          <DrawBlock type="planks" x="18" y="228" z="18"/>
+          <DrawBlock type="planks" x="18" y="228" z="20"/>
+          <DrawBlock type="planks" x="20" y="228" z="18"/>
+          <DrawBlock type="planks" x="20" y="228" z="19"/>
+          <DrawBlock type="planks" x="20" y="228" z="20"/>        
+          
+          <DrawBlock type="planks" x="19" y="229" z="18"/>
+          <DrawBlock type="planks" x="19" y="229" z="19"/>
+          <DrawBlock type="planks" x="19" y="229" z="20"/>
+          <DrawBlock type="planks" x="18" y="229" z="18"/>
+          <DrawBlock type="planks" x="18" y="229" z="19"/>
+          <DrawBlock type="planks" x="18" y="229" z="20"/>
+          <DrawBlock type="planks" x="20" y="229" z="18"/>
+          <DrawBlock type="planks" x="20" y="229" z="19"/>
+          <DrawBlock type="planks" x="20" y="229" z="20"/>
+          
+          <DrawBlock type="planks" x="19" y="230" z="19"/>
       </DrawingDecorator>  
       <ServerQuitFromTimeUp description="" timeLimitMs="100000"/>
-	  <ServerQuitWhenAnyAgentFinishes/>
+      <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
   </ServerSection>
 
@@ -58,7 +58,7 @@
       <Placement pitch="0" x="0" y="227" yaw="0" z="0"/>
     </AgentStart>
     <AgentHandlers>
-	  <ContinuousMovementCommands turnSpeedDegs="180"/>
+      <ContinuousMovementCommands turnSpeedDegs="180"/>
       <ObservationFromFullStats/>
       <VideoProducer want_depth="false">
         <Width>320</Width>
@@ -67,7 +67,7 @@
       <RewardForReachingPosition>
         <Marker oneshot="true" reward="100" tolerance="1.100000023841858" x="19.5" y="227" z="19.5"/>
       </RewardForReachingPosition>      
-	  <AgentQuitFromReachingPosition>
+      <AgentQuitFromReachingPosition>
         <Marker tolerance="1.100000023841858" x="19.5" y="227" z="19.5"/>
       </AgentQuitFromReachingPosition>
     </AgentHandlers>

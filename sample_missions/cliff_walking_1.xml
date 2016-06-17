@@ -6,13 +6,13 @@
   </About>
 
   <ServerSection>
-	  <ServerInitialConditions>
+      <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-			<Weather>clear</Weather>
-			<AllowSpawning>false</AllowSpawning>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
       </ServerInitialConditions>
     <ServerHandlers>
       <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
@@ -36,11 +36,11 @@
     </AgentStart>
     <AgentHandlers>
       <ObservationFromFullStats/>
-	  <VideoProducer want_depth="false">
+      <VideoProducer want_depth="false">
           <Width>640</Width>
           <Height>480</Height>
       </VideoProducer>
-	  <ContinuousMovementCommands turnSpeedDegs="240">
+      <ContinuousMovementCommands turnSpeedDegs="240">
           <ModifierList type="deny-list">
             <command>attack</command>
           </ModifierList>

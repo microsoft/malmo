@@ -7,7 +7,7 @@
         <ServerSection>
             <ServerHandlers>
                 <DefaultWorldGenerator />
-				<ServerQuitFromTimeUp timeLimitMs="3000000" description="out_of_time"/>
+                <ServerQuitFromTimeUp timeLimitMs="3000000" description="out_of_time"/>
                 <ServerQuitWhenAnyAgentFinishes />
             </ServerHandlers>
         </ServerSection>
@@ -15,22 +15,22 @@
         <AgentSection mode="Survival">
             <Name>Rover</Name>
             <AgentStart>
-			      <Placement x="-204" y="81" z="217"/>
+                  <Placement x="-204" y="81" z="217"/>
             </AgentStart>
             <AgentHandlers>
                 <ContinuousMovementCommands/>
                 <ObservationFromFullStats/>
-				<VideoProducer want_depth="false">
+                <VideoProducer want_depth="false">
                    <Width>480</Width>
                    <Height>320</Height>
                 </VideoProducer>
-				<RewardForMissionEnd rewardForDeath="-10000">
+                <RewardForMissionEnd rewardForDeath="-10000">
                     <Reward description="found_goal" reward="1000" />
                     <Reward description="out_of_time" reward="-1000" />
                 </RewardForMissionEnd>
-				<AgentQuitFromTouchingBlockType>
+                <AgentQuitFromTouchingBlockType>
                     <Block type="gold_block diamond_block redstone_block" description="found_goal" />
                 </AgentQuitFromTouchingBlockType>
-            </AgentHandlers>			
+            </AgentHandlers>            
         </AgentSection>
     </Mission>
