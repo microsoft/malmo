@@ -32,20 +32,23 @@ mission_file_no_ext = '../Sample_missions/tricky_arena_1'                  # Min
 #mission_file_no_ext = '../Sample_missions/classroom/hard'                  # Buckingham Palace: big rooms with doors, easy to get lost, ...
 
 
-
-# Create default Malmo objects:
 agent_host = MalmoPython.AgentHost()
-
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
 
 mission_file = mission_file_no_ext + ".xml"
 with open(mission_file, 'r') as f:
     print "Loading mission from %s" % mission_file
     mission_xml = f.read()
     my_mission = MalmoPython.MissionSpec(mission_xml, True)
-	
-#my_mission = MalmoPython.MissionSpec()
-#my_mission_record = MalmoPython.MissionRecordSpec()
-
+    
 # Attempt to start a mission and set the recording:
 launchedMission=False
 while not launchedMission:
@@ -60,8 +63,6 @@ while not launchedMission:
     except RuntimeError as e:
         print "Error starting mission:",e
         exit(1)
-	
-
 
 # Loop until mission starts:
 print "Waiting for the mission to start ",
@@ -76,11 +77,7 @@ while not world_state.is_mission_running:
 print
 print "Mission running ",
 
-
-reward = 0.0
-
-#agent_host.sendCommand("move 1")
-#time.sleep(0.1)
+total_reward = 0.0
 
 # main loop:
 while world_state.is_mission_running:
@@ -88,8 +85,8 @@ while world_state.is_mission_running:
         # For manual commands on the keyboard
         #  nb = raw_input('Enter command: ')
         #  agent_host.sendCommand(nb)
-		
-		# Hardwired moves
+        
+        # Hardwired moves
         agent_host.sendCommand("move " + str(0.5*(random.random()*2-0.5)) )
         agent_host.sendCommand("pitch " + str(0.2*(random.random()*2-1)) )
 #        agent_host.sendCommand("pitch -1")
@@ -103,17 +100,12 @@ while world_state.is_mission_running:
     time.sleep(0.5)
     world_state = agent_host.getWorldState()
     print "video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state
-    for reward2 in world_state.rewards:
-        print "Summed reward:",reward2.value
-        reward += reward2.value
+    for reward in world_state.rewards:
+        print "Summed reward:",reward.value
+        total_reward += reward.value
     for error in world_state.errors:
         print "Error:",error.text
-		
-		
+
 print
 print "Mission ended"
-# Mission has ended.
-print "Total reward = " + str(reward)
-
-for error in world_state.errors:
-    print "Error:",error.text
+print "Total reward = " + str(total_reward)
