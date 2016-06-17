@@ -20,6 +20,11 @@ set( SAMPLE_MISSIONS
   classroom/hard.xml
 )
 
+set( OTHER_FILES
+  readme.md
+  MalmoMissionTable_CurrentTasks_2016_06_14.pdf
+)
+
 # add tests to validate each sample file
 foreach( file ${SAMPLE_MISSIONS} )
 
@@ -36,5 +41,9 @@ foreach( file ${SAMPLE_MISSIONS} )
 endforeach()
 
 # copy the files to the distributable in a Sample_missions folder
-install( FILES ${SAMPLE_MISSIONS} DESTINATION Sample_missions )
+foreach ( file ${SAMPLE_MISSIONS} )
+    get_filename_component( dir ${file} PATH )
+    install( FILES ${file} DESTINATION Sample_missions/${dir} )
+endforeach()
+install( FILES ${OTHER_FILES} DESTINATION Sample_missions )
 
