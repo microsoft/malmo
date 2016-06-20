@@ -44,7 +44,11 @@ namespace malmo
             void timeLimitInSeconds(float s);
             
             //! Instead of the default flat world, make a world using Minecraft's terrain generator.
-            void createDefaultTerrain();
+            void createDefaultTerrain(const std::string& seed="");
+
+            //! Force Minecraft to reload the world rather than use the current one (if appropriate).
+            //! Call this after the world generator has been set (eg after calling createDefaultTerrain).
+            void forceWorldReset();
             
             //! Sets the time of day for the start of the mission.
             //! \param t The time of day, in Minecraft ticks (thousandths of an hour since dawn).

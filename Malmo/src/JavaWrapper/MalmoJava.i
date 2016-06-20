@@ -267,8 +267,10 @@ public:
   std::string getAsXML( bool prettyPrint ) const;
   
   void timeLimitInSeconds(float s);
+
+  void forceWorldReset();
   
-  void createDefaultTerrain();
+  void createDefaultTerrain(const std::string& seed);
   
   void setTimeOfDay(int t,bool allowTimeToPass);
 

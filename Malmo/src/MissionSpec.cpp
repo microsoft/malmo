@@ -94,13 +94,27 @@ namespace malmo
         }
     }
     
-    void MissionSpec::createDefaultTerrain()
+    void MissionSpec::createDefaultTerrain(const std::string& seed /* ="" */)
     {
         this->mission->ServerSection().ServerHandlers().FlatWorldGenerator().reset();
         DefaultWorldGenerator dwg;
+        dwg.seed(seed);
         this->mission->ServerSection().ServerHandlers().DefaultWorldGenerator( dwg );
     }
-    
+
+    void MissionSpec::forceWorldReset()
+    {
+        auto& default_wg = this->mission->ServerSection().ServerHandlers().DefaultWorldGenerator();
+        auto& flat_wg = this->mission->ServerSection().ServerHandlers().FlatWorldGenerator();
+        auto& file_wg = this->mission->ServerSection().ServerHandlers().FileWorldGenerator();
+        if (default_wg.present())
+            default_wg.get().forceReset(true);
+        if (flat_wg.present())
+            flat_wg.get().forceReset(true);
+        if (file_wg.present())
+            file_wg.get().forceReset(true);
+    }
+
     void MissionSpec::setTimeOfDay(int t,bool allowTimeToPass)
     {
         ServerSection::ServerInitialConditions_optional& sicq = this->mission->ServerSection().ServerInitialConditions();

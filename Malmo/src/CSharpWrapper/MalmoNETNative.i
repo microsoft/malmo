@@ -272,7 +272,9 @@ public:
   
   void timeLimitInSeconds(float s);
   
-  void createDefaultTerrain();
+  void forceWorldReset();
+
+  void createDefaultTerrain(const std::string& seed);
   
   void setTimeOfDay(int t,bool allowTimeToPass);
 
