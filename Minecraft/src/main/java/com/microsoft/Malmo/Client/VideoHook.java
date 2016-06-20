@@ -163,6 +163,8 @@ public class VideoHook {
         if (time_before_ns < retry_time_ns)
             return;
 
+        boolean success = false;
+
         try
         {
             int size = this.videoProducer.getRequiredBufferSize();
@@ -172,19 +174,24 @@ public class VideoHook {
             this.videoProducer.getFrame(this.missionInit, this.buffer);
             long time_after_render_ns = System.nanoTime();
             // The buffer gets flipped by getFrame(), so now we can simply write the frame to the socket:
-            this.connection.sendTCPBytes(this.buffer, size);
+            success = this.connection.sendTCPBytes(this.buffer, size);
 
             long time_after_ns = System.nanoTime();
             float ms_send = (time_after_ns - time_after_render_ns) / 1000000.0f;
             float ms_render = (time_after_render_ns - time_before_ns) / 1000000.0f;
-            this.failedTCPSendCount = 0;    // Reset count of failed sends.
+            if (success)
+                this.failedTCPSendCount = 0;    // Reset count of failed sends.
             //            System.out.format("Total: %.2fms; collecting took %.2fms; sending %d bytes took %.2fms\n", ms_send + ms_render, ms_render, size, ms_send);
             //            System.out.println("Collect: " + ms_render + "; Send: " + ms_send);
         }
         catch (Exception e)
         {
-            System.out.format("Failed to send frame to TCP connection.");
-            System.out.format("Will retry in %d seconds\n", RETRY_GAP_NS / 1000000000L);
+            System.out.format(e.getMessage());
+        }
+        
+        if (!success)
+        {
+            System.out.format("Failed to send frame - will retry in %d seconds\n", RETRY_GAP_NS / 1000000000L);
             retry_time_ns = time_before_ns + RETRY_GAP_NS;
             this.failedTCPSendCount++;
         }

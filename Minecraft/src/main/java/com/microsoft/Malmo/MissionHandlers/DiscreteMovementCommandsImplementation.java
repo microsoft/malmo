@@ -6,6 +6,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
+import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Fairly dumb command handler that attempts to move the player one block N,S,E or W.<br> */
@@ -15,6 +16,17 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
     private boolean isOverriding;
     private int direction = -1;
+    
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof DiscreteMovementCommands))
+            return false;
+
+        DiscreteMovementCommands dmparams = (DiscreteMovementCommands)params;
+        setUpAllowAndDenyLists(dmparams.getModifierList());
+        return true;
+    }
     
 	@Override
 	protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
