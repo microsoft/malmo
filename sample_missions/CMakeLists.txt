@@ -3,16 +3,26 @@
 # --------------------------------------------------------------------------------------------------------------------
 
 set( SAMPLE_MISSIONS
+  default_world_1.xml
+  default_flat_1.xml
+  tricky_arena_1.xml
+  eating_1.xml
+  cliff_walking_1.xml
+  mazes/maze_1.xml
+  mazes/maze_2.xml
   classroom/basic.xml
   classroom/obstacles.xml
-  classroom/simpleMaze.xml
+  classroom/simpleRoomMaze.xml
+  classroom/attic.xml
   classroom/vertical.xml
+  classroom/complexity_usage.xml
   classroom/medium.xml
   classroom/hard.xml
-  classroom/complexity_usage.xml
-  classroom/specification_usage.xml
-  cliff_walking_1.xml
-  default_mission.xml
+)
+
+set( OTHER_FILES
+  readme.md
+  MalmoMissionTable_CurrentTasks_2016_06_14.pdf
 )
 
 set( XML_MISSION_FILES
@@ -38,5 +48,9 @@ if( INCLUDE_PYTHON ) # (TODO: validate in C++ instead)
 endif()
 
 # copy the files to the distributable in a Sample_missions folder
-install( FILES ${SAMPLE_MISSIONS} DESTINATION Sample_missions )
+foreach ( file ${SAMPLE_MISSIONS} )
+    get_filename_component( dir ${file} PATH )
+    install( FILES ${file} DESTINATION Sample_missions/${dir} )
+endforeach()
+install( FILES ${OTHER_FILES} DESTINATION Sample_missions )
 
