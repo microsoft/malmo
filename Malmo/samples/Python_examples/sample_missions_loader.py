@@ -42,6 +42,8 @@ except RuntimeError as e:
 if agent_host.receivedArgument("help"):
     print agent_host.getUsage()
     exit(0)
+if agent_host.receivedArgument("test"):
+    exit(0) # TODO: discover test-time folder names
 
 mission_file = mission_file_no_ext + ".xml"
 with open(mission_file, 'r') as f:
