@@ -28,6 +28,10 @@ set( SOURCES
   tutorial_6.py
   tutorial_7.py
   tutorial_8.py
+  to_string_test.py
+  overclock_test.py
+  render_speed_test.py
+  reward_for_discarding_items_test.py
   use_file.py
 )
 
