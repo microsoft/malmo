@@ -40,6 +40,8 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
     @Override
     public boolean parseParameters(Object params)
     {
+        super.parseParameters(params);
+        
     	if (params == null || !(params instanceof AbsoluteMovementCommands))
     		return false;
 
