@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.WorldSettings.GameType;
+import net.minecraft.world.WorldType;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.DefaultWorldGenerator;
@@ -17,7 +17,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 
 public class DefaultWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
-	WorldSettings.GameType gameType;
+	DefaultWorldGenerator dwparams;
 	
 	@Override
 	public boolean parseParameters(Object params)
@@ -25,35 +25,51 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
 		if (params == null || !(params instanceof DefaultWorldGenerator))
 			return false;
 		
-		DefaultWorldGenerator dwparams = (DefaultWorldGenerator)params;
-		this.gameType = GameType.SURVIVAL;
+		this.dwparams = (DefaultWorldGenerator)params;
 		return true;
 	}
 	
-    @Override
+    public static long getWorldSeedFromString(String seedString)
+    {
+        // This seed logic mirrors the Minecraft code in GuiCreateWorld.actionPerformed:
+        long seed = (new Random()).nextLong();
+        if (seedString != null && !seedString.isEmpty())
+        {
+            try
+            {
+                long i = Long.parseLong(seedString);
+                if (i != 0L)
+                    seed = i;
+            }
+            catch (NumberFormatException numberformatexception)
+            {
+                seed = (long)seedString.hashCode();
+            }
+        }
+        return seed;
+    }
+
+	@Override
     public boolean createWorld(MissionInit missionInit)
     {
-        create(this.gameType);
-        return true;
-    }
-    
-    static public void create(WorldSettings.GameType gametype)
-    {
-        long i = (new Random()).nextLong();
+        long seed = getWorldSeedFromString(this.dwparams.getSeed());
         WorldType.worldTypes[0].onGUICreateWorldPress();
-        WorldSettings worldsettings = new WorldSettings(i, gametype, true, false, WorldType.worldTypes[0]);
+        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, WorldType.worldTypes[0]);
         worldsettings.setWorldName("");
         worldsettings.enableCommands();
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
         String s = SimpleDateFormat.getDateTimeInstance().format(new Date()).replace(":", "_");
         Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
+        return true;
     }
 
     @Override
     public boolean shouldCreateWorld(MissionInit missionInit)
     {
-        // TODO - allow a parameter to specify whether the world should *always* be recreated.
+        if (this.dwparams != null && this.dwparams.isForceReset())
+            return true;
+        
     	World world = null;
     	MinecraftServer server = MinecraftServer.getServer();
     	if (server.worldServers != null && server.worldServers.length != 0)

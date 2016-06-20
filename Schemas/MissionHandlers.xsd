@@ -86,6 +86,13 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="seed" use="optional" type="xs:string" default="">
+        <xs:annotation>
+          <xs:documentation>
+            The world seed - leave blank (default) to get a random world.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
