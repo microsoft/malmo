@@ -65,14 +65,14 @@ python run_mission.py
 
 On MacOSX we currently only support the system python, so please use `/usr/bin/python run_mission.py` if not the default. 
 
-#### Running a Lua agent: ####
+#### Running a Lua agent: (Linux only) ####
 
 ```
 cd Lua_Examples
 lua run_mission.lua
 ```
 
-#### Running a Torch agent: ####
+#### Running a Torch agent: (Linux only) ####
 
 ```
 cd Torch_Examples
@@ -127,7 +127,7 @@ mono bin/x64/Debug/CSharpExamples_RunMission.exe
 `java -cp MalmoJavaJar.jar:JavaExamples_run_mission.jar -Djava.library.path=. JavaExamples_run_mission` (on Linux or MacOSX)  
 `java -cp MalmoJavaJar.jar;JavaExamples_run_mission.jar -Djava.library.path=. JavaExamples_run_mission` (on Windows)
 
-#### Running an Atari agent: ####
+#### Running an Atari agent: (Linux only) ####
 
 ```
 cd Python_Examples
