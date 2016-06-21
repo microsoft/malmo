@@ -16,8 +16,8 @@ import com.microsoft.Malmo.Utils.MapFileHelper;
 
 public class FileWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
-	WorldSettings.GameType gameType;
 	String mapFilename;
+	FileWorldGenerator fwparams;
 	
 	@Override
 	public boolean parseParameters(Object params)
@@ -25,8 +25,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
 		if (params == null || !(params instanceof FileWorldGenerator))
 			return false;
 		
-		FileWorldGenerator fwparams = (FileWorldGenerator)params;
-		this.gameType = GameType.SURVIVAL;
+		this.fwparams = (FileWorldGenerator)params;
 		this.mapFilename = fwparams.getSrc();
 		return true;
 	}
@@ -41,11 +40,6 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
             if (mapCopy != null && Minecraft.getMinecraft().getSaveLoader().canLoadWorld(mapCopy.getName()))
             {
                 net.minecraftforge.fml.client.FMLClientHandler.instance().tryLoadExistingWorld(null, mapCopy.getName(), mapSource.getName());
-                // Set the game mode. The best way to do this seems to be to set it in the TagCompound as follows;
-                // this value is then used when adding the player to the game.
-                NBTTagCompound tag = MinecraftServer.getServer().worldServers[0].getWorldInfo().getPlayerNBTTagCompound();
-                if (tag != null)
-                    tag.setInteger("playerGameType", this.gameType.getID());
                 return true;
             }
         }
@@ -55,9 +49,11 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
     @Override
     public boolean shouldCreateWorld(MissionInit missionInit)
     {
+        if (this.fwparams != null && this.fwparams.isForceReset())
+            return true;
+        
         if (this.mapFilename == null || this.mapFilename.length() == 0)
         	return false;	// No basemap specified, so don't create a world.
-        
     	World world = null;
     	MinecraftServer server = MinecraftServer.getServer();
     	if (server.worldServers != null && server.worldServers.length != 0)

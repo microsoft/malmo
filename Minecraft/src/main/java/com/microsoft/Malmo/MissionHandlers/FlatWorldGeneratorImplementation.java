@@ -16,8 +16,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 
 public class FlatWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
-	WorldSettings.GameType gameType;
-	String genString;
+	FlatWorldGenerator fwparams;
 	
 	@Override
 	public boolean parseParameters(Object params)
@@ -25,31 +24,24 @@ public class FlatWorldGeneratorImplementation extends HandlerBase implements IWo
 		if (params == null || !(params instanceof FlatWorldGenerator))
 			return false;
 		
-		FlatWorldGenerator fwparams = (FlatWorldGenerator)params;
-		this.gameType = GameType.SURVIVAL;
-		this.genString = fwparams.getGeneratorString();
+		this.fwparams = (FlatWorldGenerator)params;
 		return true;
 	}
 
     @Override
     public boolean createWorld(MissionInit missionInit)
     {
-        create(this.genString, this.gameType);
-        return true;
-    }
-    
-    static public void create(String genString, WorldSettings.GameType gametype)
-    {
-        WorldSettings worldsettings = new WorldSettings(0, gametype, false, false, WorldType.FLAT);
+        long seed = DefaultWorldGeneratorImplementation.getWorldSeedFromString(this.fwparams.getSeed());
+        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, false, false, WorldType.FLAT);
         // This call to setWorldName allows us to specify the layers of our world, and also the features that will be created.
-        // TODO: this should be a parameter in the Mission XML.
         // This website provides a handy way to generate these strings: http://chunkbase.com/apps/superflat-generator
-        worldsettings.setWorldName(genString);
+        worldsettings.setWorldName(this.fwparams.getGeneratorString());
         worldsettings.enableCommands(); // Enables cheat commands.
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
         String s = SimpleDateFormat.getDateTimeInstance().format(new Date()).replace(":", "_");
         Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
+        return true;
     }
 
     @Override
@@ -60,15 +52,14 @@ public class FlatWorldGeneratorImplementation extends HandlerBase implements IWo
     	if (server.worldServers != null && server.worldServers.length != 0)
     		world = server.getEntityWorld();
     	
-        // TODO - allow a parameter to specify whether the world should *always* be recreated.
+    	if (this.fwparams != null && this.fwparams.isForceReset())
+    	    return true;
+    	
         if (Minecraft.getMinecraft().theWorld == null && world == null)
             return true;    // Definitely need to create a world if there isn't one in existence!
         
-        if (!world.getWorldInfo().getGameType().equals(this.gameType))
-            return true;    // Game types don't match, so recreate.
-
         String genOptions = world.getWorldInfo().getGeneratorOptions();
-        if (!genOptions.equals(this.genString))
+        if (!genOptions.equals(this.fwparams.getGeneratorString()))
             return true;    // Generation doesn't match, so recreate.
         
         return false;

@@ -79,6 +79,20 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested generator string). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="seed" use="optional" type="xs:string" default="">
+        <xs:annotation>
+          <xs:documentation>
+            The world seed - leave blank (default) to get a random world.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -88,7 +102,22 @@
         Generates the default terrain.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType />
+    <xs:complexType>
+      <xs:attribute name="seed" use="optional" type="xs:string" default="">
+        <xs:annotation>
+          <xs:documentation>
+            The world seed - leave blank (default) to get a random world.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="FileWorldGenerator">
@@ -106,6 +135,13 @@
         <xs:annotation>
           <xs:documentation>
             The path to the saved world folder.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>

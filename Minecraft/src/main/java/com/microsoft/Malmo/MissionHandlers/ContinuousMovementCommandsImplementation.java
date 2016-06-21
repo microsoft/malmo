@@ -18,6 +18,8 @@ public class ContinuousMovementCommandsImplementation extends CommandGroup
     @Override
     public boolean parseParameters(Object params)
     {
+        super.parseParameters(params);
+        
         if (params == null || !(params instanceof ContinuousMovementCommands))
             return false;
 
