@@ -671,6 +671,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="selectInventoryItem" />
       <xs:enumeration value="dropInventoryItem" />
+      <xs:enumeration value="discardCurrentItem" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1031,6 +1032,14 @@
   </xs:complexType>
 
   <xs:element name="RewardForCollectingItem">
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Item" type="ItemSpec"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="RewardForDiscardingItem">
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="ItemSpec"/>

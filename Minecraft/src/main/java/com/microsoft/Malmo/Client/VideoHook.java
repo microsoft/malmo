@@ -13,7 +13,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
@@ -62,6 +65,10 @@ public class VideoHook {
      * Object which maintains our connection to the agent.
      */
     private TCPSocketHelper.SocketChannelHelper connection = null;
+    
+    private int renderWidth;
+    
+    private int renderHeight;
 
     ByteBuffer buffer = null;
 
@@ -79,25 +86,11 @@ public class VideoHook {
         this.missionInit = missionInit;
         this.videoProducer = videoProducer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
-
-        // resize the window if we need to
-        int oldRenderWidth = Display.getWidth(); 
-        int oldRenderHeight = Display.getHeight(); 
-        int renderWidth = videoProducer.getWidth(missionInit);
-        int renderHeight = videoProducer.getHeight(missionInit);
-        if( renderWidth != oldRenderWidth || renderHeight != oldRenderHeight )
-        {
-            try {
-                Display.setDisplayMode(new DisplayMode(renderWidth, renderHeight));
-                System.out.println("Resized the window");
-            } catch (LWJGLException e) {
-                System.out.println("Failed to resize the window!");
-                e.printStackTrace();
-            }
-            forceResize(renderWidth, renderHeight);
-        }
+        
+        this.renderWidth = videoProducer.getWidth(missionInit);
+        this.renderHeight = videoProducer.getHeight(missionInit);
+        resizeIfNeeded();
         Display.setResizable(false); // prevent the user from resizing using the window borders
-        // (TODO: prevent F11 and minimize-restore too)
 
         ClientAgentConnection cac = missionInit.getClientAgentConnection();
         if (cac == null)
@@ -112,12 +105,34 @@ public class VideoHook {
         try
         {
             MinecraftForge.EVENT_BUS.register(this);
+            FMLCommonHandler.instance().bus().register(this); 
         }
         catch(Exception e)
         {
             System.out.println("Failed to register video hook: " + e);
         }
         this.isRunning = true;
+    }
+    
+    /**
+     * Resizes the window and the Minecraft rendering if necessary. Set renderWidth and renderHeight first.
+     */
+    private void resizeIfNeeded()
+    {
+        // resize the window if we need to
+        int oldRenderWidth = Display.getWidth(); 
+        int oldRenderHeight = Display.getHeight();
+        if( this.renderWidth == oldRenderWidth && this.renderHeight == oldRenderHeight )
+            return;
+        
+        try {
+            Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
+            System.out.println("Resized the window");
+        } catch (LWJGLException e) {
+            System.out.println("Failed to resize the window!");
+            e.printStackTrace();
+        }
+        forceResize(this.renderWidth, this.renderHeight);
     }
 
     /**
@@ -136,6 +151,7 @@ public class VideoHook {
         try
         {
             MinecraftForge.EVENT_BUS.unregister(this);
+            FMLCommonHandler.instance().bus().unregister(this); 
         }
         catch(Exception e)
         {
@@ -148,7 +164,23 @@ public class VideoHook {
         // allow the user to resize the window again
         Display.setResizable(true);
     }
-
+    
+    /**
+     * Called before and after the rendering of the world.
+     * 
+     * @param event
+     *            Contains information about the event.
+     */
+    @SubscribeEvent
+    public void onRender(RenderTickEvent event)
+    {
+        if( event.phase == Phase.START )
+        {
+            // this is here in case the user has resized the window during a mission
+            resizeIfNeeded();
+        }
+    }
+    
     /**
      * Called when the world has been rendered but not yet the GUI or player hand.
      * 
@@ -156,7 +188,7 @@ public class VideoHook {
      *            Contains information about the event (not used).
      */
     @SubscribeEvent
-    public void onRender(RenderWorldLastEvent event)
+    public void postRender(RenderWorldLastEvent event)
     {
         long time_before_ns = System.nanoTime();
 

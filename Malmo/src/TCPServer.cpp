@@ -76,9 +76,8 @@ namespace malmo
         if (!error)
         {
             new_connection->read();
+            this->startAccept();
         }
-
-        this->startAccept();
     }
 
     int TCPServer::getPort() const

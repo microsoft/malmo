@@ -57,6 +57,11 @@ public class InventoryCommandsImplementation extends CommandBase
                 return true;
             }
         }
+        else if (verb.equalsIgnoreCase(InventoryCommand.DISCARD_CURRENT_ITEM.value()))
+        {
+            Minecraft.getMinecraft().thePlayer.dropOneItem(false);  // false means just drop one item - true means drop everything in the current stack.
+            return true;
+        }
         return false;
     }
 
