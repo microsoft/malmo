@@ -51,6 +51,7 @@
       </RewardForTouchingBlockType>
       <RewardForSendingCommand reward="-1" />
       <AgentQuitFromTouchingBlockType>
+          <Block type="lava" />
           <Block type="lapis_block" />
       </AgentQuitFromTouchingBlockType>
     </AgentHandlers>
