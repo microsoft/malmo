@@ -94,12 +94,21 @@ namespace malmo
         }
     }
     
-    void MissionSpec::createDefaultTerrain(const std::string& seed /* ="" */)
+    void MissionSpec::createDefaultTerrain()
     {
         this->mission->ServerSection().ServerHandlers().FlatWorldGenerator().reset();
         DefaultWorldGenerator dwg;
-        dwg.seed(seed);
         this->mission->ServerSection().ServerHandlers().DefaultWorldGenerator( dwg );
+    }
+
+    void MissionSpec::setWorldSeed(const std::string& seed)
+    {
+        auto& default_wg = this->mission->ServerSection().ServerHandlers().DefaultWorldGenerator();
+        auto& flat_wg = this->mission->ServerSection().ServerHandlers().FlatWorldGenerator();
+        if (default_wg.present())
+            default_wg.get().seed(seed);
+        if (flat_wg.present())
+            flat_wg.get().seed(seed);
     }
 
     void MissionSpec::forceWorldReset()

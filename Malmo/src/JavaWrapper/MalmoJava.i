@@ -265,13 +265,15 @@ public:
   MissionSpec(const std::string& rawMissionXML,bool validate);
 
   std::string getAsXML( bool prettyPrint ) const;
-  
+
   void timeLimitInSeconds(float s);
 
   void forceWorldReset();
-  
-  void createDefaultTerrain(const std::string& seed);
-  
+
+  void setWorldSeed(const std::string& seed);
+
+  void createDefaultTerrain();
+
   void setTimeOfDay(int t,bool allowTimeToPass);
 
   void drawBlock(int x, int y, int z, const std::string& blockType);
