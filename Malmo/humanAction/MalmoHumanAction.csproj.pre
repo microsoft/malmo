@@ -126,31 +126,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="${CMAKE_SOURCE_DIR}\Schemas\Mission.xsd">
-      <Link>Mission.xsd</Link>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionEnded.xsd">
-      <Link>MissionEnded.xsd</Link>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionHandlers.xsd">
-      <Link>MissionHandlers.xsd</Link>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="${CMAKE_SOURCE_DIR}\Schemas\MissionInit.xsd">
-      <Link>MissionInit.xsd</Link>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="${CMAKE_SOURCE_DIR}\Schemas\Types.xsd">
-      <Link>Types.xsd</Link>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
