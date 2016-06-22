@@ -3,6 +3,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 // Local:
+#include "FindSchemaFile.h"
 #include "MissionInitSpec.h"
 
 // Boost:
@@ -48,12 +49,7 @@ namespace malmo
     MissionInitSpec::MissionInitSpec(const std::string& xml, bool validate)
     {
         xml_schema::properties props;
-        ostringstream oss;
-        char *malmo_xsd_path = getenv("MALMO_XSD_PATH");
-        if( !malmo_xsd_path )
-            throw runtime_error( "Set the MALMO_XSD_PATH environment variable to the location of the .xsd schema files." );
-        oss << malmo_xsd_path << "/MissionInit.xsd";
-        props.schema_location(xml_namespace, oss.str());
+        props.schema_location(xml_namespace, FindSchemaFile("MissionInit.xsd"));
 
         xml_schema::flags flags = 0;
         if( !validate )

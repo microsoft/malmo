@@ -6,6 +6,7 @@
 #include "AgentHost.h"
 
 // Local:
+#include "FindSchemaFile.h"
 #include "TCPClient.h"
 #include "WorldState.h"
 
@@ -351,12 +352,7 @@ namespace malmo
                 const bool validate = true;
                 
                 xml_schema::properties props;
-                std::ostringstream oss;
-                char *malmo_xsd_path = getenv("MALMO_XSD_PATH");
-                if( !malmo_xsd_path )
-                    throw std::runtime_error( "Set the MALMO_XSD_PATH environment variable to the location of the .xsd schema files." );
-                oss << malmo_xsd_path << "/MissionEnded.xsd";
-                props.schema_location(xml_namespace, oss.str());
+                props.schema_location(xml_namespace, FindSchemaFile("MissionEnded.xsd"));
 
                 xml_schema::flags flags = 0;
                 if( !validate )

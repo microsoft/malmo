@@ -8,6 +8,7 @@ set( SOURCES
    ClientConnection.cpp
    ClientInfo.cpp
    ClientPool.cpp
+   FindSchemaFile.cpp
    MissionInitSpec.cpp
    MissionRecord.cpp
    MissionRecordSpec.cpp
@@ -36,6 +37,7 @@ set( HEADERS
    ClientConnection.h
    ClientInfo.h
    ClientPool.h
+   FindSchemaFile.h
    MissionInitSpec.h
    MissionRecord.h
    MissionRecordSpec.h
