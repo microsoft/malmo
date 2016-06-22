@@ -20,29 +20,37 @@ namespace malmo
     
     std::string FindSchemaFile( const std::string& name )
     {
+        // first preference: location specified in MALMO_XSD_PATH environment variable
         char *malmo_xsd_path = getenv("MALMO_XSD_PATH");
-
-        bool exists_on_env_path = false;
-        string path_using_env;
         if( malmo_xsd_path )
         {
-            ostringstream oss;
-            oss << malmo_xsd_path << "/" << name;
-            path_using_env = oss.str();
-            exists_on_env_path = fileExists( path_using_env );
+            ostringstream path_using_env;
+            path_using_env << malmo_xsd_path << "/" << name;
+            if( fileExists( path_using_env.str() ) ) 
+            {
+                return path_using_env.str();
+            }
+            else
+            {
+                ostringstream error_message;
+                error_message << "Schema file " << name << " not found in folder specified by MALMO_XSD_PATH environment variable: " << malmo_xsd_path;
+                throw runtime_error( error_message.str() );
+            }
         }    
+        
+        // second preference: current directory
+        if( fileExists( name ) )
+            return name;
             
-        bool exists_in_current_dir = fileExists( name );
-        
-        if( !exists_on_env_path && !exists_in_current_dir )
-            throw runtime_error( "Set the MALMO_XSD_PATH environment variable to the location of the .xsd schema files." );
+        // third preference: ../Schemas
+        ostringstream path_using_relative_dir;
+        path_using_relative_dir << "../Schemas/" << name;
+        if( fileExists( path_using_relative_dir.str() ) )
+            return path_using_relative_dir.str();
 
-        // prefer the file that exists in the location given by the MALMO_XSD_PATH environment variable
-        if( exists_on_env_path )
-            return path_using_env;
-        
-        // file exists in current folder, which is fine too
-        return name;
+        // file not found
+        ostringstream error_message;
+        error_message << "Schema file " << name << " not found. Please set the MALMO_XSD_PATH environment variable to the location of the .xsd schema files.";
+        throw runtime_error( error_message.str() );
     }
 }
-   
