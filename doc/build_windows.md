@@ -72,12 +72,13 @@
     3. `cd MalmoPlatform`
     4. `git clone https://github.com/Microsoft/malmo.git .`
     5. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
-    6. `mkdir build`
-    7. `cd build`
-    8. `cmake -G "Visual Studio 12 2013 Win64" ..`
-    9. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
+    6. Add a new environment variable `MALMO_XSD_PATH` and set it to the path to `MalmoPlatform\Schemas`.
+    7. `mkdir build`
+    8. `cd build`
+    9. `cmake -G "Visual Studio 12 2013 Win64" ..`
+    10. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
        If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
-    10. For a Debug build: `msbuild Malmo.sln`  
+    11. For a Debug build: `msbuild Malmo.sln`  
        For a Release build: `msbuild Malmo.sln /p:Configuration=Release`  
        Or open `Malmo.sln` in Visual Studio.
  
