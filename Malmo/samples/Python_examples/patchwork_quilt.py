@@ -135,6 +135,8 @@ for iRepeat in range(num_reps):
             launchedMission=True
         except RuntimeError as e:
             print "Error starting mission",e
+            if agent_host.receivedArgument("test"):
+                exit(1) # when running as an integration test we should fail at this point
             print "Waiting and retrying"
             time.sleep(1)
 
