@@ -79,6 +79,16 @@ wallclockTimes = []
 distances = []
 
 agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host.getUsage()
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print agent_host.getUsage()
+    exit(0)
+
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
 recordingsDirectory="Overclock_Test_Recordings"
