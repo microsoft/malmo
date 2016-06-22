@@ -22,6 +22,7 @@ if( TEST_MOD )
     COMMAND ${GRADLE} test --info
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   )
+  set_tests_properties( MinecraftTests PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 endif()
 
 # install the Minecraft folder
@@ -43,5 +44,4 @@ foreach ( file ${MOD_FILES} )
 endforeach()
 install( PROGRAMS gradlew DESTINATION Minecraft/ )
 install( PROGRAMS launchClient.sh DESTINATION Minecraft/ )
-install( FILES ${SCHEMA_FILES} DESTINATION Schemas ) # Mod needs Schema files in a relative location in order to build
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar DESTINATION "Mod" )

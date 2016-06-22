@@ -90,7 +90,8 @@ add_custom_command(   # Run CodeSynthesis on the .xsd files to generate C++ sour
     --generate-serialization --hxx-suffix .h --cxx-suffix .cpp #--std c++11
     ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd
     ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
-    DEPENDS ${SCHEMA_FILES}
+    DEPENDS ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd
+    ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
     COMMENT "Generating C++ from XSD files..."
 )
 

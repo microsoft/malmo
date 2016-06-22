@@ -41,8 +41,7 @@ if( INCLUDE_PYTHON ) # (TODO: validate in C++ instead)
         WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/validate.py ${CMAKE_CURRENT_SOURCE_DIR}/${file}
       )
-      
-      set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR}" )
+      set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
       
     endforeach()
 endif()

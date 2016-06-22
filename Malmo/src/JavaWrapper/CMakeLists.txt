@@ -21,7 +21,6 @@ swig_add_module(
 )
 swig_link_libraries( MalmoJava Malmo )
 install( TARGETS MalmoJava DESTINATION Java_Examples )
-install( FILES ${SCHEMA_FILES} DESTINATION Java_Examples )
 
 # build the SWIG Java files into a .jar
 set( SWIG_JAVA_SOURCES

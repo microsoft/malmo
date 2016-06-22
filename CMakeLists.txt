@@ -203,22 +203,14 @@ set( CMAKE_INSTALL_PREFIX "install" ) # useful for testing the sample scripts
 
 # -------------------- Walk the subdirectories --------------------
 
-set( SCHEMA_FILES
-  ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd
-  ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd
-  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd
-  ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd
-  ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
-)
-
 add_subdirectory( Malmo )
 if( BUILD_MOD )
   add_subdirectory( Minecraft )
 endif()
 if( BUILD_DOCUMENTATION )
   add_subdirectory( doc )
-  add_subdirectory( Schemas )
 endif()
+add_subdirectory( Schemas )
 add_subdirectory( sample_missions )
 if( INCLUDE_ALE )
   add_subdirectory( ALE_ROMS )
