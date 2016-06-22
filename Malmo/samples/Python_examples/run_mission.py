@@ -7,6 +7,7 @@ import os
 import random
 import sys
 import time
+#from PIL import Image
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
@@ -59,5 +60,7 @@ while world_state.is_mission_running:
         print "Summed reward:",reward.value
     for error in world_state.errors:
         print "Error:",error.text
-
+    for frame in world_state.video_frames:
+        print "Frame:",frame.width,'x',frame.height,':',frame.channels,'channels'
+        #image = Image.frombytes('RGB', (frame.width, frame.height), str(bytearray(frame.pixels)) ) # to convert to a PIL image
 print "Mission has stopped."
