@@ -938,6 +938,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
      */
     public class PauseOldServerEpisode extends ConfigAwareStateEpisode
     {
+        int serverTickCount = 0;
+        int clientTickCount = 0;
+        
         PauseOldServerEpisode(ClientStateMachine machine)
         {
             super(machine);
@@ -959,13 +962,35 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
-            if (ev != null && ev.phase == Phase.END)
+            // We need to make sure that both the client and server have paused, otherwise we are still susceptible
+            // to the "Holder Lookups" hang.
+            // Since the server sets its pause state in response to the client's pause state,
+            // and it only performs this check once, at the top of its tick method,
+            // to be sure that the server has had time to set the flag correctly we need to make sure that at least one
+            // server tick method has *started* since the flag was set.
+            
+            // We can't do this by catching the onServerTick events, since we don't receive them when the game is paused.
+            
+            // The following code makes use of the fact that the server both locks and empties the server's futureQueue, every
+            // time through the server tick method.
+            // This locking means that if the client - which needs to wait on the lock - tries to add an event to the queue
+            // in response to an event on the queue being executed, the newly added event will have to happen in a subsequent tick.
+            if (Minecraft.getMinecraft().isGamePaused() && ev != null && ev.phase == Phase.END && this.clientTickCount == this.serverTickCount && this.clientTickCount <= 2)
             {
-                if (Minecraft.getMinecraft().isGamePaused())
+                System.out.println("RACING... client tc: " + this.clientTickCount + ", server tc: " + this.serverTickCount);
+                this.clientTickCount++; // Increment our count, and wait for the server to catch up.
+                Minecraft.getMinecraft().getIntegratedServer().addScheduledTask(new Runnable()
                 {
-                    episodeHasCompleted(ClientState.CLOSING_OLD_SERVER);
-                }
+                    public void run()
+                    {
+                        // Increment the server count.
+                        PauseOldServerEpisode.this.serverTickCount++;
+                    }
+                });
             }
+            
+            if (this.serverTickCount > 2)
+                episodeHasCompleted(ClientState.CLOSING_OLD_SERVER);
         }
     };
     //---------------------------------------------------------------------------------------------------------
@@ -983,7 +1008,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             if (Minecraft.getMinecraft().theWorld != null)
             {
+                // If the Minecraft server isn't paused at this point, then the following line will cause the server thread to exit...
                 Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+                // ...in which case the next line will hang.
                 Minecraft.getMinecraft().loadWorld((WorldClient)null);
                 // Must display the GUI or Minecraft will attempt to access a non-existent player in the client tick.
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
