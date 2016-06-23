@@ -38,7 +38,7 @@ if( INCLUDE_TORCH )
   foreach( file ${SOURCES} )
   
     get_filename_component( test_name "${file}" NAME_WE )
-    set( test_name "TorchIntegrationTests_${test_name}" )
+    set( test_name "TorchLuaIntegrationTests_${test_name}" )
     
     add_test(NAME ${test_name}_help
       WORKING_DIRECTORY ${MALMO_LUA_DIR}
