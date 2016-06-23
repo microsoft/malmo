@@ -126,6 +126,9 @@ for iRepeat in range(30000):
     validate = True
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg), validate)
     
+    if agent_host.receivedArgument("test"):
+        exit(0) # for integration testing just exit now TODO: have integration tests support multi-agent missions
+
     try:
         my_mission_record = MalmoPython.MissionRecordSpec()
         unique_experiment_id = "" # if needed, can be used to disambiguate multiple running copies of the same mission
@@ -140,8 +143,6 @@ for iRepeat in range(30000):
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-        if agent_host.receivedArgument("test"):
-            exit(0) # for integration testing just exit now TODO: have integration tests support multi-agent missions
     print
 
     # main loop:
