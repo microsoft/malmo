@@ -6,7 +6,7 @@ import struct
 import socket
 import os
 import sys
-from PIL import Image
+from PIL import Image, ImageDraw
 
 logging.basicConfig(level=logging.INFO)
 
@@ -80,7 +80,7 @@ def processFrame( frame ):
 
     # To visualise what is going on, do the following:
     if 0:
-        imageframe = Image.frombytes( 'RGBA', ( video_width, video_height ), frame )
+        imageframe = Image.frombytes( 'RGBA', ( video_width, video_height ), str(bytearray(frame)) )
         imageframe = imageframe.transpose( Image.FLIP_TOP_BOTTOM )
         draw = ImageDraw.Draw(imageframe)
         draw.line((0, y, video_width, y), fill=128)
