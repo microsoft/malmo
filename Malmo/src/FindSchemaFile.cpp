@@ -8,6 +8,7 @@
 // STL:
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 using namespace std;
 
 namespace malmo
