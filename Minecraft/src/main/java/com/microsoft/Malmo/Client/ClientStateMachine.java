@@ -2,6 +2,7 @@ package com.microsoft.Malmo.Client;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -17,6 +18,8 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraftforge.common.MinecraftForge;
@@ -951,10 +954,55 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             if (Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().theWorld != null)
             {
+                // If the integrated server has been opened to the LAN, we won't be able to pause it.
+                // To get around this, we need to make it think it's not open, by modifying its isPublic flag.
+                if (Minecraft.getMinecraft().getIntegratedServer().getPublic())
+                {
+                    if (!killPublicFlag(Minecraft.getMinecraft().getIntegratedServer()))
+                    {
+                        // Can't pause, don't want to risk the hang - so bail.
+                        episodeHasCompleted(ClientState.ERROR_CANNOT_CREATE_WORLD);
+                    }
+                }
+
                 Minecraft.getMinecraft().displayGuiScreen(new GuiIngameMenu());
             }
         }
 
+        private boolean killPublicFlag(IntegratedServer server)
+        {
+            // Are we in a dev environment?
+            boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+            // We need to know, because the member name will either be obfuscated or not.
+            String isPublicMemberName = devEnv ? "isPublic" : "field_71346_p";
+            // NOTE: obfuscated name may need updating if Forge changes.
+            Field isPublic;
+            try
+            {
+                isPublic = IntegratedServer.class.getDeclaredField(isPublicMemberName);
+                isPublic.setAccessible(true);
+                isPublic.set(server, false);
+                return true;
+            }
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
+            }
+            catch (NoSuchFieldException e)
+            {
+                e.printStackTrace();
+            }
+            return false;
+        }
+        
         @Override
         public void onClientTick(TickEvent.ClientTickEvent ev)
         {
