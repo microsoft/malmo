@@ -52,4 +52,4 @@ mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
-ctest -VV
+ctest -E Integration -VV
