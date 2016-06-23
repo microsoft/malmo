@@ -106,7 +106,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("getFloatArgument", &ArgumentParser::getFloatArgument)
             .def("getStringArgument", &ArgumentParser::getStringArgument)
         ,
-        class_< WorldState, boost::shared_ptr<WorldState> >( "WorldState" )
+        class_< WorldState, boost::shared_ptr<const WorldState> >( "WorldState" )
             .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
             .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
             .def_readonly( "number_of_rewards_since_last_state",      &WorldState::number_of_rewards_since_last_state )

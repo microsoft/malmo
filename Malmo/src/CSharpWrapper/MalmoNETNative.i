@@ -185,9 +185,9 @@ public:
     , const MissionRecordSpec& mission_record
   );
 
-  boost::shared_ptr<WorldState> peekWorldState();
+  boost::shared_ptr<const WorldState> peekWorldState();
   
-  boost::shared_ptr<WorldState> getWorldState();
+  boost::shared_ptr<const WorldState> getWorldState();
 
   void setVideoPolicy(VideoPolicy videoPolicy);
 
@@ -422,5 +422,5 @@ public:
     void setIterationCount(const int iteration_count);
     int getIterationCount() const;
 
-	std::vector<std::string> keys() const;
+    std::vector<std::string> keys() const;
 };

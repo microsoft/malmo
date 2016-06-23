@@ -52,11 +52,11 @@ namespace malmo
 
             //! Gets the latest world state received from the game.
             //! \returns The world state.
-            boost::shared_ptr<WorldState> peekWorldState();
+            boost::shared_ptr<const WorldState> peekWorldState() const;
 
             //! Gets the latest world state received from the game. Resets the count of items received since the last time.
             //! \returns The world state.
-            boost::shared_ptr<WorldState> getWorldState();
+            boost::shared_ptr<const WorldState> getWorldState();
 
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.

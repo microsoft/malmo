@@ -94,7 +94,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "getFloatArgument",          &ArgumentParser::getFloatArgument )
         .def( "getStringArgument",         &ArgumentParser::getStringArgument )
     ;
-    register_ptr_to_python< boost::shared_ptr< WorldState > >();
+    register_ptr_to_python< boost::shared_ptr< const WorldState > >();
     class_< WorldState >( "WorldState", no_init )
         .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
         .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
