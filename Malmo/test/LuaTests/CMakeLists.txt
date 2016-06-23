@@ -27,6 +27,7 @@ foreach( file ${LUA_TEST_SOURCES} )
     WORKING_DIRECTORY ${MALMO_LUA_DIR}
     COMMAND ${LUA_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
   )
+  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 
 endforeach()
 
@@ -44,6 +45,7 @@ if( Torch_FOUND )
       WORKING_DIRECTORY ${MALMO_LUA_DIR}
       COMMAND ${TORCH_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     )
+    set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
   
   endforeach()
   

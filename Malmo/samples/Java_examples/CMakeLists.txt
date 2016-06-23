@@ -34,19 +34,10 @@ foreach( file ${SOURCES} )
   endif()
   set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} --help )
   add_test( NAME ${decorated_test_name}_help COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
+  set_tests_properties( ${decorated_test_name}_help PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
   set( test_params -cp ${custom_classpath} -Djava.library.path=$<TARGET_FILE_DIR:MalmoJava> ${test_name} --test )
   add_test( NAME ${decorated_test_name} COMMAND ${Java_JAVA_EXECUTABLE} ${test_params} )
-  # copy the schema files to the test build folder
-  foreach( xsd_file ${SCHEMA_FILES} )
-    get_filename_component( out_file ${xsd_file} NAME )
-    set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
-    add_custom_command( 
-      TARGET ${sample_name}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E copy_if_different ${xsd_file} ${out_file}
-    )
-  endforeach()
+  set_tests_properties( ${decorated_test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 
 endforeach()
 

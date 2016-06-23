@@ -39,17 +39,6 @@ foreach( file ${CPP_TEST_SOURCES} )
   target_link_libraries( ${test_name} Malmo )
 
   add_test( NAME ${test_name} COMMAND ${test_name} )
-  
-  # copy the schema files to the test build folder
-  foreach( xsd_file ${SCHEMA_FILES} )
-    get_filename_component( out_file ${xsd_file} NAME )
-    set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
-    add_custom_command( 
-      TARGET ${test_name}
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND}
-      ARGS -E copy_if_different ${xsd_file} ${out_file}
-    )
-  endforeach()
+  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
         
 endforeach()

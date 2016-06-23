@@ -10,6 +10,7 @@ Fix: Issue 52 (Malmo's internal Minecraft client/server messages limited to 64k 
 Fix: Issue 40 (added tostring() methods to Lua and Python classes).
 Fix: Issue 7 (requesting depth map would break the recorded video).
 Fix: Issue 81 (changing video size between missions could crash the platform).
+Fix: Issue 2 (XSDs no longer need to be in the current folder).
 Add: New API call: MissionSpec::requestVideoWithDepth.
 
 0.11.2 (2016-06-06)

@@ -21,6 +21,7 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
 3. Clone and build Project Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`  
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
+    3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
     3. `cd MalmoPlatform`
     4. `mkdir build`
     5. `cd build`

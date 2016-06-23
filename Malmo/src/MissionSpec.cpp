@@ -3,6 +3,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 // Local:
+#include "FindSchemaFile.h"
 #include "MissionSpec.h"
 
 // Boost:
@@ -49,7 +50,7 @@ namespace malmo
     MissionSpec::MissionSpec(const std::string& xml, bool validate)
     {
         xml_schema::properties props;
-        props.schema_location(xml_namespace, "Mission.xsd");
+        props.schema_location(xml_namespace, FindSchemaFile("Mission.xsd"));
         
         xml_schema::flags flags = 0;
         if( !validate )

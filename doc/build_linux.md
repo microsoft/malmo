@@ -85,18 +85,19 @@
 10. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
-    3. `cd ~/MalmoPlatform`
-    4. `mkdir build`
-    5. `cd build`
-    6. For a Debug build:  
+    3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
+    4. `cd ~/MalmoPlatform`
+    5. `mkdir build`
+    6. `cd build`
+    7. For a Debug build:  
        `cmake -DCMAKE_BUILD_TYPE=Debug ..`  
        On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Debug ..`
-    7. For a Release build:  
+    8. For a Release build:  
        `cmake -DCMAKE_BUILD_TYPE=Release ..`  
        On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
-    8. `make`
+    9. `make`
 
 10. Test Malmo:
     1. `ctest`

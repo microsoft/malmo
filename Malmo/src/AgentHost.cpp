@@ -6,6 +6,7 @@
 #include "AgentHost.h"
 
 // Local:
+#include "FindSchemaFile.h"
 #include "TCPClient.h"
 #include "WorldState.h"
 
@@ -351,7 +352,7 @@ namespace malmo
                 const bool validate = true;
                 
                 xml_schema::properties props;
-                props.schema_location(xml_namespace, "MissionEnded.xsd");
+                props.schema_location(xml_namespace, FindSchemaFile("MissionEnded.xsd"));
 
                 xml_schema::flags flags = 0;
                 if( !validate )

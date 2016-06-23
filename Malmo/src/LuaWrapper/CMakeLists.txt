@@ -33,24 +33,4 @@ endif()
 
 foreach( dest ${DESTINATIONS} )
   install( TARGETS ${LUA_LIB_NAME} DESTINATION ${dest} )
-  install( FILES ${SCHEMA_FILES} DESTINATION ${dest} )
-endforeach()
-
-# copy the schema files to the build folder
-foreach( xsd_file ${SCHEMA_FILES} )
-
-  get_filename_component( out_file ${xsd_file} NAME )
-  if( MSVC )
-    set( out_file ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/${out_file} )
-  else()
-    set( out_file ${CMAKE_CURRENT_BINARY_DIR}/${out_file} )
-  endif()
-
-  add_custom_command( 
-    TARGET ${LUA_LIB_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -E copy ${xsd_file} ${out_file}
-  )
-
 endforeach()
