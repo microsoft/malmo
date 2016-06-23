@@ -216,6 +216,11 @@ namespace malmo
         throw std::runtime_error( "Failed to find an available client for this mission - tried all the clients in the supplied client pool." );
     }
     
+    boost::shared_ptr<WorldState> AgentHost::peekWorldState()
+    {
+        return this->world_state;
+    }
+
     boost::shared_ptr<WorldState> AgentHost::getWorldState()
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);

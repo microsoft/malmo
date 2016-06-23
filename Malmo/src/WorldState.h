@@ -20,6 +20,7 @@ namespace malmo
     {
         WorldState();
 
+        //! Resets the world state to be empty, with no mission running.
         void clear();
 
         //! Specifies whether the mission was still running at the moment this world state was taken.
