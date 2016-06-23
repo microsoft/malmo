@@ -71,7 +71,7 @@ namespace malmo
             //! \returns The world state.
             boost::shared_ptr<const WorldState> peekWorldState() const;
 
-            //! Gets the latest world state received from the game. Resets the count of items received since the last time.
+            //! Gets the latest world state received from the game and resets it to empty.
             //! \returns The world state.
             boost::shared_ptr<const WorldState> getWorldState();
 
