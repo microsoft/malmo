@@ -36,7 +36,7 @@ def GetMissionXML( msPerTick ):
                 <AllowSpawning>false</AllowSpawning>
             </ServerInitialConditions>
             <ServerHandlers>
-                <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
+                <FlatWorldGenerator generatorString="3;7,220*1,5*3,159:14;3;biome_1" />
                 <DrawingDecorator>
                     <DrawCuboid x1="0" y1="226" z1="0" x2="0" y2="226" z2="1000" type="stone" variant="smooth_granite"/>
                     <DrawBlock x="0" y="226" z="130" type="emerald_block"/>
