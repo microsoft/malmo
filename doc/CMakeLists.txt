@@ -20,7 +20,7 @@
 set( README_FILES
   readme.html
   ../changelog.txt
-  ../MSR-LA_2772.pdf
+  ../LICENSE.txt
   install_linux.md
   install_macosx.md
   install_windows.md
