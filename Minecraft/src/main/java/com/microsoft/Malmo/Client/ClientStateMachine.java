@@ -96,6 +96,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_TEXT);
     }
+    
+    @Override
+    public void clearErrorDetails()
+    {
+        super.clearErrorDetails();
+        this.missionQuitCode = "";
+    }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent ev)
@@ -961,7 +968,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (!killPublicFlag(Minecraft.getMinecraft().getIntegratedServer()))
                     {
                         // Can't pause, don't want to risk the hang - so bail.
-                        episodeHasCompleted(ClientState.ERROR_CANNOT_CREATE_WORLD);
+                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Can not pause the old server since it's open to LAN; no way to safely create new world.");
                     }
                 }
 
@@ -1102,7 +1109,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (!serverHandlers.worldGenerator.createWorld(currentMissionInit()))
                     {
                         // World has not been created.
-                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Server world-creation handler failed to create a world.");
+                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Server world-creation handler failed to create a world: " + serverHandlers.worldGenerator.getErrorDetails());
                     }
                 }
             }
@@ -1495,9 +1502,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (this.informServer)
             {
-                // Inform the server of what has happened:
+                // Inform the server of what has happened.
                 HashMap<String, String> map = new HashMap<String, String>();
-                map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                if (Minecraft.getMinecraft().thePlayer != null) // Might not be a player yet.
+                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
                 map.put("error", ClientStateMachine.this.getErrorDetails());
                 MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_BAILED, 0, map));
             }

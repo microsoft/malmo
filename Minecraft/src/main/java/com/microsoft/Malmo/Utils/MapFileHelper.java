@@ -38,11 +38,19 @@ public class MapFileHelper
             }
             try
             {
+                if (dst.exists() && overwriteOldFiles)
+                {
+                    // Safest to empty out the destination directory, since copyDirectory will just
+                    // copy across the source files, merging them in to the destination. This could result in
+                    // odd behaviour as two Minecraft saved worlds get merged.
+                    FileUtils.deleteDirectory(dst);
+                }
                 FileUtils.copyDirectory(mapFile, dst);
             }
             catch (IOException e)
             {
                 System.out.println("Failed to load file: " + mapFile.getPath());
+                return null;
             }
         }
         
