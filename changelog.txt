@@ -1,4 +1,4 @@
-0.12.0
+0.12.0 (2016-06-24)
 -------------------
 New: Issue 55 (added forceReset flag to FlatWorldGenerator, DefaultWorldGenerator and FileWorldGenerator).
 New: Issue 84 (added seed to FlatWorldGenerator and DefaultWorldGenerator).
