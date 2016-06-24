@@ -49,7 +49,7 @@ else()
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
     COMMAND ${CSHARP_BUILD}
-    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR} /t:Clean,Build
+    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR} /t:clean /t:build
     DEPENDS Malmo MalmoNET ${CSHARP_SAMPLE_SOURCES}
   )
   add_custom_target(
