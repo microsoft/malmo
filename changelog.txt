@@ -4,7 +4,7 @@ New: Issue 55 (added forceReset flag to FlatWorldGenerator, DefaultWorldGenerato
 New: Issue 84 (added seed to FlatWorldGenerator and DefaultWorldGenerator).
 Add: Issue 82 (new RewardForDiscardingItem mission handler).
 Add: Issue 73 (added new DiscardCurrentItem command to InventoryCommands).
-Add: Issue 4 (Overclocking) - can set tick length, and limit onscreen render. (Required XSD change, hence bumping to 0.12)
+Add: Issue 4 (Overclocking) - can set tick length, and limit onscreen render.
 Fix: Issue 48 (Grid observer crippled by bad TCP string sending method).
 Fix: Issue 52 (Malmo's internal Minecraft client/server messages limited to 64k data per message).
 Fix: Issue 40 (added tostring() methods to Lua and Python classes).
@@ -12,6 +12,7 @@ Fix: Issue 7 (requesting depth map would break the recorded video).
 Fix: Issue 81 (changing video size between missions could crash the platform).
 Fix: Issue 2 (XSDs no longer need to be in the current folder).
 Add: New API call: MissionSpec::requestVideoWithDepth.
+Add: New API call: AgentHost::peekWorldState.
 
 0.11.2 (2016-06-06)
 -------------------
