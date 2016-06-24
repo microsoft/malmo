@@ -1502,9 +1502,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (this.informServer)
             {
-                // Inform the server of what has happened:
+                // Inform the server of what has happened.
                 HashMap<String, String> map = new HashMap<String, String>();
-                map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                if (Minecraft.getMinecraft().thePlayer != null) // Might not be a player yet.
+                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
                 map.put("error", ClientStateMachine.this.getErrorDetails());
                 MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_BAILED, 0, map));
             }
