@@ -96,6 +96,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_TEXT);
     }
+    
+    @Override
+    public void clearErrorDetails()
+    {
+        super.clearErrorDetails();
+        this.missionQuitCode = "";
+    }
 
     @SubscribeEvent
     public void onClientTick(TickEvent.ClientTickEvent ev)
