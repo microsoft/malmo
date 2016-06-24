@@ -20,4 +20,6 @@ public interface IWorldGenerator
      * @return true if the world should be created, false otherwise.
      */
     public boolean shouldCreateWorld(MissionInit missionInit);
+    
+    public String getErrorDetails();
 }

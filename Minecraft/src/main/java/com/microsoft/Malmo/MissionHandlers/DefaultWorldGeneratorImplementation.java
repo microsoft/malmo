@@ -84,4 +84,10 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
 
         return false;
     }
+
+    @Override
+    public String getErrorDetails()
+    {
+        return "";  // Don't currently have any error exit points.
+    }
 }

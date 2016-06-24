@@ -64,4 +64,10 @@ public class FlatWorldGeneratorImplementation extends HandlerBase implements IWo
         
         return false;
     }
+    
+    @Override
+    public String getErrorDetails()
+    {
+        return "";  // Currently no error exit points, so never anything to report.
+    }
 }

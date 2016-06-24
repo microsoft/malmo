@@ -968,7 +968,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (!killPublicFlag(Minecraft.getMinecraft().getIntegratedServer()))
                     {
                         // Can't pause, don't want to risk the hang - so bail.
-                        episodeHasCompleted(ClientState.ERROR_CANNOT_CREATE_WORLD);
+                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Can not pause the old server since it's open to LAN; no way to safely create new world.");
                     }
                 }
 
@@ -1109,7 +1109,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (!serverHandlers.worldGenerator.createWorld(currentMissionInit()))
                     {
                         // World has not been created.
-                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Server world-creation handler failed to create a world.");
+                        episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Server world-creation handler failed to create a world: " + serverHandlers.worldGenerator.getErrorDetails());
                     }
                 }
             }
