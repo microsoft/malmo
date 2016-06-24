@@ -109,7 +109,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "getFloatArgument",          &ArgumentParser::getFloatArgument )
         .def( "getStringArgument",         &ArgumentParser::getStringArgument )
     ;
-    register_ptr_to_python< boost::shared_ptr< WorldState > >();
+    register_ptr_to_python< boost::shared_ptr< const WorldState > >();
     class_< WorldState >( "WorldState", no_init )
         .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
         .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
@@ -138,6 +138,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
     class_< AgentHost, bases< ArgumentParser >, boost::noncopyable >("AgentHost", init<>())
         .def( "startMission",              startMissionSimple )
         .def( "startMission",              startMissionComplex )
+        .def( "peekWorldState",            &AgentHost::peekWorldState )
         .def( "getWorldState",             &AgentHost::getWorldState )
         .def( "setVideoPolicy",            &AgentHost::setVideoPolicy )
         .def( "setRewardsPolicy",          &AgentHost::setRewardsPolicy )
@@ -147,13 +148,14 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
 #ifdef WRAP_ALE
     class_< ALEAgentHost, bases< ArgumentParser >, boost::noncopyable >("ALEAgentHost", init<>())
-        .def("startMission", startALEMissionSimple)
-        .def("startMission", startALEMissionComplex)
-        .def("getWorldState", &ALEAgentHost::getWorldState)
-        .def("setVideoPolicy", &ALEAgentHost::setVideoPolicy)
-        .def("setRewardsPolicy", &ALEAgentHost::setRewardsPolicy)
-        .def("setObservationsPolicy", &ALEAgentHost::setObservationsPolicy)
-        .def("sendCommand", &ALEAgentHost::sendCommand)
+        .def("startMission",           startALEMissionSimple)
+        .def("startMission",           startALEMissionComplex)
+        .def("peekWorldState",         &ALEAgentHost::getWorldState)
+        .def("getWorldState",          &ALEAgentHost::getWorldState)
+        .def("setVideoPolicy",         &ALEAgentHost::setVideoPolicy)
+        .def("setRewardsPolicy",       &ALEAgentHost::setRewardsPolicy)
+        .def("setObservationsPolicy",  &ALEAgentHost::setObservationsPolicy)
+        .def("sendCommand",            &ALEAgentHost::sendCommand)
         .def(self_ns::str(self_ns::self))
         ;
 #endif

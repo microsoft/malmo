@@ -67,7 +67,7 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    boost::shared_ptr<WorldState> world_state;
+    boost::shared_ptr<const WorldState> world_state;
 
     cout << "Waiting for the mission to start" << flush;
     do {

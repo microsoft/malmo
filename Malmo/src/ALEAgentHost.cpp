@@ -113,7 +113,12 @@ namespace malmo
         }
     }
 
-    boost::shared_ptr<WorldState> ALEAgentHost::getWorldState()
+    boost::shared_ptr<const WorldState> ALEAgentHost::getWorldState() const
+    {
+        return this->world_state;
+    }
+    
+    boost::shared_ptr<const WorldState> ALEAgentHost::getWorldState()
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 

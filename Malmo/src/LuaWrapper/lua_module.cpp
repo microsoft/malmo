@@ -97,7 +97,7 @@ void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, co
 
 void recordMP4(MissionRecordSpec* mrs, int frames_per_second, long bitrate)
 {
-	mrs->recordMP4(frames_per_second,static_cast<int64_t>(bitrate));
+    mrs->recordMP4(frames_per_second,static_cast<int64_t>(bitrate));
 }
 
 // Defines the API available to Lua.
@@ -121,7 +121,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("getFloatArgument", &ArgumentParser::getFloatArgument)
             .def("getStringArgument", &ArgumentParser::getStringArgument)
         ,
-        class_< WorldState, boost::shared_ptr<WorldState> >( "WorldState" )
+        class_< WorldState, boost::shared_ptr<const WorldState> >( "WorldState" )
             .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
             .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
             .def_readonly( "number_of_rewards_since_last_state",      &WorldState::number_of_rewards_since_last_state )
@@ -153,6 +153,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(constructor<>())
             .def("startMission",          startMissionSimple)
             .def("startMission",          startMissionComplex)
+            .def("peekWorldState",        &AgentHost::peekWorldState)
             .def("getWorldState",         &AgentHost::getWorldState)
             .def("setVideoPolicy",        &AgentHost::setVideoPolicy)
             .def("setRewardsPolicy",      &AgentHost::setRewardsPolicy)
@@ -161,7 +162,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(tostring(self))
         ,
 #ifdef WRAP_ALE
-	class_< ALEAgentHost, bases< ArgumentParser > >("ALEAgentHost")
+    class_< ALEAgentHost, bases< ArgumentParser > >("ALEAgentHost")
             .enum_( "ImagePolicy" )
             [
                   value( "LATEST_FRAME_ONLY",  AgentHost::LATEST_FRAME_ONLY )
@@ -181,13 +182,14 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(constructor<>())
             .def("startMission",          startALEMissionSimple)
             .def("startMission",          startALEMissionComplex)
+            .def("peekWorldState",        &ALEAgentHost::peekWorldState)
             .def("getWorldState",         &ALEAgentHost::getWorldState)
             .def("setVideoPolicy",        &ALEAgentHost::setVideoPolicy)
             .def("setRewardsPolicy",      &ALEAgentHost::setRewardsPolicy)
             .def("setObservationsPolicy", &ALEAgentHost::setObservationsPolicy)
             .def("sendCommand",           &ALEAgentHost::sendCommand)
             .def(tostring(self))
-	,
+    ,
 #endif
         class_< MissionSpec >("MissionSpec")
             .def(constructor<>())

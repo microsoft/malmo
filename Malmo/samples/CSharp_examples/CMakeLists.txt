@@ -32,13 +32,14 @@ if( WIN32 )
   set( CSHARP_RUN "" )
   set( CURRENT_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG> )
   ADD_CUSTOM_COMMAND(
-     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
-     COMMAND ${CSHARP_BUILD}
-     ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CURRENT_BUILD_DIR}
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
+    COMMAND ${CSHARP_BUILD}
+    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CURRENT_BUILD_DIR} /t:Clean,Build
+    DEPENDS Malmo MalmoNET ${CSHARP_SAMPLE_SOURCES}
   )
   add_custom_target( 
     CSharpExamples_RunMission ALL 
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe 
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_RunMission.exe
     SOURCES ${CSHARP_SAMPLE_SOURCES} 
   )
 else()
@@ -48,11 +49,12 @@ else()
   ADD_CUSTOM_COMMAND(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe
     COMMAND ${CSHARP_BUILD}
-    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR}
+    ARGS ${CMAKE_CURRENT_SOURCE_DIR}/RunMission.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR} /t:Clean,Build
+    DEPENDS Malmo MalmoNET ${CSHARP_SAMPLE_SOURCES}
   )
   add_custom_target(
     CSharpExamples_RunMission ALL 
-    DEPENDS ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe 
+    DEPENDS ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe
     SOURCES ${CSHARP_SAMPLE_SOURCES} 
   )
 endif()
@@ -72,8 +74,6 @@ add_test(
   COMMAND ${CSHARP_RUN} ${CURRENT_BUILD_DIR}/CSharpExamples_RunMission.exe --test
 )
 set_tests_properties( CSharpIntegrationTests_RunMission PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
-
-ADD_DEPENDENCIES( CSharpExamples_RunMission MalmoNET )
 
 INSTALL( FILES App.config DESTINATION CSharp_Examples )
 INSTALL( FILES Program.cs DESTINATION CSharp_Examples )

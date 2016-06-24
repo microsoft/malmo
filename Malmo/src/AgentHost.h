@@ -82,9 +82,13 @@ namespace malmo
             //! \param mission_record The specification of the mission recording to make.
             void startMission(const MissionSpec& mission, const MissionRecordSpec& mission_record);
 
-            //! Gets the latest world state received from the game. Resets the count of items received since the last time.
+            //! Gets the latest world state received from the game.
             //! \returns The world state.
-            boost::shared_ptr<WorldState> getWorldState();
+            boost::shared_ptr<const WorldState> peekWorldState() const;
+
+            //! Gets the latest world state received from the game and resets it to empty.
+            //! \returns The world state.
+            boost::shared_ptr<const WorldState> getWorldState();
 
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
