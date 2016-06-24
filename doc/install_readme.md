@@ -4,6 +4,8 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 Malmo home: [https://github.com/Microsoft/malmo](https://github.com/Microsoft/malmo)
 
+Documentation: [[Tutorial]](../Python_Examples/Tutorial.pdf) - [[API]](annotated.html) - [[XML format]](../Schemas/Mission.html)
+
 ----
     
 ## Getting Started ##
