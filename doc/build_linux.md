@@ -34,6 +34,11 @@
          
     5. `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
+    6. On Fedora 23:  
+
+        `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)
+        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel`
+
 4. Install Torch: (if supported by your platform)
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
     2. Test: `th`

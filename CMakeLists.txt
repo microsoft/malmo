@@ -90,6 +90,8 @@ if( WIN32 )
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options python regex system thread zlib REQUIRED )
 else()
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options python regex system thread REQUIRED )
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  find_package( Threads REQUIRED )
 endif()
 
 # suggested install paths - see readme.md

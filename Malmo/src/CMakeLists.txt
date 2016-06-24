@@ -125,10 +125,12 @@ endif()
 include_directories( ${MALMO_INCLUDE_FOLDERS} )
 
 add_library( Malmo STATIC ${SOURCES} ${HEADERS} )
+#add_definitions(-DBOOST_THREAD_USE_LIB)
+add_definitions( -Wno-deprecated )
 
 set( MALMO_LINK_LIBRARIES 
-    ${Boost_LIBRARIES} 
-    ${XSD_LIBRARIES}
+  ${Boost_LIBRARIES} 
+  ${XSD_LIBRARIES}
 )
 if( INCLUDE_ALE )
   set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${ALE_LIBRARIES} )
@@ -141,6 +143,9 @@ if( INCLUDE_TORCH )
 endif()
 if( UNIX AND NOT APPLE )
   set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} rt )
+endif()
+if( NOT WIN32 )
+  set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
 endif()
 
 target_link_libraries( Malmo ${MALMO_LINK_LIBRARIES} )
