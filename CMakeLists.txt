@@ -189,6 +189,8 @@ else()
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
   if( WARNINGS_AS_ERRORS )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror" )
+  else()
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations" ) # get a lot of warnings from Boost about auto_ptr
   endif()  
 endif()
 
