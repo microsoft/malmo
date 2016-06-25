@@ -84,7 +84,7 @@
 9. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
-       `sudo apt-get install libsdl1.2-dev`
+       `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora)
     3. `cd ~/ALE`  
        `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
        `cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`  
