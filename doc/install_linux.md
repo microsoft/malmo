@@ -6,19 +6,23 @@ For a minimal installation of running a python agent, follow steps 1 and 3. Then
 
 On Ubuntu 15.10: 
 
-`sudo apt-get install libboost-all-dev libpython2.7 openjdk-8-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`
+`sudo apt-get install libboost-all-dev libpython2.7 openjdk-8-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`  
+`sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
 On Ubuntu 14.04 or Debian 8:
 
-`sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools`
+`sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools`  
+`sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
 On Debian 7:
 
-`sudo apt-get install python2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`
-
-Then:
-
+`sudo apt-get install python2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`  
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+
+On Fedora 23:
+
+`su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
+`sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat`
 
 ### 2. Optional: Install Torch: ###
 
@@ -28,7 +32,7 @@ Follow the instructions at http://torch.ch/docs/getting-started.html
 
 Check that typing `th` works.
 
-### 3. Optional: Install Mono: ###
+### 3. Optional: Install Mono: (if not on Fedora) ###
 
 If you don't want to use Malmo from C# then you can skip this step.
 

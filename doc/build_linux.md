@@ -50,7 +50,7 @@
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
     2. Test: `th`
 
-5. Install Mono:
+5. Install Mono: (if not Fedora)
     1. The Mono Project has an excellent [Getting Started](http://www.mono-project.com/docs/) guide, please read it.
     2. For the impatient, Linux details are [here](http://www.mono-project.com/docs/getting-started/install/linux/)
     
