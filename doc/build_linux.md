@@ -12,11 +12,15 @@
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         
     2. On Ubuntu 14.04:  
     
          `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
+         
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
          
     3. On Debian 8:  
     
@@ -24,26 +28,29 @@
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         
     4. On Debian 7:  
     
          `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg`  
          
-         `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`
+         `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
-         Also, remove Java 6 and make sure that `java -version` returns the right version (1.7).
+         Also, remove Java 6 and make sure that `java -version` returns the right version (1.7).  
          
-    5. `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
-    6. On Fedora 23:  
+    5. On Fedora 23:  
 
-        `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)
-        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel`
+        `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
+
+        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel`
 
 4. Install Torch: (if supported by your platform)
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
     2. Test: `th`
 
-5. Install Mono
+5. Install Mono:
     1. The Mono Project has an excellent [Getting Started](http://www.mono-project.com/docs/) guide, please read it.
     2. For the impatient, Linux details are [here](http://www.mono-project.com/docs/getting-started/install/linux/)
     

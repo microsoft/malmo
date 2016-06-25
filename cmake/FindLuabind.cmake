@@ -35,6 +35,7 @@ find_package(Lua51 QUIET)
 
 find_program(LUA_EXECUTABLE
 	NAMES
+        lua-5.1	
 	lua
 	HINTS
 	"${LUA_INCLUDE_DIR}/../"
