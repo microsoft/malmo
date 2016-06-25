@@ -125,8 +125,6 @@ endif()
 include_directories( ${MALMO_INCLUDE_FOLDERS} )
 
 add_library( Malmo STATIC ${SOURCES} ${HEADERS} )
-#add_definitions(-DBOOST_THREAD_USE_LIB)
-add_definitions( -Wno-deprecated )
 
 set( MALMO_LINK_LIBRARIES 
   ${Boost_LIBRARIES} 
