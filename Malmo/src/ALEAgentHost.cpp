@@ -113,7 +113,7 @@ namespace malmo
         }
     }
 
-    boost::shared_ptr<const WorldState> ALEAgentHost::getWorldState() const
+    boost::shared_ptr<const WorldState> ALEAgentHost::peekWorldState() const
     {
         return this->world_state;
     }

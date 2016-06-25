@@ -36,7 +36,7 @@ int main()
     agent_host.setRewardsPolicy( AgentHost::RewardsPolicy::SUM_REWARDS );
     agent_host.setObservationsPolicy( AgentHost::ObservationsPolicy::LATEST_OBSERVATION_ONLY );
     
-    boost::shared_ptr<WorldState> world_state = agent_host.getWorldState();
+    boost::shared_ptr<const WorldState> world_state = agent_host.getWorldState();
 
     if( world_state->is_mission_running )
         return EXIT_FAILURE;
