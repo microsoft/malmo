@@ -32,7 +32,7 @@ class Program
         }
         catch( Exception ex )
         {
-            Console.Error.WriteLine("ERROR: {0}", ex);
+            Console.Error.WriteLine("ERROR: {0}", ex.Message);
             Console.Error.WriteLine(agentHost.getUsage());
             Environment.Exit(1);
         }
@@ -59,7 +59,7 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("Error starting mission: {0}", ex);
+            Console.Error.WriteLine("Error starting mission: {0}", ex.Message);
             Environment.Exit(1);
         }
 
