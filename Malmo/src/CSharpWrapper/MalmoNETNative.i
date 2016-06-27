@@ -93,7 +93,7 @@ class ArgumentParser
 public:
   ArgumentParser(const std::string& title);
 
-  %exception parse(const std::vector< std::string>& args) %{
+  %exception parse(const std::vector< std::string >& args) %{
     try {
       $action
     } catch (boost::program_options::invalid_command_line_syntax& e) {
@@ -169,7 +169,7 @@ public:
   %exception startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
-    , const MissionRecord& mission_record
+    , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
   ) %{
@@ -190,7 +190,7 @@ public:
 
   %exception startMission(
       const MissionSpec& mission
-    , const MissionRecord& mission_record
+    , const MissionRecordSpec& mission_record
   ) %{
     try {
       $action
@@ -226,7 +226,7 @@ public:
   %exception startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
-    , const MissionRecord& mission_record
+    , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
   ) %{
@@ -247,7 +247,7 @@ public:
 
   %exception startMission(
       const MissionSpec& mission
-    , const MissionRecord& mission_record
+    , const MissionRecordSpec& mission_record
   ) %{
     try {
       $action
