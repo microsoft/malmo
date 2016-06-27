@@ -112,8 +112,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 double newX = player.posX;
                 double newZ = player.posZ;
                 // Are we still in the centre of a square, or did we get shunted?
-                double desiredX = (int)newX + 0.5;
-                double desiredZ = (int)newZ + 0.5;
+                double desiredX = ((int)(Math.abs(newX)) + 0.5) * (newX >= 0 ? 1 : -1);
+                double desiredZ = ((int)(Math.abs(newZ)) + 0.5) * (newZ >= 0 ? 1 : -1);
                 double deltaX = desiredX - newX;
                 double deltaZ = desiredZ - newZ;
                 if (deltaX * deltaX + deltaZ * deltaZ > 0.001)
