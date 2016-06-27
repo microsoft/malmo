@@ -46,7 +46,7 @@ jar {
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient")
-exec.jvmArgs("-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin")
+exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
 
 dependencies {
     // you may put jars on which you depend on in ./libs
