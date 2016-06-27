@@ -20,6 +20,7 @@
 # Used for integration tests.
 
 import os
+import platform
 import socket
 import subprocess
 import sys
@@ -44,6 +45,8 @@ if os.name == 'nt':
     os.startfile("launchClient.bat")
 elif sys.platform == 'darwin':
     subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh'])
+elif platform.linux_distribution()[0] == 'Fedora':
+    subprocess.Popen( "gnome-terminal -e ./launchClient.sh", close_fds=True, shell=True )
 else:
     subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", close_fds=True, shell=True )
 

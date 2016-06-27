@@ -17,6 +17,13 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
+// Boost:
+#include <boost/python.hpp>
+#include <boost/python/exception_translator.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/python/to_python_converter.hpp>
+
 // Malmo:
 #include <AgentHost.h>
 #ifdef WRAP_ALE
@@ -27,20 +34,12 @@
 #include <ParameterSet.h>
 using namespace malmo;
 
-// Boost:
-#include <boost/python.hpp>
-#include <boost/python/exception_translator.hpp>
-#include <boost/python/register_ptr_to_python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
-#include <boost/python/to_python_converter.hpp>
-
 // STL:
 #include <sstream>
 #include <cstdint>
 
 // Python:
 #include <datetime.h>
-
 
 // Converts a python list to a vector of strings. Throws a python exception if the conversion fails.
 std::vector< std::string > listToStrings( const boost::python::list& list )

@@ -90,6 +90,8 @@ if( WIN32 )
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options python regex system thread zlib REQUIRED )
 else()
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options python regex system thread REQUIRED )
+  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+  find_package( Threads REQUIRED )
 endif()
 
 # suggested install paths - see readme.md
@@ -187,6 +189,8 @@ else()
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC" )
   if( WARNINGS_AS_ERRORS )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror" )
+  else()
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations" ) # get a lot of warnings from Boost about auto_ptr
   endif()  
 endif()
 

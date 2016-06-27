@@ -12,11 +12,15 @@
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         
     2. On Ubuntu 14.04:  
     
          `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
+         
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
          
     3. On Debian 8:  
     
@@ -24,21 +28,29 @@
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         
     4. On Debian 7:  
     
          `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg`  
          
-         `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`
+         `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
-         Also, remove Java 6 and make sure that `java -version` returns the right version (1.7).
+         Also, remove Java 6 and make sure that `java -version` returns the right version (1.7).  
          
-    5. `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+         `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
+
+    5. On Fedora 23:  
+
+        `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
+
+        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat`
 
 4. Install Torch: (if supported by your platform)
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
     2. Test: `th`
 
-5. Install Mono
+5. Install Mono: (if not Fedora)
     1. The Mono Project has an excellent [Getting Started](http://www.mono-project.com/docs/) guide, please read it.
     2. For the impatient, Linux details are [here](http://www.mono-project.com/docs/getting-started/install/linux/)
     
@@ -72,7 +84,7 @@
 9. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
-       `sudo apt-get install libsdl1.2-dev`
+       `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora)
     3. `cd ~/ALE`  
        `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
        `cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`  
