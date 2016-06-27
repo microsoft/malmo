@@ -44,7 +44,7 @@ public class JavaExamples_run_mission
         }
         catch( Exception e )
         {
-            System.out.println( "ERROR: " + e );
+            System.out.println( "ERROR: " + e.getMessage() );
             System.out.println( agent_host.getUsage() );
             System.exit(1);
         }
@@ -69,7 +69,7 @@ public class JavaExamples_run_mission
             agent_host.startMission( my_mission, my_mission_record );
         }
         catch (Exception e) {
-            System.out.println( "Error starting mission: " + e );
+            System.out.println( "Error starting mission: " + e.getMessage() );
             System.exit(1);
         }
 
