@@ -626,7 +626,7 @@ public class ServerStateMachine extends StateMachine
                 if (pos != null) {
                     player.rotationYaw = pos.getYaw().floatValue();
                     player.rotationPitch = pos.getPitch().floatValue();
-                    player.setPositionAndUpdate(pos.getX().doubleValue() + 0.5,pos.getY().doubleValue(),pos.getZ().doubleValue() + 0.5);
+                    player.setPositionAndUpdate(pos.getX().doubleValue(),pos.getY().doubleValue(),pos.getZ().doubleValue());
                     player.onUpdate();	// Needed to force scene to redraw
                 }
                 player.setVelocity(0, 0, 0);	// Minimise chance of drift!
