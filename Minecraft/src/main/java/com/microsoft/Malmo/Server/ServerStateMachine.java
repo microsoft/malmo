@@ -803,6 +803,9 @@ public class ServerStateMachine extends StateMachine
                 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
+            
+            // Fire the starting pistol:
+            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_GO);
         }
 
         @Override
