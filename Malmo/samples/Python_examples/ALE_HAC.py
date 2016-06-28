@@ -55,7 +55,7 @@ def keyUp(event):
     if event.keysym == 'Escape':
         root.destroy()
     if event.keysym == 'Right':
-    right = 0
+        right = 0
     if event.keysym == 'Left':
         left = 0
     if event.keysym == 'Up':
@@ -68,17 +68,17 @@ def keyUp(event):
 def keyDown(event):
     global left, right, up, down, fire
     if event.keysym == 'Right':
-    right = 1
-    left = 0    # left and right are mutually exclusive
+        right = 1
+        left = 0    # left and right are mutually exclusive
     if event.keysym == 'Left':
         left = 1
-    right = 0
+        right = 0
     if event.keysym == 'Up':
         up = 1
-    down = 0    # up and down are mutally exclusive
+        down = 0    # up and down are mutally exclusive
     if event.keysym == 'Down':
         down = 1
-    up = 0
+        up = 0
     if event.keysym == 'space':
         fire = 1
 
@@ -162,22 +162,22 @@ def sendCommand():
         ops = ops - set(leftops)
 
     if right:
-    ops = ops & set(rightops)
+        ops = ops & set(rightops)
     else:
         ops = ops - set(rightops)
 
     if up:
-    ops = ops & set(upops)
+        ops = ops & set(upops)
     else:
         ops = ops - set(upops)
 
     if down:
-    ops = ops & set(downops)
+        ops = ops & set(downops)
     else:
         ops = ops - set(downops)
 
     if fire:
-    ops = ops & set(fireops)
+        ops = ops & set(fireops)
     else:
         ops = ops - set(fireops)
 
