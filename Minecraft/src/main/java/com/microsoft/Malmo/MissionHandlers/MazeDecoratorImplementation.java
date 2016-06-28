@@ -142,36 +142,36 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     
     private void initBlocksAndHeights()
     {
-	    this.startBlock = getBlock(this.mazeParams.getStartBlock(), this.blockrand);
-	    this.endBlock = getBlock(this.mazeParams.getEndBlock(), this.blockrand);
-	    this.floorBlock = getBlock(this.mazeParams.getFloorBlock(), this.blockrand);
-	    this.pathBlock = getBlock(this.mazeParams.getPathBlock(), this.blockrand);
-	    this.optimalPathBlock = this.mazeParams.getOptimalPathBlock() != null ? getBlock(this.mazeParams.getOptimalPathBlock(), this.blockrand) : this.pathBlock;
-	    this.subgoalPathBlock = this.mazeParams.getSubgoalBlock() != null ? getBlock(this.mazeParams.getSubgoalBlock(), this.blockrand) : this.optimalPathBlock;
-	    this.gapBlock = getBlock(this.mazeParams.getGapBlock(), this.blockrand);
-	    if (this.mazeParams.getWaypoints() != null)
-	    {
-	    	if (this.mazeParams.getWaypoints().getWaypointBlock() != null)
-	    		this.waypointBlock = getBlock(this.mazeParams.getWaypoints().getWaypointBlock(), this.blockrand);
-	    	else
-	    	{
-	    		List<ItemType> items = this.mazeParams.getWaypoints().getWaypointItem();
-	    		String item = items.get(this.blockrand.nextInt(items.size())).value();
+        this.startBlock = getBlock(this.mazeParams.getStartBlock(), this.blockrand);
+        this.endBlock = getBlock(this.mazeParams.getEndBlock(), this.blockrand);
+        this.floorBlock = getBlock(this.mazeParams.getFloorBlock(), this.blockrand);
+        this.pathBlock = getBlock(this.mazeParams.getPathBlock(), this.blockrand);
+        this.optimalPathBlock = this.mazeParams.getOptimalPathBlock() != null ? getBlock(this.mazeParams.getOptimalPathBlock(), this.blockrand) : this.pathBlock;
+        this.subgoalPathBlock = this.mazeParams.getSubgoalBlock() != null ? getBlock(this.mazeParams.getSubgoalBlock(), this.blockrand) : this.optimalPathBlock;
+        this.gapBlock = getBlock(this.mazeParams.getGapBlock(), this.blockrand);
+        if (this.mazeParams.getWaypoints() != null)
+        {
+            if (this.mazeParams.getWaypoints().getWaypointBlock() != null)
+                this.waypointBlock = getBlock(this.mazeParams.getWaypoints().getWaypointBlock(), this.blockrand);
+            else
+            {
+                List<ItemType> items = this.mazeParams.getWaypoints().getWaypointItem();
+                String item = items.get(this.blockrand.nextInt(items.size())).value();
                 this.waypointItem = MinecraftTypeHelper.ParseItemType(item);
-	    	}
-	    }
-	    
-	    this.startHeight = getHeight(this.mazeParams.getStartBlock(), this.pathrand);
-	    this.endHeight = getHeight(this.mazeParams.getEndBlock(), this.pathrand);
-	    this.pathHeight = getHeight(this.mazeParams.getPathBlock(), this.pathrand);
-	    this.optimalPathHeight = this.mazeParams.getOptimalPathBlock() != null ? getHeight(this.mazeParams.getOptimalPathBlock(), this.pathrand) : this.pathHeight;
-	    this.subgoalHeight = this.mazeParams.getSubgoalBlock() != null ? getHeight(this.mazeParams.getSubgoalBlock(), this.pathrand) : this.optimalPathHeight;
-	    this.gapHeight = getHeight(this.mazeParams.getGapBlock(), this.pathrand);
+            }
+        }
+        
+        this.startHeight = getHeight(this.mazeParams.getStartBlock(), this.pathrand);
+        this.endHeight = getHeight(this.mazeParams.getEndBlock(), this.pathrand);
+        this.pathHeight = getHeight(this.mazeParams.getPathBlock(), this.pathrand);
+        this.optimalPathHeight = this.mazeParams.getOptimalPathBlock() != null ? getHeight(this.mazeParams.getOptimalPathBlock(), this.pathrand) : this.pathHeight;
+        this.subgoalHeight = this.mazeParams.getSubgoalBlock() != null ? getHeight(this.mazeParams.getSubgoalBlock(), this.pathrand) : this.optimalPathHeight;
+        this.gapHeight = getHeight(this.mazeParams.getGapBlock(), this.pathrand);
     }
 
     private void initDimensions()
     {
-    	// Get dimensions of maze:
+        // Get dimensions of maze:
         this.width = this.mazeParams.getSizeAndPosition().getWidth();
         this.length = this.mazeParams.getSizeAndPosition().getLength();
         int totalCells = width * length;
@@ -194,9 +194,9 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         }
 
         // Get origin information:
-	    this.xOrg = this.mazeParams.getSizeAndPosition().getXOrigin();
-	    this.yOrg = this.mazeParams.getSizeAndPosition().getYOrigin();
-	    this.zOrg = this.mazeParams.getSizeAndPosition().getZOrigin();
+        this.xOrg = this.mazeParams.getSizeAndPosition().getXOrigin();
+        this.yOrg = this.mazeParams.getSizeAndPosition().getYOrigin();
+        this.zOrg = this.mazeParams.getSizeAndPosition().getZOrigin();
     }
     
     private Cell createStartCell()
@@ -232,7 +232,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             end = new Cell(start.x, start.z);
             while (end.x == start.x && end.z == start.z)
             {
-                end = new Cell();	// Initialised to random position.
+                end = new Cell();   // Initialised to random position.
                 if (this.mazeParams.getEndBlock().isFixedToEdge())
                     end.z = this.length - 1;
             }
@@ -263,11 +263,11 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     
     private void addWaypoints(Cell[] grid, Cell start, Cell end, boolean allowDiags)
     {
-    	// Find all the reachable cells, and select waypoints from them randomly.
-    	// We could try to maintain this data dynamically as the path is built, but
-    	// it's much simpler to do it separately now, and it's unlikely to be a performance problem.
+        // Find all the reachable cells, and select waypoints from them randomly.
+        // We could try to maintain this data dynamically as the path is built, but
+        // it's much simpler to do it separately now, and it's unlikely to be a performance problem.
 
-    	// Initialise graph grid with neutral settings:
+        // Initialise graph grid with neutral settings:
         for (int i = 0; i < this.width * this.length; i++)
         {
             if (grid[i] != null)
@@ -295,8 +295,8 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             {
                 if (neighbours[n] != null && !neighbours[n].isVisited && neighbours[n] != end)
                 {
-                	neighbours[n].isVisited = true;
-                	candidates.add(neighbours[n]);
+                    neighbours[n].isVisited = true;
+                    candidates.add(neighbours[n]);
                     queue.add(neighbours[n]);
                 }
             }
@@ -307,12 +307,12 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         int remaining = candidates.size();
         for (int i = 0; i < this.mazeParams.getWaypoints().getQuantity() && remaining > 0; i++)
         {
-        	int chosen = this.pathrand.nextInt(remaining) + i;
-        	Cell chosenCell = candidates.get(chosen);
-        	chosenCell.isWaypoint = true;
-        	candidates.set(chosen, candidates.get(i));
-        	candidates.set(i, chosenCell);
-        	remaining--;
+            int chosen = this.pathrand.nextInt(remaining) + i;
+            Cell chosenCell = candidates.get(chosen);
+            chosenCell.isWaypoint = true;
+            candidates.set(chosen, candidates.get(i));
+            candidates.set(i, chosenCell);
+            remaining--;
         }
     }
 
@@ -324,19 +324,19 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             order[i] = i;
         int nextRandomSlot = 0;
         
-        boolean refreshPath = true;	// Make sure we create the optimal path, even if we don't need to remove any blocks.
+        boolean refreshPath = true; // Make sure we create the optimal path, even if we don't need to remove any blocks.
 
         // Iteratively remove cells from the grid, whilst ensuring a path of <= maxPathLength still exists between start and end:
         while (this.gaps > 0 || (this.gaps == 0 && refreshPath))
         {
-            Cell targetCell = null;	// Cell to consider removing.
+            Cell targetCell = null; // Cell to consider removing.
             int target = -1;
-            if (this.gaps > 0)	// Still need to remove some blocks.
+            if (this.gaps > 0)  // Still need to remove some blocks.
             {
                 // Choose random cell to remove:
                 do
                 {
-                	// Get next untried cell (in random order).
+                    // Get next untried cell (in random order).
                     int targetSlot = nextRandomSlot + this.pathrand.nextInt((this.width * this.length) - nextRandomSlot);
                     target = order[targetSlot];
                     order[targetSlot] = order[nextRandomSlot];
@@ -344,7 +344,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                     nextRandomSlot++;
                     targetCell = grid[target];
                 }
-                while (targetCell == start || targetCell == end);	// Don't remove the start or end blocks!
+                while (targetCell == start || targetCell == end);   // Don't remove the start or end blocks!
     
                 refreshPath |= targetCell.isOnOptimalPath;  // If cell isn't on the optimal path, we don't need to worry what effect its removal will have.
                 grid[target] = null;
@@ -353,7 +353,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             if (refreshPath)
             {
                 // Now, if this cell is removed, can we still construct a valid path?
-            	// Perform a simple graph search to find out.
+                // Perform a simple graph search to find out.
                 // Initialise graph grid with neutral settings:
                 for (int i = 0; i < this.width * this.length; i++)
                 {
@@ -422,132 +422,132 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
 
     private void populateNeighbours(Cell[] grid, Cell[] neighbours, int x, int z, boolean allowDiags)
     {
-	    neighbours[0] = (x > 0) ? grid[(x-1) + z*this.width] : null;
-	    neighbours[1] = (x < this.width-1) ? grid[(x+1) + z*this.width] : null;
-	    neighbours[2] = (z > 0) ? grid[x + (z-1)*this.width] : null;
-	    neighbours[3] = (z < this.length-1) ? grid[x + (z+1)*this.width] : null;
-	    neighbours[4] = (allowDiags && x > 0 && z < this.length-1) ? grid[(x-1) + (z+1)*this.width] : null;
-	    neighbours[5] = (allowDiags && x > 0 && z > 0) ? grid[(x-1) + (z-1)*this.width] : null;
-	    neighbours[6] = (allowDiags && x < this.width-1 && z < this.length-1) ? grid[(x+1) + (z+1)*this.width] : null;
-	    neighbours[7] = (allowDiags && x < this.width-1 && z > 0) ? grid[(x+1) + (z-1)*this.width] : null;
+        neighbours[0] = (x > 0) ? grid[(x-1) + z*this.width] : null;
+        neighbours[1] = (x < this.width-1) ? grid[(x+1) + z*this.width] : null;
+        neighbours[2] = (z > 0) ? grid[x + (z-1)*this.width] : null;
+        neighbours[3] = (z < this.length-1) ? grid[x + (z+1)*this.width] : null;
+        neighbours[4] = (allowDiags && x > 0 && z < this.length-1) ? grid[(x-1) + (z+1)*this.width] : null;
+        neighbours[5] = (allowDiags && x > 0 && z > 0) ? grid[(x-1) + (z-1)*this.width] : null;
+        neighbours[6] = (allowDiags && x < this.width-1 && z < this.length-1) ? grid[(x+1) + (z+1)*this.width] : null;
+        neighbours[7] = (allowDiags && x < this.width-1 && z > 0) ? grid[(x+1) + (z-1)*this.width] : null;
     }
 
     private void findSubgoals(Cell[] grid, Cell start, Cell end, Hashtable<String, Object> savelocation)
     {
-    	System.out.println("Attempting to find subgoals...");
-    	
-	    // Attempt to find subgoals - this represents the "smoothed" optimal path.
-	    // It uses something akin to line-of-sight smoothing, to reduce the rectilinear path into something a bit more
-	    // like what a human agent would use.
-    	
-    	// First, copy the optimal path into an array:
-	    ArrayList<Cell> opath = new ArrayList<Cell>();
-	    Cell cur = end;
-	    while (cur != start)
-	    {
-	        opath.add(0, cur);
-	        cur = cur.predecessor;
-	    }
-	    opath.add(0, start);
-	    
-	    // Now walk the path, removing any points that aren't required.
-	    // For example, if the agent can walk from A directly to C, we can safely remove point B.
-	    // This will help remove some of the 90 degree turns - eg instead of walking one square north, then one square east,
-	    // the agent could just walk directly north-east.
-	    int startindex = 0;
-	    int removalcandidateindex = 1;
-	    int destindex = 2;
-	    if (opath.size() > 2)
-	    {
-	        // Walk the path, removing any points we can:
-	        while (destindex != opath.size())
-	        {
-	            Cell smoothstart = opath.get(startindex);
-	            Cell smoothremovalcandidate = opath.get(removalcandidateindex);
-	            Cell smoothdest = opath.get(destindex);
-	
-	            // Traverse the shortest line from smoothstart to smoothdest looking for collisions.
-	            // If there are none, we can safely remove the removal candidate.
-	            double xa = smoothstart.x + 0.5;
-	            double za = smoothstart.z + 0.5;
-	            double xb = smoothdest.x + 0.5;
-	            double zb = smoothdest.z + 0.5;
-	            double dist = Math.sqrt((xb-xa)*(xb-xa) + (zb-za)*(zb-za));
-	            int samplepoints = (int)Math.ceil(dist * 5);
-	            boolean walkable = true;
-	            for (int sample = 0; sample < samplepoints && walkable; sample++)
-	            {
-	                double f = (double)sample / (double)samplepoints;
-	                double xs = xa + (xb-xa) * f;
-	                double zs = za + (zb-za) * f;
-	                int cellx = (int)Math.floor(xs);
-	                int cellz = (int)Math.floor(zs);
-	                // Is this cell blocked?
-	                int cellindex = cellx + cellz * width;
-	                if (cellindex < 0 || cellindex >= grid.length || grid[cellindex] == null)
-	                    walkable = false;
-	                if (walkable && gapHeight > optimalPathHeight && !gapBlock.equals(Blocks.air.getDefaultState()))
-	                {
-	                    // The "gaps" are in fact walls, so we need to be a bit more conservative with our path, since the
-	                    // player has a width of 0.4 cells. We do this in a very unsophisticated, brute-force manor by testing
-	                    // the four corner points of the square the player would occupy if he was standing centrally in the cell.
-	                    int lowerx = (int)Math.floor(xs-0.2);
-	                    int upperx = (int)Math.floor(xs+0.2);
-	                    int lowerz = (int)Math.floor(zs-0.2);
-	                    int upperz = (int)Math.floor(zs+0.2);
-	                    int[] cellsToTest = new int[4];
-	                    // Speed is not really an issue here so we don't worry about testing the same cells multiple times.
-	                    cellsToTest[0] = lowerx + lowerz * width;
-	                    cellsToTest[1] = lowerx + upperz * width;
-	                    cellsToTest[2] = upperx + lowerz * width;
-	                    cellsToTest[3] = upperx + upperz * width;
-	                    // Are these cells blocked?
-	                    for (int i = 0; i < 4 && walkable; i++)
-	                    {
-	                        int ctt = cellsToTest[i];
-	                        if (ctt < 0 || ctt >= grid.length || grid[ctt] == null)
-	                            walkable = false;
-	                    }
-	                }
-	            }
-	            if (walkable)
-	            {
-	                // Can safely remove the candidate point - start->dest is walkable without it.
-	                opath.remove(removalcandidateindex);   // Will effectively increment destindex and smoothremovalindex.
-	            }
-	            else
-	            {
-	                // We need the candidate point, so set that as our new start index.
-	                startindex = removalcandidateindex;
-	                removalcandidateindex = startindex + 1;
-	                destindex = startindex + 2;
-	                smoothremovalcandidate.isSubgoal = true;
-	            }
-	        }
-	    }
+        System.out.println("Attempting to find subgoals...");
+        
+        // Attempt to find subgoals - this represents the "smoothed" optimal path.
+        // It uses something akin to line-of-sight smoothing, to reduce the rectilinear path into something a bit more
+        // like what a human agent would use.
+        
+        // First, copy the optimal path into an array:
+        ArrayList<Cell> opath = new ArrayList<Cell>();
+        Cell cur = end;
+        while (cur != start)
+        {
+            opath.add(0, cur);
+            cur = cur.predecessor;
+        }
+        opath.add(0, start);
+        
+        // Now walk the path, removing any points that aren't required.
+        // For example, if the agent can walk from A directly to C, we can safely remove point B.
+        // This will help remove some of the 90 degree turns - eg instead of walking one square north, then one square east,
+        // the agent could just walk directly north-east.
+        int startindex = 0;
+        int removalcandidateindex = 1;
+        int destindex = 2;
+        if (opath.size() > 2)
+        {
+            // Walk the path, removing any points we can:
+            while (destindex != opath.size())
+            {
+                Cell smoothstart = opath.get(startindex);
+                Cell smoothremovalcandidate = opath.get(removalcandidateindex);
+                Cell smoothdest = opath.get(destindex);
+    
+                // Traverse the shortest line from smoothstart to smoothdest looking for collisions.
+                // If there are none, we can safely remove the removal candidate.
+                double xa = smoothstart.x + 0.5;
+                double za = smoothstart.z + 0.5;
+                double xb = smoothdest.x + 0.5;
+                double zb = smoothdest.z + 0.5;
+                double dist = Math.sqrt((xb-xa)*(xb-xa) + (zb-za)*(zb-za));
+                int samplepoints = (int)Math.ceil(dist * 5);
+                boolean walkable = true;
+                for (int sample = 0; sample < samplepoints && walkable; sample++)
+                {
+                    double f = (double)sample / (double)samplepoints;
+                    double xs = xa + (xb-xa) * f;
+                    double zs = za + (zb-za) * f;
+                    int cellx = (int)Math.floor(xs);
+                    int cellz = (int)Math.floor(zs);
+                    // Is this cell blocked?
+                    int cellindex = cellx + cellz * width;
+                    if (cellindex < 0 || cellindex >= grid.length || grid[cellindex] == null)
+                        walkable = false;
+                    if (walkable && gapHeight > optimalPathHeight && !gapBlock.equals(Blocks.air.getDefaultState()))
+                    {
+                        // The "gaps" are in fact walls, so we need to be a bit more conservative with our path, since the
+                        // player has a width of 0.4 cells. We do this in a very unsophisticated, brute-force manor by testing
+                        // the four corner points of the square the player would occupy if he was standing centrally in the cell.
+                        int lowerx = (int)Math.floor(xs-0.2);
+                        int upperx = (int)Math.floor(xs+0.2);
+                        int lowerz = (int)Math.floor(zs-0.2);
+                        int upperz = (int)Math.floor(zs+0.2);
+                        int[] cellsToTest = new int[4];
+                        // Speed is not really an issue here so we don't worry about testing the same cells multiple times.
+                        cellsToTest[0] = lowerx + lowerz * width;
+                        cellsToTest[1] = lowerx + upperz * width;
+                        cellsToTest[2] = upperx + lowerz * width;
+                        cellsToTest[3] = upperx + upperz * width;
+                        // Are these cells blocked?
+                        for (int i = 0; i < 4 && walkable; i++)
+                        {
+                            int ctt = cellsToTest[i];
+                            if (ctt < 0 || ctt >= grid.length || grid[ctt] == null)
+                                walkable = false;
+                        }
+                    }
+                }
+                if (walkable)
+                {
+                    // Can safely remove the candidate point - start->dest is walkable without it.
+                    opath.remove(removalcandidateindex);   // Will effectively increment destindex and smoothremovalindex.
+                }
+                else
+                {
+                    // We need the candidate point, so set that as our new start index.
+                    startindex = removalcandidateindex;
+                    removalcandidateindex = startindex + 1;
+                    destindex = startindex + 2;
+                    smoothremovalcandidate.isSubgoal = true;
+                }
+            }
+        }
 
-	    // Save the subgoals so that other mission handlers can access it:
-	    double[] xCoords = new double[opath.size()];
-	    double[] zCoords = new double[opath.size()];
-	    int i = 0;
-    	int scale = this.mazeParams.getSizeAndPosition().getScale();
-	    for (Cell cell : opath)
-	    {
-	        xCoords[i] = scale * (cell.x + 0.5) + this.xOrg;
-	        zCoords[i] = scale * (cell.z + 0.5) + this.zOrg;
-	        i++;
-	    }
-	    savelocation.put("OptPathXCoords", xCoords);
-	    savelocation.put("OptPathZCoords", zCoords);
+        // Save the subgoals so that other mission handlers can access it:
+        double[] xCoords = new double[opath.size()];
+        double[] zCoords = new double[opath.size()];
+        int i = 0;
+        int scale = this.mazeParams.getSizeAndPosition().getScale();
+        for (Cell cell : opath)
+        {
+            xCoords[i] = scale * (cell.x + 0.5) + this.xOrg;
+            zCoords[i] = scale * (cell.z + 0.5) + this.zOrg;
+            i++;
+        }
+        savelocation.put("OptPathXCoords", xCoords);
+        savelocation.put("OptPathZCoords", zCoords);
 
-	    System.out.println("Found subgoals.");
+        System.out.println("Found subgoals.");
     }
     
     private void placeBlocks(World world, Cell[] grid, Cell start, Cell end)
     {
-    	int scale = this.mazeParams.getSizeAndPosition().getScale();
-    	// First remove any entities lying around in our area:
-    	BlockDrawingHelper.clearEntities(world, this.xOrg, this.yOrg, this.zOrg, this.xOrg + this.width * scale, this.yOrg + this.mazeParams.getSizeAndPosition().getHeight(), this.zOrg + this.length * scale);
+        int scale = this.mazeParams.getSizeAndPosition().getScale();
+        // First remove any entities lying around in our area:
+        BlockDrawingHelper.clearEntities(world, this.xOrg, this.yOrg, this.zOrg, this.xOrg + this.width * scale, this.yOrg + this.mazeParams.getSizeAndPosition().getHeight(), this.zOrg + this.length * scale);
         
         // Clear a volume of air, lay a carpet, and put the random pavement over it:
         for (int x = 0; x < this.width * scale; x++)
@@ -569,27 +569,27 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                 }
                 if (c != null && c.isWaypoint && x % scale == scale/2 && z % scale == scale/2)
                 {
-                	if (this.mazeParams.getWaypoints().getWaypointBlock() != null)
-                	{
-	                	bs = this.waypointBlock;
-	                	h = this.pathHeight;
-                	}
-                	else
-                	{
-                		// Place a waypoint item here:
-                 		int offset = 0;//(scale % 2 == 0) ? 1 : 0;
-                		BlockDrawingHelper.placeItem(this.waypointItem, new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
-                	}
+                    if (this.mazeParams.getWaypoints().getWaypointBlock() != null)
+                    {
+                        bs = this.waypointBlock;
+                        h = this.pathHeight;
+                    }
+                    else
+                    {
+                        // Place a waypoint item here:
+                        int offset = 0;//(scale % 2 == 0) ? 1 : 0;
+                        BlockDrawingHelper.placeItem(this.waypointItem, new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
+                    }
                 }
                 if (c != null && c == start)
                 {
-                	h = this.startHeight;
-                	bs = this.startBlock;
+                    h = this.startHeight;
+                    bs = this.startBlock;
                 }
                 if (c != null && c == end)
                 {
-                	h = this.endHeight;
-                	bs = this.endBlock;
+                    h = this.endHeight;
+                    bs = this.endBlock;
                 }
 
                 for (int y = 1; y <= h; y++)
@@ -601,35 +601,30 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
 
     private void recordStartAndEndPoints(Cell start, Cell end, MissionInit missionInit)
     {
-    	// TODO: how do we set the goal position, now it no longer has a declaration in the Mission xml?
-    	int scale = this.mazeParams.getSizeAndPosition().getScale();
-
-        Pos p = new Pos();
-        p.setX(new BigDecimal(scale * (end.x + 0.5) + this.xOrg));
-        p.setY(new BigDecimal(1 + this.optimalPathHeight + this.yOrg));   // Assuming we approach on the optimal path, need the height of the goal to be reachable!
-        p.setZ(new BigDecimal(scale * (end.z + 0.5) + this.zOrg));
+        // TODO: how do we set the goal position, now it no longer has a declaration in the Mission xml?
+        int scale = this.mazeParams.getSizeAndPosition().getScale();
 
         // Position the start point:
-        PosAndDirection p2 = new PosAndDirection();
-        p2.setX(new BigDecimal(scale * (start.x + 0.5) + this.xOrg));
-        p2.setY(new BigDecimal(1 + this.yOrg + this.startHeight));
-        p2.setZ(new BigDecimal(scale * (start.z + 0.5) + this.zOrg));
+        PosAndDirection p = new PosAndDirection();
+        p.setX(new BigDecimal(scale * (start.x + 0.5) + this.xOrg));
+        p.setY(new BigDecimal(1 + this.yOrg + this.startHeight));
+        p.setZ(new BigDecimal(scale * (start.z + 0.5) + this.zOrg));
         // TODO - for the moment, force all players to being at the maze start point - but this needs to be optional.
         for (AgentSection as : missionInit.getMission().getAgentSection())
         {
-	        p2.setPitch(as.getAgentStart().getPlacement().getPitch());
-	        p2.setYaw(as.getAgentStart().getPlacement().getYaw());
-	        as.getAgentStart().setPlacement(p2);
+            p.setPitch(as.getAgentStart().getPlacement().getPitch());
+            p.setYaw(as.getAgentStart().getPlacement().getYaw());
+            as.getAgentStart().setPlacement(p);
         }
     }
     
     @Override
     public void buildOnWorld(MissionInit missionInit)
     {
-    	// Set up various parameters according to the XML specs:
-    	initRNGs();
-    	initBlocksAndHeights();
-    	initDimensions();
+        // Set up various parameters according to the XML specs:
+        initRNGs();
+        initBlocksAndHeights();
+        initDimensions();
 
         // 8-connected or 4-connected?
         boolean allowDiags = this.mazeParams.isAllowDiagonalMovement();
@@ -654,26 +649,26 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         // Create the maze:
         buildPath(grid, start, end, allowDiags);
         
-	    if (this.mazeParams.getWaypoints() != null)
-	    	addWaypoints(grid, start, end, allowDiags);
+        if (this.mazeParams.getWaypoints() != null)
+            addWaypoints(grid, start, end, allowDiags);
 
         // Now split into subgoals:
         try
         {
-			findSubgoals(grid, start, end, MalmoMod.getPropertiesForCurrentThread());
-		}
+            findSubgoals(grid, start, end, MalmoMod.getPropertiesForCurrentThread());
+        }
         catch (Exception e)
         {
-			// TODO getProperties can throw if we are on an unrecognised thread.
-			e.printStackTrace();
-		}
+            // TODO getProperties can throw if we are on an unrecognised thread.
+            e.printStackTrace();
+        }
        
         // Now build the actual Minecraft world:
-    	World world = MinecraftServer.getServer().getEntityWorld();
-    	placeBlocks(world, grid, start, end);
+        World world = MinecraftServer.getServer().getEntityWorld();
+        placeBlocks(world, grid, start, end);
  
-    	// Finally, write the start and goal points into the MissionInit data structure for the other MissionHandlers to use:
-    	recordStartAndEndPoints(start, end, missionInit);
+        // Finally, write the start and goal points into the MissionInit data structure for the other MissionHandlers to use:
+        recordStartAndEndPoints(start, end, missionInit);
     }
 
     private int getHeight(MazeBlock mblock, Random rand)
