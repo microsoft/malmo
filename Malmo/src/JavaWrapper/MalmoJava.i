@@ -327,7 +327,7 @@ public:
   
   void observeGrid(int x1,int y1,int z1,int x2,int y2,int z2,const std::string& name);
   
-  void observeDistance(int x,int y,int z,const std::string& name);
+  void observeDistance(float x,float y,float z,const std::string& name);
   
   void observeChat();
   
