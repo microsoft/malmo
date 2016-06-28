@@ -61,7 +61,7 @@ def GetMissionXML( current_seed ):
     <AgentSection>
         <Name>James Bond</Name>
         <AgentStart>
-            <Placement x="-204" y="81" z="217"/> 
+            <Placement x="-203.5" y="81.0" z="217.5"/> 
         </AgentStart>
         <AgentHandlers>
             <VideoProducer>

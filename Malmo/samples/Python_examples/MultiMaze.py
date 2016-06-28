@@ -66,7 +66,7 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
         <AgentSection mode="Survival">
             <Name>Agnes</Name>
             <AgentStart>
-                <Placement x="-204" y="81" z="217"/>
+                <Placement x="-203.5" y="81.0" z="217.5"/>
             </AgentStart>
             <AgentHandlers>
                 <ObservationFromMazeOptimalPath />
@@ -86,7 +86,7 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
         <AgentSection mode="Survival">
             <Name>Gertrude</Name>
             <AgentStart>
-                <Placement x="-204" y="81" z="217"/>
+                <Placement x="-203.5" y="81.0" z="217.5"/>
             </AgentStart>
             <AgentHandlers>
                 <ObservationFromMazeOptimalPath />

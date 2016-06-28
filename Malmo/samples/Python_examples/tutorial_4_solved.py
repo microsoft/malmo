@@ -80,7 +80,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
               <AgentSection mode="Survival">
                 <Name>MalmoTutorialBot</Name>
                 <AgentStart>
-                    <Placement x="0" y="56" z="0" yaw="90"/>
+                    <Placement x="0.5" y="56.0" z="0.5" yaw="90"/>
                     <Inventory>
                         <InventoryItem slot="8" type="diamond_pickaxe"/>
                     </Inventory>
@@ -89,7 +89,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <ObservationFromFullStats/>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
                   <AgentQuitFromReachingPosition>
-                    <Marker x="-26.5" y="40" z="0.5" tolerance="0.5" description="Goal_found"/>
+                    <Marker x="-26.5" y="40.0" z="0.5" tolerance="0.5" description="Goal_found"/>
                   </AgentQuitFromReachingPosition>
                 </AgentHandlers>
               </AgentSection>

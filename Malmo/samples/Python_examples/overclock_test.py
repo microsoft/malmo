@@ -65,12 +65,12 @@ def GetMissionXML( msPerTick ):
         <AgentSection mode="Survival">
             <Name>Eric Liddell</Name>
             <AgentStart>
-                <Placement x="0" y="227" z="0"/>
+                <Placement x="0.5" y="227.0" z="0.5"/>
             </AgentStart>
             <AgentHandlers>
                 <ContinuousMovementCommands turnSpeedDegs="240"/>
                 <ObservationFromDistance>
-                    <Marker name="Start" x="0" y="227" z="0"/>
+                    <Marker name="Start" x="0.5" y="227.0" z="0.5"/>
                 </ObservationFromDistance>
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block" />

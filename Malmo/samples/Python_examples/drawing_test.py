@@ -101,7 +101,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
         <AgentSection mode="Survival">
             <Name>The Explorer</Name>
             <AgentStart>
-                <Placement x="0" y="86" z="420"/>
+                <Placement x="0.5" y="86.0" z="420.5"/>
             </AgentStart>
             <AgentHandlers>
             </AgentHandlers>
