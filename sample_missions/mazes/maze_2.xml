@@ -4,15 +4,15 @@
       <About>
         <Summary>Run the maze!</Summary>
       </About>
-	
-	<ServerSection>
-	    <ServerInitialConditions>
+    
+    <ServerSection>
+        <ServerInitialConditions>
             <Time>
-                <StartTime>6000</StartTime>
-                <AllowPassageOfTime>false</AllowPassageOfTime>
+              <StartTime>6000</StartTime>
+              <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-			<Weather>clear</Weather>
-			<AllowSpawning>false</AllowSpawning>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
             <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
@@ -29,7 +29,7 @@
                 <SubgoalBlock type="beacon sea_lantern glowstone"/>
                 <GapBlock type="stained_hardened_clay lapis_ore sponge air" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="3" heightVariance="3"/>
             </MazeDecorator>
-			<ServerQuitFromTimeUp timeLimitMs="100000"/>
+            <ServerQuitFromTimeUp timeLimitMs="100000"/>
             <ServerQuitWhenAnyAgentFinishes />
         </ServerHandlers>
     </ServerSection>
@@ -37,7 +37,7 @@
     <AgentSection>
         <Name>Jason Bourne</Name>
         <AgentStart>
-            <Placement x="-204" y="81" z="217"/> <!-- will be overwritten by MazeDecorator -->
+            <Placement x="-203.5" y="81.0" z="217.5"/> <!-- will be overwritten by MazeDecorator -->
         </AgentStart>
         <AgentHandlers>
             <VideoProducer want_depth="false">
@@ -49,10 +49,10 @@
                     <command>attack</command>
                 </ModifierList>
             </ContinuousMovementCommands>
-			<AbsoluteMovementCommands />
+            <AbsoluteMovementCommands />
             <DiscreteMovementCommands />
-			<InventoryCommands />
-			<RewardForMissionEnd rewardForDeath="-10000">
+            <InventoryCommands />
+            <RewardForMissionEnd rewardForDeath="-10000">
                 <Reward description="found_goal" reward="1000" />
                 <Reward description="out_of_time" reward="-1000" />
             </RewardForMissionEnd>
@@ -62,3 +62,4 @@
         </AgentHandlers>
     </AgentSection>
   </Mission>
+  

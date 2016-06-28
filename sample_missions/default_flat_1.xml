@@ -55,7 +55,7 @@
   <AgentSection mode="Survival">
     <Name>Cristina</Name>
     <AgentStart>
-      <Placement pitch="0" x="0" y="227" yaw="0" z="0"/>
+      <Placement pitch="0" x="0.5" y="227.0" yaw="0" z="0.5"/>
     </AgentStart>
     <AgentHandlers>
       <ContinuousMovementCommands turnSpeedDegs="180"/>
@@ -68,10 +68,9 @@
         <Marker oneshot="true" reward="100" tolerance="1.100000023841858" x="19.5" y="227" z="19.5"/>
       </RewardForReachingPosition>      
       <AgentQuitFromReachingPosition>
-        <Marker tolerance="1.100000023841858" x="19.5" y="227" z="19.5"/>
+        <Marker tolerance="1.100000023841858" x="19.5" y="227.0" z="19.5"/>
       </AgentQuitFromReachingPosition>
     </AgentHandlers>
   </AgentSection>
 
 </Mission>
-

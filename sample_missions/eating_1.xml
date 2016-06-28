@@ -425,7 +425,7 @@
     <AgentSection mode="Survival">
       <Name>The Hungry Caterpillar</Name>
       <AgentStart>
-        <Placement pitch="0" x="0" y="227" yaw="0" z="0"/>
+        <Placement pitch="0" x="0.5" y="227.0" yaw="0" z="0.5"/>
         <Inventory/>
       </AgentStart>
       <AgentHandlers>

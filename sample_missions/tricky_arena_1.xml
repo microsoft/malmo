@@ -4,13 +4,13 @@
       <Summary>Mind your step! Moving around an area to find a goal or get out of it</Summary>
     </About>
     <ServerSection>
-	  <ServerInitialConditions>
+      <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-			<Weather>clear</Weather>
-			<AllowSpawning>false</AllowSpawning>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
       </ServerInitialConditions>
       <ServerHandlers>
         <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
@@ -124,11 +124,11 @@
         <ServerQuitWhenAnyAgentFinishes description=""/>
       </ServerHandlers>
     </ServerSection>
-	
-	<AgentSection mode="Survival">
+    
+    <AgentSection mode="Survival">
       <Name>The Hungry Caterpillar</Name>
       <AgentStart>
-        <Placement pitch="0" x="0" y="227" yaw="0" z="0"/>
+        <Placement pitch="0" x="0.5" y="227.0" yaw="0" z="0.5"/>
         <Inventory/>
       </AgentStart>
       <AgentHandlers>
@@ -157,5 +157,5 @@
         </AgentQuitFromTouchingBlockType>
       </AgentHandlers>
     </AgentSection>
-	
+    
   </Mission>

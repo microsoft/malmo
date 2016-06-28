@@ -32,7 +32,7 @@
   <AgentSection mode="Survival">
     <Name>Cristina</Name>
     <AgentStart>
-      <Placement x="4" y="46" z="1" pitch="30" yaw="0"/>
+      <Placement x="4.5" y="46.0" z="1.5" pitch="30" yaw="0"/>
     </AgentStart>
     <AgentHandlers>
       <ObservationFromFullStats/>
