@@ -1,3 +1,8 @@
+0.13.0
+-------------------
+Some MissionSpec calls now take float coordinates to match XML (issue #107). MissionSpec::endAt now takes tolerance parameter.
+Fix: ALE_HAC.py was broken (issue #114).
+
 0.12.0 (2016-06-24)
 -------------------
 New: Issue 55 (added forceReset flag to FlatWorldGenerator, DefaultWorldGenerator and FileWorldGenerator).
