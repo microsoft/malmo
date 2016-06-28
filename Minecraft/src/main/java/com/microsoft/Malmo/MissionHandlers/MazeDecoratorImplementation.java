@@ -611,9 +611,9 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
 
         // Position the start point:
         PosAndDirection p2 = new PosAndDirection();
-        p2.setX(new BigDecimal(scale * (start.x + 0.5) + this.xOrg - 0.5));	// TODO - server adds the 0.5 for us to centre the player within the block.
+        p2.setX(new BigDecimal(scale * (start.x + 0.5) + this.xOrg));
         p2.setY(new BigDecimal(1 + this.yOrg + this.startHeight));
-        p2.setZ(new BigDecimal(scale * (start.z + 0.5) + this.zOrg - 0.5));
+        p2.setZ(new BigDecimal(scale * (start.z + 0.5) + this.zOrg));
         // TODO - for the moment, force all players to being at the maze start point - but this needs to be optional.
         for (AgentSection as : missionInit.getMission().getAgentSection())
         {
