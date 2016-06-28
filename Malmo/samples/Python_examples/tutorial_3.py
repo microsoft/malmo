@@ -76,7 +76,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
               <AgentSection mode="Survival">
                 <Name>MalmoTutorialBot</Name>
                 <AgentStart>
-                    <Placement x="0" y="56" z="0" yaw="90"/>
+                    <Placement x="0.5" y="56.0" z="0.5" yaw="90"/>
                 </AgentStart>
                 <AgentHandlers>
                   <ObservationFromFullStats/>

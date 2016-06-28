@@ -50,7 +50,7 @@ def GetMissionXML(summary):
         <AgentSection mode="Survival">
             <Name>The Full Caterpillar</Name>
             <AgentStart>
-                <Placement x="0" y="227" z="0"/>
+                <Placement x="0.5" y="227.0" z="0.5"/>
                 <Inventory>
                     <InventoryItem slot="0" type="cookie" quantity="64"/>
                     <InventoryItem slot="1" type="fish" quantity="64"/>

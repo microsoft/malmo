@@ -5,13 +5,13 @@
   </About>
 
   <ServerSection>
-	  <ServerInitialConditions>
-            <Time>
-                <StartTime>6000</StartTime>
-                <AllowPassageOfTime>false</AllowPassageOfTime>
-            </Time>
-			<Weather>clear</Weather>
-			<AllowSpawning>false</AllowSpawning>
+      <ServerInitialConditions>
+        <Time>
+          <StartTime>6000</StartTime>
+          <AllowPassageOfTime>false</AllowPassageOfTime>
+        </Time>
+        <Weather>clear</Weather>
+        <AllowSpawning>false</AllowSpawning>
        </ServerInitialConditions>
      <ServerHandlers>
       <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
@@ -49,12 +49,12 @@
   <AgentSection mode="Survival">
     <Name>James Bond</Name>
     <AgentStart>
-      <Placement x="-204" y="81" z="217"/>
+      <Placement x="-203.5" y="81.0" z="217.5"/>
     </AgentStart>
     <AgentHandlers>
-	  <VideoProducer want_depth="false">
-                <Width>320</Width>
-                <Height>240</Height>
+      <VideoProducer want_depth="false">
+        <Width>320</Width>
+        <Height>240</Height>
       </VideoProducer>
       <ObservationFromFullStats />
       <ContinuousMovementCommands turnSpeedDegs="180">

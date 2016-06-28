@@ -66,7 +66,7 @@ def GetMissionXML( seed, gp ):
               <AgentSection mode="Survival">
                 <Name>MalmoTutorialBot</Name>
                 <AgentStart>
-                    <Placement x="0" y="56" z="0"/>
+                    <Placement x="0.5" y="56.0" z="0.5"/>
                 </AgentStart>
                 <AgentHandlers>
                     <AgentQuitFromTouchingBlockType>

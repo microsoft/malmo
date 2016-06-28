@@ -45,7 +45,7 @@ foreach( file ${CSHARP_TEST_SOURCES} )
   set( test_name "CSharpTests_${test_name}" )  
 
   csharp_add_executable( ${test_name} ${file} "${MALMO_CSHARP_DIR}/MalmoNET.dll" )
-  add_dependencies( ${test_name} MalmoNET )
+  add_dependencies( ${test_name} MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
 
   # copy the MalmoNET dynamic libraries to the test build folder
   add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/MalmoNET.dll ${TEST_FOLDER}/MalmoNET.dll )

@@ -15,7 +15,7 @@
         <AgentSection mode="Survival">
             <Name>Rover</Name>
             <AgentStart>
-                  <Placement x="-204" y="81" z="217"/>
+                  <Placement x="-203.5" y="81.0" z="217.5"/>
             </AgentStart>
             <AgentHandlers>
                 <ContinuousMovementCommands/>

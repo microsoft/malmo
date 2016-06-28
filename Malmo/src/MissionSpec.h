@@ -121,17 +121,20 @@ namespace malmo
             // -------------------- settings for the agents -------------------------
 
             //! Sets the start location for the agent. Only supports single agent missions.
+            //! Integer coordinates are at the corners of blocks, so to start in the center of a block, use e.g. 4.5 instead of 4.0.
             //! \param x The east-west location.
             //! \param y The up-down location.
             //! \param z The north-south location.
-            void startAt(int x, int y, int z);
+            void startAt(float x, float y, float z);
 
             //! Sets the end location for the agent. Only supports single agent missions.
             //! Can be called more than once if there are multiple positions that end the mission for this agent.
+            //! Integer coordinates are at the corners of blocks, so to end in the center of a block, use e.g. 4.5 instead of 4.0.
             //! \param x The east-west location.
             //! \param y The up-down location.
             //! \param z The north-south location.
-            void endAt(int x, int y, int z);
+            //! \param tolerance The radius that the agent must be within. Euclidean distance.
+            void endAt(float x, float y, float z, float tolerance);
             
             //! Sets the player mode for the agent to creative, allowing them to fly and to not sustain damage. Only supports single agent missions.
             void setModeToCreative();
@@ -153,12 +156,13 @@ namespace malmo
             void requestVideoWithDepth(int width, int height);
 
             //! Asks for a reward to be sent to the agent when it reaches a certain position. Only supports single agent missions.
+            //! Integer coordinates are at the corners of blocks, so for rewards in the center of a block, use e.g. 4.5 instead of 4.0.
             //! \param x The east-west location.
             //! \param y The up-down location.
             //! \param z The north-south location.
             //! \param amount The reward value to send.
             //! \param tolerance The radius that the agent must be within to receive the reward. Euclidean distance.
-            void rewardForReachingPosition(int x, int y, int z, float amount, float tolerance);
+            void rewardForReachingPosition(float x, float y, float z, float amount, float tolerance);
 
             //! Asks for the list of commands acted upon since the last timestep to be returned in the observations. Only supports single agent missions.
             //! The commands are returned in a JSON entry called 'CommandsSinceLastObservation'.
@@ -188,13 +192,14 @@ namespace malmo
             void observeGrid(int x1,int y1,int z1,int x2,int y2,int z2,const std::string& name);
             
             //! Asks for the Euclidean distance to a location to be included in the observations. Only supports single agent missions.
+            //! Integer coordinates are at the corners of blocks, so for distances from the center of a block, use e.g. 4.5 instead of 4.0.
             //! The commands are returned in a JSON element 'distanceFromNAME', where NAME is replaced with the name of the point.
             //! Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromDistance">Schemas/MissionHandlers.html</a>
             //! \param x The east-west location.
             //! \param y The up-down location.
             //! \param z The north-south location.
             //! \param name A label for this observation. The observation will be called "distanceFrom<name>".
-            void observeDistance(int x,int y,int z,const std::string& name);
+            void observeDistance(float x,float y,float z,const std::string& name);
             
             //! Asks for chat messages to be included in the observations.
             void observeChat();

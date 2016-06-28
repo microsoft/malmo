@@ -168,7 +168,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
     <AgentSection>
         <Name>Jason Bourne</Name>
         <AgentStart>
-            <Placement x="-204" y="81" z="217"/> <!-- will be overwritten by MazeDecorator -->
+            <Placement x="-203.5" y="81.0" z="217.5"/> <!-- will be overwritten by MazeDecorator -->
         </AgentStart>
         <AgentHandlers>
             <VideoProducer want_depth="true">

@@ -42,7 +42,7 @@ end
 local my_mission = MissionSpec()
 my_mission:timeLimitInSeconds( 10 )
 my_mission:requestVideo( 320, 240 )
-my_mission:rewardForReachingPosition(19,0,19,100.0,1.1)
+my_mission:rewardForReachingPosition(19.5,0.0,19.5,100.0,1.1)
 print (my_mission)
 
 local my_mission_record = MissionRecordSpec("./saved_data.tgz")

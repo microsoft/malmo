@@ -58,7 +58,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" ?>
   <AgentSection mode="Survival">
     <Name>James Bond</Name>
     <AgentStart>
-      <Placement x="-204" y="81" z="217"/>
+      <Placement x="-203.5" y="81.0" z="217.5"/>
     </AgentStart>
     <AgentHandlers>
       <ObservationFromFullStats />

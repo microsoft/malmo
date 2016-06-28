@@ -39,15 +39,15 @@ int main()
     my_mission.drawSphere(50,10,50,10,"ice");
     my_mission.drawLine(50,20,50,100,20,100,"redstone_block");
     my_mission.startAt( 2, 0, 2 );
-    my_mission.endAt( 19, 0, 19 );
+    my_mission.endAt( 19.5f, 0.0f, 19.5f, 1.0f );
     my_mission.requestVideo( 320, 240 );
     my_mission.setModeToCreative();
-    my_mission.rewardForReachingPosition(19,0,19,100.0f,1.1f);
+    my_mission.rewardForReachingPosition(19.5f,0.0f,19.5f,100.0f,1.1f);
     my_mission.observeRecentCommands();
     my_mission.observeHotBar();
     my_mission.observeFullInventory();
     my_mission.observeGrid(-2,0,-2,2,1,2, "Cells");
-    my_mission.observeDistance(19,0,19,"Goal");
+    my_mission.observeDistance(19.5f,0.0f,19.5f,"Goal");
     my_mission.removeAllCommandHandlers();
     my_mission.allowContinuousMovementCommand("move");
     my_mission.allowContinuousMovementCommand("strafe");

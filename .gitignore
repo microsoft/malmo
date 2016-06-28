@@ -209,3 +209,5 @@ ModelManifest.xml
 # Thing specific to Project Malmo
 Schemas/xs3p.xsl
 Minecraft/run/config/malmomodCLIENT.cfg
+Minecraft/Minecraft_Client.launch
+

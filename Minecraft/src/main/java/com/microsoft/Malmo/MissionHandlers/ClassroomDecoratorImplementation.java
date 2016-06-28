@@ -198,7 +198,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         
         // set the agent positions
         PosAndDirection p2 = new PosAndDirection();
-        p2.setX(new BigDecimal(startRoom.x + this.rand.nextInt(goalRoom.width-2) + 0.5));	// TODO - server adds the 0.5 for us to centre the player within the block.
+        p2.setX(new BigDecimal(startRoom.x + this.rand.nextInt(goalRoom.width-2) + 0.5));
         p2.setY(new BigDecimal(1 + startRoom.y));
         p2.setZ(new BigDecimal(startRoom.z + 0.5));
 
