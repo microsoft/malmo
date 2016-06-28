@@ -220,23 +220,25 @@ namespace malmo
     
     // ------------------ settings for the agents --------------------------------
     
-    void MissionSpec::startAt(int x, int y, int z)
+    void MissionSpec::startAt(float x, float y, float z)
     {
         this->mission->AgentSection().front().AgentStart().Placement() = PosAndDirection(x,y,z);
     }
 
-    void MissionSpec::endAt(int x, int y, int z)
+    void MissionSpec::endAt(float x, float y, float z, float tolerance)
     {
         AgentHandlers::AgentQuitFromReachingPosition_optional& handler = this->mission->AgentSection().front().AgentHandlers().AgentQuitFromReachingPosition();
+        PointWithToleranceAndDescription p(x, y, z);
+        p.tolerance(tolerance);
         if (!handler.present())
         {
             AgentQuitFromReachingPosition quitter;
-            quitter.Marker().push_back(PointWithToleranceAndDescription(x, y, z));
+            quitter.Marker().push_back(p);
             handler.set(quitter);
         }
         else
         {
-            handler->Marker().push_back(PointWithToleranceAndDescription(x, y, z));
+            handler->Marker().push_back(p);
         }
     }
     
@@ -264,7 +266,7 @@ namespace malmo
         vps.set(vp);
     }
 
-    void MissionSpec::rewardForReachingPosition(int x, int y, int z, float amount, float tolerance)
+    void MissionSpec::rewardForReachingPosition(float x, float y, float z, float amount, float tolerance)
     {
         AgentHandlers::RewardForReachingPosition_optional& rrp = this->mission->AgentSection().front().AgentHandlers().RewardForReachingPosition();
         if (!rrp.present())
@@ -312,7 +314,7 @@ namespace malmo
         }
     }
     
-    void MissionSpec::observeDistance(int x, int y, int z, const std::string& name)
+    void MissionSpec::observeDistance(float x, float y, float z, const std::string& name)
     {
         AgentHandlers::ObservationFromDistance_optional& obs = this->mission->AgentSection().front().AgentHandlers().ObservationFromDistance();
         if (!obs.present())

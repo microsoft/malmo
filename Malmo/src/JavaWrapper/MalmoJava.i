@@ -305,9 +305,9 @@ public:
   
   void drawLine(int x1, int y1, int z1, int x2, int y2, int z2, const std::string& blockType);
   
-  void startAt(int x, int y, int z);
+  void startAt(float x, float y, float z);
 
-  void endAt(int x, int y, int z);
+  void endAt(float x, float y, float z, float tolerance);
   
   void setModeToCreative();
   
@@ -317,7 +317,7 @@ public:
   
   void requestVideoWithDepth(int width, int height);
   
-  void rewardForReachingPosition(int x, int y, int z, float amount, float tolerance);
+  void rewardForReachingPosition(float x, float y, float z, float amount, float tolerance);
 
   void observeRecentCommands();
   
