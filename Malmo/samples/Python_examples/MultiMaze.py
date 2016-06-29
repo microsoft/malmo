@@ -159,17 +159,17 @@ for iRepeat in range(30000):
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
+        if len(world_state.errors) > 0:
+            for err in world_state.errors:
+                print err
+            exit(1)
     print
 
     # main loop:
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
-        while world_state.number_of_observations_since_last_state < 1 and world_state.is_mission_running:
-            time.sleep(0.05)
-            world_state = agent_host.getWorldState()
-
-        if world_state.is_mission_running:
-            msg = world_state.observations[0].text
+        if world_state.is_mission_running and world_state.number_of_observations_since_last_state > 0:
+            msg = world_state.observations[-1].text
             ob = json.loads(msg)
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = 1-abs(current_yaw_delta)
@@ -181,7 +181,11 @@ for iRepeat in range(30000):
                 num_steps_since_last_chat = 0
             else:
                 num_steps_since_last_chat = num_steps_since_last_chat + 1
-
+            time.sleep(0.05)
+        if len(world_state.errors) > 0:
+            for err in world_state.errors:
+                print err
+            
     print "Mission has stopped."
 
     print 'Sleeping to give the clients a chance to reset...',
