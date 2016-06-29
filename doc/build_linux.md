@@ -67,7 +67,8 @@
     1. `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`
     2. `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
     3. `sudo apt-get install -f`  
-       This step is needed because we require xsd version 4.0.
+       This step is needed because we require xsd version 4.0.  
+       (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
      
 8. Install Luabind:
     1. `git clone https://github.com/rpavlik/luabind.git ~/rpavlik-luabind`
