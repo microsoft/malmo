@@ -28,6 +28,7 @@
     <xs:enumeration value="MOD_HAS_NO_AGENT_AVAILABLE" />
     <xs:enumeration value="MOD_SERVER_UNREACHABLE" />
     <xs:enumeration value="MOD_SERVER_ABORTED_MISSION" />
+    <xs:enumeration value="MOD_CONNECTION_FAILED" />
     <xs:enumeration value="MOD_CRASHED" />
   </xs:restriction>
 </xs:simpleType>
