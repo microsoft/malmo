@@ -123,7 +123,7 @@ public class AuthenticationHelper
         }
 
         String username = getUserForPort(AddressHelper.getMissionControlPort(), portToUserMappings);
-        String password = getPasswordForUsername(AuthenticationHelper.username, usernameToPasswordMappings);
+        String password = getPasswordForUsername(username, usernameToPasswordMappings);
         // If we can't find login details for this port, don't try to log in.
         // This means the user can login via the commandline/launcher, without us overriding that.
         if (!username.equals(UNAUTH))
