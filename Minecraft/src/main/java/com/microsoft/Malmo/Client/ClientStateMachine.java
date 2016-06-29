@@ -1196,9 +1196,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             super(machine);
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_STOPAGENTS);
+            MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_GO);
         }
 
-        boolean missionStartedSent = false;
+        boolean serverHasFiredStartingPistol = false;
         boolean playerDied = false;
         private int failedTCPRewardSendCount = 0;
         private int failedTCPObservationSendCount = 0;
@@ -1302,7 +1303,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
-            if (event.phase == Phase.END && this.missionStartedSent)
+            // Although we only arrive in this episode once the server has determined that all clients are ready to go,
+            // the server itself waits for all clients to begin running before it enters the running state itself.
+            // This creates a small vulnerability, since a running client could theoretically *finish* its mission before the server
+            // manages to *start*. (This has potentially disastrous effects for the state machine, and is easy to reproduce by,
+            // for example, setting the start point and goal of the mission to the same coordinates.)
+            // To guard against this happening, although we are running, we don't act on anything - we don't check for commands, or send
+            // observations or rewards - until we get the SERVER_GO signal, which is sent once the server's running episode has started.
+            if (!this.serverHasFiredStartingPistol)
+                return;
+
+            if (event.phase == Phase.END)
             {
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
@@ -1346,10 +1357,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // And see if we have any incoming commands to act upon:
                     checkForControlCommand();
                 }
-            }
-            if (!this.missionStartedSent)
-            {
-                this.missionStartedSent = true;
             }
         }
 
@@ -1483,6 +1490,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
                 onMissionEnded(ClientState.MISSION_ENDED);
             }
+            else if (messageType == MalmoMessageType.SERVER_GO)
+            {
+                this.serverHasFiredStartingPistol = true;   // GO GO GO!
+            }
         }
 
         @Override
@@ -1490,6 +1501,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_STOPAGENTS);
+            MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_GO);
         }
     };
 

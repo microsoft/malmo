@@ -164,6 +164,7 @@ public class MalmoMod
     {
         SERVER_NULLMESSASGE,
         SERVER_ALLPLAYERSJOINED,
+        SERVER_GO,                  // All clients are running, server is running - GO!
         SERVER_STOPAGENTS,			// Server request for all agents to stop what they are doing (mission is over)
         SERVER_MISSIONOVER,			// Server informing that all agents have stopped, and the mission is now over.
         SERVER_OBSERVATIONSREADY,
