@@ -44,7 +44,7 @@ class Program
 
         MissionSpec mission = new MissionSpec();
         mission.timeLimitInSeconds(10);
-        mission.requestVideo( 320, 240 );
+        mission.requestVideo( 320, 240, 0 );
         mission.rewardForReachingPosition(19.5f,0.0f,19.5f,100.0f,1.1f);
 
         MissionRecordSpec missionRecord = new MissionRecordSpec("./saved_data.tgz");

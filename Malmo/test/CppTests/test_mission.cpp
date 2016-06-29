@@ -40,7 +40,7 @@ int main()
     my_mission.drawLine(50,20,50,100,20,100,"redstone_block");
     my_mission.startAt( 2, 0, 2 );
     my_mission.endAt( 19.5f, 0.0f, 19.5f, 1.0f );
-    my_mission.requestVideo( 320, 240 );
+    my_mission.requestVideo( 320, 240, 0 );
     my_mission.setModeToCreative();
     my_mission.rewardForReachingPosition(19.5f,0.0f,19.5f,100.0f,1.1f);
     my_mission.observeRecentCommands();

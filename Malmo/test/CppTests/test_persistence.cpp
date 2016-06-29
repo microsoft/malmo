@@ -128,7 +128,7 @@ int runAgentHost(std::string filename)
 
     MissionSpec mission;
     mission.timeLimitInSeconds( 10 );
-    mission.requestVideo( 240, 240 );
+    mission.requestVideo( 240, 240, 0 );
 
     MissionRecordSpec mission_record(filename);
     mission_record.recordMP4(10, 400000);

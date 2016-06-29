@@ -146,14 +146,16 @@ namespace malmo
             //! Data will be delivered in a TimestampedVideoFrame structure as RGBRGBRGB...
             //! \param width The width of the image in pixels. Ensure this is divisible by 4.
             //! \param height The height of the image in pixels. Ensure this is divisible by 2.
-            void requestVideo(int width, int height);
+            //! \param viewpoint The camera position to use. 0 = first person, 1 = behind, 2 = facing.
+            void requestVideo(int width, int height, int viewpoint);
             
             //! Asks for image data and depth data to be sent from Minecraft for the agent. Only supports single agent missions.
             //! Data will be delivered in a TimestampedVideoFrame structure as RGBDRGBDRGBD...
             //! If saving the video to file only the depth will be recorded, as greyscale.
             //! \param width The width of the image in pixels. Ensure this is divisible by 4.
             //! \param height The height of the image in pixels. Ensure this is divisible by 2.
-            void requestVideoWithDepth(int width, int height);
+            //! \param viewpoint The camera position to use. 0 = first person, 1 = behind, 2 = facing.
+            void requestVideoWithDepth(int width, int height, int viewpoint);
 
             //! Asks for a reward to be sent to the agent when it reaches a certain position. Only supports single agent missions.
             //! Integer coordinates are at the corners of blocks, so for rewards in the center of a block, use e.g. 4.5 instead of 4.0.

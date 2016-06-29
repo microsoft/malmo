@@ -282,7 +282,7 @@ for imap in xrange(num_maps):
         my_mission = MalmoPython.MissionSpec(mission_xml, True)
     my_mission.removeAllCommandHandlers()
     my_mission.allowAllDiscreteMovementCommands()
-    my_mission.requestVideo( 320, 240 )
+    my_mission.requestVideo( 320, 240, 1 )
     # add 20% holes for interest
     for x in range(1,4):
         for z in range(1,13):

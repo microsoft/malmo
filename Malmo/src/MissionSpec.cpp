@@ -252,17 +252,20 @@ namespace malmo
         this->mission->AgentSection().front().mode( GameMode::Spectator );
     }
 
-    void MissionSpec::requestVideo(int width, int height)
+    void MissionSpec::requestVideo(int width, int height, int viewpoint)
     {
         AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
-        vps.set( VideoProducer( width, height ) );
+        VideoProducer vp( width, height );
+        vp.viewpoint( viewpoint );
+        vps.set( vp );
     }
     
-    void MissionSpec::requestVideoWithDepth(int width, int height)
+    void MissionSpec::requestVideoWithDepth(int width, int height, int viewpoint)
     {
         AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
         VideoProducer vp(width, height);
         vp.want_depth(true);
+        vp.viewpoint(viewpoint);
         vps.set(vp);
     }
 
