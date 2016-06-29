@@ -24,13 +24,12 @@ else()
 endif()
 
 # We currently do an in-source build for the Mod, because of gradle.
-add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar
-  COMMAND ${GRADLE} setupDecompWorkspace build testClasses -x test --stacktrace --quiet -Pversion=${MALMO_VERSION}
+add_custom_target( Minecraft
+  ALL
+  COMMAND ${GRADLE} setupDecompWorkspace build testClasses -x test --stacktrace -Pversion=${MALMO_VERSION}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "Building Minecraft..."
 )
-add_custom_target(Minecraft ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar)
 
 set( TEST_MOD OFF )
 if( TEST_MOD )
@@ -62,3 +61,4 @@ endforeach()
 install( PROGRAMS gradlew DESTINATION Minecraft/ )
 install( PROGRAMS launchClient.sh DESTINATION Minecraft/ )
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar DESTINATION "Mod" )
+
