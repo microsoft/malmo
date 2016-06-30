@@ -67,11 +67,11 @@ namespace malmo
 
             //! Gets the latest world state received from the game.
             //! \returns The world state.
-            boost::shared_ptr<const WorldState> peekWorldState() const;
+            WorldState peekWorldState() const;
 
             //! Gets the latest world state received from the game. Resets the count of items received since the last time.
             //! \returns The world state.
-            boost::shared_ptr<const WorldState> getWorldState();
+            WorldState getWorldState();
 
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
@@ -104,11 +104,11 @@ namespace malmo
             AgentHost::RewardsPolicy      rewards_policy;
             AgentHost::ObservationsPolicy observations_policy;
             
-            boost::shared_ptr<WorldState> world_state;
+            WorldState world_state;
             boost::shared_ptr<ALEInterface> ale_interface;
             std::unique_ptr<VideoFrameWriter> video_frame_writer;
 
-            boost::mutex world_state_mutex;
+            mutable boost::mutex world_state_mutex;
             
             boost::shared_ptr<MissionRecord> current_mission_record;
             int current_role;
