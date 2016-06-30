@@ -67,16 +67,16 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    boost::shared_ptr<const WorldState> world_state;
+    WorldState world_state;
 
     cout << "Waiting for the mission to start" << flush;
     do {
         cout << "." << flush;
         boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         world_state = agent_host.getWorldState();
-        for( TimestampedString error : world_state->errors )
-            cout << "Error: " << error.text << endl;
-    } while (!world_state->is_mission_running);
+        for( boost::shared_ptr<TimestampedString> error : world_state.errors )
+            cout << "Error: " << error->text << endl;
+    } while (!world_state.is_mission_running);
     cout << endl;
 
     // main loop:
@@ -90,14 +90,14 @@ int main(int argc, const char **argv)
         boost::this_thread::sleep(boost::posix_time::milliseconds(500));
         world_state = agent_host.getWorldState();
         cout << "video,observations,rewards received: "
-             << world_state->number_of_video_frames_since_last_state << ","
-             << world_state->number_of_observations_since_last_state << ","
-             << world_state->number_of_rewards_since_last_state << endl;
-        for( TimestampedFloat reward : world_state->rewards )
-            cout << "Summed reward: " << reward.value << endl;
-        for( TimestampedString error : world_state->errors )
-            cout << "Error: " << error.text << endl;
-    } while (world_state->is_mission_running);
+             << world_state.number_of_video_frames_since_last_state << ","
+             << world_state.number_of_observations_since_last_state << ","
+             << world_state.number_of_rewards_since_last_state << endl;
+        for( boost::shared_ptr<TimestampedFloat> reward : world_state.rewards )
+            cout << "Summed reward: " << reward->value << endl;
+        for( boost::shared_ptr<TimestampedString> error : world_state.errors )
+            cout << "Error: " << error->text << endl;
+    } while (world_state.is_mission_running);
 
     cout << "Mission has stopped." << endl;
 

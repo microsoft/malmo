@@ -63,25 +63,25 @@ namespace malmo
         /*! May differ from the number of video frames that were received, depending on the video policy that was used.
          * \see AgentHost::setVideoPolicy
          */
-        std::vector< TimestampedVideoFrame > video_frames;
+        std::vector< boost::shared_ptr< TimestampedVideoFrame > > video_frames;
 
         //! Contains the timestamped rewards that are stored in this world state.
         /*! May differ from the number of rewards that were received, depending on the rewards policy that was used.
          * \see AgentHost::setRewardsPolicy
          */
-        std::vector< TimestampedFloat > rewards;
+        std::vector< boost::shared_ptr< TimestampedFloat > > rewards;
 
         //! Contains the timestamped observations that are stored in this world state.
         /*! May differ from the number of observations that were received, depending on the observations policy that was used.
          * \see AgentHost::setObservationsPolicy
          */
-        std::vector< TimestampedString > observations;
+        std::vector< boost::shared_ptr< TimestampedString > > observations;
 
         //! Contains the timestamped mission control messages that are stored in this world state.
-        std::vector< TimestampedString > mission_control_messages;
+        std::vector< boost::shared_ptr< TimestampedString > > mission_control_messages;
 
         //! If there are errors in receiving the messages then we log them here.
-        std::vector< TimestampedString > errors;
+        std::vector< boost::shared_ptr< TimestampedString > > errors;
 
         friend std::ostream& operator<<(std::ostream& os, const WorldState& ws);
     };
