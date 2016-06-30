@@ -117,56 +117,68 @@ class TabQAgent:
         """run the agent on the world"""
 
         total_reward = 0
+        current_r = 0
         
         self.prev_s = None
         self.prev_a = None
         
-        is_first_action = True
+        # wait for a valid observation
+        world_state = agent_host.peekWorldState()
+        while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
+            #time.sleep(0.01)
+            world_state = agent_host.peekWorldState()
+        world_state = agent_host.getWorldState()    
+        
+        if not world_state.is_mission_running:
+            return 0 # mission already ended
+            
+        obs = json.loads( world_state.observations[-1].text )
+        prev_x = int(obs[u'XPos'])
+        prev_z = int(obs[u'ZPos'])
+        print 'Initial position:',prev_x,',',prev_z
+            
+        # act
+        total_reward += self.act(world_state,agent_host,current_r)
         
         # main loop:
-        world_state = agent_host.getWorldState()
         while world_state.is_mission_running:
-
-            current_r = 0
+        
+            # wait for the position to have changed and a non-zero reward received
+            print 'Waiting for data...',
+            while True:
+                world_state = agent_host.peekWorldState()
+                if not world_state.is_mission_running:
+                    print 'mission ended.'
+                    break
+                if not sum(r.value for r in world_state.rewards) == 0 and not all(e.text=='{}' for e in world_state.observations):
+                    obs = json.loads( world_state.observations[-1].text )
+                    curr_x = int(obs[u'XPos'])
+                    curr_z = int(obs[u'ZPos'])
+                    if not curr_x == prev_x or not curr_z == prev_z:
+                        print 'received.'
+                        break
+                #time.sleep(0.01)
             
-            if is_first_action:
-                # wait until have received a valid observation
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                    if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-                is_first_action = False
-            else:
-                # wait for non-zero reward
-                while world_state.is_mission_running and current_r == 0:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                # allow time to stabilise after action
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                    if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-
+            world_state = agent_host.getWorldState()
+            current_r = sum(r.value for r in world_state.rewards)
+                
+            if world_state.is_mission_running:
+                obs = json.loads( world_state.observations[-1].text )
+                curr_x = int(obs[u'XPos'])
+                curr_z = int(obs[u'ZPos'])
+                print 'New position:',curr_x,',',curr_z,'after action:',self.actions[self.prev_a], #NSWE
+                expected_x = prev_x + [0,0,-1,1][self.prev_a]
+                expected_z = prev_z + [-1,1,0,0][self.prev_a]
+                if not curr_x == expected_x or not curr_z == expected_z:
+                    print ' - ERROR DETECTED! Expected:',expected_x,',',expected_z
+                    raw_input("Press Enter to continue...")
+                else:
+                    print 'as expected.'
+                prev_x = curr_x
+                prev_z = curr_z
+                # act
+                total_reward += self.act(world_state, agent_host, current_r)
+                
         # process final reward
         self.logger.debug("Final reward: %d" % current_r)
         total_reward += current_r
