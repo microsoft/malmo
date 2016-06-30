@@ -239,13 +239,13 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def(self_ns::str(self_ns::self))
     ;
     register_ptr_to_python< boost::shared_ptr< TimestampedFloat > >();
-    class_< TimestampedFloat, boost::shared_ptr< TimestampedFloat > >( "TimestampedFloat", no_init )
+    class_< TimestampedFloat >( "TimestampedFloat", no_init )
         .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "value",       &TimestampedFloat::value )
         .def(self_ns::str(self_ns::self))
     ;
     register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();
-    class_< TimestampedVideoFrame, boost::shared_ptr< TimestampedVideoFrame > >( "TimestampedVideoFrame", no_init )
+    class_< TimestampedVideoFrame >( "TimestampedVideoFrame", no_init )
         .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "width",       &TimestampedVideoFrame::width )
         .def_readonly( "height",      &TimestampedVideoFrame::height )
