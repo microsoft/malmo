@@ -125,7 +125,6 @@ class TabQAgent:
         # wait for a valid observation
         world_state = agent_host.peekWorldState()
         while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
-            #time.sleep(0.01)
             world_state = agent_host.peekWorldState()
         world_state = agent_host.getWorldState()    
         
@@ -137,7 +136,7 @@ class TabQAgent:
         prev_z = int(obs[u'ZPos'])
         print 'Initial position:',prev_x,',',prev_z
             
-        # act
+        # take first action
         total_reward += self.act(world_state,agent_host,current_r)
         
         # main loop:
@@ -157,7 +156,6 @@ class TabQAgent:
                     if not curr_x == prev_x or not curr_z == prev_z:
                         print 'received.'
                         break
-                #time.sleep(0.01)
             
             world_state = agent_host.getWorldState()
             current_r = sum(r.value for r in world_state.rewards)
@@ -199,7 +197,7 @@ class TabQAgent:
         action_inset = 0.1
         action_radius = 0.1
         curr_radius = 0.2
-        action_positions = [ ( 0.5, action_inset ), ( 0.5, 1-action_inset ), ( action_inset, 0.5 ), ( 1-action_inset, 0.5 ) ]
+        action_positions = [ ( 0.5, 1-action_inset ), ( 0.5, action_inset ), ( 1-action_inset, 0.5 ), ( action_inset, 0.5 ) ]
         # (NSWE to match action order)
         min_value = -20
         max_value = 20
@@ -214,16 +212,16 @@ class TabQAgent:
                     color = 255 * ( value - min_value ) / ( max_value - min_value ) # map value to 0-255
                     color = max( min( color, 255 ), 0 ) # ensure within [0,255]
                     color_string = '#%02x%02x%02x' % (255-color, color, 0)
-                    self.canvas.create_oval( (x + action_positions[action][0] - action_radius ) *scale,
-                                             (y + action_positions[action][1] - action_radius ) *scale,
-                                             (x + action_positions[action][0] + action_radius ) *scale,
-                                             (y + action_positions[action][1] + action_radius ) *scale, 
+                    self.canvas.create_oval( (world_x - x + action_positions[action][0] - action_radius ) *scale,
+                                             (world_y - y + action_positions[action][1] - action_radius ) *scale,
+                                             (world_x - x + action_positions[action][0] + action_radius ) *scale,
+                                             (world_y - y + action_positions[action][1] + action_radius ) *scale, 
                                              outline=color_string, fill=color_string )
         if curr_x is not None and curr_y is not None:
-            self.canvas.create_oval( (curr_x + 0.5 - curr_radius ) * scale, 
-                                     (curr_y + 0.5 - curr_radius ) * scale, 
-                                     (curr_x + 0.5 + curr_radius ) * scale, 
-                                     (curr_y + 0.5 + curr_radius ) * scale, 
+            self.canvas.create_oval( (world_x - curr_x + 0.5 - curr_radius ) * scale, 
+                                     (world_y - curr_y + 0.5 - curr_radius ) * scale, 
+                                     (world_x - curr_x + 0.5 + curr_radius ) * scale, 
+                                     (world_y - curr_y + 0.5 + curr_radius ) * scale, 
                                      outline="#fff", fill="#fff" )
         self.root.update()
 
