@@ -50,7 +50,7 @@ int main(int argc, const char **argv)
 
     MissionSpec my_mission;
     my_mission.timeLimitInSeconds(10);
-    my_mission.requestVideo( 320, 240 ,0 );
+    my_mission.requestVideo( 320, 240 );
     my_mission.rewardForReachingPosition(19.5f,0.0f,19.5f,100.0f,1.1f);
 
     MissionRecordSpec my_mission_record("./saved_data.tgz");

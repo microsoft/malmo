@@ -1,7 +1,7 @@
 0.13.0
 -------------------
 Some MissionSpec calls now take float coordinates to match XML (issue #107). MissionSpec::endAt now takes tolerance parameter.
-Camera viewpoint can now be specified. requestVideo and requestVideoWithDepth take as third parameter.
+New: API call MissionSpec::setViewpoint to change the camera viewpoint.
 Fix: ALE_HAC.py was broken (issue #114).
 
 0.12.0 (2016-06-24)

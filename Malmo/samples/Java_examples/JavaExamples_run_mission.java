@@ -56,7 +56,7 @@ public class JavaExamples_run_mission
 
         MissionSpec my_mission = new MissionSpec();
         my_mission.timeLimitInSeconds(10);
-        my_mission.requestVideo( 320, 240, 0 );
+        my_mission.requestVideo( 320, 240 );
         my_mission.rewardForReachingPosition(19.5f,0.0f,19.5f,100.0f,1.1f);
 
         MissionRecordSpec my_mission_record = new MissionRecordSpec("./saved_data.tgz");

@@ -313,9 +313,11 @@ public:
   
   void setModeToSpectator();
 
-  void requestVideo(int width, int height, int viewpoint);
+  void requestVideo(int width, int height);
   
-  void requestVideoWithDepth(int width, int height, int viewpoint);
+  void requestVideoWithDepth(int width, int height);
+  
+  void setViewpoint(int viewpoint);
   
   void rewardForReachingPosition(float x, float y, float z, float amount, float tolerance);
 
