@@ -50,7 +50,6 @@ namespace malmo
         , video_policy(LATEST_FRAME_ONLY)
         , rewards_policy(SUM_REWARDS)
         , observations_policy(LATEST_OBSERVATION_ONLY)
-        , world_state( boost::make_shared<WorldState>() )
         , current_role( 0 )
     {
         this->addOptionalFlag("help,h", "show description of allowed options");
@@ -92,7 +91,7 @@ namespace malmo
         
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        if (this->world_state->is_mission_running) {
+        if (this->world_state.is_mission_running) {
             throw std::runtime_error("A mission is already running.");
         }
 
@@ -108,7 +107,7 @@ namespace malmo
         // work through the client pool until we find a client to run our mission for us
         searchThroughClientPool( client_pool, false );
 
-        this->world_state->clear();
+        this->world_state.clear();
         // NB. Sets is_mission_running to false. The Mod decides when the mission actually starts (it might need to wait for other agents to join, for example)
         //     and will then send us a MissionInit message, but at this point in time this->world_state->is_mission_running is false.
 
@@ -231,18 +230,20 @@ namespace malmo
         throw std::runtime_error( "Failed to find an available client for this mission - tried all the clients in the supplied client pool." );
     }
     
-    boost::shared_ptr<const WorldState> AgentHost::peekWorldState() const
-    {
-        return this->world_state;
-    }
-
-    boost::shared_ptr<const WorldState> AgentHost::getWorldState()
+    WorldState AgentHost::peekWorldState() const
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        boost::shared_ptr<WorldState> old_world_state( this->world_state );
-        this->world_state = boost::make_shared<WorldState>();
-        this->world_state->is_mission_running = old_world_state->is_mission_running;
+        return this->world_state;
+    }
+
+    WorldState AgentHost::getWorldState()
+    {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
+        WorldState old_world_state( this->world_state );
+        this->world_state.clear();
+        this->world_state.is_mission_running = old_world_state.is_mission_running;
         return old_world_state;
     }
 
@@ -337,7 +338,7 @@ namespace malmo
         catch( std::exception&e ) {
             TimestampedString error_message( xml );
             error_message.text = std::string("Error parsing mission control message as XML: ") + e.what() + ":\n" + xml.text.substr(0,20) + "...\n";
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
 
@@ -345,23 +346,23 @@ namespace malmo
         {
             TimestampedString error_message( xml );
             error_message.text = "Empty XML string in mission control message";
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
         std::string root_node_name(pt.front().first.data());
 
-        if( !this->world_state->is_mission_running && root_node_name == "MissionInit" ) {
+        if( !this->world_state.is_mission_running && root_node_name == "MissionInit" ) {
             try {
                 const bool validate = true;
                 this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
-                this->world_state->is_mission_running = true;
+                this->world_state.is_mission_running = true;
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
                 oss << "Error parsing MissionInit message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
-                this->world_state->errors.push_back(error_message);
+                this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
                 return;
             }
             this->openCommandsConnection();
@@ -391,12 +392,12 @@ namespace malmo
                         oss << "Mission ended abnormally: " << mission_ended->HumanReadableStatus();
                         TimestampedString error_message(xml);
                         error_message.text = oss.str();
-                        this->world_state->errors.push_back(error_message);
+                        this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
                     }
                     break;
                 }
                 
-                if (this->world_state->is_mission_running) {
+                if (this->world_state.is_mission_running) {
                     TimestampedFloat final_reward;
                     final_reward.timestamp = xml.timestamp;
                     final_reward.value = static_cast<float>(mission_ended->FinalReward());
@@ -412,7 +413,7 @@ namespace malmo
                 oss << "Error parsing MissionEnded message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
-                this->world_state->errors.push_back(error_message);
+                this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
                 return;
             }
             
@@ -424,11 +425,11 @@ namespace malmo
         else {
             TimestampedString error_message( xml );
             error_message.text = "Unknown mission control message root node or at wrong time: " + root_node_name + " :" + xml.text.substr(0, 200) + "...";
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
 
-        this->world_state->mission_control_messages.push_back( xml );
+        this->world_state.mission_control_messages.push_back( boost::make_shared<TimestampedString>( xml ) );
     }
     
     void AgentHost::openCommandsConnection()
@@ -445,7 +446,7 @@ namespace malmo
 
     void AgentHost::close()
     {
-        this->world_state->is_mission_running = false;
+        this->world_state.is_mission_running = false;
         if (this->video_server) {
             this->video_server->stopRecording();
         }
@@ -474,15 +475,15 @@ namespace malmo
         switch( this->video_policy )
         {
             case VideoPolicy::LATEST_FRAME_ONLY:
-                this->world_state->video_frames.clear();
-                this->world_state->video_frames.push_back( message );
+                this->world_state.video_frames.clear();
+                this->world_state.video_frames.push_back( boost::make_shared<TimestampedVideoFrame>( message ) );
                 break;
             case VideoPolicy::KEEP_ALL_FRAMES:
-                this->world_state->video_frames.push_back( message );
+                this->world_state.video_frames.push_back( boost::make_shared<TimestampedVideoFrame>( message ) );
                 break;
         }
         
-        this->world_state->number_of_video_frames_since_last_state++;
+        this->world_state.number_of_video_frames_since_last_state++;
     }
     
     void AgentHost::onReward(TimestampedString json)
@@ -497,7 +498,7 @@ namespace malmo
         catch( std::exception&e ) {
             TimestampedString error_message( json );
             error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
         
@@ -508,7 +509,7 @@ namespace malmo
         } catch( std::exception& e ) {
             TimestampedString error_message( json );
             error_message.text = std::string("Error retrieving reward value from JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
         
@@ -520,23 +521,23 @@ namespace malmo
         switch( this->rewards_policy )
         {
             case RewardsPolicy::LATEST_REWARD_ONLY:
-                this->world_state->rewards.clear();
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.clear();
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 break;
             case RewardsPolicy::SUM_REWARDS:
-                if( !this->world_state->rewards.empty() ) {
-                    reward.value += this->world_state->rewards.front().value;
-                    this->world_state->rewards.clear();
+                if( !this->world_state.rewards.empty() ) {
+                    reward.value += this->world_state.rewards.front()->value;
+                    this->world_state.rewards.clear();
                 }
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 // (timestamp is that of latest reward, even if zero)
                 break;
             case RewardsPolicy::KEEP_ALL_REWARDS:
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 break;
         }
         
-        this->world_state->number_of_rewards_since_last_state++;
+        this->world_state.number_of_rewards_since_last_state++;
     }
     
     void AgentHost::onObservation(TimestampedString message)
@@ -546,15 +547,15 @@ namespace malmo
         switch( this->observations_policy )
         {
             case ObservationsPolicy::LATEST_OBSERVATION_ONLY:
-                this->world_state->observations.clear();
-                this->world_state->observations.push_back( message );
+                this->world_state.observations.clear();
+                this->world_state.observations.push_back( boost::make_shared<TimestampedString>( message ) );
                 break;
             case ObservationsPolicy::KEEP_ALL_OBSERVATIONS:
-                this->world_state->observations.push_back( message );
+                this->world_state.observations.push_back( boost::make_shared<TimestampedString>( message ) );
                 break;
         }
         
-        this->world_state->number_of_observations_since_last_state++;
+        this->world_state.number_of_observations_since_last_state++;
     }
     
     void AgentHost::sendCommand(std::string command)
@@ -564,7 +565,7 @@ namespace malmo
                 boost::posix_time::microsec_clock::universal_time(),
                 "AgentHost::sendCommand : commands connection is not open. Is the mission running?"
                 );
-            this->world_state->errors.push_back(error_message);
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
 
@@ -576,7 +577,7 @@ namespace malmo
                 boost::posix_time::microsec_clock::universal_time(),
                 "AgentHost::sendCommand : failed to send command: " + std::string(e.what())
                 );
-            this->world_state->errors.push_back( error_message );
+            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
             return;
         }
 

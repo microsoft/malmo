@@ -108,7 +108,6 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "getFloatArgument",          &ArgumentParser::getFloatArgument )
         .def( "getStringArgument",         &ArgumentParser::getStringArgument )
     ;
-    register_ptr_to_python< boost::shared_ptr< const WorldState > >();
     class_< WorldState >( "WorldState", no_init )
         .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
         .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
@@ -234,32 +233,35 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("setBool",                 &ParameterSet::setBool)
         .def("getBool",                 &ParameterSet::getBool)
     ;
+    register_ptr_to_python< boost::shared_ptr< TimestampedString > >();
     class_< TimestampedString >("TimestampedString", no_init)
-        .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
+        .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "text",        &TimestampedString::text )
         .def(self_ns::str(self_ns::self))
     ;
+    register_ptr_to_python< boost::shared_ptr< TimestampedFloat > >();
     class_< TimestampedFloat >( "TimestampedFloat", no_init )
-        .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
+        .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "value",       &TimestampedFloat::value )
         .def(self_ns::str(self_ns::self))
     ;
+    register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();
     class_< TimestampedVideoFrame >( "TimestampedVideoFrame", no_init )
-        .add_property( "timestamp", make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
+        .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "width",       &TimestampedVideoFrame::width )
         .def_readonly( "height",      &TimestampedVideoFrame::height )
         .def_readonly( "channels",    &TimestampedVideoFrame::channels )
         .def_readonly( "pixels",      &TimestampedVideoFrame::pixels )
         .def(self_ns::str(self_ns::self))
     ;
-    class_< std::vector< TimestampedString > >( "TimestampedStringVector" )
-        .def( vector_indexing_suite< std::vector< TimestampedString > >() )
+    class_< std::vector< boost::shared_ptr< TimestampedString > > >( "TimestampedStringVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedString > >, true >() )
     ;
-    class_< std::vector< TimestampedFloat > >( "TimestampedFloatVector" )
-        .def( vector_indexing_suite< std::vector< TimestampedFloat > >() )
+    class_< std::vector< boost::shared_ptr< TimestampedFloat > > >( "TimestampedFloatVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedFloat > >, true >() )
     ;
-    class_< std::vector< TimestampedVideoFrame > >( "TimestampedVideoFrameVector" )
-        .def( vector_indexing_suite< std::vector< TimestampedVideoFrame > >() )
+    class_< std::vector< boost::shared_ptr< TimestampedVideoFrame > > >( "TimestampedVideoFrameVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedVideoFrame > >, true >() )
     ;
     class_< std::vector< unsigned char > >( "UnsignedCharVector")
         .def( vector_indexing_suite< std::vector< unsigned char > >() )

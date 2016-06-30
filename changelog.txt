@@ -1,6 +1,9 @@
 0.13.0
 -------------------
+Fix: Client quit producers are now queried between executing commands, in cases where commands get clustered.
+New: Test for AgentQuitFromReachingPosition
 Some MissionSpec calls now take float coordinates to match XML (issue #107). MissionSpec::endAt now takes tolerance parameter.
+peekWorldState and getWorldState now return WorldState instances rather than smart pointers (issue #124).
 New: API call MissionSpec::setViewpoint to change the camera viewpoint.
 Fix: ALE_HAC.py was broken (issue #114).
 

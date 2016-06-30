@@ -51,7 +51,6 @@ namespace malmo
         , video_policy(AgentHost::VideoPolicy::LATEST_FRAME_ONLY)
         , rewards_policy(AgentHost::RewardsPolicy::SUM_REWARDS)
         , observations_policy(AgentHost::ObservationsPolicy::LATEST_OBSERVATION_ONLY)
-        , world_state( boost::make_shared<WorldState>() )
         , current_role( 0 )
     {
         this->addOptionalFlag("help,h", "show description of allowed options");
@@ -71,11 +70,11 @@ namespace malmo
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        if (this->world_state->is_mission_running) {
+        if (this->world_state.is_mission_running) {
             throw std::runtime_error("A mission is already running.");
         }
 
-        this->world_state->clear();
+        this->world_state.clear();
         // NB. Sets is_mission_running to false. The ALE decides when the mission actually starts.
 
         initialize(mission, mission_record, role, unique_experiment_id);
@@ -113,18 +112,20 @@ namespace malmo
         }
     }
 
-    boost::shared_ptr<const WorldState> ALEAgentHost::peekWorldState() const
-    {
-        return this->world_state;
-    }
-    
-    boost::shared_ptr<const WorldState> ALEAgentHost::getWorldState()
+    WorldState ALEAgentHost::peekWorldState() const
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        boost::shared_ptr<WorldState> old_world_state( this->world_state );
-        this->world_state = boost::make_shared<WorldState>();
-        this->world_state->is_mission_running = this->ale_interface && !this->ale_interface->game_over();
+        return this->world_state;
+    }
+    
+    WorldState ALEAgentHost::getWorldState()
+    {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
+        WorldState old_world_state( this->world_state );
+        this->world_state.clear();
+        this->world_state.is_mission_running = this->ale_interface && !this->ale_interface->game_over();
 
         return old_world_state;
     }
@@ -146,7 +147,7 @@ namespace malmo
     
     void ALEAgentHost::close()
     {
-        this->world_state->is_mission_running = false;
+        this->world_state.is_mission_running = false;
 
         if (this->commands_stream.is_open()){
             this->commands_stream.close();
@@ -170,15 +171,15 @@ namespace malmo
         switch( this->video_policy )
         {
         case AgentHost::VideoPolicy::LATEST_FRAME_ONLY:
-                this->world_state->video_frames.clear();
-                this->world_state->video_frames.push_back( message );
+                this->world_state.video_frames.clear();
+                this->world_state.video_frames.push_back( boost::make_shared<TimestampedVideoFrame>( message ) );
                 break;
         case AgentHost::VideoPolicy::KEEP_ALL_FRAMES:
-                this->world_state->video_frames.push_back( message );
+                this->world_state.video_frames.push_back( boost::make_shared<TimestampedVideoFrame>( message ) );
                 break;
         }
         
-        this->world_state->number_of_video_frames_since_last_state++;
+        this->world_state.number_of_video_frames_since_last_state++;
     }
     
     void ALEAgentHost::onReward(TimestampedFloat reward)
@@ -193,23 +194,23 @@ namespace malmo
         switch( this->rewards_policy )
         {
         case AgentHost::RewardsPolicy::LATEST_REWARD_ONLY:
-                this->world_state->rewards.clear();
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.clear();
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 break;
         case AgentHost::RewardsPolicy::SUM_REWARDS:
-                if( !this->world_state->rewards.empty() ) {
-                    reward.value += this->world_state->rewards.front().value;
-                    this->world_state->rewards.clear();
+                if( !this->world_state.rewards.empty() ) {
+                    reward.value += this->world_state.rewards.front()->value;
+                    this->world_state.rewards.clear();
                 }
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 // (timestamp is that of latest reward, even if zero)
                 break;
         case AgentHost::RewardsPolicy::KEEP_ALL_REWARDS:
-                this->world_state->rewards.push_back( reward );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
                 break;
         }
         
-        this->world_state->number_of_rewards_since_last_state++;
+        this->world_state.number_of_rewards_since_last_state++;
     }
     
     void ALEAgentHost::onObservation(TimestampedString message)
@@ -219,15 +220,15 @@ namespace malmo
         switch( this->observations_policy )
         {
         case AgentHost::ObservationsPolicy::LATEST_OBSERVATION_ONLY:
-                this->world_state->observations.clear();
-                this->world_state->observations.push_back( message );
+                this->world_state.observations.clear();
+                this->world_state.observations.push_back( boost::make_shared<TimestampedString>( message ) );
                 break;
         case AgentHost::ObservationsPolicy::KEEP_ALL_OBSERVATIONS:
-                this->world_state->observations.push_back( message );
+                this->world_state.observations.push_back( boost::make_shared<TimestampedString>( message ) );
                 break;
         }
         
-        this->world_state->number_of_observations_since_last_state++;
+        this->world_state.number_of_observations_since_last_state++;
     }
     
     void ALEAgentHost::sendCommand(std::string command)
