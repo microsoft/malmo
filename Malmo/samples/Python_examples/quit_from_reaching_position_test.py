@@ -100,7 +100,7 @@ agent_host.addOptionalFloatArgument( "wait,w", "Number of seconds to wait betwee
 # Setting this to something faster (eg 0.05) should still show a clear cylce of commands/observations/rewards,
 # but there may be extra commands sent unnecessarily at the end (which shouldn't be acted on).
 # Setting this to something extreme (eg 0.01) should show behaviour whereby the commands get clustered together,
-# and the agent may overshoot the goal square entirely - potentially without triggering the quit.
+# but the agent should still quit correctly.
 
 try:
     agent_host.parse( sys.argv )
