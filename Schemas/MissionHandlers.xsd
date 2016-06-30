@@ -569,7 +569,7 @@
   <!--=============================================================================================================-->
 
   <!--============================================== VIDEO PRODUCERS ==============================================-->
-
+  
   <xs:element name="VideoProducer">
     <xs:annotation>
       <xs:documentation>
@@ -603,8 +603,26 @@
           </xs:complexType>
         </xs:element>
       </xs:sequence>
-      <xs:attribute name="want_depth" type="xs:boolean" default="false" />
-      <!-- If true, returns depth in the fourth channel. -->
+      <xs:attribute name="want_depth" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            If true, returns depth in the fourth channel as RGBDRGBD.... Else as RGBRGB...
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="viewpoint" default="0">
+        <xs:annotation>
+          <xs:documentation>
+            Sets the camera viewpoint. 0 = first-person, 1 = behind, 2 = facing.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:int">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="2"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -722,14 +740,14 @@
         </xs:element>
       </xs:all>
       <xs:attribute name="turnSpeedDegs" type="xs:decimal" use="optional" default="180">
-		<xs:annotation>
-		  <xs:documentation>
-			This sets the maximum speed for both turning the agent and adjusting the camera pitch, in degrees per second.
-			
-			The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn anti-clockwise at half the maximum speed.
-		  </xs:documentation>
-		</xs:annotation>
-	  </xs:attribute>
+        <xs:annotation>
+          <xs:documentation>
+            This sets the maximum speed for both turning the agent and adjusting the camera pitch, in degrees per second.
+            
+            The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn anti-clockwise at half the maximum speed.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
