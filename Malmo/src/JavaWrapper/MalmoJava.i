@@ -317,6 +317,8 @@ public:
   
   void requestVideoWithDepth(int width, int height);
   
+  void setViewpoint(int viewpoint);
+  
   void rewardForReachingPosition(float x, float y, float z, float amount, float tolerance);
 
   void observeRecentCommands();
