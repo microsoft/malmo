@@ -1469,17 +1469,21 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void checkForControlCommand()
         {
             String command = "";
-            do
-            {
-                command = ClientStateMachine.this.controlInputPoller.getCommand();
-                if (command != null && command.length() > 0)
-                {
-                    //System.out.println("Received command from socket: " + command);
+            boolean quitHandlerFired = false;
+            IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
 
-                    // Pass the command to our various control overrides:
-                    boolean handled = handleCommand(command);
-                }
-            } while (command != null && command.length() > 0);
+            command = ClientStateMachine.this.controlInputPoller.getCommand();
+            while (command != null && command.length() > 0 && !quitHandlerFired)
+            {
+                // Pass the command to our various control overrides:
+                boolean handled = handleCommand(command);
+                // Get the next command:
+                command = ClientStateMachine.this.controlInputPoller.getCommand();
+                // If there *is* another command (commands came in faster than one per client tick),
+                // then we should check our quit producer before deciding whether to execute it.
+                if (command != null && command.length() > 0 && handled)
+                    quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
+            }
         }
 
         /** Attempt to handle a command string by passing it to our various external controllers in turn.
