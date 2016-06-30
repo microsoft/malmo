@@ -265,6 +265,15 @@ namespace malmo
         vp.want_depth(true);
         vps.set(vp);
     }
+    
+    void MissionSpec::setViewpoint(int viewpoint)
+    {
+        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
+        if( vps.present() ) {
+            vps->viewpoint(viewpoint);
+        }
+        // else silently do nothing since no video requested
+    }
 
     void MissionSpec::rewardForReachingPosition(float x, float y, float z, float amount, float tolerance)
     {

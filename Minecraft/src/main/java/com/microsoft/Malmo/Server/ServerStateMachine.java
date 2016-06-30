@@ -78,6 +78,41 @@ public class ServerStateMachine extends StateMachine
     private MissionInit queuedMissionInit = null;		// The MissionInit requested from elsewhere - dormant episode will check for its presence.
     private MissionBehaviour missionHandlers = null;	// The Mission handlers for the mission currently being loaded/run.
     protected String quitCode = "";						// Code detailing the reason for quitting this mission.
+    
+    // agentConnectionWatchList is used to keep track of the clients in a multi-agent mission. If, at any point, a username appears in
+    // this list, but can't be found in the MinecraftServer.getServer().getAllUsernames(), that constitutes an error, and the mission will exit.
+    private ArrayList<String> userConnectionWatchList = new ArrayList<String>();
+
+    protected void clearUserConnectionWatchList()
+    {
+        this.userConnectionWatchList.clear();
+    }
+    
+    protected void addUsernameToWatchList(String username)
+    {
+        this.userConnectionWatchList.add(username); // Must be username, not agentname.
+    }
+    
+    protected boolean checkWatchList()
+    {
+        String[] connected_users = MinecraftServer.getServer().getAllUsernames();
+        if (connected_users.length < this.userConnectionWatchList.size())
+            return false;
+
+        // More detailed check (since there may be non-mission-required connections - eg a human spectator).
+        for (String username : this.userConnectionWatchList)
+        {
+            boolean bFound = false;
+            for (int i = 0; i < connected_users.length && !bFound; i++)
+            {
+                if (connected_users[i].equals(username))
+                    bFound = true;
+            }
+            if (!bFound)
+                return false;
+        }
+        return true;
+    }
 
     protected void initialiseHandlers(MissionInit init) throws Exception
     {
@@ -519,14 +554,32 @@ public class ServerStateMachine extends StateMachine
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.CLIENT_AGENTSTOPPED);
         }
+        
+        @Override
+        protected void onServerTick(ServerTickEvent ev)
+        {
+            if (!ServerStateMachine.this.checkWatchList())
+            {
+                // Something has gone wrong - we've lost a connection.
+                // Need to respond to this, otherwise we'll sit here forever waiting for a client that no longer exists
+                // to tell us it's finished its mission.
+                MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
+                episodeHasCompleted(ServerState.ERROR);
+            }
+        }
     }
 
     //---------------------------------------------------------------------------------------------------------
     /** Wait for all participants to join the game.*/
     public class WaitingForAgentsEpisode extends SpawnControlEpisode implements MalmoMod.IMalmoMessageListener
     {
+        // pendingReadyAgents starts full - agent is removed when it joins the server. When list is empty, moves to next phase (waiting for running).
         private ArrayList<String> pendingReadyAgents = new ArrayList<String>();
+
+        // pendingRunningAgents starts empty - agent is added when it joins the server, removed again when it starts running.
         private ArrayList<String> pendingRunningAgents = new ArrayList<String>();
+
+        // Map between usernames and agent names.
         private HashMap<String, String> usernameToAgentnameMap = new HashMap<String, String>();
 
         protected WaitingForAgentsEpisode(ServerStateMachine machine)
@@ -534,6 +587,8 @@ public class ServerStateMachine extends StateMachine
             super(machine);
             MalmoMod.MalmoMessageHandler.registerForMessage(this,  MalmoMessageType.CLIENT_AGENTREADY);
             MalmoMod.MalmoMessageHandler.registerForMessage(this,  MalmoMessageType.CLIENT_AGENTRUNNING);
+            
+            ServerStateMachine.this.clearUserConnectionWatchList(); // We will build this up as agents join us.
         }
 
         @Override
@@ -560,6 +615,7 @@ public class ServerStateMachine extends StateMachine
                     this.pendingReadyAgents.remove(agentname);
                     this.usernameToAgentnameMap.put(username, agentname);
                     this.pendingRunningAgents.add(username);
+                    ServerStateMachine.this.addUsernameToWatchList(username);   // Now we've got it, we need to watch it - if it disappears, that's an error.
 
                     // If all clients have now joined, we can tell them to go ahead.
                     if (this.pendingReadyAgents.isEmpty())
@@ -695,6 +751,13 @@ public class ServerStateMachine extends StateMachine
             // And abort ourselves:
             episodeHasCompleted(ServerState.ERROR);
         }
+        
+        @Override
+        protected void onServerTick(ServerTickEvent ev)
+        {
+            if (!ServerStateMachine.this.checkWatchList())
+                onError(null);  // We've lost a connection - abort the mission.
+        }
 
         private void initialiseInventory(EntityPlayerMP player, Inventory inventory)
         {
@@ -814,6 +877,9 @@ public class ServerStateMachine extends StateMachine
             if (this.missionHasEnded)
                 return;	// In case we get in here after deciding the mission is over.
             
+            if (!ServerStateMachine.this.checkWatchList())
+                onError(null);  // We've lost a connection - abort the mission.
+            
             if (ev.phase == Phase.START)
             {
                 // Measure our performance - especially useful if we've been overclocked.
@@ -847,17 +913,17 @@ public class ServerStateMachine extends StateMachine
                 if (getHandlers() != null && getHandlers().quitProducer != null && getHandlers().quitProducer.doIWantToQuit(currentMissionInit()))
                 {
                     ServerStateMachine.this.quitCode = getHandlers().quitProducer.getOutcome();
-                    onMissionEnded();
+                    onMissionEnded(true);
                 }
                 else if (this.runningAgents.isEmpty())
                 {
                     ServerStateMachine.this.quitCode = "All agents finished";
-                    onMissionEnded();
+                    onMissionEnded(true);
                 }
             }
         }
 
-        private void onMissionEnded()
+        private void onMissionEnded(boolean success)
         {
             this.missionHasEnded = true;
 
@@ -866,8 +932,23 @@ public class ServerStateMachine extends StateMachine
             
             TimeHelper.serverTickLength = 50;   // Return tick length to 50ms default.
 
-            // Mission is over - wait for all agents to stop.
-            episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
+            if (success)
+            {
+                // Mission is over - wait for all agents to stop.
+                episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
+            }
+        }
+        
+        @Override
+        protected void onError(Map<String, String> errorData)
+        {
+            // Something has gone wrong - one of the clients has been forced to bail.
+            // Do some tidying:
+            onMissionEnded(false);
+            // Tell all the clients to abort:
+            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
+            // And abort ourselves:
+            episodeHasCompleted(ServerState.ERROR);
         }
     }
 
