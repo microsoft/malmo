@@ -44,15 +44,19 @@
 %include "boost_shared_ptr.i"
 %include "stdint.i"
 
-namespace std {
-  %template(StringVector) vector<string>;
-  %template(TimestampedVideoFrameVector) vector<TimestampedVideoFrame>;
-  %template(TimestampedFloatVector) vector<TimestampedFloat>;
-  %template(TimestampedStringVector) vector<TimestampedString>;
-  %template(ByteVector) vector<unsigned char>;
-}
+%shared_ptr(TimestampedVideoFrame)
+%shared_ptr(TimestampedFloat)
+%shared_ptr(TimestampedString)
 
-%shared_ptr(WorldState)
+%template(TimestampedVideoFramePtr) boost::shared_ptr< TimestampedVideoFrame >;
+%template(TimestampedFloatPtr)      boost::shared_ptr< TimestampedFloat >;
+%template(TimestampedStringPtr)     boost::shared_ptr< TimestampedString >;
+
+%template(StringVector)                std::vector< std::string >;
+%template(TimestampedVideoFrameVector) std::vector< boost::shared_ptr< TimestampedVideoFrame > >;
+%template(TimestampedFloatVector)      std::vector< boost::shared_ptr< TimestampedFloat > >;
+%template(TimestampedStringVector)     std::vector< boost::shared_ptr< TimestampedString > >;
+%template(ByteVector)                  std::vector<unsigned char>;
 
 namespace boost::posix_time
 {
@@ -135,15 +139,15 @@ public:
 
   const int number_of_observations_since_last_state;
 
-  const std::vector< TimestampedVideoFrame > video_frames;
+  const std::vector< boost::shared_ptr< TimestampedVideoFrame > > video_frames;
 
-  const std::vector< TimestampedFloat > rewards;
+  const std::vector< boost::shared_ptr< TimestampedFloat > > rewards;
 
-  const std::vector< TimestampedString > observations;
+  const std::vector< boost::shared_ptr< TimestampedString > > observations;
 
-  const std::vector< TimestampedString > mission_control_messages;
+  const std::vector< boost::shared_ptr< TimestampedString > > mission_control_messages;
   
-  const std::vector< TimestampedString > errors;
+  const std::vector< boost::shared_ptr< TimestampedString > > errors;
 };
 
 class AgentHost : public ArgumentParser {
@@ -204,9 +208,9 @@ public:
     , const MissionRecordSpec& mission_record
   );
 
-  boost::shared_ptr<const WorldState> peekWorldState() const;
+  WorldState peekWorldState() const;
   
-  boost::shared_ptr<const WorldState> getWorldState();
+  WorldState getWorldState();
 
   void setVideoPolicy(VideoPolicy videoPolicy);
 
@@ -261,9 +265,9 @@ public:
     , const MissionRecordSpec& mission_record
   );
 
-  boost::shared_ptr<const WorldState> peekWorldState() const;
+  WorldState peekWorldState() const;
   
-  boost::shared_ptr<const WorldState> getWorldState();
+  WorldState getWorldState();
 
   void setVideoPolicy(AgentHost::VideoPolicy videoPolicy);
 

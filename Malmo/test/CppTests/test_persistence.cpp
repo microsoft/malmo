@@ -196,16 +196,16 @@ int runAgentHost(std::string filename)
 
     boost::thread gameShim(runGameShim);
 
-    boost::shared_ptr<const WorldState> world_state;
+    WorldState world_state;
 
     cout << "Waiting for the mission to start" << flush;
     do {
         cout << "." << flush;
         boost::this_thread::sleep(boost::posix_time::milliseconds(100));
         world_state = agent_host.getWorldState();
-        for (auto e : world_state->errors)
-            cout << "Error: " << e.text << endl;
-    } while (!world_state->is_mission_running);
+        for (auto e : world_state.errors)
+            cout << "Error: " << e->text << endl;
+    } while (!world_state.is_mission_running);
     cout << endl;
 
     do {
@@ -222,18 +222,18 @@ int runAgentHost(std::string filename)
         boost::this_thread::sleep(boost::posix_time::milliseconds(500));
         world_state = agent_host.getWorldState();
         cout << "video,observations,rewards received: "
-            << world_state->number_of_video_frames_since_last_state << ","
-            << world_state->number_of_observations_since_last_state << ","
-            << world_state->number_of_rewards_since_last_state << endl;
+            << world_state.number_of_video_frames_since_last_state << ","
+            << world_state.number_of_observations_since_last_state << ","
+            << world_state.number_of_rewards_since_last_state << endl;
         cout << "video,observations,rewards stored: "
-            << world_state->video_frames.size() << ","
-            << world_state->observations.size() << ","
-            << world_state->rewards.size() << endl;
-        if (!world_state->rewards.empty())
-            cout << "Summed reward: " << world_state->rewards.front().value << endl;
-        for (auto e : world_state->errors)
-            cout << "Error: " << e.text << endl;
-    } while (world_state->is_mission_running);
+            << world_state.video_frames.size() << ","
+            << world_state.observations.size() << ","
+            << world_state.rewards.size() << endl;
+        if (!world_state.rewards.empty())
+            cout << "Summed reward: " << world_state.rewards.front()->value << endl;
+        for (auto e : world_state.errors)
+            cout << "Error: " << e->text << endl;
+    } while (world_state.is_mission_running);
 
     cout << "Mission has stopped." << endl;
 
