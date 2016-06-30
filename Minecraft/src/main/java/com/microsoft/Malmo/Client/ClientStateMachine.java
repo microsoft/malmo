@@ -32,12 +32,15 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldSettings.GameType;
@@ -209,6 +212,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         case ERROR_CANNOT_START_AGENT:	// run-on deliberate
         case ERROR_LOST_AGENT:
             return new MissionEndedEpisode(this, MissionResult.MOD_HAS_NO_AGENT_AVAILABLE, true, true, false);
+        case ERROR_LOST_NETWORK_CONNECTION: // run-on deliberate
+        case ERROR_CANNOT_CONNECT_TO_SERVER:
+            return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, false, true); // No point trying to inform the server - we can't reach it anyway!
         case MISSION_ABORTED:
             return new MissionEndedEpisode(this, MissionResult.MOD_SERVER_ABORTED_MISSION, true, false, true);	// Don't inform the server - it already knows (we're acting on its notification)
         case WAITING_FOR_SERVER_MISSION_END:
@@ -706,7 +712,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     public class WaitingForServerEpisode extends ConfigAwareStateEpisode
     {
         String agentName;
-        int ticksSinceLastPing = 0;
+        int ticksUntilNextPing = 0;
         TCPSocketHelper sender;
 
         protected WaitingForServerEpisode(ClientStateMachine machine)
@@ -733,15 +739,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
-            if (ticksSinceLastPing == 0)
+            if (ticksUntilNextPing == 0)
             {
                 // Tell the server what our agent name is.
                 // We do this repeatedly, because the server might not yet be listening.
-                HashMap<String, String> map = new HashMap<String, String>();
-                map.put("agentname", agentName);
-                map.put("username", Minecraft.getMinecraft().thePlayer.getName());
-                System.out.println("***Telling server we are ready - " + agentName);
-                MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
+                if (Minecraft.getMinecraft().thePlayer != null)
+                {
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put("agentname", agentName);
+                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    System.out.println("***Telling server we are ready - " + agentName);
+                    MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
+                }
 
                 // We also ping our agent, just to check it is still available:
                 boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
@@ -752,17 +761,34 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
                 }
 
-                ticksSinceLastPing = 10;	// Try again in ten ticks.
+                ticksUntilNextPing = 10;	// Try again in ten ticks.
             }
             else
             {
-                ticksSinceLastPing--;
+                ticksUntilNextPing--;
+            }
+            
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            if (agents.size() > 1 && currentMissionInit().getClientRole() != 0)
+            {
+                // We are waiting to join a out-of-process server. Need to pay attention to what happens -
+                // if we can't join, for any reason, we should abort the mission.
+                GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+                if (screen != null && screen instanceof GuiDisconnected)
+                {
+                    // Disconnected screen appears when something has gone wrong.
+                    // Would be nice to grab the reason from the screen, but it's a private member.
+                    // (Can always use reflection, but it's so inelegant.)
+                    episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CONNECT_TO_SERVER, "Unable to connect to Minecraft server in multi-agent mission.");
+                }
             }
         }
 
         @Override
         protected void execute() throws Exception
         {
+            Minecraft.getMinecraft().displayGuiScreen(null);    // Clear any menu screen that might confuse things.
+
             // Get our name from the Mission:
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
             if (agents == null || agents.size() <= currentMissionInit().getClientRole())
@@ -776,7 +802,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Do we need to open to LAN?
                 if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
                 {
-                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, false);
+                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, false);   // Set to true to stop spam kicks?
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
@@ -790,15 +816,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 String address = currentMissionInit().getMinecraftServerConnection().getAddress();
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
-                String currentIP = "";
                 System.out.println("We should be joining " + targetIP);
-                if (Minecraft.getMinecraft().getCurrentServerData() != null)
-                {
-                    currentIP = Minecraft.getMinecraft().getCurrentServerData().serverIP;
-                    System.out.println("Currently on " + currentIP);
-                }
-                if (!currentIP.equals(targetIP))
-                    net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+                // Always connect, even if we're already on the same server - otherwise things get out of step.
+                net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
             }
         }
 
@@ -1248,8 +1268,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (modsettings != null && modsettings.isPrioritiseOffscreenRendering())
                 TimeHelper.displayGranularityMs = 1000;
         }
-
-        protected void onMissionEnded(IState nextState)
+        
+        protected void onMissionEnded(IState nextState, String errorReport)
         {
             // Tidy up our mission handlers:
             if (currentMissionBehaviour().rewardProducer != null)
@@ -1277,7 +1297,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             TimeHelper.displayGranularityMs = 0;
 
             ClientStateMachine.this.missionQuitCode = this.quitCode;
-            episodeHasCompleted(nextState);
+            if (errorReport != null)
+                episodeHasCompletedWithErrors(nextState, errorReport);
+            else
+                episodeHasCompleted(nextState);
         }
 
         @Override
@@ -1301,7 +1324,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
-                episodeHasCompleted(ClientState.MISSION_ABORTED);
+                onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
+
+            // Check to see whether we've been kicked from the server.
+            NetworkManager netman = Minecraft.getMinecraft().getNetHandler().getNetworkManager();
+            if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
+            {
+                // Connection has been lost.
+                onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+            }
 
             // Although we only arrive in this episode once the server has determined that all clients are ready to go,
             // the server itself waits for all clients to begin running before it enters the running state itself.
@@ -1348,7 +1379,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     map.put("agentname", agentName);
                     map.put("username", Minecraft.getMinecraft().thePlayer.getName());
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
-                    onMissionEnded(ClientState.IDLING);
+                    onMissionEnded(ClientState.IDLING, null);
                 }
                 else
                 {
@@ -1488,7 +1519,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 else
                     ClientStateMachine.this.finalReward = 0;
 
-                onMissionEnded(ClientState.MISSION_ENDED);
+                onMissionEnded(ClientState.MISSION_ENDED, null);
             }
             else if (messageType == MalmoMessageType.SERVER_GO)
             {
