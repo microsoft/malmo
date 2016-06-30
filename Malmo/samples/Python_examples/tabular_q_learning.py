@@ -204,7 +204,7 @@ class TabQAgent:
         for x in range(world_x):
             for y in range(world_y):
                 s = "%d:%d" % (x,y)
-                self.canvas.create_rectangle( x*scale, y*scale, (x+1)*scale, (y+1)*scale, outline="#fff", fill="#000")
+                self.canvas.create_rectangle( (world_x-1-x)*scale, (world_y-1-y)*scale, (world_x-1-x+1)*scale, (world_y-1-y+1)*scale, outline="#fff", fill="#000")
                 for action in range(4):
                     if not s in self.q_table:
                         continue
@@ -212,16 +212,16 @@ class TabQAgent:
                     color = 255 * ( value - min_value ) / ( max_value - min_value ) # map value to 0-255
                     color = max( min( color, 255 ), 0 ) # ensure within [0,255]
                     color_string = '#%02x%02x%02x' % (255-color, color, 0)
-                    self.canvas.create_oval( (world_x - x + action_positions[action][0] - action_radius ) *scale,
-                                             (world_y - y + action_positions[action][1] - action_radius ) *scale,
-                                             (world_x - x + action_positions[action][0] + action_radius ) *scale,
-                                             (world_y - y + action_positions[action][1] + action_radius ) *scale, 
+                    self.canvas.create_oval( (world_x - 1 - x + action_positions[action][0] - action_radius ) *scale,
+                                             (world_y - 1 - y + action_positions[action][1] - action_radius ) *scale,
+                                             (world_x - 1 - x + action_positions[action][0] + action_radius ) *scale,
+                                             (world_y - 1 - y + action_positions[action][1] + action_radius ) *scale, 
                                              outline=color_string, fill=color_string )
         if curr_x is not None and curr_y is not None:
-            self.canvas.create_oval( (world_x - curr_x + 0.5 - curr_radius ) * scale, 
-                                     (world_y - curr_y + 0.5 - curr_radius ) * scale, 
-                                     (world_x - curr_x + 0.5 + curr_radius ) * scale, 
-                                     (world_y - curr_y + 0.5 + curr_radius ) * scale, 
+            self.canvas.create_oval( (world_x - 1 - curr_x + 0.5 - curr_radius ) * scale, 
+                                     (world_y - 1 - curr_y + 0.5 - curr_radius ) * scale, 
+                                     (world_x - 1 - curr_x + 0.5 + curr_radius ) * scale, 
+                                     (world_y - 1 - curr_y + 0.5 + curr_radius ) * scale, 
                                      outline="#fff", fill="#fff" )
         self.root.update()
 
