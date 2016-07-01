@@ -995,6 +995,22 @@
   </xs:element>
 
   <!--============================================= REWARD PRODUCERS ==============================================-->
+  
+  <xs:attributeGroup name="RewardProducerAttributes">
+    <!-- Common attributes that are shared by all reward producers. -->
+    <xs:attribute name="dimension" use="optional" default="0">
+      <xs:annotation>
+        <xs:documentation>
+          For multi-dimensional rewards, specifies the dimension to allocate this reward to. All rewards on this dimension will be summed.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:attributeGroup>
 
   <xs:complexType name="PointWithReward">
     <xs:complexContent>
@@ -1011,6 +1027,7 @@
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Marker" type="PointWithReward"/>
       </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
@@ -1044,12 +1061,14 @@
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Block" type="BlockSpecWithRewardAndBehaviour"/>
       </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="RewardForSendingCommand">
     <xs:complexType>
       <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
@@ -1063,6 +1082,7 @@
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="ItemSpec"/>
       </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
@@ -1071,6 +1091,7 @@
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="ItemSpec"/>
       </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
@@ -1085,6 +1106,7 @@
         <xs:element name="Reward" type="MissionEndRewardCase"/>
       </xs:choice>
       <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0" />
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
 
