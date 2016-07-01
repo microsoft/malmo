@@ -708,6 +708,14 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="Command">
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="CommandList">
+    <xs:list itemType="Command"/>
+  </xs:simpleType>
+  
   <!-- allow-list/deny-list baseclass - restricted by each commandhandler to only allow that handler's commands.-->
 
   <xs:complexType name="CommandListModifier">
@@ -1130,4 +1138,20 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:complexType name="CommandQuota">
+    <xs:attribute name="commands" use="required" type="CommandList" />
+    <xs:attribute name="quota" use="required" type="xs:int" />
+    <xs:attribute name="description" type="xs:string" use="optional" default="" />
+  </xs:complexType>
+  
+  <xs:element name="AgentQuitFromReachingCommandQuota">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="Quota" type="CommandQuota"/>
+      </xs:choice>
+      <xs:attribute name="total" type="xs:int" use="optional" />
+      <xs:attribute name="description" type="xs:string" use="optional" default="" />
+    </xs:complexType>
+  </xs:element>
+  
 </xs:schema>

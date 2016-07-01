@@ -232,6 +232,7 @@
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
+            <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
         </xs:all>
     </xs:group>
     
