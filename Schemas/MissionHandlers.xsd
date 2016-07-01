@@ -1084,7 +1084,7 @@
   <xs:complexType name="PointWithToleranceAndDescription">
     <xs:complexContent>
       <xs:extension base="Pos">
-        <xs:attribute name="tolerance" type="xs:decimal" use="optional" default="0.0" />
+        <xs:attribute name="tolerance" type="xs:decimal" use="optional" default="0.5" />
         <xs:attribute name="description" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
