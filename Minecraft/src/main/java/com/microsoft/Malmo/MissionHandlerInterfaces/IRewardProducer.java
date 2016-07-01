@@ -19,22 +19,32 @@
 
 package com.microsoft.Malmo.MissionHandlerInterfaces;
 
+import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.Reward;
 
-/** Interface for objects which are responsible for providing a reward signal for reinforcement learning.<br>
+/**
+ * Interface for objects which are responsible for providing a reward signal for
+ * reinforcement learning.<br>
  */
-public interface IRewardProducer
-{
-    /** Get the reward value for the current Minecraft state.
-     * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the reward requirements.
-     * @param reward the reward structure being constructed.
+public interface IRewardProducer {
+
+    /**
+     * Get the reward value for the current Minecraft state.
+     * 
+     * @param missionInit
+     *            the MissionInit object for the currently running mission,
+     *            which may contain parameters for the reward requirements.
+     * @param reward
+     *            the reward structure being constructed.
      */
-    public void getReward(MissionInit missionInit, Reward reward);
-    
-    /** Called once before the mission starts - use for any necessary initialisation.*/
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward);
+
+    /**
+     * Called once before the mission starts - use for any necessary
+     * initialisation.
+     */
     public void prepare(MissionInit missionInit);
-    
-    /** Called once after the mission ends - use for any necessary cleanup.*/
+
+    /** Called once after the mission ends - use for any necessary cleanup. */
     public void cleanup();
 }

@@ -27,66 +27,63 @@ import net.minecraft.client.Minecraft;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.Pos;
-import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForReachingPosition;
 import com.microsoft.Malmo.Schemas.PointWithReward;
 import com.microsoft.Malmo.Utils.PositionHelper;
 
-/** Simple IRewardProducer object that returns a large reward when the player gets to within a certain tolerance of a goal position.<br>
+/**
+ * Simple IRewardProducer object that returns a large reward when the player
+ * gets to within a certain tolerance of a goal position.<br>
  */
-public class RewardForReachingPositionImplementation extends HandlerBase implements IRewardProducer
-{
-	Pos targetPos;
-	float reward;
-	float tolerance;
-	boolean oneShot;
-	boolean fired = false;
-	List<PointWithReward> rewardPoints;
-	
-	@Override
-	public boolean parseParameters(Object params)
-	{
-		if (params == null || !(params instanceof RewardForReachingPosition))
-			return false;
-		
-		RewardForReachingPosition rrpparams = (RewardForReachingPosition)params;
-		this.rewardPoints = rrpparams.getMarker();
-		return true;
-	}
+public class RewardForReachingPositionImplementation extends HandlerBase implements IRewardProducer {
+    Pos targetPos;
+    float reward;
+    float tolerance;
+    boolean oneShot;
+    boolean fired = false;
+    List<PointWithReward> rewardPoints;
+    private RewardForReachingPosition params;
 
     @Override
-    public void getReward(MissionInit missionInit,Reward reward)
-    {
+    public boolean parseParameters(Object params) {
+        if (params == null || !(params instanceof RewardForReachingPosition))
+            return false;
+
+        this.params = (RewardForReachingPosition) params;
+        this.rewardPoints = this.params.getMarker();
+        return true;
+    }
+
+    @Override
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
         if (missionInit == null || Minecraft.getMinecraft().thePlayer == null)
-            return 0;
+            return;
 
-        float rewardTotal = 0;
-        if (this.rewardPoints != null)
-        {
-        	Iterator<PointWithReward> goalIterator = this.rewardPoints.iterator();
-        	while (goalIterator.hasNext())
-        	{
-        		PointWithReward goal = goalIterator.next();
-        		boolean oneShot = goal.isOneshot();
-        		float reward = goal.getReward().floatValue();
-        		float tolerance = goal.getTolerance().floatValue();
+        if (this.rewardPoints != null) {
+            Iterator<PointWithReward> goalIterator = this.rewardPoints.iterator();
+            while (goalIterator.hasNext()) {
+                PointWithReward goal = goalIterator.next();
+                boolean oneShot = goal.isOneshot();
+                float reward_value = goal.getReward().floatValue();
+                float tolerance = goal.getTolerance().floatValue();
 
-                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer, goal);
-                if (distance <= tolerance)
-                {
-                    rewardTotal += reward;
+                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer,
+                        goal);
+                if (distance <= tolerance) {
+                    reward.add( this.params.getDimension(), reward_value );
                     if (oneShot)
-                    	goalIterator.remove();	// Safe to do this via an iterator.
+                        goalIterator.remove(); // Safe to do this via an
+                                               // iterator.
                 }
             }
         }
-
-        return rewardTotal;
     }
-    
-	@Override
-	public void prepare(MissionInit missionInit) {}
 
-	@Override
-    public void cleanup() {}
+    @Override
+    public void prepare(MissionInit missionInit) {
+    }
+
+    @Override
+    public void cleanup() {
+    }
 }

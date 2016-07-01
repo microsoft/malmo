@@ -27,9 +27,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.ItemSpec;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForDiscardingItem;
-import com.microsoft.Malmo.Utils.RewardHelper;
 
 public class RewardForDiscardingItemImplementation extends RewardForItemBase implements IRewardProducer
 {
@@ -55,14 +53,17 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
         if (event.entityItem != null)
         {
             ItemStack stack = event.entityItem.getEntityItem();
-            accumulateReward(stack);
+            accumulateReward(this.params.getDimension(),stack);
         }
     }
 
     @Override
-    public void getReward(MissionInit missionInit,Reward reward)
+    public void getReward(MissionInit missionInit,MultidimensionalReward reward)
     {
-        RewardHelper.addReward(reward, this.params.getDimension(), getReward() );
+        // Return the rewards that have accumulated since last time we were asked:
+        reward.add( this.accumulatedRewards );
+        // And reset the count:
+        this.accumulatedRewards.clear();
     }
 
     @Override

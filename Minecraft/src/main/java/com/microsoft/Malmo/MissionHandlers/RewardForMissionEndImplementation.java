@@ -25,9 +25,7 @@ import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionEndRewardCase;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForMissionEnd;
-import com.microsoft.Malmo.Utils.RewardHelper;
 
 public class RewardForMissionEndImplementation extends HandlerBase implements IRewardProducer {
     private RewardForMissionEnd params = null;
@@ -42,12 +40,12 @@ public class RewardForMissionEndImplementation extends HandlerBase implements IR
     }
 
     @Override
-    public void getReward(MissionInit missionInit, Reward reward) {
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
         try {
             Hashtable<String, Object> properties = MalmoMod.getPropertiesForCurrentThread();
             if (properties.containsKey("QuitCode")) {
                 float reward_value = parseQuitCode((String) properties.get("QuitCode"));
-                RewardHelper.addReward(reward, this.params.getDimension(), reward_value);
+                reward.add( this.params.getDimension(), reward_value);
             }
         } catch (Exception e) {
         }

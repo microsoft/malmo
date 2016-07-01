@@ -398,14 +398,15 @@ namespace malmo
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    TimestampedFloat final_reward;
+                    // TODO: process the final reward
+                    /*TimestampedFloat final_reward;
                     final_reward.timestamp = xml.timestamp;
                     final_reward.value = static_cast<float>(mission_ended->FinalReward());
                     this->processReceivedReward(final_reward);
 
                     std::stringstream json;
                     json << "{\"Reward\":" << final_reward.value << "}";
-                    this->rewards_server->recordMessage(TimestampedString(xml.timestamp, json.str()));
+                    this->rewards_server->recordMessage(TimestampedString(xml.timestamp, json.str()));*/
                 }
             }
             catch (const xml_schema::exception& e) {
@@ -489,8 +490,9 @@ namespace malmo
     void AgentHost::onReward(TimestampedString json)
     {
         std::cout << "DEBUG: Received reward: " << json.text << std::endl;
+        // TODO: parse and process this reward
         
-        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+        /*boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
        
         std::stringstream ss( json.text );
         boost::property_tree::ptree pt;
@@ -515,7 +517,7 @@ namespace malmo
             return;
         }
         
-        this->processReceivedReward( reward );
+        this->processReceivedReward( reward );*/
     }
         
     void AgentHost::processReceivedReward( TimestampedFloat reward )

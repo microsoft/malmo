@@ -65,6 +65,7 @@ import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.Client.MalmoModClient.InputType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
+import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
@@ -99,7 +100,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     private MissionInit currentMissionInit = null;   // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
     private String missionQuitCode = "";            // The reason why this mission ended.
-    private Reward finalReward = new Reward();      // The reward at the end of the mission, sent separately to ensure timely delivery.
+    private MultidimensionalReward finalReward = new MultidimensionalReward(); // The reward at the end of the mission, sent separately to ensure timely delivery.
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 
@@ -1433,7 +1434,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Now create the reward signal:
             if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
             {
-            	Reward reward = new Reward(); 
+                MultidimensionalReward reward = new MultidimensionalReward(); 
                 currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(),reward);
                 if (this.rewardSocket.sendTCPString(reward.toString()))
                 {
@@ -1580,7 +1581,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (ClientStateMachine.this.missionQuitCode != null && ClientStateMachine.this.missionQuitCode.equals(MalmoMod.AGENT_DEAD_QUIT_CODE))
                     missionEnded.setStatus(MissionResult.PLAYER_DIED);	// Need to do this manually.
                 missionEnded.setHumanReadableStatus(report);
-                missionEnded.setFinalReward(ClientStateMachine.this.finalReward);
+                missionEnded.setFinalReward(ClientStateMachine.this.finalReward.getAndClear());
                 // And send it to the agent to inform it that the mission has ended:
                 sendMissionEnded(missionEnded);
             }

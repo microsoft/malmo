@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.Reward;
 
 public class RewardGroup extends HandlerBase implements IRewardProducer {
     private ArrayList<IRewardProducer> producers;
@@ -42,13 +41,11 @@ public class RewardGroup extends HandlerBase implements IRewardProducer {
     }
 
     @Override
-    public void getReward(MissionInit missionInit, Reward reward) {
-        float reward = 0;
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
         if (this.producers != null) {
             for (IRewardProducer rp : this.producers)
-                reward += rp.getReward(missionInit);
+                rp.getReward(missionInit,reward);
         }
-        return reward;
     }
 
     @Override

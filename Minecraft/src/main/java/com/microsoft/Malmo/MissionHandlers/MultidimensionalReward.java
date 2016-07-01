@@ -17,14 +17,57 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-package com.microsoft.Malmo.Utils;
+package com.microsoft.Malmo.MissionHandlers;
+
+import java.util.HashMap;
 
 import com.microsoft.Malmo.Schemas.Reward;
 
-public class RewardHelper
-{
-    static public void addReward(Reward reward,int dimension,float value)
-    {
-        // TODO
+public class MultidimensionalReward {
+
+    private HashMap<Integer, Float> map = new HashMap<Integer, Float>();
+
+    /**
+     * Add a given reward value on a specified dimension.
+     * 
+     * @param dimension
+     *            the dimension to add the reward on.
+     * @param value
+     *            the value of the reward.
+     */
+    public void add(int dimension, float value) {
+        // TODO: check if dimension key exists
+        // if exists then sum value
+        // else create and set to value
+    }
+
+    /**
+     * Merge in another multidimensional reward structure.
+     * 
+     * @param other
+     *            the other multidimensional reward structure.
+     */
+    public void add(MultidimensionalReward other) {
+        // TODO: call this.add(key,value) on each entry in other
+    }
+
+    /**
+     * Retrieve the reward structure as defined by the schema, and reset the
+     * storage.
+     * 
+     * @return the reward structure as defined by the schema.
+     */
+    public Reward getAndClear() {
+        Reward reward = new Reward();
+        // TODO: add each entry from the hashmap
+        this.clear();
+        return reward;
+    }
+
+    /**
+     * Resets the storage to empty.
+     */
+    public void clear() {
+        this.map.clear();
     }
 }
