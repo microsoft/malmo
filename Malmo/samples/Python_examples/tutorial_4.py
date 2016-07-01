@@ -88,6 +88,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
+                  <InventoryCommands/>
                   <AgentQuitFromReachingPosition>
                     <Marker x="-26.5" y="40" z="0.5" tolerance="0.5" description="Goal_found"/>
                   </AgentQuitFromReachingPosition>

@@ -30,7 +30,6 @@ public class ContinuousMovementCommandsImplementation extends CommandGroup
     {
         setShareParametersWithChildren(true);	// Pass our parameter block on to the following children:
         this.addCommandHandler(new CommandForAttackAndUseImplementation());
-        this.addCommandHandler(new CommandForHotBarKeysImplementation());
         this.addCommandHandler(new CommandForWheeledRobotNavigationImplementation());
     }
     
