@@ -117,56 +117,66 @@ class TabQAgent:
         """run the agent on the world"""
 
         total_reward = 0
+        current_r = 0
         
         self.prev_s = None
         self.prev_a = None
         
-        is_first_action = True
+        # wait for a valid observation
+        world_state = agent_host.peekWorldState()
+        while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
+            world_state = agent_host.peekWorldState()
+        world_state = agent_host.getWorldState()    
+        
+        if not world_state.is_mission_running:
+            return 0 # mission already ended
+            
+        obs = json.loads( world_state.observations[-1].text )
+        prev_x = int(obs[u'XPos'])
+        prev_z = int(obs[u'ZPos'])
+        print 'Initial position:',prev_x,',',prev_z
+            
+        # take first action
+        total_reward += self.act(world_state,agent_host,current_r)
         
         # main loop:
-        world_state = agent_host.getWorldState()
         while world_state.is_mission_running:
-
-            current_r = 0
+        
+            # wait for the position to have changed and a non-zero reward received
+            print 'Waiting for data...',
+            while True:
+                world_state = agent_host.peekWorldState()
+                if not world_state.is_mission_running:
+                    print 'mission ended.'
+                    break
+                if not sum(r.value for r in world_state.rewards) == 0 and not all(e.text=='{}' for e in world_state.observations):
+                    obs = json.loads( world_state.observations[-1].text )
+                    curr_x = int(obs[u'XPos'])
+                    curr_z = int(obs[u'ZPos'])
+                    if not curr_x == prev_x or not curr_z == prev_z:
+                        print 'received.'
+                        break
             
-            if is_first_action:
-                # wait until have received a valid observation
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                    if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-                is_first_action = False
-            else:
-                # wait for non-zero reward
-                while world_state.is_mission_running and current_r == 0:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                # allow time to stabilise after action
-                while True:
-                    time.sleep(0.1)
-                    world_state = agent_host.getWorldState()
-                    for error in world_state.errors:
-                        self.logger.error("Error: %s" % error.text)
-                    for reward in world_state.rewards:
-                        current_r += reward.value
-                    if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
-                        total_reward += self.act(world_state, agent_host, current_r)
-                        break
-                    if not world_state.is_mission_running:
-                        break
-
+            world_state = agent_host.getWorldState()
+            current_r = sum(r.value for r in world_state.rewards)
+                
+            if world_state.is_mission_running:
+                obs = json.loads( world_state.observations[-1].text )
+                curr_x = int(obs[u'XPos'])
+                curr_z = int(obs[u'ZPos'])
+                print 'New position:',curr_x,',',curr_z,'after action:',self.actions[self.prev_a], #NSWE
+                expected_x = prev_x + [0,0,-1,1][self.prev_a]
+                expected_z = prev_z + [-1,1,0,0][self.prev_a]
+                if not curr_x == expected_x or not curr_z == expected_z:
+                    print ' - ERROR DETECTED! Expected:',expected_x,',',expected_z
+                    raw_input("Press Enter to continue...")
+                else:
+                    print 'as expected.'
+                prev_x = curr_x
+                prev_z = curr_z
+                # act
+                total_reward += self.act(world_state, agent_host, current_r)
+                
         # process final reward
         self.logger.debug("Final reward: %d" % current_r)
         total_reward += current_r
@@ -187,14 +197,14 @@ class TabQAgent:
         action_inset = 0.1
         action_radius = 0.1
         curr_radius = 0.2
-        action_positions = [ ( 0.5, action_inset ), ( 0.5, 1-action_inset ), ( action_inset, 0.5 ), ( 1-action_inset, 0.5 ) ]
+        action_positions = [ ( 0.5, 1-action_inset ), ( 0.5, action_inset ), ( 1-action_inset, 0.5 ), ( action_inset, 0.5 ) ]
         # (NSWE to match action order)
         min_value = -20
         max_value = 20
         for x in range(world_x):
             for y in range(world_y):
                 s = "%d:%d" % (x,y)
-                self.canvas.create_rectangle( x*scale, y*scale, (x+1)*scale, (y+1)*scale, outline="#fff", fill="#000")
+                self.canvas.create_rectangle( (world_x-1-x)*scale, (world_y-1-y)*scale, (world_x-1-x+1)*scale, (world_y-1-y+1)*scale, outline="#fff", fill="#000")
                 for action in range(4):
                     if not s in self.q_table:
                         continue
@@ -202,16 +212,16 @@ class TabQAgent:
                     color = 255 * ( value - min_value ) / ( max_value - min_value ) # map value to 0-255
                     color = max( min( color, 255 ), 0 ) # ensure within [0,255]
                     color_string = '#%02x%02x%02x' % (255-color, color, 0)
-                    self.canvas.create_oval( (x + action_positions[action][0] - action_radius ) *scale,
-                                             (y + action_positions[action][1] - action_radius ) *scale,
-                                             (x + action_positions[action][0] + action_radius ) *scale,
-                                             (y + action_positions[action][1] + action_radius ) *scale, 
+                    self.canvas.create_oval( (world_x - 1 - x + action_positions[action][0] - action_radius ) *scale,
+                                             (world_y - 1 - y + action_positions[action][1] - action_radius ) *scale,
+                                             (world_x - 1 - x + action_positions[action][0] + action_radius ) *scale,
+                                             (world_y - 1 - y + action_positions[action][1] + action_radius ) *scale, 
                                              outline=color_string, fill=color_string )
         if curr_x is not None and curr_y is not None:
-            self.canvas.create_oval( (curr_x + 0.5 - curr_radius ) * scale, 
-                                     (curr_y + 0.5 - curr_radius ) * scale, 
-                                     (curr_x + 0.5 + curr_radius ) * scale, 
-                                     (curr_y + 0.5 + curr_radius ) * scale, 
+            self.canvas.create_oval( (world_x - 1 - curr_x + 0.5 - curr_radius ) * scale, 
+                                     (world_y - 1 - curr_y + 0.5 - curr_radius ) * scale, 
+                                     (world_x - 1 - curr_x + 0.5 + curr_radius ) * scale, 
+                                     (world_y - 1 - curr_y + 0.5 + curr_radius ) * scale, 
                                      outline="#fff", fill="#fff" )
         self.root.update()
 

@@ -642,15 +642,6 @@
       <xs:enumeration value="crouch" />
       <xs:enumeration value="attack" />
       <xs:enumeration value="use" />
-      <xs:enumeration value="hotbar.1" />
-      <xs:enumeration value="hotbar.2" />
-      <xs:enumeration value="hotbar.3" />
-      <xs:enumeration value="hotbar.4" />
-      <xs:enumeration value="hotbar.5" />
-      <xs:enumeration value="hotbar.6" />
-      <xs:enumeration value="hotbar.7" />
-      <xs:enumeration value="hotbar.8" />
-      <xs:enumeration value="hotbar.9" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -699,6 +690,15 @@
       <xs:enumeration value="selectInventoryItem" />
       <xs:enumeration value="dropInventoryItem" />
       <xs:enumeration value="discardCurrentItem" />
+      <xs:enumeration value="hotbar.1" />
+      <xs:enumeration value="hotbar.2" />
+      <xs:enumeration value="hotbar.3" />
+      <xs:enumeration value="hotbar.4" />
+      <xs:enumeration value="hotbar.5" />
+      <xs:enumeration value="hotbar.6" />
+      <xs:enumeration value="hotbar.7" />
+      <xs:enumeration value="hotbar.8" />
+      <xs:enumeration value="hotbar.9" />
     </xs:restriction>
   </xs:simpleType>
 

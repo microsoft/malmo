@@ -97,6 +97,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                       </Grid>
                   </ObservationFromGrid>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
+                  <InventoryCommands/>
                   <AgentQuitFromTouchingBlockType>
                       <Block type="diamond_block" />
                   </AgentQuitFromTouchingBlockType>

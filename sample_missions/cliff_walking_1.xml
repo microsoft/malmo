@@ -4,6 +4,10 @@
   <About>
     <Summary>Cliff walking mission based on Sutton and Barto.</Summary>
   </About>
+  
+  <ModSettings>
+    <MsPerTick>1</MsPerTick>
+  </ModSettings>
 
   <ServerSection>
       <ServerInitialConditions>
@@ -23,8 +27,9 @@
         <DrawCuboid x1="1"  y1="45" z1="1"  x2="3" y2="45" z2="12" type="sandstone" />      <!-- floor of the arena -->
         <DrawBlock   x="4"   y="45"  z="1"  type="cobblestone" />                           <!-- the starting marker -->
         <DrawBlock   x="4"   y="45"  z="12" type="lapis_block" />                           <!-- the destination marker -->
+        <DrawItem    x="4"   y="46"  z="12" type="diamond" />                               <!-- another destination marker -->
       </DrawingDecorator>
-      <ServerQuitFromTimeUp timeLimitMs="20000"/>
+      <ServerQuitFromTimeUp timeLimitMs="1000000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
   </ServerSection>
