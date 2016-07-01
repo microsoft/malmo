@@ -1139,18 +1139,64 @@
   </xs:element>
 
   <xs:complexType name="CommandQuota">
-    <xs:attribute name="commands" use="required" type="CommandList" />
-    <xs:attribute name="quota" use="required" type="xs:int" />
-    <xs:attribute name="description" type="xs:string" use="optional" default="" />
+    <xs:annotation>
+      <xs:documentation>
+        Set up a quota for a group of commands. {{{AgentQuitFromReachingCommandQuota}}} will fire once the quota is exceeded.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="commands" use="required" type="CommandList">
+      <xs:annotation>
+        <xs:documentation>
+          List of commands, separated by spaces, that will share this quota. Commands must be valid members of {{{ContinuousMovementCommand}}}, {{{AbsoluteMovementCommand}}}, {{{DiscreteMovementCommand}}}, {{{InventoryCommand}}}, or {{{ChatCommand}}}.
+          
+          For instance, if the command list contains {{{moveeast}}}, {{{movenorth}}}, {{{movesouth}}} and {{{movewest}}}, then the mission will end once the summed total usage of all four commands reaches the quota - even if the agent never used {{{movesouth}}}.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="quota" use="required" type="xs:int">
+      <xs:annotation>
+        <xs:documentation>
+          Total number of usages allocated for this command group.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" default="">
+      <xs:annotation>
+        <xs:documentation>
+          String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if this quota is reached. This can be used in {{{RewardForMissionEnd}}}, and is also returned in the {{{MissionEnded}}} message.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
   
   <xs:element name="AgentQuitFromReachingCommandQuota">
+    <xs:annotation>
+      <xs:documentation>
+          Count the commands acted on by the Mod, and signal the end of the mission when the defined quota of commands has been reached.
+
+          A total number of commands can be specified, and/or groups of commands can be given their own quota.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="Quota" type="CommandQuota"/>
       </xs:choice>
-      <xs:attribute name="total" type="xs:int" use="optional" />
-      <xs:attribute name="description" type="xs:string" use="optional" default="" />
+      <xs:attribute name="total" type="xs:int" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Total number of commands allowed before the mission ends. (Note that a command must be acted on to be counted - sending malformed commands won't affect the total.)
+            
+            The check for total command use takes precedence over the individual group quotas, if used.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="description" type="xs:string" use="optional" default="">
+        <xs:annotation>
+          <xs:documentation>
+              String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if the total allowed command usage is reached. This can be used in {{{RewardForMissionEnd}}}, and is also returned in the {{{MissionEnded}}} message.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
   
