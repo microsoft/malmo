@@ -122,7 +122,7 @@ if agent_host.receivedArgument("test"):
     print "Using test setings (overrides other command-line arguments)."
     NUM_REPEATS = 1
     WAIT_TIME = 0.2
-    STOP = False
+    STOP = True
     PATH_LENGTH = 20
  
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.KEEP_ALL_OBSERVATIONS)
