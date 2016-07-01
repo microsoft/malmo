@@ -32,15 +32,22 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  * in slots 0 and 10.<br>
  * The hotbar slots are 0-8, so this mechanism allows an agent to move items in to/out of the hotbar.
  */
-public class InventoryCommandsImplementation extends CommandBase
+public class InventoryCommandsImplementation extends CommandGroup
 {
-    private boolean isOverriding;
     private int sourceSlotIndex = 0;
+
+    InventoryCommandsImplementation()
+    {
+        setShareParametersWithChildren(true);   // Pass our parameter block on to the following children:
+        this.addCommandHandler(new CommandForHotBarKeysImplementation());
+    }
     
     @Override
     public boolean parseParameters(Object params)
     {
-    	if (params == null || !(params instanceof InventoryCommands))
+        super.parseParameters(params);
+
+        if (params == null || !(params instanceof InventoryCommands))
     		return false;
     	
     	InventoryCommands iparams = (InventoryCommands)params;
@@ -81,28 +88,6 @@ public class InventoryCommandsImplementation extends CommandBase
             Minecraft.getMinecraft().thePlayer.dropOneItem(false);  // false means just drop one item - true means drop everything in the current stack.
             return true;
         }
-        return false;
-    }
-
-    @Override
-    public void install(MissionInit missionInit)
-    {
-    }
-
-    @Override
-    public void deinstall(MissionInit missionInit)
-    {
-    }
-
-    @Override
-    public boolean isOverriding()
-    {
-        return this.isOverriding;
-    }
-
-    @Override
-    public void setOverriding(boolean b)
-    {
-        this.isOverriding = b;
+        return super.onExecute(verb, parameter, missionInit);
     }
 }
