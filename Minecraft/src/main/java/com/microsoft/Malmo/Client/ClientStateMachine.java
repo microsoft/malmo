@@ -22,7 +22,6 @@ package com.microsoft.Malmo.Client;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.math.BigDecimal;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +73,7 @@ import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
 import com.microsoft.Malmo.Schemas.ModSettings;
+import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
@@ -98,8 +98,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
     private MissionInit currentMissionInit = null;   // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
-    private String missionQuitCode = "";	// The reason why this mission ended.
-    private float finalReward = 0;			// The reward at the end of the mission, sent separately to ensure timely delivery.
+    private String missionQuitCode = "";            // The reason why this mission ended.
+    private Reward finalReward = new Reward();      // The reward at the end of the mission, sent separately to ensure timely delivery.
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 
@@ -1368,9 +1368,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Get the final reward data:
                     ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
                     if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
-                        ClientStateMachine.this.finalReward = currentMissionBehaviour().rewardProducer.getReward(currentMissionInit());
-                    else
-                        ClientStateMachine.this.finalReward = 0;
+                         currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(),ClientStateMachine.this.finalReward);
 
                     // Now send a message to the server saying that we have finished our mission:
                     List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
@@ -1435,9 +1433,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Now create the reward signal:
             if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
             {
-                float reward = currentMissionBehaviour().rewardProducer.getReward(currentMissionInit());
-                String rewardJson = "{\"Reward\":" + String.valueOf(reward) + "}";
-                if (this.rewardSocket.sendTCPString(rewardJson))
+            	Reward reward = new Reward(); 
+                currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(),reward);
+                if (this.rewardSocket.sendTCPString(reward.toString()))
                 {
                     this.failedTCPRewardSendCount  = 0;   // Reset the count of consecutive TCP failures.
                 }
@@ -1519,9 +1517,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Get the final reward data:
                 ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
                 if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
-                    ClientStateMachine.this.finalReward = currentMissionBehaviour().rewardProducer.getReward(currentMissionInit());
-                else
-                    ClientStateMachine.this.finalReward = 0;
+                     currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(),ClientStateMachine.this.finalReward);
 
                 onMissionEnded(ClientState.MISSION_ENDED, null);
             }
@@ -1584,7 +1580,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (ClientStateMachine.this.missionQuitCode != null && ClientStateMachine.this.missionQuitCode.equals(MalmoMod.AGENT_DEAD_QUIT_CODE))
                     missionEnded.setStatus(MissionResult.PLAYER_DIED);	// Need to do this manually.
                 missionEnded.setHumanReadableStatus(report);
-                missionEnded.setFinalReward(BigDecimal.valueOf(ClientStateMachine.this.finalReward));
+                missionEnded.setFinalReward(ClientStateMachine.this.finalReward);
                 // And send it to the agent to inform it that the mission has ended:
                 sendMissionEnded(missionEnded);
             }

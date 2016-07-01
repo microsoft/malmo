@@ -27,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.Pos;
+import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForReachingPosition;
 import com.microsoft.Malmo.Schemas.PointWithReward;
 import com.microsoft.Malmo.Utils.PositionHelper;
@@ -54,7 +55,7 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
 	}
 
     @Override
-    public float getReward(MissionInit missionInit)
+    public void getReward(MissionInit missionInit,Reward reward)
     {
         if (missionInit == null || Minecraft.getMinecraft().thePlayer == null)
             return 0;

@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForSendingCommand;
 
 /** Simple discrete reward signal, which tests for movement, goal-reaching, and lava-swimming.<br>
@@ -76,7 +77,7 @@ public class RewardForSendingCommandImplementation extends HandlerBase implement
 	public void cleanup() {}
 	
 	@Override
-	public float getReward(MissionInit missionInit)
+	public void getReward(MissionInit missionInit,Reward reward)
 	{
 		float reward;
     	synchronized (RewardForSendingCommandImplementation.this.commandTally)

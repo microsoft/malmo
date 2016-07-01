@@ -20,6 +20,7 @@
 package com.microsoft.Malmo.MissionHandlerInterfaces;
 
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.Reward;
 
 /** Interface for objects which are responsible for providing a reward signal for reinforcement learning.<br>
  */
@@ -27,9 +28,9 @@ public interface IRewardProducer
 {
     /** Get the reward value for the current Minecraft state.
      * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the reward requirements.
-     * @return a float determining the current reward signal for the learning agent
+     * @param reward the reward structure being constructed.
      */
-    public float getReward(MissionInit missionInit);
+    public void getReward(MissionInit missionInit, Reward reward);
     
     /** Called once before the mission starts - use for any necessary initialisation.*/
     public void prepare(MissionInit missionInit);

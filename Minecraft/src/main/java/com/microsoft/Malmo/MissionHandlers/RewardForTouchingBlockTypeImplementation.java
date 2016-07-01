@@ -36,6 +36,7 @@ import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.BlockVariant;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForTouchingBlockType;
 import com.microsoft.Malmo.Utils.PositionHelper;
 
@@ -171,7 +172,7 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
 	}
 
 	@Override
-	public float getReward(MissionInit missionInit)
+	public void getReward(MissionInit missionInit,Reward reward)
 	{
 		// Determine what blocks we are touching.
 		// This code is largely cribbed from Entity, where it is used to fire the Block.onEntityCollidedWithBlock methods.

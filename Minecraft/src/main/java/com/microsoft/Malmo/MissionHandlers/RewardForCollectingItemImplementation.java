@@ -27,10 +27,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.ItemSpec;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
+import com.microsoft.Malmo.Utils.RewardHelper;
 
 public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer
 {
+	private RewardForCollectingItem params;
+	
     @Override
     public boolean parseParameters(Object params)
     {
@@ -38,8 +42,8 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
             return false;
 
         // Build up a map of rewards per item:
-        RewardForCollectingItem rciparams = (RewardForCollectingItem)params;
-        for (ItemSpec is : rciparams.getItem())
+        this.params = (RewardForCollectingItem)params;
+        for (ItemSpec is : this.params.getItem())
             addItemSpecToRewardStructure(is);
 
         return true;
@@ -56,9 +60,9 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     }
 
     @Override
-    public float getReward(MissionInit missionInit)
+    public void getReward(MissionInit missionInit, Reward reward)
     {
-        return getReward();
+        RewardHelper.addReward( reward, this.params.getDimension(), getReward());
     }
 
     @Override

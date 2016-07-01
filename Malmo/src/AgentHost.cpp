@@ -488,6 +488,8 @@ namespace malmo
     
     void AgentHost::onReward(TimestampedString json)
     {
+        std::cout << "DEBUG: Received reward: " << json.text << std::endl;
+        
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
        
         std::stringstream ss( json.text );
