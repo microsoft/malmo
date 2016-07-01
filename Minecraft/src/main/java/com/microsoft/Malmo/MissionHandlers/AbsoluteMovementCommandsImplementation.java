@@ -202,16 +202,27 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
             this.x = Float.valueOf(parameter);
             return true;
         }
-        if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPY.value()))
+        else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPY.value()))
         {
             this.setY = true;
             this.y = Float.valueOf(parameter);
             return true;
         }
-        if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPZ.value()))
+        else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPZ.value()))
         {
             this.setZ = true;
             this.z = Float.valueOf(parameter);
+            return true;
+        }
+        else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TP.value()))
+        {
+            String[] coords = parameter.split(" ");
+            if (coords.length != 3)
+                return false;
+            this.setX = this.setY = this.setZ = true;
+            this.x = Float.valueOf(coords[0]);
+            this.y = Float.valueOf(coords[1]);
+            this.z = Float.valueOf(coords[2]);
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.SET_YAW.value()))
