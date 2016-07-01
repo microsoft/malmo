@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <About>
     <Summary>A simple 10 second mission with a reward for reaching a location.</Summary>

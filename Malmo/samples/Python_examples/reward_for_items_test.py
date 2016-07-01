@@ -33,7 +33,7 @@ def GetMissionXML(summary, itemDrawingXML):
     ''' Build an XML mission string that uses the RewardForCollectingItem mission handler.'''
     
     return '''<?xml version="1.0" encoding="UTF-8" ?>
-    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
             <Summary>''' + summary + '''</Summary>
         </About>

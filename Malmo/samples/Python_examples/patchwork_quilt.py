@@ -31,7 +31,7 @@ import uuid
 
 def GetMissionXML( current_seed, xorg, yorg, zorg, iteration ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
-    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
             <Summary>Tiny Maze #''' + str(iteration) + '''</Summary>
         </About>

@@ -38,7 +38,7 @@ FRAME_HEIGHT=240
 
 def GetMissionXML( msPerTick ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
-    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
             <Summary>Let's run! Current tick length: ''' + msPerTick + '''ms</Summary>
         </About>
