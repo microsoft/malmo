@@ -655,35 +655,19 @@
   </xs:simpleType>
 
   <xs:simpleType name="AbsoluteMovementCommand">
+    <xs:annotation>
+      <xs:documentation>
+        eg "tpx 230" - set the agent's x coordinate, without altering the y and z.
+        "tpy 103.2" - set the agent's y coordinate, without altering the x and z.
+        "tpz -32.5" - set the agent's z coordinate, without altering the x and y.
+        "tp 23.5 1 -34.5" - teleport the agent to the absolute position x y z (space delimited).
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:enumeration value="tpx">
-        <xs:annotation>
-          <xs:documentation>
-            eg "tpx 230" - set the agent's x coordinate, without altering the y and z.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="tpy">
-        <xs:annotation>
-          <xs:documentation>
-            eg "tpy 103.2" - set the agent's y coordinate, without altering the x and z.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="tpz">
-        <xs:annotation>
-          <xs:documentation>
-            eg "tpz -32.5" - set the agent's z coordinate, without altering the x and y.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
-      <xs:enumeration value="tp">
-        <xs:annotation>
-          <xs:documentation>
-            eg "tp 23.5, 1, -34.5" - teleport the agent to the absolute position x,y,z.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:enumeration>
+      <xs:enumeration value="tpx"/>
+      <xs:enumeration value="tpy"/>
+      <xs:enumeration value="tpz"/>
+      <xs:enumeration value="tp"/>
       <xs:enumeration value="setYaw" />
       <xs:enumeration value="setPitch" />
     </xs:restriction>
