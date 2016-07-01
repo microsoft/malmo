@@ -996,22 +996,20 @@
 
   <!--============================================= REWARD PRODUCERS ==============================================-->
   
-  <xs:attribute name="dimension">
-    <xs:simpleType>
-      <xs:annotation>
-        <xs:documentation>
-          For multi-dimensional rewards, specifies the dimension to allocate this reward to. All rewards on this dimension will be summed.
-        </xs:documentation>
-      </xs:annotation>
-      <xs:restriction base="xs:int">
-        <xs:minInclusive value="0"/>
-      </xs:restriction>
-    </xs:simpleType>
-  </xs:attribute>
+  <xs:simpleType name="Dimension">
+    <xs:annotation>
+      <xs:documentation>
+        For multi-dimensional rewards, specifies the dimension to allocate this reward to. All rewards on this dimension will be summed.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <xs:attributeGroup name="RewardProducerAttributes">
     <!-- Common attributes that are shared by all reward producers. -->
-    <xs:attribute ref="dimension" use="optional" default="0" />
+    <xs:attribute name="dimension" type="Dimension" use="optional" default="0" />
   </xs:attributeGroup>
 
   <xs:complexType name="PointWithReward">

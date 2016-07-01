@@ -103,12 +103,13 @@ add_definitions( -DMALMO_VERSION=${MALMO_VERSION} )
 
 add_custom_command(   # Run CodeSynthesis on the .xsd files to generate C++ sources we can use
     OUTPUT Mission.h Mission.cpp MissionHandlers.h MissionHandlers.cpp MissionEnded.h MissionEnded.cpp MissionInit.h MissionInit.cpp Types.h Types.cpp
-    COMMAND ${XSD_EXECUTABLE} cxx-tree --generate-polymorphic --namespace-map http://ProjectMalmo.microsoft.com=malmo::schemas --root-element Mission --root-element MissionInit --root-element MissionEnded
+    COMMAND ${XSD_EXECUTABLE} cxx-tree --generate-polymorphic --namespace-map http://ProjectMalmo.microsoft.com=malmo::schemas 
+    --root-element Mission --root-element MissionInit --root-element MissionEnded --root-element Reward
     --generate-serialization --hxx-suffix .h --cxx-suffix .cpp #--std c++11
-    ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd
-    ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
-    DEPENDS ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd
-    ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
+    ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd  
+    ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
+    DEPENDS ${CMAKE_SOURCE_DIR}/Schemas/Mission.xsd ${CMAKE_SOURCE_DIR}/Schemas/MissionEnded.xsd  ${CMAKE_SOURCE_DIR}/Schemas/MissionHandlers.xsd
+    ${CMAKE_SOURCE_DIR}/Schemas/MissionInit.xsd ${CMAKE_SOURCE_DIR}/Schemas/Types.xsd
     COMMENT "Generating C++ from XSD files..."
 )
 

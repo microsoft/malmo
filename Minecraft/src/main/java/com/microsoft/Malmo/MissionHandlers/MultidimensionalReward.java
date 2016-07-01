@@ -19,13 +19,30 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
-import com.microsoft.Malmo.Schemas.Reward;
+import javax.xml.bind.JAXBException;
 
+import com.microsoft.Malmo.Schemas.Reward;
+import com.microsoft.Malmo.Schemas.Reward.Value;
+import com.microsoft.Malmo.Utils.SchemaHelper;
+
+/**
+ * Stores a float reward on multiple dimensions. 
+ */
 public class MultidimensionalReward {
 
     private HashMap<Integer, Float> map = new HashMap<Integer, Float>();
+
+    /**
+     * True if no rewards have been received.
+     * 
+     * @return whether the reward is empty.
+     */
+    public boolean isEmpty() {
+        return this.map.isEmpty();
+    }
 
     /**
      * Add a given reward value on a specified dimension.
@@ -36,9 +53,10 @@ public class MultidimensionalReward {
      *            the value of the reward.
      */
     public void add(int dimension, float value) {
-        // TODO: check if dimension key exists
-        // if exists then sum value
-        // else create and set to value
+        if(this.map.containsKey(dimension))
+            this.map.put(dimension, this.map.get(dimension) + value);
+        else
+            this.map.put(dimension, value );
     }
 
     /**
@@ -59,9 +77,32 @@ public class MultidimensionalReward {
      */
     public Reward getAndClear() {
         Reward reward = new Reward();
-        // TODO: add each entry from the hashmap
+        for (HashMap.Entry<Integer, Float> entry : this.map.entrySet()) {
+            Integer dimension = entry.getKey();
+            Float reward_value = entry.getValue();
+            Value reward_entry = new Value();
+            reward_entry.setDimension(dimension);
+            reward_entry.setValue(new BigDecimal(reward_value));
+            reward.getValue().add(reward_entry);
+        }
         this.clear();
         return reward;
+    }
+
+    /**
+     * Gets the reward structure as an XML string as defined by the schema.
+     * 
+     * @return the XML string.
+     */
+    public String getAsStringAndClear() {
+        // Create a string XML representation:
+        String rewardString = null;
+        try {
+            rewardString = SchemaHelper.serialiseObject(this.getAndClear(), Reward.class);
+        } catch (JAXBException e) {
+            System.out.println("Caught reward serialization exception: " + e);
+        }
+        return rewardString;
     }
 
     /**
