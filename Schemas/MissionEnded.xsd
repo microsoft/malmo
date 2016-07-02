@@ -13,7 +13,7 @@
     <xs:sequence>
       <xs:element name="Status" type="MissionResult" />
       <xs:element name="HumanReadableStatus" type="xs:string" />
-      <xs:element ref="Reward" />
+      <xs:element ref="Reward" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
     <xs:attribute name="SchemaVersion" type="xs:token" />
   </xs:complexType>

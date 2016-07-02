@@ -1597,7 +1597,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                                                                        // this
                                                                        // manually.
                 missionEnded.setHumanReadableStatus(report);
-                missionEnded.setReward(ClientStateMachine.this.finalReward.getAndClear());
+                if(!ClientStateMachine.this.finalReward.isEmpty())
+                    missionEnded.setReward(ClientStateMachine.this.finalReward.getAndClear());
                 // And send it to the agent to inform it that the mission has
                 // ended:
                 sendMissionEnded(missionEnded);

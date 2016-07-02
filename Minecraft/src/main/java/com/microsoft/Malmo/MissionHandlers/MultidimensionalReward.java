@@ -66,7 +66,11 @@ public class MultidimensionalReward {
      *            the other multidimensional reward structure.
      */
     public void add(MultidimensionalReward other) {
-        // TODO: call this.add(key,value) on each entry in other
+        for (HashMap.Entry<Integer, Float> entry : this.map.entrySet()) {
+            Integer dimension = entry.getKey();
+            Float reward_value = entry.getValue();
+            this.add(dimension.intValue(), reward_value.floatValue());
+        }
     }
 
     /**
