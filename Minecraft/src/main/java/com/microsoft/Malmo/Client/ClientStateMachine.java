@@ -1444,7 +1444,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 MultidimensionalReward reward = new MultidimensionalReward();
                 currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(), reward);
                 if (!reward.isEmpty()) {
-                    if (this.rewardSocket.sendTCPString(reward.getAsStringAndClear())) {
+                    if (this.rewardSocket.sendTCPString(reward.getAsString())) {
                         this.failedTCPRewardSendCount = 0; // Reset the count of
                                                            // consecutive TCP
                                                            // failures.
@@ -1597,8 +1597,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                                                                        // this
                                                                        // manually.
                 missionEnded.setHumanReadableStatus(report);
-                if(!ClientStateMachine.this.finalReward.isEmpty())
-                    missionEnded.setReward(ClientStateMachine.this.finalReward.getAndClear());
+                if(!ClientStateMachine.this.finalReward.isEmpty()) {
+                    missionEnded.setReward(ClientStateMachine.this.finalReward.getAsReward());
+                    ClientStateMachine.this.finalReward.clear();
+                }
                 // And send it to the agent to inform it that the mission has
                 // ended:
                 sendMissionEnded(missionEnded);

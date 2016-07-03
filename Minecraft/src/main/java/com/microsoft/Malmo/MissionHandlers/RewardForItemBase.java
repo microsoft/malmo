@@ -48,7 +48,8 @@ public abstract class RewardForItemBase extends HandlerBase {
     protected void accumulateReward(int dimension, ItemStack stack) {
         String item = stack.getItem().getUnlocalizedName();
         Float f = this.rewardMap.get(item);
-        if (f != null)
+        if (f != null) {
             this.accumulatedRewards.add(dimension, f * stack.stackSize);
+        }
     }
 }

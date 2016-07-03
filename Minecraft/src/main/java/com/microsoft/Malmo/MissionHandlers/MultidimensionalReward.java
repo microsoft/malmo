@@ -56,7 +56,7 @@ public class MultidimensionalReward {
         if(this.map.containsKey(dimension))
             this.map.put(dimension, this.map.get(dimension) + value);
         else
-            this.map.put(dimension, value );
+            this.map.put(dimension, value);
     }
 
     /**
@@ -66,7 +66,7 @@ public class MultidimensionalReward {
      *            the other multidimensional reward structure.
      */
     public void add(MultidimensionalReward other) {
-        for (HashMap.Entry<Integer, Float> entry : this.map.entrySet()) {
+        for (HashMap.Entry<Integer, Float> entry : other.map.entrySet()) {
             Integer dimension = entry.getKey();
             Float reward_value = entry.getValue();
             this.add(dimension.intValue(), reward_value.floatValue());
@@ -74,12 +74,11 @@ public class MultidimensionalReward {
     }
 
     /**
-     * Retrieve the reward structure as defined by the schema, and reset the
-     * storage.
+     * Retrieve the reward structure as defined by the schema.
      * 
      * @return the reward structure as defined by the schema.
      */
-    public Reward getAndClear() {
+    public Reward getAsReward() {
         Reward reward = new Reward();
         for (HashMap.Entry<Integer, Float> entry : this.map.entrySet()) {
             Integer dimension = entry.getKey();
@@ -89,7 +88,6 @@ public class MultidimensionalReward {
             reward_entry.setValue(new BigDecimal(reward_value));
             reward.getValue().add(reward_entry);
         }
-        this.clear();
         return reward;
     }
 
@@ -98,11 +96,11 @@ public class MultidimensionalReward {
      * 
      * @return the XML string.
      */
-    public String getAsStringAndClear() {
+    public String getAsString() {
         // Create a string XML representation:
         String rewardString = null;
         try {
-            rewardString = SchemaHelper.serialiseObject(this.getAndClear(), Reward.class);
+            rewardString = SchemaHelper.serialiseObject(this.getAsReward(), Reward.class);
         } catch (JAXBException e) {
             System.out.println("Caught reward serialization exception: " + e);
         }
