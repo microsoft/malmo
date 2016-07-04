@@ -34,6 +34,8 @@ import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
+import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.BlockVariant;
@@ -42,7 +44,7 @@ import com.microsoft.Malmo.Schemas.ItemType;
 import com.microsoft.Malmo.Schemas.MazeBlock;
 import com.microsoft.Malmo.Schemas.MazeDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.Pos;
+import com.microsoft.Malmo.Schemas.PointWithToleranceAndDescription;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
@@ -72,6 +74,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     private int optimalPathHeight;
     private int subgoalHeight;
     private int gapHeight;
+    private AgentQuitFromReachingPosition quitter = null;
 
     int width;
     int length;
@@ -616,6 +619,23 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             p.setYaw(as.getAgentStart().getPlacement().getYaw());
             as.getAgentStart().setPlacement(p);
         }
+
+        if (this.mazeParams.getAddQuitProducer() != null)
+        {
+            String desc = this.mazeParams.getAddQuitProducer().getDescription();
+            this.quitter = new AgentQuitFromReachingPosition();
+            PointWithToleranceAndDescription endpoint = new PointWithToleranceAndDescription();
+            endpoint.setDescription(desc);
+            endpoint.setTolerance(new BigDecimal(1.0));
+
+            double endX = scale * (end.x + 0.5) + this.xOrg;
+            double endY = 1 + this.optimalPathHeight + this.yOrg;   // Assuming we approach on the optimal path, need the height of the goal to be reachable.
+            double endZ = scale * (end.z + 0.5) + this.zOrg;
+            endpoint.setX(new BigDecimal(endX));
+            endpoint.setY(new BigDecimal(endY));
+            endpoint.setZ(new BigDecimal(endZ));
+            this.quitter.getMarker().add(endpoint);
+        }
     }
     
     @Override
@@ -738,4 +758,15 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     
     @Override
     public void update(World world) {}
+
+    @Override
+    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    {
+        if (this.quitter != null)
+        {
+            handlers.getAgentMissionHandlers().add(this.quitter);
+            return true;
+        }
+        return false;
+    }
 }

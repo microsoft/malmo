@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Composite class that manages a set of world builders
@@ -36,7 +37,7 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
     {
         this.builders.add(builder);
     }
-    
+
     @Override
     public void buildOnWorld(MissionInit missionInit) throws DecoratorException
     {
@@ -45,7 +46,7 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
             builder.buildOnWorld(missionInit);
         }
     }
-    
+
     @Override
     public void update(World world)
     {
@@ -53,5 +54,16 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
         {
             builder.update(world);
         }
+    }
+
+    @Override
+    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    {
+        boolean added = false;
+        for (IWorldDecorator builder : this.builders)
+        {
+            added |= builder.getExtraAgentHandlers(handlers);
+        }
+        return added;
     }
 }

@@ -321,6 +321,11 @@
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
+        <xs:element name="AddQuitProducer" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
+          </xs:complexType>
+        </xs:element>
       </xs:all>
     </xs:complexType>
   </xs:element>
