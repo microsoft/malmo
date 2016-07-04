@@ -486,6 +486,8 @@ namespace malmo
     
     void AgentHost::onReward(TimestampedString message)
     {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
         try {
             TimestampedReward reward(message.timestamp, message.text);
             this->processReceivedReward(reward);
@@ -501,8 +503,6 @@ namespace malmo
         
     void AgentHost::processReceivedReward( TimestampedReward reward )
     {
-        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
-
         switch( this->rewards_policy )
         {
             case RewardsPolicy::LATEST_REWARD_ONLY:
