@@ -1,3 +1,7 @@
+0.14.0
+-------------------
+New: AgentQuitFromReachingCommandQuota (issue #109)
+
 0.13.0 (2016-07-01)
 -------------------
 New: tp x y z command (issue #112)
