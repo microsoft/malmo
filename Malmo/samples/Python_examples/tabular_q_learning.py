@@ -126,7 +126,9 @@ class TabQAgent:
         world_state = agent_host.peekWorldState()
         while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
             world_state = agent_host.peekWorldState()
-        world_state = agent_host.getWorldState()    
+        world_state = agent_host.getWorldState()
+        for err in world_state.errors:
+            print err
         
         if not world_state.is_mission_running:
             return 0 # mission already ended
@@ -158,6 +160,8 @@ class TabQAgent:
                         break
             
             world_state = agent_host.getWorldState()
+            for err in world_state.errors:
+                print err
             current_r = sum(r.getValue() for r in world_state.rewards)
                 
             if world_state.is_mission_running:
