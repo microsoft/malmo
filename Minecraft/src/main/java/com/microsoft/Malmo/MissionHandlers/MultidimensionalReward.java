@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -33,7 +34,7 @@ import com.microsoft.Malmo.Utils.SchemaHelper;
  */
 public class MultidimensionalReward {
 
-    private HashMap<Integer, Float> map = new HashMap<Integer, Float>();
+    private Map<Integer, Float> map = new HashMap<Integer, Float>();
 
     /**
      * True if no rewards have been received.
@@ -66,7 +67,7 @@ public class MultidimensionalReward {
      *            the other multidimensional reward structure.
      */
     public void add(MultidimensionalReward other) {
-        for (HashMap.Entry<Integer, Float> entry : other.map.entrySet()) {
+        for (Map.Entry<Integer, Float> entry : other.map.entrySet()) {
             Integer dimension = entry.getKey();
             Float reward_value = entry.getValue();
             this.add(dimension.intValue(), reward_value.floatValue());
@@ -80,7 +81,7 @@ public class MultidimensionalReward {
      */
     public Reward getAsReward() {
         Reward reward = new Reward();
-        for (HashMap.Entry<Integer, Float> entry : this.map.entrySet()) {
+        for (Map.Entry<Integer, Float> entry : this.map.entrySet()) {
             Integer dimension = entry.getKey();
             Float reward_value = entry.getValue();
             Value reward_entry = new Value();
