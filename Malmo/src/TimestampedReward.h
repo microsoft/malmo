@@ -23,33 +23,56 @@
 // Boost:
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
+// Schemas:
+#include <MissionEnded.h>
+
 // STL:
 #include <map>
 
 namespace malmo
 {
-    //! A map of int:float storing a value on each dimension, with an attached timestamp saying when it was collected.
+    //! A map of int:double storing a value on each dimension, with an attached timestamp saying when it was collected.
     class TimestampedReward
     {
         public:
+
+            //! Constructs from an XML string.
+            TimestampedReward(boost::posix_time::ptime timestamp,std::string xml_string);
         
+            //! Constructs from an XML node element.
+            TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
+            
+            //! Sets the values stored in this reward to be those from the specified XML structure.
+            void setValuesFromRewardStructure(const schemas::Reward& reward);
+            
+            //! Formats as an XML string.
+            //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
+            //! \returns The reward as an XML string.
+            std::string getAsXML( bool prettyPrint ) const;
+            
             //! The timestamp.
             boost::posix_time::ptime timestamp;
-            
+
+            //! Returns whether a reward value is stored on the specified dimension.
             bool hasValueOnDimension(int dimension) const;
             
-            float getValueOnDimension(int dimension) const;
+            //! Returns the reward value stored on the specified dimension.
+            double getValueOnDimension(int dimension) const;
             
-            float getValue() const;
+            //! Returns the reward value stored on dimension zero. By default the reward producers store their output here.
+            double getValue() const;
             
+            //! Merge the specified reward structure into this one, adding rewards that are on the same dimension.
             void add(const TimestampedReward& other);
             
-            bool operator==(const TimestampedReward&) const;
+            //! Stream a readable version, for casual inspection.
             friend std::ostream& operator<<(std::ostream& os, const TimestampedReward& tsf);
         
         private:
 
-            std::map<int,float> values;
+            schemas::Reward getAsRewardStructure() const;
+
+            std::map<int,double> values;
     };
 }
 

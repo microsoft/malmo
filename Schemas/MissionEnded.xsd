@@ -36,13 +36,13 @@
 </xs:simpleType>
 
 <xs:element name="Reward">
-  <!-- Stores multi-dimensional rewards as a map of dimension:float where dimension is a positive integer -->
+  <!-- Stores multi-dimensional rewards as a map of int:double where dimension is a positive integer -->
   <xs:complexType>
     <xs:sequence>
-      <xs:element name="Value" minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="Value" minOccurs="1" maxOccurs="unbounded">
         <xs:complexType>
-          <xs:attribute name="dimension" type="Dimension" />
-          <xs:attribute name="value" type="xs:decimal" />
+          <xs:attribute name="dimension" type="Dimension" use="required" />
+          <xs:attribute name="value" type="xs:decimal" use="required" />
         </xs:complexType>
       </xs:element>
     </xs:sequence>

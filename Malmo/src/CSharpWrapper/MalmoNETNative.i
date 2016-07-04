@@ -382,14 +382,15 @@ public:
   const std::string text;
 };
 
+%nodefaultctor TimestampedReward;
 struct TimestampedReward {
   const boost::posix_time::ptime timestamp;
 
   bool hasValueOnDimension(int dimension) const;
 
-  float getValueOnDimension(int dimension) const;
+  double getValueOnDimension(int dimension) const;
 
-  float getValue() const;
+  double getValue() const;
 
 };
 

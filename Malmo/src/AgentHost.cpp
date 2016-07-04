@@ -398,15 +398,12 @@ namespace malmo
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    // TODO: process the final reward
-                    /*TimestampedFloat final_reward;
-                    final_reward.timestamp = xml.timestamp;
-                    final_reward.value = static_cast<float>(mission_ended->FinalReward());
-                    this->processReceivedReward(final_reward);
-
-                    std::stringstream json;
-                    json << "{\"Reward\":" << final_reward.value << "}";
-                    this->rewards_server->recordMessage(TimestampedString(xml.timestamp, json.str()));*/
+                    schemas::MissionEnded::Reward_optional ro = mission_ended->Reward();
+                    if( ro.present() ) {
+                        TimestampedReward final_reward(xml.timestamp,ro.get());
+                        this->processReceivedReward(final_reward);
+                        this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsXML(false)));
+                    }
                 }
             }
             catch (const xml_schema::exception& e) {
@@ -487,37 +484,10 @@ namespace malmo
         this->world_state.number_of_video_frames_since_last_state++;
     }
     
-    void AgentHost::onReward(TimestampedString json)
+    void AgentHost::onReward(TimestampedString message)
     {
-        std::cout << "DEBUG: Received reward: " << json.text << std::endl;
-        // TODO: parse and process this reward
-        
-        /*boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
-       
-        std::stringstream ss( json.text );
-        boost::property_tree::ptree pt;
-        try {
-            boost::property_tree::read_json( ss, pt);
-        }
-        catch( std::exception&e ) {
-            TimestampedString error_message( json );
-            error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-            return;
-        }
-        
-        TimestampedFloat reward;
-        reward.timestamp = json.timestamp;
-        try {
-            reward.value = pt.get<float>( "Reward" );
-        } catch( std::exception& e ) {
-            TimestampedString error_message( json );
-            error_message.text = std::string("Error retrieving reward value from JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-            return;
-        }
-        
-        this->processReceivedReward( reward );*/
+        TimestampedReward reward( message.timestamp, message.text );
+        this->processReceivedReward( reward ); // TODO: send parsing errors to world_state.errors
     }
         
     void AgentHost::processReceivedReward( TimestampedReward reward )
