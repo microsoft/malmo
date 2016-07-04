@@ -626,7 +626,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             this.quitter = new AgentQuitFromReachingPosition();
             PointWithToleranceAndDescription endpoint = new PointWithToleranceAndDescription();
             endpoint.setDescription(desc);
-            endpoint.setTolerance(new BigDecimal(1.0));
+            endpoint.setTolerance(new BigDecimal(0.5 + scale/2.0));
 
             double endX = scale * (end.x + 0.5) + this.xOrg;
             double endY = 1 + this.optimalPathHeight + this.yOrg;   // Assuming we approach on the optimal path, need the height of the goal to be reachable.
@@ -637,7 +637,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             this.quitter.getMarker().add(endpoint);
         }
     }
-    
+
     @Override
     public void buildOnWorld(MissionInit missionInit)
     {
