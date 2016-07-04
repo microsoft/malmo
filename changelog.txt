@@ -1,5 +1,7 @@
 0.14.0
 -------------------
+New: ObservationsFromMazeOptimalPath has been turned into general purpose ObservationFromSubgoalPositionList
+New: Maze generator can now take care of quitting mission when agent reaches goal (issue #103)
 New: AgentQuitFromReachingCommandQuota (issue #109)
 
 0.13.0 (2016-07-01)
