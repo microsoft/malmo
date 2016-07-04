@@ -44,6 +44,7 @@ import com.microsoft.Malmo.Schemas.ItemType;
 import com.microsoft.Malmo.Schemas.MazeBlock;
 import com.microsoft.Malmo.Schemas.MazeDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ObservationFromSubgoalPositionList;
 import com.microsoft.Malmo.Schemas.PointWithToleranceAndDescription;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
@@ -75,6 +76,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     private int subgoalHeight;
     private int gapHeight;
     private AgentQuitFromReachingPosition quitter = null;
+    private ObservationFromSubgoalPositionList navigator = null;
 
     int width;
     int length;
@@ -435,7 +437,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         neighbours[7] = (allowDiags && x < this.width-1 && z > 0) ? grid[(x+1) + (z-1)*this.width] : null;
     }
 
-    private void findSubgoals(Cell[] grid, Cell start, Cell end, Hashtable<String, Object> savelocation)
+    private void findSubgoals(Cell[] grid, Cell start, Cell end)
     {
         System.out.println("Attempting to find subgoals...");
         
@@ -529,23 +531,30 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             }
         }
 
-        // Save the subgoals so that other mission handlers can access it:
-        double[] xCoords = new double[opath.size()];
-        double[] zCoords = new double[opath.size()];
-        int i = 0;
-        int scale = this.mazeParams.getSizeAndPosition().getScale();
-        for (Cell cell : opath)
+        if (this.mazeParams.getAddNavigationObservations() != null)
         {
-            xCoords[i] = scale * (cell.x + 0.5) + this.xOrg;
-            zCoords[i] = scale * (cell.z + 0.5) + this.zOrg;
-            i++;
+            // Add the subgoals to an observation producer:
+            this.navigator = new ObservationFromSubgoalPositionList();
+            int scale = this.mazeParams.getSizeAndPosition().getScale();
+            double y = 1 + this.optimalPathHeight + this.yOrg;
+            int i = 1;
+            for (Cell cell : opath)
+            {
+                double x = scale * (cell.x + 0.5) + this.xOrg;
+                double z = scale * (cell.z + 0.5) + this.zOrg;
+                PointWithToleranceAndDescription ptd = new PointWithToleranceAndDescription();
+                ptd.setTolerance(new BigDecimal(1.0));
+                ptd.setX(new BigDecimal(x));
+                ptd.setY(new BigDecimal(y));
+                ptd.setZ(new BigDecimal(z));
+                ptd.setDescription("MazeSubpoint_" + String.valueOf(i));
+                i++;
+                this.navigator.getPoint().add(ptd);
+            }
+            System.out.println("Found subgoals.");
         }
-        savelocation.put("OptPathXCoords", xCoords);
-        savelocation.put("OptPathZCoords", zCoords);
-
-        System.out.println("Found subgoals.");
     }
-    
+
     private void placeBlocks(World world, Cell[] grid, Cell start, Cell end)
     {
         int scale = this.mazeParams.getSizeAndPosition().getScale();
@@ -673,20 +682,12 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             addWaypoints(grid, start, end, allowDiags);
 
         // Now split into subgoals:
-        try
-        {
-            findSubgoals(grid, start, end, MalmoMod.getPropertiesForCurrentThread());
-        }
-        catch (Exception e)
-        {
-            // TODO getProperties can throw if we are on an unrecognised thread.
-            e.printStackTrace();
-        }
-       
+        findSubgoals(grid, start, end);
+
         // Now build the actual Minecraft world:
         World world = MinecraftServer.getServer().getEntityWorld();
         placeBlocks(world, grid, start, end);
- 
+
         // Finally, write the start and goal points into the MissionInit data structure for the other MissionHandlers to use:
         recordStartAndEndPoints(start, end, missionInit);
     }
@@ -710,14 +711,14 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         BlockVariant blockVar = chooseVariant(mblock.getVariant(), rand);
         return BlockDrawingHelper.applyModifications(MinecraftTypeHelper.ParseBlockType(blockName), blockCol, null, blockVar);
     }
-    
+
     private String chooseBlock(List<BlockType> types, Random r)
     {
         if (types == null || types.size() == 0)
             return "air";
         return types.get(r.nextInt(types.size())).value();
     }
-    
+
     private Colour chooseColour(List<Colour> colours, Random r)
     {
         if (colours == null || colours.size() == 0)
@@ -762,11 +763,17 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     @Override
     public boolean getExtraAgentHandlers(AgentHandlers handlers)
     {
+        boolean added = false;
         if (this.quitter != null)
         {
             handlers.getAgentMissionHandlers().add(this.quitter);
-            return true;
+            added = true;
         }
-        return false;
+        if (this.navigator != null)
+        {
+            handlers.getAgentMissionHandlers().add(this.navigator);
+            added = true;
+        }
+        return added;
     }
 }

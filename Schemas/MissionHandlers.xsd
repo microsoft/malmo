@@ -326,6 +326,9 @@
             <xs:attribute name="description" type="xs:string" use="optional" default=""/>
           </xs:complexType>
         </xs:element>
+        <xs:element name="AddNavigationObservations" minOccurs="0" maxOccurs="1">
+          <xs:complexType/>
+        </xs:element>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -883,16 +886,18 @@
     <xs:complexType/>
   </xs:element>
 
-  <xs:element name="ObservationFromMazeOptimalPath">
+  <xs:element name="ObservationFromSubgoalPositionList">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return observations that say the direction to follow to the next subgoal on the maze's optimal path,
-        if MazeDecorator has been used.
-
+        When present, the Mod will return observations that indicate the direction to follow to the next subgoal.
         The value to turn by is returned in the JSON element {{{yawDelta}}}.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Point" type="PointWithToleranceAndDescription" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="ObservationFromHotBar">
