@@ -91,7 +91,7 @@ class Program
                 worldState.number_of_video_frames_since_last_state,
                 worldState.number_of_observations_since_last_state,
                 worldState.number_of_rewards_since_last_state);
-            foreach (TimestampedReward reward in worldState.rewards) Console.Error.WriteLine("Summed reward: {0}", reward.getValueZero());
+            foreach (TimestampedReward reward in worldState.rewards) Console.Error.WriteLine("Summed reward: {0}", reward.getValue());
             foreach (TimestampedString error in worldState.errors) Console.Error.WriteLine("Error: {0}", error.text);
         }
         while (worldState.is_mission_running);

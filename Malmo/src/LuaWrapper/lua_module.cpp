@@ -279,7 +279,9 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
         ,
         class_< TimestampedReward, boost::shared_ptr< TimestampedReward > >("TimestampedReward")
             .def("timestamp",             &getPosixTimeAsLong<TimestampedReward>)
-            //.def_readonly("value",        &TimestampedReward::value) // TODO
+            .def("hasValueOnDimension",   &TimestampedReward::hasValueOnDimension)
+            .def("getValueOnDimension",   &TimestampedReward::getValueOnDimension)
+            .def("getValue",              &TimestampedReward::getValue)
             .def(tostring(const_self))
         ,
         class_< TimestampedVideoFrame, boost::shared_ptr< TimestampedVideoFrame > >("TimestampedVideoFrame")

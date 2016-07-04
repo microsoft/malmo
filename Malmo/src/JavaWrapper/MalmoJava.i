@@ -371,11 +371,11 @@ public:
 struct TimestampedReward {
   const boost::posix_time::ptime timestamp;
 
-  bool hasValue(int dimension) const;
+  bool hasValueOnDimension(int dimension) const;
 
-  float getValue(int dimension) const;
+  float getValueOnDimension(int dimension) const;
 
-  float getValueZero() const;
+  float getValue() const;
 
 };
 

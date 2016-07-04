@@ -911,13 +911,13 @@ namespace Microsoft.Research.Malmo.HumanAction
                         {
                             foreach (var reward in worldState.rewards)
                             {
-                                _score += reward.getValueZero();
-                                if (reward.getValueZero() < 0)
+                                _score += reward.getValue();
+                                if (reward.getValue() < 0)
                                 {
                                     failure = true;
                                 }
 
-                                _pendingMessages.Enqueue(string.Format("{0}> score {1}", reward.timestamp.ToString("hh:mm:ss.fff"), reward.getValueZero()));
+                                _pendingMessages.Enqueue(string.Format("{0}> score {1}", reward.timestamp.ToString("hh:mm:ss.fff"), reward.getValue()));
                             }
 
                             _score = Math.Max(_score, 0);

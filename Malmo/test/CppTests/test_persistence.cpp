@@ -231,7 +231,7 @@ int runAgentHost(std::string filename)
             << world_state.observations.size() << ","
             << world_state.rewards.size() << endl;
         if (!world_state.rewards.empty())
-            cout << "Summed reward: " << world_state.rewards.front()->getValueZero() << endl;
+            cout << "Summed reward: " << world_state.rewards.front()->getValue() << endl;
         for (auto e : world_state.errors)
             cout << "Error: " << e->text << endl;
     } while (world_state.is_mission_running);

@@ -107,7 +107,7 @@ public class JavaExamples_run_mission
             System.out.println( world_state.getNumberOfRewardsSinceLastState() );
             for( int i = 0; i < world_state.getRewards().size(); i++ ) {
                 TimestampedReward reward = world_state.getRewards().get(i);
-                System.out.println( "Summed reward: " + reward.getValueZero() );
+                System.out.println( "Summed reward: " + reward.getValue() );
             }
             for( int i = 0; i < world_state.getErrors().size(); i++ ) {
                 TimestampedString error = world_state.getErrors().get(i);

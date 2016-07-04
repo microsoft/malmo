@@ -242,7 +242,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
     register_ptr_to_python< boost::shared_ptr< TimestampedReward > >();
     class_< TimestampedReward >( "TimestampedReward", no_init )
         .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
-        //.def_readonly( "value",       &TimestampedReward::value ) // TODO
+        .def("hasValueOnDimension",   &TimestampedReward::hasValueOnDimension)
+        .def("getValueOnDimension",   &TimestampedReward::getValueOnDimension)
+        .def("getValue",              &TimestampedReward::getValue)
         .def(self_ns::str(self_ns::self))
     ;
     register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();

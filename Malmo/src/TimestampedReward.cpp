@@ -26,19 +26,19 @@
 
 namespace malmo
 {
-    bool TimestampedReward::hasValue(int dimension) const
+    bool TimestampedReward::hasValueOnDimension(int dimension) const
     {
-        return false; // TODO
+        return this->values.find(dimension) != this->values.end();
     }
 
-    float TimestampedReward::getValue(int dimension) const
+    float TimestampedReward::getValueOnDimension(int dimension) const
     {
-        return 0.0f; // TODO
+        return this->values.at(dimension);
     }
 
-    float TimestampedReward::getValueZero() const
+    float TimestampedReward::getValue() const
     {
-        return 0.0f; // TODO
+        return this->values.at(0);
     }
     
     void TimestampedReward::add(const TimestampedReward& other)

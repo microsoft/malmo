@@ -148,7 +148,7 @@ class TabQAgent:
                     for error in world_state.errors:
                         self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
-                        current_r += reward.value
+                        current_r += reward.getValue()
                     if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
                         total_reward += self.act(world_state, agent_host, current_r)
                         break
@@ -163,7 +163,7 @@ class TabQAgent:
                     for error in world_state.errors:
                         self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
-                        current_r += reward.value
+                        current_r += reward.getValue()
                 # allow time to stabilise after action
                 while True:
                     time.sleep(0.1)
@@ -171,7 +171,7 @@ class TabQAgent:
                     for error in world_state.errors:
                         self.logger.error("Error: %s" % error.text)
                     for reward in world_state.rewards:
-                        current_r += reward.value
+                        current_r += reward.getValue()
                     if world_state.is_mission_running and len(world_state.observations)>0 and not world_state.observations[-1].text=="{}":
                         total_reward += self.act(world_state, agent_host, current_r)
                         break

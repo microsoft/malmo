@@ -178,15 +178,15 @@ for iRepeat in xrange(NUM_REPEATS):
                 sys.stdout.write('O{0:.0f}'.format(distance))
         if world_state.number_of_rewards_since_last_state > 0:
             for rew in world_state.rewards:
-                if rew.value == 0:
+                if rew.getValue()  == 0:
                     sys.stdout.write("r")
-                elif rew.value == 100:
+                elif rew.getValue()  == 100:
                     sys.stdout.write("R")
-                elif rew.value == -1000:
+                elif rew.getValue()  == -1000:
                     sys.stdout.write("*")
                 else:
                     sys.stdout.write("?")
-                total_rewards += rew.value
+                total_rewards += rew.getValue() 
         if world_state.is_mission_running:
             sys.stdout.write("T")
         else:

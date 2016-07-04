@@ -20,11 +20,11 @@
 #ifndef _TIMESTAMPEDREWARD_H_
 #define _TIMESTAMPEDREWARD_H_
 
-// Schemas:
-#include <MissionEnded.h>
-
 // Boost:
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+
+// STL:
+#include <map>
 
 namespace malmo
 {
@@ -36,11 +36,11 @@ namespace malmo
             //! The timestamp.
             boost::posix_time::ptime timestamp;
             
-            bool hasValue(int dimension) const;
+            bool hasValueOnDimension(int dimension) const;
             
-            float getValue(int dimension) const;
+            float getValueOnDimension(int dimension) const;
             
-            float getValueZero() const;
+            float getValue() const;
             
             void add(const TimestampedReward& other);
             
@@ -49,7 +49,7 @@ namespace malmo
         
         private:
 
-            schemas::Reward reward;
+            std::map<int,float> values;
     };
 }
 
