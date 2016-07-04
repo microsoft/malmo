@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -36,7 +37,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
@@ -51,16 +51,33 @@ import com.microsoft.Malmo.MalmoMod;
  */
 public class SchemaHelper
 {
+    private static HashMap<String, JAXBContext> jaxbContentCache = new HashMap<String, JAXBContext>();
+
     /** Serialise the object to an XML string
      * @param obj the object to be serialised
      * @param objclass the class of the object to be serialised
      * @return an XML string representing the object, or null if the object couldn't be serialised
      * @throws JAXBException 
      */
-    static public String serialiseObject(Object obj, Class objclass) throws JAXBException
+    
+    static private JAXBContext getJAXBContext(Class<?> objclass) throws JAXBException
     {
         JAXBContext jaxbContext;
-        jaxbContext = JAXBContext.newInstance(objclass);
+        if (jaxbContentCache.containsKey(objclass.getName()))
+        {
+            jaxbContext = jaxbContentCache.get(objclass.getName());
+        }
+        else
+        {
+            jaxbContext = JAXBContext.newInstance(objclass);
+            jaxbContentCache.put(objclass.getName(), jaxbContext);
+        }
+        return jaxbContext;
+    }
+
+    static public String serialiseObject(Object obj, Class<?> objclass) throws JAXBException
+    {
+        JAXBContext jaxbContext = getJAXBContext(objclass);
         Marshaller m = jaxbContext.createMarshaller();
         StringWriter w = new StringWriter();
         m.marshal(obj, w);
@@ -74,10 +91,10 @@ public class SchemaHelper
      * @param objclass the class of the object requested
      * @return if successful, an instance of class objclass that captures the data in the XML string
      */
-    static public Object deserialiseObject(String xml, String xsdFile, Class objclass) throws JAXBException, SAXException, XMLStreamException
+    static public Object deserialiseObject(String xml, String xsdFile, Class<?> objclass) throws JAXBException, SAXException, XMLStreamException
     {
         Object obj = null;
-        JAXBContext jaxbContext = JAXBContext.newInstance(objclass);
+        JAXBContext jaxbContext = getJAXBContext(objclass);
         SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         final String schemaResourceFilename = new String(xsdFile);
         URL schemaURL = MalmoMod.class.getClassLoader().getResource(schemaResourceFilename);
