@@ -38,6 +38,7 @@ maze1 = '''
         <FloorBlock type="stone"/>
         <GapBlock type="air"/>
         <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
     </MazeDecorator>
 '''
 
@@ -54,6 +55,7 @@ maze2 = '''
         <FloorBlock type="glowstone"/>
         <GapBlock type="stone" height="10"/>
         <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
     </MazeDecorator>
 '''
 
@@ -71,6 +73,7 @@ maze3 = '''
         <SubgoalBlock type="beacon sea_lantern glowstone"/>
         <GapBlock type="air"/>
         <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
    </MazeDecorator>
 '''
 
@@ -89,6 +92,7 @@ maze4 = '''
         <OptimalPathBlock type="stone" variant="smooth_granite andesite smooth_diorite diorite"/>
         <GapBlock type="lapis_ore stained_hardened_clay air" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="3" heightVariance="3"/>
         <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
     </MazeDecorator>
 '''
 
@@ -98,6 +102,10 @@ def GetMissionXML( mazeblock ):
         <About>
             <Summary>Run the maze!</Summary>
         </About>
+        
+        <ModSettings>
+            <MsPerTick>''' + str(TICK_LENGTH) + '''</MsPerTick>
+        </ModSettings>
 
         <ServerSection>
             <ServerInitialConditions>
@@ -106,7 +114,7 @@ def GetMissionXML( mazeblock ):
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
                 ''' + mazeblock + '''
-                <ServerQuitFromTimeUp timeLimitMs="30000"/>
+                <ServerQuitFromTimeUp timeLimitMs="45000"/>
                 <ServerQuitWhenAnyAgentFinishes />
             </ServerHandlers>
         </ServerSection>
@@ -117,7 +125,6 @@ def GetMissionXML( mazeblock ):
                 <Placement x="-204" y="81" z="217"/>
             </AgentStart>
             <AgentHandlers>
-                <ObservationFromMazeOptimalPath />
                 <ContinuousMovementCommands turnSpeedDegs="840">
                     <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
                         <command>strafe</command>
@@ -134,6 +141,7 @@ validate = True
 mazeblocks = [maze1, maze2, maze3, maze4]
 
 agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalIntArgument( "speed,s", "Length of tick, in ms.", 50)
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
@@ -152,6 +160,7 @@ else:
     num_reps = 30000
 
 recordingsDirectory="MazeRecordings"
+TICK_LENGTH = agent_host.getIntArgument("speed")
 
 try:
     os.makedirs(recordingsDirectory)
@@ -189,15 +198,9 @@ for iRepeat in xrange(num_reps):
 
     # main loop:
     while world_state.is_mission_running:
-        world_state = agent_host.getWorldState()
-        while world_state.number_of_observations_since_last_state < 1 and world_state.is_mission_running:
-            print "Waiting for observations..."
-            time.sleep(0.05)
-            world_state = agent_host.getWorldState()
-
-        if world_state.is_mission_running:
+        if world_state.number_of_observations_since_last_state > 0:
             print "Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state."
-            msg = world_state.observations[0].text
+            msg = world_state.observations[-1].text
             ob = json.loads(msg)
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = (1-abs(current_yaw_delta))
@@ -209,6 +212,7 @@ for iRepeat in xrange(num_reps):
             except RuntimeError as e:
                 print "Failed to send command:",e
                 pass
-
+        world_state = agent_host.getWorldState()
+                
     print "Mission has stopped."
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
