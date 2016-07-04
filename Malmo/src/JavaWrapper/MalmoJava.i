@@ -44,16 +44,16 @@
 %include "stdint.i"
 
 %shared_ptr(TimestampedString)
-%shared_ptr(TimestampedFloat)
+%shared_ptr(TimestampedReward)
 %shared_ptr(TimestampedVideoFrame)
 
 %template(TimestampedVideoFramePtr) boost::shared_ptr<TimestampedVideoFrame>;
-%template(TimestampedFloatPtr)      boost::shared_ptr<TimestampedFloat>;
+%template(TimestampedRewardPtr)     boost::shared_ptr<TimestampedReward>;
 %template(TimestampedStringPtr)     boost::shared_ptr<TimestampedString>;
 
 %template(StringVector)                std::vector<std::string>;
 %template(TimestampedVideoFrameVector) std::vector< boost::shared_ptr< TimestampedVideoFrame > >;
-%template(TimestampedFloatVector)      std::vector< boost::shared_ptr< TimestampedFloat > >;
+%template(TimestampedRewardVector)     std::vector< boost::shared_ptr< TimestampedReward > >;
 %template(TimestampedStringVector)     std::vector< boost::shared_ptr< TimestampedString > >;
 %template(ByteVector)                  std::vector<unsigned char>;
 
@@ -122,7 +122,7 @@ public:
 
   const std::vector< boost::shared_ptr< TimestampedVideoFrame > > video_frames;
 
-  const std::vector< boost::shared_ptr< TimestampedFloat > > rewards;
+  const std::vector< boost::shared_ptr< TimestampedReward > > rewards;
 
   const std::vector< boost::shared_ptr< TimestampedString > > observations;
 
@@ -368,10 +368,15 @@ public:
   const std::string text;
 };
 
-struct TimestampedFloat {
+struct TimestampedReward {
   const boost::posix_time::ptime timestamp;
 
-  const float value;
+  bool hasValue(int dimension) const;
+
+  float getValue(int dimension) const;
+
+  float getValueZero() const;
+
 };
 
 struct TimestampedUnsignedCharVector {

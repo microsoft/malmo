@@ -33,7 +33,7 @@ set( SOURCES
    TCPClient.cpp
    TCPConnection.cpp
    TCPServer.cpp
-   TimestampedFloat.cpp
+   TimestampedReward.cpp
    TimestampedString.cpp
    TimestampedVideoFrame.cpp
    VideoFrameWriter.cpp
@@ -64,7 +64,7 @@ set( HEADERS
    TCPConnection.h
    TCPServer.h
    TimestampedUnsignedCharVector.h
-   TimestampedFloat.h
+   TimestampedReward.h
    TimestampedString.h
    TimestampedVideoFrame.h
    VideoFrameWriter.h

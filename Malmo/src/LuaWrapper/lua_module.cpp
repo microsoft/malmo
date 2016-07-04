@@ -277,9 +277,9 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def_readonly("text",         &TimestampedString::text)
             .def(tostring(const_self))
         ,
-        class_< TimestampedFloat, boost::shared_ptr< TimestampedFloat > >("TimestampedFloat")
-            .def("timestamp",             &getPosixTimeAsLong<TimestampedFloat>)
-            .def_readonly("value",        &TimestampedFloat::value)
+        class_< TimestampedReward, boost::shared_ptr< TimestampedReward > >("TimestampedReward")
+            .def("timestamp",             &getPosixTimeAsLong<TimestampedReward>)
+            //.def_readonly("value",        &TimestampedReward::value) // TODO
             .def(tostring(const_self))
         ,
         class_< TimestampedVideoFrame, boost::shared_ptr< TimestampedVideoFrame > >("TimestampedVideoFrame")

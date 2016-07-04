@@ -21,7 +21,7 @@
 #define _WORLDSTATE_H_
 
 // Local:
-#include "TimestampedFloat.h"
+#include "TimestampedReward.h"
 #include "TimestampedString.h"
 #include "TimestampedVideoFrame.h"
 
@@ -69,7 +69,7 @@ namespace malmo
         /*! May differ from the number of rewards that were received, depending on the rewards policy that was used.
          * \see AgentHost::setRewardsPolicy
          */
-        std::vector< boost::shared_ptr< TimestampedFloat > > rewards;
+        std::vector< boost::shared_ptr< TimestampedReward > > rewards;
 
         //! Contains the timestamped observations that are stored in this world state.
         /*! May differ from the number of observations that were received, depending on the observations policy that was used.

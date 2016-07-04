@@ -520,24 +520,26 @@ namespace malmo
         this->processReceivedReward( reward );*/
     }
         
-    void AgentHost::processReceivedReward( TimestampedFloat reward )
+    void AgentHost::processReceivedReward( TimestampedReward reward )
     {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
         switch( this->rewards_policy )
         {
             case RewardsPolicy::LATEST_REWARD_ONLY:
                 this->world_state.rewards.clear();
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
             case RewardsPolicy::SUM_REWARDS:
                 if( !this->world_state.rewards.empty() ) {
-                    reward.value += this->world_state.rewards.front()->value;
+                    reward.add(*this->world_state.rewards.front());
                     this->world_state.rewards.clear();
                 }
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 // (timestamp is that of latest reward, even if zero)
                 break;
             case RewardsPolicy::KEEP_ALL_REWARDS:
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
         }
         
@@ -564,6 +566,8 @@ namespace malmo
     
     void AgentHost::sendCommand(std::string command)
     {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
         if( !this->commands_connection ) {
             TimestampedString error_message(
                 boost::posix_time::microsec_clock::universal_time(),

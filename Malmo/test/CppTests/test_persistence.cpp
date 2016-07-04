@@ -96,10 +96,11 @@ void runGameShim( )
         boost::this_thread::sleep(sleep_time / 2);
     }
 
-    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "{\"Reward\" : 100 }", true);
+    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "{\"Reward\" : 100 }", true); // TODO
 
     std::stringstream end_xml;
-    end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus><FinalReward>123.58</FinalReward></MissionEnded>";
+    // TODO:
+    end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus></MissionEnded>";
     SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentMissionControlPort(), end_xml.str(), true);
     
     io_service.run();
@@ -230,7 +231,7 @@ int runAgentHost(std::string filename)
             << world_state.observations.size() << ","
             << world_state.rewards.size() << endl;
         if (!world_state.rewards.empty())
-            cout << "Summed reward: " << world_state.rewards.front()->value << endl;
+            cout << "Summed reward: " << world_state.rewards.front()->getValueZero() << endl;
         for (auto e : world_state.errors)
             cout << "Error: " << e->text << endl;
     } while (world_state.is_mission_running);

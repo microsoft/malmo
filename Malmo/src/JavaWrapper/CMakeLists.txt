@@ -49,8 +49,8 @@ set( SWIG_JAVA_SOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/MissionRecordSpec.java
   ${CMAKE_CURRENT_BINARY_DIR}/MissionSpec.java
   ${CMAKE_CURRENT_BINARY_DIR}/ParameterSet.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedFloat.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedFloatVector.java
+  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedReward.java
+  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedRewardVector.java
   ${CMAKE_CURRENT_BINARY_DIR}/TimestampedString.java
   ${CMAKE_CURRENT_BINARY_DIR}/TimestampedStringVector.java
   ${CMAKE_CURRENT_BINARY_DIR}/TimestampedUnsignedCharVector.java

@@ -74,7 +74,7 @@ while world_state.is_mission_running do
     world_state = agent_host:getWorldState()
     print( "video,observations,rewards received: "..world_state.number_of_video_frames_since_last_state..","..world_state.number_of_observations_since_last_state..","..world_state.number_of_rewards_since_last_state )
     for reward in world_state.rewards do
-        print( "Summed reward: "..reward.value )
+        print( "Summed reward: "..reward.getValueZero() )
         print( "Timestamp of most recent reward: "..reward:timestamp() )   -- in milliseconds since Jan 1st, 1970.
     end
     for error in world_state.errors do

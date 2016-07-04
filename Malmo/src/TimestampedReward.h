@@ -17,21 +17,40 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-// Local:
-#include "TimestampedFloat.h"
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
+#ifndef _TIMESTAMPEDREWARD_H_
+#define _TIMESTAMPEDREWARD_H_
+
+// Schemas:
+#include <MissionEnded.h>
+
+// Boost:
+#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 namespace malmo
 {
-    bool TimestampedFloat::operator==(const TimestampedFloat& other) const
+    //! A map of int:float storing a value on each dimension, with an attached timestamp saying when it was collected.
+    class TimestampedReward
     {
-        return this->value == other.value && this->timestamp == other.timestamp;
-    }
+        public:
+        
+            //! The timestamp.
+            boost::posix_time::ptime timestamp;
+            
+            bool hasValue(int dimension) const;
+            
+            float getValue(int dimension) const;
+            
+            float getValueZero() const;
+            
+            void add(const TimestampedReward& other);
+            
+            bool operator==(const TimestampedReward&) const;
+            friend std::ostream& operator<<(std::ostream& os, const TimestampedReward& tsf);
+        
+        private:
 
-    std::ostream& operator<<(std::ostream& os, const TimestampedFloat& tsf)
-    {
-        os << "TimestampedFloat: " << to_simple_string(tsf.timestamp) << ", " << tsf.value;
-        return os;
-    }
+            schemas::Reward reward;
+    };
 }
+
+#endif
