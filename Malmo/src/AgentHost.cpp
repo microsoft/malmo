@@ -398,9 +398,9 @@ namespace malmo
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    schemas::MissionEnded::Reward_optional ro = mission_ended->Reward();
-                    if( ro.present() ) {
-                        TimestampedReward final_reward(xml.timestamp,ro.get());
+                    schemas::MissionEnded::Reward_optional final_reward_optional = mission_ended->Reward();
+                    if( final_reward_optional.present() ) {
+                        TimestampedReward final_reward(xml.timestamp,final_reward_optional.get());
                         this->processReceivedReward(final_reward);
                         this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsXML(false)));
                     }
@@ -486,8 +486,17 @@ namespace malmo
     
     void AgentHost::onReward(TimestampedString message)
     {
-        TimestampedReward reward( message.timestamp, message.text );
-        this->processReceivedReward( reward ); // TODO: send parsing errors to world_state.errors
+        try {
+            TimestampedReward reward(message.timestamp, message.text);
+            this->processReceivedReward(reward);
+        }
+        catch( const xml_schema::exception& e ) {
+            std::ostringstream oss;
+            oss << "Error parsing Reward message XML: " << e.what() << " : " << e << ":" << message.text.substr(0, 20) << "...";
+            TimestampedString error_message(message);
+            error_message.text = oss.str();
+            this->world_state.errors.push_back(boost::make_shared<TimestampedString>(error_message));
+        }
     }
         
     void AgentHost::processReceivedReward( TimestampedReward reward )
