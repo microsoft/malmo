@@ -398,14 +398,12 @@ namespace malmo
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    TimestampedFloat final_reward;
-                    final_reward.timestamp = xml.timestamp;
-                    final_reward.value = static_cast<float>(mission_ended->FinalReward());
-                    this->processReceivedReward(final_reward);
-
-                    std::stringstream json;
-                    json << "{\"Reward\":" << final_reward.value << "}";
-                    this->rewards_server->recordMessage(TimestampedString(xml.timestamp, json.str()));
+                    schemas::MissionEnded::Reward_optional final_reward_optional = mission_ended->Reward();
+                    if( final_reward_optional.present() ) {
+                        TimestampedReward final_reward(xml.timestamp,final_reward_optional.get());
+                        this->processReceivedReward(final_reward);
+                        this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsXML(false)));
+                    }
                 }
             }
             catch (const xml_schema::exception& e) {
@@ -486,54 +484,41 @@ namespace malmo
         this->world_state.number_of_video_frames_since_last_state++;
     }
     
-    void AgentHost::onReward(TimestampedString json)
+    void AgentHost::onReward(TimestampedString message)
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
-       
-        std::stringstream ss( json.text );
-        boost::property_tree::ptree pt;
+
         try {
-            boost::property_tree::read_json( ss, pt);
+            TimestampedReward reward(message.timestamp, message.text);
+            this->processReceivedReward(reward);
         }
-        catch( std::exception&e ) {
-            TimestampedString error_message( json );
-            error_message.text = std::string("Error parsing reward JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-            return;
+        catch( const xml_schema::exception& e ) {
+            std::ostringstream oss;
+            oss << "Error parsing Reward message XML: " << e.what() << " : " << e << ":" << message.text.substr(0, 20) << "...";
+            TimestampedString error_message(message);
+            error_message.text = oss.str();
+            this->world_state.errors.push_back(boost::make_shared<TimestampedString>(error_message));
         }
-        
-        TimestampedFloat reward;
-        reward.timestamp = json.timestamp;
-        try {
-            reward.value = pt.get<float>( "Reward" );
-        } catch( std::exception& e ) {
-            TimestampedString error_message( json );
-            error_message.text = std::string("Error retrieving reward value from JSON: ") + e.what() + ":" + json.text.substr(0, 20) + "...";
-            this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-            return;
-        }
-        
-        this->processReceivedReward( reward );
     }
         
-    void AgentHost::processReceivedReward( TimestampedFloat reward )
+    void AgentHost::processReceivedReward( TimestampedReward reward )
     {
         switch( this->rewards_policy )
         {
             case RewardsPolicy::LATEST_REWARD_ONLY:
                 this->world_state.rewards.clear();
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
             case RewardsPolicy::SUM_REWARDS:
                 if( !this->world_state.rewards.empty() ) {
-                    reward.value += this->world_state.rewards.front()->value;
+                    reward.add(*this->world_state.rewards.front());
                     this->world_state.rewards.clear();
                 }
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 // (timestamp is that of latest reward, even if zero)
                 break;
             case RewardsPolicy::KEEP_ALL_REWARDS:
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
         }
         
@@ -560,6 +545,8 @@ namespace malmo
     
     void AgentHost::sendCommand(std::string command)
     {
+        boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
+
         if( !this->commands_connection ) {
             TimestampedString error_message(
                 boost::posix_time::microsec_clock::universal_time(),

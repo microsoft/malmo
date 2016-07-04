@@ -239,10 +239,12 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "text",        &TimestampedString::text )
         .def(self_ns::str(self_ns::self))
     ;
-    register_ptr_to_python< boost::shared_ptr< TimestampedFloat > >();
-    class_< TimestampedFloat >( "TimestampedFloat", no_init )
+    register_ptr_to_python< boost::shared_ptr< TimestampedReward > >();
+    class_< TimestampedReward >( "TimestampedReward", no_init )
         .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
-        .def_readonly( "value",       &TimestampedFloat::value )
+        .def("hasValueOnDimension",   &TimestampedReward::hasValueOnDimension)
+        .def("getValueOnDimension",   &TimestampedReward::getValueOnDimension)
+        .def("getValue",              &TimestampedReward::getValue)
         .def(self_ns::str(self_ns::self))
     ;
     register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();
@@ -257,8 +259,8 @@ BOOST_PYTHON_MODULE(MalmoPython)
     class_< std::vector< boost::shared_ptr< TimestampedString > > >( "TimestampedStringVector" )
         .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedString > >, true >() )
     ;
-    class_< std::vector< boost::shared_ptr< TimestampedFloat > > >( "TimestampedFloatVector" )
-        .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedFloat > >, true >() )
+    class_< std::vector< boost::shared_ptr< TimestampedReward > > >( "TimestampedRewardVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedReward > >, true >() )
     ;
     class_< std::vector< boost::shared_ptr< TimestampedVideoFrame > > >( "TimestampedVideoFrameVector" )
         .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedVideoFrame > >, true >() )

@@ -136,7 +136,7 @@ for iRepeat in range(num_reps):
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
             # A reward signal has come in - see what it is:
-            delta = world_state.rewards[0].value
+            delta = world_state.rewards[0].getValue() 
             reward+=delta
             if delta==10:
                 agent_host.sendCommand("chat " + random.choice(["Have a fish!", "Free trout!", "Fishy!", "Bleurgh, catch"]))

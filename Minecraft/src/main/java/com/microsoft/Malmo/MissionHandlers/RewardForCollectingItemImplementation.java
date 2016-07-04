@@ -29,47 +29,46 @@ import com.microsoft.Malmo.Schemas.ItemSpec;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
 
-public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer
-{
+public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer {
+    private RewardForCollectingItem params;
+
     @Override
-    public boolean parseParameters(Object params)
-    {
+    public boolean parseParameters(Object params) {
         if (params == null || !(params instanceof RewardForCollectingItem))
             return false;
 
         // Build up a map of rewards per item:
-        RewardForCollectingItem rciparams = (RewardForCollectingItem)params;
-        for (ItemSpec is : rciparams.getItem())
+        this.params = (RewardForCollectingItem) params;
+        for (ItemSpec is : this.params.getItem())
             addItemSpecToRewardStructure(is);
 
         return true;
     }
 
     @SubscribeEvent
-    public void onPickupItem(EntityItemPickupEvent event)
-    {
-        if (event.item != null && event.item.getEntityItem() != null)
-        {
+    public void onPickupItem(EntityItemPickupEvent event) {
+        if (event.item != null && event.item.getEntityItem() != null) {
             ItemStack stack = event.item.getEntityItem();
-            accumulateReward(stack);
+            accumulateReward(this.params.getDimension(), stack);
         }
     }
 
     @Override
-    public float getReward(MissionInit missionInit)
-    {
-        return getReward();
-    }
-
-    @Override
-    public void prepare(MissionInit missionInit)
-    {
+    public void prepare(MissionInit missionInit) {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
-    public void cleanup()
-    {
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
+        // Return the rewards that have accumulated since last time we were
+        // asked:
+        reward.add(this.accumulatedRewards);
+        // And reset the count:
+        this.accumulatedRewards.clear();
+    }
+
+    @Override
+    public void cleanup() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 }

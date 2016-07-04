@@ -32,8 +32,6 @@
 
 namespace malmo
 {
-    const std::string xml_namespace("http://ProjectMalmo.microsoft.com");
-
     //! Specifies a mission to be run.
     class MissionSpec
     {

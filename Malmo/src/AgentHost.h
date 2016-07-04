@@ -125,16 +125,16 @@ namespace malmo
             void listenForRewards( int port );
             void listenForObservations( int port );
             
-            void onMissionControlMessage(TimestampedString xml);
+            void onMissionControlMessage(TimestampedString message);
             void onVideo(TimestampedVideoFrame message);
-            void onReward(TimestampedString json);
+            void onReward(TimestampedString message);
             void onObservation(TimestampedString message);
             
             void openCommandsConnection();
 
             void close();
             
-            void processReceivedReward( TimestampedFloat reward );
+            void processReceivedReward( TimestampedReward reward );
             
             boost::asio::io_service io_service;
             boost::shared_ptr<StringServer>   mission_control_server;

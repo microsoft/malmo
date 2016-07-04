@@ -93,8 +93,8 @@ int main(int argc, const char **argv)
              << world_state.number_of_video_frames_since_last_state << ","
              << world_state.number_of_observations_since_last_state << ","
              << world_state.number_of_rewards_since_last_state << endl;
-        for( boost::shared_ptr<TimestampedFloat> reward : world_state.rewards )
-            cout << "Summed reward: " << reward->value << endl;
+        for( boost::shared_ptr<TimestampedReward> reward : world_state.rewards )
+            cout << "Summed reward: " << reward->getValue() << endl;
         for( boost::shared_ptr<TimestampedString> error : world_state.errors )
             cout << "Error: " << error->text << endl;
     } while (world_state.is_mission_running);

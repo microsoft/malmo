@@ -31,6 +31,8 @@ import com.microsoft.Malmo.Schemas.RewardForDiscardingItem;
 
 public class RewardForDiscardingItemImplementation extends RewardForItemBase implements IRewardProducer
 {
+    private RewardForDiscardingItem params;
+    
     @Override
     public boolean parseParameters(Object params)
     {
@@ -38,8 +40,8 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
             return false;
 
         // Build up a map of rewards per item:
-        RewardForDiscardingItem rdiparams = (RewardForDiscardingItem)params;
-        for (ItemSpec is : rdiparams.getItem())
+        this.params = (RewardForDiscardingItem)params;
+        for (ItemSpec is : this.params.getItem())
             addItemSpecToRewardStructure(is);
 
         return true;
@@ -51,14 +53,17 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
         if (event.entityItem != null)
         {
             ItemStack stack = event.entityItem.getEntityItem();
-            accumulateReward(stack);
+            accumulateReward(this.params.getDimension(),stack);
         }
     }
 
     @Override
-    public float getReward(MissionInit missionInit)
+    public void getReward(MissionInit missionInit,MultidimensionalReward reward)
     {
-        return getReward();
+        // Return the rewards that have accumulated since last time we were asked:
+        reward.add( this.accumulatedRewards );
+        // And reset the count:
+        this.accumulatedRewards.clear();
     }
 
     @Override

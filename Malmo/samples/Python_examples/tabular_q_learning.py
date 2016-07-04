@@ -126,7 +126,9 @@ class TabQAgent:
         world_state = agent_host.peekWorldState()
         while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
             world_state = agent_host.peekWorldState()
-        world_state = agent_host.getWorldState()    
+        world_state = agent_host.getWorldState()
+        for err in world_state.errors:
+            print err
         
         if not world_state.is_mission_running:
             return 0 # mission already ended
@@ -142,14 +144,14 @@ class TabQAgent:
         # main loop:
         while world_state.is_mission_running:
         
-            # wait for the position to have changed and a non-zero reward received
+            # wait for the position to have changed and a reward received
             print 'Waiting for data...',
             while True:
                 world_state = agent_host.peekWorldState()
                 if not world_state.is_mission_running:
                     print 'mission ended.'
                     break
-                if not sum(r.value for r in world_state.rewards) == 0 and not all(e.text=='{}' for e in world_state.observations):
+                if len(world_state.rewards) > 0 and not all(e.text=='{}' for e in world_state.observations):
                     obs = json.loads( world_state.observations[-1].text )
                     curr_x = int(obs[u'XPos'])
                     curr_z = int(obs[u'ZPos'])
@@ -158,7 +160,9 @@ class TabQAgent:
                         break
             
             world_state = agent_host.getWorldState()
-            current_r = sum(r.value for r in world_state.rewards)
+            for err in world_state.errors:
+                print err
+            current_r = sum(r.getValue() for r in world_state.rewards)
                 
             if world_state.is_mission_running:
                 obs = json.loads( world_state.observations[-1].text )

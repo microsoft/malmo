@@ -119,8 +119,8 @@ while world_state.is_mission_running:
     world_state = agent_host.getWorldState()
     print "video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state
     for reward in world_state.rewards:
-        print "Summed reward:",reward.value
-        total_reward += reward.value
+        print "Summed reward:",reward.getValue()
+        total_reward += reward.getValue()
     for error in world_state.errors:
         print "Error:",error.text
 

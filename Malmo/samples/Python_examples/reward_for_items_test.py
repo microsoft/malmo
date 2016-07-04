@@ -161,7 +161,7 @@ for iRepeat in range(num_reps):
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
             # A reward signal has come in - see what it is:
-            delta = world_state.rewards[0].value
+            delta = world_state.rewards[0].getValue() 
             if delta != 0:
                 # The total reward has changed - use this to determine our turn.
                 reward += delta
