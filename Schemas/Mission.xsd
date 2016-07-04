@@ -208,7 +208,7 @@
             <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
             <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
             <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>
-            <xs:element ref="ObservationFromMazeOptimalPath" minOccurs="0"/>
+            <xs:element ref="ObservationFromSubgoalPositionList" minOccurs="0"/>
             <xs:element ref="ObservationFromGrid" minOccurs="0"/>
             <xs:element ref="ObservationFromDistance" minOccurs="0"/>
             <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>

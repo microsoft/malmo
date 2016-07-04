@@ -23,61 +23,113 @@ import random
 import sys
 import time
 import json
+import errno
 
-def GetMissionXML( current_seed ):
+maze1 = '''
+    <MazeDecorator>
+        <SizeAndPosition length="60" width="60" yOrigin="225" zOrigin="0" height="180"/>
+        <GapProbability variance="0.4">0.5</GapProbability>
+        <Seed>random</Seed>
+        <MaterialSeed>random</MaterialSeed>
+        <AllowDiagonalMovement>false</AllowDiagonalMovement>
+        <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
+        <EndBlock fixedToEdge="true" type="redstone_block diamond_block gold_block" height="12"/>
+        <PathBlock type="stained_hardened_clay" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
+        <FloorBlock type="stone"/>
+        <GapBlock type="air"/>
+        <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
+    </MazeDecorator>
+'''
+
+maze2 = '''
+    <MazeDecorator>
+        <SizeAndPosition length="19" width="19" scale="3" yOrigin="225" zOrigin="0" height="180"/>
+        <GapProbability variance="0.4">0.5</GapProbability>
+        <Seed>random</Seed>
+        <MaterialSeed>random</MaterialSeed>
+        <AllowDiagonalMovement>false</AllowDiagonalMovement>
+        <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
+        <EndBlock fixedToEdge="true" type="redstone_block lapis_block" height="12"/>
+        <PathBlock type="stained_glass" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
+        <FloorBlock type="glowstone"/>
+        <GapBlock type="stone" height="10"/>
+        <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
+    </MazeDecorator>
+'''
+
+maze3 = '''
+    <MazeDecorator>
+        <SizeAndPosition length="60" width="60" yOrigin="225" zOrigin="0" height="180"/>
+        <GapProbability>0.2</GapProbability>
+        <Seed>random</Seed>
+        <MaterialSeed>random</MaterialSeed>
+        <AllowDiagonalMovement>false</AllowDiagonalMovement>
+        <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
+        <EndBlock fixedToEdge="true" type="redstone_block" height="12"/>
+        <PathBlock type="glowstone stained_glass dirt" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
+        <FloorBlock type="stone" variant="smooth_granite"/>
+        <SubgoalBlock type="beacon sea_lantern glowstone"/>
+        <GapBlock type="air"/>
+        <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
+   </MazeDecorator>
+'''
+
+maze4 = '''
+    <MazeDecorator>
+        <SizeAndPosition length="60" width="60" yOrigin="225" zOrigin="0" height="180"/>
+        <GapProbability variance="0.4">0.5</GapProbability>
+        <Seed>random</Seed>
+        <MaterialSeed>random</MaterialSeed>
+        <AllowDiagonalMovement>false</AllowDiagonalMovement>
+        <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
+        <EndBlock fixedToEdge="true" type="redstone_block" height="12"/>
+        <PathBlock type="stone dirt stained_hardened_clay" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
+        <FloorBlock type="stone" variant="smooth_granite"/>
+        <SubgoalBlock type="beacon sea_lantern glowstone"/>
+        <OptimalPathBlock type="stone" variant="smooth_granite andesite smooth_diorite diorite"/>
+        <GapBlock type="lapis_ore stained_hardened_clay air" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="3" heightVariance="3"/>
+        <AddQuitProducer description="finished maze"/>
+        <AddNavigationObservations/>
+    </MazeDecorator>
+'''
+
+def GetMissionXML( mazeblock ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
             <Summary>Run the maze!</Summary>
         </About>
+        
+        <ModSettings>
+            <MsPerTick>''' + str(TICK_LENGTH) + '''</MsPerTick>
+        </ModSettings>
 
         <ServerSection>
             <ServerInitialConditions>
-                <Time>
-                    <StartTime>14000</StartTime>
-                    <AllowPassageOfTime>false</AllowPassageOfTime>
-                </Time>
+                <AllowSpawning>false</AllowSpawning>
             </ServerInitialConditions>
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
-                <MazeDecorator>
-                    <SizeAndPosition length="64" width="64" yOrigin="225" zOrigin="0" height="180"/>
-                    <GapProbability variance="0.4">0.5</GapProbability>
-                    <Seed>''' + str(current_seed) + '''</Seed>
-                    <MaterialSeed>random</MaterialSeed>
-                    <AllowDiagonalMovement>false</AllowDiagonalMovement>
-                    <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
-                    <EndBlock fixedToEdge="true" type="redstone_block" height="12"/>
-                    <PathBlock type="glowstone stained_glass dirt" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
-                    <FloorBlock type="air water lava"/>
-                    <SubgoalBlock type="beacon sea_lantern glowstone tnt"/>
-                    <OptimalPathBlock type="dirt grass snow tnt"/>
-                    <GapBlock type="stained_hardened_clay lapis_ore sponge air" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="3" heightVariance="3"/>
-                </MazeDecorator>
-                <ServerQuitFromTimeUp timeLimitMs="30000"/>
+                ''' + mazeblock + '''
+                <ServerQuitFromTimeUp timeLimitMs="45000"/>
                 <ServerQuitWhenAnyAgentFinishes />
             </ServerHandlers>
         </ServerSection>
 
-        <AgentSection mode="Creative">
+        <AgentSection mode="Survival">
             <Name>James Bond</Name>
             <AgentStart>
-                <Placement x="-203.5" y="81.0" z="217.5"/>
-                <Inventory>
-                    <InventoryItem slot="1" type="diamond_pickaxe"/>
-                    <InventoryBlock slot="2" type="tnt" quantity="32"/>
-                </Inventory>
+                <Placement x="-204" y="81" z="217"/>
             </AgentStart>
             <AgentHandlers>
-                <ObservationFromMazeOptimalPath />
                 <ContinuousMovementCommands turnSpeedDegs="840">
                     <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
                         <command>strafe</command>
                     </ModifierList>
                 </ContinuousMovementCommands>
-                <AgentQuitFromTouchingBlockType>
-                    <Block type="redstone_block" />
-                </AgentQuitFromTouchingBlockType>
             </AgentHandlers>
         </AgentSection>
 
@@ -86,9 +138,10 @@ def GetMissionXML( current_seed ):
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
-my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
+mazeblocks = [maze1, maze2, maze3, maze4]
 
 agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalIntArgument( "speed,s", "Length of tick, in ms.", 50)
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
@@ -106,10 +159,25 @@ if agent_host.receivedArgument("test"):
 else:
     num_reps = 30000
 
-for iRepeat in range(num_reps):
+recordingsDirectory="MazeRecordings"
+TICK_LENGTH = agent_host.getIntArgument("speed")
+
+try:
+    os.makedirs(recordingsDirectory)
+except OSError as exception:
+    if exception.errno != errno.EEXIST: # ignore error if already existed
+        raise
+
+for iRepeat in xrange(num_reps):
+
+    mazeblock = random.choice(mazeblocks)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML(mazeblock),validate)
+    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
+    my_mission_record.recordRewards()
+    my_mission_record.recordObservations()
 
     try:
-        my_mission_record = MalmoPython.MissionRecordSpec()
         agent_host.startMission( my_mission, my_mission_record )
     except RuntimeError as e:
         print "Error starting mission:",e
@@ -130,22 +198,21 @@ for iRepeat in range(num_reps):
 
     # main loop:
     while world_state.is_mission_running:
-        world_state = agent_host.getWorldState()
-        while world_state.number_of_observations_since_last_state < 1 and world_state.is_mission_running:
-            print "Waiting for observations..."
-            time.sleep(0.05)
-            world_state = agent_host.getWorldState()
-
-        if world_state.is_mission_running:
+        if world_state.number_of_observations_since_last_state > 0:
             print "Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state."
-            msg = world_state.observations[0].text
+            msg = world_state.observations[-1].text
             ob = json.loads(msg)
             current_yaw_delta = ob.get(u'yawDelta', 0)
-            current_speed = 1-abs(current_yaw_delta)
+            current_speed = (1-abs(current_yaw_delta))
             print "Got observation: " + str(current_yaw_delta)
             
-            agent_host.sendCommand( "move " + str(current_speed) )
-            agent_host.sendCommand( "turn " + str(current_yaw_delta) )
-
+            try:
+                agent_host.sendCommand( "move " + str(current_speed) )
+                agent_host.sendCommand( "turn " + str(current_yaw_delta) )
+            except RuntimeError as e:
+                print "Failed to send command:",e
+                pass
+        world_state = agent_host.getWorldState()
+                
     print "Mission has stopped."
     time.sleep(0.5) # Give mod a little time to get back to dormant state.

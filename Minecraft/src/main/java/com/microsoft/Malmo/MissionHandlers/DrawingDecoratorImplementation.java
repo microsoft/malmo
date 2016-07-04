@@ -23,6 +23,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.Mission;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -63,4 +64,10 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
 
     @Override
     public void update(World world) {}
+
+    @Override
+    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    {
+        return false;
+    }
 }

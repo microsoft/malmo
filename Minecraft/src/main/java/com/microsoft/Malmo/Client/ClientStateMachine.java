@@ -66,6 +66,7 @@ import com.microsoft.Malmo.Client.MalmoModClient.InputType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
@@ -839,10 +840,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (messageType != MalmoMessageType.SERVER_ALLPLAYERSJOINED)
                 return;
 
-            // The server is ready, so send our MissionInit back to the agent
-            // and go!
-            // We launch the agent by sending it the MissionInit message we were
-            // sent (but with the Launcher's IP address included)
+            String extraHandlers = data.get("extra_handlers");
+            if (extraHandlers != null && extraHandlers.length() > 0)
+                attemptToAddExtraHandlers(extraHandlers);
+
+            // The server is ready, so send our MissionInit back to the agent and go!
+            // We launch the agent by sending it the MissionInit message we were sent (but with the Launcher's IP address included)
             String xml = null;
             boolean sentOkay = false;
             String errorReport = "";
@@ -865,6 +868,19 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
                 episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_START_AGENT,
                         "Failed to send MissionInit back to agent" + errorReport);
+            }
+        }
+
+        private void attemptToAddExtraHandlers(String extraHandlers)
+        {
+            try
+            {
+                AgentHandlers handlers = (AgentHandlers)SchemaHelper.deserialiseObject(extraHandlers, "MissionInit.xsd", AgentHandlers.class);
+                currentMissionBehaviour().addExtraHandlers(handlers);
+            }
+            catch (Exception e)
+            {
+                // Do something... like episodeHasCompletedWithErrors(nextState, error)?
             }
         }
 

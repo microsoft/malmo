@@ -32,6 +32,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.BlockVariant;
@@ -287,5 +288,11 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
         this.speedInTicks = this.snakeParams.getSpeedInTicks();
         this.maxNumberOfStairs = this.snakeParams.getMaxStairLength();
         this.maxPathLength = this.snakeParams.getMaxLength();
+    }
+
+    @Override
+    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    {
+        return false;
     }
 }

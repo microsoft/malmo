@@ -101,6 +101,13 @@ public class MissionBehaviour
             createAndAddHandler(handler);
     }
 
+    public boolean addExtraHandlers(AgentHandlers handlers)
+    {
+        for (Object handler : handlers.getAgentMissionHandlers())
+            createAndAddHandler(handler);
+        return true;
+    }
+
     private void initServer(MissionInit missionInit)
     {
         reset();
