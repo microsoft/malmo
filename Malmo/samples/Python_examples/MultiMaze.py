@@ -57,6 +57,7 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                     <Waypoints quantity="10">
                         <WaypointItem>cookie</WaypointItem>
                     </Waypoints>
+                    <AddNavigationObservations/>
                 </MazeDecorator>
                 <ServerQuitFromTimeUp timeLimitMs="60000"/>
                 <ServerQuitWhenAnyAgentFinishes />
@@ -69,7 +70,6 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                 <Placement x="-203.5" y="81.0" z="217.5"/>
             </AgentStart>
             <AgentHandlers>
-                <ObservationFromMazeOptimalPath />
                 <ObservationFromChat />
                 <ContinuousMovementCommands turnSpeedDegs="840">
                     <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
@@ -89,7 +89,6 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                 <Placement x="-203.5" y="81.0" z="217.5"/>
             </AgentStart>
             <AgentHandlers>
-                <ObservationFromMazeOptimalPath />
                 <ObservationFromChat />
                 <ContinuousMovementCommands turnSpeedDegs="840">
                     <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->

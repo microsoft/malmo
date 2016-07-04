@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -52,6 +54,7 @@ import com.microsoft.Malmo.StateEpisode;
 import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator.DecoratorException;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.InventoryBlock;
@@ -62,6 +65,7 @@ import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
@@ -736,8 +740,25 @@ public class ServerStateMachine extends StateMachine
         {
             // Ready the players:
             resetPlayerGameTypes();
+            // Build up any extra mission handlers required:
+            MissionBehaviour handlers = getHandlers();
+            AgentHandlers extraHandlers = new AgentHandlers();
+            Map<String, String> data = new HashMap<String, String>();
+            if (handlers.worldDecorator.getExtraAgentHandlers(extraHandlers))
+            {
+                String xml;
+                try
+                {
+                    xml = SchemaHelper.serialiseObject(extraHandlers, MissionInit.class);
+                    data.put("extra_handlers", xml);
+                }
+                catch (JAXBException e)
+                {
+                    // TODO - is this worth aborting the mission for?
+                }
+            }
             // And tell them all they can proceed:
-            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ALLPLAYERSJOINED);
+            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ALLPLAYERSJOINED, data);
         }
 
         @Override

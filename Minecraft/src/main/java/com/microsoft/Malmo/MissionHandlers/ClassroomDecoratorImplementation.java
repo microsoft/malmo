@@ -31,6 +31,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.PaletteEnum;
 import com.microsoft.Malmo.Schemas.ClassroomDecorator;
@@ -1495,5 +1496,11 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             this.platform = Blocks.snow.getDefaultState();
             this.hint = Blocks.redstone_ore.getDefaultState();
         }
+    }
+
+    @Override
+    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    {
+        return false;
     }
 }
