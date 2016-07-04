@@ -744,7 +744,7 @@ public class ServerStateMachine extends StateMachine
             MissionBehaviour handlers = getHandlers();
             AgentHandlers extraHandlers = new AgentHandlers();
             Map<String, String> data = new HashMap<String, String>();
-            if (handlers.worldDecorator.getExtraAgentHandlers(extraHandlers))
+            if (handlers.worldDecorator != null && handlers.worldDecorator.getExtraAgentHandlers(extraHandlers))
             {
                 String xml;
                 try
