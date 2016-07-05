@@ -751,9 +751,9 @@
         
         "{{{tpz -32.5}}}" - set the agent's z coordinate, without altering the x and y.
         
-        "{{{setYaw 30}}" - set the agent's body orientation to be 30 degrees clockwise from south.
+        "{{{setYaw 30}}}" - set the agent's body orientation to be 30 degrees clockwise from south.
         
-        "{{{setPitch 20}}" - set the agent's body orientation to be 20 degrees down from horizontal.
+        "{{{setPitch 20}}}" - set the agent's body orientation to be 20 degrees down from horizontal.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
