@@ -82,7 +82,8 @@
       <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation>
-            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested generator string). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested generator string).
+            Force reloading is slow, but will guarantee that no world changes will carry over between missions.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -113,7 +114,8 @@
       <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation>
-            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
+            Force reloading is slow, but will guarantee that no world changes will carry over between missions.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -127,7 +129,7 @@
         
         If Minecraft is running on a different machine then copy the folder to a readable network location and update the path accordingly. Example:
         
-        {{{&lt;FileWorldGenerator src=&quot;\\\\msrc-3645239\\shared\\ProjectMalmo\\saved_maps\\arena&quot; /&gt;}}}
+        {{{&lt;FileWorldGenerator src=&quot;\\\\machine-id\\shared\\ProjectMalmo\\saved_maps\\arena&quot; /&gt;}}}
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -141,7 +143,8 @@
       <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
         <xs:annotation>
           <xs:documentation>
-            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename). Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+            Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename).
+            Force reloading is slow, but will guarantee that no world changes will carry over between missions.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -191,23 +194,44 @@
   </xs:complexType>
 
   <xs:element name="SnakeDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Adds a snake made of blocks, that grows at one end and shrinks at the other.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:all>
         <xs:element name="Seed">
-          <!-- Seed for master RNG -->
+          <xs:annotation>
+            <xs:documentation>
+              The master seed for the random number generator used to make the snake.
+            </xs:documentation>
+          </xs:annotation>
           <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
             <xs:restriction base="xs:string">
               <xs:pattern value="random|[0-9]+"/>
-              <!-- Either an integer number, or "random" -->
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
         <xs:element name="MaterialSeed" minOccurs="0">
-          <!-- Optional seed for determining block types -->
+          <xs:annotation>
+            <xs:documentation>
+              Optional seed for determining block types.
+            </xs:documentation>
+          </xs:annotation>
           <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
             <xs:restriction base="xs:string">
               <xs:pattern value="random|[0-9]+"/>
-              <!-- Either an integer number, or "random" -->
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
@@ -265,20 +289,36 @@
     <xs:complexType>
       <xs:all>
         <xs:element name="Seed">
-          <!-- Seed for master RNG -->
+          <xs:annotation>
+            <xs:documentation>
+              The master seed for the random number generator used to make the maze.
+            </xs:documentation>
+          </xs:annotation>
           <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
             <xs:restriction base="xs:string">
               <xs:pattern value="random|[0-9]+"/>
-              <!-- Either an integer number, or "random" -->
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
         <xs:element name="MaterialSeed" minOccurs="0">
-          <!-- Seed for RNG for determining block types - omit to allow master seed to control block types -->
+          <xs:annotation>
+            <xs:documentation>
+              Seed for the random number generator for determining block types - omit to allow master seed to control block types.
+            </xs:documentation>
+          </xs:annotation>
           <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
             <xs:restriction base="xs:string">
               <xs:pattern value="random|[0-9]+"/>
-              <!-- Either an integer number, or "random" -->
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
@@ -299,10 +339,20 @@
         <xs:element name="PathBlock" type="MazeBlock" />
         <xs:element name="FloorBlock" type="MazeBlock" />
         <xs:element name="GapBlock" type="MazeBlock" />
-        <xs:element name="OptimalPathBlock" type="MazeBlock" minOccurs="0"/>
-        <!-- Omit this element if you want the optimal path to be unmarked. -->
-        <xs:element name="SubgoalBlock" type="MazeBlock" minOccurs="0"/>
-        <!-- Omit this element if you want the subgoal points to be unmarked. -->
+        <xs:element name="OptimalPathBlock" type="MazeBlock" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Omit this element if you want the optimal path to be unmarked.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="SubgoalBlock" type="MazeBlock" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Omit this element if you want the subgoal points to be unmarked.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="Waypoints" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:choice>
@@ -333,11 +383,20 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="DrawObjectType"/>
-  <!-- Base class for all draw objects -->
+  <xs:complexType name="DrawObjectType">
+    <xs:annotation>
+      <xs:documentation>
+        Base class for all draw objects.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:complexType>
 
   <xs:complexType name="DrawBlockBasedObjectType">
-    <!-- Base class for all block-based draw objects -->
+    <xs:annotation>
+      <xs:documentation>
+        Base class for all block-based draw objects.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexContent>
       <xs:extension base="DrawObjectType">
         <xs:attribute name="type" type="BlockType" use="required" />
@@ -606,8 +665,13 @@
                 </xs:restriction>
               </xs:simpleType>
             </xs:attribute>
-            <xs:attribute name="autoscale" type="xs:boolean" default="true" />
-            <!-- Set min and max from the min/max values in the frame. -->
+            <xs:attribute name="autoscale" type="xs:boolean" default="true">
+              <xs:annotation>
+                <xs:documentation>
+                  Set to false to specify the min and max depths manually. Default is true, where uses the min and max depths in the scene.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -641,6 +705,27 @@
   <!-- Command lists -->
 
   <xs:simpleType name="ContinuousMovementCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Commands for smooth movement. Some examples:
+      
+        "{{{move 0.5}}}" - start moving forward at 50% of the normal walking speed (-ve = backward, +ve = forward).
+        
+        "{{{strafe -1}}}" - start moving left at 100% of the normal walking speed (-ve = left, +ve = right).
+        
+        "{{{pitch 0.1}}}" - start tilting the agent's head down at 10% of the maximum speed (-ve = up, +ve = down). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}. 
+        
+        "{{{turn 0.1}}}" - start turning right at 10% of the maximum speed (-ve = anti-clockwise/left, +ve = clockwise/right). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}. 
+        
+        "{{{jump 1}}}" - start jumping (1 = start, 0 = stop).
+        
+        "{{{crouch 1}}}" - start crouching (1 = start, 0 = stop).
+        
+        "{{{attack 1}}}" - start attacking (1 = start, 0 = stop). The 'attack' command is for destroying blocks and attacking mobs.
+        
+        "{{{use 1}}}" - start 'use'ing (1 = start, 0 = stop). The 'use' command is for placing blocks and for other things too.        
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="move" />
       <xs:enumeration value="strafe" />
@@ -656,10 +741,19 @@
   <xs:simpleType name="AbsoluteMovementCommand">
     <xs:annotation>
       <xs:documentation>
-        eg "tpx 230" - set the agent's x coordinate, without altering the y and z.
-        "tpy 103.2" - set the agent's y coordinate, without altering the x and z.
-        "tpz -32.5" - set the agent's z coordinate, without altering the x and y.
-        "tp 23.5 1 -34.5" - teleport the agent to the absolute position x y z (space delimited).
+        Commands to set position and orientation directly. Some examples:
+      
+        "{{{tp 23.5 1 -34.5}}}" - teleport the agent to the absolute position x y z (space delimited).
+        
+        "{{{tpx 230}}}" - set the agent's x coordinate, without altering the y and z.
+        
+        "{{{tpy 103.2}}}" - set the agent's y coordinate, without altering the x and z.
+        
+        "{{{tpz -32.5}}}" - set the agent's z coordinate, without altering the x and y.
+        
+        "{{{setYaw 30}}" - set the agent's body orientation to be 30 degrees clockwise from south.
+        
+        "{{{setPitch 20}}" - set the agent's body orientation to be 20 degrees down from horizontal.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -673,27 +767,54 @@
   </xs:simpleType>
 
   <xs:simpleType name="DiscreteMovementCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Commands for moving and turning in discrete increments. Some examples:
+      
+        "{{{move 1}}}" - move the agent one block forwards (1 = forwards, -1 = backwards).
+        
+        "{{{turn 1}}}" - rotate the agent 90 degrees right (1 = right, -1 = left).
+        
+        "{{{movenorth 1}}}" - move the agent one block north.
+        
+        "{{{moveeast 1}}}" - move the agent one block east.
+        
+        "{{{movesouth 1}}}" - move the agent one block south.
+        
+        "{{{movewest 1}}}" - move the agent one block west.
+        
+        "{{{jump 1}}}" - move the agent one block up.
+        
+        "{{{look 1}}}" - look down by 45 degrees (-ve = up, +ve = down).
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="move" />
-      <!-- +ve to move one block forwards, -ve to move one block backwards. -->
       <xs:enumeration value="turn" />
-      <!-- +ve to move 90 degrees right, -ve to move 90 degrees left. -->
       <xs:enumeration value="movenorth" />
-      <!-- Move one block north -->
       <xs:enumeration value="moveeast" />
-      <!-- Move one block east -->
       <xs:enumeration value="movesouth" />
-      <!-- Move one block south -->
       <xs:enumeration value="movewest" />
-      <!-- Move one block west -->
       <xs:enumeration value="jump" />
-      <!-- Move one block straight up -->
       <xs:enumeration value="look" />
-      <!-- +ve to look up by 45 degrees, -ve to look down by 45 degrees. -->
     </xs:restriction>
   </xs:simpleType>
 
   <xs:simpleType name="InventoryCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Commands for changing the contents of the inventory and hotbar. Some examples:
+      
+        "{{{selectInventoryItem 13}}}" - pick up the item that is in slot 13 in the agent's inventory.
+        
+        "{{{dropInventoryItem 14}}}" - put the item that is currently picked-up into slot 14.
+        
+        "{{{discardCurrentItem 15}}}" - discards the item that is in slot 15 in the agent's inventory.
+        
+        "{{{hotbar.1}}}" - select hotbar slot 1 as the currently-held tool. This affects the attack and use commands - e.g. if the agent does 'use' while holding
+        a block item it will place the block into the world.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="selectInventoryItem" />
       <xs:enumeration value="dropInventoryItem" />
@@ -711,6 +832,15 @@
   </xs:simpleType>
 
   <xs:simpleType name="ChatCommand">
+    <xs:annotation>
+      <xs:documentation>
+        A command for broadcasting text messages to the other players. An example:
+      
+        "{{{chat I have found diamonds!}}}" - broadcasts the string "{{{I have found diamonds!}}}".
+        
+        Chat messages from other players can be observed using {{{ObservationFromChat}}}.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="chat" />
     </xs:restriction>
@@ -724,9 +854,12 @@
     <xs:list itemType="Command"/>
   </xs:simpleType>
   
-  <!-- allow-list/deny-list baseclass - restricted by each commandhandler to only allow that handler's commands.-->
-
   <xs:complexType name="CommandListModifier">
+    <xs:annotation>
+      <xs:documentation>
+        Allow-list/deny-list base class - restricted by each command handler to only allow that handler's commands.
+      </xs:documentation>
+    </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element name="command" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
     </xs:choice>
@@ -769,7 +902,7 @@
           <xs:documentation>
             This sets the maximum speed for both turning the agent and adjusting the camera pitch, in degrees per second.
             
-            The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn anti-clockwise at half the maximum speed.
+            The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn left (anti-clockwise) at half this maximum speed.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -779,7 +912,7 @@
   <xs:element name="AbsoluteMovementCommands">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will accept commands set the player's position and orientation directly.
+        When present, the Mod will accept commands to set the player's position and orientation directly.
 
         Commands take the form of "verb &lt;value&gt;" e.g. "{{{tpx 13}}}" to set the x-coordinate to 13.
       </xs:documentation>
@@ -905,8 +1038,8 @@
       <xs:documentation>
         When present, the Mod will return observations that say what is in the hotbar.
 
-        Two values are returned for each slot, if not empty: e.g. {{{Hotbar_0_size}}} and {{{Hotbar_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively. Hotbar slots are numbered 0 to 8 inclusive.
+        Two values are returned for each slot, if not empty: e.g. {{{Hotbar_1_size}}} and {{{Hotbar_1_item}}} containing the number and
+        type of the item(s) in the slot, respectively. Hotbar slots are numbered 1 to 9 inclusive.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -930,8 +1063,8 @@
       <xs:documentation>
         When present, the Mod will return observations that say what is in the player's inventory.
 
-        Two values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively. Inventory slots are numbered 0 to 26 inclusive.
+        Two values are returned for each slot, if not empty: e.g. {{{Inventory_1_size}}} and {{{Inventory_1_item}}} containing the number and
+        type of the item(s) in the slot, respectively. Inventory slots are numbered 1 to 27 inclusive.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1041,6 +1174,11 @@
   </xs:complexType>
 
   <xs:element name="RewardForReachingPosition">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when a specified position is reached by the agent.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Marker" type="PointWithReward"/>
@@ -1075,6 +1213,11 @@
   </xs:simpleType>
 
   <xs:element name="RewardForTouchingBlockType">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a rewards when an agent comes in contact with a specific block type.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Block" type="BlockSpecWithRewardAndBehaviour"/>
@@ -1084,6 +1227,11 @@
   </xs:element>
 
   <xs:element name="RewardForSendingCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the agent issues a command.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
@@ -1096,6 +1244,11 @@
   </xs:complexType>
 
   <xs:element name="RewardForCollectingItem">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the agent collects a specific item.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="ItemSpec"/>
@@ -1105,6 +1258,11 @@
   </xs:element>
 
   <xs:element name="RewardForDiscardingItem">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when an agent discards a specific item.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="ItemSpec"/>
@@ -1119,6 +1277,11 @@
   </xs:complexType>
 
   <xs:element name="RewardForMissionEnd">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the mission ends for a specified reason.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Reward" type="MissionEndRewardCase"/>
@@ -1148,6 +1311,11 @@
   </xs:complexType>
 
   <xs:element name="AgentQuitFromReachingPosition">
+    <xs:annotation>
+      <xs:documentation>
+        When this is included the agent's mission will end when they reach a specified position.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Marker" type="PointWithToleranceAndDescription"/>
@@ -1156,6 +1324,11 @@
   </xs:element>
 
   <xs:element name="AgentQuitFromTimeUp">
+    <xs:annotation>
+      <xs:documentation>
+        When this is included the agent's mission will end when a certain amount of time has elapsed.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:attribute name="timeLimitMs" type="xs:decimal" use="required" />
       <xs:attribute name="description" type="xs:string" use="optional" default="" />
@@ -1163,6 +1336,11 @@
   </xs:element>
 
   <xs:element name="AgentQuitFromTouchingBlockType">
+    <xs:annotation>
+      <xs:documentation>
+        When this is included the agent's mission will end when they come in contact with a specified block type.
+      </xs:documentation>
+    </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Block" type="BlockSpecWithDescription"/>
