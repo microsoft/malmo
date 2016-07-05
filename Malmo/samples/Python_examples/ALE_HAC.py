@@ -186,8 +186,8 @@ def sendCommand():
         # The ALE only updates in response to a command, so get the new world state now.
         world_state = agent_host.getWorldState()
         for reward in world_state.rewards:
-        if reward.getValue() > 0:
-            print "Summed reward:",reward.getValue()
+            if reward.getValue() > 0:
+                print "Summed reward:",reward.getValue()
         for error in world_state.errors:
             print "Error:",error.text
         if world_state.number_of_video_frames_since_last_state > 0 and want_own_display:

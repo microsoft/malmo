@@ -97,7 +97,7 @@ namespace malmo
             void initialize(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id);
 
             void onVideo(TimestampedVideoFrame message);
-            void onReward(TimestampedFloat message);
+            void onReward(TimestampedReward message);
             void onObservation(TimestampedString message);
 
             AgentHost::VideoPolicy        video_policy;

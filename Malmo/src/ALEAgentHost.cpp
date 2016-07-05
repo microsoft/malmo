@@ -182,31 +182,31 @@ namespace malmo
         this->world_state.number_of_video_frames_since_last_state++;
     }
     
-    void ALEAgentHost::onReward(TimestampedFloat reward)
+    void ALEAgentHost::onReward(TimestampedReward reward)
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
        
         if (this->reward_stream && this->reward_stream.is_open())
         {
-            this->reward_stream  << boost::posix_time::to_iso_string(reward.timestamp) << " " << reward.value << std::endl;
+            this->reward_stream << boost::posix_time::to_iso_string(reward.timestamp) << " " << reward.getAsXML(false) << std::endl;
         }
 
         switch( this->rewards_policy )
         {
         case AgentHost::RewardsPolicy::LATEST_REWARD_ONLY:
                 this->world_state.rewards.clear();
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
         case AgentHost::RewardsPolicy::SUM_REWARDS:
                 if( !this->world_state.rewards.empty() ) {
-                    reward.value += this->world_state.rewards.front()->value;
+                    reward.add(*this->world_state.rewards.front());
                     this->world_state.rewards.clear();
                 }
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 // (timestamp is that of latest reward, even if zero)
                 break;
         case AgentHost::RewardsPolicy::KEEP_ALL_REWARDS:
-                this->world_state.rewards.push_back( boost::make_shared<TimestampedFloat>( reward ) );
+                this->world_state.rewards.push_back( boost::make_shared<TimestampedReward>( reward ) );
                 break;
         }
         
@@ -259,10 +259,10 @@ namespace malmo
         std::string timestamp = boost::posix_time::to_iso_string(ts);
         this->commands_stream << timestamp << " " << command << std::endl;
         float reward = this->ale_interface->act(a);
-        TimestampedFloat tsreward;
-        tsreward.timestamp = ts;
-        tsreward.value = reward;
-        onReward(tsreward);
+        std::ostringstream reward_xml;
+        reward_xml << "<Reward xmlns=\"http://ProjectMalmo.microsoft.com\"><Value dimension=\"0\" value=\""
+                   << reward << "\" /></Reward>";
+        onReward( TimestampedReward( ts, reward_xml.str() ) );
 
         // Get the video frame:
         const ALEScreen& screen = this->ale_interface->getScreen();
