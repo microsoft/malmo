@@ -117,7 +117,6 @@ public class CraftingHelper
     }
     
     /** Take a list of ItemStacks and amalgamate where possible.<br>
-     * NOTE: this will not group items of the same type but different amounts of damage.
      * @param inputStacks a list of ItemStacks
      * @return a list of ItemStacks, where all items of the same type are grouped into one stack.
      */
@@ -130,7 +129,8 @@ public class CraftingHelper
             boolean bFound = false;
             for (ItemStack destIS : outputStacks)
             {
-                if (ItemStack.areItemsEqual(sourceIS,  destIS)) // NOTE: this also compares item damage.
+                // We compare display names, because this seems to take account of colour etc.
+                if (destIS != null && sourceIS != null && destIS.getDisplayName().equals(sourceIS.getDisplayName()))
                 {
                     bFound = true;
                     destIS.stackSize += sourceIS.stackSize;
@@ -159,7 +159,7 @@ public class CraftingHelper
             for (int i = 0; i < main.length + arm.length && target > 0; i++)
             {
                 ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
-                if (isPlayer != null && isIngredient != null && isPlayer.getItem() == isIngredient.getItem())
+                if (isPlayer != null && isIngredient != null && isPlayer.getDisplayName().equals(isIngredient.getDisplayName()))
                     target -= isPlayer.stackSize;
             }
             if (target > 0)
@@ -167,7 +167,43 @@ public class CraftingHelper
         }
         return true;
     }
-    
+
+    /** Manually attempt to remove ingredients from the player's inventory.<br>
+     * @param player
+     * @param ingredients
+     */
+    public static void removeIngredientsFromPlayer(EntityPlayerMP player, List<ItemStack> ingredients)
+    {
+        ItemStack[] main = player.inventory.mainInventory;
+        ItemStack[] arm = player.inventory.armorInventory;
+
+        for (ItemStack isIngredient : ingredients)
+        {
+            int target = isIngredient.stackSize;
+            for (int i = 0; i < main.length + arm.length && target > 0; i++)
+            {
+                ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
+                if (isPlayer != null && isIngredient != null && isPlayer.getDisplayName().equals(isIngredient.getDisplayName()))
+                {
+                    if (target >= isPlayer.stackSize)
+                    {
+                        // Consume this stack:
+                        target -= isPlayer.stackSize;
+                        if (i >= main.length)
+                            arm[i - main.length] = null;
+                        else
+                            main[i] = null;
+                    }
+                    else
+                    {
+                        isPlayer.stackSize -= target;
+                        target = 0;
+                    }
+                }
+            }
+        }
+    }
+
     /** Take an item name and attempt to turn it into a Minecraft unlocalised name.
      * @param itemName eg from Types.xsd - "diamond_pickaxe", "gold_block" etc.
      * @return the Minecraft internal unlocalised name - eg "item.diamondPickaxe", "tile.goldBlock" etc.
@@ -240,13 +276,7 @@ public class CraftingHelper
         {
             // We have the ingredients we need, so directly manipulate the inventory.
             // First, remove the ingredients:
-            for (ItemStack isIngredient : ingredients)
-            {
-                for (int i = 0; i < isIngredient.stackSize; i++)
-                {
-                    player.inventory.consumeInventoryItem(isIngredient.getItem());
-                }
-            }
+            removeIngredientsFromPlayer(player, ingredients);
             // Now add the output of the recipe:
             player.inventory.addItemStackToInventory(is.copy());
             return true;
@@ -274,7 +304,7 @@ public class CraftingHelper
                 ItemStack is = ((IRecipe)obj).getRecipeOutput();
                 if (is == null)
                     continue;
-                String s = is.getUnlocalizedName() + ": ";
+                String s = is.stackSize + "x" + is.getUnlocalizedName() + " = ";
                 List<ItemStack> ingredients = getIngredients((IRecipe)obj);
                 boolean first = true;
                 for (ItemStack isIngredient : ingredients)
@@ -282,6 +312,7 @@ public class CraftingHelper
                     if (!first)
                         s += ", ";
                     s += isIngredient.stackSize + "x" + isIngredient.getItem().getUnlocalizedName();
+                    s += "(" + isIngredient.getDisplayName() + ")";
                     first = false;
                 }
                 s += "\n";
