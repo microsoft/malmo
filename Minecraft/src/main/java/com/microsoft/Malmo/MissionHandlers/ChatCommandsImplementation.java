@@ -22,7 +22,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 
-import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.ChatCommand;
 import com.microsoft.Malmo.Schemas.ChatCommands;
@@ -32,7 +31,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 public class ChatCommandsImplementation extends CommandBase implements ICommandHandler
 {
     private boolean isOverriding;
-    
+
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {

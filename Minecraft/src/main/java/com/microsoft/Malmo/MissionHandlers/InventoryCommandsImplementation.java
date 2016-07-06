@@ -41,7 +41,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         setShareParametersWithChildren(true);   // Pass our parameter block on to the following children:
         this.addCommandHandler(new CommandForHotBarKeysImplementation());
     }
-    
+
     @Override
     public boolean parseParameters(Object params)
     {

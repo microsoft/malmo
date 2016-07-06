@@ -836,6 +836,31 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="SimpleCraftCommand">
+    <xs:annotation>
+      <xs:documentation>
+        A command for simple crafting:
+
+        Will look up all recipes that produce the requested object, and attempt each one in turn until one is successful or all have failed. This ignores all issues like requiring a crafting table / brewing stand etc, and the shape of the recipe (which items go in which slots on the crafting table). It will simply check to see whether the player has the necessary raw ingredients, and, if so, will remove them from the player's inventory and add the result of the recipe.
+
+        For basic objects, use the ItemTypes or BlockTypes found in Types.xsd. Eg:
+
+        "{{{craft diamond_pickaxe}}}" will remove three diamonds and two sticks from the player's inventory, and add a diamond pickaxe.
+
+        For more control over colours, types etc, use a Minecraft description string. Eg:
+
+        "{{{craft tile.woolCarpet.blue}}}"
+
+        "{{{craft tile.stonebricksmooth.chiseled}}}"
+        
+        etc.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="craft" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="ChatCommand">
     <xs:annotation>
       <xs:documentation>
@@ -852,7 +877,7 @@
   </xs:simpleType>
 
   <xs:simpleType name="Command">
-    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand"/>
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand"/>
   </xs:simpleType>
 
   <xs:simpleType name="CommandList">
@@ -978,6 +1003,29 @@
               <xs:restriction base="CommandListModifier">
                 <xs:choice maxOccurs="unbounded">
                   <xs:element name="command" type="InventoryCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SimpleCraftCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept simple commands that implement a basic form of crafting.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="SimpleCraftCommand" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
               </xs:restriction>
             </xs:complexContent>
