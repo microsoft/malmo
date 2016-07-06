@@ -19,6 +19,10 @@
 
 package com.microsoft.Malmo.Utils;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -248,5 +252,42 @@ public class CraftingHelper
             return true;
         }
         return false;
+    }
+
+    /** Little utility method for dumping out a list of all the recipes we understand.
+     * @param filename location to save the dumped list.
+     * @throws IOException
+     */
+    public static void dumpRecipes(String filename) throws IOException
+    {
+        FileOutputStream fos = new FileOutputStream(filename);
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
+        BufferedWriter writer = new BufferedWriter(osw);
+
+        List<?> recipes = CraftingManager.getInstance().getRecipeList();
+        for (Object obj : recipes)
+        {
+            if (obj == null)
+                continue;
+            if (obj instanceof IRecipe)
+            {
+                ItemStack is = ((IRecipe)obj).getRecipeOutput();
+                if (is == null)
+                    continue;
+                String s = is.getUnlocalizedName() + ": ";
+                List<ItemStack> ingredients = getIngredients((IRecipe)obj);
+                boolean first = true;
+                for (ItemStack isIngredient : ingredients)
+                {
+                    if (!first)
+                        s += ", ";
+                    s += isIngredient.stackSize + "x" + isIngredient.getItem().getUnlocalizedName();
+                    first = false;
+                }
+                s += "\n";
+                writer.write(s);
+            }
+        }
+        writer.close();
     }
 }
