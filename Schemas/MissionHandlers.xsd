@@ -803,11 +803,16 @@
   <xs:simpleType name="InventoryCommand">
     <xs:annotation>
       <xs:documentation>
-        Commands for changing the contents of the inventory and hotbar. Some examples:
-      
-        "{{{selectInventoryItem 13}}}" - pick up the item that is in slot 13 in the agent's inventory.
+        Commands for changing the contents of the inventory and hotbar.
         
-        "{{{dropInventoryItem 14}}}" - put the item that is currently picked-up into slot 14.
+        To move items around in the inventory you can use {{{selectInventoryItem}}} and {{{dropInventoryItem}}}. For example, to swap
+        the contents of slots 13 and 14, issue these two commands in this order:
+      
+        "{{{selectInventoryItem 13}}}"
+        
+        "{{{dropInventoryItem 14}}}"
+        
+        Other commands:
         
         "{{{discardCurrentItem 15}}}" - discards the item that is in slot 15 in the agent's inventory.
         
