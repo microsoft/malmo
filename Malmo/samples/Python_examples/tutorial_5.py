@@ -146,7 +146,7 @@ print "Mission running ",
 #agent_host.sendCommand("hotbar.9 1") #Press the hotbar key
 #agent_host.sendCommand("hotbar.9 0") #Release hotbar key - agent should now be holding diamond_pickaxe
 
-#agent_host.sendCommand("pitch -0.2") #Start looking downward slowly
+#agent_host.sendCommand("pitch 0.2") #Start looking downward slowly
 #time.sleep(1)                        #Wait a second until we are looking in roughly the right direction
 #agent_host.sendCommand("pitch 0")    #Stop tilting the camera
 #agent_host.sendCommand("move 1")     #And start running...

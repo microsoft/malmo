@@ -66,8 +66,8 @@ commandSequences=[
     "jump 1; move 1; wait 1; jump 0; move 1; wait 2",   # attempt to jump over obstacle
     "turn 0.5; wait 1; turn 0; move 1; wait 2",         # turn right a little
     "turn -0.5; wait 1; turn 0; move 1; wait 2",        # turn left a little
-    "move 0; attack 1; wait 5; pitch -0.5; wait 1; pitch 0; attack 1; wait 5; pitch 0.5; wait 1; pitch 0; attack 0; move 1; wait 2", # attempt to destroy some obstacles
-    "move 0; pitch -1; wait 2; pitch 0; use 1; jump 1; wait 6; use 0; jump 0; pitch 1; wait 1; pitch 0; wait 2; move 1; wait 2" # attempt to build tower under our feet
+    "move 0; attack 1; wait 5; pitch 0.5; wait 1; pitch 0; attack 1; wait 5; pitch -0.5; wait 1; pitch 0; attack 0; move 1; wait 2", # attempt to destroy some obstacles
+    "move 0; pitch 1; wait 2; pitch 0; use 1; jump 1; wait 6; use 0; jump 0; pitch -1; wait 1; pitch 0; wait 2; move 1; wait 2" # attempt to build tower under our feet
 ]
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately

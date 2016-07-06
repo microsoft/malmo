@@ -378,11 +378,11 @@ namespace Microsoft.Research.Malmo.HumanAction
                         break;
 
                     case Key.Up:
-                        _pendingCommandQueue.Enqueue(new Tuple<string, float>("pitch", 1));
+                        _pendingCommandQueue.Enqueue(new Tuple<string, float>("pitch", -1));
                         break;
 
                     case Key.Down:
-                        _pendingCommandQueue.Enqueue(new Tuple<string, float>("pitch", -1));
+                        _pendingCommandQueue.Enqueue(new Tuple<string, float>("pitch", 1));
                         break;
 
                     case Key.Left:
@@ -492,7 +492,7 @@ namespace Microsoft.Research.Malmo.HumanAction
 
             CheckAndSend(agentHost, "move", _gamepad.LeftStick.Position.Y);
             CheckAndSend(agentHost, "strafe", _gamepad.LeftStick.Position.X);
-            CheckAndSend(agentHost, "pitch", _gamepad.RightStick.Position.Y);
+            CheckAndSend(agentHost, "pitch", -_gamepad.RightStick.Position.Y);
             CheckAndSend(agentHost, "turn", _gamepad.RightStick.Position.X);
             CheckAndSend(agentHost, "crouch", _gamepad.X ? 1 : 0);
             CheckAndSend(agentHost, "jump", _gamepad.A ? 1 : 0);

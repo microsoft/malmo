@@ -135,7 +135,7 @@ print "Mission running ",
 agent_host.sendCommand("hotbar.9 1")
 agent_host.sendCommand("hotbar.9 0")
 
-agent_host.sendCommand("pitch -0.2")
+agent_host.sendCommand("pitch 0.2")
 time.sleep(1)
 agent_host.sendCommand("pitch 0")
 agent_host.sendCommand("move 1")
