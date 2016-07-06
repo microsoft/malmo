@@ -1,5 +1,6 @@
 0.14.0
 -------------------
+New: Basic, first stage crafting support added (issue #11).
 New: ObservationsFromMazeOptimalPath has been turned into general purpose ObservationFromSubgoalPositionList
 New: Maze generator can now take care of quitting mission when agent reaches goal (issue #103)
 New: AgentQuitFromReachingCommandQuota (issue #109).
