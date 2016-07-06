@@ -6,8 +6,12 @@
            elementFormDefault="qualified"
            version="0.14">
 
-<!-- The sixteen block colours allowed in the Minecraft world. -->
 <xs:simpleType name="Colour">
+    <xs:annotation>
+      <xs:documentation>
+        The sixteen block colours allowed in the Minecraft world.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
         <xs:enumeration value="WHITE" />
         <xs:enumeration value="ORANGE" />
@@ -28,8 +32,12 @@
     </xs:restriction>
 </xs:simpleType>
 
-<!-- Enum to specify block faces. -->
 <xs:simpleType name="Facing">
+    <xs:annotation>
+      <xs:documentation>
+        Enum to specify block faces.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
         <xs:enumeration value="DOWN" />
         <xs:enumeration value="UP" />
@@ -44,8 +52,12 @@
     </xs:restriction>
 </xs:simpleType>
 
-<!-- The 188 types of item allowed in the Minecraft world. -->
 <xs:simpleType name="ItemType">
+    <xs:annotation>
+      <xs:documentation>
+        The 188 types of item allowed in the Minecraft world.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
         <xs:enumeration value="iron_shovel" />
         <xs:enumeration value="iron_pickaxe" />
@@ -238,8 +250,12 @@
     </xs:restriction>
 </xs:simpleType>
 
-<!-- The 198 block types allowed in the Minecraft world. -->
 <xs:simpleType name="BlockType">
+    <xs:annotation>
+      <xs:documentation>
+        The 198 block types allowed in the Minecraft world.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
         <xs:enumeration value="air" />
         <xs:enumeration value="stone" />
@@ -442,8 +458,12 @@
     </xs:restriction>
 </xs:simpleType>
 
-<!-- Variants of the block types - non-exhaustive list, and only applicable to some block types. -->
 <xs:simpleType name="BlockVariant">
+    <xs:annotation>
+      <xs:documentation>
+        Variants of the block types - non-exhaustive list, and only applicable to some block types.
+      </xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
         <!-- Applicable to stone blocks: -->
         <xs:enumeration value="stone" />
@@ -462,4 +482,5 @@
         <xs:enumeration value="dark_oak" />
     </xs:restriction>
 </xs:simpleType>
+
 </xs:schema>

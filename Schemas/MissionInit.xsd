@@ -8,30 +8,54 @@
            
 <xs:include schemaLocation="Mission.xsd" />
 
-<!-- A MissionInit message tells the agent and client to talk to each other to complete the supplied mission. -->
 <xs:element name="MissionInit">
+  <xs:annotation>
+    <xs:documentation>
+      A MissionInit message tells the agent and client to talk to each other to complete the supplied mission.
+    </xs:documentation>
+  </xs:annotation>
   <xs:complexType>
     <xs:sequence>
       <xs:element ref="Mission" />
-      <xs:element name="ExperimentUID" type="xs:string" />  <!-- Unique ID to disambiguate experiments -->
+      <xs:element name="ExperimentUID" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            A unique ID to disambiguate experiments.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element ref="MinecraftServerConnection" minOccurs="0" maxOccurs="1" />
-      <xs:element name="ClientRole" type="xs:int" />        <!-- The role this client will play in a multi-agent mission -->
+      <xs:element name="ClientRole" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>
+            The role this client will play in a multi-agent mission.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element ref="ClientAgentConnection" />
     </xs:sequence>
     <xs:attribute name="SchemaVersion" type="xs:token" />
   </xs:complexType>
 </xs:element>
 
-<!-- The MinecraftServerConnection is used to tell other clients where to find their server. -->
 <xs:element name="MinecraftServerConnection">
+  <xs:annotation>
+    <xs:documentation>
+      The MinecraftServerConnection is used to tell other clients where to find their server.
+    </xs:documentation>
+  </xs:annotation>
   <xs:complexType>
     <xs:attribute name="address" use="required" type="xs:string"/>
     <xs:attribute name="port" use="required" type="xs:int"/>
   </xs:complexType>
 </xs:element>
 
-<!-- A ClientAgentConnection tells the client and the agent the IP address and ports they should talk to each other on. -->
 <xs:element name="ClientAgentConnection">
+  <xs:annotation>
+    <xs:documentation>
+      A ClientAgentConnection tells the client and the agent the IP address and ports they should talk to each other on.
+    </xs:documentation>
+  </xs:annotation>
   <xs:complexType>
     <xs:sequence>
       <xs:element name="ClientIPAddress"             type="xs:string" />
