@@ -9,3 +9,4 @@
 
 These instructions were tested on MacOSX 10.11 (El Capitan). 
 
+On MacOSX we currently only support the system python, so please use `/usr/bin/python` for running agents, if it is not already the default. 
