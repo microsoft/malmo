@@ -698,6 +698,7 @@
       <xs:enumeration value="selectInventoryItem" />
       <xs:enumeration value="dropInventoryItem" />
       <xs:enumeration value="discardCurrentItem" />
+      <xs:enumeration value="craftItem" />
       <xs:enumeration value="hotbar.1" />
       <xs:enumeration value="hotbar.2" />
       <xs:enumeration value="hotbar.3" />
