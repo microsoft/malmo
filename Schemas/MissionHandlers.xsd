@@ -816,8 +816,13 @@
         
         "{{{discardCurrentItem 15}}}" - discards the item that is in slot 15 in the agent's inventory.
         
-        "{{{hotbar.1}}}" - select hotbar slot 1 as the currently-held tool. This affects the attack and use commands - e.g. if the agent does 'use' while holding
-        a block item it will place the block into the world.
+        To select a hotbar slot:
+        
+        "{{{hotbar.1 1}}}" 
+        "{{{hotbar.1 0}}}" 
+        
+        Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use commands 
+        - e.g. if the agent does 'use' while holding a block item it will place the block into the world.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
