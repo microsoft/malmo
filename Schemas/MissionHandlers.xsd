@@ -1063,7 +1063,7 @@
       <xs:documentation>
         When present, the Mod will return observations that say what is in the player's inventory.
 
-        Two values are returned for each slot, if not empty: e.g. {{{Inventory_1_size}}} and {{{Inventory_1_item}}} containing the number and
+        Two values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
         type of the item(s) in the slot, respectively. Inventory slots are numbered 1 to 27 inclusive.
       </xs:documentation>
     </xs:annotation>
