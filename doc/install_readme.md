@@ -123,6 +123,12 @@ eg:
 
 ----
 
+## Problems: ##
+
+We're building up a [Troubleshooting](https://github.com/Microsoft/malmo/wiki/Troubleshooting) page of the wiki for frequently encountered situations. If that doesn't work then please ask a question on our [chat page](https://gitter.im/Microsoft/malmo) or open a [new issue](https://github.com/Microsoft/malmo/issues/new).
+
+----
+
 ## Next steps ##
 
 1. Explore the samples. You'll find most of them in the Python_Examples folder.
