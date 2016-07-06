@@ -175,7 +175,7 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
 
     	// And update them:
         mYaw += deltaYaw;
-        mCameraPitch -= deltaPitch;
+        mCameraPitch += deltaPitch;
         mCameraPitch = (mCameraPitch < -90) ? -90 : (mCameraPitch > 90 ? 90 : mCameraPitch);    // Clamp to [-90, 90]
     }
     

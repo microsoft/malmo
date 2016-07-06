@@ -106,7 +106,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 if (parameter != null && parameter.length() != 0)
                 {
                     float yawDelta = Float.valueOf(parameter);
-                    this.direction += (yawDelta > 0) ? 1 : -1;
+                    this.direction += (yawDelta > 0) ? 1 : ((yawDelta < 0) ? -1 : 0);
                     this.direction = (this.direction + 4) % 4;
                     player.rotationYaw = this.direction * 90;
                     player.onUpdate();
@@ -117,7 +117,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             	if (parameter != null && parameter.length() != 0)
             	{
             		float pitchDelta = Float.valueOf(parameter);
-            		player.rotationPitch += (pitchDelta < 0) ? -45 : 45;
+                    player.rotationPitch += (pitchDelta < 0) ? -45 : ((pitchDelta > 0) ? 45 : 0);
                     player.onUpdate();
             	}
             }
