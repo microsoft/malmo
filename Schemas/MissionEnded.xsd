@@ -36,7 +36,11 @@
 </xs:simpleType>
 
 <xs:element name="Reward">
-  <!-- Stores multi-dimensional rewards as a map of int:double where dimension is a positive integer -->
+  <xs:annotation>
+    <xs:documentation>
+      Stores multi-dimensional rewards as a map of int:double where dimension is a positive integer.
+    </xs:documentation>
+  </xs:annotation>
   <xs:complexType>
     <xs:sequence>
       <xs:element name="Value" minOccurs="1" maxOccurs="unbounded">
