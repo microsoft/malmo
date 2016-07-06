@@ -139,22 +139,22 @@ for iRepeat in range(num_reps):
     # Create a mission:
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), validate)
     
-    launchedMission=False
-    while not launchedMission:
+    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
+    my_mission_record.recordCommands()
+    my_mission_record.recordMP4(24,400000)
+    max_retries = 3
+    for retry in range(max_retries):
         try:
-            # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
-            my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
-            my_mission_record.recordCommands()
-            my_mission_record.recordMP4(24,400000)
-            # And attempt to start the mission:
+            # Attempt to start the mission:
             agent_host.startMission( my_mission, my_client_pool, my_mission_record, 0, str(experimentID) )
-            launchedMission=True
+            break
         except RuntimeError as e:
-            print "Error starting mission",e
-            if agent_host.receivedArgument("test"):
-                exit(1) # when running as an integration test we should fail at this point
-            print "Waiting and retrying"
-            time.sleep(1)
+            if retry == max_retries - 1:
+                print "Error starting mission",e
+                exit(1)
+            else:
+                time.sleep(2)
 
     print "Waiting for the mission to start",
     world_state = agent_host.getWorldState()

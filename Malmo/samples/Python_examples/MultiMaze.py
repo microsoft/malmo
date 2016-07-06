@@ -144,13 +144,19 @@ for iRepeat in range(30000):
     if agent_host.receivedArgument("test"):
         exit(0) # for integration testing just exit now TODO: have integration tests support multi-agent missions
 
-    try:
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        unique_experiment_id = "" # if needed, can be used to disambiguate multiple running copies of the same mission
-        agent_host.startMission( my_mission, client_pool, my_mission_record, role, unique_experiment_id )
-    except RuntimeError as e:
-        print "Error starting mission:",e
-        exit(1)
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    unique_experiment_id = "" # if needed, can be used to disambiguate multiple running copies of the same mission
+    max_retries = 3
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, client_pool, my_mission_record, role, unique_experiment_id )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print "Error starting mission:",e
+                exit(1)
+            else:
+                time.sleep(2)
 
     print "Waiting for the mission to start",
     world_state = agent_host.getWorldState()

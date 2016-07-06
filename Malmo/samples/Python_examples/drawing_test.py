@@ -123,12 +123,18 @@ if agent_host.receivedArgument("help"):
     exit(0)
 
 my_mission_record = MalmoPython.MissionRecordSpec()
-try:
-    agent_host.startMission( my_mission, my_mission_record )
-except RuntimeError as e:
-    print "Error starting mission",e
-    print "Is the game running?"
-    exit(1)
+max_retries = 3
+for retry in range(max_retries):
+    try:
+        agent_host.startMission( my_mission, my_mission_record )
+        break
+    except RuntimeError as e:
+        if retry == max_retries - 1:
+            print "Error starting mission",e
+            print "Is the game running?"
+            exit(1)
+        else:
+            time.sleep(2)
 
 world_state = agent_host.getWorldState()
 while not world_state.is_mission_running:
