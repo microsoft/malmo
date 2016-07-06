@@ -24,7 +24,7 @@ If you want to build from source then see the build instructions for your OS: [W
 
 ## Problems: ##
 
-We're building up a [Troubleshooting](https://github.com/Microsoft/malmo/wiki/Troubleshooting) page of the wiki for frequently encountered situations. If that doesn't work then please open a [new issue](https://github.com/Microsoft/malmo/issues/new) describing your OS and detailed output of the problem.
+We're building up a [Troubleshooting](https://github.com/Microsoft/malmo/wiki/Troubleshooting) page of the wiki for frequently encountered situations. If that doesn't work then please ask a question on our [chat page](https://gitter.im/Microsoft/malmo) or open a [new issue](https://github.com/Microsoft/malmo/issues/new).
 
 ----
 
