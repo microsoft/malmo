@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------------
 
 set( SOURCES
+  craft_work.py
   default_world_test.py
   depth_map_runner.py
   drawing_test.py
@@ -26,6 +27,7 @@ set( SOURCES
   MultiMaze.py
   overclock_test.py
   patchwork_quilt.py
+  quit_from_reaching_position_test.py
   render_speed_test.py
   reward_for_discarding_items_test.py
   reward_for_items_test.py
@@ -34,8 +36,6 @@ set( SOURCES
   sample_missions_loader.py
   tabular_q_learning.py
   to_string_test.py
-  quit_from_reaching_position_test.py
-  craft_work.py
   tutorial_1.py
   tutorial_2.py
   tutorial_3.py
