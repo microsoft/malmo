@@ -113,11 +113,17 @@ my_mission = MalmoPython.MissionSpec(missionXML, True)
 my_mission_record = MalmoPython.MissionRecordSpec()
 
 # Attempt to start a mission:
-try:
-    agent_host.startMission( my_mission, my_mission_record )
-except RuntimeError as e:
-    print "Error starting mission:",e
-    exit(1)
+max_retries = 3
+for retry in range(max_retries):
+    try:
+        agent_host.startMission( my_mission, my_mission_record )
+        break
+    except RuntimeError as e:
+        if retry == max_retries - 1:
+            print "Error starting mission:",e
+            exit(1)
+        else:
+            time.sleep(2)
 
 # Loop until mission starts:
 print "Waiting for the mission to start ",

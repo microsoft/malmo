@@ -67,20 +67,22 @@ with open(mission_file, 'r') as f:
     mission_xml = f.read()
     my_mission = MalmoPython.MissionSpec(mission_xml, True)
     
-# Attempt to start a mission and set the recording:
-launchedMission=False
-while not launchedMission:
+# Set up a recording 
+my_mission_record = MalmoPython.MissionRecordSpec(mission_file_no_ext + ".tgz")
+my_mission_record.recordRewards()
+my_mission_record.recordMP4(24,400000)
+# Attempt to start a mission
+max_retries = 3
+for retry in range(max_retries):
     try:
-        # Set up a recording 
-        my_mission_record = MalmoPython.MissionRecordSpec(mission_file_no_ext + ".tgz")
-        my_mission_record.recordRewards()
-        my_mission_record.recordMP4(24,400000)
-        # And attempt to start the mission:
         agent_host.startMission(my_mission, my_mission_record )
-        launchedMission=True
+        break
     except RuntimeError as e:
-        print "Error starting mission:",e
-        exit(1)
+        if retry == max_retries - 1:
+            print "Error starting mission:",e
+            exit(1)
+        else:
+            time.sleep(2)
 
 # Loop until mission starts:
 print "Waiting for the mission to start ",

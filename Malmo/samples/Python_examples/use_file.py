@@ -53,12 +53,18 @@ my_mission = MalmoPython.MissionSpec(mission_file.read(),validate)
 
 for iRepeat in range(30000):
 
-    try:
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        agent_host.startMission( my_mission, my_mission_record )
-    except RuntimeError as e:
-        print "Error starting mission:",e
-        exit(1)
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    max_retries = 3
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, my_mission_record )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print "Error starting mission:",e
+                exit(1)
+            else:
+                time.sleep(2)
 
     print "Waiting for the mission to start",
     world_state = agent_host.getWorldState()
