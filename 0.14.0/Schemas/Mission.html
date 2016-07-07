@@ -1,0 +1,2471 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>XML Schema Documentation</title>
+    <meta http-equiv="Content-Type" content="text/xml; charset=utf-8" />
+    <style type="text/css">
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* More-configurable styles */
+
+/******** General ********/
+
+/* Document body */
+body {
+   color: Black;
+   background-color: White;
+   font-family: Arial, sans-serif;
+   font-size: 10pt;
+}
+/* Horizontal rules */
+hr {
+   color: black;
+}
+/* Document title */
+h1 {
+   font-size: 18pt;
+   letter-spacing: 2px;
+   border-bottom: 1px #ccc solid;
+   padding-top: 5px;
+   padding-bottom: 5px;
+}
+/* Main section headers */
+h2 {
+   font-size: 14pt;
+   letter-spacing: 1px;
+}
+/* Sub-section headers */
+h3, h3 a, h3 span {
+   font-size: 12pt;
+   font-weight: bold;
+   color: black;
+}
+/* Table displaying the properties of the schema components or the
+   schema document itself */
+table.properties th, table.properties th a {
+   color: black;
+   background-color: #F99; /* Pink */
+}
+table.properties td {
+   background-color: #eee; /* Gray */
+}
+/* Documentation popup */
+#docPopupShade {
+   left: 0px;
+   right: 0px;
+   top: 0px;
+   bottom: 0px;
+   position: fixed;
+   opacity: 0.5;
+   background-color: black;
+   display: none;
+}
+#docPopup {
+   width: 400px;
+   height: 400px;
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   opacity: 1;
+   margin: -200px 0 0 -200px;
+   padding: 10px;
+   background-color: white;
+   border: 1px solid black;
+   display: none;
+}
+#docPopupCloseBtn {
+   position: absolute;
+   top: 0px;
+   right: 4px;
+}
+#docPopupCloseBtn a {
+   text-decoration: none;
+   color: black;
+   font-family: monospace;
+}
+
+
+/******** Table of Contents Section ********/
+
+/* Controls for switching between printing and viewing modes */
+div#printerControls {
+   color: #963; /* Orange-brown */
+}
+/* Controls that can collapse or expand all XML Instance
+   Representation and Schema Component Representation boxes */
+div#globalControls {
+   border: 2px solid #999;
+}
+
+
+/******** Schema Document Properties Section ********/
+
+/* Table displaying the namespaces declared in the schema */
+table.namespaces th {
+   background-color: #ccc;
+}
+table.namespaces td {
+   background-color: #eee;
+}
+/* Target namespace of the schema */
+span.targetNS {
+   color: #06C;
+   font-weight: bold;
+}
+
+
+/******** Schema Components' Sections ********/
+
+/* Name of schema component */
+.name {
+   color: #F93; /* Orange */
+}
+
+/* Hierarchy table */
+table.hierarchy {
+   border: 2px solid #999; /* Gray */
+}
+
+/* XML Instance Representation table */
+div.sample div.contents {
+   border: 2px dashed black;
+}
+
+/* Schema Component Representation table */
+div.schemaComponent div.contents {
+   border: 2px black solid;
+}
+
+
+/******** Glossary Section ********/
+
+/* Glossary Terms */
+.glossaryTerm {
+   color: #036; /* Blue */
+}
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* Printer-version styles */
+
+@media print {
+
+/* Ensures that controls are hidden when printing */
+div#printerControls {
+   visibility: hidden;
+}
+div#globalControls {
+   visibility: hidden;
+}
+#legend {
+   display: none;
+}
+#legendTOC {
+   display: none;
+}
+#glossary {
+   display: none;
+}
+#glossaryTOC {
+   display: none;
+}
+
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* Base styles */
+
+/******** General ********/
+
+/* Unordered lists */
+ul {
+   margin-left: 1.5em;
+   margin-bottom: 0em;
+}
+/* Tables */
+table {
+   margin-top: 10px;
+   margin-bottom: 10px;
+   margin-left: 2px;
+   margin-right: 2px;
+}
+table th, table td {
+   font-size: 10pt;
+   vertical-align: top;
+   padding-top: 3px;
+   padding-bottom: 3px;
+   padding-left: 10px;
+   padding-right: 10px;
+}
+table th {
+   font-weight: bold;
+   text-align: left;
+}
+/* Table displaying the properties of the schema components or the
+   schema document itself */
+table.properties {
+   width: 90%;
+}
+table.properties th {
+   width: 30%;
+}
+/* Boxes that can make its content appear and disappear*/
+div.box {
+   margin: 1em;
+}
+   /* Box caption */
+div.box span.caption {
+   font-weight: bold;
+}
+   /* Button to open and close the box */
+div.box input.control {
+   width: 1.4em;
+   height: 1.4em;
+   text-align: center;
+   vertical-align: middle;
+   font-size: 11pt;
+}
+   /* Box contents */
+div.box div.contents {
+   margin-top: 3px;
+}
+
+
+/******** Table of Contents Section ********/
+
+/* Controls for switching between printing and viewing modes */
+div#printerControls {
+   white-space: nowrap;
+   font-weight: bold;
+   padding: 5px;
+   margin: 5px;
+}
+/* Controls that can collapse or expand all XML Instance
+   Representation and Schema Component Representation boxes */
+div#globalControls {
+   padding: 10px;
+   margin: 5px;
+}
+
+
+/******** Schema Document Properties Section ********/
+
+/* Table displaying the namespaces declared in the schema */
+table.namespaces th {
+}
+table.namespaces td {
+}
+/* Target namespace of the schema */
+span.targetNS {
+}
+
+
+/******** Schema Components' Sections ********/
+
+/* Name of schema component */
+.name {
+}
+
+/* Hidden documentation */
+.hidden {
+   display: none;
+}
+
+/* Hierarchy table */
+table.hierarchy {
+   width: 90%;
+}
+table.hierarchy th {
+   font-weight: normal;
+   font-style: italic;
+   width: 20%;
+}
+table.hierarchy th, table.hierarchy td {
+   padding: 5px;
+}
+
+/* Annotations section */
+div.annotation {
+   width: 90%;
+   padding: 5px 10px;
+   font-size: 12pt;
+}
+div.annotation pre {
+   border: 1px dashed #999;
+   background-color: #eee;
+   margin: 0px 10px;
+   padding: 2px;
+}
+div.annotation table {
+   margin-left: 10px;
+}
+div.annotation th {
+   background-color: #ccc;
+}
+div.annotation td {
+   background-color: #eee;
+}
+
+/* XML Instance Representation table */
+div.sample {
+   width: 90%;
+}
+div.sample div.contents {
+   padding: 5px;
+   font-family: Courier New, sans-serif;
+   font-size: 10pt;
+}
+   /* Normal elements and attributes */
+div.sample div.contents, div.sample div.contents a {
+   color: black;
+}
+   /* Group Headers */
+div.sample div.contents .group, div.sample div.contents .group a {
+   color: #999; /* Light gray */
+}
+   /* Type Information */
+div.sample div.contents .type, div.sample div.contents .type a {
+   color: #999; /* Light gray */
+}
+   /* Occurrence Information */
+div.sample div.contents .occurs, div.sample div.contents .occurs a {
+   color: #999; /* Light gray */
+}
+   /* Fixed values */
+div.sample div.contents .fixed {
+   color: #063; /* Green */
+   font-weight: bold;
+}
+   /* Simple type constraints */
+div.sample div.contents .constraint, div.sample div.contents .constraint a {
+   color: #999; /* Light gray */
+}
+   /* Elements and attributes inherited from base type */
+div.sample div.contents .inherited, div.sample div.contents .inherited a {
+   color: #666; /* Dark gray */
+}
+   /* Elements and attributes added to or changed from base type */
+div.sample div.contents .newFields {
+   font-weight: bold;
+}
+   /* Other type of information */
+div.sample div.contents .other, div.sample div.contents .other a {
+   color: #369; /* Blue */
+   font-style: italic;
+}
+   /* Link to open up window displaying documentation */
+div.sample div.contents a.documentation {
+   text-decoration: none;
+   padding-left: 3px;
+   padding-right: 3px;
+   padding-top: 0px;
+   padding-bottom: 0px;
+   font-weight: bold;
+   font-size: 11pt;
+   background-color: #FFD;
+   color: #069;
+}
+   /* Invert colors when hovering over link to open up window
+      displaying documentation */
+div.sample div.contents a.documentation:hover {
+   color: #FFD;
+   background-color: #069;
+}
+
+/* Schema Component Representation table */
+div.schemaComponent {
+   width: 90%;
+}
+div.schemaComponent div.contents {
+   font-family: Courier New, sans-serif;
+   font-size: 10pt;
+   padding: 5px;
+}
+   /* Syntax characters */
+div.schemaComponent div.contents {
+   color: #00f; /* blue */
+}
+   /* Element and attribute tags */
+div.schemaComponent div.contents .scTag {
+   color: #933; /* maroon */
+}
+   /* Element and attribute content */
+div.schemaComponent div.contents .scContent, div.schemaComponent div.contents .scContent a {
+   color: black;
+   font-weight: bold;
+}
+   /* Comments */
+div.schemaComponent div.contents .comment {
+   color: #999; /* Light gray */
+}
+
+/******** Legend Section ********/
+
+div#legend table, div#legend div {
+   margin-bottom: 3px;
+}
+div#legend div.hint {
+   color: #999; /* Light gray */
+   width: 90%;
+   margin-left: 1em;
+   margin-bottom: 2em;
+}
+
+
+/******** Glossary Section ********/
+
+/* Glossary Terms */
+.glossaryTerm {
+   font-weight: bold;
+}
+
+
+/******** Footer ********/
+
+.footer {
+   font-size: 8pt;
+}
+</style>
+    <script type="text/javascript">
+<!--
+/* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_Mission_xibox', 'element_ModSettings_xibox', 'element_ServerSection_xibox', 'element_AgentSection_xibox', 'element_About_xibox', 'element_AgentStart_xibox', 'element_ServerInitialConditions_xibox', 'element_Time_xibox', 'element_StartTime_xibox', 'element_Weather_xibox', 'element_InventoryItem_xibox', 'element_InventoryBlock_xibox', 'type_GameMode_xibox', 'group_AgentMissionHandlers_xibox', 'element_AgentHandlers_xibox', 'element_ServerHandlers_xibox');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_Mission_scbox', 'element_ModSettings_scbox', 'element_ServerSection_scbox', 'element_AgentSection_scbox', 'element_About_scbox', 'element_AgentStart_scbox', 'element_ServerInitialConditions_scbox', 'element_Time_scbox', 'element_StartTime_scbox', 'element_Weather_scbox', 'element_InventoryItem_scbox', 'element_InventoryBlock_scbox', 'type_GameMode_scbox', 'group_AgentMissionHandlers_scbox', 'element_AgentHandlers_scbox', 'element_ServerHandlers_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+
+/**
+ * Returns an element in the current HTML document.
+ *
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}
+
+/**
+ * Closes a collapseable box.
+ *
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ *
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ *
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ *
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ *
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ *
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ *
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ *
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise,
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+/**
+ * Opens up a popup displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ *
+ * @param compDesc      Description of schema component
+ * @param compName      Name of schema component
+ * @param docTextArray Array containing the paragraphs
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docArray) {
+  var content = '';
+  for (i = 0; i < docArray.length; ++i) {
+    var block = document.getElementById("hdoc_" + docArray[i]);
+    content += block.childNodes[0].nodeValue + "\n\n";
+  }
+  var docText = document.getElementById("docPopupText");
+  docText.innerHTML = '';
+  creole.parse(docText, content);
+  document.getElementById("docPopupTitleDesc").innerHTML = compDesc;
+  document.getElementById("docPopupTitleName").innerHTML = compName;
+  document.getElementById("docPopupShade").style.display = 'block';
+  document.getElementById("docPopup").style.display = 'block';
+}
+
+/**
+ * Hide the documentation popup.
+ *
+ */
+function hideDocumentation() {
+  document.getElementById("docPopupShade").style.display = 'none';
+  document.getElementById("docPopup").style.display = 'none';
+}
+
+/*
+ * JavaScript Creole 1.0 Wiki Markup Parser
+ * $Id: creole.js 14 2009-03-21 16:15:08Z ifomichev $
+ *
+ * Copyright (c) 2009 Ivan Fomichev
+ *
+ * Portions Copyright (c) 2007 Chris Purcell
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ */
+
+if (!Parse) { var Parse = {}; }
+if (!Parse.Simple) { Parse.Simple = {}; }
+
+Parse.Simple.Base = function(grammar, options) {
+    if (!arguments.length) { return; }
+
+    this.grammar = grammar;
+    this.grammar.root = new this.ruleConstructor(this.grammar.root);
+    this.options = options;
+};
+
+Parse.Simple.Base.prototype = {
+    ruleConstructor: null,
+    grammar: null,
+    options: null,
+
+    parse: function(node, data, options) {
+        if (options) {
+            for (i in this.options) {
+                if (typeof options[i] == 'undefined') { options[i] = this.options[i]; }
+            }
+        }
+        else {
+            options = this.options;
+        }
+        data = data.replace(/\r\n?/g, '\n');
+        this.grammar.root.apply(node, data, options);
+        if (options && options.forIE) { node.innerHTML = node.innerHTML.replace(/\r?\n/g, '\r\n'); }
+    }
+};
+
+Parse.Simple.Base.prototype.constructor = Parse.Simple.Base;
+
+Parse.Simple.Base.Rule = function(params) {
+    if (!arguments.length) { return; }
+
+    for (var p in params) { this[p] = params[p]; }
+    if (!this.children) { this.children = []; }
+};
+
+Parse.Simple.Base.prototype.ruleConstructor = Parse.Simple.Base.Rule;
+
+Parse.Simple.Base.Rule.prototype = {
+    regex: null,
+    capture: null,
+    replaceRegex: null,
+    replaceString: null,
+    tag: null,
+    attrs: null,
+    children: null,
+
+    match: function(data, options) {
+        return data.match(this.regex);
+    },
+
+    build: function(node, r, options) {
+        var data;
+        if (this.capture !== null) {
+            data = r[this.capture];
+        }
+
+        var target;
+        if (this.tag) {
+            target = document.createElement(this.tag);
+            node.appendChild(target);
+        }
+        else { target = node; }
+
+        if (data) {
+            if (this.replaceRegex) {
+                data = data.replace(this.replaceRegex, this.replaceString);
+            }
+            this.apply(target, data, options);
+        }
+
+        if (this.attrs) {
+            for (var i in this.attrs) {
+                target.setAttribute(i, this.attrs[i]);
+                if (options && options.forIE && i == 'class') { target.className = this.attrs[i]; }
+            }
+        }
+        return this;
+    },
+
+    apply: function(node, data, options) {
+        var tail = '' + data;
+        var matches = [];
+
+        if (!this.fallback.apply) {
+            this.fallback = new this.constructor(this.fallback);
+        }
+
+        while (true) {
+            var best = false;
+            var rule  = false;
+            for (var i = 0; i < this.children.length; i++) {
+                if (typeof matches[i] == 'undefined') {
+                    if (!this.children[i].match) {
+                        this.children[i] = new this.constructor(this.children[i]);
+                    }
+                    matches[i] = this.children[i].match(tail, options);
+                }
+                if (matches[i] && (!best || best.index > matches[i].index)) {
+                    best = matches[i];
+                    rule = this.children[i];
+                    if (best.index == 0) { break; }
+                }
+            }
+
+            var pos = best ? best.index : tail.length;
+            if (pos > 0) {
+                this.fallback.apply(node, tail.substring(0, pos), options);
+            }
+
+            if (!best) { break; }
+
+            if (!rule.build) { rule = new this.constructor(rule); }
+            rule.build(node, best, options);
+
+            var chopped = best.index + best[0].length;
+            tail = tail.substring(chopped);
+            for (var i = 0; i < this.children.length; i++) {
+                if (matches[i]) {
+                    if (matches[i].index >= chopped) {
+                        matches[i].index -= chopped;
+                    }
+                    else {
+                        matches[i] = void 0;
+                    }
+                }
+            }
+        }
+
+        return this;
+    },
+
+    fallback: {
+        apply: function(node, data, options) {
+            if (options && options.forIE) {
+                // workaround for bad IE
+                data = data.replace(/\n/g, ' \r');
+            }
+            node.appendChild(document.createTextNode(data));
+        }
+    }
+};
+
+Parse.Simple.Base.Rule.prototype.constructor = Parse.Simple.Base.Rule;
+
+Parse.Simple.Creole = function(options) {
+    var rx = {};
+    rx.link = '[^\\]|~\\n]*(?:(?:\\](?!\\])|~.)[^\\]|~\\n]*)*';
+    rx.linkText = '[^\\]~\\n]*(?:(?:\\](?!\\])|~.)[^\\]~\\n]*)*';
+    rx.uriPrefix = '\\b(?:(?:https?|ftp)://|mailto:)';
+    rx.uri = rx.uriPrefix + rx.link;
+    rx.rawUri = rx.uriPrefix + '\\S*[^\\s!"\',.:;?]';
+    rx.interwikiPrefix = '[\\w.]+:';
+    rx.interwikiLink = rx.interwikiPrefix + rx.link;
+    rx.img = '\\{\\{((?!\\{)[^|}\\n]*(?:}(?!})[^|}\\n]*)*)' +
+             (options && options.strict ? '' : '(?:') +
+             '\\|([^}~\\n]*((}(?!})|~.)[^}~\\n]*)*)' +
+             (options && options.strict ? '' : ')?') +
+             '}}';
+
+    var formatLink = function(link, format) {
+        if (format instanceof Function) {
+            return format(link);
+        }
+
+        format = format instanceof Array ? format : [ format ];
+        if (typeof format[1] == 'undefined') { format[1] = ''; }
+        return format[0] + link + format[1];
+    };
+
+    var g = {
+        hr: { tag: 'hr', regex: /(^|\n)\s*----\s*(\n|$)/ },
+
+        br: { tag: 'br', regex: /\\\\/ },
+
+        preBlock: { tag: 'pre', capture: 2,
+            regex: /(^|\n)\{\{\{\n((.*\n)*?)\}\}\}(\n|$)/,
+            replaceRegex: /^ ([ \t]*\}\}\})/gm,
+            replaceString: '$1' },
+        tt: { tag: 'tt',
+            regex: /\{\{\{(.*?\}\}\}+)/, capture: 1,
+            replaceRegex: /\}\}\}$/, replaceString: '' },
+
+        ulist: { tag: 'ul', capture: 0,
+            regex: /(^|\n)([ \t]*\*[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
+        olist: { tag: 'ol', capture: 0,
+            regex: /(^|\n)([ \t]*#[^*#].*(\n|$)([ \t]*[^\s*#].*(\n|$))*([ \t]*[*#]{2}.*(\n|$))*)+/ },
+        li: { tag: 'li', capture: 0,
+            regex: /[ \t]*([*#]).+(\n[ \t]*[^*#\s].*)*(\n[ \t]*\1[*#].+)*/,
+            replaceRegex: /(^|\n)[ \t]*[*#]/g, replaceString: '$1' },
+
+        table: { tag: 'table', capture: 0,
+            regex: /(^|\n)(\|.*?[ \t]*(\n|$))+/ },
+        tr: { tag: 'tr', capture: 2, regex: /(^|\n)(\|.*?)\|?[ \t]*(\n|$)/ },
+        th: { tag: 'th', regex: /\|+=([^|]*)/, capture: 1 },
+        td: { tag: 'td', capture: 1,
+            regex: '\\|+([^|~\\[{]*((~(.|(?=\\n)|$)|' +
+                   '\\[\\[' + rx.link + '(\\|' + rx.linkText + ')?\\]\\]' +
+                   (options && options.strict ? '' : '|' + rx.img) +
+                   '|[\\[{])[^|~]*)*)' },
+
+        singleLine: { regex: /.+/, capture: 0 },
+        paragraph: { tag: 'p', capture: 0,
+            regex: /(^|\n)([ \t]*\S.*(\n|$))+/ },
+        text: { capture: 0, regex: /(^|\n)([ \t]*[^\s].*(\n|$))+/ },
+
+        strong: { tag: 'strong', capture: 1,
+            regex: /\*\*([^*~]*((\*(?!\*)|~(.|(?=\n)|$))[^*~]*)*)(\*\*|\n|$)/ },
+        em: { tag: 'em', capture: 1,
+            regex: '\\/\\/(((?!' + rx.uriPrefix + ')[^\\/~])*' +
+                   '((' + rx.rawUri + '|\\/(?!\\/)|~(.|(?=\\n)|$))' +
+                   '((?!' + rx.uriPrefix + ')[^\\/~])*)*)(\\/\\/|\\n|$)' },
+
+        img: { regex: rx.img,
+            build: function(node, r, options) {
+                var img = document.createElement('img');
+                img.src = r[1];
+                img.alt = r[2] === undefined
+                    ? (options && options.defaultImageText ? options.defaultImageText : '')
+                    : r[2].replace(/~(.)/g, '$1');
+                node.appendChild(img);
+            } },
+
+        namedUri: { regex: '\\[\\[(' + rx.uri + ')\\|(' + rx.linkText + ')\\]\\]',
+            build: function(node, r, options) {
+                var link = document.createElement('a');
+                link.href = r[1];
+                if (options && options.isPlainUri) {
+                    link.appendChild(document.createTextNode(r[2]));
+                }
+                else {
+                    this.apply(link, r[2], options);
+                }
+                node.appendChild(link);
+            } },
+
+        namedLink: { regex: '\\[\\[(' + rx.link + ')\\|(' + rx.linkText + ')\\]\\]',
+            build: function(node, r, options) {
+                var link = document.createElement('a');
+
+                link.href = options && options.linkFormat
+                    ? formatLink(r[1].replace(/~(.)/g, '$1'), options.linkFormat)
+                    : r[1].replace(/~(.)/g, '$1');
+                this.apply(link, r[2], options);
+
+                node.appendChild(link);
+            } },
+
+        unnamedUri: { regex: '\\[\\[(' + rx.uri + ')\\]\\]',
+            build: 'dummy' },
+        unnamedLink: { regex: '\\[\\[(' + rx.link + ')\\]\\]',
+            build: 'dummy' },
+        unnamedInterwikiLink: { regex: '\\[\\[(' + rx.interwikiLink + ')\\]\\]',
+            build: 'dummy' },
+
+        rawUri: { regex: '(' + rx.rawUri + ')',
+            build: 'dummy' },
+
+        escapedSequence: { regex: '~(' + rx.rawUri + '|.)', capture: 1,
+            tag: 'span', attrs: { 'class': 'escaped' } },
+        escapedSymbol: { regex: /~(.)/, capture: 1,
+            tag: 'span', attrs: { 'class': 'escaped' } }
+    };
+    g.unnamedUri.build = g.rawUri.build = function(node, r, options) {
+        if (!options) { options = {}; }
+        options.isPlainUri = true;
+        g.namedUri.build.call(this, node, Array(r[0], r[1], r[1]), options);
+    };
+    g.unnamedLink.build = function(node, r, options) {
+        g.namedLink.build.call(this, node, Array(r[0], r[1], r[1]), options);
+    };
+    g.namedInterwikiLink = { regex: '\\[\\[(' + rx.interwikiLink + ')\\|(' + rx.linkText + ')\\]\\]',
+        build: function(node, r, options) {
+                var link = document.createElement('a');
+
+                var m, f;
+                if (options && options.interwiki) {
+                m = r[1].match(/(.*?):(.*)/);
+                f = options.interwiki[m[1]];
+            }
+
+            if (typeof f == 'undefined') {
+                if (!g.namedLink.apply) {
+                    g.namedLink = new this.constructor(g.namedLink);
+                }
+                return g.namedLink.build.call(g.namedLink, node, r, options);
+            }
+
+            link.href = formatLink(m[2].replace(/~(.)/g, '$1'), f);
+
+            this.apply(link, r[2], options);
+
+            node.appendChild(link);
+        }
+    };
+    g.unnamedInterwikiLink.build = function(node, r, options) {
+        g.namedInterwikiLink.build.call(this, node, Array(r[0], r[1], r[1]), options);
+    };
+    g.namedUri.children = g.unnamedUri.children = g.rawUri.children =
+            g.namedLink.children = g.unnamedLink.children =
+            g.namedInterwikiLink.children = g.unnamedInterwikiLink.children =
+        [ g.escapedSymbol, g.img ];
+
+    for (var i = 1; i <= 6; i++) {
+        g['h' + i] = { tag: 'h' + i, capture: 2,
+            regex: '(^|\\n)[ \\t]*={' + i + '}[ \\t]' +
+                   '([^~]*?(~(.|(?=\\n)|$))*)[ \\t]*=*\\s*(\\n|$)'
+        };
+    }
+
+    g.ulist.children = g.olist.children = [ g.li ];
+    g.li.children = [ g.ulist, g.olist ];
+    g.li.fallback = g.text;
+
+    g.table.children = [ g.tr ];
+    g.tr.children = [ g.th, g.td ];
+    g.td.children = [ g.singleLine ];
+    g.th.children = [ g.singleLine ];
+
+    g.h1.children = g.h2.children = g.h3.children =
+            g.h4.children = g.h5.children = g.h6.children =
+            g.singleLine.children = g.paragraph.children =
+            g.text.children = g.strong.children = g.em.children =
+        [ g.escapedSequence, g.strong, g.em, g.br, g.rawUri,
+            g.namedUri, g.namedInterwikiLink, g.namedLink,
+            g.unnamedUri, g.unnamedInterwikiLink, g.unnamedLink,
+            g.tt, g.img ];
+
+    g.root = {
+        children: [ g.h1, g.h2, g.h3, g.h4, g.h5, g.h6,
+            g.hr, g.ulist, g.olist, g.preBlock, g.table ],
+        fallback: { children: [ g.paragraph ] }
+    };
+
+    Parse.Simple.Base.call(this, g, options);
+};
+
+Parse.Simple.Creole.prototype = new Parse.Simple.Base();
+
+Parse.Simple.Creole.prototype.constructor = Parse.Simple.Creole;
+
+
+var creole = new Parse.Simple.Creole( {
+    forIE: document.all,
+    interwiki: {
+        Wikipedia: 'http://en.wikipedia.org/wiki/'
+    }, linkFormat: ''
+} );
+
+
+// -->
+</script>
+  </head>
+  <body>
+    <div id="docPopupShade"></div>
+    <div id="docPopup">
+      <div id="docPopupCloseBtn">
+        <a href="javascript:void(0);" onclick="hideDocumentation()">x</a>
+      </div>
+      <h3><span id="docPopupTitleDesc">Desc</span>: <span class="name" id="docPopupTitleName">Name</span></h3>
+      <span id="docPopupText">Popup text</span>
+    </div>
+    <div class="annotation documentation hidden" id="hdoc_id201748">
+              A mission definition has a description, a starting point and some kind of scoring system. It also defines the agents and roles involved.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201790">
+              Settings here are independent of the mission but affect how it is run. 
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201794">
+                            Use this to overclock Minecraft - to make Minecraft time run faster than normal.
+                        
+                            This sets the delay that Minecraft uses between world ticks, in milliseconds. The default is 50ms per tick (20Hz).
+                            Double-speed would be 25ms/tick (40Hz). For best results, stick to reasonable values (that the server 
+                            might be able to cope with), which also result in a whole number of ticks per second.
+                        </div>
+    <div class="annotation documentation hidden" id="hdoc_id201848">
+                            If set to true, the Minecraft window will only be updated once per second during the run of the mission. This will allow the
+                            render pipeline to run much faster, resulting in the platform receiving frames at a higher rate.
+                        </div>
+    <div class="annotation documentation hidden" id="hdoc_id201866">
+              The Minecraft server stores the world and keeps track of the blocks that have changed. Each Minecraft client connects to the server when it needs to
+              change blocks or ask what blocks are present, for example. With multi-agent missions there may be many clients, all connected to a single server.
+              
+              Settings here affect the shared world that the clients experience.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201873">
+              Each agent is specified in one of these sections, detailing the way they experience the world and the actions they can perform to interact with it.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201912">
+              Description of the mission.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201922">
+              Defines the initial conditions of the player. This includes the location and the contents of their inventory.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id201969">
+                      The player's starting location; if unspecified, will be the game's randomly-chosen spawn point.
+                    </div>
+    <div class="annotation documentation hidden" id="hdoc_id202016">
+              Defines the initial conditions of the world.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202049">
+                      Set this to true to allow mobs (animals and hostiles) to spawn during a mission.
+                    </div>
+    <div class="annotation documentation hidden" id="hdoc_id202028">
+            Minecraft has a day-night cycle that affects the light levels and the appearance of hostile mobs.
+          </div>
+    <div class="annotation documentation hidden" id="hdoc_id202066">
+                      Set this to false to stop the day-night cycle. The sun position and weather will remain fixed for the duration of the mission.
+                    </div>
+    <div class="annotation documentation hidden" id="hdoc_id202084">
+          Specifies the time of day at the start of the mission, in thousandths of an hour.
+          
+          0 = dawn
+          
+          6000 = noon
+          
+          18000 = midnight
+          
+          Time in Minecraft travels (by default) 72 times faster than real-time. Thus a Minecraft day lasts 20 minutes.
+        </div>
+    <div class="annotation documentation hidden" id="hdoc_id202116">
+              Specifies the type of weather at the start of the mission.
+
+              "normal" = let Minecraft do what it normally does
+              
+              "clear" = start with clear weather
+              
+              "rain" = start with rain (or snow, in a cold biome)
+              
+              "thunder" = start with thundery weather
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202149">
+              Defines an item in the inventory.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202226">
+              Defines a block in the inventory.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202305">
+              In survival mode the player can be hurt and experience hunger and must collect blocks. In creative mode they can fly and have an infinite supply of blocks.
+              In spectator mode the player cannot change anything and can fly through blocks.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202349">
+              Lists the available Mission Handlers for an agent. Each can only be used once.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202497">
+              Defines the Mission Handlers block for an individual agent.
+            </div>
+    <div class="annotation documentation hidden" id="hdoc_id202499">
+              Defines the Mission Handlers block for the server.
+            </div>
+    <h1>
+      <a name="top" id="top">XML Schema Documentation</a>
+    </h1>
+    <div style="float: right;">
+      <div id="printerControls" style="display:none;"><input type="checkbox" onclick="displayMode(this.checked)" />Printer-friendly Version</div>
+      <script type="text/javascript">
+<!--
+
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+      <div id="globalControls" style="display:none">
+        <strong>XML Instance Representation:</strong>
+        <br />
+        <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+        <br />
+        <br />
+        <strong>Schema Component Representation:</strong>
+        <br />
+        <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+      </div>
+      <script type="text/javascript">
+<!--
+
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+    </div>
+    <h2>Table of Contents</h2>
+    <ul>
+      <li>
+        <a href="#SchemaProperties">Schema Document Properties</a>
+      </li>
+      <li>
+        <a href="#SchemaDeclarations">Global Declarations</a>
+        <ul>
+          <li>
+            <a href="#element_About">Element: <strong>About</strong></a>
+          </li>
+          <li>
+            <a href="#element_AgentHandlers">Element: <strong>AgentHandlers</strong></a>
+          </li>
+          <li>
+            <a href="#element_AgentSection">Element: <strong>AgentSection</strong></a>
+          </li>
+          <li>
+            <a href="#element_AgentStart">Element: <strong>AgentStart</strong></a>
+          </li>
+          <li>
+            <a href="#element_InventoryBlock">Element: <strong>InventoryBlock</strong></a>
+          </li>
+          <li>
+            <a href="#element_InventoryItem">Element: <strong>InventoryItem</strong></a>
+          </li>
+          <li>
+            <a href="#element_Mission">Element: <strong>Mission</strong></a>
+          </li>
+          <li>
+            <a href="#element_ModSettings">Element: <strong>ModSettings</strong></a>
+          </li>
+          <li>
+            <a href="#element_ServerHandlers">Element: <strong>ServerHandlers</strong></a>
+          </li>
+          <li>
+            <a href="#element_ServerInitialConditions">Element: <strong>ServerInitialConditions</strong></a>
+          </li>
+          <li>
+            <a href="#element_ServerSection">Element: <strong>ServerSection</strong></a>
+          </li>
+          <li>
+            <a href="#element_StartTime">Element: <strong>StartTime</strong></a>
+          </li>
+          <li>
+            <a href="#element_Time">Element: <strong>Time</strong></a>
+          </li>
+          <li>
+            <a href="#element_Weather">Element: <strong>Weather</strong></a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <a href="#SchemaDefinitions">Global Definitions</a>
+        <ul>
+          <li>
+            <a href="#group_AgentMissionHandlers">Model Group: <strong>AgentMissionHandlers</strong></a>
+          </li>
+          <li>
+            <a href="#type_GameMode">Simple Type: <strong>GameMode</strong></a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <ul id="legendTOC" style="margin-top: 0em">
+      <li>
+        <a href="#Legend">Legend</a>
+      </li>
+    </ul>
+    <ul id="glossaryTOC" style="margin-top: 0em">
+      <li>
+        <a href="#Glossary">Glossary</a>
+      </li>
+    </ul>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h2>
+      <a name="SchemaProperties" id="SchemaProperties">Schema Document Properties</a>
+    </h2>
+    <table class="properties">
+      <tr>
+        <th>
+          <a title="Look up 'Target Namespace' in glossary" href="#term_TargetNS">Target Namespace</a>
+        </th>
+        <td>
+          <span class="targetNS">http://ProjectMalmo.microsoft.com</span>
+        </td>
+      </tr>
+      <tr>
+        <th>Version</th>
+        <td>0.14</td>
+      </tr>
+      <tr>
+        <th>Element and Attribute Namespaces</th>
+        <td>
+          <ul>
+            <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+            <li>By default, local element declarations belong to this schema's target namespace.</li>
+            <li>By default, local attribute declarations have no namespace.</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Schema Composition</th>
+        <td>
+          <ul>
+            <li>This schema includes components from the following schema document(s):<ul><li><a title="Jump to schema documentation for 'Types.xsd'." href="Types.html">Types.xsd</a></li><li><a title="Jump to schema documentation for 'MissionHandlers.xsd'." href="MissionHandlers.html">MissionHandlers.xsd</a></li></ul></li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <h3>Declared Namespaces</h3>
+    <table class="namespaces">
+      <tr>
+        <th>Prefix</th>
+        <th>Namespace</th>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_" id="ns_">Default namespace</a>
+        </td>
+        <td>
+          <span class="targetNS">http://ProjectMalmo.microsoft.com</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_xml" id="ns_xml">xml</a>
+        </td>
+        <td>http://www.w3.org/XML/1998/namespace</td>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_jaxb" id="ns_jaxb">jaxb</a>
+        </td>
+        <td>http://java.sun.com/xml/ns/jaxb</td>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_xs" id="ns_xs">xs</a>
+        </td>
+        <td>http://www.w3.org/2001/XMLSchema</td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="schema_scbox_button" class="control" onclick="switchState('schema_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="schema_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:schema</span> <span class="scTag">targetNamespace</span>="<span class="scContent">http://ProjectMalmo.microsoft.com</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>" <span class="scTag">version</span>="<span class="scContent">2.1</span>" <span class="scTag">version</span>="<span class="scContent">0.14</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:include</span> <span class="scTag">schemaLocation</span>="<span class="scContent">Types.xsd</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:include</span> <span class="scTag">schemaLocation</span>="<span class="scContent">MissionHandlers.xsd</span>"/&gt;</div><div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xs:schema</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('schema_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h2>
+      <a name="SchemaDeclarations" id="SchemaDeclarations">Global Declarations</a>
+    </h2>
+    <h3>Element: <a name="element_About" class="name" id="element_About">About</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>About</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201912">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201912");
+               var hblock = document.getElementById("hdoc_id201912");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_About_xibox_button" class="control" onclick="switchState('element_About_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_About_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;About&gt; <br /><div style="margin-left: 1.5em">&lt;Summary&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/Summary&gt; <span class="occurs">[1]</span></div><div style="margin-left: 1.5em">&lt;Description&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/Description&gt; <span class="occurs">[0..1]</span></div>&lt;/About&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_About_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_About_scbox_button" class="control" onclick="switchState('element_About_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_About_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">About</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Summary</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xs:sequence</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_About_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_AgentHandlers" class="name" id="element_AgentHandlers">AgentHandlers</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>AgentHandlers</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202497">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202497");
+               var hblock = document.getElementById("hdoc_id202497");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_AgentHandlers_xibox_button" class="control" onclick="switchState('element_AgentHandlers_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_AgentHandlers_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;AgentHandlers&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromRecentCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromRecentCommands" class="externalLink">ObservationFromRecentCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromRecentCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromRecentCommands" class="externalLink">ObservationFromRecentCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromHotBar&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromHotBar" class="externalLink">ObservationFromHotBar</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromHotBar&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromHotBar" class="externalLink">ObservationFromHotBar</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromFullStats&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullStats" class="externalLink">ObservationFromFullStats</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromFullStats&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullStats" class="externalLink">ObservationFromFullStats</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromFullInventory&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullInventory" class="externalLink">ObservationFromFullInventory</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromFullInventory&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullInventory" class="externalLink">ObservationFromFullInventory</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromSubgoalPositionList&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromSubgoalPositionList" class="externalLink">ObservationFromSubgoalPositionList</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromSubgoalPositionList&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromSubgoalPositionList" class="externalLink">ObservationFromSubgoalPositionList</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromGrid&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromGrid" class="externalLink">ObservationFromGrid</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromGrid&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromGrid" class="externalLink">ObservationFromGrid</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromDistance&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDistance" class="externalLink">ObservationFromDistance</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromDistance&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDistance" class="externalLink">ObservationFromDistance</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromDiscreteCell&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDiscreteCell" class="externalLink">ObservationFromDiscreteCell</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromDiscreteCell&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDiscreteCell" class="externalLink">ObservationFromDiscreteCell</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ObservationFromChat&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromChat" class="externalLink">ObservationFromChat</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromChat&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromChat" class="externalLink">ObservationFromChat</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;VideoProducer&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_VideoProducer" class="externalLink">VideoProducer</a>&gt; ... &lt;/<a title="Jump to &quot;VideoProducer&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_VideoProducer" class="externalLink">VideoProducer</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForTouchingBlockType" class="externalLink">RewardForTouchingBlockType</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForTouchingBlockType" class="externalLink">RewardForTouchingBlockType</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForSendingCommand&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForSendingCommand" class="externalLink">RewardForSendingCommand</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForSendingCommand&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForSendingCommand" class="externalLink">RewardForSendingCommand</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForCollectingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForCollectingItem" class="externalLink">RewardForCollectingItem</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForCollectingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForCollectingItem" class="externalLink">RewardForCollectingItem</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForDiscardingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForDiscardingItem" class="externalLink">RewardForDiscardingItem</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForDiscardingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForDiscardingItem" class="externalLink">RewardForDiscardingItem</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForReachingPosition" class="externalLink">RewardForReachingPosition</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForReachingPosition" class="externalLink">RewardForReachingPosition</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;RewardForMissionEnd&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForMissionEnd" class="externalLink">RewardForMissionEnd</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForMissionEnd&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForMissionEnd" class="externalLink">RewardForMissionEnd</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ContinuousMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ContinuousMovementCommands" class="externalLink">ContinuousMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ContinuousMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ContinuousMovementCommands" class="externalLink">ContinuousMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;AbsoluteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AbsoluteMovementCommands" class="externalLink">AbsoluteMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;AbsoluteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AbsoluteMovementCommands" class="externalLink">AbsoluteMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;DiscreteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DiscreteMovementCommands" class="externalLink">DiscreteMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;DiscreteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DiscreteMovementCommands" class="externalLink">DiscreteMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;InventoryCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_InventoryCommands" class="externalLink">InventoryCommands</a>&gt; ... &lt;/<a title="Jump to &quot;InventoryCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_InventoryCommands" class="externalLink">InventoryCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ChatCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ChatCommands" class="externalLink">ChatCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ChatCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ChatCommands" class="externalLink">ChatCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;SimpleCraftCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SimpleCraftCommands" class="externalLink">SimpleCraftCommands</a>&gt; ... &lt;/<a title="Jump to &quot;SimpleCraftCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SimpleCraftCommands" class="externalLink">SimpleCraftCommands</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;AgentQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTimeUp" class="externalLink">AgentQuitFromTimeUp</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTimeUp" class="externalLink">AgentQuitFromTimeUp</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;AgentQuitFromReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingPosition" class="externalLink">AgentQuitFromReachingPosition</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingPosition" class="externalLink">AgentQuitFromReachingPosition</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;AgentQuitFromTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTouchingBlockType" class="externalLink">AgentQuitFromTouchingBlockType</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTouchingBlockType" class="externalLink">AgentQuitFromTouchingBlockType</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;AgentQuitFromReachingCommandQuota&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingCommandQuota" class="externalLink">AgentQuitFromReachingCommandQuota</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromReachingCommandQuota&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingCommandQuota" class="externalLink">AgentQuitFromReachingCommandQuota</a>&gt; <span class="occurs">[0..1]</span></div><span class="group" style="margin-left: 1.5em">End All</span><br />&lt;/AgentHandlers&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentHandlers_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_AgentHandlers_scbox_button" class="control" onclick="switchState('element_AgentHandlers_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_AgentHandlers_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AgentHandlers</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:group</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentMissionHandlers&quot; group definition." href="#group_AgentMissionHandlers">AgentMissionHandlers</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentHandlers_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_AgentSection" class="name" id="element_AgentSection">AgentSection</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>AgentSection</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201873">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201873");
+               var hblock = document.getElementById("hdoc_id201873");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_AgentSection_xibox_button" class="control" onclick="switchState('element_AgentSection_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_AgentSection_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;AgentSection<br /><span style="margin-left: 0.5em"> mode="<span class="type"><a title="Jump to &quot;GameMode&quot; type definition." href="#type_GameMode">GameMode</a></span> <span class="occurs">[0..1]</span>"</span>&gt; <br /><div style="margin-left: 1.5em">&lt;Name&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt;/Name&gt; <span class="occurs">[1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentStart&quot; element declaration." href="#element_AgentStart">AgentStart</a>&gt; ... &lt;/<a title="Jump to &quot;AgentStart&quot; element declaration." href="#element_AgentStart">AgentStart</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentHandlers&quot; element declaration." href="#element_AgentHandlers">AgentHandlers</a>&gt; ... &lt;/<a title="Jump to &quot;AgentHandlers&quot; element declaration." href="#element_AgentHandlers">AgentHandlers</a>&gt; <span class="occurs">[1]</span></div>&lt;/AgentSection&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentSection_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_AgentSection_scbox_button" class="control" onclick="switchState('element_AgentSection_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_AgentSection_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AgentSection</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentStart&quot; element declaration." href="#element_AgentStart">AgentStart</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentHandlers&quot; element declaration." href="#element_AgentHandlers">AgentHandlers</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">mode</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a title="Jump to &quot;GameMode&quot; type definition." href="#type_GameMode">GameMode</a></span></span>" <span class="scTag">use</span>="<span class="scContent">optional</span>" <span class="scTag">default</span>="<span class="scContent">Survival</span>"/&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentSection_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_AgentStart" class="name" id="element_AgentStart">AgentStart</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>AgentStart</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201922">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201922");
+               var hblock = document.getElementById("hdoc_id201922");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_AgentStart_xibox_button" class="control" onclick="switchState('element_AgentStart_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_AgentStart_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;AgentStart&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;Placement&gt; <span class="type"><a title="Jump to &quot;PosAndDirection&quot; type definition(located in external schema documentation)." href="MissionHandlers.html#type_PosAndDirection" class="externalLink">PosAndDirection</a></span> &lt;/Placement&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id201969'); viewDocumentation('Element', 'Placement', docArray);">?</a></div><div style="margin-left: 3em">&lt;Inventory&gt;  <span class="occurs">[0..1]</span> <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a> <span class="occurs">[0..*]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;InventoryItem&quot; element declaration." href="#element_InventoryItem">InventoryItem</a>&gt; ... &lt;/<a title="Jump to &quot;InventoryItem&quot; element declaration." href="#element_InventoryItem">InventoryItem</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;InventoryBlock&quot; element declaration." href="#element_InventoryBlock">InventoryBlock</a>&gt; ... &lt;/<a title="Jump to &quot;InventoryBlock&quot; element declaration." href="#element_InventoryBlock">InventoryBlock</a>&gt; <span class="occurs">[1]</span></div><span class="group" style="margin-left: 1.5em">End Choice</span><br />&lt;/Inventory&gt;</div><span class="group" style="margin-left: 1.5em">End All</span><br />&lt;/AgentStart&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentStart_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_AgentStart_scbox_button" class="control" onclick="switchState('element_AgentStart_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_AgentStart_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AgentStart</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:all</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Placement</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a title="Jump to &quot;PosAndDirection&quot; type definition(located in external schema documentation)." href="MissionHandlers.html#type_PosAndDirection" class="externalLink">PosAndDirection</a></span></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Inventory</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:choice</span> <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- minOccurs = 0 to allow an empty Inventory --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;InventoryItem&quot; element declaration." href="#element_InventoryItem">InventoryItem</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;InventoryBlock&quot; element declaration." href="#element_InventoryBlock">InventoryBlock</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:choice</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>&lt;/<span class="scTag">xs:all</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_AgentStart_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_InventoryBlock" class="name" id="element_InventoryBlock">InventoryBlock</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>InventoryBlock</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202226">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202226");
+               var hblock = document.getElementById("hdoc_id202226");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_InventoryBlock_xibox_button" class="control" onclick="switchState('element_InventoryBlock_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_InventoryBlock_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;InventoryBlock<br /><span style="margin-left: 0.5em"> slot="<span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (0 &lt;= <em>value</em> &lt;= 39)</span> <span class="occurs">[1]</span>"</span><br /><span style="margin-left: 0.5em"> type="<span class="type"><a title="Jump to &quot;BlockType&quot; type definition(located in external schema documentation)." href="Types.html#type_BlockType" class="externalLink">BlockType</a></span> <span class="occurs">[1]</span>"</span><br /><span style="margin-left: 0.5em"> variant="<span class="type"><a title="Jump to &quot;BlockVariant&quot; type definition(located in external schema documentation)." href="Types.html#type_BlockVariant" class="externalLink">BlockVariant</a></span> <span class="occurs">[0..1]</span>"</span><br /><span style="margin-left: 0.5em"> quantity="<span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (1 &lt;= <em>value</em> &lt;= 64)</span> <span class="occurs">[0..1]</span>"</span>/&gt; </div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_InventoryBlock_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_InventoryBlock_scbox_button" class="control" onclick="switchState('element_InventoryBlock_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_InventoryBlock_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">InventoryBlock</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">slot</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:maxInclusive</span> <span class="scTag">value</span>="<span class="scContent">39</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">type</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a title="Jump to &quot;BlockType&quot; type definition(located in external schema documentation)." href="Types.html#type_BlockType" class="externalLink">BlockType</a></span></span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">variant</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a title="Jump to &quot;BlockVariant&quot; type definition(located in external schema documentation)." href="Types.html#type_BlockVariant" class="externalLink">BlockVariant</a></span></span>" <span class="scTag">use</span>="<span class="scContent">optional</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">quantity</span>" <span class="scTag">default</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:maxInclusive</span> <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_InventoryBlock_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_InventoryItem" class="name" id="element_InventoryItem">InventoryItem</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>InventoryItem</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202149">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202149");
+               var hblock = document.getElementById("hdoc_id202149");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_InventoryItem_xibox_button" class="control" onclick="switchState('element_InventoryItem_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_InventoryItem_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;InventoryItem<br /><span style="margin-left: 0.5em"> slot="<span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (0 &lt;= <em>value</em> &lt;= 39)</span> <span class="occurs">[1]</span>"</span><br /><span style="margin-left: 0.5em"> type="<span class="type"><a title="Jump to &quot;ItemType&quot; type definition(located in external schema documentation)." href="Types.html#type_ItemType" class="externalLink">ItemType</a></span> <span class="occurs">[1]</span>"</span><br /><span style="margin-left: 0.5em"> quantity="<span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (1 &lt;= <em>value</em> &lt;= 64)</span> <span class="occurs">[0..1]</span>"</span>/&gt; </div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_InventoryItem_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_InventoryItem_scbox_button" class="control" onclick="switchState('element_InventoryItem_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_InventoryItem_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">InventoryItem</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">slot</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:maxInclusive</span> <span class="scTag">value</span>="<span class="scContent">39</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">type</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a title="Jump to &quot;ItemType&quot; type definition(located in external schema documentation)." href="Types.html#type_ItemType" class="externalLink">ItemType</a></span></span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">quantity</span>" <span class="scTag">default</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:maxInclusive</span> <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:attribute</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_InventoryItem_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_Mission" class="name" id="element_Mission">Mission</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>Mission</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201748">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201748");
+               var hblock = document.getElementById("hdoc_id201748");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_Mission_xibox_button" class="control" onclick="switchState('element_Mission_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_Mission_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;Mission<br /><span style="margin-left: 0.5em"> SchemaVersion="<span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:token</span> <span class="occurs">[0..1]</span>"</span>&gt; <br /><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;About&quot; element declaration." href="#element_About">About</a>&gt; ... &lt;/<a title="Jump to &quot;About&quot; element declaration." href="#element_About">About</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ModSettings&quot; element declaration." href="#element_ModSettings">ModSettings</a>&gt; ... &lt;/<a title="Jump to &quot;ModSettings&quot; element declaration." href="#element_ModSettings">ModSettings</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ServerSection&quot; element declaration." href="#element_ServerSection">ServerSection</a>&gt; ... &lt;/<a title="Jump to &quot;ServerSection&quot; element declaration." href="#element_ServerSection">ServerSection</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentSection&quot; element declaration." href="#element_AgentSection">AgentSection</a>&gt; ... &lt;/<a title="Jump to &quot;AgentSection&quot; element declaration." href="#element_AgentSection">AgentSection</a>&gt; <span class="occurs">[1..*]</span></div>&lt;/Mission&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Mission_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_Mission_scbox_button" class="control" onclick="switchState('element_Mission_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_Mission_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Mission</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;About&quot; element declaration." href="#element_About">About</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ModSettings&quot; element declaration." href="#element_ModSettings">ModSettings</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ServerSection&quot; element declaration." href="#element_ServerSection">ServerSection</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentSection&quot; element declaration." href="#element_AgentSection">AgentSection</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">1</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xs:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:attribute</span> <span class="scTag">name</span>="<span class="scContent">SchemaVersion</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:token</span></span>"/&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Mission_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_ModSettings" class="name" id="element_ModSettings">ModSettings</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ModSettings</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201790">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201790");
+               var hblock = document.getElementById("hdoc_id201790");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_ModSettings_xibox_button" class="control" onclick="switchState('element_ModSettings_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_ModSettings_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;ModSettings&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;MsPerTick&gt; <span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (<em>value</em> &gt;= 1)</span> &lt;/MsPerTick&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id201794'); viewDocumentation('Element', 'MsPerTick', docArray);">?</a></div><div style="margin-left: 3em">&lt;PrioritiseOffscreenRendering&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span> &lt;/PrioritiseOffscreenRendering&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id201848'); viewDocumentation('Element', 'PrioritiseOffscreenRendering', docArray);">?</a></div><span class="group" style="margin-left: 1.5em">End All</span><br />&lt;/ModSettings&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ModSettings_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_ModSettings_scbox_button" class="control" onclick="switchState('element_ModSettings_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_ModSettings_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ModSettings</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:all</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">MsPerTick</span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">PrioritiseOffscreenRendering</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div>&lt;/<span class="scTag">xs:all</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ModSettings_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_ServerHandlers" class="name" id="element_ServerHandlers">ServerHandlers</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ServerHandlers</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202499">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202499");
+               var hblock = document.getElementById("hdoc_id202499");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_ServerHandlers_xibox_button" class="control" onclick="switchState('element_ServerHandlers_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_ServerHandlers_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;ServerHandlers&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;FlatWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FlatWorldGenerator" class="externalLink">FlatWorldGenerator</a>&gt; ... &lt;/<a title="Jump to &quot;FlatWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FlatWorldGenerator" class="externalLink">FlatWorldGenerator</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;FileWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FileWorldGenerator" class="externalLink">FileWorldGenerator</a>&gt; ... &lt;/<a title="Jump to &quot;FileWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FileWorldGenerator" class="externalLink">FileWorldGenerator</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;DefaultWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DefaultWorldGenerator" class="externalLink">DefaultWorldGenerator</a>&gt; ... &lt;/<a title="Jump to &quot;DefaultWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DefaultWorldGenerator" class="externalLink">DefaultWorldGenerator</a>&gt; <span class="occurs">[1]</span></div><span class="group" style="margin-left: 1.5em">End Choice</span><br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a> <span class="occurs">[0..*]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;DrawingDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DrawingDecorator" class="externalLink">DrawingDecorator</a>&gt; ... &lt;/<a title="Jump to &quot;DrawingDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DrawingDecorator" class="externalLink">DrawingDecorator</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;MazeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_MazeDecorator" class="externalLink">MazeDecorator</a>&gt; ... &lt;/<a title="Jump to &quot;MazeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_MazeDecorator" class="externalLink">MazeDecorator</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ClassroomDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ClassroomDecorator" class="externalLink">ClassroomDecorator</a>&gt; ... &lt;/<a title="Jump to &quot;ClassroomDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ClassroomDecorator" class="externalLink">ClassroomDecorator</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;SnakeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SnakeDecorator" class="externalLink">SnakeDecorator</a>&gt; ... &lt;/<a title="Jump to &quot;SnakeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SnakeDecorator" class="externalLink">SnakeDecorator</a>&gt; <span class="occurs">[1]</span></div><span class="group" style="margin-left: 1.5em">End Choice</span><br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a> <span class="occurs">[0..*]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ServerQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitFromTimeUp" class="externalLink">ServerQuitFromTimeUp</a>&gt; ... &lt;/<a title="Jump to &quot;ServerQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitFromTimeUp" class="externalLink">ServerQuitFromTimeUp</a>&gt; <span class="occurs">[1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;ServerQuitWhenAnyAgentFinishes&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitWhenAnyAgentFinishes" class="externalLink">ServerQuitWhenAnyAgentFinishes</a>&gt; ... &lt;/<a title="Jump to &quot;ServerQuitWhenAnyAgentFinishes&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitWhenAnyAgentFinishes" class="externalLink">ServerQuitWhenAnyAgentFinishes</a>&gt; <span class="occurs">[1]</span></div><span class="group" style="margin-left: 1.5em">End Choice</span><br />&lt;/ServerHandlers&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerHandlers_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_ServerHandlers_scbox_button" class="control" onclick="switchState('element_ServerHandlers_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_ServerHandlers_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ServerHandlers</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:choice</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;FlatWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FlatWorldGenerator" class="externalLink">FlatWorldGenerator</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;FileWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_FileWorldGenerator" class="externalLink">FileWorldGenerator</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;DefaultWorldGenerator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DefaultWorldGenerator" class="externalLink">DefaultWorldGenerator</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:choice</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:choice</span> <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;DrawingDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DrawingDecorator" class="externalLink">DrawingDecorator</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;MazeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_MazeDecorator" class="externalLink">MazeDecorator</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ClassroomDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ClassroomDecorator" class="externalLink">ClassroomDecorator</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;SnakeDecorator&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SnakeDecorator" class="externalLink">SnakeDecorator</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:choice</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:choice</span> <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ServerQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitFromTimeUp" class="externalLink">ServerQuitFromTimeUp</a></span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ServerQuitWhenAnyAgentFinishes&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ServerQuitWhenAnyAgentFinishes" class="externalLink">ServerQuitWhenAnyAgentFinishes</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:choice</span>&gt;</div>&lt;/<span class="scTag">xs:sequence</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerHandlers_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_ServerInitialConditions" class="name" id="element_ServerInitialConditions">ServerInitialConditions</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ServerInitialConditions</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202016">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202016");
+               var hblock = document.getElementById("hdoc_id202016");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_ServerInitialConditions_xibox_button" class="control" onclick="switchState('element_ServerInitialConditions_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_ServerInitialConditions_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;ServerInitialConditions&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;Time&quot; element declaration." href="#element_Time">Time</a>&gt; ... &lt;/<a title="Jump to &quot;Time&quot; element declaration." href="#element_Time">Time</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;<a title="Jump to &quot;Weather&quot; element declaration." href="#element_Weather">Weather</a>&gt; ... &lt;/<a title="Jump to &quot;Weather&quot; element declaration." href="#element_Weather">Weather</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;AllowSpawning&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span> &lt;/AllowSpawning&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id202049'); viewDocumentation('Element', 'AllowSpawning', docArray);">?</a></div><span class="group" style="margin-left: 1.5em">End All</span><br />&lt;/ServerInitialConditions&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerInitialConditions_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_ServerInitialConditions_scbox_button" class="control" onclick="switchState('element_ServerInitialConditions_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_ServerInitialConditions_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ServerInitialConditions</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:all</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;Time&quot; element declaration." href="#element_Time">Time</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;Weather&quot; element declaration." href="#element_Weather">Weather</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AllowSpawning</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>" <span class="scTag">default</span>="<span class="scContent">false</span>"/&gt;</div>&lt;/<span class="scTag">xs:all</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerInitialConditions_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_ServerSection" class="name" id="element_ServerSection">ServerSection</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ServerSection</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id201866">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id201866");
+               var hblock = document.getElementById("hdoc_id201866");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_ServerSection_xibox_button" class="control" onclick="switchState('element_ServerSection_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_ServerSection_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;ServerSection&gt; <br /><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ServerInitialConditions&quot; element declaration." href="#element_ServerInitialConditions">ServerInitialConditions</a>&gt; ... &lt;/<a title="Jump to &quot;ServerInitialConditions&quot; element declaration." href="#element_ServerInitialConditions">ServerInitialConditions</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ServerHandlers&quot; element declaration." href="#element_ServerHandlers">ServerHandlers</a>&gt; ... &lt;/<a title="Jump to &quot;ServerHandlers&quot; element declaration." href="#element_ServerHandlers">ServerHandlers</a>&gt; <span class="occurs">[1]</span></div>&lt;/ServerSection&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerSection_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_ServerSection_scbox_button" class="control" onclick="switchState('element_ServerSection_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_ServerSection_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">ServerSection</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ServerInitialConditions&quot; element declaration." href="#element_ServerInitialConditions">ServerInitialConditions</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ServerHandlers&quot; element declaration." href="#element_ServerHandlers">ServerHandlers</a></span>"/&gt;</div>&lt;/<span class="scTag">xs:sequence</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_ServerSection_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_StartTime" class="name" id="element_StartTime">StartTime</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>StartTime</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined simple type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202084">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202084");
+               var hblock = document.getElementById("hdoc_id202084");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_StartTime_xibox_button" class="control" onclick="switchState('element_StartTime_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_StartTime_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;StartTime&gt; <span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span> (1 &lt;= <em>value</em> &lt;= 23999)</span> &lt;/StartTime&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_StartTime_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_StartTime_scbox_button" class="control" onclick="switchState('element_StartTime_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_StartTime_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">StartTime</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:int</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:minInclusive</span> <span class="scTag">value</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:maxInclusive</span> <span class="scTag">value</span>="<span class="scContent">23999</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_StartTime_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_Time" class="name" id="element_Time">Time</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>Time</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined complex type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202028">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202028");
+               var hblock = document.getElementById("hdoc_id202028");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_Time_xibox_button" class="control" onclick="switchState('element_Time_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_Time_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;Time&gt; <br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span><br /><div style="margin-left: 3em">&lt;<a title="Jump to &quot;StartTime&quot; element declaration." href="#element_StartTime">StartTime</a>&gt; ... &lt;/<a title="Jump to &quot;StartTime&quot; element declaration." href="#element_StartTime">StartTime</a>&gt; <span class="occurs">[0..1]</span></div><div style="margin-left: 3em">&lt;AllowPassageOfTime&gt; <span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span> &lt;/AllowPassageOfTime&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id202066'); viewDocumentation('Element', 'AllowPassageOfTime', docArray);">?</a></div><span class="group" style="margin-left: 1.5em">End All</span><br />&lt;/Time&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Time_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_Time_scbox_button" class="control" onclick="switchState('element_Time_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_Time_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Time</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:all</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;StartTime&quot; element declaration." href="#element_StartTime">StartTime</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">AllowPassageOfTime</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:boolean</span></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">1</span>" <span class="scTag">default</span>="<span class="scContent">true</span>"/&gt;</div>&lt;/<span class="scTag">xs:all</span>&gt;</div>&lt;/<span class="scTag">xs:complexType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Time_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Element: <a name="element_Weather" class="name" id="element_Weather">Weather</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>Weather</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>Locally-defined simple type</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Nillable' in glossary" href="#term_Nillable">Nillable</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>
+          <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+        </th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Default Value</th>
+        <td>normal</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202116">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202116");
+               var hblock = document.getElementById("hdoc_id202116");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="sample box">
+      <div><input type="button" id="element_Weather_xibox_button" class="control" onclick="switchState('element_Weather_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_Weather_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;Weather&gt; <span class="constraint"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> (<em>value</em> comes from list: {'normal'|'clear'|'rain'|'thunder'})</span> &lt;/Weather&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Weather_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_Weather_scbox_button" class="control" onclick="switchState('element_Weather_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_Weather_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:element</span> <span class="scTag">name</span>="<span class="scContent">Weather</span>" <span class="scTag">default</span>="<span class="scContent">normal</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">normal</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">clear</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">rain</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">thunder</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>&lt;/<span class="scTag">xs:element</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_Weather_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h2>
+      <a name="SchemaDefinitions" id="SchemaDefinitions">Global Definitions</a>
+    </h2>
+    <h3>Model Group: <a name="group_AgentMissionHandlers" class="name" id="group_AgentMissionHandlers">AgentMissionHandlers</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>AgentMissionHandlers</td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202349">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202349");
+               var hblock = document.getElementById("hdoc_id202349");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="annotation appinfo"><h3>Application Data</h3>
+                <code>&lt;<a href="#ns_jaxb" title="Find out namespace of 'jaxb' prefix">jaxb</a>:property name="AgentMissionHandlers"/&gt;</code>
+            </div>
+    <div class="sample box">
+      <div><input type="button" id="group_AgentMissionHandlers_xibox_button" class="control" onclick="switchState('group_AgentMissionHandlers_xibox'); return false;" style="display: none" /> <span class="caption">XML Instance Representation</span></div>
+      <div id="group_AgentMissionHandlers_xibox" class="contents">
+        <span class="group" style="margin-left: 0em">Start <a title="Look up 'All' in glossary" href="#term_All">All</a> <span class="occurs">[1]</span></span>
+        <br />
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromRecentCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromRecentCommands" class="externalLink">ObservationFromRecentCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromRecentCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromRecentCommands" class="externalLink">ObservationFromRecentCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromHotBar&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromHotBar" class="externalLink">ObservationFromHotBar</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromHotBar&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromHotBar" class="externalLink">ObservationFromHotBar</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromFullStats&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullStats" class="externalLink">ObservationFromFullStats</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromFullStats&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullStats" class="externalLink">ObservationFromFullStats</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromFullInventory&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullInventory" class="externalLink">ObservationFromFullInventory</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromFullInventory&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullInventory" class="externalLink">ObservationFromFullInventory</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromSubgoalPositionList&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromSubgoalPositionList" class="externalLink">ObservationFromSubgoalPositionList</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromSubgoalPositionList&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromSubgoalPositionList" class="externalLink">ObservationFromSubgoalPositionList</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromGrid&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromGrid" class="externalLink">ObservationFromGrid</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromGrid&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromGrid" class="externalLink">ObservationFromGrid</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromDistance&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDistance" class="externalLink">ObservationFromDistance</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromDistance&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDistance" class="externalLink">ObservationFromDistance</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromDiscreteCell&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDiscreteCell" class="externalLink">ObservationFromDiscreteCell</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromDiscreteCell&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDiscreteCell" class="externalLink">ObservationFromDiscreteCell</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ObservationFromChat&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromChat" class="externalLink">ObservationFromChat</a>&gt; ... &lt;/<a title="Jump to &quot;ObservationFromChat&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromChat" class="externalLink">ObservationFromChat</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;VideoProducer&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_VideoProducer" class="externalLink">VideoProducer</a>&gt; ... &lt;/<a title="Jump to &quot;VideoProducer&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_VideoProducer" class="externalLink">VideoProducer</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForTouchingBlockType" class="externalLink">RewardForTouchingBlockType</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForTouchingBlockType" class="externalLink">RewardForTouchingBlockType</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForSendingCommand&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForSendingCommand" class="externalLink">RewardForSendingCommand</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForSendingCommand&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForSendingCommand" class="externalLink">RewardForSendingCommand</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForCollectingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForCollectingItem" class="externalLink">RewardForCollectingItem</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForCollectingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForCollectingItem" class="externalLink">RewardForCollectingItem</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForDiscardingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForDiscardingItem" class="externalLink">RewardForDiscardingItem</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForDiscardingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForDiscardingItem" class="externalLink">RewardForDiscardingItem</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForReachingPosition" class="externalLink">RewardForReachingPosition</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForReachingPosition" class="externalLink">RewardForReachingPosition</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;RewardForMissionEnd&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForMissionEnd" class="externalLink">RewardForMissionEnd</a>&gt; ... &lt;/<a title="Jump to &quot;RewardForMissionEnd&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForMissionEnd" class="externalLink">RewardForMissionEnd</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ContinuousMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ContinuousMovementCommands" class="externalLink">ContinuousMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ContinuousMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ContinuousMovementCommands" class="externalLink">ContinuousMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AbsoluteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AbsoluteMovementCommands" class="externalLink">AbsoluteMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;AbsoluteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AbsoluteMovementCommands" class="externalLink">AbsoluteMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;DiscreteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DiscreteMovementCommands" class="externalLink">DiscreteMovementCommands</a>&gt; ... &lt;/<a title="Jump to &quot;DiscreteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DiscreteMovementCommands" class="externalLink">DiscreteMovementCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;InventoryCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_InventoryCommands" class="externalLink">InventoryCommands</a>&gt; ... &lt;/<a title="Jump to &quot;InventoryCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_InventoryCommands" class="externalLink">InventoryCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;ChatCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ChatCommands" class="externalLink">ChatCommands</a>&gt; ... &lt;/<a title="Jump to &quot;ChatCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ChatCommands" class="externalLink">ChatCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;SimpleCraftCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SimpleCraftCommands" class="externalLink">SimpleCraftCommands</a>&gt; ... &lt;/<a title="Jump to &quot;SimpleCraftCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SimpleCraftCommands" class="externalLink">SimpleCraftCommands</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTimeUp" class="externalLink">AgentQuitFromTimeUp</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTimeUp" class="externalLink">AgentQuitFromTimeUp</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentQuitFromReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingPosition" class="externalLink">AgentQuitFromReachingPosition</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingPosition" class="externalLink">AgentQuitFromReachingPosition</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentQuitFromTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTouchingBlockType" class="externalLink">AgentQuitFromTouchingBlockType</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTouchingBlockType" class="externalLink">AgentQuitFromTouchingBlockType</a>&gt; <span class="occurs">[0..1]</span></div>
+        <div style="margin-left: 1.5em">&lt;<a title="Jump to &quot;AgentQuitFromReachingCommandQuota&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingCommandQuota" class="externalLink">AgentQuitFromReachingCommandQuota</a>&gt; ... &lt;/<a title="Jump to &quot;AgentQuitFromReachingCommandQuota&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingCommandQuota" class="externalLink">AgentQuitFromReachingCommandQuota</a>&gt; <span class="occurs">[0..1]</span></div>
+        <span class="group" style="margin-left: 0em">End All</span>
+        <br />
+      </div>
+      <script type="text/javascript">
+<!--
+setState('group_AgentMissionHandlers_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="group_AgentMissionHandlers_scbox_button" class="control" onclick="switchState('group_AgentMissionHandlers_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="group_AgentMissionHandlers_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:group</span> <span class="scTag">name</span>="<span class="scContent">AgentMissionHandlers</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:all</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromRecentCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromRecentCommands" class="externalLink">ObservationFromRecentCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromHotBar&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromHotBar" class="externalLink">ObservationFromHotBar</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromFullStats&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullStats" class="externalLink">ObservationFromFullStats</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromFullInventory&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromFullInventory" class="externalLink">ObservationFromFullInventory</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromSubgoalPositionList&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromSubgoalPositionList" class="externalLink">ObservationFromSubgoalPositionList</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromGrid&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromGrid" class="externalLink">ObservationFromGrid</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromDistance&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDistance" class="externalLink">ObservationFromDistance</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromDiscreteCell&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromDiscreteCell" class="externalLink">ObservationFromDiscreteCell</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ObservationFromChat&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ObservationFromChat" class="externalLink">ObservationFromChat</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;VideoProducer&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_VideoProducer" class="externalLink">VideoProducer</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForTouchingBlockType" class="externalLink">RewardForTouchingBlockType</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForSendingCommand&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForSendingCommand" class="externalLink">RewardForSendingCommand</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForCollectingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForCollectingItem" class="externalLink">RewardForCollectingItem</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForDiscardingItem&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForDiscardingItem" class="externalLink">RewardForDiscardingItem</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForReachingPosition" class="externalLink">RewardForReachingPosition</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;RewardForMissionEnd&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_RewardForMissionEnd" class="externalLink">RewardForMissionEnd</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ContinuousMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ContinuousMovementCommands" class="externalLink">ContinuousMovementCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AbsoluteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AbsoluteMovementCommands" class="externalLink">AbsoluteMovementCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;DiscreteMovementCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_DiscreteMovementCommands" class="externalLink">DiscreteMovementCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;InventoryCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_InventoryCommands" class="externalLink">InventoryCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;ChatCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_ChatCommands" class="externalLink">ChatCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;SimpleCraftCommands&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_SimpleCraftCommands" class="externalLink">SimpleCraftCommands</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentQuitFromTimeUp&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTimeUp" class="externalLink">AgentQuitFromTimeUp</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentQuitFromReachingPosition&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingPosition" class="externalLink">AgentQuitFromReachingPosition</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentQuitFromTouchingBlockType&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromTouchingBlockType" class="externalLink">AgentQuitFromTouchingBlockType</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:element</span> <span class="scTag">ref</span>="<span class="scContent"><a title="Jump to &quot;AgentQuitFromReachingCommandQuota&quot; element declaration(located in external schema documentation)." href="MissionHandlers.html#element_AgentQuitFromReachingCommandQuota" class="externalLink">AgentQuitFromReachingCommandQuota</a></span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xs:all</span>&gt;</div>&lt;/<span class="scTag">xs:group</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('group_AgentMissionHandlers_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <h3>Simple Type: <a name="type_GameMode" class="name" id="type_GameMode">GameMode</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Super-types:</th>
+        <td><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span> &lt; <strong>GameMode</strong> (by restriction)</td>
+      </tr>
+      <tr>
+        <th>Sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>GameMode</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: string</li>
+          </ul>
+          <ul>
+            <li><em>value</em> comes from list: {'Survival'|'Creative'|'Adventure'|'Spectator'}</li>
+          </ul>
+        </td>
+      </tr>
+    </table>
+    <div class="annotation documentation" id="wdoc_id202305">Javascript required.</div>
+    <script type="text/javascript">
+               var block = document.getElementById("wdoc_id202305");
+               var hblock = document.getElementById("hdoc_id202305");
+               var content = hblock.childNodes[0].nodeValue;
+               block.innerHTML = '';
+               creole.parse(block, content);
+            </script>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_GameMode_scbox_button" class="control" onclick="switchState('type_GameMode_scbox'); return false;" style="display: none" /> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_GameMode_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xs:simpleType</span> <span class="scTag">name</span>="<span class="scContent">GameMode</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:restriction</span> <span class="scTag">base</span>="<span class="scContent"><span class="type"><a href="#ns_xs" title="Find out namespace of 'xs' prefix">xs</a>:string</span></span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">Survival</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">Creative</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">Adventure</span>"/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xs:enumeration</span> <span class="scTag">value</span>="<span class="scContent">Spectator</span>"/&gt;</div>&lt;/<span class="scTag">xs:restriction</span>&gt;</div>&lt;/<span class="scTag">xs:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_GameMode_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr />
+    <div id="legend">
+      <h2>
+        <a name="Legend" id="Legend">Legend</a>
+      </h2>
+      <div style="float: left; width: 15em;">
+        <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+        <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+      </div>
+      <div style="float: left; width: 15em;">
+        <h3 style="margin-bottom: 0px;">
+          <span class="name">AusAddress</span>
+        </h3>
+        <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+      </div>
+      <table class="hierarchy" style="clear : both">
+        <tr>
+          <th>Super-types:</th>
+          <td><span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+        </tr>
+        <tr>
+          <th>Sub-types:</th>
+          <td>
+            <ul>
+              <li><span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+      <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+      <table class="properties">
+        <tr>
+          <th>Name</th>
+          <td>AusAddress</td>
+        </tr>
+        <tr>
+          <th>
+            <a title="Look up 'Abstract' in glossary" href="#term_Abstract">Abstract</a>
+          </th>
+          <td>no</td>
+        </tr>
+      </table>
+      <div class="hint">The table above displays the properties of this schema component.</div>
+      <div class="sample box">
+        <div>
+          <span class="caption">XML Instance Representation</span>
+        </div>
+        <div class="contents"><span style="margin-left: 0em">&lt;...</span><span class="newFields"><span> country="<span class="fixed">Australia</span>"</span></span>&gt; <br /><span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span></span><br /><span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span></span><br /><span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span></span><br /><span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a><span class="occurs">[1]</span></span><br /><span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span></span><br /><span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span></span><br /><span class="group" style="margin-left: 1.5em">End Choice</span><br /><span class="newFields"><span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span></span><br /><span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span><a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a></span><br /></span><span style="margin-left: 0em">&lt;/...&gt;</span><br /></div>
+      </div>
+      <div class="hint">
+        <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+        <ul>
+          <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+          <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+          <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+          <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+          <li>Otherwise, the type of the element/attribute is displayed.
+               <ul><li>If the element/attribute's type is in the schema, a link is provided to it.</li><li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li></ul></li>
+          <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+        </ul>
+      </div>
+      <div class="schemaComponent box">
+        <div>
+          <span class="caption">Schema Component Representation</span>
+        </div>
+        <div class="contents">
+          <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span><span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+          <br />
+          <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+          <br />
+          <span style="margin-left: 3em">&lt;<span class="scTag">extension</span><span class="scTag">base</span>="<span class="scContent"><span class="type" style="text-decoration:underline;">Address</span></span>"&gt;</span>
+          <br />
+          <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+          <br />
+          <span style="margin-left: 6em">&lt;<span class="scTag">element</span><span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type" style="text-decoration:underline;">AusStates</span></span>"/&gt;</span>
+          <br />
+          <span style="margin-left: 6em">&lt;<span class="scTag">element</span><span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+          <br />
+          <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+          <br />
+          <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span><span class="scTag">base</span>="<span class="scContent"><span class="type">string</span></span>"&gt;</span>
+          <br />
+          <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span><span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+          <br />
+          <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+          <br />
+          <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+          <br />
+          <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+          <br />
+          <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+          <br />
+          <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span><span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent"><span class="type">string</span></span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+          <br />
+          <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+          <br />
+          <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+          <br />
+          <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+          <br />
+        </div>
+      </div>
+      <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+      <div style="text-align: right; clear: both;">
+        <a href="#top">top</a>
+      </div>
+      <hr />
+    </div>
+    <div id="glossary">
+      <h2>
+        <a name="Glossary" id="Glossary">Glossary</a>
+      </h2>
+      <p><span class="glossaryTerm"><a name="term_Abstract" id="term_Abstract">Abstract</a> </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+      <p><span class="glossaryTerm"><a name="term_All" id="term_All">All Model Group</a> </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all" href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_Choice" id="term_Choice">Choice Model Group</a> </span><em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice" href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_CollapseWS" id="term_CollapseWS">Collapse Whitespace Policy</a> </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+      <p><span class="glossaryTerm"><a name="term_ElemBlock" id="term_ElemBlock">Disallowed Substitutions</a> </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary" href="#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+      <p><span class="glossaryTerm"><a name="term_Key" id="term_Key">Key Constraint</a> </span>Like <a title="Look up 'Uniqueness Constraint' in glossary" href="#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions" href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_KeyRef" id="term_KeyRef">Key Reference Constraint</a> </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary" href="#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary" href="#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions" href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_ModelGroup" id="term_ModelGroup">Model Group</a> </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups" href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_Nillable" id="term_Nillable">Nillable</a> </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+      <p><span class="glossaryTerm"><a name="term_Notation" id="term_Notation">Notation</a> </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations" href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_PreserveWS" id="term_PreserveWS">Preserve Whitespace Policy</a> </span>Preserve whitespaces exactly as they appear in instances.</p>
+      <p><span class="glossaryTerm"><a name="term_TypeFinal" id="term_TypeFinal">Prohibited Derivations</a> </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+      <p><span class="glossaryTerm"><a name="term_TypeBlock" id="term_TypeBlock">Prohibited Substitutions</a> </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+      <p><span class="glossaryTerm"><a name="term_ReplaceWS" id="term_ReplaceWS">Replace Whitespace Policy</a> </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+      <p><span class="glossaryTerm"><a name="term_Sequence" id="term_Sequence">Sequence Model Group</a> </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence" href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+      <p><span class="glossaryTerm"><a name="term_SubGroup" id="term_SubGroup">Substitution Group</a> </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+      <p><span class="glossaryTerm"><a name="term_ElemFinal" id="term_ElemFinal">Substitution Group Exclusions</a> </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+      <p><span class="glossaryTerm"><a name="term_TargetNS" id="term_TargetNS">Target Namespace</a> </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+      <p><span class="glossaryTerm"><a name="term_Unique" id="term_Unique">Uniqueness Constraint</a> </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions" href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+      <div style="text-align: right; clear: both;">
+        <a href="#top">top</a>
+      </div>
+      <hr />
+    </div>
+    <p class="footer">Generated by <a href="http://github.com/bitfehler/xs3p">xs3p-ch</a> (fork of <a href="http://xml.fiforms.org/xs3p/">xs3p</a>)
+               . Last modified: <script type="text/javascript">
+<!--
+document.write(document.lastModified);
+// -->
+</script></p>
+  </body>
+</html>
