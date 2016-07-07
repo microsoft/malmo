@@ -158,18 +158,21 @@ else:
 
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Crafty #" + str(iRepeat)),validate)
-    launchedMission=False
-    while not launchedMission:
+    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    max_retries = 3
+    for retry in range(max_retries):
         try:
-            # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
-            my_mission_record = MalmoPython.MissionRecordSpec()
-            # And attempt to start the mission:
+            # Attempt to start the mission:
             agent_host.startMission( my_mission, my_client_pool, my_mission_record, 0, "craftTestExperiment" )
-            launchedMission=True
+            break
         except RuntimeError as e:
-            print "Error starting mission",e
-            print "Is the game running?"
-            exit(1)
+            if retry == max_retries - 1:
+                print "Error starting mission",e
+                print "Is the game running?"
+                exit(1)
+            else:
+                time.sleep(2)
 
     world_state = agent_host.getWorldState()
     while not world_state.is_mission_running:
