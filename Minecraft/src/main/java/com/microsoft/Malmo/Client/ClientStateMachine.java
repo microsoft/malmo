@@ -1320,7 +1320,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             ModSettings modsettings = currentMissionInit().getMission().getModSettings();
             if (modsettings != null && modsettings.getMsPerTick() != null)
                 TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
-            if (modsettings != null && modsettings.isPrioritiseOffscreenRendering())
+            if (modsettings != null && modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
                 TimeHelper.displayGranularityMs = 1000;
         }
 
