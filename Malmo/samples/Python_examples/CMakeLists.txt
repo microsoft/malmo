@@ -35,6 +35,7 @@ set( SOURCES
   tabular_q_learning.py
   to_string_test.py
   quit_from_reaching_position_test.py
+  craft_work.py
   tutorial_1.py
   tutorial_2.py
   tutorial_3.py
