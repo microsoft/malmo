@@ -92,12 +92,16 @@ namespace malmo
         // make a MissionInit structure with default settings
         this->current_mission_record = boost::make_shared<MissionRecord>( mission_record );
         this->current_role = role;
-
-        if (mission.isVideoRequested(this->current_role) && this->current_mission_record->isRecordingMP4())
+        this->requested_width = 160;    // default width and height values for ALE screen size.
+        this->requested_height = 210;
+        if (mission.isVideoRequested(this->current_role))
         {
             this->requested_width = mission.getVideoWidth(0);
             this->requested_height = mission.getVideoHeight(0);
-            this->video_frame_writer = VideoFrameWriter::create(this->current_mission_record->getMP4Path(), this->requested_width, this->requested_height, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+            if (this->current_mission_record->isRecordingMP4())
+            {
+                this->video_frame_writer = VideoFrameWriter::create(this->current_mission_record->getMP4Path(), this->requested_width, this->requested_height, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+            }
         }
 
         if (this->commands_stream.is_open()){
