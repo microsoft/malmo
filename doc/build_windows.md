@@ -72,15 +72,16 @@
     3. `cd MalmoPlatform`
     4. `git clone https://github.com/Microsoft/malmo.git .`
     5. Save xs3p.xsl from https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl to the Schemas folder.
-    6. Add a new environment variable `MALMO_XSD_PATH` and set it to the path to `MalmoPlatform\Schemas`.
+    6. Add a new environment variable `MALMO_XSD_PATH` and set it to the path to `MalmoPlatform\Schemas`. You will need to open a fresh command prompt for this to take effect.
     7. `mkdir build`
     8. `cd build`
     9. `cmake -G "Visual Studio 12 2013 Win64" ..`
     10. If it fails to find things, use `cmake-gui ..` and give hints, as described above.  
-       If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
-    11. For a Debug build: `msbuild Malmo.sln`  
-       For a Release build: `msbuild Malmo.sln /p:Configuration=Release`  
-       Or open `Malmo.sln` in Visual Studio.
+        If you have cygwin installed, check that cmake isn't using the cygwin python and lua executables.
+    11. For a Debug build: `msbuild INSTALL.vcxproj`  
+        For a Release build: `msbuild INSTALL.vcxproj /p:Configuration=Release`  
+        You can then run the samples from e.g. `install\Python_Examples`  
+        If you want to use Visual Studio to build, open `Malmo.sln`.
  
 12. Test Malmo:
     1. After building Debug: `ctest -C Debug`
@@ -88,7 +89,6 @@
     3. Add `-E Integration` to exclude the integration tests.
     4. Add `-VV` to get verbose output.
     5. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
-    6. For testing the scripts and samples manually, use `msbuild INSTALL.vcxproj` This installs the executables in an 'install' folder from where you can run them.
 
 13. Make a distributable:
     1. Run all the tests.
