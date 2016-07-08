@@ -26,8 +26,10 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
     4. `mkdir build`
     5. `cd build`
     6. `cmake ..`
-    7. `make`
+    7. `make install`
+    8. Then you can run the samples that are installed ready-to-run in e.g. `install/Python_Examples`
 
 4. Run the tests:
-    1. `ctest`
-    2. `ctest -E Integration` to exclude the integration tests.
+    1. `cd MalmoPlatform/build`
+    2. `ctest -E Integration` to run a smaller set of tests (exclude the integration tests).
+    3. `ctest` to run all the tests
