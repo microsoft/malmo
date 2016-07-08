@@ -110,13 +110,13 @@
        `cmake -DCMAKE_BUILD_TYPE=Release ..`  
        On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
-    9. `make`
+    9. `make install`
+    10. You can then run the samples from e.g. `install/Python_Examples`
 
 10. Test Malmo:
     1. `ctest`
     2. `ctest -E Integration` to exclude the integration tests.
     3. `ctest -VV` to get verbose output.
-    4. For testing the scripts and samples mnaually, use `make install` This installs the executables in an 'install' folder from where you can run them.
 
 11. Make a distributable:
     1. Run all the tests.
