@@ -7,21 +7,25 @@ For a minimal installation of running a python agent, follow steps 1 and 3. Then
 On Ubuntu 15.10: 
 
 `sudo apt-get install libboost-all-dev libpython2.7 openjdk-8-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`  
+
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
 On Ubuntu 14.04 or Debian 8:
 
 `sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools`  
+
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
 On Debian 7:
 
 `sudo apt-get install python2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg`  
+
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
 On Fedora 23:
 
 `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
+
 `sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat`
 
 ### 2. Optional: Install Torch: ###
@@ -51,12 +55,13 @@ and will need to install ALE as described here. If you don't want to use ALE the
 
 Then:
 
-```
-cd ~/ALE
-git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .
-cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .
-make
-```
+`cd ~/ALE`
+
+`git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`
+
+`cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`
+
+`make`
 
 (If you don't want a GUI, use `-DUSE_SDL=OFF`, or leave it unspecified - it's off by default.)
 
