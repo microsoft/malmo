@@ -106,7 +106,7 @@ public class OverclockingClassTransformer implements IClassTransformer
     */
         // This allows us to alter the tick length via TimeHelper.
         
-        final String methodName = isObfuscated ? "minecraft" : "run";
+        final String methodName = "run";
         final String methodDescriptor = "()V"; // No params, returns void.
 
         System.out.println("MALMO: Found MinecraftServer, attempting to transform it");
@@ -141,7 +141,7 @@ public class OverclockingClassTransformer implements IClassTransformer
         //          TimeHelper.updateDisplay();
         // TimeHelper's method then decides whether or not to pass the call on to Minecraft.updateDisplay().
         
-        final String methodName = isObfuscated ? "av" : "runGameLoop";
+        final String methodName = isObfuscated ? "as" : "runGameLoop";
         final String methodDescriptor = "()V"; // No params, returns void.
 
         System.out.println("MALMO: Found Minecraft, attempting to transform it");
@@ -150,15 +150,19 @@ public class OverclockingClassTransformer implements IClassTransformer
         {
             if (method.name.equals(methodName) && method.desc.equals(methodDescriptor))
             {
-                System.out.println("MALMO: Found MinecraftServer.run() method, attempting to transform it");
+                System.out.println("MALMO: Found Minecraft.runGameLoop() method, attempting to transform it");
                 for (AbstractInsnNode instruction : method.instructions.toArray())
                 {
                     if (instruction.getOpcode() == Opcodes.INVOKEVIRTUAL)
                     {
                         MethodInsnNode visitMethodNode = (MethodInsnNode)instruction;
-                        if (visitMethodNode.name.equals("updateDisplay"))
+                        if (visitMethodNode.name.equals(isObfuscated ? "h" : "updateDisplay"))
                         {
                             visitMethodNode.owner = "com/microsoft/Malmo/Utils/TimeHelper";
+                            if (isObfuscated)
+                            {
+                                visitMethodNode.name = "updateDisplay";
+                            }
                             visitMethodNode.setOpcode(Opcodes.INVOKESTATIC);
                             method.instructions.remove(visitMethodNode.getPrevious());  // ALOAD 0 not needed for static invocation.
                             System.out.println("MALMO: Hooked into call to Minecraft.updateDisplay()");
