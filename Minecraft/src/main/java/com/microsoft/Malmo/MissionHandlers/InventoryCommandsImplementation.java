@@ -34,8 +34,6 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  */
 public class InventoryCommandsImplementation extends CommandGroup
 {
-    private int sourceSlotIndex = 0;
-
     InventoryCommandsImplementation()
     {
         setShareParametersWithChildren(true);   // Pass our parameter block on to the following children:
@@ -58,28 +56,44 @@ public class InventoryCommandsImplementation extends CommandGroup
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
-        if (verb.equalsIgnoreCase(InventoryCommand.SELECT_INVENTORY_ITEM.value()))
+        if (verb.equalsIgnoreCase(InventoryCommand.SWAP_INVENTORY_ITEMS.value()))
         {
             if (parameter != null && parameter.length() != 0)
             {
-                this.sourceSlotIndex = Integer.valueOf(parameter);
-                return true;
-            }
-        }
-        else if (verb.equalsIgnoreCase(InventoryCommand.DROP_INVENTORY_ITEM.value()))
-        {
-            if (parameter != null && parameter.length() != 0)
-            {
-                int slot = Integer.valueOf(parameter);
-                if (slot == this.sourceSlotIndex)
+                String[] params = parameter.split(" ");
+                if (params.length != 2)
                 {
-                    return true;    // No-op.
+                    System.out.println("Malformed parameter string (" + parameter + ") - expected <x> <y>");
+                    return false;   // Error - incorrect number of parameters.
+                }
+                Integer lhs, rhs;
+                try
+                {
+                    lhs = Integer.valueOf(params[0]);
+                    rhs = Integer.valueOf(params[1]);
+                }
+                catch (NumberFormatException e)
+                {
+                    System.out.println("Malformed parameter string (" + parameter + ") - " + e.getMessage());
+                    return false;
+                }
+                if (lhs == null || rhs == null)
+                {
+                    System.out.println("Malformed parameter string (" + parameter + ")");
+                    return false;   // Error - incorrect parameters.
                 }
                 InventoryPlayer inv = Minecraft.getMinecraft().thePlayer.inventory;
-                ItemStack srcStack = inv.getStackInSlot(this.sourceSlotIndex);
-                ItemStack dstStack = inv.getStackInSlot(slot);
-                inv.setInventorySlotContents(this.sourceSlotIndex, dstStack);
-                inv.setInventorySlotContents(slot, srcStack);
+                if (lhs < 0 || lhs >= inv.getSizeInventory() || rhs < 0 || rhs >= inv.getSizeInventory())
+                {
+                    System.out.println("Inventory swap parameters out of bounds - must be between 0 and " + (inv.getSizeInventory() - 1));
+                    return false;   // Out of bounds.
+                }
+
+                // All okay, so perform the swap:
+                ItemStack srcStack = inv.getStackInSlot(lhs);
+                ItemStack dstStack = inv.getStackInSlot(rhs);
+                inv.setInventorySlotContents(lhs, dstStack);
+                inv.setInventorySlotContents(rhs, srcStack);
                 return true;
             }
         }
