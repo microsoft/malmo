@@ -1,4 +1,9 @@
-0.14.0
+0.15.0
+-------------------
+New: Free-floating blocks can now be placed using DrawItem, and used in RewardForDiscardingItem/RewardForCollectingItem.
+New: Crafting now triggers RewardForDiscardingItem/RewardForCollectingItem.
+
+0.14.0 (2016-07-07)
 -------------------
 New: Basic, first stage crafting support added (issue #11).
 New: ObservationsFromMazeOptimalPath has been turned into general purpose ObservationFromSubgoalPositionList
