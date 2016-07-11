@@ -34,8 +34,12 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
+
+import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
 public class CraftingHelper
 {
@@ -201,6 +205,9 @@ public class CraftingHelper
                     }
                 }
             }
+            ItemStack resultForReward = isIngredient.copy();
+            RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(resultForReward);
+            MinecraftForge.EVENT_BUS.post(event);
         }
     }
 
@@ -278,7 +285,13 @@ public class CraftingHelper
             // First, remove the ingredients:
             removeIngredientsFromPlayer(player, ingredients);
             // Now add the output of the recipe:
-            player.inventory.addItemStackToInventory(is.copy());
+
+            ItemStack resultForInventory = is.copy();
+            ItemStack resultForReward = is.copy();
+            player.inventory.addItemStackToInventory(resultForInventory);
+            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(resultForReward);
+            MinecraftForge.EVENT_BUS.post(event);
+
             return true;
         }
         return false;
