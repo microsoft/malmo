@@ -809,16 +809,23 @@
       <xs:documentation>
         Commands for changing the contents of the inventory and hotbar.
         
-        To move items around in the inventory you can use {{{selectInventoryItem}}} and {{{dropInventoryItem}}}. For example, to swap
-        the contents of slots 13 and 14, issue these two commands in this order:
+        To move items around in the inventory you can use {{{swapInventoryItems}}}. For example, to swap
+        the contents of slots 13 and 14, issue this command:
       
-        "{{{selectInventoryItem 13}}}"
+        "{{{swapInventoryItems 13 14}}}"
         
-        "{{{dropInventoryItem 14}}}"
+        Note that inventory slots are numbered from 0 to 39.
+        0-8 are the hotbar slots (which correspond to the hotbar commands hotbar.1-hotbar.9 - _note the offset_)
+        9-35 are the rest of the inventory (visible when you press 'E' in the game)
+        36-39 are the armour slots.
         
+        So to move an item out of the hotbar, say:
+        
+        "{{{swapInventoryItems 3 30}}}"
+
         Other commands:
         
-        "{{{discardCurrentItem 15}}}" - discards the item that is in slot 15 in the agent's inventory.
+        "{{{discardCurrentItem}}}" - discards the currently held item.
         
         To select a hotbar slot:
         
@@ -830,8 +837,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:enumeration value="selectInventoryItem" />
-      <xs:enumeration value="dropInventoryItem" />
+      <xs:enumeration value="swapInventoryItems" />
       <xs:enumeration value="discardCurrentItem" />
       <xs:enumeration value="hotbar.1" />
       <xs:enumeration value="hotbar.2" />
@@ -1126,7 +1132,7 @@
         When present, the Mod will return observations that say what is in the player's inventory.
 
         Two values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively. Inventory slots are numbered 1 to 27 inclusive.
+        type of the item(s) in the slot, respectively. Inventory slots are numbered 0 to 39 inclusive.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
