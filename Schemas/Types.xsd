@@ -458,6 +458,10 @@
     </xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="BlockOrItem">
+  <xs:union memberTypes="BlockType ItemType"/>
+</xs:simpleType>
+
 <xs:simpleType name="BlockVariant">
     <xs:annotation>
       <xs:documentation>
