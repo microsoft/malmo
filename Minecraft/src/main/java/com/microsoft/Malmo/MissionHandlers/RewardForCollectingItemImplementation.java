@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
@@ -29,8 +30,19 @@ import com.microsoft.Malmo.Schemas.ItemSpec;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
 
-public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer {
+public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer
+{
     private RewardForCollectingItem params;
+
+    public static class GainItemEvent extends Event
+    {
+        public final ItemStack stack;
+
+        public GainItemEvent(ItemStack stack)
+        {
+            this.stack = stack;
+        }
+    }
 
     @Override
     public boolean parseParameters(Object params) {
@@ -46,8 +58,19 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     }
 
     @SubscribeEvent
-    public void onPickupItem(EntityItemPickupEvent event) {
-        if (event.item != null && event.item.getEntityItem() != null) {
+    public void onGainItem(GainItemEvent event)
+    {
+        if (event.stack != null)
+        {
+            accumulateReward(this.params.getDimension(), event.stack);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPickupItem(EntityItemPickupEvent event)
+    {
+        if (event.item != null && event.item.getEntityItem() != null)
+        {
             ItemStack stack = event.item.getEntityItem();
             accumulateReward(this.params.getDimension(), stack);
         }

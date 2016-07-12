@@ -160,8 +160,8 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                 this.waypointBlock = getBlock(this.mazeParams.getWaypoints().getWaypointBlock(), this.blockrand);
             else
             {
-                List<ItemType> items = this.mazeParams.getWaypoints().getWaypointItem();
-                String item = items.get(this.blockrand.nextInt(items.size())).value();
+                List<String> items = this.mazeParams.getWaypoints().getWaypointItem();
+                String item = items.get(this.blockrand.nextInt(items.size()));
                 this.waypointItem = MinecraftTypeHelper.ParseItemType(item);
             }
         }

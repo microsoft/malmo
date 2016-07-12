@@ -45,7 +45,6 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
                 json.addProperty("InventorySlot_" + i + "_item", is.getItem().getUnlocalizedName());
             }
         }
-        System.out.println(json.toString());
     }
     
 	@Override

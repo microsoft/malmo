@@ -30,7 +30,7 @@ import json
 import random
 import errno
 
-items=["cooked_rabbit", "carrot", "baked_potato"]
+items=["planks", "planks", "planks", "cooked_rabbit", "carrot", "baked_potato", "brown_mushroom"]
 
 def buildPositionList(items):
     positions=[]
@@ -102,21 +102,23 @@ def GetMissionXML(summary):
         </ServerSection>
 
         <AgentSection mode="Survival">
-            <Name>The Hungry Caterpillar</Name>
+            <Name>Delia</Name>
             <AgentStart>
                 <Placement x="0.5" y="227.0" z="0.5"/>
                 <Inventory>
-                    <InventoryBlock type="brown_mushroom" quantity="10" slot="0"/>
-                    <InventoryBlock type="planks" quantity="10" slot="1"/>
                 </Inventory>
             </AgentStart>
             <AgentHandlers>
                 <RewardForCollectingItem>
-                    <Item reward="2" type="fish porkchop beef chicken rabbit mutton"/>
-                    <Item reward="1" type="potato egg carrot"/>
-                    <Item reward="-1" type="apple melon"/>
-                    <Item reward="-2" type="sugar cake cookie pumpkin_pie"/>
+                    <Item reward="10" type="planks"/>
+                    <Item reward="100" type="cooked_rabbit carrot baked_potato brown_mushroom"/>
+                    <Item reward="500" type="bowl"/>
+                    <Item reward="1000" type="rabbit_stew"/>
                 </RewardForCollectingItem>
+                <RewardForDiscardingItem>
+                    <Item reward="-2" type="planks"/>
+                    <Item reward="-6" type="cooked_rabbit carrot baked_potato brown_mushroom"/>
+                </RewardForDiscardingItem>
                 <ContinuousMovementCommands turnSpeedDegs="480"/>
                 <SimpleCraftCommands/>
                 <ObservationFromSubgoalPositionList>''' + getSubgoalPositions(positions) + '''
@@ -130,6 +132,19 @@ def GetMissionXML(summary):
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
+
+# Expected reward made up as follows (see RewardForCollectingItem, above)
+# POSITIVE REWARDS:
+#   3 * 10 for collecting planks = 30
+#   100 each for collecting rabbit, carrot, potato and mushrooms = 400
+#   4 * 500 for crafting wooden bowls = 2000
+#   Crafting the rabbit stew = 1000
+# NEGATIVE REWARDS:
+#   3 * -2 for losing the planks (during crafting) = -6
+#   -6 each for losing the rabbit, carrot, potato and mushrooms (during crafting) = -24
+# TOTAL: 3400
+expected_reward = 3400
+
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,
 # so running four mods locally should produce the following pool by default (assuming nothing else
@@ -179,6 +194,7 @@ for iRepeat in range(num_reps):
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
 
+    total_reward = 0
     # main loop:
     agent_host.sendCommand( "move 1" )
     print "Collecting ingredients..."
@@ -200,9 +216,17 @@ for iRepeat in range(num_reps):
                 elif checkInventoryForStewIngredients(ob):
                     print "Crafting a stew..."
                     agent_host.sendCommand("craft rabbit_stew")
+                    time.sleep(1)
+        if world_state.number_of_rewards_since_last_state > 0:
+            reward = world_state.rewards[-1].getValue()
+            print "Reward: " + str(reward)
+            total_reward += reward
         world_state = agent_host.getWorldState()
         
     # mission has ended.
     for error in world_state.errors:
         print "Error:",error.text
+    print "Total Reward: " + str(total_reward)
+    if total_reward != expected_reward:
+        print "Total reward did not match expected reward - did the crafting work?"
     time.sleep(0.5) # Give the mod a little time to prepare for the next mission.

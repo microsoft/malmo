@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.14">
+           version="0.15">
 
   <xs:include schemaLocation="Types.xsd" />
 
@@ -159,6 +159,10 @@
 
   <xs:simpleType name="ItemList">
     <xs:list itemType="ItemType"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="BlockOrItemList">
+    <xs:list itemType="BlockOrItem"/>
   </xs:simpleType>
 
   <xs:simpleType name="ColourList">
@@ -357,7 +361,7 @@
           <xs:complexType>
             <xs:choice>
               <xs:element name="WaypointBlock" type="MazeBlock" />
-              <xs:element name="WaypointItem" type="ItemList" />
+              <xs:element name="WaypointItem" type="BlockOrItemList" />
             </xs:choice>
             <xs:attribute name="quantity" type="xs:int" use="required"/>
           </xs:complexType>
@@ -446,7 +450,7 @@
         <xs:attribute name="x" type="xs:int" use="required" />
         <xs:attribute name="y" type="xs:int" use="required" />
         <xs:attribute name="z" type="xs:int" use="required" />
-        <xs:attribute name="type" type="ItemType" use="required" />
+        <xs:attribute name="type" type="BlockOrItem" use="required" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1298,7 +1302,7 @@
 
   <xs:complexType name="ItemSpec">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
-    <xs:attribute name="type" use="required" type="ItemList" />
+    <xs:attribute name="type" use="required" type="BlockOrItemList" />
   </xs:complexType>
 
   <xs:element name="RewardForCollectingItem">

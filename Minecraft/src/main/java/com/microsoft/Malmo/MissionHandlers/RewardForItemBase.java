@@ -25,7 +25,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import com.microsoft.Malmo.Schemas.ItemSpec;
-import com.microsoft.Malmo.Schemas.ItemType;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public abstract class RewardForItemBase extends HandlerBase {
@@ -33,8 +32,8 @@ public abstract class RewardForItemBase extends HandlerBase {
     protected HashMap<String, Float> rewardMap = new HashMap<String, Float>();
 
     protected void addItemSpecToRewardStructure(ItemSpec is) {
-        for (ItemType it : is.getType()) {
-            Item item = MinecraftTypeHelper.ParseItemType(it.value());
+        for (String it : is.getType()) {
+            Item item = MinecraftTypeHelper.ParseItemType(it);
             if (item != null) {
                 String itemName = item.getUnlocalizedName();
                 if (!this.rewardMap.containsKey(itemName))

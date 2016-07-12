@@ -298,9 +298,9 @@ public class BlockDrawingHelper
      */
     private static void DrawPrimitive( DrawItem i, World w ) throws Exception
     {
-        Item item = MinecraftTypeHelper.ParseItemType(i.getType().value());
+        Item item = MinecraftTypeHelper.ParseItemType(i.getType());
         if (item == null)
-            throw new Exception("Unrecognised item type: "+i.getType().value());
+            throw new Exception("Unrecognised item type: "+i.getType());
         BlockPos pos = new BlockPos( i.getX(), i.getY(), i.getZ() );
         placeItem(item, pos, w, true);
     }

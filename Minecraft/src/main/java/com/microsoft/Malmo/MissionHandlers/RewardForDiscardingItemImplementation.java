@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
@@ -32,7 +33,17 @@ import com.microsoft.Malmo.Schemas.RewardForDiscardingItem;
 public class RewardForDiscardingItemImplementation extends RewardForItemBase implements IRewardProducer
 {
     private RewardForDiscardingItem params;
-    
+
+    public static class LoseItemEvent extends Event
+    {
+        public final ItemStack stack;
+
+        public LoseItemEvent(ItemStack stack)
+        {
+            this.stack = stack;
+        }
+    }
+
     @Override
     public boolean parseParameters(Object params)
     {
@@ -45,6 +56,15 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
             addItemSpecToRewardStructure(is);
 
         return true;
+    }
+
+    @SubscribeEvent
+    public void onLoseItem(LoseItemEvent event)
+    {
+        if (event.stack != null)
+        {
+            accumulateReward(this.params.getDimension(), event.stack);
+        }
     }
 
     @SubscribeEvent
