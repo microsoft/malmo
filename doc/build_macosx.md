@@ -9,6 +9,7 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
 
   ```
   brew update
+  brew upgrade
   brew install boost --with-python
   brew install ffmpeg swig boost-python xerces-c doxygen git cmake
   sudo brew cask install java
