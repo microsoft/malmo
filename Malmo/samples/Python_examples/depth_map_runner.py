@@ -25,7 +25,6 @@ import struct
 import socket
 import os
 import sys
-from PIL import Image, ImageDraw
 
 logging.basicConfig(level=logging.INFO)
 
@@ -96,16 +95,6 @@ def processFrame( frame ):
         v = nv
     
     logger.info("d2v, dv, v: " + str(d2v) + ", " + str(dv) + ", " + str(v))
-
-    # To visualise what is going on, do the following:
-    if 0:
-        imageframe = Image.frombytes( 'RGBA', ( video_width, video_height ), str(bytearray(frame)) )
-        imageframe = imageframe.transpose( Image.FLIP_TOP_BOTTOM )
-        draw = ImageDraw.Draw(imageframe)
-        draw.line((0, y, video_width, y), fill=128)
-        draw.line((d2v_max_pos, 0, d2v_max_pos, video_height), fill=128)
-        del draw
-        # Malmo.logVideo( imageframe )
 
     # We want to steer towards the greatest d2v (ie the biggest discontinuity in the gradient of the depth map).
     # If it's a possitive value, then it represents a rapid change from close to far - eg the left-hand edge of a gap.
