@@ -9,32 +9,6 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-
-    //    def Menger(xorg, yorg, zorg, size, blocktype, holetype):
-    //    #draw solid chunk
-    //    genstring = GenCuboid(xorg, yorg, zorg, xorg+size-1, yorg+size-1, zorg+size-1, blocktype) + "\n"
-    //    #now remove holes
-    //    unit = size
-    //    while (unit >= 3):
-    //        w=unit/3
-    //        for i in xrange(0, size, unit):
-    //            for j in xrange(0, size, unit):
-    //                x=xorg+i
-    //                y = yorg + j
-    //                genstring += GenCuboid(x+w, y+w, zorg,(x+2*w)-1,(y+2* w)-1,zorg+size-1,holetype) + "\n"
-    //                y=yorg+i
-    //                z = zorg + j
-    //                genstring += GenCuboid(xorg, y+w, z+w, xorg+size-1, (y+2*w)-1,(z+2* w)-1,holetype) + "\n"
-    //                genstring += GenCuboid(x+w, yorg, z+w,(x+2*w)-1,yorg+size-1,(z+2* w)-1,holetype) + "\n"
-    //        unit/=3
-    //    return genstring
-
-    //def GenCuboid(x1, y1, z1, x2, y2, z2, blocktype):
-    //    return '<DrawCuboid x1="' + str(x1) + '" y1="' + str(y1) + '" z1="' + str(z1) + '" x2="' + str(x2) + '" y2="' + str(y2) + '" z2="' + str(z2) + '" type="' + blocktype + '"/>'
-
-
-
-
     class Program
     {
 
