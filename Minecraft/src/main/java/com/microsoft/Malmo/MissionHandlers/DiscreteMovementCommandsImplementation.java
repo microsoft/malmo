@@ -28,14 +28,17 @@ import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
-/** Fairly dumb command handler that attempts to move the player one block N,S,E or W.<br> */
+/**
+ * Fairly dumb command handler that attempts to move the player one block N,S,E
+ * or W.<br>
+ */
 public class DiscreteMovementCommandsImplementation extends CommandBase implements ICommandHandler
 {
     public static final String MOVE_ATTEMPTED_KEY = "attemptedToMove";
 
     private boolean isOverriding;
     private int direction = -1;
-    
+
     @Override
     public boolean parseParameters(Object params)
     {
@@ -46,10 +49,11 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         setUpAllowAndDenyLists(dmparams.getModifierList());
         return true;
     }
-    
-	@Override
-	protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
-	{
+
+    @Override
+    protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
+    {
+        boolean handled = false;
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         if (player != null)
         {
@@ -91,13 +95,17 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     switch (this.direction)
                     {
                     case 0: // North
-                        z = offset; break;
+                        z = offset;
+                        break;
                     case 1: // East
-                        x = -offset; break;
+                        x = -offset;
+                        break;
                     case 2: // South
-                        z = -offset; break;
+                        z = -offset;
+                        break;
                     case 3: // West
-                        x = offset; break;
+                        x = offset;
+                        break;
                     }
                 }
             }
@@ -110,22 +118,24 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     this.direction = (this.direction + 4) % 4;
                     player.rotationYaw = this.direction * 90;
                     player.onUpdate();
+                    handled = true;
                 }
             }
             else if (verb.equalsIgnoreCase(DiscreteMovementCommand.LOOK.value()))
             {
-            	if (parameter != null && parameter.length() != 0)
-            	{
-            		float pitchDelta = Float.valueOf(parameter);
+                if (parameter != null && parameter.length() != 0)
+                {
+                    float pitchDelta = Float.valueOf(parameter);
                     player.rotationPitch += (pitchDelta < 0) ? -45 : ((pitchDelta > 0) ? 45 : 0);
                     player.onUpdate();
-            	}
+                    handled = true;
+                }
             }
 
             if (z != 0 || x != 0 || y != 0)
             {
                 // Attempt to move the entity:
-                player.moveEntity(x,  y,  z);
+                player.moveEntity(x, y, z);
                 player.onUpdate();
                 // Now check where we ended up:
                 double newX = player.posX;
@@ -148,28 +158,28 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
                 try
                 {
-					MalmoMod.getPropertiesForCurrentThread().put(MOVE_ATTEMPTED_KEY, true);
-				}
+                    MalmoMod.getPropertiesForCurrentThread().put(MOVE_ATTEMPTED_KEY, true);
+                }
                 catch (Exception e)
                 {
-                	// TODO - proper error reporting.
-                	System.out.println("Failed to access properties for the client thread after discrete movement - reward may be incorrect.");
-				}
-                return true;
+                    // TODO - proper error reporting.
+                    System.out.println("Failed to access properties for the client thread after discrete movement - reward may be incorrect.");
+                }
+                handled = true;
             }
         }
-        return false;
-	}
+        return handled;
+    }
 
-	@Override
-	public void install(MissionInit missionInit)
-	{
-	}
+    @Override
+    public void install(MissionInit missionInit)
+    {
+    }
 
-	@Override
-	public void deinstall(MissionInit missionInit)
-	{
-	}
+    @Override
+    public void deinstall(MissionInit missionInit)
+    {
+    }
 
     @Override
     public boolean isOverriding()
