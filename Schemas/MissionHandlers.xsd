@@ -825,6 +825,8 @@
 
         Other commands:
         
+        "{{{combineInventoryItems x y}}}" - will attempt to combine the stacks in slots x and y, and leave the results in slot x. Eg if there are ten blocks of granite in slot 4, and 57 blocks of granite in slot 12, then {{{combineInventoryItems 4 12}}} will result in 64 (the max) blocks of granite in slot 4, and the remainder in slot 12. If the slots can't be combined (they are different types, or the first slot is full) then nothing will happen.
+
         "{{{discardCurrentItem}}}" - discards the currently held item.
         
         To select a hotbar slot:
@@ -838,6 +840,7 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="swapInventoryItems" />
+      <xs:enumeration value="combineInventoryItems" />
       <xs:enumeration value="discardCurrentItem" />
       <xs:enumeration value="hotbar.1" />
       <xs:enumeration value="hotbar.2" />
