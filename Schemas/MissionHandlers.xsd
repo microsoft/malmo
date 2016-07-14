@@ -1202,6 +1202,46 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:complexType name="RangeDefinition">
+    <xs:annotation>
+      <xs:documentation>
+        Used by {{{ObservationFromNearbyEntities}}}. Defines the range within which entities will be returned. Eg a range of 10,1,10 will return all entities within +/-10 blocks of the agent in the x and z axes, and within +/-1 block vertically.
+        
+        {{{update_frequency}}} is measured in Minecraft world ticks, and allows the user to specify how often they would like to receive each observation. A value of 20, under normal Minecraft running conditions, for example, would return the entity list once per second.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" type="xs:Name" use="required" />
+    <xs:attribute name="xrange" type="xs:decimal" use="required" />
+    <xs:attribute name="yrange" type="xs:decimal" use="required" />
+    <xs:attribute name="zrange" type="xs:decimal" use="required" />
+    <xs:attribute name="update_frequency" type="xs:int" use="optional" default="1"/>
+  </xs:complexType>
+  
+  <xs:element name="ObservationFromNearbyEntities">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return observations that list the positions of all entities that fall within the given ranges of the agent.
+
+        A JSON array will be returned for each range requested, named using the {{{name}}} attribute of the range. Within the array will be a series of elements, one for each entity, containing the following:
+        
+        - name: a string describing the entity (of the form item.tile.woolCarpet.red, or item.item.beefRaw, for example)
+        
+        - x: the x position of the entity
+        
+        - y: the y position of the entity
+        
+        - z: the z position of the entity
+        
+        - quantity: if items have been grouped together by Minecraft, this indicates the number in the stack
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded" >
+        <xs:element name="Range" type="RangeDefinition" />
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="ObservationFromChat">
     <xs:annotation>
       <xs:documentation>

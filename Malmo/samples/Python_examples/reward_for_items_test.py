@@ -19,6 +19,7 @@
 
 # Sample to demonstrate use of RewardForCollectingItem mission handler - creates a map with randomly distributed food items, each of which
 # gives the agent a certain reward. Agent runs around collecting items, and turns left or right depending on the detected reward.
+# Also demonstrates use of ObservationFromNearbyEntities
 
 import MalmoPython
 import os
@@ -28,6 +29,9 @@ import time
 import json
 import random
 import errno
+from collections import namedtuple
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, quantity')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, "", 1)
 
 def GetMissionXML(summary, itemDrawingXML):
     ''' Build an XML mission string that uses the RewardForCollectingItem mission handler.'''
@@ -162,6 +166,19 @@ for iRepeat in range(num_reps):
     # main loop:
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
+        if world_state.number_of_observations_since_last_state > 0:
+            msg = world_state.observations[-1].text
+            ob = json.loads(msg)
+            entities = [EntityInfo(**k) for k in ob["close_entities"]]
+            
+            for ent in entities:
+                print ent.name, ent.x, ent.z, ent.quantity
+            
+            if "far_entities" in ob:
+                far_entities = [EntityInfo(**k) for k in ob["far_entities"]]
+                for ent in far_entities:
+                    print ent.name, ent.quantity
+                
         if world_state.number_of_rewards_since_last_state > 0:
             # A reward signal has come in - see what it is:
             delta = world_state.rewards[0].getValue() 
