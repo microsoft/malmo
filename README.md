@@ -8,7 +8,7 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 ## Getting Started ##
 
 1. [Download the latest *pre-built* version, for Windows, Linux or MacOSX.](https://github.com/Microsoft/malmo/releases)   
-      NOTE: This is _not_ the same as downloading a zip of the source from Github. _Unless you are planning to build from source (which is a lengthier process), you do not want to do this!_
+      NOTE: This is _not_ the same as downloading a zip of the source from Github. _Doing this **will not work** unless you are planning to build the source code yourself (which is a lengthier process). If you get errors along the lines of "`ImportError: No module named MalmoPython`" it will probably be because you have made this mistake._
 
 2. Install the dependencies for your OS: [Windows](doc/install_windows.md), [Linux](doc/install_linux.md), [MacOSX](doc/install_macosx.md).
 
