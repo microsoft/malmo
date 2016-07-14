@@ -55,6 +55,12 @@ public class MinecraftTypeHelper
         if (s == null)
             return null;
         Item item = (Item)Item.itemRegistry.getObject(new ResourceLocation(s)); // Minecraft returns null when it doesn't recognise the string
+        if (item == null)
+        {
+            // Maybe this is a request for a block item?
+            IBlockState block = MinecraftTypeHelper.ParseBlockType(s);
+            item = (block != null && block.getBlock() != null) ? Item.getItemFromBlock(block.getBlock()) : null;
+        }
         return item;
     }
 }
