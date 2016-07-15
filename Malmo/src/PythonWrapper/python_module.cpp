@@ -87,6 +87,15 @@ struct ptime_to_python_datetime
     }
 };
 
+struct unsigned_char_vec_to_python_array
+{
+    static PyObject* convert(std::vector<unsigned char> const& vec)
+    {
+        const char* buffer = reinterpret_cast<const char*>(vec.data());
+        return PyByteArray_FromStringAndSize(buffer, vec.size());
+    }
+};
+
 // Defines the API available to Python.
 BOOST_PYTHON_MODULE(MalmoPython)
 {
@@ -95,6 +104,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
     // Bind the converter for posix_time to python DateTime
     PyDateTime_IMPORT;
     to_python_converter<boost::posix_time::ptime, ptime_to_python_datetime>();
+    to_python_converter<std::vector<unsigned char>, unsigned_char_vec_to_python_array>();
 
     class_< ArgumentParser, boost::noncopyable >("ArgumentParser", init< const std::string& >())
         .def( "parse",                     &parsePythonList )
@@ -253,7 +263,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "width",       &TimestampedVideoFrame::width )
         .def_readonly( "height",      &TimestampedVideoFrame::height )
         .def_readonly( "channels",    &TimestampedVideoFrame::channels )
-        .def_readonly( "pixels",      &TimestampedVideoFrame::pixels )
+        .add_property( "pixels",      make_getter(&TimestampedVideoFrame::pixels, return_value_policy<return_by_value>()))
         .def(self_ns::str(self_ns::self))
     ;
     class_< std::vector< boost::shared_ptr< TimestampedString > > >( "TimestampedStringVector" )
@@ -264,9 +274,6 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< std::vector< boost::shared_ptr< TimestampedVideoFrame > > >( "TimestampedVideoFrameVector" )
         .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedVideoFrame > >, true >() )
-    ;
-    class_< std::vector< unsigned char > >( "UnsignedCharVector")
-        .def( vector_indexing_suite< std::vector< unsigned char > >() )
     ;
     register_exception_translator<xml_schema::exception>(&translateXMLSchemaException);
 }
