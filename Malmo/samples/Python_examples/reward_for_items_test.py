@@ -73,6 +73,10 @@ def GetMissionXML(summary, itemDrawingXML):
                     <Item reward="-2" type="sugar cake cookie pumpkin_pie"/>
                 </RewardForCollectingItem>
                 <ContinuousMovementCommands turnSpeedDegs="240"/>
+                <ObservationFromNearbyEntities>
+                    <Range name="close_entities" xrange="2" yrange="2" zrange="2" />
+                    <Range name="far_entities" xrange="10" yrange="2" zrange="10" update_frequency="100"/>
+                </ObservationFromNearbyEntities>
             </AgentHandlers>
         </AgentSection>
 
@@ -169,10 +173,10 @@ for iRepeat in range(num_reps):
         if world_state.number_of_observations_since_last_state > 0:
             msg = world_state.observations[-1].text
             ob = json.loads(msg)
-            entities = [EntityInfo(**k) for k in ob["close_entities"]]
-            
-            for ent in entities:
-                print ent.name, ent.x, ent.z, ent.quantity
+            if "close_entities" in ob:
+                entities = [EntityInfo(**k) for k in ob["close_entities"]]
+                for ent in entities:
+                    print ent.name, ent.x, ent.z, ent.quantity
             
             if "far_entities" in ob:
                 far_entities = [EntityInfo(**k) for k in ob["far_entities"]]
