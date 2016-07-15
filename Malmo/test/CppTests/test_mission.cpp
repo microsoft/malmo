@@ -52,7 +52,7 @@ int main()
     my_mission.allowContinuousMovementCommand("move");
     my_mission.allowContinuousMovementCommand("strafe");
     my_mission.allowDiscreteMovementCommand("movenorth");
-    my_mission.allowInventoryCommand("selectInventoryItem");
+    my_mission.allowInventoryCommand("swapInventoryItems");
 
     // check that the XML we produce validates
     const bool pretty_print = false;
