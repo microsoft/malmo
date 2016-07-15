@@ -24,7 +24,7 @@ import sys
 import time
 import errno
 import Tkinter as tk
-#from PIL import Image, ImageTk - we need these for displaying our own gui, but it's a nightmare installing the dependencies correctly.
+from PIL import Image, ImageTk
 from array import array
 from struct import pack
 
@@ -192,14 +192,12 @@ def sendCommand():
             print "Error:",error.text
         if world_state.number_of_video_frames_since_last_state > 0 and want_own_display:
             # Turn the frame into an image to display on our canvas.
-            # On my system creating buff was too slow to be usable, whichever of these three apporaches I tried:
-            buff = str(bytearray(world_state.video_frames[-1].pixels))
-            # Or buff = pack('100800B', *(world_state.video_frames[-1].pixels))
-            # Or buff = array('B', world_state.video_frames[-1].pixels)
-            image = Image.frombytes('RGB', (320,420), buff)
+            frame = world_state.video_frames[-1]
+            buff = buffer(frame.pixels, 0, frame.width * frame.height * frame.channels)
+            image = Image.frombytes('RGB', (frame.width,frame.height), buff)
             photo = ImageTk.PhotoImage(image)
             canvas.delete("all")
-            canvas.create_image(80,105, image=photo)
+            canvas.create_image(frame.width/2, frame.height/2, image=photo)
             root.update()
 
     if world_state.is_mission_running:
@@ -237,7 +235,7 @@ want_own_display = agent_host.receivedArgument('own_display')
 iterations = agent_host.getIntArgument('goes')
 
 my_mission = MalmoPython.MissionSpec()
-my_mission.requestVideo( 210, 160 )
+my_mission.requestVideo( 160, 210 )
 
 recordingsDirectory = rom_file.rpartition('/')[-1]+'_recordings'
 try:
