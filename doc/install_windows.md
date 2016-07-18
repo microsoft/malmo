@@ -29,7 +29,7 @@ Run the downloaded file to install CodeSynthesis.
 
 If you don't want to use Malmo from Python then you can skip this step. But for testing your installation we recommend installing python.
 
-Visit https://www.python.org/ and download the latest version of Python 2.7 64-bit. e.g. `python-2.7.11.amd64.msi`
+Visit https://www.python.org/ and download the latest version of Python 2.7 64-bit. e.g. [python-2.7.12.amd64.msi](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi)
 
 Run the downloaded file to install Python.
 
