@@ -8,7 +8,7 @@
 2. Install dependencies.
     1. On Ubuntu 15.10:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
@@ -16,7 +16,7 @@
          
     2. On Ubuntu 14.04:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -24,7 +24,7 @@
          
     3. On Debian 8:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -32,7 +32,7 @@
          
     4. On Debian 7:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg python-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -44,7 +44,7 @@
 
         `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat`
+        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat tkinter`
 
 4. Install Torch: (if supported by your platform)
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
