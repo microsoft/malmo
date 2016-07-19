@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <title>Creating Schema Implementations - Project Malm&ouml; Blog</title>
+
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/cinder.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Project Malm&ouml; Blog</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../Getting_Started/">Getting Started</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Build Battle Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../Introduction/">Introduction</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Preliminaries/">Preliminaries</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../An_Overview_of_XML_and_XSD/">An Overview of XML and XSD</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_New_Schema/">Defining New Schema</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Java_and_MinecraftForge/">Java and MinecraftForge</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Creating Schema Implementations</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_Simple_Functions/">Defining Simple Functions</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Event_Handlers/">Event Handlers</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Summary/">Summary</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../Java_and_MinecraftForge/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../Defining_Simple_Functions/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/Microsoft/malmo/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="first-level active"><a href="#adding-a-java-class">Adding a Java Class</a></li>
+        
+    
+        <li class="first-level "><a href="#subclassing-and-interfaces">Subclassing and Interfaces</a></li>
+        
+    
+        <li class="first-level "><a href="#generate-superclass-and-interface-functions">Generate Superclass and Interface functions</a></li>
+        
+    
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h3 id="adding-a-java-class">Adding a Java Class</h3>
+<p>If you have not already, open the Project Malm&ouml; project in your 
+IDE. I use IntelliJ, and so will be presenting the steps for it, but the 
+steps in Eclipse should be about the same. </p>
+<p>Now, we are going to add a new Java class. In IntelliJ, look for the 
+folder <code>MissionHandlers</code>. Then, right-click on the folder, 
+select <code>New</code> and then <code>Java Class</code>. When a pop-up window opens,
+type the name as <code>RewardForStructureCopyingImplementation</code>. 
+The name must be exactly this since the function 
+<code>createHandlerFromParams</code> in the class <code>MissionBehavior</code> looks 
+for a class named <code>RewardForStructureCopying</code> (the Schema name) 
+followed by <code>Implementation</code>. Try to verify this by opening the 
+<code>MissionBehavior</code> class. To do so, you can use one of the many nifty 
+tools IntelliJ and IDEs in general provide: Search. In IntelliJ, you 
+can click the shift button twice to bring up Search.</p>
+<h3 id="subclassing-and-interfaces">Subclassing and Interfaces</h3>
+<p>Open the <code>RewardForStructureConstruction</code> class again. 
+At this point, have a look at the code for some of the other Reward 
+Handlers under <code>MissionHandlers</code>. There are a few things
+that are worth noting. Firstly, all of them extend or in other words 
+subclass<code>HandlerBase</code> (meaning some fields or functions are 
+inherited from the superclass <code>HandlerBase</code> while others must be
+implemented or "overriden" so as to change the functionality of some 
+methods). Also, all of the Reward Handlers implement 
+<code>IRewardProducer</code>, an interface. This means that all the Reward 
+Handlers follow some protocol and can be treated in the same manner 
+given that they implement the methods necessary according to the 
+Interface.</p>
+<p>With the above said, change the <code>RewardForStructureCopying</code> class 
+so that you make the two changes. This means that you will now have 
+something like this: </p>
+<pre><code class="Java">public class RewardForStructureCopyingImplementation extends HandlerBase implements IRewardProducer{
+
+}
+</code></pre>
+
+<h3 id="generate-superclass-and-interface-functions">Generate Superclass and Interface functions</h3>
+<p>You might now notice that the IDE complains about some errors. These
+errors are due to the fact that we have not yet implemented some 
+functions we have guaranteed to based on our class definition (in 
+particular the extends and implements bit).</p>
+<p>We will now add some functions from the classes we have inherited or 
+the interfaces we have said we will implement. In IntelliJ, right-click
+anywhere inside the brackets enclosing the class definitions and fields.
+Now, choose <code>Generate...</code> followed by <code>Override Methods...</code>. 
+Alternatively, place your cursor between the brackets and hit 
+<code>Ctrl + o</code>. Now, choose 
+<code>parseParameters(params:Object):boolean</code> under 
+<code>com.microsoft.Malmo.MissionHandlers.HandlerBase</code>. Next, 
+hold the <code>Ctrl</code> key and without leaving the key select 
+<code>getReward(missionInit:MissionInit):float</code>, 
+<code>prepare(missionInit:MissionInit):void</code> and 
+<code>cleanup():void</code>, all of which are under 
+<code>com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer</code>. 
+You may leave the <code>Ctrl</code> key and now using the using the mouse, 
+if they are not already checked, 
+click on <code>Copy JavaDoc</code> and <code>Insert @Override</code>. </p>
+<p>Note: the <code>Ctrl</code> key may not work if you are on a Mac for example. 
+      In this case, just choose the above methods one by one by 
+      repeating the steps.</p>
+<p>You should now have something like this: </p>
+<pre><code class="java">public class RewardForStructureConstructionImplementation extends HandlerBase implements IRewardProducer {
+    /**
+     * Attempt to parse the given object as a set of parameters for this handler.
+     *
+     * @param params the parameter block to parse
+     * @return true if the object made sense for this handler; false otherwise.
+     */
+    @Override
+    public boolean parseParameters(Object params) {
+        return super.parseParameters(params);
+    }
+
+    /**
+     * Get the reward value for the current Minecraft state.
+     *
+     * @param missionInit the MissionInit object for the currently running mission, 
+     *        which may contain parameters for the reward requirements.
+     * @return a float determining the current reward signal for the learning agent
+     */
+    @Override
+    public float getReward(MissionInit missionInit) {
+        return 0;
+    }
+
+    /**
+     * Called once before the mission starts - use for any necessary initialisation.
+     *
+     * @param missionInit
+     */
+    @Override
+    public void prepare(MissionInit missionInit) {
+
+    }
+
+    /**
+     * Called once after the mission ends - use for any necessary cleanup.
+     */
+    @Override
+    public void cleanup() {
+
+    }
+}
+</code></pre></div>
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+    </footer>
+
+    <script src="../../js/jquery-1.10.2.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+    <script src="../../js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>

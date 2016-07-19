@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <title>Defining Simple Functions - Project Malm&ouml; Blog</title>
+
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/cinder.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Project Malm&ouml; Blog</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../Getting_Started/">Getting Started</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Build Battle Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../Introduction/">Introduction</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Preliminaries/">Preliminaries</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../An_Overview_of_XML_and_XSD/">An Overview of XML and XSD</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_New_Schema/">Defining New Schema</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Java_and_MinecraftForge/">Java and MinecraftForge</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Creating_Schema_Implementations/">Creating Schema Implementations</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Defining Simple Functions</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Event_Handlers/">Event Handlers</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Summary/">Summary</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../Creating_Schema_Implementations/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../Event_Handlers/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/Microsoft/malmo/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="first-level active"><a href="#parsing-parameters">Parsing Parameters</a></li>
+        
+    
+        <li class="first-level "><a href="#prepare-and-cleanup">Prepare and Cleanup</a></li>
+        
+    
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h3 id="parsing-parameters">Parsing Parameters</h3>
+<p>Take a look at the <code>parseParameters(Object params)</code> function in 
+the various classes in <code>MissionHandlers</code>. This should give a good
+idea about what it is we are about to do.</p>
+<p>The code we will add for the <code>parseParameters</code> function is given below. 
+Note that we remove the code already within <code>parseParameters</code> which 
+simply calls a superclass method. This is not really what we would like. 
+We want to override the superclass method and change the return values.</p>
+<pre><code class="java">    @Override
+    public boolean parseParameters(Object params) {
+
+        if (params == null || !(params instanceof RewardForStructureCopying))
+            return false;
+
+        RewardForStructureCopying rscparams = (RewardForStructureCopying) params;
+
+        BlockPos minPlayerStructurePos = 
+            this.blockPosFromPos(rscparams.getPlayerStructureBounds().getMin());
+        BlockPos maxPlayerStructurePos = 
+            this.blockPosFromPos(rscparams.getPlayerStructureBounds().getMax());
+        BlockPos minGoalStructurePos = 
+            this.blockPosFromPos(rscparams.getGoalStructureBounds().getMin());
+        BlockPos maxGoalStructurePos = 
+            this.blockPosFromPos(rscparams.getGoalStructureBounds().getMax());
+
+        this.playerStructureAABB = new AxisAlignedBB(minPlayerStructurePos, maxPlayerStructurePos);
+        this.goalStructureAABB = new AxisAlignedBB(minGoalStructurePos, maxGoalStructurePos);
+
+        if(playerStructureAABB.intersectsWith(goalStructureAABB))
+        {
+            System.out.print(&quot;Warning! RewardForStructureCopying got player structure bounds&quot; + 
+                             &quot; and goal structure bounds that intersect!&quot; +
+                             &quot; Undefined behavior can follow!\n&quot;);
+        }
+
+        this.structureVolume = volumeOfAABB(playerStructureAABB);
+
+        if(this.structureVolume != volumeOfAABB(goalStructureAABB))
+        {
+            System.out.print(&quot;Warning! RewardForStructureCopying got player structure bounds&quot; + 
+                             &quot; and goal structure bounds that have unequal volumes!&quot; + 
+                             &quot; Undefined behavior can follow!\n&quot;);
+
+        }
+
+        this.delta = new Vec3i(goalStructureAABB.minX - playerStructureAABB.minX,
+                goalStructureAABB.minY - playerStructureAABB.minY,
+                goalStructureAABB.minZ - playerStructureAABB.minZ);
+
+        this.rewardDensity = rscparams.getRewardDensity();
+
+        DrawBlockBasedObjectType blockBasedObjectType = rscparams.getBlockTypeOnCorrectPlacement();
+
+        this.blockTypeOnCorrectPlacement = BlockDrawingHelper.applyModifications(
+                MinecraftTypeHelper.ParseBlockType(blockBasedObjectType.getType().value()),
+                blockBasedObjectType.getColour(),
+                blockBasedObjectType.getFace(),
+                blockBasedObjectType.getVariant());
+
+        blockBasedObjectType = rscparams.getBlockTypeOnIncorrectPlacement();
+
+        this.blockTypeOnIncorrectPlacement = BlockDrawingHelper.applyModifications(
+                MinecraftTypeHelper.ParseBlockType(blockBasedObjectType.getType().value()),
+                blockBasedObjectType.getColour(),
+                blockBasedObjectType.getFace(),
+                blockBasedObjectType.getVariant());
+
+        this.dimension = rscparams.getDimension();
+
+        return true;
+    }
+</code></pre>
+
+<p>The first thing we do is check if the <code>params</code> object is null or is
+not of the Schema type we are expect, i.e., not of the type <code>RewardForStructureCopying</code>. 
+If either is the case, we return <code>false</code> presumably telling the caller of this 
+function that the Schmea given is not something the Implementation was designed for.</p>
+<p>On the other hand, if the <code>params</code> object is indeed of type 
+<code>RewardForStructureCopying</code>, we perform a cast from <code>Object</code>, 
+Java's only class that has no superclass and from which all other classes
+inherit, to <code>RewardForStructureCopying</code> and set the instance to 
+a variance named <code>rscparams</code> following the convention of the other 
+Reward Handlers (rsc stands for Reward, Structure and copying resp.)</p>
+<p>Once we have a <code>RewardForStructureCopying</code> instance, we can query 
+it for the variables we'd like to store. </p>
+<p>Firstly, we get four <code>BlockPos</code> instances. This is the first Minecraft 
+type we are seeing! <code>BlockPos</code> is essentially an object that contains information 
+about a block's position or in other words contains data similar to a 3-tuple or 3-dimensional vector.
+Note the use of the method <code>blockPosFromPos</code> which is given below: </p>
+<pre><code class="java">private BlockPos blockPosFromPos(@Nonnull Pos pos) {
+    return new BlockPos(pos.getX().intValueExact(), 
+                        pos.getY().intValueExact(), 
+                        pos.getZ().intValueExact());
+}
+</code></pre>
+
+<p>The above method just returns a new <code>BlockPos</code> instance from 
+a <code>pos</code> instance which JAXB seems to have created (recall that 
+our <code>UnnamedGridDefinition</code> used a type defined in the Schema, 
+namely <code>Pos</code>.) It turns out that <code>Pos</code> comprises of <code>BigDecimal</code>s 
+since <code>Pos</code> uses <code>xs:decimal</code>s. This is a nice type for 
+performing accurate and exact arithmetic operations; however, for 
+comparing two grids of the same volume, we will be comparing the blocks
+within the grid themselves and we don't really care for decimals or 
+floating point arithmetic. We can make do with integers. Thus, we 
+create a new <code>BlockPos</code> with <code>intValueExact()</code> of the three 
+<code>BigDecimals</code>. Finally, note the use of the annotation <code>@NonNull</code>
+which helps IDEs find places where <code>blockPosFromPos</code> might have been 
+called with a ``null``` argument and raise an error for the user (even 
+before compile-time).</p>
+<p>Next, we define two Axis Aligned Bounding Blocks which in essence are 
+analogous to <code>UnnamedGridDefinition</code>s, but hold block positions 
+using <code>BlockPos</code>' rather than <code>Pos</code>'. We use these to 
+immediately perform a simple check: do the player structure and goal 
+structure intersect? If they do, we quit; else, we continue.</p>
+<p>We now go on to find and ensure that the structure volumes of the two 
+structures are the same. This uses the following member function: </p>
+<pre><code class="java">private float volumeOfAABB(AxisAlignedBB axisAlignedBB) {
+    return (float) (axisAlignedBB.maxX - axisAlignedBB.minX + 1) *
+            (float) (axisAlignedBB.maxY - axisAlignedBB.minY + 1) *
+            (float) (axisAlignedBB.maxZ - axisAlignedBB.minZ + 1);
+}
+</code></pre>
+
+<p>Moving on, we find <code>delta</code> which is a 3-dimensional vector specifying
+the vector to add to a particular block position in the player 
+structure to get the corresponding goal structure
+block position. We will use this vector when we compare the two
+structures. Continuing on, we store the Reward Density. </p>
+<p>The <code>BlockDrawingHelper</code> class and <code>MinecraftTypeHelper</code> classes are definitely something you
+should look at, these are used by the <code>DrawingDecorators</code> and are 
+also useful in parsing information of Schema like <code>DrawBlockBasedObjectType</code>
+to get <code>IBlockState</code>s, Minecraft's internal representation of Block
+States. And so, penultimately, we get two <code>IBlockStates</code> 
+corresponding to Block States to use for the Correct Block Placement and 
+Incorrect Block Placement cases. Finally, we store the dimension along 
+which rewards for this instance of <code>RewardForStructureCopying</code> are 
+to be sent.</p>
+<p>If all of the above succeeds, we have completed parsing a 
+<code>RewardForStructureCopying</code> Schema and can return <code>true</code>.</p>
+<h3 id="prepare-and-cleanup">Prepare and Cleanup</h3>
+<p>Again, taking a look at the other Mission Handlers, and, in particular, 
+the Reward Handlers, we see that in the <code>prepare</code> methods, we 
+remove <code>QuitCode</code>s that are present in the <code>MalmoMod</code> properties
+and perform registration of the class. The latter step, registering a 
+class to the Minecraft Forge <code>EVENT_BUS</code> is crucial when we begin 
+adding Event Handlers. Without it, the event handlers will not fire. 
+Note that there is another bus for adding event handlers to, the
+<code>FMLCommonHandler.bus()</code>. To see when you need to register event 
+handlers to that bus, take a look at the Complete list of Forge Event 
+Handlers, given as a resource for Minecraft Forge in the Java and 
+MinecraftForge section. Thus, prepare is as follows: </p>
+<pre><code class="java">@Override
+public void prepare(MissionInit missionInit) {
+    try
+    {
+        if (MalmoMod.getPropertiesForCurrentThread().containsKey(&quot;QuitCode&quot;))
+            MalmoMod.getPropertiesForCurrentThread().remove(&quot;QuitCode&quot;);
+    }
+    catch (Exception e)
+    {
+        System.out.println(&quot;Failed to get properties.&quot;);
+    }
+
+    MinecraftForge.EVENT_BUS.register(this);
+}
+</code></pre>
+
+<p>Cleanup is very simple in that the only thing we do is unregister the 
+class, like so: </p>
+<pre><code class="java">@Override
+public void cleanup() {
+    MinecraftForge.EVENT_BUS.unregister(this);
+}
+</code></pre>
+
+<p>The end result of this section along with some member variables that 
+were not shown is as follows: </p>
+<pre><code class="java">public class RewardForStructureConstructionImplementation extends HandlerBase implements IRewardProducer {
+    private AxisAlignedBB playerStructureAABB;
+    private AxisAlignedBB goalStructureAABB;
+
+    private Vec3i delta;
+    private float structureVolume;
+
+    private RewardDensityForBuildAndBreak rewardDensity;
+
+    private IBlockState blockTypeOnCorrectPlacement;
+    private IBlockState blockTypeOnIncorrectPlacement;
+
+    private int dimension;
+
+    /**
+     * Attempt to parse the given object as a set of parameters for this handler.
+     *
+     * @param params the parameter block to parse
+     * @return true if the object made sense for this handler; false otherwise.
+     */
+    @Override
+    public boolean parseParameters(Object params) {
+        if (params == null || !(params instanceof RewardForStructureCopying))
+            return false;
+
+        RewardForStructureCopying rscparams = (RewardForStructureCopying) params;
+
+        BlockPos minPlayerStructurePos = 
+            this.blockPosFromPos(rscparams.getPlayerStructureBounds().getMin());
+        BlockPos maxPlayerStructurePos = 
+            this.blockPosFromPos(rscparams.getPlayerStructureBounds().getMax());
+        BlockPos minGoalStructurePos = 
+            this.blockPosFromPos(rscparams.getGoalStructureBounds().getMin());
+        BlockPos maxGoalStructurePos = 
+            this.blockPosFromPos(rscparams.getGoalStructureBounds().getMax());
+
+        this.playerStructureAABB = new AxisAlignedBB(minPlayerStructurePos, maxPlayerStructurePos);
+        this.goalStructureAABB = new AxisAlignedBB(minGoalStructurePos, maxGoalStructurePos);
+
+        assert(!playerStructureAABB.intersectsWith(goalStructureAABB));
+
+        this.structureVolume = volumeOfAABB(playerStructureAABB);
+        assert(this.structureVolume == volumeOfAABB(goalStructureAABB));
+
+        this.delta = new Vec3i(goalStructureAABB.minX - playerStructureAABB.minX,
+                goalStructureAABB.minY - playerStructureAABB.minY,
+                goalStructureAABB.minZ - playerStructureAABB.minZ);
+
+        this.rewardDensity = rscparams.getRewardDensity();
+
+        DrawBlockBasedObjectType blockBasedObjectType = rscparams.getBlockTypeOnCorrectPlacement();
+
+        this.blockTypeOnCorrectPlacement = BlockDrawingHelper.applyModifications(
+                MinecraftTypeHelper.ParseBlockType(blockBasedObjectType.getType().value()),
+                blockBasedObjectType.getColour(),
+                blockBasedObjectType.getFace(),
+                blockBasedObjectType.getVariant());
+
+        blockBasedObjectType = rscparams.getBlockTypeOnIncorrectPlacement();
+
+        this.blockTypeOnIncorrectPlacement = BlockDrawingHelper.applyModifications(
+                MinecraftTypeHelper.ParseBlockType(blockBasedObjectType.getType().value()),
+                blockBasedObjectType.getColour(),
+                blockBasedObjectType.getFace(),
+                blockBasedObjectType.getVariant());
+
+        this.dimension = rscparams.getDimension();
+
+        return true;
+    }
+
+    private BlockPos blockPosFromPos(@Nonnull Pos pos) {
+        return new BlockPos(pos.getX().intValueExact(), pos.getY().intValueExact(), 
+                            pos.getZ().intValueExact());
+    }
+
+    private float volumeOfAABB(AxisAlignedBB axisAlignedBB) {
+        return (float) (axisAlignedBB.maxX - axisAlignedBB.minX + 1) *
+                (float) (axisAlignedBB.maxY - axisAlignedBB.minY + 1) *
+                (float) (axisAlignedBB.maxZ - axisAlignedBB.minZ + 1);
+    }
+
+    /**
+     * Get the reward value for the current Minecraft state.
+     *
+     * @param missionInit the MissionInit object for the currently running mission, 
+     *        which may contain parameters for the reward requirements.
+     * @return a float determining the current reward signal for the learning agent
+     */
+    @Override
+    public float getReward(MissionInit missionInit) {
+        return 0;
+    }
+
+    /**
+     * Called once before the mission starts - use for any necessary initialisation.
+     *
+     * @param missionInit
+     */
+    @Override
+    public void prepare(MissionInit missionInit) {
+        try
+        {
+            if (MalmoMod.getPropertiesForCurrentThread().containsKey(&quot;QuitCode&quot;))
+             MalmoMod.getPropertiesForCurrentThread().remove(&quot;QuitCode&quot;);
+        }
+        catch (Exception e)
+        {
+            System.out.println(&quot;Failed to get properties.&quot;);
+        }
+
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    /**
+     * Called once after the mission ends - use for any necessary cleanup.
+     */
+    @Override
+    public void cleanup() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+}
+</code></pre></div>
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+    </footer>
+
+    <script src="../../js/jquery-1.10.2.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+    <script src="../../js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>
