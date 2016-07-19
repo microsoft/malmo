@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <title>An Overview of XML and XSD - Project Malm&ouml; Blog</title>
+
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/cinder.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Project Malm&ouml; Blog</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../Getting_Started/">Getting Started</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Build Battle Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../Introduction/">Introduction</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Preliminaries/">Preliminaries</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">An Overview of XML and XSD</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_New_Schema/">Defining New Schema</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Java_and_MinecraftForge/">Java and MinecraftForge</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Creating_Schema_Implementations/">Creating Schema Implementations</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_Simple_Functions/">Defining Simple Functions</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Event_Handlers/">Event Handlers</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Summary/">Summary</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../Preliminaries/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../Defining_New_Schema/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/Microsoft/malmo/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="first-level active"><a href="#the-building-blocks-of-missions">The Building Blocks of Missions</a></li>
+        
+    
+        <li class="first-level "><a href="#rules-for-the-building-blocks">Rules for the Building Blocks</a></li>
+        
+    
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h3 id="the-building-blocks-of-missions">The Building Blocks of Missions</h3>
+<p>eXtensible Markup Language or XML provides for a software and hardware 
+ independent way to store and transmit data. Additionally, XML is a 
+ language that is designed for coming up with specialized markup 
+ languages. For example, one could come up with a language for 
+ genealogy, and define tags like <code>&lt;mother&gt;</code>, <code>&lt;father&gt;</code>, 
+ <code>&lt;son&gt;</code>, and <code>&lt;daughter&gt;</code>. As a result of this ease of 
+ creating new languages, XML has been used in hundreds of document 
+ and markup language formats including MathML for specifying 
+ mathematical and scientific content, XHTML for extending HTML,
+ the popular backbone language of the Internet, and Atom and RSS 
+ for delivering updates on regularly changing content. </p>
+<p>Though XML is generally weak syntactically, there is a specification 
+ which should be followed for clarity and functionality. A thorough yet 
+ brief introduction to the key terminology is given in the 
+ <a href="https://en.wikipedia.org/wiki/XML#Key_terminology"> XML 
+ Wikipedia page </a>. Given below is an even briefer view on what will 
+ be important, especially in the context of Project Malm&ouml;.</p>
+<ul>
+<li>
+<p>XML comprises of a string of characters. These characters may 
+     generally be any 
+     <a href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">
+     Unicode character</a>.</p>
+</li>
+<li>
+<p>The characters making up an XML document are divided into markup 
+     and content. These are different using simple syntactic rules.</p>
+</li>
+<li>
+<p>As alluded to above in the example given previously, XML at its 
+     core is built on tags, like many other Markup Languages. These 
+     begin with <code>&lt;</code> and end with <code>&gt;</code>. More specifically, they come 
+     in three flavors:</p>
+<ul>
+<li>Start-tags like <code>&lt;section&gt;</code>, </li>
+<li>End-tags like <code>&lt;/section&gt;</code>, and </li>
+<li>Empty-element tags like <code>&lt;line-break /&gt;</code>.</li>
+</ul>
+</li>
+<li>
+<p>A logical document component that either begins with a start-tag 
+     and ends with a matching end-tag or consists of only an 
+     empty-element tag. The characters between the start- and end-tags, 
+     if any are the element's content. Examples are 
+     <code>&lt;Greeting&gt;Hello, World&lt;/Greeting&gt;</code>, <br/>
+     <code>&lt;line-break&gt;&lt;/line-break&gt;</code> and 
+     <code>&lt;line-break /&gt;</code>.</p>
+</li>
+<li>
+<p>Attributes are name/value pairs that exist within a start or 
+     empty-element tag. In the example below the element <em>img</em> has 
+     two attributes, <em>src</em> and <em>alt</em>:</p>
+<p><code>&lt;img src="proj_malmo.jpg" alt="Project Malmo Image" /&gt;</code></p>
+<p>The above is an empty-element tag. Another example with start- and 
+ end-tags, where the only attribute is <strong>number</strong> with a value of 3,
+ is: </p>
+<p><code>&lt;step number="3"&gt;Open the XML file.&lt;/step&gt;</code></p>
+</li>
+<li>
+<p>An XML attribute can only have a single value and each attribute 
+     can appear only once.</p>
+</li>
+<li>
+<p>A processor or XML parser analyzes markup and passes structured 
+     information to an application. The specification places 
+     requirements on what an XML processor must do or not do, but the 
+     application is outside of its scope.</p>
+</li>
+</ul>
+<p>Now, the last point about the processor and application is what leads us 
+to XSD and JAXB, the next things to get an understanding of Missions in 
+Project Malm&ouml;. </p>
+<h3 id="rules-for-the-building-blocks">Rules for the Building Blocks</h3>
+<p>As described in the previous section, XML can be used to come up with 
+new markup languages. However, there is a question of how one does this 
+and in particular of how the syntax is defined. </p>
+<p>XML Schema Definitions or XSD formally describe 
+elements in an XML document. Its purpose is to verify each piece of item
+content in an XML document, i.e., to parse an XML document using various 
+Schemas (rules). </p>
+<p>Without further ado, let's now take a look at the XSD files for Project
+Malm&ouml;. Within the Project Malm&ouml; root folder, look for the 
+Schemas folder. In there you will find (as of this tutorial's writing 
+at least), 5 files with a .xsd extension. These are namely: Mission, 
+MissionEnded, MissionHandlers, MissionInit and Types. </p>
+<p>Feel free to go through the files and get an understanding of the 
+structure. The general format should be quite intuitive as XML is 
+designed to be human readable while still having a well-defined syntax 
+like that of many programming languages. </p>
+<p>To highlight a few points about the files and to direct your attention 
+to some interesting properties of XSD, given below are somethings you 
+can try/have a read through with code snippets as appropriate for 
+illustration purposes: </p>
+<ul>
+<li>
+<p>At the top of all of the files, there is the XML declaration which 
+    specifies the version of XML to use and the character encoding to 
+    use.  </p>
+</li>
+<li>
+<p>Just below the XML declaration, is the root element which is 
+    required for XSD documents. This root element importantly contains
+    information about namespaces which are a common programming language
+    concept that prevents name conflicts (eg., when an element is 
+    defined in multiple separate schema files).</p>
+<p><code>xmlns:xs="http://www.w3.org/2001/XMLSchema"</code> indicates that 
+the elements and data types used in the schema come from the w3 
+organizations namespace. It also specifies that elements that come
+from this namespace should be prefixed with xs.</p>
+<p>The value of a targetNamespace, 
+<code>http://ProjectMalmo.microsoft.com</code> is simply a unique 
+identifier, typically a company's project URL, that indicates 
+the elements defined by this schema come from the URL specified.</p>
+<p>The default namespace is set to the same URL as the targetNamespace
+using the <code>xmlns</code> attribute.</p>
+<p>Setting elementFormDefault to qualified indicates that any elements
+defined in the Schema must be qualified, i.e, be associated with a 
+namespace, when used in an XML document.</p>
+</li>
+<li>
+<p>XML Schema have a lot of built-in data types including:
+    <a href="http://w3schools.com/XML/schema_dtypes_string.asp"><code>xs:string</code></a>, 
+    <a href="http://w3schools.com/XML/schema_dtypes_numeric.asp"><code>xs:decimal</code></a>, 
+    <a href="http://w3schools.com/XML/schema_dtypes_numeric.asp"><code>xs:integer</code></a>, 
+    <a href="http://w3schools.com/XML/schema_dtypes_misc.asp"><code>xs:boolean</code></a>, 
+    <a href="http://w3schools.com/XML/schema_dtypes_date.asp"><code>xs:date</code></a>, 
+    <a href="http://w3schools.com/XML/schema_dtypes_date.asp"><code>xs:time</code></a>.</p>
+</li>
+<li>
+<p>A <a href="w3schools.com/xml/schema_simple.asp">Simple Element</a>
+    is an XML element that contains text of one of the types included in 
+    XSD or it can be a custom type. It cannot contain any other elements
+    or attributes. The syntax for defining a simple element is as
+    follows: <code>&lt;xs:element name="xxx" type="yyy" /&gt;</code></p>
+</li>
+<li>
+<p>An <a href="http://w3schools.com/xml/schema_simple_attribute.asp">
+    Attribute</a> is very similar to a simple element. Simple elements
+    cannot have attributes. The syntax for defining an attribute is 
+    <code>&lt;xs:attribute name="xxx" type="yyy" /&gt;</code></p>
+</li>
+<li>
+<p>A <a href="http://www.w3schools.com/xml/el_simpletype.asp">simpleType</a> 
+    element defines a simple type and specifies the 
+    constraints and information about the values of attributes or 
+    text-only elements. For examples, see Types.xsd where enumerations
+    are used for definitions of simpleTypes like Colour and BlockType. 
+    In particular, note the use of xs:restriction to restrict the values
+    the simpleType can take as well as to define the base type which the 
+    simpleType takes, such as xs:string.</p>
+</li>
+<li>
+<p>A <a href="http://w3schools.com/xml/el_simpletype.asp>complexType</a> 
+    element defines an XML element that contains other elements and/or 
+    attributes.</p>
+</li>
+<li>
+<p>A <a href="http://w3schools.com/XML/schema_complex.asp">Complex Element</a>
+    contains other element and/or attributes. There 
+    are four types based on the contents: 
+    <a href="<a href="http://www.w3schools.com/XML/schema_complex.asp">empty elements</a>, 
+    <a href="http://www.w3schools.com/XML/schema_complex_elements.asp">only other elements</a>, 
+    <a href="http://w3schools.com/XML/schema_complex_text.asp">only text</a>,
+    <a href="http://w3schools.com/XML/schema_complex_mixed.asp">and a mixture of other elements and text</a>. </p>
+</li>
+<li>
+<p>Complex Elements often make use of complexTypes as well as 
+    <a href="http://w3schools.com/XML/schema_complex_indicators.asp">
+    order and occurence indicators</a>. </p>
+<ul>
+<li>
+<p>Order Indicators </p>
+<ul>
+<li>The <code>&lt;all&gt;</code> indicator specifies that child elements can 
+appear in any order, and that each child must occur only once.</li>
+<li>The <code>&lt;choice&gt;</code> indicator specifies that only one of a list 
+of children elements can be present.</li>
+<li>The <code>&lt;sequence&gt;</code> indicator specifies that the child elements
+must appear in a specific order. </li>
+</ul>
+</li>
+<li>
+<p>Occurrence Indicators</p>
+<ul>
+<li>
+<p>The <code>&lt;minOccurs&gt;</code> indicator specifies the minimum number of 
+times an element can occur and the <code>&lt;maxOccurs&gt;</code> indicator
+specifies the maximum number of times an element can occur. </p>
+</li>
+<li>
+<p>Note that the above occurrence indicators can be used to specify 
+the range of the number of times an element can appear. This not
+only is useful to specify the number of times a child element 
+can appear in, say, a sequence, but also for specifying the 
+number of times for example a sequence itself can occur. </p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>complexContent defines extensions or restrictions on a complex type 
+    that contains mixed content or elements only. </p>
+</li>
+<li>
+<p>xs:group and xs:attributeGroup cannot be extended or restricted in 
+    the way xs:complexType or xs:simpleType can. They are purely to 
+    group a number of items of data that are always used together.</p>
+</li>
+<li>
+<p>Finally, xs:documentation and xs:annotation allow for documentation
+    of the XML schema which is one of, if not the most, important parts
+    of defining XML schema. Again, if you haven't already, do take a 
+    look at the 
+    <a href="https://microsoft.github.io/malmo/0.14.0/Schemas/Mission.html">
+    Schema documentation</a>.</p>
+</li>
+</ul></div>
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+    </footer>
+
+    <script src="../../js/jquery-1.10.2.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+    <script src="../../js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>

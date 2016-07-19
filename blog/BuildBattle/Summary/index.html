@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <title>Summary - Project Malm&ouml; Blog</title>
+
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/cinder.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Project Malm&ouml; Blog</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../Getting_Started/">Getting Started</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Build Battle Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../Introduction/">Introduction</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Preliminaries/">Preliminaries</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../An_Overview_of_XML_and_XSD/">An Overview of XML and XSD</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_New_Schema/">Defining New Schema</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Java_and_MinecraftForge/">Java and MinecraftForge</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Creating_Schema_Implementations/">Creating Schema Implementations</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_Simple_Functions/">Defining Simple Functions</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Event_Handlers/">Event Handlers</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Summary</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../Event_Handlers/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="prev" >
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/Microsoft/malmo/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="first-level active"><a href="#logging-the-initial-similarity-and-finalizing-the-reward-handler">Logging the initial similarity and finalizing the Reward Handler</a></li>
+        
+    
+        <li class="first-level "><a href="#conclusion">Conclusion</a></li>
+        
+    
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h3 id="logging-the-initial-similarity-and-finalizing-the-reward-handler">Logging the initial similarity and finalizing the Reward Handler</h3>
+<p>We still need to calculate the initial similarity between the two
+structures. The idea is that some portion of the player structure
+can be given when the mission starts as a hint, say 80%. The similarity
+will then be 0.8 times the structure volume. The code for calculating
+this, with a simple triple nested for-loop, is given below:</p>
+<pre><code>void logInitialSimilarity( World w ) {
+
+    // No need to calculate the initial similarity
+    if(rewardDensity == RewardDensityForBuildAndBreak.ACCUMULATED || 
+       rewardDensity == RewardDensityForBuildAndBreak.MISSION_END) {
+
+        Integer numExactMatchBlocks = 0;
+
+        for (int x = (int) playerStructureAABB.minX; x &lt;= playerStructureAABB.maxX; x++) {
+            for (int y = (int) playerStructureAABB.minY; y &lt;= playerStructureAABB.maxY; y++) {
+                for (int z = (int) playerStructureAABB.minZ; z &lt;= playerStructureAABB.maxZ; z++) {
+                    BlockPos playerStructurePos = new BlockPos(x, y, z);
+                    BlockPos goalStructurePos = playerStructurePos.add(delta);
+
+                    if (w.getBlockState(playerStructurePos).equals(goalStructurePos))
+                        numExactMatchBlocks++;
+                }
+            }
+        }
+
+        reward =  (float) numExactMatchBlocks / structureVolume;
+        bootstrapReward = reward;
+    }
+}
+</code></pre>
+
+<p>Finally, we can write the function that returns rewards that get sent to
+the agent:</p>
+<pre><code>@Override
+public void getReward(MissionInit missionInit, MultidimensionalReward multidimReward) {
+    if(rewardDensity == RewardDensityForBuildAndBreak.PER_BLOCK) {
+        Float f = this.reward;
+        this.reward = 0.0F;
+        multidimReward.add( this.dimension, f );
+    }
+
+    else if(rewardDensity == RewardDensityForBuildAndBreak.ACCUMULATED) {
+        Float f = reward;
+        reward = bootstrapReward;
+        multidimReward.add( this.dimension, f );
+    }
+
+    else  { // rewardDensity == RewardDensityForBuildAndBreak.MISSION_END
+        try {
+            // Return a reward only if the QuitCode is present.
+            Hashtable&lt;String, Object&gt; properties = MalmoMod.getPropertiesForCurrentThread();
+            if (properties.containsKey(&quot;QuitCode&quot;))
+                multidimReward.add( this.dimension, this.reward );
+            else
+                multidimReward.add( this.dimension, 0 );
+        }
+
+        catch (Exception e)
+        {
+            System.out.print(&quot;Caught exception getting properties while searching for QuitCode!&quot;);
+            // FMLCommonHandler.instance().exitJava(-1, false);
+            // Note: The above commented line of code is a simple way to quit Minecraft on errors. 
+            // For the purposes of this caught exception, notifying the user with 
+            // a print output suffices.
+        }
+    }
+}
+</code></pre>
+
+<h3 id="conclusion">Conclusion</h3>
+<p>Hopefully everything worked all right and you enjoyed constructing the build battle task.
+Please do take a look at and review the resources provided as necessary.
+Other than that, what's left is now arguably the more fun part: to create missions using the Reward Handler we have added to the Mod and to create AI agents that can solve it.
+For the former, the sample missions provided will help, but it essentially boils down to writing some XML. As for the latter, it's really an open question! Some instances of the build battle task we have defined here are easy (say small open 2-dimensional structures.) In general, this task is somewhat easy for humans (try it yourself by entering into Human mode with the Enter key once you have started a mission.) However, it is not so easy and tractable for current AI and reinforcement learning agents! The idea of the platform is indeed this, to be able to create tasks with a broad spectrum of difficulties and by working at it's forefront, advance the state of AI.</p></div>
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+    </footer>
+
+    <script src="../../js/jquery-1.10.2.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+    <script src="../../js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>

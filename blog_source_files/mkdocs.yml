@@ -1,0 +1,21 @@
+site_name: Project Malm&ouml; Blog
+theme: 'cinder'
+repo_url: https://github.com/Microsoft/malmo/
+site_favicon: favicon.ico
+pages:
+   - Home: 'index.md'
+   - Getting Started: 'Getting_Started.md'
+   - Build Battle Tutorial:
+          - 'BuildBattle/Introduction.md'
+          - 'BuildBattle/Preliminaries.md'
+          - 'BuildBattle/An_Overview_of_XML_and_XSD.md'
+          - 'BuildBattle/Defining_New_Schema.md'
+          - 'BuildBattle/Java_and_MinecraftForge.md'
+          - 'BuildBattle/Creating_Schema_Implementations.md'
+          - 'BuildBattle/Defining_Simple_Functions.md'
+          - 'BuildBattle/Event_Handlers.md'
+          - 'BuildBattle/Summary.md'
+extra:
+  author:
+    github: 'geekstor'
+markdown_extensions: ['admonition', 'fenced_code']
