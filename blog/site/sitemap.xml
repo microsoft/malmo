@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+    
+    <url>
+     <loc>None/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>None/Getting_Started/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>None/BuildBattle/Introduction/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Preliminaries/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/An_Overview_of_XML_and_XSD/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Defining_New_Schema/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Java_and_MinecraftForge/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Creating_Schema_Implementations/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Defining_Simple_Functions/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Event_Handlers/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>None/BuildBattle/Summary/</loc>
+     <lastmod>2016-07-19</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+</urlset>
