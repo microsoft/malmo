@@ -28,7 +28,7 @@ import tkMessageBox
 from PIL import Image
 from PIL import ImageTk
 
-last_mouse_event = None
+mouse_event = prev_mouse_event = None
 is_mission_running = False
 
 def onStartMission():
@@ -90,21 +90,23 @@ def onSendCommand():
 
 def update():
     if is_mission_running:
-        global last_mouse_event
-        if last_mouse_event:
+        global prev_mouse_event
+        if mouse_event and prev_mouse_event:
             rotation_speed = 0.1
-            turn_speed = ( last_mouse_event.x - canvas.winfo_width()/2 ) * rotation_speed
-            pitch_speed = ( last_mouse_event.y - canvas.winfo_height()/2 ) * rotation_speed
+            turn_speed = ( mouse_event.x - prev_mouse_event.x ) * rotation_speed
+            pitch_speed = ( mouse_event.y - prev_mouse_event.y ) * rotation_speed
             agent_host.sendCommand( 'turn '+str(turn_speed) )
             agent_host.sendCommand( 'pitch '+str(pitch_speed) )
-        canvas.event_generate('<Motion>', warp=True, x=canvas.winfo_width()/2, y=canvas.winfo_height()/2) # put cursor at center
-        last_mouse_event.x = canvas.winfo_width()/2
-        last_mouse_event.y = canvas.winfo_height()/2
+        if os.name == 'nt': # (moving the mouse cursor only seems to work on Windows)
+            canvas.event_generate('<Motion>', warp=True, x=canvas.winfo_width()/2, y=canvas.winfo_height()/2) # put cursor at center
+            mouse_event.x = canvas.winfo_width()/2
+            mouse_event.y = canvas.winfo_height()/2
+        prev_mouse_event = mouse_event
     root.after(50, update)
 
 def onMouseMoveInCanvas(event):
-    global last_mouse_event
-    last_mouse_event = event
+    global mouse_event
+    mouse_event = event
   
 def onLeftMouseDownInCanvas(event):
     canvas.focus_set()
