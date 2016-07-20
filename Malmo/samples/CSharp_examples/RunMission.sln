@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutorial3", "Tutorial3\Tuto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutorial4", "Tutorial4\Tutorial4.csproj", "{6340AC23-F7B9-499E-B327-45D0B543267F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tutorial4Solved", "Tutorial4Solved\Tutorial4Solved.csproj", "{18E0A27B-3C66-49BD-8366-F565C79C0523}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,14 @@ Global
 		{6340AC23-F7B9-499E-B327-45D0B543267F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6340AC23-F7B9-499E-B327-45D0B543267F}.Release|x64.ActiveCfg = Release|x64
 		{6340AC23-F7B9-499E-B327-45D0B543267F}.Release|x64.Build.0 = Release|x64
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Debug|x64.ActiveCfg = Debug|x64
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Debug|x64.Build.0 = Debug|x64
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Release|x64.ActiveCfg = Release|Any CPU
+		{18E0A27B-3C66-49BD-8366-F565C79C0523}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

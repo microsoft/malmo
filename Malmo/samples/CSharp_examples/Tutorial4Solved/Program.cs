@@ -1,4 +1,4 @@
-﻿namespace Tutorial4
+﻿namespace Tutorial4Solved
 {
     using Microsoft.Research.Malmo;
     using System;
@@ -25,18 +25,19 @@
             var genString = GetCuboidWithVariant(xorg, yorg, zorg, xorg + size - 1, yorg + size - 1, zorg + size - 1, blockType, variant) + Environment.NewLine;
             // Now Remove holes
             var unit = size;
+            int w, x, y, z;
             while (unit >= 3)
             {
-                var w = unit / 3;
+                w = unit / 3;
                 for (int i = 0; i < size; i += unit)
                 {
-                    for (int j = 0; j < size; j++)
+                    for (int j = 0; j < size; j += unit)
                     {
-                        int x = xorg + i;
-                        int y = yorg + j;
+                        x = xorg + i;
+                        y = yorg + j;
                         genString += GetCuboid(x + w, y + w, zorg, (x + 2 * w) - 1, (y + 2 * w) - 1, zorg + size - 1, holeType) + Environment.NewLine;
                         y = yorg + i;
-                        var z = zorg + j;
+                        z = zorg + j;
                         genString += GetCuboid(xorg, y + w, z + w, xorg + size - 1, (y + 2 * w) - 1, (z + 2 * w) - 1, holeType) + Environment.NewLine;
                         genString += GetCuboid(x + w, yorg, z + w, (x + 2 * w) - 1, yorg + size - 1, (z + 2 * w) - 1, holeType) + Environment.NewLine;
                     }
@@ -102,6 +103,16 @@
             while (!worldState.is_mission_running);
 
             Console.WriteLine();
+
+            agentHost.sendCommand("hotbar.9 1");
+            agentHost.sendCommand("hotbar.9 0");
+
+            agentHost.sendCommand("pitch 0.2");
+            Thread.Sleep(1000);
+            agentHost.sendCommand("pitch 0");
+            agentHost.sendCommand("move 1");
+            agentHost.sendCommand("attack 1");
+
 
             Random rand = new Random();
             // main loop:
