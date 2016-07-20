@@ -24,6 +24,7 @@ import os
 import sys
 import time
 from Tkinter import *
+import tkMessageBox
 from PIL import Image
 from PIL import ImageTk
 
@@ -31,11 +32,16 @@ last_mouse_event = None
 is_mission_running = False
 
 def onStartMission():
-    global is_mission_running
-    global start_button
 
     my_mission_record_spec = MalmoPython.MissionRecordSpec()
-    agent_host.startMission( my_mission, my_mission_record_spec )
+    try:
+        agent_host.startMission( my_mission, my_mission_record_spec )
+    except RuntimeError as e:
+        tkMessageBox.showerror("Error","Error starting mission: "+str(e))
+        return
+
+    global is_mission_running
+    global start_button
 
     print "Waiting for the mission to start",
     world_state = agent_host.peekWorldState()
@@ -50,6 +56,7 @@ def onStartMission():
     canvas.event_generate('<Motion>', warp=True, x=canvas.winfo_width()/2, y=canvas.winfo_height()/2) # put cursor at center
     is_mission_running = True
     start_button.config(state='disabled')
+    start_button.config(text='Running...')
     canvas.focus_set()
 
     while world_state.is_mission_running:
@@ -74,6 +81,7 @@ def onStartMission():
     is_mission_running = False
     canvas.config(cursor='arrow') # restore the mouse cursor
     start_button.config(state='normal')
+    start_button.config(text='Start')
     print 'Mission stopped'
     
 def onSendCommand():
@@ -175,7 +183,8 @@ my_mission = MalmoPython.MissionSpec()
 my_mission.requestVideo(640,480)
 my_mission.timeLimitInSeconds(40)
 my_mission.allowAllChatCommands()
-my_mission.createDefaultTerrain()
+#my_mission.createDefaultTerrain()
+#my_mission.startArt(19,0,19)
 my_mission.setTimeOfDay(1000,False)
 my_mission.observeChat()
 canvas.config( width=640, height=480 )
