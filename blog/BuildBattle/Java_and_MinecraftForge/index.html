@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
+    <link rel="shortcut icon" href="../../../../favicon.ico">
+
+    <title>Java and MinecraftForge - Project Malm&ouml; Blog</title>
+
+    <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/font-hack/2.018/css/hack.min.css">
+    <link href='//fonts.googleapis.com/css?family=PT+Sans:400,400italic,700,700italic&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../../css/base.css" rel="stylesheet">
+    <link href="../../css/cinder.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js"></script>
+    <script>
+    WebFont.load({
+        google: {
+            families: ['Open Sans', 'PT Sans']
+        }
+    });
+    </script>
+
+    
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Project Malm&ouml; Blog</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../../Getting_Started/">Getting Started</a>
+                    </li>
+                
+                
+                
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Build Battle Tutorial <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="../Introduction/">Introduction</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Preliminaries/">Preliminaries</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../An_Overview_of_XML_and_XSD/">An Overview of XML and XSD</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_New_Schema/">Defining New Schema</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="./">Java and MinecraftForge</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Creating_Schema_Implementations/">Creating Schema Implementations</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Defining_Simple_Functions/">Defining Simple Functions</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Event_Handlers/">Event Handlers</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="../Summary/">Summary</a>
+</li>
+
+                        
+                        </ul>
+                    </li>
+                
+                
+                </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                
+                    <li >
+                        <a rel="next" href="../Defining_New_Schema/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../Creating_Schema_Implementations/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                
+                
+                    <li>
+                        <a href="https://github.com/Microsoft/malmo/">
+                            
+                                <i class="fa fa-github"></i>
+                            
+                            GitHub
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="first-level active"><a href="#java">Java</a></li>
+        
+    
+        <li class="first-level "><a href="#minecraft-forge">Minecraft Forge</a></li>
+        
+    
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h3 id="java">Java</h3>
+<p>Java is a programming language that has become ubiquitous given its 
+ability to be used in many different hardware and software configurations
+through the Java Virtual Machine (JVM). It is quite similar in syntax 
+to other strongly typed languages and compiled like C++. Given that this
+tutorial is aimed at learning about how to create a Project Malm&ouml; 
+task and not a Java tutorial, should you be unfamiliar with Java 
+or have never used Java before, it might be a good idea to go through 
+some Java resources: <a href="http://tutorialspoint.com/java">Tutorials Point</a>, 
+<a href="https://docs.oracle.com/javase/tutorial">Java Docs at Oracle</a>, 
+<a href="http://minecraft.gamepedia.com/Mods/Creating_mods/Helpful_links">Minecraft Gamepedia Helpful Links for Creating Mods</a>.</p>
+<h3 id="minecraft-forge">Minecraft Forge</h3>
+<p>As alluded to above, Minecraft is written in Java and in fact uses the LightWeight Java Game Library. 
+Thus, to be able to able to create mods, it is a good idea to use 
+Java itself. MinecraftForge, commonly known simply as Forge, is one 
+such modding platform which uses Java that is quite mature and has been used for many 
+Minecraft mods. At it's core, Forge provides access to the state of the 
+Minecraft world, and entities like players, enemies, villagers, and 
+the weather. Additionally, Event Handlers provide hooks for getting 
+access into events like block place and break events which
+we will be using.</p>
+<p>There is not much thorough and up-to-date documentation on Forge. This 
+is one reason using an IDE helps a lot since being able to go through 
+the Minecraft and Forge libraries itself serves as quite a good reference. 
+That said, many of the functions and arguments are "obfuscated." 
+For example, you might see a function like <code>func_152917_b(String p_152917_1_)</code>.
+This is generally the case for methods and parameters deep and internal to
+Minecraft. For many of these, you can find more information and possibly 
+the true name for the method and arguments on an Internet Relay Chat website, 
+<a href="https://webchat.esper.net">EsperNet</a>, in the #MCPBot chatroom. </p>
+<p>Apart from the above, there are indeed many resources and websites; however, 
+as stated before, proceed with caution when using such resources as they 
+may be outdated. Here are some that can be very useful: </p>
+<ul>
+<li><a href="http://minecraftforge.net/Wiki/Tutorials">Minecraft Forge Tutorial Wiki</a></li>
+<li><a href="http://minecraftforge.net/forum/index.php">Minecraft Forge Forums</a></li>
+<li><a href="https://dl.dropboxusercontent.com/s/h777x7ugherqs0w/forgeevents.html">A Complete list of all Forge Events available</a></li>
+<li><a href="http://greyminecraftcoder.blogspot.no/p/list-of-topics.html">Grey Minecraft Coder's Modder Guide</a></li>
+<li><a href="http://bedrockminer.jimdo.com/modding-tutorials">Minecraft Modding Tutorials by _Bedrock_Miner_</a></li>
+<li><a href="http://jabelarminecraft.blogspot.com">Jabelar's Minecraft Forge Modding Tutorials</a></li>
+<li><a href="http://wuppy29.com/minecraft">Wuppy29 Minecraft Modding and Java Tutorials and Torubleshooting</a></li>
+<li><a href="https://github.com/coolAlias/Forge_Tutorials">GitHub repo with Forge Tutorials and links to corresponding MinecraftForge Forums posts</a></li>
+<li><a href="http://planetminecraft.com/forums">Planet Minecraft Forums</a></li>
+<li><a href="http://www.minecraftforum.net/forums/mapping-and-modding/mapping-and-modding-tutorials/1571568-tutorial-1-6-2-changing-vanilla-without-editing">Bytecode and ASM manipulation guide in a MinecraftForge forum post</a></li>
+<li><a href="http://mazetar.com/mctuts/searchform.php">Mazetar Modding Tutorial Databse</a></li>
+<li><a href="http://www.minecraftforge.net/forum/index.php/topic,20135.0.html">MinecraftForge forum poast about client/server communication and threading</a></li>
+</ul>
+<p>In the next section, we will begin writing the Forge side code. The steps will be presented in a manner much like the XSD instruction given before. 
+So, a deep understanding of Forge or Java isn't really required. That said, have a look around some of the resources 
+presented above and take a look at the Project Malm&ouml; code in the IDE you have installed. </p></div>
+        
+    </div>
+
+    <footer class="col-md-12 text-center">
+        <hr>
+        <p>
+        <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p></small>
+    </footer>
+
+    <script src="../../js/jquery-1.10.2.min.js"></script>
+    <script src="../../js/bootstrap-3.0.3.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+    var base_url = '../..';
+    </script>
+    <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+    <script src="../../js/base.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </body>
+
+</html>
