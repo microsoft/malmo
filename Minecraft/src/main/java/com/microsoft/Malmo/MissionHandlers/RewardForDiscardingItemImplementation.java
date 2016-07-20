@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
-import com.microsoft.Malmo.Schemas.ItemSpec;
+import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForDiscardingItem;
 
@@ -52,7 +52,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
 
         // Build up a map of rewards per item:
         this.params = (RewardForDiscardingItem)params;
-        for (ItemSpec is : this.params.getItem())
+        for (BlockOrItemSpecWithReward is : this.params.getItem())
             addItemSpecToRewardStructure(is);
 
         return true;

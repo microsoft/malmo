@@ -21,18 +21,17 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
-import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
@@ -40,7 +39,6 @@ import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.BlockVariant;
 import com.microsoft.Malmo.Schemas.Colour;
-import com.microsoft.Malmo.Schemas.ItemType;
 import com.microsoft.Malmo.Schemas.MazeBlock;
 import com.microsoft.Malmo.Schemas.MazeDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -162,7 +160,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             {
                 List<String> items = this.mazeParams.getWaypoints().getWaypointItem();
                 String item = items.get(this.blockrand.nextInt(items.size()));
-                this.waypointItem = MinecraftTypeHelper.ParseItemType(item);
+                this.waypointItem = MinecraftTypeHelper.ParseItemType(item, true);// ItemStackTODO...
             }
         }
         
@@ -590,7 +588,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                     {
                         // Place a waypoint item here:
                         int offset = 0;//(scale % 2 == 0) ? 1 : 0;
-                        BlockDrawingHelper.placeItem(this.waypointItem, new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
+                        BlockDrawingHelper.placeItem(new ItemStack(this.waypointItem), new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
                     }
                 }
                 if (c != null && c == start)

@@ -120,7 +120,7 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 			return true;	// If nothing to match against, we pass.
 		for (BlockVariant v : blockspec.getVariant())
 		{
-			if (v.value().equalsIgnoreCase(blockVariant))
+			if (v.getValue().equalsIgnoreCase(blockVariant))
 				return true;
 		}
 		return false;

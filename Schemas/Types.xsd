@@ -3,7 +3,9 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://ProjectMalmo.microsoft.com"
            xmlns="http://ProjectMalmo.microsoft.com"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
+           jaxb:version="2.1"
            version="0.15">
 
 <xs:simpleType name="Colour">
@@ -462,14 +464,13 @@
   <xs:union memberTypes="BlockType ItemType"/>
 </xs:simpleType>
 
-<xs:simpleType name="BlockVariant">
+<xs:simpleType name="StoneTypes">
     <xs:annotation>
       <xs:documentation>
-        Variants of the block types - non-exhaustive list, and only applicable to some block types.
+        Types of stone for stone blocks/items
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-        <!-- Applicable to stone blocks: -->
         <xs:enumeration value="stone" />
         <xs:enumeration value="granite" />
         <xs:enumeration value="smooth_granite" />
@@ -477,7 +478,16 @@
         <xs:enumeration value="smooth_diorite" />
         <xs:enumeration value="andesite" />
         <xs:enumeration value="smooth_andesite" />
-        <!-- Applicable to wood blocks: -->
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="WoodTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Types of wood for wooden blocks/items
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
         <xs:enumeration value="oak" />
         <xs:enumeration value="spruce" />
         <xs:enumeration value="birch" />
@@ -485,6 +495,61 @@
         <xs:enumeration value="acacia" />
         <xs:enumeration value="dark_oak" />
     </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="EntityTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Types of entity for eggs, spawners etc.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="Creeper" />
+        <xs:enumeration value="Skeleton" />
+        <xs:enumeration value="Spider" />
+        <xs:enumeration value="Giant" />
+        <xs:enumeration value="Zombie" />
+        <xs:enumeration value="Slime" />
+        <xs:enumeration value="Ghast" />
+        <xs:enumeration value="PigZombie" />
+        <xs:enumeration value="Enderman" />
+        <xs:enumeration value="CaveSpider" />
+        <xs:enumeration value="Silverfish" />
+        <xs:enumeration value="Blaze" />
+        <xs:enumeration value="LavaSlime" />    <!-- Magma Cube -->
+        <xs:enumeration value="EnderDragon" />
+        <xs:enumeration value="WitherBoss" />
+        <xs:enumeration value="Bat" />
+        <xs:enumeration value="Witch" />
+        <xs:enumeration value="Endermite" />
+        <xs:enumeration value="Guardian" />
+        <xs:enumeration value="Pig" />
+        <xs:enumeration value="Sheep" />
+        <xs:enumeration value="Cow" />
+        <xs:enumeration value="Chicken" />
+        <xs:enumeration value="Squid" />
+        <xs:enumeration value="Wolf" />
+        <xs:enumeration value="MushroomCow" />
+        <xs:enumeration value="SnowMan" />
+        <xs:enumeration value="Ozelot" />
+        <xs:enumeration value="VillagerGolem" />
+        <xs:enumeration value="EntityHorse" />
+        <xs:enumeration value="Rabbit" />
+        <xs:enumeration value="Villager" />
+        <xs:enumeration value="EnderCrystal" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="BlockVariant">
+    <xs:annotation>
+      <xs:documentation>
+        Variants of block types, entities etc
+      </xs:documentation>
+      <xs:appinfo>
+        <jaxb:class name="BlockVariant"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:union memberTypes="StoneTypes WoodTypes EntityTypes"/>
 </xs:simpleType>
 
 </xs:schema>

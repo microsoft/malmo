@@ -19,36 +19,83 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
-import com.microsoft.Malmo.Schemas.ItemSpec;
+import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
-public abstract class RewardForItemBase extends HandlerBase {
+public abstract class RewardForItemBase extends HandlerBase
+{
     protected MultidimensionalReward accumulatedRewards = new MultidimensionalReward();
-    protected HashMap<String, Float> rewardMap = new HashMap<String, Float>();
+    List<ItemMatcher> rewardMatchers = new ArrayList<ItemMatcher>();
 
-    protected void addItemSpecToRewardStructure(ItemSpec is) {
-        for (String it : is.getType()) {
-            Item item = MinecraftTypeHelper.ParseItemType(it);
-            if (item != null) {
-                String itemName = item.getUnlocalizedName();
-                if (!this.rewardMap.containsKey(itemName))
-                    this.rewardMap.put(itemName, is.getReward().floatValue());
-                else
-                    this.rewardMap.put(itemName, this.rewardMap.get(itemName) + is.getReward().floatValue());
+    class ItemMatcher
+    {
+        List<String> allowedItemTypes = new ArrayList<String>();
+        BlockOrItemSpecWithReward rewardSpec;
+
+        ItemMatcher(BlockOrItemSpecWithReward spec)
+        {
+            this.rewardSpec = spec;
+
+            for (String itemType : spec.getType())
+            {
+                Item item = MinecraftTypeHelper.ParseItemType(itemType, true);
+                if (item != null)
+                    this.allowedItemTypes.add(item.getUnlocalizedName());
             }
+        }
+
+        float reward()
+        {
+            return this.rewardSpec.getReward().floatValue();
+        }
+
+        boolean matches(ItemStack stack)
+        {
+            String item = stack.getItem().getUnlocalizedName();
+            if (!this.allowedItemTypes.contains(item))
+                return false;
+            // Our item type matches, but we may need to compare block attributes too:
+            Block block = Block.getBlockFromItem(stack.getItem());
+            if (block != null)
+            {
+                // Might need to check colour and variant.
+                if (this.rewardSpec.getColour() != null && !this.rewardSpec.getColour().isEmpty())
+                {
+                    if (!MinecraftTypeHelper.blockColourMatches(block.getDefaultState(), this.rewardSpec.getColour()))
+                        return false;
+                }
+                
+                // Matches type and colour, but does the variant match?
+                if (this.rewardSpec.getVariant() != null && !this.rewardSpec.getVariant().isEmpty())
+                {
+                    if (!MinecraftTypeHelper.blockVariantMatches(block.getDefaultState(), this.rewardSpec.getVariant()))
+                        return false;
+                }
+            }
+            return true;
         }
     }
 
-    protected void accumulateReward(int dimension, ItemStack stack) {
-        String item = stack.getItem().getUnlocalizedName();
-        Float f = this.rewardMap.get(item);
-        if (f != null) {
-            this.accumulatedRewards.add(dimension, f * stack.stackSize);
+    protected void addItemSpecToRewardStructure(BlockOrItemSpecWithReward is)
+    {
+        this.rewardMatchers.add(new ItemMatcher(is));
+    }
+
+    protected void accumulateReward(int dimension, ItemStack stack)
+    {
+        for (ItemMatcher matcher : this.rewardMatchers)
+        {
+            if (matcher.matches(stack))
+            {
+                this.accumulatedRewards.add(dimension, stack.stackSize * matcher.reward());
+            }
         }
     }
 }

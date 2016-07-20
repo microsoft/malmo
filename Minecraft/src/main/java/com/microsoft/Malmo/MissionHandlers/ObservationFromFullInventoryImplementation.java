@@ -25,7 +25,9 @@ import net.minecraft.item.ItemStack;
 
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 /** Simple IObservationProducer class that returns a list of the full inventory, including the armour.
  */
@@ -34,7 +36,7 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
     @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-    	EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         int nSlots = player.inventory.getSizeInventory();
         for (int i = 0; i < nSlots; i++)
         {
@@ -42,14 +44,20 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
             if (is != null)
             {
                 json.addProperty("InventorySlot_" + i + "_size", is.stackSize);
-                json.addProperty("InventorySlot_" + i + "_item", is.getItem().getUnlocalizedName());
+                DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
+                String name = di.getType();
+                if (di.getColour() != null)
+                    name += " -C:" + di.getColour().value();
+                if (di.getVariant() != null)
+                    name += " -V:" + di.getVariant();
+                json.addProperty("InventorySlot_" + i + "_item", name);
             }
         }
     }
-    
-	@Override
-	public void prepare(MissionInit missionInit) {}
 
-	@Override
-	public void cleanup() {}
+    @Override
+    public void prepare(MissionInit missionInit) {}
+    
+    @Override
+    public void cleanup() {}
 }

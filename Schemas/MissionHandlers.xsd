@@ -451,6 +451,9 @@
         <xs:attribute name="y" type="xs:int" use="required" />
         <xs:attribute name="z" type="xs:int" use="required" />
         <xs:attribute name="type" type="BlockOrItem" use="required" />
+        <xs:attribute name="variant" type="BlockVariant" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1304,12 +1307,26 @@
     <xs:attribute name="colour" use="optional" type="ColourList" />
   </xs:complexType>
 
+  <xs:complexType name="BlockOrItemSpec">
+    <xs:attribute name="type" use="required" type="BlockOrItemList" />
+    <xs:attribute name="variant" use="optional" type="VariantList" />
+    <xs:attribute name="colour" use="optional" type="ColourList" />
+  </xs:complexType>
+
   <xs:complexType name="BlockSpecWithRewardAndBehaviour">
     <xs:complexContent>
       <xs:extension base="BlockSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
         <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock" />
         <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="BlockOrItemSpecWithReward">
+    <xs:complexContent>
+      <xs:extension base="BlockOrItemSpec">
+        <xs:attribute name="reward" use="required" type="xs:decimal" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1362,7 +1379,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Item" type="ItemSpec"/>
+        <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
       </xs:choice>
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
@@ -1376,7 +1393,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Item" type="ItemSpec"/>
+        <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
       </xs:choice>
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
@@ -1421,6 +1438,14 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="BlockOrItemSpecWithDescription">
+    <xs:complexContent>
+      <xs:extension base="BlockOrItemSpec">
+        <xs:attribute name="description" type="xs:string" use="optional" default="" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:element name="AgentQuitFromReachingPosition">
     <xs:annotation>
       <xs:documentation>
@@ -1455,6 +1480,19 @@
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Block" type="BlockSpecWithDescription"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="AgentQuitFromCollectingItem">
+    <xs:annotation>
+      <xs:documentation>
+        When this is included the agent's mission will end when they collect (or craft) a specified item.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Block" type="BlockOrItemSpecWithDescription"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
