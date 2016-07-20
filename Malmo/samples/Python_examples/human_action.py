@@ -27,10 +27,13 @@ from Tkinter import *
 from PIL import Image
 from PIL import ImageTk
 
-prev_x = prev_y = 0
+last_mouse_event = None
+is_mission_running = False
 
 def onStartMission():
-    print 'starting mission'
+    global is_mission_running
+    global start_button
+
     my_mission_record_spec = MalmoPython.MissionRecordSpec()
     agent_host.startMission( my_mission, my_mission_record_spec )
 
@@ -43,8 +46,19 @@ def onStartMission():
         for error in world_state.errors:
             print "Error:",error.text
     print
+    canvas.config(cursor='none') # hide the mouse cursor while over the canvas
+    canvas.event_generate('<Motion>', warp=True, x=canvas.winfo_width()/2, y=canvas.winfo_height()/2) # put cursor at center
+    is_mission_running = True
+    start_button.config(state='disabled')
+    canvas.focus_set()
 
     while world_state.is_mission_running:
+        if world_state.number_of_observations_since_last_state > 0:
+            global observation
+            observation.config(text = world_state.observations[0].text )
+        if world_state.number_of_rewards_since_last_state > 0:
+            global reward
+            rewards.config(text = str(world_state.rewards[0].getValue()) )
         if world_state.number_of_video_frames_since_last_state > 0:
             frame = world_state.video_frames[-1]
             buff = buffer(frame.pixels, 0, frame.width * frame.height * frame.channels)
@@ -52,28 +66,37 @@ def onStartMission():
             photo = ImageTk.PhotoImage(image)
             canvas.delete("all")
             canvas.create_image(frame.width/2, frame.height/2, image=photo)
+            canvas.create_line( frame.width/2 - 5, frame.height/2, frame.width/2 + 6, frame.height/2, fill='white' )
+            canvas.create_line( frame.width/2, frame.height/2 - 5, frame.width/2, frame.height/2 + 6, fill='white' )
             root.update()
         time.sleep(0.01)
         world_state = agent_host.getWorldState()
-    print 'Mission has stopped.'
+    is_mission_running = False
+    canvas.config(cursor='arrow') # restore the mouse cursor
+    start_button.config(state='normal')
+    print 'Mission stopped'
     
 def onSendCommand():
     agent_host.sendCommand(command_entry.get())
     command_entry.delete(0,END)
 
+def update():
+    if is_mission_running:
+        global last_mouse_event
+        if last_mouse_event:
+            rotation_speed = 0.1
+            turn_speed = ( last_mouse_event.x - canvas.winfo_width()/2 ) * rotation_speed
+            pitch_speed = ( last_mouse_event.y - canvas.winfo_height()/2 ) * rotation_speed
+            agent_host.sendCommand( 'turn '+str(turn_speed) )
+            agent_host.sendCommand( 'pitch '+str(pitch_speed) )
+        canvas.event_generate('<Motion>', warp=True, x=canvas.winfo_width()/2, y=canvas.winfo_height()/2) # put cursor at center
+        last_mouse_event.x = canvas.winfo_width()/2
+        last_mouse_event.y = canvas.winfo_height()/2
+    root.after(50, update)
+
 def onMouseMoveInCanvas(event):
-    canvas.focus_set()
-    global prev_x,prev_y
-    # TODO: still not quite right
-    turn_speed = ( event.x - prev_x ) / 10.0
-    agent_host.sendCommand( 'turn '+str(turn_speed) )
-    pitch_speed = ( event.y - prev_y ) / 10.0
-    agent_host.sendCommand( 'pitch '+str(pitch_speed) )
-    prev_x = event.x
-    prev_y = event.y
-    # TODO: this doesn't feel right - want trackball not flight or something
-    #agent_host.sendCommand( 'turn '+str( 2.0 * event.x / canvas.winfo_width() - 1 ) )
-    #agent_host.sendCommand( 'pitch '+str( 2.0 * event.y / canvas.winfo_height() - 1 ) )
+    global last_mouse_event
+    last_mouse_event = event
   
 def onLeftMouseDownInCanvas(event):
     canvas.focus_set()
@@ -94,39 +117,27 @@ def onRightMouseUpInCanvas(event):
 def onKeyInCommandEntry(event):
     if event.char == '\r':
         onSendCommand()
+        canvas.focus_set() # move focus back to the canvas to continue moving
        
 def onKeyPressInCanvas(event):
-    print 'canvas key:',event.char
-    if event.char == 'w':
-        agent_host.sendCommand('move 1')
-    elif event.char == 'a':
-        agent_host.sendCommand('strafe -1')
-    elif event.char == 's':
-        agent_host.sendCommand('move -1')
-    elif event.char == 'd':
-        agent_host.sendCommand('strafe 1')
-    elif event.char == ' ':
-        agent_host.sendCommand('jump 1')
+    commands_map = { 'w':'move 1', 'a':'strafe -1', 's':'move -1', 'd':'strafe 1', ' ':'jump 1' }
+    if event.char == '/':
+        command_entry.focus_set() # interlude to allow user to type command
+    elif event.char in commands_map:
+        agent_host.sendCommand( commands_map[ event.char ] )
 
 def onKeyReleaseInCanvas(event):
-    print 'canvas key released:',event.char
-    if event.char == 'w':
-        agent_host.sendCommand('move 0')
-    elif event.char == 'a':
-        agent_host.sendCommand('strafe 0')
-    elif event.char == 's':
-        agent_host.sendCommand('move 0')
-    elif event.char == 'd':
-        agent_host.sendCommand('strafe 0')
-    elif event.char == ' ':
-        agent_host.sendCommand('jump 0')
+    commands_map = { 'w':'move 0', 'a':'strafe 0', 's':'move 0', 'd':'strafe 0', ' ':'jump 0' }
+    if event.char in commands_map:
+        agent_host.sendCommand( commands_map[ event.char ] )
 
+our_font = "Helvetica 16 bold"
+small_font = "Helvetica 9 bold"
 root = Tk()
 root.wm_title("Human Action Component")
-start_button = Button(root, text='Start', command=onStartMission,font = "Helvetica 36 bold")
+start_button = Button(root, text='Start', command=onStartMission,font = our_font)
 start_button.pack(padx=5, pady=5)
-canvas = Canvas(root, width=320, height=200, borderwidth=0, highlightthickness=0, bg="white" )
-canvas.focus_set()
+canvas = Canvas(root, borderwidth=0, highlightthickness=0, bg="white" )
 canvas.bind('<Motion>',onMouseMoveInCanvas)
 canvas.bind('<Button-1>',onLeftMouseDownInCanvas)
 canvas.bind('<ButtonRelease-1>',onLeftMouseUpInCanvas)
@@ -134,13 +145,18 @@ canvas.bind('<Button-3>',onRightMouseDownInCanvas)
 canvas.bind('<ButtonRelease-3>',onRightMouseUpInCanvas)
 canvas.bind('<KeyPress>',onKeyPressInCanvas)
 canvas.bind('<KeyRelease>',onKeyReleaseInCanvas)
-#canvas.config(cursor='none')
 canvas.pack(padx=5, pady=5)
-Label(root, text="Command:",font = "Helvetica 16 bold").pack(padx=5, pady=5, side=LEFT)
-command_entry = Entry(root,font = "Helvetica 16 bold")
+entry_frame = Frame(root)
+Label(entry_frame, text="Command:",font = our_font).pack(padx=5, pady=5, side=LEFT)
+command_entry = Entry(entry_frame,font = our_font)
 command_entry.bind('<Key>',onKeyInCommandEntry)
 command_entry.pack(padx=5, pady=5, side=LEFT)
-Button(root, text='Send', command=onSendCommand,font = "Helvetica 16 bold").pack(padx=5, pady=5, side=LEFT)
+Button(entry_frame, text='Send', command=onSendCommand,font = our_font).pack(padx=5, pady=5, side=LEFT)
+entry_frame.pack()
+observation = Label(root, text='observations will appear here', wraplength=640, font = small_font)
+observation.pack()
+reward = Label(root, text='rewards will appear here', wraplength=640, font = small_font)
+reward.pack()
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
@@ -156,8 +172,13 @@ if agent_host.receivedArgument("help"):
     exit(0)
     
 my_mission = MalmoPython.MissionSpec()
-my_mission.requestVideo(800,600)
-my_mission.timeLimitInSeconds(20)
-canvas.config( width=800, height=600 )
+my_mission.requestVideo(640,480)
+my_mission.timeLimitInSeconds(40)
+my_mission.allowAllChatCommands()
+my_mission.createDefaultTerrain()
+my_mission.setTimeOfDay(1000,False)
+my_mission.observeChat()
+canvas.config( width=640, height=480 )
 
+root.after(50, update)
 root.mainloop()
