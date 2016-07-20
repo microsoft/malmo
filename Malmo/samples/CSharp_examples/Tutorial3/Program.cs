@@ -11,12 +11,10 @@
     using System.Threading.Tasks;
     class Program
     {
-
         static string GetCuboid(int x1, int y1, int z1, int x2, int y2, int z2, string blockType)
         {
-            return string.Format("<DrawCuboid x1=\"{0}\" y1=\"{1}\" z1=\"{2}\" x2=\"{3}\" y2=\"{4}\" z2=\"{5}\" type=\"{6}\"/>", x1, y1, z1, x2, y2, z2, blockType);
+            return $"<DrawCuboid x1=\"{x1}\" y1=\"{x2}\" z1=\"{z1}\" x2=\"{x2}\" y2=\"{y2}\" z2=\"{z2}\" type=\"{blockType}\"/>";
         }
-
         static string Menger(int xorg, int yorg, int zorg, int size, string blockType, string holeType)
         {
             // Draw Solid Chunk
@@ -43,7 +41,6 @@
             }
             return genString;
         }
-
         public static void Main()
         {
             AgentHost agentHost = new AgentHost();
