@@ -136,8 +136,7 @@ class HumanAgentHost:
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print 'Mission stopped'
         tkMessageBox.showinfo("Ended","Mission has ended. Total reward: " + str(total_reward) )
-        #self.root.after(100,self.root.quit) # TODO: want to quit after this but want .tgz to be written 
-        self.root.mainloop()
+        self.root.destroy()
         
     def onSendCommand(self):
         '''Called when user presses the 'send' button or presses 'Enter' while the command entry box has focus.'''
@@ -216,8 +215,8 @@ class HumanAgentHost:
 
 # create a mission specification, and a mission record specification
             
-#action_space = 'discrete'
-action_space = 'continuous'
+action_space = 'discrete'
+#action_space = 'continuous'
 my_mission = MalmoPython.MissionSpec()
 my_mission.requestVideo( 640, 480 )
 my_mission.timeLimitInSeconds( 30 )
