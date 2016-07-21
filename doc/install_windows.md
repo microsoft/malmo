@@ -21,7 +21,7 @@ Run the downloaded file to install 7-Zip.
 
 ### 3. Install CodeSynthesis: ###
 
-Visit http://www.codesynthesis.com/products/xsd/download.xhtml and download `xsd-4.0.msi`
+Visit http://www.codesynthesis.com/products/xsd/download.xhtml and download eg [xsd-4.0.msi](http://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.msi)
 
 Run the downloaded file to install CodeSynthesis.
 
