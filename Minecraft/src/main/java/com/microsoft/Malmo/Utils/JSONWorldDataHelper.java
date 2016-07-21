@@ -122,6 +122,7 @@ public class JSONWorldDataHelper
         json.addProperty("Food", player.getFoodStats().getFoodLevel());
         json.addProperty("XP", player.experienceTotal);
         json.addProperty("IsAlive", !player.isDead);
+        json.addProperty("Air", player.getAir());
     }
     
     /** Builds the player position data to be used as observation signals by the listener.
