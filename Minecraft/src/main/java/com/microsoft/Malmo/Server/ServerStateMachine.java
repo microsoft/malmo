@@ -822,7 +822,7 @@ public class ServerStateMachine extends StateMachine
                     di.setColour(obj.getColour());
                     di.setVariant(obj.getVariant());
                     di.setType(obj.getType());
-                    ItemStack item = BlockDrawingHelper.getItem(di);
+                    ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
                     if( item != null )
                     {
                         item.stackSize = obj.getQuantity();

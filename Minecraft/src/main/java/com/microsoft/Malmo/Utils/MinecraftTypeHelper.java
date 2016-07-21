@@ -24,22 +24,26 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemMonsterPlacer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-
-import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
+import com.microsoft.Malmo.Schemas.Facing;
 import com.microsoft.Malmo.Schemas.FlowerTypes;
 import com.microsoft.Malmo.Schemas.StoneTypes;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.WoodTypes;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockLever.EnumOrientation;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemMonsterPlacer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 
 /**
  *  Utility functions for dealing with Minecraft block types, item types, etc.
@@ -314,7 +318,7 @@ public class MinecraftTypeHelper
             di.setColour(col);
             di.setVariant(var);
             di.setType(itemName);
-            ItemStack item = BlockDrawingHelper.getItem(di);
+            ItemStack item = getItemStackFromDrawItem(di);
             if (item != null)
                 minecraftName = item.getUnlocalizedName();
             else
@@ -325,4 +329,125 @@ public class MinecraftTypeHelper
         }
         return minecraftName;
     }
+
+    public static ItemStack getItemStackFromDrawItem(DrawItem i)
+    {
+        // First see if this is a block item:
+        ItemStack itemStack = null;
+        IBlockState block = MinecraftTypeHelper.ParseBlockType(i.getType());
+        if (block != null)
+        {
+            // It is - apply the modifications:
+            block = BlockDrawingHelper.applyModifications(block, i.getColour(), i.getFace(), i.getVariant());
+            // And try to return as an item:
+            itemStack = (block != null && block.getBlock() != null) ? new ItemStack(block.getBlock(), 1, block.getBlock().getMetaFromState(block)) : null;
+        }
+        // If that failed, try to get the straight item:
+        if (itemStack == null)
+        {
+            Item item = MinecraftTypeHelper.ParseItemType(i.getType(), false);
+            if (item != null && item.getHasSubtypes() && (i.getColour() != null || i.getVariant() != null))
+            {
+                // Attempt to find the subtype for this colour/variant - made tricky
+                // because Items don't provide any nice property stuff like Blocks do...
+                List<ItemStack> subItems = new ArrayList<ItemStack>();
+                item.getSubItems(item, null, subItems);
+                String match = (i.getColour() != null) ? i.getColour().value().toLowerCase() : i.getVariant().getValue().toLowerCase();
+                
+                for (ItemStack is : subItems)
+                {
+                    String fullName = is.getUnlocalizedName();
+                    String[] parts = fullName.split("\\.");
+                    for (int p = 0; p < parts.length; p++)
+                    {
+                        if (parts[p].equals(match))
+                        {
+                            // This is it??
+                            return is;
+                        }
+                    }
+                    System.out.println(parts);
+                }
+            }
+            itemStack = new ItemStack(item);
+        }
+        return itemStack;
+    }
+
+	/** Select the request variant of the Minecraft block, if applicable
+	 * @param state The block to be varied
+	 * @param colour The new variation
+	 * @return A new blockstate which is the requested variant of the original, if such a variant exists; otherwise it returns the original block.
+	 */
+	static IBlockState applyVariant(IBlockState state, Variation variant)
+	{
+	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
+	    {
+	        if (prop.getName().equals("variant") && prop.getValueClass().isEnum())
+	        {
+	            Object[] values = prop.getValueClass().getEnumConstants();
+	            for (Object obj : values)
+	            {
+	                if (obj != null && obj.toString().equalsIgnoreCase(variant.getValue()))
+	                {
+	                    return state.withProperty(prop, (Comparable)obj);
+	                }
+	            }
+	        }
+	    }
+	    return state;
+	}
+
+	/** Recolour the Minecraft block
+	 * @param state The block to be recoloured
+	 * @param colour The new colour
+	 * @return A new blockstate which is a recoloured version of the original
+	 */
+	static IBlockState applyColour(IBlockState state, Colour colour)
+	{
+	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
+	    {
+	        if (prop.getName().equals("color") && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class)
+	        {
+	            net.minecraft.item.EnumDyeColor current = (net.minecraft.item.EnumDyeColor)state.getValue(prop);
+	            if (!current.getName().equalsIgnoreCase(colour.name()))
+	            {
+	                return state.withProperty(prop, EnumDyeColor.valueOf(colour.name()));
+	            }
+	        }
+	    }
+	    return state;
+	}
+
+	/** Change the facing attribute of the Minecraft block
+	 * @param state The block to be edited
+	 * @param facing The new direction (N/S/E/W/U/D)
+	 * @return A new blockstate with the facing attribute edited
+	 */
+	static IBlockState applyFacing(IBlockState state, Facing facing)
+	{
+	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
+	    {
+	        if (prop.getName().equals("facing"))
+	        {
+	        	if(prop.getValueClass() == EnumFacing.class)
+	        	{
+	        		EnumFacing current = (EnumFacing)state.getValue(prop);
+	                if (!current.getName().equalsIgnoreCase(facing.name()))
+	                {
+	                    return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
+	                }
+	        	}
+	        	else if(prop.getValueClass() == EnumOrientation.class)
+	        	{
+	        		EnumOrientation current = (EnumOrientation)state.getValue(prop);
+	                if (!current.getName().equalsIgnoreCase(facing.name()))
+	                {
+	                    return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
+	                }
+	        	}
+	        }
+	    }
+	    return state;
+	}
 }

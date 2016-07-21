@@ -215,67 +215,6 @@ public class CraftingHelper
         }
     }
 
-    /** Take an item name and attempt to turn it into a Minecraft unlocalised name.
-     * @param itemName eg from Types.xsd - "diamond_pickaxe", "gold_block" etc.
-     * @return the Minecraft internal unlocalised name - eg "item.diamondPickaxe", "tile.goldBlock" etc.
-     */
-    public static String getUnlocalizedNameFromString(String parameters)
-    {
-        // Split into parameters:
-        List<String> params = new ArrayList<String>(Arrays.asList(parameters.split(" ")));
-        Colour col = null;
-        Variation var = null;
-
-        // See if any parameters appear to be a colour:
-        Iterator<String> it = params.iterator();
-        while (it.hasNext() && col == null)
-        {
-            col = MinecraftTypeHelper.attemptToGetAsColour(it.next());
-            if (col != null)
-                it.remove();    // This parameter was a colour - we've parsed it, so remove it.
-        }
-
-        // See if any parameters appear to be a variant:
-        it = params.iterator();
-        while (it.hasNext() && var == null)
-        {
-            var = MinecraftTypeHelper.attemptToGetAsVariant(it.next());
-            if (var != null)
-                it.remove();    // This parameter was a variant - we've parsed it, so remove it.
-        }
-
-        // Hopefully we have at most one parameter left, which will be the type.
-        if (params.size() == 0)
-            return parameters;  // Dunno what to do, really.
-
-        String itemName = params.get(0);
-        String minecraftName = "";
-        // Attempt to parse as a block:
-        IBlockState block = MinecraftTypeHelper.ParseBlockType(itemName);
-        if (block != null)
-        {
-            block = BlockDrawingHelper.applyModifications(block, col, null, var);
-            minecraftName = block.getBlock().getUnlocalizedName();
-        }
-        else
-        {
-            // Attempt to parse as an item:
-            DrawItem di = new DrawItem();
-            di.setColour(col);
-            di.setVariant(var);
-            di.setType(itemName);
-            ItemStack item = BlockDrawingHelper.getItem(di);
-            if (item != null)
-                minecraftName = item.getUnlocalizedName();
-            else
-            {
-                // Assume we were given a minecraft description to begin with - eg "tile.carpet.white", or whatever.
-                minecraftName = itemName;
-            }
-        }
-        return minecraftName;
-    }
-
     /** Attempt to find all recipes that result in an item of the requested output.
      * @param output the desired item, eg from Types.xsd - "diamond_pickaxe" etc - or as a Minecraft name - eg "tile.woolCarpet.blue"
      * @return a list of IRecipe objects that result in this item.
@@ -283,7 +222,7 @@ public class CraftingHelper
     public static List<IRecipe> getRecipesForRequestedOutput(String output)
     {
         List<IRecipe> matchingRecipes = new ArrayList<IRecipe>();
-        String target = getUnlocalizedNameFromString(output);
+        String target = MinecraftTypeHelper.getUnlocalizedNameFromString(output);
         List<?> recipes = CraftingManager.getInstance().getRecipeList();
         for (Object obj : recipes)
         {
