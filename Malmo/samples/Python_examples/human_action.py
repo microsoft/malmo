@@ -213,8 +213,6 @@ class HumanAgentHost:
         elif event.keysym in keysym_map:
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
 
-# create a mission specification, and a mission record specification
-            
 action_space = 'discrete'
 #action_space = 'continuous'
 my_mission = MalmoPython.MissionSpec()
@@ -232,14 +230,11 @@ if action_space=='discrete':
     my_mission.removeAllCommandHandlers()
     my_mission.allowAllDiscreteMovementCommands()
 
-my_mission_record = MalmoPython.MissionRecordSpec("./hac_saved_mission.tgz")
+my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission.tgz')
 my_mission_record.recordCommands()
 my_mission_record.recordMP4( 20, 400000 )
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
 
-# run the mission
-
 human_agent_host = HumanAgentHost( sys.argv )
-for rep in range(1):
-    human_agent_host.runMission( my_mission, my_mission_record, action_space )
+human_agent_host.runMission( my_mission, my_mission_record, action_space )
