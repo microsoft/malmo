@@ -47,9 +47,9 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
                 DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
                 String name = di.getType();
                 if (di.getColour() != null)
-                    name += " -C:" + di.getColour().value();
+                    json.addProperty("InventorySlot_" + i + "_colour",  di.getColour().value());
                 if (di.getVariant() != null)
-                    name += " -V:" + di.getVariant();
+                    json.addProperty("InventorySlot_" + i + "_variant", di.getVariant().getValue());
                 json.addProperty("InventorySlot_" + i + "_item", name);
             }
         }
