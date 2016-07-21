@@ -24,27 +24,28 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import com.microsoft.Malmo.Schemas.Colour;
-import com.microsoft.Malmo.Schemas.DrawItem;
-import com.microsoft.Malmo.Schemas.EntityTypes;
-import com.microsoft.Malmo.Schemas.Facing;
-import com.microsoft.Malmo.Schemas.FlowerTypes;
-import com.microsoft.Malmo.Schemas.StoneTypes;
-import com.microsoft.Malmo.Schemas.Variation;
-import com.microsoft.Malmo.Schemas.WoodTypes;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockFlower.EnumFlowerType;
 import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+
+import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.EntityTypes;
+import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.FlowerTypes;
+import com.microsoft.Malmo.Schemas.MonsterEggTypes;
+import com.microsoft.Malmo.Schemas.StoneTypes;
+import com.microsoft.Malmo.Schemas.Variation;
+import com.microsoft.Malmo.Schemas.WoodTypes;
 
 /**
  *  Utility functions for dealing with Minecraft block types, item types, etc.
@@ -152,13 +153,40 @@ public class MinecraftTypeHelper
         return col;
     }
 
-    /** Attempt to parse string as a BlockVariant
+    /** Attempt to parse string as a Variation, allowing for block properties having different names to the enum values<br>
+     * (eg blue_orchid vs orchidBlue etc.)
+     * @param part the string (potentially in the 'wrong' format, eg 'orchidBlue')
+     * @param is the ItemStack from which this string came (eg from is.getUnlocalisedName)
+     * @return a Variation, if one exists, that matches the part string passed in, or one of the ItemStacks current property values.
+     */
+    public static Variation attemptToGetAsVariant(String part, ItemStack is)
+    {
+        if (is.getItem() instanceof ItemBlock)
+        {
+            // Unlocalised name doesn't always match the names we use in types.xsd
+            // (which are the names displayed by Minecraft when using the F3 debug etc.)
+            ItemBlock ib = (ItemBlock)(is.getItem());
+            IBlockState bs = ib.block.getStateFromMeta(is.getMetadata());
+            for (IProperty prop : (java.util.Set<IProperty>)bs.getProperties().keySet())
+            { 
+                Comparable<?> comp = bs.getValue(prop);
+                Variation var = attemptToGetAsVariant(comp.toString());
+                if (var != null)
+                    return var;
+            }
+            return null;
+        }
+        else
+            return attemptToGetAsVariant(part);
+    }
+
+    /** Attempt to parse string as a Variation
      * @param part string token to parse
      * @return the BlockVariant enum value for the requested variant, or null if it wasn't valid.
      */
     public static Variation attemptToGetAsVariant(String part)
     {
-        // Annoyingly JAXB won't bind Variantion as an enum, so we have to do this manually.
+        // Annoyingly JAXB won't bind Variation as an enum, so we have to do this manually.
         // TODO - can we do something more clever... eg make StoneTypes, WoodTypes etc inherit from an XSD baseclass,
         // and have an object in the schemas that returns a list, so we can just iterate...
         try
@@ -263,23 +291,28 @@ public class MinecraftTypeHelper
             Variation var = null;
             for (int part = 2; part < itemParts.size(); part++)
             {
+                String section = itemParts.get(part);
                 // First see if this matches a colour:
                 if (col == null)
                 {
-                    col = attemptToGetAsColour(itemParts.get(part));
+                    col = attemptToGetAsColour(section);
                     if (col == null && var == null) // If it wasn't a colour, check to see if it was a variant:
-                        var = attemptToGetAsVariant(itemParts.get(part));
+                        var = attemptToGetAsVariant(section, is);
                 }
                 else if (var == null)
-                    var = attemptToGetAsVariant(itemParts.get(part));
+                    var = attemptToGetAsVariant(section, is);
             }
             di.setColour(col);
             di.setVariant(var);
         }
         // Use the item registry name for the item - this is what we use in Types.XSD
         Object obj = Item.itemRegistry.getNameForObject(is.getItem());
-        String publicName = obj.toString();
-        di.setType(publicName + "__" + metadata);
+        String publicName;
+        if (obj instanceof ResourceLocation)
+            publicName = ((ResourceLocation)obj).getResourcePath();
+        else
+            publicName = obj.toString();
+        di.setType(publicName);
         return di;
     }
 
