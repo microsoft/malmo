@@ -28,9 +28,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
+import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.Variation;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
@@ -39,12 +44,6 @@ import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-
-import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
-import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
-import com.microsoft.Malmo.Schemas.Variation;
-import com.microsoft.Malmo.Schemas.Colour;
-import com.microsoft.Malmo.Schemas.DrawItem;
 
 public class CraftingHelper
 {
