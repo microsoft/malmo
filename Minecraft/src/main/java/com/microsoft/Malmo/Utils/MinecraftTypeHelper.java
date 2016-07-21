@@ -399,15 +399,20 @@ public class MinecraftTypeHelper
                 // because Items don't provide any nice property stuff like Blocks do...
                 List<ItemStack> subItems = new ArrayList<ItemStack>();
                 item.getSubItems(item, null, subItems);
-                String match = (i.getColour() != null) ? i.getColour().value().toLowerCase() : i.getVariant().getValue().toLowerCase();
-                
+
                 for (ItemStack is : subItems)
                 {
                     String fullName = is.getUnlocalizedName();
+                    if (is.getItem() instanceof ItemMonsterPlacer)
+                    {
+                        fullName += "." + ((ItemMonsterPlacer)is.getItem()).getEntityName(is);  // Special handling for eggs
+                    }
                     String[] parts = fullName.split("\\.");
                     for (int p = 0; p < parts.length; p++)
                     {
-                        if (parts[p].equals(match))
+                        Variation v = attemptToGetAsVariant(parts[p], is);
+                        Colour c = attemptToGetAsColour(parts[p]);
+                        if ((v != null && i.getVariant() != null && v.getValue().equals(i.getVariant().getValue())) || (c != null && i.getColour() != null && c == i.getColour()))
                         {
                             // This is it??
                             return is;
@@ -426,24 +431,30 @@ public class MinecraftTypeHelper
 	 * @param colour The new variation
 	 * @return A new blockstate which is the requested variant of the original, if such a variant exists; otherwise it returns the original block.
 	 */
-	static IBlockState applyVariant(IBlockState state, Variation variant)
-	{
-	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
-	    {
-	        if (prop.getName().equals("variant") && prop.getValueClass().isEnum())
-	        {
-	            Object[] values = prop.getValueClass().getEnumConstants();
-	            for (Object obj : values)
-	            {
-	                if (obj != null && obj.toString().equalsIgnoreCase(variant.getValue()))
-	                {
-	                    return state.withProperty(prop, (Comparable)obj);
-	                }
-	            }
-	        }
-	    }
-	    return state;
-	}
+    static IBlockState applyVariant(IBlockState state, Variation variant)
+    {
+        // Try the variant property first - if that fails, look for other properties that match the supplied variant.
+        boolean relaxRequirements = false;
+        for (int i = 0; i < 2; i++)
+        {
+            for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet())
+            {
+                if ((prop.getName().equals("variant") || relaxRequirements) && prop.getValueClass().isEnum())
+                {
+                    Object[] values = prop.getValueClass().getEnumConstants();
+                    for (Object obj : values)
+                    {
+                        if (obj != null && obj.toString().equalsIgnoreCase(variant.getValue()))
+                        {
+                            return state.withProperty(prop, (Comparable) obj);
+                        }
+                    }
+                }
+            }
+            relaxRequirements = true;   // Failed to set the variant, so try again with other properties.
+        }
+        return state;
+    }
 
 	/** Recolour the Minecraft block
 	 * @param state The block to be recoloured
