@@ -36,6 +36,7 @@ import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
+import com.microsoft.Malmo.Schemas.FlowerTypes;
 import com.microsoft.Malmo.Schemas.StoneTypes;
 import com.microsoft.Malmo.Schemas.WoodTypes;
 
@@ -62,6 +63,7 @@ public class MinecraftTypeHelper
     /**
      * Attempts to parse the item type string.
      * @param s The string to parse.
+     * @param checkBlocks if string can't be parsed as an item, attempt to parse as a block, if checkBlocks is true
      * @return The item type, or null if the string is not recognised.
      */
     public static Item ParseItemType( String s, boolean checkBlocks )
@@ -150,8 +152,8 @@ public class MinecraftTypeHelper
      */
     public static Variation attemptToGetAsVariant(String part)
     {
-        // Annoyingly JAXB won't bind BlockVariant as an enum, so we have to do this manually.
-        // TODO - something more clever... eg make StoneTypes, WoodTypes etc inherit from an XSD baseclass,
+        // Annoyingly JAXB won't bind Variantion as an enum, so we have to do this manually.
+        // TODO - can we do something more clever... eg make StoneTypes, WoodTypes etc inherit from an XSD baseclass,
         // and have an object in the schemas that returns a list, so we can just iterate...
         try
         {
@@ -170,6 +172,20 @@ public class MinecraftTypeHelper
         try
         {
             WoodTypes var = WoodTypes.valueOf(part.toUpperCase());
+            if (var != null)
+            {
+                Variation bv = new Variation();
+                bv.setValue(var.value());
+                return bv;
+            }
+        }
+        catch (Exception e)
+        {
+            // Does nothing.
+        }
+        try
+        {
+            FlowerTypes var = FlowerTypes.valueOf(part.toUpperCase());
             if (var != null)
             {
                 Variation bv = new Variation();
