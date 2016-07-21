@@ -498,13 +498,13 @@
 </xs:simpleType>
 
 <xs:simpleType name="FlowerTypes">
-	<xs:annotation>
-		<xs:documentation>
-			Types of flower
-		</xs:documentation>
-	</xs:annotation>
-	<xs:restriction base="xs:string">
-	    <xs:enumeration value="dandelion" />
+    <xs:annotation>
+        <xs:documentation>
+            Types of flower
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="dandelion" />
         <xs:enumeration value="poppy" />
         <xs:enumeration value="blue_orchid" />
         <xs:enumeration value="allium" />
@@ -514,7 +514,22 @@
         <xs:enumeration value="white_tulip" />
         <xs:enumeration value="pink_tulip" />
         <xs:enumeration value="oxeye_daisy" />
-	</xs:restriction>
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="MonsterEggTypes">
+    <xs:annotation>
+        <xs:documentation>
+            Types of monster egg blocks
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="cobblestone" />
+        <xs:enumeration value="stone_brick" />
+        <xs:enumeration value="mossy_brick" />
+        <xs:enumeration value="cracked_brick" />
+        <xs:enumeration value="chiseled_brick" />
+    </xs:restriction>
 </xs:simpleType>
 
 <xs:simpleType name="EntityTypes">
@@ -569,7 +584,7 @@
         <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
-    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes"/>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes MonsterEggTypes"/>
 </xs:simpleType>
 
 </xs:schema>

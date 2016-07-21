@@ -35,6 +35,7 @@ import com.microsoft.Malmo.Schemas.WoodTypes;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockFlower.EnumFlowerType;
 import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -190,7 +191,7 @@ public class MinecraftTypeHelper
         }
         try
         {
-            FlowerTypes var = FlowerTypes.valueOf(part.toUpperCase());
+            FlowerTypes var = FlowerTypes.fromValue(part);
             if (var != null)
             {
                 Variation bv = new Variation();
@@ -204,7 +205,21 @@ public class MinecraftTypeHelper
         }
         try
         {
-            EntityTypes var = EntityTypes.valueOf(part.toUpperCase());
+            EntityTypes var = EntityTypes.fromValue(part);
+            if (var != null)
+            {
+                Variation bv = new Variation();
+                bv.setValue(var.value());
+                return bv;
+            }
+        }
+        catch (Exception e)
+        {
+            // Does nothing.
+        }
+        try
+        {
+            MonsterEggTypes var = MonsterEggTypes.fromValue(part);
             if (var != null)
             {
                 Variation bv = new Variation();
@@ -230,7 +245,6 @@ public class MinecraftTypeHelper
 
         DrawItem di = new DrawItem();
         String name = is.getUnlocalizedName();  // Get unlocalised name from the stack, not the stack's item - this ensures we keep the metadata.
-        int metadata = is.getMetadata();
         if (is.getHasSubtypes())
         {
             // If the item has subtypes, then there are varieties - eg different colours, types, etc.
