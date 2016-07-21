@@ -540,13 +540,13 @@
     </xs:restriction>
 </xs:simpleType>
 
-<xs:simpleType name="BlockVariant">
+<xs:simpleType name="Variation">
     <xs:annotation>
       <xs:documentation>
-        Variants of block types, entities etc
+        Variants of block types, item types, entities etc
       </xs:documentation>
       <xs:appinfo>
-        <jaxb:class name="BlockVariant"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
+        <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
     <xs:union memberTypes="StoneTypes WoodTypes EntityTypes"/>

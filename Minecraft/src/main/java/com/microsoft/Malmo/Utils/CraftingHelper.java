@@ -42,7 +42,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawItem;
 
@@ -225,7 +225,7 @@ public class CraftingHelper
         // Split into parameters:
         List<String> params = new ArrayList<String>(Arrays.asList(parameters.split(" ")));
         Colour col = null;
-        BlockVariant var = null;
+        Variation var = null;
 
         // See if any parameters appear to be a colour:
         Iterator<String> it = params.iterator();

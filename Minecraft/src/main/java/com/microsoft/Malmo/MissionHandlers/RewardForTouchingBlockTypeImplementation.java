@@ -33,7 +33,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.Behaviour;
 import com.microsoft.Malmo.Schemas.BlockSpecWithRewardAndBehaviour;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForTouchingBlockType;

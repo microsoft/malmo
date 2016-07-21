@@ -170,7 +170,7 @@
   </xs:simpleType>
 
   <xs:simpleType name="VariantList">
-    <xs:list itemType="BlockVariant"/>
+    <xs:list itemType="Variation"/>
   </xs:simpleType>
 
   <xs:complexType name="MazeBlock">
@@ -404,7 +404,7 @@
     <xs:complexContent>
       <xs:extension base="DrawObjectType">
         <xs:attribute name="type" type="BlockType" use="required" />
-        <xs:attribute name="variant" type="BlockVariant" use="optional" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
         <xs:attribute name="colour" type="Colour" use="optional" />
         <xs:attribute name="face" type="Facing" use="optional" />
       </xs:extension>
@@ -451,7 +451,7 @@
         <xs:attribute name="y" type="xs:int" use="required" />
         <xs:attribute name="z" type="xs:int" use="required" />
         <xs:attribute name="type" type="BlockOrItem" use="required" />
-        <xs:attribute name="variant" type="BlockVariant" use="optional" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
         <xs:attribute name="colour" type="Colour" use="optional" />
         <xs:attribute name="face" type="Facing" use="optional" />
       </xs:extension>

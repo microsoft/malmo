@@ -37,7 +37,7 @@ import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MazeBlock;
 import com.microsoft.Malmo.Schemas.MazeDecorator;
@@ -706,7 +706,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     {
         String blockName = chooseBlock(mblock.getType(), rand);
         Colour blockCol = chooseColour(mblock.getColour(), rand);
-        BlockVariant blockVar = chooseVariant(mblock.getVariant(), rand);
+        Variation blockVar = chooseVariant(mblock.getVariant(), rand);
         return BlockDrawingHelper.applyModifications(MinecraftTypeHelper.ParseBlockType(blockName), blockCol, null, blockVar);
     }
 
@@ -724,7 +724,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         return colours.get(r.nextInt(colours.size()));
     }
     
-    private BlockVariant chooseVariant(List<BlockVariant> vars, Random r)
+    private Variation chooseVariant(List<Variation> vars, Random r)
     {
         if (vars == null || vars.size() == 0)
             return null;

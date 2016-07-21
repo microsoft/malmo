@@ -234,7 +234,7 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
-        <xs:attribute name="variant" use="optional" type="BlockVariant" />
+        <xs:attribute name="variant" use="optional" type="Variation" />
         <xs:attribute name="colour" use="optional" type="Colour" />
         <xs:attribute name="quantity" default="1">
             <xs:simpleType>

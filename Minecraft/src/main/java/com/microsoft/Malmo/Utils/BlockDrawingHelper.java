@@ -38,7 +38,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
@@ -140,7 +140,7 @@ public class BlockDrawingHelper
         return itemStack;
     }
 
-    public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, BlockVariant variant )
+    public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, Variation variant )
     {
         if (blockType == null)
             return null;
@@ -263,7 +263,7 @@ public class BlockDrawingHelper
      * @param colour The new variation
      * @return A new blockstate which is the requested variant of the original, if such a variant exists; otherwise it returns the original block.
      */
-    private static IBlockState applyVariant(IBlockState state, BlockVariant variant)
+    private static IBlockState applyVariant(IBlockState state, Variation variant)
     {
         for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
         {

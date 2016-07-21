@@ -32,7 +32,7 @@ import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
@@ -106,7 +106,7 @@ public class MinecraftTypeHelper
      * @param allowedVariants list of allowed Variant enum values
      * @return true if the block matches.
      */
-    public static boolean blockVariantMatches(IBlockState bs, List<BlockVariant> allowedVariants)
+    public static boolean blockVariantMatches(IBlockState bs, List<Variation> allowedVariants)
     {
         for (IProperty prop : (java.util.Set<IProperty>) bs.getProperties().keySet())
         {
@@ -115,7 +115,7 @@ public class MinecraftTypeHelper
                 Object current = bs.getValue(prop);
                 if (current != null)
                 {
-                    for (BlockVariant var : allowedVariants)
+                    for (Variation var : allowedVariants)
                     {
                         if (var.getValue().equalsIgnoreCase(current.toString()))
                             return true;
@@ -148,7 +148,7 @@ public class MinecraftTypeHelper
      * @param part string token to parse
      * @return the BlockVariant enum value for the requested variant, or null if it wasn't valid.
      */
-    public static BlockVariant attemptToGetAsVariant(String part)
+    public static Variation attemptToGetAsVariant(String part)
     {
         // Annoyingly JAXB won't bind BlockVariant as an enum, so we have to do this manually.
         // TODO - something more clever... eg make StoneTypes, WoodTypes etc inherit from an XSD baseclass,
@@ -158,7 +158,7 @@ public class MinecraftTypeHelper
             StoneTypes var = StoneTypes.valueOf(part.toUpperCase());
             if (var != null)
             {
-                BlockVariant bv = new BlockVariant();
+                Variation bv = new Variation();
                 bv.setValue(var.value());
                 return bv;
             }
@@ -172,7 +172,7 @@ public class MinecraftTypeHelper
             WoodTypes var = WoodTypes.valueOf(part.toUpperCase());
             if (var != null)
             {
-                BlockVariant bv = new BlockVariant();
+                Variation bv = new Variation();
                 bv.setValue(var.value());
                 return bv;
             }
@@ -186,7 +186,7 @@ public class MinecraftTypeHelper
             EntityTypes var = EntityTypes.valueOf(part.toUpperCase());
             if (var != null)
             {
-                BlockVariant bv = new BlockVariant();
+                Variation bv = new Variation();
                 bv.setValue(var.value());
                 return bv;
             }
@@ -225,7 +225,7 @@ public class MinecraftTypeHelper
             // Second part will be the item itself (eg "dyePowder" or "stainedGlass" etc).
             // Third part will be the variant, colour etc.
             Colour col = null;
-            BlockVariant var = null;
+            Variation var = null;
             for (int part = 2; part < itemParts.size(); part++)
             {
                 // First see if this matches a colour:
