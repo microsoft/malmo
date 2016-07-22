@@ -19,10 +19,6 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.item.ItemStack;
-
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -40,16 +36,7 @@ public class ObservationFromHotBarImplementation extends HandlerBase implements 
 	@Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        for (int i = 0; i < 9; i++)
-        {
-        	EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-            ItemStack is = player.inventory.getStackInSlot(i);
-            if (is != null)
-            {
-                json.addProperty("Hotbar_" + i + "_size", is.stackSize);
-                json.addProperty("Hotbar_" + i + "_item", is.getItem().getUnlocalizedName());
-            }
-        }
+        ObservationFromFullInventoryImplementation.getInventoryJSON(json, "Hotbar_", 9);
         System.out.println(json.toString());
     }
 }

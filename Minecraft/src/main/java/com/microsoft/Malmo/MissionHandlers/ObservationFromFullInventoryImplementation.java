@@ -37,22 +37,28 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        int nSlots = player.inventory.getSizeInventory();
+        getInventoryJSON(json, "InventorySlot_", player.inventory.getSizeInventory());
+    }
+
+    public static void getInventoryJSON(JsonObject json, String prefix, int maxSlot)
+    {
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        int nSlots = Math.min(player.inventory.getSizeInventory(), maxSlot);
         for (int i = 0; i < nSlots; i++)
         {
             ItemStack is = player.inventory.getStackInSlot(i);
             if (is != null)
             {
-                json.addProperty("InventorySlot_" + i + "_size", is.stackSize);
+                json.addProperty(prefix + i + "_size", is.stackSize);
                 DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
                 String name = di.getType();
                 if (di.getColour() != null)
-                    json.addProperty("InventorySlot_" + i + "_colour",  di.getColour().value());
+                    json.addProperty(prefix + i + "_colour",  di.getColour().value());
                 if (di.getVariant() != null)
-                    json.addProperty("InventorySlot_" + i + "_variant", di.getVariant().getValue());
-                json.addProperty("InventorySlot_" + i + "_item", name);
+                    json.addProperty(prefix + i + "_variant", di.getVariant().getValue());
+                json.addProperty(prefix + i + "_item", name);
             }
-        }
+        }        
     }
 
     @Override
