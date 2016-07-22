@@ -30,11 +30,14 @@ from PIL import ImageTk
 
 class HumanAgentHost:
 
-    def __init__( self, args ):
+    def __init__( self, args, my_mission, my_mission_record, action_space ):
         '''Initializes the class.
         
         Parameters:
         args : list of strings, containing the command-line arguments (pass an empty list if unused).
+        mission_spec : MissionSpec instance, specifying the mission.
+        mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
+        action_space : string, either 'continuous' or 'discrete' that says which commands to generate.
         '''
         self.createGUI()
 
@@ -44,7 +47,12 @@ class HumanAgentHost:
         except RuntimeError as e:
             print 'ERROR:',e
             print self.agent_host.getUsage()
-            raise RuntimeError(e)
+            exit(1)
+        if self.agent_host.receivedArgument("help"):
+            print self.agent_host.getUsage()
+            exit(0)
+            
+        self.runMission( my_mission, my_mission_record, action_space )
             
     def createGUI( self ):
         '''Create the graphical user interface.'''
@@ -135,7 +143,8 @@ class HumanAgentHost:
         if mission_spec.isVideoRequested(0) and action_space == 'continuous':
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print 'Mission stopped'
-        tkMessageBox.showinfo("Ended","Mission has ended. Total reward: " + str(total_reward) )
+        if not self.agent_host.receivedArgument("test"):
+            tkMessageBox.showinfo("Ended","Mission has ended. Total reward: " + str(total_reward) )
         self.root.destroy()
         
     def onSendCommand(self):
@@ -236,5 +245,4 @@ my_mission_record.recordMP4( 20, 400000 )
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
 
-human_agent_host = HumanAgentHost( sys.argv )
-human_agent_host.runMission( my_mission, my_mission_record, action_space )
+HumanAgentHost( sys.argv, my_mission, my_mission_record, action_space )
