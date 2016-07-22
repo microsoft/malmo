@@ -385,7 +385,7 @@ public class MinecraftTypeHelper
                     String fullName = is.getUnlocalizedName();
                     if (is.getItem() instanceof ItemMonsterPlacer)
                     {
-                        fullName += "." + ((ItemMonsterPlacer)is.getItem()).getEntityName(is);  // Special handling for eggs
+                        fullName += "." + ItemMonsterPlacer.getEntityName(is);  // Special handling for eggs
                     }
                     String[] parts = fullName.split("\\.");
                     for (int p = 0; p < parts.length; p++)
