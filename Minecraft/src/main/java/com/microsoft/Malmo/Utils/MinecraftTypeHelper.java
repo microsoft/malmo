@@ -316,11 +316,11 @@ public class MinecraftTypeHelper
         return di;
     }
 
-    /** Take an item name and attempt to turn it into a Minecraft unlocalised name.
-     * @param itemName eg from Types.xsd - "diamond_pickaxe", "gold_block" etc.
-     * @return the Minecraft internal unlocalised name - eg "item.diamondPickaxe", "tile.goldBlock" etc.
+    /** Take a string of parameters, delimited by spaces, and create an ItemStack from it.
+     * @param parameters the item name, variation, colour etc of the required item, separated by spaces.
+     * @return an Itemstack for these parameters, or null if unrecognised.
      */
-    public static String getUnlocalizedNameFromString(String parameters)
+    public static ItemStack getItemStackFromParameterString(String parameters)
     {
         // Split into parameters:
         List<String> params = new ArrayList<String>(Arrays.asList(parameters.split(" ")));
@@ -347,34 +347,14 @@ public class MinecraftTypeHelper
 
         // Hopefully we have at most one parameter left, which will be the type.
         if (params.size() == 0)
-            return parameters;  // Dunno what to do, really.
+            return null;  // Dunno what to do, really.
 
         String itemName = params.get(0);
-        String minecraftName = "";
-        // Attempt to parse as a block:
-        IBlockState block = MinecraftTypeHelper.ParseBlockType(itemName);
-        if (block != null)
-        {
-            block = BlockDrawingHelper.applyModifications(block, col, null, var);
-            minecraftName = block.getBlock().getUnlocalizedName();
-        }
-        else
-        {
-            // Attempt to parse as an item:
-            DrawItem di = new DrawItem();
-            di.setColour(col);
-            di.setVariant(var);
-            di.setType(itemName);
-            ItemStack item = getItemStackFromDrawItem(di);
-            if (item != null)
-                minecraftName = item.getUnlocalizedName();
-            else
-            {
-                // Assume we were given a minecraft description to begin with - eg "tile.carpet.white", or whatever.
-                minecraftName = itemName;
-            }
-        }
-        return minecraftName;
+        DrawItem di = new DrawItem();
+        di.setColour(col);
+        di.setVariant(var);
+        di.setType(itemName);
+        return getItemStackFromDrawItem(di);
     }
 
     public static ItemStack getItemStackFromDrawItem(DrawItem i)

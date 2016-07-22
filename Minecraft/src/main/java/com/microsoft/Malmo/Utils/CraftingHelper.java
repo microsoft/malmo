@@ -222,7 +222,7 @@ public class CraftingHelper
     public static List<IRecipe> getRecipesForRequestedOutput(String output)
     {
         List<IRecipe> matchingRecipes = new ArrayList<IRecipe>();
-        String target = MinecraftTypeHelper.getUnlocalizedNameFromString(output);
+        ItemStack target = MinecraftTypeHelper.getItemStackFromParameterString(output);
         List<?> recipes = CraftingManager.getInstance().getRecipeList();
         for (Object obj : recipes)
         {
@@ -233,8 +233,7 @@ public class CraftingHelper
                 ItemStack is = ((IRecipe)obj).getRecipeOutput();
                 if (is == null)
                     continue;
-                String s = is.getUnlocalizedName();
-                if (s.equals(target))
+                if (ItemStack.areItemsEqual(is, target))
                 {
                     matchingRecipes.add((IRecipe)obj);
                 }
