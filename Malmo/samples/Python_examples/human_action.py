@@ -153,6 +153,7 @@ class HumanAgentHost:
         '''Called when user presses the 'send' button or presses 'Enter' while the command entry box has focus.'''
         self.agent_host.sendCommand(self.command_entry.get())
         self.command_entry.delete(0,END)
+        self.canvas.focus_set()
 
     def update(self):
         '''Called at regular intervals to poll the mouse position to send continuous commands.'''
