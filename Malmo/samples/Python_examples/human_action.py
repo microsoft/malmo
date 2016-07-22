@@ -60,8 +60,6 @@ class HumanAgentHost:
         small_font = "Helvetica 9 bold"
         self.root = Tk()
         self.root.wm_title("Human Action Component")
-        #self.start_button = Button(root, text='Start', command=self.onStartMission,font = our_font)
-        #self.start_button.pack(padx=5, pady=5)
         self.canvas = Canvas(self.root, borderwidth=0, highlightthickness=0, bg="white" )
         self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
         self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
