@@ -796,38 +796,15 @@ public class ServerStateMachine extends StateMachine
             for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
                 InventoryObjectType obj = el.getValue();
-
-                // First try getting this as a block:
-                IBlockState block = MinecraftTypeHelper.ParseBlockType(obj.getType());
-                if (block != null)
+                DrawItem di = new DrawItem();
+                di.setColour(obj.getColour());
+                di.setVariant(obj.getVariant());
+                di.setType(obj.getType());
+                ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+                if( item != null )
                 {
-                    block = BlockDrawingHelper.applyModifications(block, obj.getColour(), null, obj.getVariant());
-                    if (block != null)
-                    {
-                        int i = 0;
-                        Item item = Item.getItemFromBlock(block.getBlock());
-                        if (item != null && item.getHasSubtypes())
-                        {
-                            i = block.getBlock().getMetaFromState(block);
-                        }
-
-                        ItemStack stack = new ItemStack(item, obj.getQuantity(), i);
-                        player.inventory.setInventorySlotContents(obj.getSlot(), stack);
-                    }
-                }
-                else
-                {
-                    // Try adding as an item:
-                    DrawItem di = new DrawItem();
-                    di.setColour(obj.getColour());
-                    di.setVariant(obj.getVariant());
-                    di.setType(obj.getType());
-                    ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
-                    if( item != null )
-                    {
-                        item.stackSize = obj.getQuantity();
-                        player.inventory.setInventorySlotContents(obj.getSlot(), item);
-                    }
+                    item.stackSize = obj.getQuantity();
+                    player.inventory.setInventorySlotContents(obj.getSlot(), item);
                 }
             }
         }
