@@ -63,10 +63,7 @@
     3. Copy `C:\XSLT\zlib-1.2.5\bin\zlib1.dll` to `C:\XSLT\libxslt-1.1.26.win32\bin`
     4. Check that running `xsltproc` from a new command prompt works, printing the options.
 
-10. Install the SlimDX SDK:
-    1. Visit https://slimdx.org/download.php and download the SDK.
-
-11. Build Malmo:
+10. Build Malmo:
     1. Open a Visual Studio 2013 x64 command prompt
     2. `mkdir MalmoPlatform` (wherever you want)
     3. `cd MalmoPlatform`
@@ -83,14 +80,14 @@
         You can then run the samples from e.g. `install\Python_Examples`  
         If you want to use Visual Studio to build, open `Malmo.sln`.
  
-12. Test Malmo:
+11. Test Malmo:
     1. After building Debug: `ctest -C Debug`
     2. After building Release: `ctest -C Release`
     3. Add `-E Integration` to exclude the integration tests.
     4. Add `-VV` to get verbose output.
     5. Or build the RUN_TESTS project in Visual Studio and look in the Output tab.
 
-13. Make a distributable:
+12. Make a distributable:
     1. Run all the tests.
     2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
     3. `msbuild PACKAGE.vcxproj /p:Configuration=Release`

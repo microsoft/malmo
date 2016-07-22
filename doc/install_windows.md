@@ -78,10 +78,3 @@ Download `vcredist_x64.exe` and run.
 If you don't want to use Malmo from C# then you can skip this step.
 
 Visit https://www.microsoft.com/net to download and install the latest dotNET framework.
-
-### 9. Optional: Install SlimDX: ###
-
-If you don't want to use the Human Action component then you can skip this step.
-
-Visit https://slimdx.org/download.php and download the 64-bit .NET 4.0 download .msi file, and install it.
-

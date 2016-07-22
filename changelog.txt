@@ -1,6 +1,7 @@
 0.16.0
 -------------------
 New: ObservationsFromFullStats now additionally returns Air (#214)
+New: Cross-platform Human Action Component
 
 0.15.0 (2016-07-18)
 -------------------
