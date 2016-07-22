@@ -28,6 +28,8 @@ import net.minecraft.item.ItemStack;
 
 import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
+import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public abstract class RewardForItemBase extends HandlerBase
@@ -57,23 +59,26 @@ public abstract class RewardForItemBase extends HandlerBase
             String item = stack.getItem().getUnlocalizedName();
             if (!this.allowedItemTypes.contains(item))
                 return false;
-            // Our item type matches, but we may need to compare block attributes too:
-            Block block = Block.getBlockFromItem(stack.getItem());
-            if (block != null)
-            {
-                // Might need to check colour and variant.
-                if (this.matchSpec.getColour() != null && !this.matchSpec.getColour().isEmpty())
-                {
-                    if (!MinecraftTypeHelper.blockColourMatches(block.getDefaultState(), this.matchSpec.getColour()))
-                        return false;
-                }
 
-                // Matches type and colour, but does the variant match?
-                if (this.matchSpec.getVariant() != null && !this.matchSpec.getVariant().isEmpty())
+            // Our item type matches, but we may need to compare block attributes too:
+            DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(stack);
+            if (this.matchSpec.getColour() != null && !this.matchSpec.getColour().isEmpty()) // We have a colour list, so check colour matches:
+            {
+                if (di.getColour() == null)
+                    return false;   // The item we are matching against has no colour attribute.
+                if (!this.matchSpec.getColour().contains(di.getColour()))
+                    return false;   // The item we are matching against is the wrong colour.
+            }
+            if (this.matchSpec.getVariant() != null && !this.matchSpec.getVariant().isEmpty()) // We have a variant list, so check variant matches@:
+            {
+                if (di.getVariant() == null)
+                    return false;   // The item we are matching against has no variant attribute.
+                for (Variation v : this.matchSpec.getVariant())
                 {
-                    if (!MinecraftTypeHelper.blockVariantMatches(block.getDefaultState(), this.matchSpec.getVariant()))
-                        return false;
+                    if (v.getValue().equals(di.getVariant().getValue()))
+                        return true;
                 }
+                return false;   // The item we are matching against is the wrong variant.
             }
             return true;
         }

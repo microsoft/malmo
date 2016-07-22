@@ -99,6 +99,7 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
                 if (matcher.matches(is))
                 {
                     this.quitCode = matcher.description();
+                    this.wantToQuit = true;
                 }
             }
         }
