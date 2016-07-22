@@ -868,11 +868,9 @@
 
         "{{{craft diamond_pickaxe}}}" will remove three diamonds and two sticks from the player's inventory, and add a diamond pickaxe.
 
-        For more control over colours, types etc, use a Minecraft description string. Eg:
+        For more control over colours, types etc, add a Variation or Colour. Eg:
 
-        "{{{craft tile.woolCarpet.blue}}}"
-
-        "{{{craft tile.stonebricksmooth.chiseled}}}"
+        "{{{craft carpet PINK}}}"
         
         etc.
       </xs:documentation>
@@ -1112,8 +1110,8 @@
       <xs:documentation>
         When present, the Mod will return observations that say what is in the hotbar.
 
-        Two values are returned for each slot, if not empty: e.g. {{{Hotbar_1_size}}} and {{{Hotbar_1_item}}} containing the number and
-        type of the item(s) in the slot, respectively. Hotbar slots are numbered 1 to 9 inclusive.
+        Up to four values are returned for each slot, if not empty: e.g. {{{Hotbar_1_size}}} and {{{Hotbar_1_item}}} containing the number and
+        type of the item(s) in the slot, respectively, and {{{Hotbar_1_colour}}} and  {{{Hotbar_1_variant}}} if the item has a colour/variation. Hotbar slots are numbered 0 to 8 inclusive.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1137,8 +1135,8 @@
       <xs:documentation>
         When present, the Mod will return observations that say what is in the player's inventory.
 
-        Two values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively. Inventory slots are numbered 0 to 39 inclusive.
+        Up to four values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
+        type of the item(s) in the slot, respectively, and {{{Inventory_0_colour}}} and {{{Inventory_0_variant}}} if the item has a colour/variation. Inventory slots are numbered 0 to 39 inclusive.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1227,7 +1225,7 @@
 
         A JSON array will be returned for each range requested, named using the {{{name}}} attribute of the range. Within the array will be a series of elements, one for each entity, containing the following:
         
-        - name: a string describing the entity (of the form item.tile.woolCarpet.red, or item.item.beefRaw, for example)
+        - name: a string describing the entity (eg from Types.xsd)
         
         - x: the x position of the entity
         
@@ -1236,6 +1234,10 @@
         - z: the z position of the entity
         
         - quantity: if items have been grouped together by Minecraft, this indicates the number in the stack
+        
+        - colour: if the item is a tile entity, with a colour, this will be present to describe the colour
+        
+        - variation: optional string to describe the variation - eg the type of egg, or brick, etc (see Types.xsd)
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
