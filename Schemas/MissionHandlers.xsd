@@ -1492,7 +1492,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
-        <xs:element name="Block" type="BlockOrItemSpecWithDescription"/>
+        <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>

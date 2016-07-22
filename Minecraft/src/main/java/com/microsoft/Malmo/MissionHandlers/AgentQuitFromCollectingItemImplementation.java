@@ -45,7 +45,7 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
         
         this.params = (AgentQuitFromCollectingItem)params;
         this.matchers = new ArrayList<ItemQuitMatcher>();
-        for (BlockOrItemSpecWithDescription bs : this.params.getBlock())
+        for (BlockOrItemSpecWithDescription bs : this.params.getItem())
             this.matchers.add(new ItemQuitMatcher(bs));
         return true;
     }
