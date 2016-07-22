@@ -60,12 +60,12 @@ class HumanAgentHost:
         action_space : string, either 'continuous' or 'discrete' that says which commands to generate.
         '''
         
-        self.createGUI()
-        
         self.world_state = None
         self.action_space = action_space
         total_reward = 0
 
+        self.createGUI()
+        
         if mission_spec.isVideoRequested(0):
             self.canvas.config( width=mission_spec.getVideoWidth(0), height=mission_spec.getVideoHeight(0) )
 
@@ -111,7 +111,7 @@ class HumanAgentHost:
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print 'Mission stopped'
         if not self.agent_host.receivedArgument("test"):
-            tkMessageBox.showinfo("Ended","Mission has ended. Total reward: " + str(total_reward) )
+            tkMessageBox.showinfo("Mission ended","Mission has ended. Total reward: " + str(total_reward) )
         self.root_frame.destroy()
         
     def createGUI( self ):
@@ -119,6 +119,11 @@ class HumanAgentHost:
         our_font = "Helvetica 16 bold"
         small_font = "Helvetica 9 bold"
         self.root_frame = Frame(self.root)
+        if action_space == 'continuous':
+            desc = "Running continuous-action mission.\nUse the mouse to turn, WASD to move."
+        else:
+            desc = "Running discrete-action mission.\nUse the arrow keys to turn and move."
+        Label(self.root_frame, text=desc,font = our_font,wraplength=640).pack(padx=5, pady=5)
         self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, bg="white" )
         self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
         self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
@@ -131,11 +136,11 @@ class HumanAgentHost:
         self.canvas.bind('<KeyRelease>',self.onKeyReleaseInCanvas)
         self.canvas.pack(padx=5, pady=5)
         self.entry_frame = Frame(self.root_frame)
-        Label(self.entry_frame, text="Command:",font = our_font).pack(padx=5, pady=5, side=LEFT)
-        self.command_entry = Entry(self.entry_frame,font = our_font)
+        Label(self.entry_frame, text="Type '/' to enter command:",font = small_font).pack(padx=5, pady=5, side=LEFT)
+        self.command_entry = Entry(self.entry_frame,font = small_font)
         self.command_entry.bind('<Key>',self.onKeyInCommandEntry)
         self.command_entry.pack(padx=5, pady=5, side=LEFT)
-        Button(self.entry_frame, text='Send', command=self.onSendCommand,font = our_font).pack(padx=5, pady=5, side=LEFT)
+        Button(self.entry_frame, text='Send', command=self.onSendCommand,font = small_font).pack(padx=5, pady=5, side=LEFT)
         self.entry_frame.pack()
         self.observation = Label(self.root_frame, text='observations will appear here', wraplength=640, font = small_font)
         self.observation.pack()
