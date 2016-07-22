@@ -20,6 +20,8 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 6. Explore the [Documentation](http://microsoft.github.io/malmo/). This is also available in the readme.html in the release zip.
 
+7. Read the [Blog](http://microsoft.github.io/malmo/) for more information.
+
 If you want to build from source then see the build instructions for your OS: [Windows](doc/build_windows.md), [Linux](doc/build_linux.md), [MacOSX](doc/build_macosx.md).
 
 ----
