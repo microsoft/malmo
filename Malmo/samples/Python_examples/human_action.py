@@ -31,7 +31,7 @@ from PIL import ImageTk
 class HumanAgentHost:
 
     def __init__( self, args, my_mission, my_mission_record, action_space ):
-        '''Initializes the class.
+        '''Initializes the class and runs a mission.
         
         Parameters:
         args : list of strings, containing the command-line arguments (pass an empty list if unused).
@@ -153,7 +153,7 @@ class HumanAgentHost:
         self.command_entry.delete(0,END)
 
     def update(self):
-        '''Called at regulat intervals to poll the mouse position to send continuous commands.'''
+        '''Called at regular intervals to poll the mouse position to send continuous commands.'''
         if self.action_space == 'continuous': # mouse movement only used for continuous action space
             if self.world_state and self.world_state.is_mission_running:
                 if self.mouse_event and self.prev_mouse_event:
@@ -222,8 +222,8 @@ class HumanAgentHost:
         elif event.keysym in keysym_map:
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
 
-action_space = 'discrete'
-#action_space = 'continuous'
+#action_space = 'discrete'
+action_space = 'continuous'
 my_mission = MalmoPython.MissionSpec()
 my_mission.requestVideo( 640, 480 )
 my_mission.timeLimitInSeconds( 30 )
