@@ -30,60 +30,27 @@ from PIL import ImageTk
 
 class HumanAgentHost:
 
-    def __init__( self, args, my_mission, my_mission_record, action_space ):
-        '''Initializes the class and runs a mission.
-        
-        Parameters:
-        args : list of strings, containing the command-line arguments (pass an empty list if unused).
-        mission_spec : MissionSpec instance, specifying the mission.
-        mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
-        action_space : string, either 'continuous' or 'discrete' that says which commands to generate.
-        '''
-        self.createGUI()
-
+    def __init__( self ):
+        '''Initializes the class.'''
         self.agent_host = MalmoPython.AgentHost()
-        try:
-            self.agent_host.parse( args )
-        except RuntimeError as e:
-            print 'ERROR:',e
-            print self.agent_host.getUsage()
-            exit(1)
-        if self.agent_host.receivedArgument("help"):
-            print self.agent_host.getUsage()
-            exit(0)
-            
-        self.runMission( my_mission, my_mission_record, action_space )
-            
-    def createGUI( self ):
-        '''Create the graphical user interface.'''
-        our_font = "Helvetica 16 bold"
-        small_font = "Helvetica 9 bold"
         self.root = Tk()
         self.root.wm_title("Human Action Component")
-        self.canvas = Canvas(self.root, borderwidth=0, highlightthickness=0, bg="white" )
-        self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
-        self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
-        self.canvas.bind('<ButtonRelease-1>',self.onLeftMouseUpInCanvas)
-        if sys.platform == 'darwin': right_mouse_button = '2' # on MacOSX, the right button is 'Button-2'
-        else:                        right_mouse_button = '3' # on Windows and Linux the right button is 'Button-3'
-        self.canvas.bind('<Button-'+right_mouse_button+'>',self.onRightMouseDownInCanvas)
-        self.canvas.bind('<ButtonRelease-'+right_mouse_button+'>',self.onRightMouseUpInCanvas)
-        self.canvas.bind('<KeyPress>',self.onKeyPressInCanvas)
-        self.canvas.bind('<KeyRelease>',self.onKeyReleaseInCanvas)
-        self.canvas.pack(padx=5, pady=5)
-        self.entry_frame = Frame(self.root)
-        Label(self.entry_frame, text="Command:",font = our_font).pack(padx=5, pady=5, side=LEFT)
-        self.command_entry = Entry(self.entry_frame,font = our_font)
-        self.command_entry.bind('<Key>',self.onKeyInCommandEntry)
-        self.command_entry.pack(padx=5, pady=5, side=LEFT)
-        Button(self.entry_frame, text='Send', command=self.onSendCommand,font = our_font).pack(padx=5, pady=5, side=LEFT)
-        self.entry_frame.pack()
-        self.observation = Label(self.root, text='observations will appear here', wraplength=640, font = small_font)
-        self.observation.pack()
-        self.reward = Label(self.root, text='rewards will appear here', wraplength=640, font = small_font)
-        self.reward.pack()
-        self.mouse_event = self.prev_mouse_event = None
         
+    def parse( self, args ):
+        '''Parses the command-line arguments.
+                
+        Parameters:
+        args : list of strings, containing the command-line arguments (pass an empty list if unused).
+        '''
+        self.agent_host.parse( args )
+        
+    def getUsage(self):
+        '''Returns the command-line arguments.''' 
+        return self.agent_host.getUsage()
+    
+    def receivedArgument(self,arg):
+        return self.agent_host.receivedArgument(arg)
+            
     def runMission( self, mission_spec, mission_record_spec, action_space ):
         '''Sets a mission running.
         
@@ -92,7 +59,9 @@ class HumanAgentHost:
         mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
         action_space : string, either 'continuous' or 'discrete' that says which commands to generate.
         '''
-        sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+        
+        self.createGUI()
+        
         self.world_state = None
         self.action_space = action_space
         total_reward = 0
@@ -143,7 +112,37 @@ class HumanAgentHost:
         print 'Mission stopped'
         if not self.agent_host.receivedArgument("test"):
             tkMessageBox.showinfo("Ended","Mission has ended. Total reward: " + str(total_reward) )
-        self.root.destroy()
+        self.root_frame.destroy()
+        
+    def createGUI( self ):
+        '''Create the graphical user interface.'''
+        our_font = "Helvetica 16 bold"
+        small_font = "Helvetica 9 bold"
+        self.root_frame = Frame(self.root)
+        self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, bg="white" )
+        self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
+        self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
+        self.canvas.bind('<ButtonRelease-1>',self.onLeftMouseUpInCanvas)
+        if sys.platform == 'darwin': right_mouse_button = '2' # on MacOSX, the right button is 'Button-2'
+        else:                        right_mouse_button = '3' # on Windows and Linux the right button is 'Button-3'
+        self.canvas.bind('<Button-'+right_mouse_button+'>',self.onRightMouseDownInCanvas)
+        self.canvas.bind('<ButtonRelease-'+right_mouse_button+'>',self.onRightMouseUpInCanvas)
+        self.canvas.bind('<KeyPress>',self.onKeyPressInCanvas)
+        self.canvas.bind('<KeyRelease>',self.onKeyReleaseInCanvas)
+        self.canvas.pack(padx=5, pady=5)
+        self.entry_frame = Frame(self.root_frame)
+        Label(self.entry_frame, text="Command:",font = our_font).pack(padx=5, pady=5, side=LEFT)
+        self.command_entry = Entry(self.entry_frame,font = our_font)
+        self.command_entry.bind('<Key>',self.onKeyInCommandEntry)
+        self.command_entry.pack(padx=5, pady=5, side=LEFT)
+        Button(self.entry_frame, text='Send', command=self.onSendCommand,font = our_font).pack(padx=5, pady=5, side=LEFT)
+        self.entry_frame.pack()
+        self.observation = Label(self.root_frame, text='observations will appear here', wraplength=640, font = small_font)
+        self.observation.pack()
+        self.reward = Label(self.root_frame, text='rewards will appear here', wraplength=640, font = small_font)
+        self.reward.pack()
+        self.root_frame.pack()
+        self.mouse_event = self.prev_mouse_event = None
         
     def onSendCommand(self):
         '''Called when user presses the 'send' button or presses 'Enter' while the command entry box has focus.'''
@@ -226,30 +225,46 @@ class HumanAgentHost:
             self.agent_host.sendCommand( char_map[ event.char.lower() ] )
         elif event.keysym in keysym_map:
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
+            
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
-#action_space = 'discrete'
-action_space = 'continuous'
-my_mission = MalmoPython.MissionSpec()
-my_mission.requestVideo( 640, 480 )
-my_mission.timeLimitInSeconds( 30 )
-my_mission.allowAllChatCommands()
-my_mission.allowAllInventoryCommands()
-my_mission.setTimeOfDay( 1000, False )
-my_mission.observeChat()
-my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
-my_mission.observeHotBar()
-my_mission.drawBlock( 5, 226, 5, 'gold_block' )
-my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.1 )
-my_mission.endAt( 5.5, 227, 5.5, 0.1 )
-my_mission.startAt( 0.5, 227, 0.5 )
-if action_space=='discrete':
-    my_mission.removeAllCommandHandlers()
-    my_mission.allowAllDiscreteMovementCommands()
+human_agent_host = HumanAgentHost()
+try:
+    human_agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print human_agent_host.getUsage()
+    exit(1)
+if human_agent_host.receivedArgument("help"):
+    print human_agent_host.getUsage()
+    exit(0)
 
-my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission.tgz')
-my_mission_record.recordCommands()
-my_mission_record.recordMP4( 20, 400000 )
-my_mission_record.recordRewards()
-my_mission_record.recordObservations()
+# Run some missions as a demonstration. Replace this with your own missions.
+            
+for rep in range(2):
+    action_space = [ 'discrete', 'continuous'][rep%2]
+    
+    my_mission = MalmoPython.MissionSpec()
+    my_mission.requestVideo( 640, 480 )
+    my_mission.timeLimitInSeconds( 30 )
+    my_mission.allowAllChatCommands()
+    my_mission.allowAllInventoryCommands()
+    my_mission.setTimeOfDay( 1000, False )
+    my_mission.observeChat()
+    my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
+    my_mission.observeHotBar()
+    my_mission.drawBlock( 5, 226, 5, 'lava' )
+    my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.5 )
+    my_mission.endAt( 5.5, 227, 5.5, 0.5 )
+    my_mission.startAt( 0.5, 227, 0.5 )
+    if action_space=='discrete':
+        my_mission.removeAllCommandHandlers()
+        my_mission.allowAllDiscreteMovementCommands()
 
-HumanAgentHost( sys.argv, my_mission, my_mission_record, action_space )
+    my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission_'+str(rep)+'.tgz')
+    my_mission_record.recordCommands()
+    my_mission_record.recordMP4( 20, 400000 )
+    my_mission_record.recordRewards()
+    my_mission_record.recordObservations()
+
+    human_agent_host.runMission( my_mission, my_mission_record, action_space )
