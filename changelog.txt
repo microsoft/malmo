@@ -1,10 +1,16 @@
-0.15.0
+0.16.0
+-------------------
+New: ObservationsFromFullStats now additionally returns Air (#214)
+New: Cross-platform Human Action Component
+
+0.15.0 (2016-07-18)
 -------------------
 New: Added ObservationFromNearbyEntities (#89) and updated reward_for_items_test.py to demonstrate it.
 New: Simplified inventory movement with swapInventoryItems command (#148).
 New: Can combine inventory slots using new combineInventoryItems command (#189).
 New: Free-floating blocks can now be placed using DrawItem, and used in RewardForDiscardingItem/RewardForCollectingItem.
 New: Crafting now triggers RewardForDiscardingItem/RewardForCollectingItem.
+New: Python bindings changed for videoframe pixels - now returns a native python array, for faster use in numpy/PIL etc. (#187)
 
 0.14.0 (2016-07-07)
 -------------------

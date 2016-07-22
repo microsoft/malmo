@@ -1125,7 +1125,7 @@
         When present, the Mod will return several observations:
 
         * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{DamageTaken}}}
-        * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{XP}}}, {{{IsAlive}}}
+        * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}
         * Position statistics: {{{XPos}}}, {{{YPos}}}, {{{ZPos}}}, {{{Pitch}}}, {{{Yaw}}}
       </xs:documentation>
     </xs:annotation>
