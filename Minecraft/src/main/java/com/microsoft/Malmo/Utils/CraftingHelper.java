@@ -26,15 +26,14 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -133,8 +132,7 @@ public class CraftingHelper
             boolean bFound = false;
             for (ItemStack destIS : outputStacks)
             {
-                // We compare display names, because this seems to take account of colour etc.
-                if (destIS != null && sourceIS != null && destIS.getDisplayName().equals(sourceIS.getDisplayName()))
+                if (destIS != null && sourceIS != null && itemStackIngredientsMatch(destIS, sourceIS))
                 {
                     bFound = true;
                     destIS.stackSize += sourceIS.stackSize;
@@ -163,13 +161,29 @@ public class CraftingHelper
             for (int i = 0; i < main.length + arm.length && target > 0; i++)
             {
                 ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
-                if (isPlayer != null && isIngredient != null && isPlayer.getDisplayName().equals(isIngredient.getDisplayName()))
+                if (isPlayer != null && isIngredient != null && itemStackIngredientsMatch(isPlayer, isIngredient))
                     target -= isPlayer.stackSize;
             }
             if (target > 0)
                 return false;   // Don't have enough of this.
         }
         return true;
+    }
+
+    /** Compare two ItemStacks and see if their items match - take wildcards into account, don't take stacksize into account.
+     * @param A ItemStack A
+     * @param B ItemStack B
+     * @return true if the stacks contain matching items.
+     */
+    private static boolean itemStackIngredientsMatch(ItemStack A, ItemStack B)
+    {
+        if (A == null && B == null)
+            return true;
+        if (A == null || B == null)
+            return false;
+        if (A.getMetadata() == OreDictionary.WILDCARD_VALUE || B.getMetadata() == OreDictionary.WILDCARD_VALUE)
+            return A.getItem() == B.getItem();
+        return ItemStack.areItemsEqual(A, B);
     }
 
     /** Manually attempt to remove ingredients from the player's inventory.<br>
@@ -187,7 +201,7 @@ public class CraftingHelper
             for (int i = 0; i < main.length + arm.length && target > 0; i++)
             {
                 ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
-                if (isPlayer != null && isIngredient != null && isPlayer.getDisplayName().equals(isIngredient.getDisplayName()))
+                if (isPlayer != null && isIngredient != null && itemStackIngredientsMatch(isPlayer, isIngredient))
                 {
                     if (target >= isPlayer.stackSize)
                     {
@@ -211,29 +225,6 @@ public class CraftingHelper
         }
     }
 
-    /** Take an item name and attempt to turn it into a Minecraft unlocalised name.
-     * @param itemName eg from Types.xsd - "diamond_pickaxe", "gold_block" etc.
-     * @return the Minecraft internal unlocalised name - eg "item.diamondPickaxe", "tile.goldBlock" etc.
-     */
-    public static String getUnlocalizedNameFromString(String itemName)
-    {
-        // Attempt to parse as a block:
-        IBlockState block = MinecraftTypeHelper.ParseBlockType(itemName);
-        // Attempt to parse as an item:
-        Item item = MinecraftTypeHelper.ParseItemType(itemName);
-        String minecraftName = "";
-        if (block != null)
-            minecraftName = block.getBlock().getUnlocalizedName();
-        else if (item != null)
-            minecraftName = item.getUnlocalizedName();
-        else
-        {
-            // Assume we were given a minecraft description to begin with - eg "tile.carpet.white", or whatever.
-            minecraftName = itemName;
-        }
-        return minecraftName;
-    }
-
     /** Attempt to find all recipes that result in an item of the requested output.
      * @param output the desired item, eg from Types.xsd - "diamond_pickaxe" etc - or as a Minecraft name - eg "tile.woolCarpet.blue"
      * @return a list of IRecipe objects that result in this item.
@@ -241,7 +232,7 @@ public class CraftingHelper
     public static List<IRecipe> getRecipesForRequestedOutput(String output)
     {
         List<IRecipe> matchingRecipes = new ArrayList<IRecipe>();
-        String target = getUnlocalizedNameFromString(output);
+        ItemStack target = MinecraftTypeHelper.getItemStackFromParameterString(output);
         List<?> recipes = CraftingManager.getInstance().getRecipeList();
         for (Object obj : recipes)
         {
@@ -252,8 +243,7 @@ public class CraftingHelper
                 ItemStack is = ((IRecipe)obj).getRecipeOutput();
                 if (is == null)
                     continue;
-                String s = is.getUnlocalizedName();
-                if (s.equals(target))
+                if (ItemStack.areItemsEqual(is, target))
                 {
                     matchingRecipes.add((IRecipe)obj);
                 }
@@ -324,7 +314,7 @@ public class CraftingHelper
                 {
                     if (!first)
                         s += ", ";
-                    s += isIngredient.stackSize + "x" + isIngredient.getItem().getUnlocalizedName();
+                    s += isIngredient.stackSize + "x" + isIngredient.getUnlocalizedName();
                     s += "(" + isIngredient.getDisplayName() + ")";
                     first = false;
                 }

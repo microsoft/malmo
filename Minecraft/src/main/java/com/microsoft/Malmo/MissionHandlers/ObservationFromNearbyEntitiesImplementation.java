@@ -30,9 +30,11 @@ import net.minecraft.item.ItemStack;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromNearbyEntities;
 import com.microsoft.Malmo.Schemas.RangeDefinition;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public class ObservationFromNearbyEntitiesImplementation extends HandlerBase implements IObservationProducer
 {
@@ -110,15 +112,25 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                 for (Entity e : entsInRangeList)
                 {
                     JsonObject jsent = new JsonObject();
-                    jsent.addProperty("name", e.getName());
                     jsent.addProperty("x", e.posX);
                     jsent.addProperty("y", e.posY);
                     jsent.addProperty("z", e.posZ);
+                    String name = e.getName();
                     if (e instanceof EntityItem)
                     {
                         ItemStack is = ((EntityItem)e).getEntityItem();
+                        DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
+                        if (di != null)
+                        {
+                            name = di.getType();
+                            if (di.getColour() != null)
+                                jsent.addProperty("colour", di.getColour().value());
+                            if (di.getVariant() != null)
+                                jsent.addProperty("variation",  di.getVariant().getValue());
+                        }
                         jsent.addProperty("quantity", is.stackSize);
                     }
+                    jsent.addProperty("name", name);
                     arr.add(jsent);
                 }
                 json.add(this.oneparams.getRange().get(index).getName(), arr);

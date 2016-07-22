@@ -129,8 +129,7 @@
                 <xs:element name="Inventory" minOccurs="0" maxOccurs="1" >
                     <xs:complexType>
                         <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
-                            <xs:element ref="InventoryItem" />
-                            <xs:element ref="InventoryBlock" />
+                            <xs:element ref="InventoryObject" />
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
@@ -225,58 +224,59 @@
         </xs:simpleType>
     </xs:element>
 
-    <xs:element name="InventoryItem">
+    <xs:complexType name="InventoryObjectType">
+        <xs:attribute name="slot" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="0"/>
+                    <xs:maxInclusive value="39"/>
+                </xs:restriction>    
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="type" use="required" type="BlockOrItem"/>
+        <xs:attribute name="variant" use="optional" type="Variation" />
+        <xs:attribute name="colour" use="optional" type="Colour" />
+        <xs:attribute name="quantity" default="1">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="1"/>
+                    <xs:maxInclusive value="64"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="InventoryObject" type="InventoryObjectType">
         <xs:annotation>
             <xs:documentation>
-              Defines an item in the inventory.
+              Defines an item or block in the inventory.
             </xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-            <xs:attribute name="slot" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:int">
-                        <xs:minInclusive value="0"/>
-                        <xs:maxInclusive value="39"/>
-                    </xs:restriction>    
-                </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="type" use="required" type="ItemType"/>
-            <xs:attribute name="quantity" default="1">
-                <xs:simpleType>
-                    <xs:restriction base="xs:int">
-                        <xs:minInclusive value="1"/>
-                        <xs:maxInclusive value="64"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
-        </xs:complexType>
     </xs:element>
 
-    <xs:element name="InventoryBlock">
+    <xs:element name="InventoryItem" substitutionGroup="InventoryObject">
         <xs:annotation>
             <xs:documentation>
-              Defines a block in the inventory.
+              Defines an item in the inventory - deprecated, use InventoryObject instead
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="slot" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:int">
-                        <xs:minInclusive value="0"/>
-                        <xs:maxInclusive value="39"/>
-                    </xs:restriction>    
-                </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="type" use="required" type="BlockType"/>
-            <xs:attribute name="variant" use="optional" type="BlockVariant" />
-            <xs:attribute name="quantity" default="1">
-                <xs:simpleType>
-                    <xs:restriction base="xs:int">
-                        <xs:minInclusive value="1"/>
-                        <xs:maxInclusive value="64"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
+            <xs:complexContent>
+                <xs:extension base="InventoryObjectType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="InventoryBlock" substitutionGroup="InventoryObject">
+        <xs:annotation>
+            <xs:documentation>
+              Defines a block in the inventory - deprecated, use InventoryObject instead
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="InventoryObjectType"/>
+            </xs:complexContent>
         </xs:complexType>
     </xs:element>
 
@@ -341,6 +341,7 @@
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
         </xs:all>
     </xs:group>

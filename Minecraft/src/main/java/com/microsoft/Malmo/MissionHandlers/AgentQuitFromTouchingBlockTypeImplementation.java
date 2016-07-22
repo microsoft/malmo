@@ -34,7 +34,7 @@ import com.microsoft.Malmo.Schemas.AgentQuitFromTouchingBlockType;
 import com.microsoft.Malmo.Schemas.BlockSpec;
 import com.microsoft.Malmo.Schemas.BlockSpecWithDescription;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.PositionHelper;
@@ -118,9 +118,9 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 	{
 		if (blockspec.getVariant() == null || blockspec.getVariant().isEmpty())
 			return true;	// If nothing to match against, we pass.
-		for (BlockVariant v : blockspec.getVariant())
+		for (Variation v : blockspec.getVariant())
 		{
-			if (v.value().equalsIgnoreCase(blockVariant))
+			if (v.getValue().equalsIgnoreCase(blockVariant))
 				return true;
 		}
 		return false;

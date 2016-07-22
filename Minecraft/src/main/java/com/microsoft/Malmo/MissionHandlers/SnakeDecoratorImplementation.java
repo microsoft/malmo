@@ -35,7 +35,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
@@ -216,7 +216,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     {
         String blockName = chooseBlock(sblock.getType(), rand);
         Colour blockCol = chooseColour(sblock.getColour(), rand);
-        BlockVariant blockVar = chooseVariant(sblock.getVariant(), rand);
+        Variation blockVar = chooseVariant(sblock.getVariant(), rand);
         return BlockDrawingHelper.applyModifications(MinecraftTypeHelper.ParseBlockType(blockName), blockCol, null, blockVar);
     }
     
@@ -234,7 +234,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
         return colours.get(r.nextInt(colours.size()));
     }
     
-    private BlockVariant chooseVariant(List<BlockVariant> vars, Random r)
+    private Variation chooseVariant(List<Variation> vars, Random r)
     {
         if (vars == null || vars.size() == 0)
             return null;

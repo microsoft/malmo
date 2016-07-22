@@ -23,21 +23,6 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.block.BlockLever.EnumOrientation;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.world.World;
-
-import com.microsoft.Malmo.Schemas.BlockVariant;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
@@ -46,6 +31,16 @@ import com.microsoft.Malmo.Schemas.DrawLine;
 import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.Variation;
+
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 
 /**
  *  The Mission node can specify drawing primitives, which are drawn in the world by this helper class.  
@@ -62,7 +57,7 @@ public class BlockDrawingHelper
     {
         for(JAXBElement<?> jaxbobj : drawingNode.getDrawObjectType())
         {
-    		Object obj = jaxbobj.getValue();
+            Object obj = jaxbobj.getValue();
             // isn't there an easier way of doing this?
             if( obj instanceof DrawBlock )
                 DrawPrimitive( (DrawBlock)obj, world );
@@ -78,7 +73,7 @@ public class BlockDrawingHelper
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
     }
-    
+
     /**
      * Draw a single Minecraft block.
      * @param b Contains information about the block to be drawn.
@@ -94,18 +89,18 @@ public class BlockDrawingHelper
         blockType = applyModifications(blockType, b.getColour(),  b.getFace(), b.getVariant());
         w.setBlockState( pos, blockType );
     }
-    
-    public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, BlockVariant variant )
+
+    public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, Variation variant )
     {
         if (blockType == null)
             return null;
         
         if (colour != null)
-            blockType = applyColour(blockType, colour);
+            blockType = MinecraftTypeHelper.applyColour(blockType, colour);
         if (facing != null)
-            blockType = applyFacing(blockType, facing);
+            blockType = MinecraftTypeHelper.applyFacing(blockType, facing);
         if (variant != null)
-            blockType = applyVariant(blockType, variant);
+            blockType = MinecraftTypeHelper.applyVariant(blockType, variant);
 
         return blockType;
     }
@@ -213,83 +208,6 @@ public class BlockDrawingHelper
         		w.removeEntity(ent);
     }
 
-    /** Select the request variant of the Minecraft block, if applicable
-     * @param state The block to be varied
-     * @param colour The new variation
-     * @return A new blockstate which is the requested variant of the original, if such a variant exists; otherwise it returns the original block.
-     */
-    private static IBlockState applyVariant(IBlockState state, BlockVariant variant)
-    {
-        for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
-        {
-            if (prop.getName().equals("variant") && prop.getValueClass().isEnum())
-            {
-                Object[] values = prop.getValueClass().getEnumConstants();
-                for (Object obj : values)
-                {
-                    if (obj != null && obj.toString().equalsIgnoreCase(variant.value()))
-                    {
-                        return state.withProperty(prop, (Comparable)obj);
-                    }
-                }
-            }
-        }
-        return state;
-    }
-
-    /** Recolour the Minecraft block
-     * @param state The block to be recoloured
-     * @param colour The new colour
-     * @return A new blockstate which is a recoloured version of the original
-     */
-    private static IBlockState applyColour(IBlockState state, Colour colour)
-    {
-        for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
-        {
-            if (prop.getName().equals("color") && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class)
-            {
-                net.minecraft.item.EnumDyeColor current = (net.minecraft.item.EnumDyeColor)state.getValue(prop);
-                if (!current.getName().equalsIgnoreCase(colour.name()))
-                {
-                    return state.withProperty(prop, EnumDyeColor.valueOf(colour.name()));
-                }
-            }
-        }
-        return state;
-    }
-    
-    /** Change the facing attribute of the Minecraft block
-     * @param state The block to be edited
-     * @param facing The new direction (N/S/E/W/U/D)
-     * @return A new blockstate with the facing attribute edited
-     */
-    private static IBlockState applyFacing(IBlockState state, Facing facing)
-    {
-        for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
-        {
-            if (prop.getName().equals("facing"))
-            {
-            	if(prop.getValueClass() == EnumFacing.class)
-            	{
-            		EnumFacing current = (EnumFacing)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
-	                }
-            	}
-            	else if(prop.getValueClass() == EnumOrientation.class)
-            	{
-            		EnumOrientation current = (EnumOrientation)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
-	                }
-            	}
-            }
-        }
-        return state;
-    }
-
     /**
      * Spawn a single item at the specified position.
      * @param i Contains information about the item to be spawned.
@@ -298,7 +216,7 @@ public class BlockDrawingHelper
      */
     private static void DrawPrimitive( DrawItem i, World w ) throws Exception
     {
-        Item item = MinecraftTypeHelper.ParseItemType(i.getType());
+        ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(i);
         if (item == null)
             throw new Exception("Unrecognised item type: "+i.getType());
         BlockPos pos = new BlockPos( i.getX(), i.getY(), i.getZ() );
@@ -310,10 +228,9 @@ public class BlockDrawingHelper
      * @param pos the position at which to spawn it.
      * @param world the world in which to spawn the item.
      */
-    public static void placeItem(Item item, BlockPos pos, World world, boolean centreItem)
+    public static void placeItem(ItemStack stack, BlockPos pos, World world, boolean centreItem)
     {
     	double offset = (centreItem) ? 0.5D : 0.0D;
-        ItemStack stack = new ItemStack(item);
         EntityItem entityitem = new EntityItem(world, (double)pos.getX() + offset, (double)pos.getY() + offset, (double)pos.getZ() + offset, stack);
         // Set the motions to zero to prevent random movement.
         entityitem.motionX = 0;

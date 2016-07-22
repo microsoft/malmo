@@ -67,13 +67,12 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
                 float reward_value = goal.getReward().floatValue();
                 float tolerance = goal.getTolerance().floatValue();
 
-                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer,
-                        goal);
-                if (distance <= tolerance) {
-                    reward.add( this.params.getDimension(), reward_value );
+                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer, goal);
+                if (distance <= tolerance)
+                {
+                    reward.add(this.params.getDimension(), reward_value);
                     if (oneShot)
-                        goalIterator.remove(); // Safe to do this via an
-                                               // iterator.
+                        goalIterator.remove(); // Safe to do this via an iterator.
                 }
             }
         }

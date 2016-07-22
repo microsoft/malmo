@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import net.minecraft.block.state.IBlockState;
@@ -57,13 +58,16 @@ import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
+import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.InventoryBlock;
 import com.microsoft.Malmo.Schemas.InventoryItem;
+import com.microsoft.Malmo.Schemas.InventoryObjectType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
+import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
@@ -789,23 +793,18 @@ public class ServerStateMachine extends StateMachine
                 player.updateHeldItem();
 
             // Now add specified items:
-            List<Object> objects = inventory.getInventoryItemOrInventoryBlock();
-            for (Object obj : objects)
+            for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
-                if (obj instanceof InventoryBlock)
+                InventoryObjectType obj = el.getValue();
+                DrawItem di = new DrawItem();
+                di.setColour(obj.getColour());
+                di.setVariant(obj.getVariant());
+                di.setType(obj.getType());
+                ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+                if( item != null )
                 {
-                    InventoryBlock invblock = (InventoryBlock)obj;
-                    IBlockState block = MinecraftTypeHelper.ParseBlockType(invblock.getType().value());
-                    if( block != null )
-                        player.inventory.setInventorySlotContents(invblock.getSlot(), new ItemStack(block.getBlock(), invblock.getQuantity()));
-
-                }
-                else if (obj instanceof InventoryItem)
-                {
-                    InventoryItem invitem = (InventoryItem)obj;
-                    Item item = MinecraftTypeHelper.ParseItemType(invitem.getType().value());
-                    if( item != null )
-                        player.inventory.setInventorySlotContents(invitem.getSlot(), new ItemStack(item, invitem.getQuantity()));
+                    item.stackSize = obj.getQuantity();
+                    player.inventory.setInventorySlotContents(obj.getSlot(), item);
                 }
             }
         }

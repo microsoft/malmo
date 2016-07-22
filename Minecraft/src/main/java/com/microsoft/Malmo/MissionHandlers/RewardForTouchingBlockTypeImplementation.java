@@ -33,10 +33,11 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.Behaviour;
 import com.microsoft.Malmo.Schemas.BlockSpecWithRewardAndBehaviour;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.BlockVariant;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForTouchingBlockType;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.PositionHelper;
 
 public class RewardForTouchingBlockTypeImplementation extends HandlerBase implements IRewardProducer {
@@ -88,40 +89,16 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
                     match = true;
             }
 
-            if (match && this.spec.getColour() != null && !this.spec.getColour().isEmpty()) {
-                // This type of block is a match, but does the colour match?
-                for (IProperty prop : (java.util.Set<IProperty>) bs.getProperties().keySet()) {
-                    if (prop.getName().equals("color")
-                            && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class) {
-                        // The block in question has a colour, so check it is a
-                        // specified one:
-                        match = false; // Assume no match.
-                        net.minecraft.item.EnumDyeColor current = (net.minecraft.item.EnumDyeColor) bs.getValue(prop);
-                        for (Colour col : this.spec.getColour()) {
-                            if (current.getName().equalsIgnoreCase(col.name()))
-                                match = true;
-                        }
-                    }
-                }
-            }
+            // This type of block is a match, but does the colour match?
+            if (match && this.spec.getColour() != null && !this.spec.getColour().isEmpty())
+                match = MinecraftTypeHelper.blockColourMatches(bs, this.spec.getColour());
 
-            if (match && this.spec.getVariant() != null && !this.spec.getVariant().isEmpty()) {
-                // Matches type and colour, but does the variant match?
-                for (IProperty prop : (java.util.Set<IProperty>) bs.getProperties().keySet()) {
-                    if (prop.getName().equals("variant") && prop.getValueClass().isEnum()) {
-                        Object current = bs.getValue(prop);
-                        if (current != null) {
-                            match = false; // Assume no match.
-                            for (BlockVariant var : this.spec.getVariant()) {
-                                if (var.name().equalsIgnoreCase(current.toString()))
-                                    match = true;
-                            }
-                        }
-                    }
-                }
-            }
+            // Matches type and colour, but does the variant match?
+            if (match && this.spec.getVariant() != null && !this.spec.getVariant().isEmpty())
+                match = MinecraftTypeHelper.blockVariantMatches(bs, this.spec.getVariant());
 
-            if (match) {
+            if (match)
+            {
                 // We're firing.
                 this.hasFired = true;
                 this.lastFired = System.currentTimeMillis();
