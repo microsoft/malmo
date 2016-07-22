@@ -3,20 +3,39 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
+import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
 import com.microsoft.Malmo.Schemas.AgentQuitFromCollectingItem;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
-import com.microsoft.Malmo.Schemas.BlockSpec;
-import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.MissionInit;
-
-import net.minecraft.block.Block;
 
 public class AgentQuitFromCollectingItemImplementation extends HandlerBase implements IWantToQuit
 {
     AgentQuitFromCollectingItem params;
-    List<String> itemTypeNames;
+    List<ItemQuitMatcher> matchers;
     String quitCode = "";
+    boolean wantToQuit = false;
+
+    public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher
+    {
+        String description;
+
+        ItemQuitMatcher(BlockOrItemSpecWithDescription spec)
+        {
+            super(spec);
+            this.description = spec.getDescription();
+        }
+
+        String description()
+        {
+            return this.description;
+        }
+    }
 
     @Override
     public boolean parseParameters(Object params)
@@ -25,44 +44,63 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
             return false;
         
         this.params = (AgentQuitFromCollectingItem)params;
-        // Flatten all the possible block type names for ease of matching later:
-        this.itemTypeNames = new ArrayList<String>();
+        this.matchers = new ArrayList<ItemQuitMatcher>();
         for (BlockOrItemSpecWithDescription bs : this.params.getBlock())
-        {
-            for (String s : bs.getType())
-            {
-//                Block b = Block.getBlockFromName(bt.value());
-//                this.blockTypeNames.add(b.getUnlocalizedName().toLowerCase());
-            }
-        }
+            this.matchers.add(new ItemQuitMatcher(bs));
         return true;
     }
 
     @Override
     public boolean doIWantToQuit(MissionInit missionInit)
     {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void prepare(MissionInit missionInit)
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void cleanup()
-    {
-        // TODO Auto-generated method stub
-
+        return this.wantToQuit;
     }
 
     @Override
     public String getOutcome()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this.quitCode;
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @Override
+    public void cleanup()
+    {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    @SubscribeEvent
+    public void onGainItem(GainItemEvent event)
+    {
+        checkForMatch(event.stack);
+    }
+
+    @SubscribeEvent
+    public void onPickupItem(EntityItemPickupEvent event)
+    {
+        if (event.item != null && event.item.getEntityItem() != null)
+        {
+            ItemStack stack = event.item.getEntityItem();
+            checkForMatch(stack);
+        }
+    }
+
+    private void checkForMatch(ItemStack is)
+    {
+        if (is != null)
+        {
+            for (ItemQuitMatcher matcher : this.matchers)
+            {
+                if (matcher.matches(is))
+                {
+                    this.quitCode = matcher.description();
+                }
+            }
+        }
     }
 }

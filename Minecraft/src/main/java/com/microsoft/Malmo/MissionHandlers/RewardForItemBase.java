@@ -26,22 +26,23 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public abstract class RewardForItemBase extends HandlerBase
 {
     protected MultidimensionalReward accumulatedRewards = new MultidimensionalReward();
-    List<ItemMatcher> rewardMatchers = new ArrayList<ItemMatcher>();
-
-    class ItemMatcher
+    List<ItemRewardMatcher> rewardMatchers = new ArrayList<ItemRewardMatcher>();
+    
+    public static class ItemMatcher
     {
         List<String> allowedItemTypes = new ArrayList<String>();
-        BlockOrItemSpecWithReward rewardSpec;
+        BlockOrItemSpec matchSpec;
 
-        ItemMatcher(BlockOrItemSpecWithReward spec)
+        ItemMatcher(BlockOrItemSpec spec)
         {
-            this.rewardSpec = spec;
+            this.matchSpec = spec;
 
             for (String itemType : spec.getType())
             {
@@ -49,11 +50,6 @@ public abstract class RewardForItemBase extends HandlerBase
                 if (item != null)
                     this.allowedItemTypes.add(item.getUnlocalizedName());
             }
-        }
-
-        float reward()
-        {
-            return this.rewardSpec.getReward().floatValue();
         }
 
         boolean matches(ItemStack stack)
@@ -66,16 +62,16 @@ public abstract class RewardForItemBase extends HandlerBase
             if (block != null)
             {
                 // Might need to check colour and variant.
-                if (this.rewardSpec.getColour() != null && !this.rewardSpec.getColour().isEmpty())
+                if (this.matchSpec.getColour() != null && !this.matchSpec.getColour().isEmpty())
                 {
-                    if (!MinecraftTypeHelper.blockColourMatches(block.getDefaultState(), this.rewardSpec.getColour()))
+                    if (!MinecraftTypeHelper.blockColourMatches(block.getDefaultState(), this.matchSpec.getColour()))
                         return false;
                 }
-                
+
                 // Matches type and colour, but does the variant match?
-                if (this.rewardSpec.getVariant() != null && !this.rewardSpec.getVariant().isEmpty())
+                if (this.matchSpec.getVariant() != null && !this.matchSpec.getVariant().isEmpty())
                 {
-                    if (!MinecraftTypeHelper.blockVariantMatches(block.getDefaultState(), this.rewardSpec.getVariant()))
+                    if (!MinecraftTypeHelper.blockVariantMatches(block.getDefaultState(), this.matchSpec.getVariant()))
                         return false;
                 }
             }
@@ -83,14 +79,30 @@ public abstract class RewardForItemBase extends HandlerBase
         }
     }
 
+    public class ItemRewardMatcher extends ItemMatcher
+    {
+        float reward;
+
+        ItemRewardMatcher(BlockOrItemSpecWithReward spec)
+        {
+            super(spec);
+            this.reward = spec.getReward().floatValue();
+        }
+
+        float reward()
+        {
+            return this.reward;
+        }
+    }
+
     protected void addItemSpecToRewardStructure(BlockOrItemSpecWithReward is)
     {
-        this.rewardMatchers.add(new ItemMatcher(is));
+        this.rewardMatchers.add(new ItemRewardMatcher(is));
     }
 
     protected void accumulateReward(int dimension, ItemStack stack)
     {
-        for (ItemMatcher matcher : this.rewardMatchers)
+        for (ItemRewardMatcher matcher : this.rewardMatchers)
         {
             if (matcher.matches(stack))
             {
