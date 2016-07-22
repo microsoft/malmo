@@ -202,21 +202,28 @@ class HumanAgentHost:
     def onKeyPressInCanvas(self, event):
         '''Called when a key is pressed when the canvas has focus.'''
         char_map = { 'w':'move 1', 'a':'strafe -1', 's':'move -1', 'd':'strafe 1', ' ':'jump 1' }
-        keysym_map = { 'continuous': { 'Left':'turn -1', 'Right':'turn 1', 'Up':'pitch -1', 'Down':'pitch 1' },
-                       'discrete':   { 'Left':'turn -1', 'Right':'turn 1', 'Up':'move 1',   'Down':'move -1' } }
+        keysym_map = { 'continuous': { 'Left':'turn -1', 'Right':'turn 1', 'Up':'pitch -1', 'Down':'pitch 1', 'Shift_L':'crouch 1',
+                                       'Shift_R':'crouch 1', 
+                                       '1':'hotbar.1 1', '2':'hotbar.2 1', '3':'hotbar.3 1', '4':'hotbar.4 1', '5':'hotbar.5 1',
+                                       '6':'hotbar.6 1', '7':'hotbar.7 1', '8':'hotbar.8 1', '9':'hotbar.9 1' },
+                       'discrete':   { 'Left':'turn -1', 'Right':'turn 1', 'Up':'move 1', 'Down':'move -1', 
+                                       '1':'hotbar.1 1', '2':'hotbar.2 1', '3':'hotbar.3 1', '4':'hotbar.4 1', '5':'hotbar.5 1',
+                                       '6':'hotbar.6 1', '7':'hotbar.7 1', '8':'hotbar.8 1', '9':'hotbar.9 1' } }
         if event.char == '/':
             self.command_entry.focus_set() # interlude to allow user to type command
-        elif event.char in char_map:
-            self.agent_host.sendCommand( char_map[ event.char ] )
+        elif event.char.lower() in char_map:
+            self.agent_host.sendCommand( char_map[ event.char.lower() ] )
         elif event.keysym in keysym_map[self.action_space]:
             self.agent_host.sendCommand( keysym_map[self.action_space][ event.keysym ] )
 
     def onKeyReleaseInCanvas(self, event):
         '''Called when a key is released when the command entry box has focus.'''
         char_map = { 'w':'move 0', 'a':'strafe 0', 's':'move 0', 'd':'strafe 0', ' ':'jump 0' }
-        keysym_map = { 'Left':'turn 0', 'Right':'turn 0', 'Up':'pitch 0', 'Down':'pitch 0' }
-        if event.char in char_map:
-            self.agent_host.sendCommand( char_map[ event.char ] )
+        keysym_map = { 'Left':'turn 0', 'Right':'turn 0', 'Up':'pitch 0', 'Down':'pitch 0', 'Shift_L':'crouch 0', 'Shift_R':'crouch 0', 
+                       '1':'hotbar.1 0', '2':'hotbar.2 0', '3':'hotbar.3 0', '4':'hotbar.4 0', '5':'hotbar.5 0',
+                       '6':'hotbar.6 0', '7':'hotbar.7 0', '8':'hotbar.8 0', '9':'hotbar.9 0' }
+        if event.char.lower() in char_map:
+            self.agent_host.sendCommand( char_map[ event.char.lower() ] )
         elif event.keysym in keysym_map:
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
 
@@ -226,9 +233,11 @@ my_mission = MalmoPython.MissionSpec()
 my_mission.requestVideo( 640, 480 )
 my_mission.timeLimitInSeconds( 30 )
 my_mission.allowAllChatCommands()
+my_mission.allowAllInventoryCommands()
 my_mission.setTimeOfDay( 1000, False )
 my_mission.observeChat()
 my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
+my_mission.observeHotBar()
 my_mission.drawBlock( 5, 226, 5, 'gold_block' )
 my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.1 )
 my_mission.endAt( 5.5, 227, 5.5, 0.1 )
