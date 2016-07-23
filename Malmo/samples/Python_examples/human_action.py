@@ -84,7 +84,7 @@ class HumanAgentHost:
             for error in self.world_state.errors:
                 print "Error:",error.text
         print
-        if mission_spec.isVideoRequested(0) and action_space == 'continuous':
+        if action_space == 'continuous':
             self.canvas.config(cursor='none') # hide the mouse cursor while over the canvas
             self.canvas.event_generate('<Motion>', warp=True, x=self.canvas.winfo_width()/2, y=self.canvas.winfo_height()/2) # put cursor at center
             self.root.after(50, self.update)
@@ -100,14 +100,14 @@ class HumanAgentHost:
                 photo = ImageTk.PhotoImage(image)
                 self.canvas.delete("all")
                 self.canvas.create_image(frame.width/2, frame.height/2, image=photo)
-                self.canvas.create_line( frame.width/2 - 5, frame.height/2, frame.width/2 + 6, frame.height/2, fill='white' )
-                self.canvas.create_line( frame.width/2, frame.height/2 - 5, frame.width/2, frame.height/2 + 6, fill='white' )
-                self.root.update()
+            self.canvas.create_line( self.canvas.winfo_width()/2-5, self.canvas.winfo_height()/2,   self.canvas.winfo_width()/2+6, self.canvas.winfo_height()/2,   fill='white' )
+            self.canvas.create_line( self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2-5, self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2+6, fill='white' )
             for reward in self.world_state.rewards:
                 total_reward += reward.getValue()
             self.reward.config(text = str(total_reward) )
+            self.root.update()
             time.sleep(0.01)
-        if mission_spec.isVideoRequested(0) and action_space == 'continuous':
+        if action_space == 'continuous':
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print 'Mission stopped'
         if not self.agent_host.receivedArgument("test"):
@@ -119,12 +119,12 @@ class HumanAgentHost:
         our_font = "Helvetica 16 bold"
         small_font = "Helvetica 9 bold"
         self.root_frame = Frame(self.root)
-        if action_space == 'continuous':
+        if self.action_space == 'continuous':
             desc = "Running continuous-action mission.\nUse the mouse to turn, WASD to move."
         else:
             desc = "Running discrete-action mission.\nUse the arrow keys to turn and move."
         Label(self.root_frame, text=desc,font = our_font,wraplength=640).pack(padx=5, pady=5)
-        self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, bg="white" )
+        self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, width=640, height=480, bg="black" )
         self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
         self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
         self.canvas.bind('<ButtonRelease-1>',self.onLeftMouseUpInCanvas)
