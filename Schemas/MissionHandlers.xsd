@@ -1130,6 +1130,20 @@
     <xs:complexType/>
   </xs:element>
 
+  <xs:element name="ObservationFromLineOfSight">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return observations about the block or entity which is currently in the line of sight:
+
+        * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object.
+        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block.
+        * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
+        * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name (eg, for leaves, "decayable" and "check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+  
   <xs:element name="ObservationFromFullInventory">
     <xs:annotation>
       <xs:documentation>

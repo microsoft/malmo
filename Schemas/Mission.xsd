@@ -321,7 +321,8 @@
             <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
-            
+            <xs:element ref="ObservationFromLineOfSight" minOccurs="0"/>
+
             <xs:element ref="VideoProducer" minOccurs="0"/>
 
             <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />
