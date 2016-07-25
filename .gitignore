@@ -203,6 +203,9 @@ ModelManifest.xml
 .project
 /Mod/eclipse
 
+# IntelliJ files
+.idea
+
 # Python
 *.pyc
 
