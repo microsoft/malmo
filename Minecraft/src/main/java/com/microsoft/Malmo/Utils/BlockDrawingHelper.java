@@ -23,6 +23,18 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
+
+import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
@@ -30,17 +42,9 @@ import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.DrawLine;
 import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
+import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
 import com.microsoft.Malmo.Schemas.Variation;
-
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.world.World;
 
 /**
  *  The Mission node can specify drawing primitives, which are drawn in the world by this helper class.  
@@ -88,6 +92,7 @@ public class BlockDrawingHelper
         BlockPos pos = new BlockPos( b.getX(), b.getY(), b.getZ() );
         blockType = applyModifications(blockType, b.getColour(),  b.getFace(), b.getVariant());
         w.setBlockState( pos, blockType );
+        applyTileEntityProps(pos, w, b.getType(), b.getColour(), b.getFace(), b.getVariant());
     }
 
     public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, Variation variant )
@@ -129,6 +134,7 @@ public class BlockDrawingHelper
                     {
                         BlockPos pos = new BlockPos( x, y, z );
                         w.setBlockState( pos, blockType );
+                        applyTileEntityProps(pos, w, s.getType(), s.getColour(), s.getFace(), s.getVariant());
                         List<Entity> entities = w.getEntitiesWithinAABBExcludingEntity(null,  new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5));
                         for (Entity ent : entities)
                         	if (!(ent instanceof EntityPlayer))
@@ -156,6 +162,8 @@ public class BlockDrawingHelper
         blockType = applyModifications(blockType, l.getColour(),  l.getFace(), l.getVariant());
 
         // Set up the blocktype for the steps of the line, if one has been specified:
+        BlockType btNormal = l.getType();
+        BlockType btStep = l.getType();
         IBlockState stepType = blockType;
         if (l.getSteptype() != null)
         {
@@ -163,6 +171,7 @@ public class BlockDrawingHelper
             if( stepType == null )
                 throw new Exception("Unrecognised block type: " + l.getSteptype().value());
             stepType = applyModifications(stepType, l.getColour(),  l.getFace(), l.getVariant());
+            btStep = l.getSteptype();
         }
 
         float dx = (l.getX2() - l.getX1());
@@ -186,6 +195,7 @@ public class BlockDrawingHelper
             BlockPos pos = new BlockPos(x, y, z);
             clearEntities(w, x-0.5,y-0.5,z-0.5,x+0.5,y+0.5,z+0.5);
             w.setBlockState(pos, y == prevY ? blockType : stepType);
+            applyTileEntityProps(pos, w, y == prevY ? btNormal : btStep, l.getColour(), l.getFace(), l.getVariant());
 
             // Ensure 4-connected:
             if (x != prevX && z != prevZ)
@@ -193,6 +203,7 @@ public class BlockDrawingHelper
                 pos = new BlockPos(x, y, prevZ);
                 clearEntities(w, x-0.5,y-0.5,prevZ-0.5,x+0.5,y+0.5,prevZ+0.5);
                 w.setBlockState(pos, y == prevY ? blockType : stepType);
+                applyTileEntityProps(pos, w, y == prevY ? btNormal : btStep, l.getColour(), l.getFace(), l.getVariant());
             }
             prevY = y;
             prevX = x;
@@ -264,7 +275,31 @@ public class BlockDrawingHelper
         for( int x = x1; x <= x2; x++ ) {
             for( int y = y1; y <= y2; y++ ) {
                 for( int z = z1; z <= z2; z++ ) {
-                    w.setBlockState( new BlockPos( x, y, z ), blockType );
+                    BlockPos pos = new BlockPos(x, y, z);
+                    w.setBlockState(pos, blockType );
+                    applyTileEntityProps(pos, w, c.getType(), c.getColour(), c.getFace(), c.getVariant());
+                }
+            }
+        }
+    }
+    
+    private static void applyTileEntityProps(BlockPos pos, World w, BlockType t, Colour c, Facing f, Variation v)
+    {
+        // At the moment, we only need this method for adjusting mob spawners - but may come in handy for other objects.
+        if (t == BlockType.MOB_SPAWNER)
+        {
+            TileEntity te = w.getTileEntity(pos);
+            if (te != null && te instanceof TileEntityMobSpawner)   // Ought to be!
+            {
+                // Attempt to use the variation to control what type of mob this spawns:
+                try
+                {
+                    EntityTypes entvar = EntityTypes.fromValue(v.getValue());
+                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
+                }
+                catch (Exception e)
+                {
+                    // Do nothing - use has requested a non-entity variant.
                 }
             }
         }
