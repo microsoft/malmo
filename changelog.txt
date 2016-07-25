@@ -1,5 +1,6 @@
 0.16.0
 -------------------
+New: ObservationFromRay returns info about nearest block/item/entity in the agent's direct line of sight. (#184)
 Fix: RewardForDiscardingItem/RewardForCollectingItem now work with variations, colours etc.
 Fix: Inventory and Entity observations now return information in the same format we use to specify things (eg Type, Variation, Colour)
 New: More types supported in BlockDrawing, Inventory initialisation etc - see FlowerTypes, EntityTypes, MonsterEggTypes
