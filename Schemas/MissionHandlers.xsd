@@ -1130,7 +1130,7 @@
     <xs:complexType/>
   </xs:element>
 
-  <xs:element name="ObservationFromLineOfSight">
+  <xs:element name="ObservationFromRay">
     <xs:annotation>
       <xs:documentation>
         When present, the Mod will return observations about the block or entity which is currently in the line of sight:

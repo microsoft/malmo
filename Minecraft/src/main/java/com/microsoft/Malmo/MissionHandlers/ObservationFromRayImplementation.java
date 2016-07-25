@@ -21,7 +21,7 @@ import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
-public class ObservationFromLineOfSightImplementation extends HandlerBase implements IObservationProducer
+public class ObservationFromRayImplementation extends HandlerBase implements IObservationProducer
 {
     @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
