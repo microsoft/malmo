@@ -1,6 +1,6 @@
 ## Installing dependencies on Windows ##
 
-For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 6 and 7. Then see the Getting Started section below.
+For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5 and 6. Then see the Getting Started section below.
 
 If you just want to run the Minecraft Mod (maybe your agents run on a different machine) then you only need to follow step 6.
 
@@ -35,17 +35,7 @@ Run the downloaded file to install Python.
 
 Check that typing `python` works in a command prompt. You may need to add e.g. `C:\Python27` to your PATH.
 
-### 5. Optional: Install Lua: ###
-
-If you don't want to use Malmo from Lua then you can skip this step.
-
-Visit https://github.com/rjpcomputing/luaforwindows/releases and download e.g. `LuaForWindows_v5.1.4-50.exe`
-
-Run the downloaded file to install Lua.
-
-Check that typing `lua` works in a command prompt.
-
-### 6. Install the Java SE Development Kit (JDK): ###
+### 5. Install the Java SE Development Kit (JDK): ###
 
 Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download the latest 64-bit version 
 e.g. `jdk-8u77-windows-x64.exe`
@@ -67,13 +57,13 @@ Set the JAVA_HOME environment variable to be the location of the JDK:
   
 Check that `java -version` and `javac -version` and `set JAVA_HOME` all report the same 64-bit version.
  
-### 7. Install the Microsoft Visual Studio 2013 redistributable: ###
+### 6. Install the Microsoft Visual Studio 2013 redistributable: ###
 
 Visit: https://www.microsoft.com/en-us/download/details.aspx?id=40784
 
 Download `vcredist_x64.exe` and run.
 
-### 8. Optional: Install the dotNET runtime: ###
+### 7. Optional: Install the dotNET runtime: ###
 
 If you don't want to use Malmo from C# then you can skip this step.
 
