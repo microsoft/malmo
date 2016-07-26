@@ -282,8 +282,8 @@ public class BlockDrawingHelper
             }
         }
     }
-    
-    private static void applyTileEntityProps(BlockPos pos, World w, BlockType t, Colour c, Facing f, Variation v)
+
+    public static void applyTileEntityProps(BlockPos pos, World w, BlockType t, Colour c, Facing f, Variation v)
     {
         // At the moment, we only need this method for adjusting mob spawners - but may come in handy for other objects.
         if (t == BlockType.MOB_SPAWNER)

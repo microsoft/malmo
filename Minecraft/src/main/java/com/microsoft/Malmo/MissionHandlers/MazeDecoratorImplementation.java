@@ -37,14 +37,15 @@ import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MazeBlock;
 import com.microsoft.Malmo.Schemas.MazeDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromSubgoalPositionList;
 import com.microsoft.Malmo.Schemas.PointWithToleranceAndDescription;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
@@ -57,14 +58,25 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     private Random blockrand;
     
     // Block types and heights:
-    private IBlockState startBlock;
-    private IBlockState endBlock;
-    private IBlockState floorBlock;
-    private IBlockState pathBlock;
-    private IBlockState optimalPathBlock;
-    private IBlockState subgoalPathBlock;
-    private IBlockState gapBlock;
-    private IBlockState waypointBlock;
+    private class BlockDescription
+    {
+        IBlockState minecraft_block;
+        DrawItem xml_block;
+        BlockType block_type;
+        BlockDescription(IBlockState bs, DrawItem di, BlockType bt) { this.minecraft_block = bs; this.xml_block = di; this.block_type = bt; }
+        IBlockState blockState() { return this.minecraft_block; }
+        DrawItem drawItem() { return this.xml_block; }
+        BlockType getType() { return this.block_type; }
+    }
+    
+    private BlockDescription startBlock;
+    private BlockDescription endBlock;
+    private BlockDescription floorBlock;
+    private BlockDescription pathBlock;
+    private BlockDescription optimalPathBlock;
+    private BlockDescription subgoalPathBlock;
+    private BlockDescription gapBlock;
+    private BlockDescription waypointBlock;
     private Item waypointItem;
 
     private int startHeight;
@@ -553,6 +565,11 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         }
     }
 
+    private void checkTiles(BlockPos bp, World w, BlockDescription bd)
+    {
+        BlockDrawingHelper.applyTileEntityProps(bp, w, bd.getType(), bd.drawItem().getColour(), bd.drawItem().getFace(), bd.drawItem().getVariant());
+    }
+
     private void placeBlocks(World world, Cell[] grid, Cell start, Cell end)
     {
         int scale = this.mazeParams.getSizeAndPosition().getScale();
@@ -568,9 +585,11 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                 {
                     world.setBlockToAir(new BlockPos(x + this.xOrg, y + this.yOrg, z + this.zOrg));
                 }
-                world.setBlockState(new BlockPos(x + this.xOrg, this.yOrg, z + this.zOrg), this.floorBlock);
+                BlockPos bp = new BlockPos(x + this.xOrg, this.yOrg, z + this.zOrg);
+                world.setBlockState(bp, this.floorBlock.blockState());
+                checkTiles(bp, world, this.floorBlock);
                 Cell c = grid[(x/scale) + ((z/scale) * this.width)];
-                IBlockState bs = (c == null) ? this.gapBlock : (c.isOnOptimalPath ? this.optimalPathBlock : this.pathBlock);
+                BlockDescription bs = (c == null) ? this.gapBlock : (c.isOnOptimalPath ? this.optimalPathBlock : this.pathBlock);
                 int h = (c == null) ? this.gapHeight : (c.isOnOptimalPath ? this.optimalPathHeight : this.pathHeight);
                 if (c != null && c.isSubgoal)
                 {
@@ -603,8 +622,11 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                 }
 
                 for (int y = 1; y <= h; y++)
-                    world.setBlockState(new BlockPos(x + this.xOrg, y + this.yOrg, z + this.zOrg), bs);
-                //world.setBlockState(new BlockPos(x + this.xOrg, this.yOrg + this.mazeParams.getSizeAndPosition().getHeight(), z + this.zOrg), this.gapBlock);
+                {
+                    BlockPos pos = new BlockPos(x + this.xOrg, y + this.yOrg, z + this.zOrg);
+                    world.setBlockState(pos, bs.blockState());
+                    checkTiles(pos, world, bs);
+                }
             }
         }
     }
@@ -702,19 +724,24 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         return h;
     }
     
-    private IBlockState getBlock(MazeBlock mblock, Random rand)
+    private BlockDescription getBlock(MazeBlock mblock, Random rand)
     {
-        String blockName = chooseBlock(mblock.getType(), rand);
+        BlockType blockName = chooseBlock(mblock.getType(), rand);
         Colour blockCol = chooseColour(mblock.getColour(), rand);
         Variation blockVar = chooseVariant(mblock.getVariant(), rand);
-        return BlockDrawingHelper.applyModifications(MinecraftTypeHelper.ParseBlockType(blockName), blockCol, null, blockVar);
+        DrawItem di = new DrawItem();
+        di.setColour(blockCol);
+        di.setType(blockName.value());
+        di.setVariant(blockVar);
+        IBlockState blockstate = BlockDrawingHelper.applyModifications(MinecraftTypeHelper.ParseBlockType(blockName.value()), blockCol, null, blockVar);
+        return new BlockDescription(blockstate, di, blockName);
     }
 
-    private String chooseBlock(List<BlockType> types, Random r)
+    private BlockType chooseBlock(List<BlockType> types, Random r)
     {
         if (types == null || types.size() == 0)
-            return "air";
-        return types.get(r.nextInt(types.size())).value();
+            return BlockType.AIR;
+        return types.get(r.nextInt(types.size()));
     }
 
     private Colour chooseColour(List<Colour> colours, Random r)
