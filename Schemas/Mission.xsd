@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.15">
+           version="0.16">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -321,7 +321,8 @@
             <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
-            
+            <xs:element ref="ObservationFromRay" minOccurs="0"/>
+
             <xs:element ref="VideoProducer" minOccurs="0"/>
 
             <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />

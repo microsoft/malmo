@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -37,7 +38,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
+import com.microsoft.Malmo.Schemas.BlockSpec;
+import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
@@ -106,7 +110,7 @@ public class MinecraftTypeHelper
                         return true;
                 }
             }
-        }
+        } 
         return false;
     }
 
@@ -151,6 +155,20 @@ public class MinecraftTypeHelper
             // Does nothing.
         }
         return col;
+    }
+    
+    public static Facing attemptToGetAsFacing(String part)
+    {
+        Facing face = null;
+        try
+        {
+            face = Facing.valueOf(part);
+        }
+        catch (Exception e)
+        {
+            // Does nothing.
+        }
+        return face;
     }
 
     /** Attempt to parse string as a Variation, allowing for block properties having different names to the enum values<br>
@@ -260,6 +278,69 @@ public class MinecraftTypeHelper
             // Does nothing.
         }
         return null;
+    }
+
+    /** Extract the type, variation and facing attributes of a blockstate and return them in a new DrawBlock object.<br>
+     * @param state the IBlockState to be examined
+     * @return A DrawBlock object
+     */
+    public static DrawBlock getDrawBlockFromBlockState(IBlockState state, Map<String,String> extraProperties)
+    {
+        if (state == null)
+            return null;
+
+        DrawBlock block = new DrawBlock();
+        Object blockName = Block.blockRegistry.getNameForObject(state.getBlock());
+        if (blockName instanceof ResourceLocation)
+        {
+            String name = ((ResourceLocation)blockName).getResourcePath();
+            BlockType type = BlockType.fromValue(name);
+            block.setType(type);
+        }
+
+        Colour col = null;
+        Variation var = null;
+        Facing face = null;
+
+        // Add properties:
+        for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet())
+        {
+            String propVal = state.getValue(prop).toString();
+            boolean matched = false;
+            // Try colour first:
+            if (col == null)
+            {
+                col = attemptToGetAsColour(propVal);
+                if (col != null)
+                    matched = true;
+            }
+            // Then variant:
+            if (!matched && var == null)
+            {
+                var = attemptToGetAsVariant(propVal);
+                if (var != null)
+                    matched = true;
+            }
+            // Then facing:
+            if (!matched && face == null)
+            {
+                face = attemptToGetAsFacing(propVal);
+                if (face != null)
+                    matched = true;
+            }
+            if (!matched)
+            {
+                if (extraProperties != null)
+                    extraProperties.put(prop.getName(), propVal);
+            }
+        }
+        if (col != null)
+            block.setColour(col);
+        if (var != null)
+            block.setVariant(var);
+        if (face != null)
+            block.setFace(face);
+        return block;
     }
 
     /** Attempt to break the item on this itemstack into a type/variant/colour which we can use for communication with the Malmo platform.
