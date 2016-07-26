@@ -249,6 +249,7 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 
 human_agent_host = HumanAgentHost()
 human_agent_host.addOptionalStringArgument("mission_xml,m", "Mission XML file name.", "NULL")
+human_agent_host.addOptionalStringArgument("action_set,a", "Action set: dicsrete or continuous.", "continuous")
 try:
     human_agent_host.parse( sys.argv )
 except RuntimeError as e:
@@ -284,7 +285,7 @@ if xml  != "NULL":
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
 
-        action_space = 'continuous'
+        action_space = human_agent_host.getStringArgument("action_set")
         human_agent_host.runMission( my_mission, my_mission_record, action_space, summary )
 
 else:
