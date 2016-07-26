@@ -249,7 +249,7 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 
 human_agent_host = HumanAgentHost()
 human_agent_host.addOptionalStringArgument("mission_xml,m", "Mission XML file name.", "NULL")
-human_agent_host.addOptionalStringArgument("action_set,a", "Action set: dicsrete or continuous.", "continuous")
+human_agent_host.addOptionalStringArgument("action_set,a", "Action set: discrete or continuous.", "continuous")
 try:
     human_agent_host.parse( sys.argv )
 except RuntimeError as e:
