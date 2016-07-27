@@ -36,6 +36,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
 import com.microsoft.Malmo.Schemas.AgentSection;
+import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawItem;
@@ -77,7 +78,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     private BlockDescription subgoalPathBlock;
     private BlockDescription gapBlock;
     private BlockDescription waypointBlock;
-    private Item waypointItem;
+    private ItemStack waypointItem;
 
     private int startHeight;
     private int endHeight;
@@ -170,9 +171,14 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                 this.waypointBlock = getBlock(this.mazeParams.getWaypoints().getWaypointBlock(), this.blockrand);
             else
             {
-                List<String> items = this.mazeParams.getWaypoints().getWaypointItem();
-                String item = items.get(this.blockrand.nextInt(items.size()));
-                this.waypointItem = MinecraftTypeHelper.ParseItemType(item, true);// ItemStackTODO...
+                BlockOrItemSpec bis = this.mazeParams.getWaypoints().getWaypointItem();
+                DrawItem di = new DrawItem();
+                di.setType(bis.getType().get(this.blockrand.nextInt(bis.getType().size())));
+                if (bis.getColour() != null && !bis.getColour().isEmpty())
+                    di.setColour(bis.getColour().get(this.blockrand.nextInt(bis.getColour().size())));
+                if (bis.getVariant() != null && !bis.getVariant().isEmpty())
+                    di.setVariant(bis.getVariant().get(this.blockrand.nextInt(bis.getVariant().size())));
+                this.waypointItem = MinecraftTypeHelper.getItemStackFromDrawItem(di);
             }
         }
         
@@ -607,7 +613,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                     {
                         // Place a waypoint item here:
                         int offset = 0;//(scale % 2 == 0) ? 1 : 0;
-                        BlockDrawingHelper.placeItem(new ItemStack(this.waypointItem), new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
+                        BlockDrawingHelper.placeItem(ItemStack.copyItemStack(this.waypointItem), new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
                     }
                 }
                 if (c != null && c == start)

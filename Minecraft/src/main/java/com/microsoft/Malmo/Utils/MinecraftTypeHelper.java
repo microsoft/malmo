@@ -38,7 +38,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
-import com.microsoft.Malmo.Schemas.BlockSpec;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
