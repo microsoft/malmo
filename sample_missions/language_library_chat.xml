@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <About>
+    <Summary>Name the first item you see.</Summary>
+  </About>
+  
+  <ModSettings>
+    <MsPerTick>50</MsPerTick>
+  </ModSettings>
+
+  <ServerSection>
+      <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
+    <ServerHandlers>
+      <FileWorldGenerator src="C:\\Malmo-0.15.0-Windows-64bit\\Sample_missions\\basemaps\\Hackathon1_backup3" />
+      <DrawingDecorator>
+        <!-- coordinates for cuboid are inclusive -->
+        <DrawBlock    x="-82"   y="57"  z="160" type="gold_block" />
+        <DrawItem    x="-85"   y="57"  z="160" type="red_flower" />
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="100000"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>Chatty</Name>
+    <AgentStart>
+      <Placement x="-89.5" y="57.0" z="160.5" pitch="30" yaw="180"/>
+    </AgentStart>
+    <AgentHandlers>
+      <ObservationFromFullStats/>
+      <VideoProducer want_depth="false">
+          <Width>640</Width>
+          <Height>480</Height>
+      </VideoProducer>
+      <ContinuousMovementCommands turnSpeedDegs="20">
+          <ModifierList type="deny-list">
+            <command>attack</command>
+          </ModifierList>
+      </ContinuousMovementCommands>
+      <RewardForSendingMatchingChatMessage>
+        <Item reward="100.0" regex=".*\sflower\s.*" description="Anything that matches the word 'flower'."/>
+      </RewardForSendingMatchingChatMessage>
+      <RewardForSendingCommand reward="-1"/>
+      <AgentQuitFromTouchingBlockType>
+          <Block type="gold_block" />
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+
+</Mission>
