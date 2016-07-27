@@ -21,6 +21,7 @@ package com.microsoft.Malmo.Server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,6 +40,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings.GameType;
+import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
@@ -59,6 +62,7 @@ import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.InventoryBlock;
 import com.microsoft.Malmo.Schemas.InventoryItem;
 import com.microsoft.Malmo.Schemas.InventoryObjectType;
@@ -309,19 +313,40 @@ public class ServerStateMachine extends StateMachine
         public void onGetPotentialSpawns(PotentialSpawns ps)
         {
             // Decide whether or not to allow spawning.
+            // We shouldn't allow spawning unless it has been specifically turned on - whether
+            // a mission is running or not. (Otherwise spawning may happen in between missions.)
+            boolean allowSpawning = false;
             if (currentMissionInit() != null && currentMissionInit().getMission() != null)
             {
+                // There is a mission running - does it allow spawning?
                 ServerSection ss = currentMissionInit().getMission().getServerSection();
                 ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
-                Boolean allowSpawning = null;
                 if (sic != null)
-                    allowSpawning = sic.isAllowSpawning();
+                    allowSpawning = (sic.isAllowSpawning() == Boolean.TRUE);
 
-                if (allowSpawning == null || allowSpawning)
-                    return;	// Allow default behaviour to take place.
+                if (allowSpawning && sic.getAllowedMobs() != null && !sic.getAllowedMobs().isEmpty())
+                {
+                    // Spawning is allowed, but restricted to our list:
+                    Iterator<SpawnListEntry> it = ps.list.iterator();
+                    while (it.hasNext())
+                    {
+                        // Is this on our list?
+                        SpawnListEntry sle = it.next();
+                        String mobName = EntityList.classToStringMapping.get(sle.entityClass).toString();
+                        boolean allowed = false;
+                        for (EntityTypes mob : sic.getAllowedMobs())
+                        {
+                            if (mob.value().equals(mobName))
+                                allowed = true;
+                        }
+                        if (!allowed)
+                            it.remove();
+                    }
+                }
             }
             // Cancel spawn event:
-            ps.setCanceled(true);
+            if (!allowSpawning)
+                ps.setCanceled(true);
         }
     }
 
