@@ -92,7 +92,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     if( b != null ) {
                         BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
                         IBlockState blockType = b.getStateFromMeta( itemStack.getMetadata() );
-                        MinecraftServer.getServer().getEntityWorld().setBlockState( pos, blockType );
+                        player.worldObj.setBlockState( pos, blockType );
                         // For now we leave the held item as-is. Will eventually want to decrease the item stack size or remove.
                     }
                 }
@@ -136,7 +136,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
                 BlockPos hitPos = mop.getBlockPos();
                 boolean dropBlock = false;
-                MinecraftServer.getServer().getEntityWorld().destroyBlock( hitPos, dropBlock );
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                player.worldObj.destroyBlock( hitPos, dropBlock );
                 // For now we just destroy the block. Eventually we will want to give the player a corresponding item,
                 // if there's room in their inventory.
             }
