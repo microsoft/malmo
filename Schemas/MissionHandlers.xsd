@@ -361,7 +361,7 @@
           <xs:complexType>
             <xs:choice>
               <xs:element name="WaypointBlock" type="MazeBlock" />
-              <xs:element name="WaypointItem" type="BlockOrItemList" />
+              <xs:element name="WaypointItem" type="BlockOrItemSpec" />
             </xs:choice>
             <xs:attribute name="quantity" type="xs:int" use="required"/>
           </xs:complexType>

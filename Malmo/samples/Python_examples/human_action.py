@@ -35,23 +35,29 @@ class HumanAgentHost:
         self.agent_host = MalmoPython.AgentHost()
         self.root = Tk()
         self.root.wm_title("Human Action Component")
-        
+
     def parse( self, args ):
         '''Parses the command-line arguments.
-                
+
         Parameters:
         args : list of strings, containing the command-line arguments (pass an empty list if unused).
         '''
         self.agent_host.parse( args )
-        
+
     def getUsage(self):
         '''Returns the command-line arguments.''' 
         return self.agent_host.getUsage()
-    
+
+    def addOptionalStringArgument( self, name, description, default ):
+        return self.agent_host.addOptionalStringArgument(name, description, default)
+
     def receivedArgument(self,arg):
         return self.agent_host.receivedArgument(arg)
-            
-    def runMission( self, mission_spec, mission_record_spec, action_space ):
+
+    def getStringArgument(self,arg):
+        return self.agent_host.getStringArgument(arg)
+
+    def runMission( self, mission_spec, mission_record_spec, action_space, summary = None ):
         '''Sets a mission running.
         
         Parameters:
@@ -90,6 +96,7 @@ class HumanAgentHost:
             self.root.after(50, self.update)
         self.canvas.focus_set()
 
+        start_time = time.time()
         while self.world_state.is_mission_running:
             self.world_state = self.agent_host.getWorldState()
             if self.world_state.number_of_observations_since_last_state > 0:
@@ -102,6 +109,12 @@ class HumanAgentHost:
                 self.canvas.create_image(frame.width/2, frame.height/2, image=photo)
             self.canvas.create_line( self.canvas.winfo_width()/2-5, self.canvas.winfo_height()/2,   self.canvas.winfo_width()/2+6, self.canvas.winfo_height()/2,   fill='white' )
             self.canvas.create_line( self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2-5, self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2+6, fill='white' )
+            # print summary
+            if summary and time.time() - start_time < 4:
+                canvas_id = self.canvas.create_rectangle(100, 100, 540, 200, fill="white", outline="red", width="5")
+                self.canvas.create_text(320, 120, text=summary, font=('Helvetica', '16'))
+                self.canvas.create_text(320, 150, text=str(3 - int(time.time() - start_time)), font=('Helvetica', '16'), fill="red")
+            # parse reward
             for reward in self.world_state.rewards:
                 total_reward += reward.getValue()
             self.reward.config(text = str(total_reward) )
@@ -235,6 +248,8 @@ class HumanAgentHost:
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 human_agent_host = HumanAgentHost()
+human_agent_host.addOptionalStringArgument("mission_xml,m", "Mission XML file name.", "NULL")
+human_agent_host.addOptionalStringArgument("action_set,a", "Action set: discrete or continuous.", "continuous")
 try:
     human_agent_host.parse( sys.argv )
 except RuntimeError as e:
@@ -246,31 +261,59 @@ if human_agent_host.receivedArgument("help"):
     exit(0)
 
 # Run some missions as a demonstration. Replace this with your own missions.
-            
-for rep in range(2):
-    action_space = [ 'discrete', 'continuous'][rep%2]
-    
-    my_mission = MalmoPython.MissionSpec()
-    my_mission.requestVideo( 640, 480 )
-    my_mission.timeLimitInSeconds( 30 )
-    my_mission.allowAllChatCommands()
-    my_mission.allowAllInventoryCommands()
-    my_mission.setTimeOfDay( 1000, False )
-    my_mission.observeChat()
-    my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
-    my_mission.observeHotBar()
-    my_mission.drawBlock( 5, 226, 5, 'lava' )
-    my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.5 )
-    my_mission.endAt( 5.5, 227, 5.5, 0.5 )
-    my_mission.startAt( 0.5, 227, 0.5 )
-    if action_space=='discrete':
-        my_mission.removeAllCommandHandlers()
-        my_mission.allowAllDiscreteMovementCommands()
 
-    my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission_'+str(rep)+'.tgz')
-    my_mission_record.recordCommands()
-    my_mission_record.recordMP4( 20, 400000 )
-    my_mission_record.recordRewards()
-    my_mission_record.recordObservations()
+xml = human_agent_host.getStringArgument("mission_xml")
+if xml  != "NULL":
+    with open(xml) as fh:
+        lines = fh.readlines()
+        summary = None
+        for line in lines:
+            m = re.search("<Summary>([^<]+)", line)
+            if m:
+                summary = m.group(1)
+                break
+        print summary
+        xml_def = "".join(lines)
 
-    human_agent_host.runMission( my_mission, my_mission_record, action_space )
+        my_mission = MalmoPython.MissionSpec(xml_def, True)
+
+        my_mission.requestVideo( 640, 480 )
+        my_mission.timeLimitInSeconds( 300 )
+        my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission_climb.tgz')
+        my_mission_record.recordCommands()
+        my_mission_record.recordMP4( 20, 400000 )
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+
+        action_space = human_agent_host.getStringArgument("action_set")
+        human_agent_host.runMission( my_mission, my_mission_record, action_space, summary )
+
+else:
+
+    for rep in range(2):
+        action_space = [ 'discrete', 'continuous'][rep%2]
+
+        my_mission = MalmoPython.MissionSpec()
+        my_mission.requestVideo( 640, 480 )
+        my_mission.timeLimitInSeconds( 30 )
+        my_mission.allowAllChatCommands()
+        my_mission.allowAllInventoryCommands()
+        my_mission.setTimeOfDay( 1000, False )
+        my_mission.observeChat()
+        my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
+        my_mission.observeHotBar()
+        my_mission.drawBlock( 5, 226, 5, 'lava' )
+        my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.5 )
+        my_mission.endAt( 5.5, 227, 5.5, 0.5 )
+        my_mission.startAt( 0.5, 227, 0.5 )
+        if action_space=='discrete':
+            my_mission.removeAllCommandHandlers()
+            my_mission.allowAllDiscreteMovementCommands()
+
+        my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission_'+str(rep)+'.tgz')
+        my_mission_record.recordCommands()
+        my_mission_record.recordMP4( 20, 400000 )
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+
+        human_agent_host.runMission( my_mission, my_mission_record, action_space )
