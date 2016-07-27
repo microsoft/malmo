@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------------
 
 set( SOURCES
+  chat_reward.py
   craft_work.py
   default_world_test.py
   depth_map_runner.py
