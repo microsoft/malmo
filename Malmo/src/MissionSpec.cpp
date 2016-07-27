@@ -469,6 +469,46 @@ namespace malmo
         return vps->want_depth() ? 4 : 3;
     }
     
+    vector<string> MissionSpec::getListOfCommandHandlers(int role) const
+    {
+        vector<string> command_handlers;
+        AgentHandlers ah = this->mission->AgentSection()[role].AgentHandlers();
+        if( ah.ContinuousMovementCommands().present() )
+            command_handlers.push_back( "ContinuousMovement" );
+        if( ah.AbsoluteMovementCommands().present() )
+            command_handlers.push_back( "AbsoluteMovement" );
+        if( ah.DiscreteMovementCommands().present() )
+            command_handlers.push_back( "DiscreteMovement" );
+        if( ah.InventoryCommands().present() )
+            command_handlers.push_back( "Inventory" );
+        if( ah.ChatCommands().present() )
+            command_handlers.push_back( "Chat" );
+        if( ah.SimpleCraftCommands().present() )
+            command_handlers.push_back( "SimpleCraft" );
+        return command_handlers;
+    }
+
+    vector<string> MissionSpec::getAllowedCommands(int role,const string& command_handler) const
+    {
+        AgentHandlers ah = this->mission->AgentSection()[role].AgentHandlers();
+        vector<string> allowed_commands;
+        if( command_handler == "ContinuousMovement" && ah.ContinuousMovementCommands().present() ) {
+            const ContinuousMovementCommands& cmc = *ah.ContinuousMovementCommands();
+            vector<string> commands = { "move", "strafe", "pitch", "turn", "jump", "crouch", "attack", "use" };
+            if( cmc.ModifierList().present() ) {
+               const CommandListModifier& clm = *cmc.ModifierList();
+               switch( clm.type() ) {
+                   case type::allow_list: break;
+                   case type::deny_list: break;
+               }
+            }
+            else {
+                allowed_commands.insert( allowed_commands.end(), commands.begin(), commands.end() );
+            }
+        }
+        return allowed_commands;
+    }
+    
     // ---------------------------- private functions -----------------------------------------------
     
     void MissionSpec::putVerbOnList( ::xsd::cxx::tree::optional< ModifierList >& mlo
