@@ -742,6 +742,7 @@
       <xs:enumeration value="crouch" />
       <xs:enumeration value="attack" />
       <xs:enumeration value="use" />
+      <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
@@ -770,6 +771,7 @@
       <xs:enumeration value="tp"/>
       <xs:enumeration value="setYaw" />
       <xs:enumeration value="setPitch" />
+      <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
@@ -804,6 +806,7 @@
       <xs:enumeration value="movewest" />
       <xs:enumeration value="jump" />
       <xs:enumeration value="look" />
+      <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
@@ -854,6 +857,7 @@
       <xs:enumeration value="hotbar.7" />
       <xs:enumeration value="hotbar.8" />
       <xs:enumeration value="hotbar.9" />
+      <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
@@ -877,6 +881,7 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
         <xs:enumeration value="craft" />
+        <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
@@ -892,6 +897,7 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="chat" />
+      <!-- When modifying the commands, make sure to update MissionSpec::getAllowedCommands -->
     </xs:restriction>
   </xs:simpleType>
 
