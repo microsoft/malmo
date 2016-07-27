@@ -19,14 +19,27 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
+
+import io.netty.buffer.ByteBuf;
 
 /**
  * Fairly dumb command handler that attempts to move the player one block N,S,E
@@ -39,6 +52,99 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     private boolean isOverriding;
     private int direction = -1;
 
+    public static class UseActionMessage implements IMessage
+    {
+        String parameters;
+        public UseActionMessage()
+        {
+        }
+    
+        public UseActionMessage(String parameters)
+        {
+            this.parameters = parameters;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            this.parameters = ByteBufUtils.readUTF8String(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            ByteBufUtils.writeUTF8String(buf, this.parameters);
+        }
+    }
+
+    public static class UseActionMessageHandler implements IMessageHandler<UseActionMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(UseActionMessage message, MessageContext ctx)
+        {
+            MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+            if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+            {
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                if( player.getCurrentEquippedItem() != null ) {
+                    ItemStack itemStack = player.getCurrentEquippedItem();
+                    Block b = Block.getBlockFromItem( itemStack.getItem() );
+                    if( b != null ) {
+                        BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
+                        IBlockState blockType = b.getStateFromMeta( itemStack.getMetadata() );
+                        player.worldObj.setBlockState( pos, blockType );
+                        // For now we leave the held item as-is. Will eventually want to decrease the item stack size or remove.
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+
+    public static class AttackActionMessage implements IMessage
+    {
+        String parameters;
+        public AttackActionMessage()
+        {
+        }
+    
+        public AttackActionMessage(String parameters)
+        {
+            this.parameters = parameters;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            this.parameters = ByteBufUtils.readUTF8String(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            ByteBufUtils.writeUTF8String(buf, this.parameters);
+        }
+    }
+
+    public static class AttackActionMessageHandler implements IMessageHandler<AttackActionMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(AttackActionMessage message, MessageContext ctx)
+        {
+            MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+            if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
+                BlockPos hitPos = mop.getBlockPos();
+                boolean dropBlock = false;
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                player.worldObj.destroyBlock( hitPos, dropBlock );
+                // For now we just destroy the block. Eventually we will want to give the player a corresponding item,
+                // if there's room in their inventory.
+            }
+            return null;
+        }
+    }
+    
     @Override
     public boolean parseParameters(Object params)
     {
@@ -130,6 +236,16 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     player.onUpdate();
                     handled = true;
                 }
+            }
+            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.ATTACK.value()))
+            {
+                MalmoMod.network.sendToServer(new AttackActionMessage(parameter));
+                handled = true;
+            }
+            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.USE.value()))
+            {
+                MalmoMod.network.sendToServer(new UseActionMessage(parameter));
+                handled = true;
             }
 
             if (z != 0 || x != 0 || y != 0)
