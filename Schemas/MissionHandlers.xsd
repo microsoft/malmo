@@ -793,6 +793,10 @@
         "{{{jump 1}}}" - move the agent one block up.
         
         "{{{look 1}}}" - look down by 45 degrees (-ve = up, +ve = down).
+        
+        "{{{attack 1}}}" - destroy the block that has focus.
+        
+        "{{{use 1}}}" - place the held block item on the block face that has focus.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -804,6 +808,8 @@
       <xs:enumeration value="movewest" />
       <xs:enumeration value="jump" />
       <xs:enumeration value="look" />
+      <xs:enumeration value="attack" />
+      <xs:enumeration value="use" />
     </xs:restriction>
   </xs:simpleType>
 
