@@ -55,7 +55,7 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                     <OptimalPathBlock type="dirt grass snow"/>
                     <GapBlock type="stained_hardened_clay lapis_ore sponge air" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="3" heightVariance="3"/>
                     <Waypoints quantity="10">
-                        <WaypointItem>cookie</WaypointItem>
+                        <WaypointItem type="cookie"/>
                     </Waypoints>
                     <AddNavigationObservations/>
                 </MazeDecorator>
