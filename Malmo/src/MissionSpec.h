@@ -287,6 +287,17 @@ namespace malmo
             //! \returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
             int getVideoChannels(int role) const;
 
+            //! Returns a list of the names of the active command handlers for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \returns The list of command handler names: 'ContinuousMovement', 'DiscreteMovement', 'Chat', etc.
+            vector<string> MissionSpec::getListOfCommandHandlers(int role) const;
+
+            //! Returns a list of the names of the allowed commands for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \param command_handler The name of the command handler, as returned by getListOfCommandHandlers().
+            //! \returns The list of allowed commands: 'move', 'turn', 'attack', etc.
+            vector<string> MissionSpec::getAllowedCommands(int role,const string& command_handler) const;
+
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
         private:
         
