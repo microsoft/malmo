@@ -69,6 +69,7 @@ class HumanAgentHost:
         Parameters:
         mission_spec : MissionSpec instance, specifying the mission.
         mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
+        role : int, the index of the role this human agent is to play. Zero based.
         summary : string, a short description of the mission to be shown to the user
         '''
         
