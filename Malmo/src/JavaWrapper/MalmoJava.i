@@ -356,6 +356,10 @@ public:
   int getVideoHeight(int role) const;
 
   int getVideoChannels(int role) const;
+
+  std::vector< std::string > getListOfCommandHandlers(int role) const;
+  
+  std::vector< std::string > getAllowedCommands(int role,const std::string& ) const;
 };
 
 struct TimestampedString {

@@ -209,6 +209,8 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("getVideoWidth",             &MissionSpec::getVideoWidth)
         .def("getVideoHeight",            &MissionSpec::getVideoHeight)
         .def("getVideoChannels",          &MissionSpec::getVideoChannels)
+        .def("getListOfCommandHandlers",  &MissionSpec::getListOfCommandHandlers)
+        .def("getAllowedCommands",        &MissionSpec::getAllowedCommands)
         .def(self_ns::str(self_ns::self))
     ;
     class_< MissionRecordSpec >("MissionRecordSpec", init<>())
@@ -274,6 +276,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< std::vector< boost::shared_ptr< TimestampedVideoFrame > > >( "TimestampedVideoFrameVector" )
         .def( vector_indexing_suite< std::vector< boost::shared_ptr< TimestampedVideoFrame > >, true >() )
+    ;
+    class_< std::vector< std::string > >( "StringVector" )
+        .def( vector_indexing_suite< std::vector< std::string >, true >() )
     ;
     register_exception_translator<xml_schema::exception>(&translateXMLSchemaException);
 }

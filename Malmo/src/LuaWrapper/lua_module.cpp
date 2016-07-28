@@ -234,6 +234,8 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("getVideoWidth",             &MissionSpec::getVideoWidth)
             .def("getVideoHeight",            &MissionSpec::getVideoHeight)
             .def("getVideoChannels",          &MissionSpec::getVideoChannels)
+            .def("getListOfCommandHandlers",  &MissionSpec::getListOfCommandHandlers)
+            .def("getAllowedCommands",        &MissionSpec::getAllowedCommands)
             .def(tostring(const_self))
         ,
         class_< MissionRecordSpec >("MissionRecordSpec")
