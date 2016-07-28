@@ -487,26 +487,53 @@ namespace malmo
             command_handlers.push_back( "SimpleCraft" );
         return command_handlers;
     }
-
+    
     vector<string> MissionSpec::getAllowedCommands(int role,const string& command_handler) const
     {
         AgentHandlers ah = this->mission->AgentSection()[role].AgentHandlers();
-        vector<string> allowed_commands;
         if( command_handler == "ContinuousMovement" && ah.ContinuousMovementCommands().present() ) {
-            const ContinuousMovementCommands& cmc = *ah.ContinuousMovementCommands();
-            vector<string> commands = { "move", "strafe", "pitch", "turn", "jump", "crouch", "attack", "use" };
-            if( cmc.ModifierList().present() ) {
-               const CommandListModifier& clm = *cmc.ModifierList();
-               switch( clm.type() ) {
-                   case type::allow_list: break;
-                   case type::deny_list: break;
-               }
-            }
-            else {
-                allowed_commands.insert( allowed_commands.end(), commands.begin(), commands.end() );
-            }
+            vector<string> commands( begin(ContinuousMovementCommand::_xsd_ContinuousMovementCommand_literals_), end(ContinuousMovementCommand::_xsd_ContinuousMovementCommand_literals_) );
+            if( ah.ContinuousMovementCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.ContinuousMovementCommands()->ModifierList() );
+            else
+                return commands;
         }
-        return allowed_commands;
+        else if( command_handler == "AbsoluteMovement" && ah.AbsoluteMovementCommands().present() ) {
+            vector<string> commands( begin(AbsoluteMovementCommand::_xsd_AbsoluteMovementCommand_literals_), end(AbsoluteMovementCommand::_xsd_AbsoluteMovementCommand_literals_) );
+            if( ah.AbsoluteMovementCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.AbsoluteMovementCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "DiscreteMovement" && ah.DiscreteMovementCommands().present() ) {
+            vector<string> commands( begin(DiscreteMovementCommand::_xsd_DiscreteMovementCommand_literals_), end(DiscreteMovementCommand::_xsd_DiscreteMovementCommand_literals_) );
+            if( ah.DiscreteMovementCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.DiscreteMovementCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "Inventory" && ah.InventoryCommands().present() ) {
+            vector<string> commands( begin(InventoryCommand::_xsd_InventoryCommand_literals_), end(InventoryCommand::_xsd_InventoryCommand_literals_) );
+            if( ah.InventoryCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.InventoryCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "Chat" && ah.ChatCommands().present() ) {
+            vector<string> commands( begin(ChatCommand::_xsd_ChatCommand_literals_), end(ChatCommand::_xsd_ChatCommand_literals_) );
+            if( ah.ChatCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.ChatCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "SimpleCraft" && ah.SimpleCraftCommands().present() ) {
+            vector<string> commands( begin(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_), end(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_) );
+            if( ah.SimpleCraftCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.SimpleCraftCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        throw runtime_error( "Unexpected command handler name: " + command_handler );
     }
     
     // ---------------------------- private functions -----------------------------------------------
@@ -535,6 +562,27 @@ namespace malmo
             cs.push_back( verb );
         }
         // (else silent continue - no need to alarm the user if the command is already there)
+    }
+
+    vector<string> MissionSpec::getModifiedCommandList( const vector<string>& all_commands, const CommandListModifier& modifier_list )
+    {
+        vector<string> listed_commands( modifier_list.command().begin(), modifier_list.command().end() );
+        switch( modifier_list.type() ) {
+            case type::allow_list:
+                return listed_commands;
+            case type::deny_list:
+                vector<string> full_commands( all_commands );
+                sort( full_commands.begin(), full_commands.end() );
+                sort( listed_commands.begin(), listed_commands.end() );
+                vector<string> remaining_commands;
+                std::set_difference(
+                    full_commands.begin(), full_commands.end(),
+                    listed_commands.begin(), listed_commands.end(),
+                    std::back_inserter( remaining_commands )
+                );
+                return remaining_commands;
+        }
+        throw runtime_error( "Unexpected modifier list type." );
     }
 
     std::ostream& operator<<(std::ostream& os, const MissionSpec& ms)
