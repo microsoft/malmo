@@ -38,7 +38,31 @@ my_mission:observeHotBar()
 my_mission:observeFullInventory()
 my_mission:observeGrid(-2,0,-2,2,1,2,"Cells")
 my_mission:observeDistance(19.5,0.0,19.5,"Goal")
-my_mission:allowAllDiscreteMovementCommands()
+my_mission:removeAllCommandHandlers();
+my_mission:allowContinuousMovementCommand("move");
+my_mission:allowContinuousMovementCommand("strafe");
+my_mission:allowDiscreteMovementCommand("movenorth");
+my_mission:allowInventoryCommand("swapInventoryItems");
+
+if not list( my_mission.getListOfCommandHandlers(0) ) == [ 'ContinuousMovement', 'DiscreteMovement', 'Inventory' ] then
+    print('Unexpected command handlers')
+    os.exit(1)
+end
+
+if not list( my_mission.getAllowedCommands(0,'ContinuousMovement') ) == [ 'move', 'strafe' ] then
+    print 'Unexpected continuous command'
+    os.exit(1)
+end
+
+if not list( my_mission.getAllowedCommands(0,'DiscreteMovement') ) == [ 'movenorth' ] then
+    print 'Unexpected discrete command'
+    os.exit(1)
+end
+
+if not list( my_mission.getAllowedCommands(0,'Inventory') ) == [ 'swapInventoryItems' ] then
+    print 'Unexpected inventory command'
+    os.exit(1)
+end
 
 local pretty_print = false
 local xml = my_mission:getAsXML( pretty_print )

@@ -19,6 +19,7 @@
 
 // Malmo:
 using System;
+using System.Collections.Generic;
 using Microsoft.Research.Malmo;
 
 public class Program
@@ -44,7 +45,63 @@ public class Program
         my_mission.observeFullInventory();
         my_mission.observeGrid(-2,0,-2,2,1,2,"Cells");
         my_mission.observeDistance(19.5f,0.0f,19.5f,"Goal");
-        my_mission.allowAllDiscreteMovementCommands();
+        my_mission.removeAllCommandHandlers();
+        my_mission.allowContinuousMovementCommand("move");
+        my_mission.allowContinuousMovementCommand("strafe");
+        my_mission.allowDiscreteMovementCommand("movenorth");
+        my_mission.allowInventoryCommand("swapInventoryItems");
+
+        string[] expected_command_handlers = { "ContinuousMovement", "DiscreteMovement", "Inventory" };
+        string[] actual_command_handlers = new List<string>(my_mission.getListOfCommandHandlers(0)).ToArray();
+        if( actual_command_handlers.Length != expected_command_handlers.Length ) {
+            Console.WriteLine("Number of command handlers mismatch");
+            Environment.Exit(1);
+        }
+        for( int i = 0; i < actual_command_handlers.Length; i++ ) {
+            if( !actual_command_handlers[i].Equals( expected_command_handlers[i] ) ) {
+                Console.WriteLine("Unexpected command handler: {0}",actual_command_handlers[i] );
+                Environment.Exit(1);
+            }
+        }
+
+        string[] expected_continuous_commands = { "move", "strafe" };
+        string[] actual_continuous_commands = new List<string>(my_mission.getAllowedCommands(0,"ContinuousMovement")).ToArray();
+        if( actual_continuous_commands.Length != expected_continuous_commands.Length ) {
+            Console.WriteLine("Number of continuous commands mismatch");
+            Environment.Exit(1);
+        }
+        for( int i = 0; i < actual_continuous_commands.Length; i++ ) {
+            if( !actual_continuous_commands[i].Equals( expected_continuous_commands[i] ) ) {
+                Console.WriteLine("Unexpected continuous command: {0}",actual_continuous_commands[i] );
+                Environment.Exit(1);
+            }
+        }
+
+        string[] expected_discrete_commands = { "movenorth" };
+        string[] actual_discrete_commands = new List<string>(my_mission.getAllowedCommands(0,"DiscreteMovement")).ToArray();
+        if( actual_discrete_commands.Length != expected_discrete_commands.Length ) {
+            Console.WriteLine("Number of discrete commands mismatch");
+            Environment.Exit(1);
+        }
+        for( int i = 0; i < actual_discrete_commands.Length; i++ ) {
+            if( !actual_discrete_commands[i].Equals( expected_discrete_commands[i] ) ) {
+                Console.WriteLine("Unexpected discrete command: {0}",actual_discrete_commands[i] );
+                Environment.Exit(1);
+            }
+        }
+
+        string[] expected_inventory_commands = { "swapInventoryItems" };
+        string[] actual_inventory_commands = new List<string>(my_mission.getAllowedCommands(0,"Inventory")).ToArray();
+        if( actual_inventory_commands.Length != expected_inventory_commands.Length ) {
+            Console.WriteLine("Number of commands mismatch");
+            Environment.Exit(1);
+        }
+        for( int i = 0; i < actual_inventory_commands.Length; i++ ) {
+            if( !actual_inventory_commands[i].Equals( expected_inventory_commands[i] ) ) {
+                Console.WriteLine("Unexpected command: {0}",actual_inventory_commands[i] );
+                Environment.Exit(1);
+            }
+        }
 
         // check that the XML we produce validates
         bool pretty_print = false;
@@ -65,6 +122,58 @@ public class Program
         catch( Exception e )
         {
             Console.WriteLine("Error validating the XML we generated: {0}", e);
+            Environment.Exit(1);
+        }
+        
+        // check that known-good XML validates
+        const string xml3 = @"<?xml version=""1.0"" encoding=""UTF-8"" ?><Mission xmlns=""http://ProjectMalmo.microsoft.com"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
+            <About><Summary>Run the maze!</Summary></About>
+            <ServerSection><ServerInitialConditions><AllowSpawning>true</AllowSpawning><Time><StartTime>1000</StartTime><AllowPassageOfTime>true</AllowPassageOfTime></Time><Weather>clear</Weather></ServerInitialConditions>
+            <ServerHandlers>
+            <FlatWorldGenerator generatorString=""3;7,220*1,5*3,2;3;,biome_1"" />
+            <ServerQuitFromTimeUp timeLimitMs=""20000"" />
+            <ServerQuitWhenAnyAgentFinishes />
+            </ServerHandlers></ServerSection>
+            <AgentSection><Name>Jason Bourne</Name><AgentStart><Placement x=""-204"" y=""81"" z=""217""/></AgentStart><AgentHandlers>
+            <VideoProducer want_depth=""true""><Width>320</Width><Height>240</Height></VideoProducer>
+            <RewardForReachingPosition><Marker reward=""100"" tolerance=""1.1"" x=""-104"" y=""81"" z=""217""/></RewardForReachingPosition>
+            <ContinuousMovementCommands><ModifierList type=""deny-list""><command>attack</command><command>crouch</command></ModifierList></ContinuousMovementCommands>
+            <AgentQuitFromReachingPosition><Marker x=""-104"" y=""81"" z=""217""/></AgentQuitFromReachingPosition>
+            </AgentHandlers></AgentSection></Mission>";
+        try 
+        {
+            const bool validate = true;
+            MissionSpec my_mission3 = new MissionSpec( xml3, validate );
+            
+            string[] expected_command_handlers2 = { "ContinuousMovement" };
+            string[] actual_command_handlers2 = new List<string>(my_mission3.getListOfCommandHandlers(0)).ToArray();
+            if( actual_command_handlers2.Length != expected_command_handlers2.Length ) {
+                Console.WriteLine("Number of command handlers mismatch");
+                Environment.Exit(1);
+            }
+            for( int i = 0; i < actual_command_handlers2.Length; i++ ) {
+                if( !actual_command_handlers2[i].Equals( expected_command_handlers2[i] ) ) {
+                    Console.WriteLine("Unexpected command handler: {0}",actual_command_handlers2[i] );
+                    Environment.Exit(1);
+                }
+            }
+
+            string[] expected_continuous_commands2 = { "jump", "move", "pitch", "strafe", "turn", "use" };
+            string[] actual_continuous_commands2 = new List<string>(my_mission3.getAllowedCommands(0,"ContinuousMovement")).ToArray();
+            if( actual_continuous_commands2.Length != expected_continuous_commands2.Length ) {
+                Console.WriteLine("Number of continuous commands mismatch");
+                Environment.Exit(1);
+            }
+            for( int i = 0; i < actual_continuous_commands2.Length; i++ ) {
+                if( !actual_continuous_commands2[i].Equals( expected_continuous_commands2[i] ) ) {
+                    Console.WriteLine("Unexpected continuous command: {0}",actual_continuous_commands2[i] );
+                    Environment.Exit(1);
+                }
+            }
+        } 
+        catch( Exception e )
+        {
+            Console.WriteLine("Error validating known-good XML: {0}", e );
             Environment.Exit(1);
         }
     }
