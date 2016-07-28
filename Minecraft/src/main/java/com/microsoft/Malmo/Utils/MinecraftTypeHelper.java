@@ -439,21 +439,27 @@ public class MinecraftTypeHelper
 
     public static ItemStack getItemStackFromDrawItem(DrawItem i)
     {
-        // First see if this is a block item:
         ItemStack itemStack = null;
-        IBlockState block = MinecraftTypeHelper.ParseBlockType(i.getType());
-        if (block != null)
+        // First see if this is an item:
+        Item item = MinecraftTypeHelper.ParseItemType(i.getType(), false);
+        if (item == null)
         {
-            // It is - apply the modifications:
-            block = BlockDrawingHelper.applyModifications(block, i.getColour(), i.getFace(), i.getVariant());
-            // And try to return as an item:
-            itemStack = (block != null && block.getBlock() != null) ? new ItemStack(block.getBlock(), 1, block.getBlock().getMetaFromState(block)) : null;
+            // No, so is it a block type?
+            IBlockState block = MinecraftTypeHelper.ParseBlockType(i.getType());
+            if (block != null)
+            {
+                // It is - apply the modifications:
+                block = BlockDrawingHelper.applyModifications(block, i.getColour(), i.getFace(), i.getVariant());
+                // And try to return as an item:
+                if (block != null && block.getBlock() != null && Item.getItemFromBlock(block.getBlock()) != null)
+                {
+                    itemStack = new ItemStack(block.getBlock(), 1, block.getBlock().getMetaFromState(block));
+                }
+            }
         }
-        // If that failed, try to get the straight item:
-        if (itemStack == null)
+        else
         {
-            Item item = MinecraftTypeHelper.ParseItemType(i.getType(), false);
-            if (item != null && item.getHasSubtypes() && (i.getColour() != null || i.getVariant() != null))
+            if (item.getHasSubtypes() && (i.getColour() != null || i.getVariant() != null))
             {
                 // Attempt to find the subtype for this colour/variant - made tricky
                 // because Items don't provide any nice property stuff like Blocks do...
