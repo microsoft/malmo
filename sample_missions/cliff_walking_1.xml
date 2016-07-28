@@ -45,11 +45,11 @@
           <Width>640</Width>
           <Height>480</Height>
       </VideoProducer>
-      <ContinuousMovementCommands turnSpeedDegs="240">
+      <DiscreteMovementCommands>
           <ModifierList type="deny-list">
             <command>attack</command>
           </ModifierList>
-      </ContinuousMovementCommands>
+      </DiscreteMovementCommands>
       <RewardForTouchingBlockType>
         <Block reward="-100.0" type="lava" behaviour="onceOnly"/>
         <Block reward="100.0" type="lapis_block" behaviour="onceOnly"/>
