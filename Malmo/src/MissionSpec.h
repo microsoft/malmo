@@ -51,6 +51,10 @@ namespace malmo
             std::string getAsXML( bool prettyPrint ) const;
 
             // -------------------- settings for the server -------------------------
+            
+            //! Sets the summary description of the mission.
+            //! \param summary The string describing the mission. Shorter strings display best.
+            void setSummary( const std::string& summary );
 
             //! Sets the time limit for the mission.
             //! \param s The time limit in seconds.
@@ -262,6 +266,10 @@ namespace malmo
             void allowAllChatCommands();
             
             // ------------------------- information --------------------------------------
+            
+            //! Returns the short description of the mission.
+            //! \returns A string containing the summary.
+            std::string getSummary() const;
             
             //! Returns the number of agents involved in this mission.
             //! \returns The number of agents.

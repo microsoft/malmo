@@ -93,6 +93,11 @@ namespace malmo
     }
     
     // -------------------- settings for the server ---------------------------------
+    
+    void MissionSpec::setSummary( const std::string& summary )
+    {
+        this->mission->About().Summary( summary );
+    }
 
     void MissionSpec::timeLimitInSeconds(float s)
     {
@@ -434,6 +439,11 @@ namespace malmo
     }
 
     // ------------------------------- information ---------------------------------------------------
+    
+    string MissionSpec::getSummary() const
+    {
+        return this->mission->About().Summary();
+    }
     
     int MissionSpec::getNumberOfAgents() const
     {
