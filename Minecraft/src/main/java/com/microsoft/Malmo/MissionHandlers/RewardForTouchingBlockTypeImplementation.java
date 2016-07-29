@@ -23,18 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.Behaviour;
 import com.microsoft.Malmo.Schemas.BlockSpecWithRewardAndBehaviour;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.Variation;
-import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForTouchingBlockType;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
@@ -47,7 +46,7 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
         ArrayList<String> allowedBlockNames;
         ArrayList<BlockPos> firedBlocks = new ArrayList<BlockPos>();
         long lastFired;
-
+        
         BlockMatcher(BlockSpecWithRewardAndBehaviour spec) {
             this.spec = spec;
 
@@ -115,7 +114,7 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
     }
 
     ArrayList<BlockMatcher> matchers = new ArrayList<BlockMatcher>();
-
+    MultidimensionalReward cachedReward = null;
     private RewardForTouchingBlockType params;
 
     @Override
@@ -130,8 +129,23 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
         return true;
     }
 
+    @SubscribeEvent
+    public void onDiscretePartialMoveEvent(DiscreteMovementCommandsImplementation.DiscretePartialMoveEvent event)
+    {
+        MultidimensionalReward reward = new MultidimensionalReward();
+        getReward(null, reward);
+        this.cachedReward = reward;
+    }
+
     @Override
-    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward)
+    {
+        if (this.cachedReward != null)
+        {
+            reward.add(this.cachedReward);
+            this.cachedReward = null;
+            return;
+        }
         // Determine what blocks we are touching.
         // This code is largely cribbed from Entity, where it is used to fire
         // the Block.onEntityCollidedWithBlock methods.
@@ -148,10 +162,14 @@ public class RewardForTouchingBlockTypeImplementation extends HandlerBase implem
     }
 
     @Override
-    public void prepare(MissionInit missionInit) {
+    public void prepare(MissionInit missionInit)
+    {
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup()
+    {
+        MinecraftForge.EVENT_BUS.unregister(this);
     }
 }

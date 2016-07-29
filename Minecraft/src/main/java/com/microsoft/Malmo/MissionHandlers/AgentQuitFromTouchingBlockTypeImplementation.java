@@ -28,8 +28,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
+import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
 import com.microsoft.Malmo.Schemas.AgentQuitFromTouchingBlockType;
 import com.microsoft.Malmo.Schemas.BlockSpec;
 import com.microsoft.Malmo.Schemas.BlockSpecWithDescription;
@@ -44,6 +47,7 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 	AgentQuitFromTouchingBlockType params;
 	List<String> blockTypeNames;
 	String quitCode = "";
+	boolean wantToQuit = false;
 
 	@Override
 	public boolean parseParameters(Object params)
@@ -65,9 +69,18 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 		return true;
 	}
 
+    @SubscribeEvent
+    public void onDiscretePartialMoveEvent(DiscreteMovementCommandsImplementation.DiscretePartialMoveEvent event)
+    {
+        this.wantToQuit = doIWantToQuit(null);
+    }
+	
 	@Override
 	public boolean doIWantToQuit(MissionInit missionInit)
 	{
+	    if (this.wantToQuit)
+	        return true;
+	    
 		EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         List<BlockPos> touchingBlocks = PositionHelper.getTouchingBlocks(player);
         for (BlockPos pos : touchingBlocks)
@@ -161,13 +174,19 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 		return true;
 	}
 	
-	@Override
-    public void prepare(MissionInit missionInit) {}
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
 
-	@Override
-    public void cleanup() {}
-	
-	@Override
+    @Override
+    public void cleanup()
+    {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    @Override
 	public String getOutcome()
 	{
 		return this.quitCode;
