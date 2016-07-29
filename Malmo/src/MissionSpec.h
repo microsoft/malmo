@@ -287,13 +287,27 @@ namespace malmo
             //! \returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
             int getVideoChannels(int role) const;
 
+            //! Returns a list of the names of the active command handlers for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \returns The list of command handler names: 'ContinuousMovement', 'DiscreteMovement', 'Chat', 'Inventory' etc.
+            std::vector<std::string> getListOfCommandHandlers(int role) const;
+
+            //! Returns a list of the names of the allowed commands for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \param command_handler The name of the command handler, as returned by getListOfCommandHandlers().
+            //! \returns The list of allowed commands: 'move', 'turn', 'attack' etc.
+            std::vector<std::string> getAllowedCommands(int role,const std::string& command_handler) const;
+
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
         private:
         
-            void putVerbOnList( ::xsd::cxx::tree::optional< malmo::schemas::ModifierList >& mlo
+            static void putVerbOnList( ::xsd::cxx::tree::optional< malmo::schemas::ModifierList >& mlo
                               , const std::string& verb
                               , const std::string& on_list
                               , const std::string& off_list );
+            static std::vector<std::string> getModifiedCommandList(
+                                const std::vector<std::string>& all_commands
+                              , const malmo::schemas::CommandListModifier& modifier_list );
         
             friend class MissionInitSpec;
         

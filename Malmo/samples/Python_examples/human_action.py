@@ -51,30 +51,58 @@ class HumanAgentHost:
     def addOptionalStringArgument( self, name, description, default ):
         return self.agent_host.addOptionalStringArgument(name, description, default)
 
+    def addOptionalIntArgument( self, name, description, default ):
+        return self.agent_host.addOptionalIntArgument(name, description, default)
+
     def receivedArgument(self,arg):
         return self.agent_host.receivedArgument(arg)
 
     def getStringArgument(self,arg):
         return self.agent_host.getStringArgument(arg)
 
-    def runMission( self, mission_spec, mission_record_spec, action_space, summary = None ):
+    def getIntArgument(self,arg):
+        return self.agent_host.getIntArgument(arg)
+
+    def runMission( self, mission_spec, mission_record_spec, role = 0, summary = None ):
         '''Sets a mission running.
         
         Parameters:
         mission_spec : MissionSpec instance, specifying the mission.
         mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
-        action_space : string, either 'continuous' or 'discrete' that says which commands to generate.
+        role : int, the index of the role this human agent is to play. Zero based.
+        summary : string, a short description of the mission to be shown to the user
         '''
         
         self.world_state = None
-        self.action_space = action_space
         total_reward = 0
+        
+        # decide on the action space
+        command_handlers = mission_spec.getListOfCommandHandlers(role)
+        if 'ContinuousMovement' in command_handlers and 'DiscreteMovement' in command_handlers:
+            print 'ERROR: Ambiguous action space in supplied mission: both continuous and discrete command handlers present.'
+            exit(1)
+        elif 'ContinuousMovement' in command_handlers:
+            self.action_space = 'continuous'
+        elif 'DiscreteMovement' in command_handlers:
+            self.action_space = 'discrete'
+        else:
+            print 'ERROR: Unknown action space in supplied mission: neither continuous or discrete command handlers present.'
+            exit(1)
 
         self.createGUI()
         
         if mission_spec.isVideoRequested(0):
             self.canvas.config( width=mission_spec.getVideoWidth(0), height=mission_spec.getVideoHeight(0) )
 
+        # show the mission summary
+        start_time = time.time()
+        while summary and time.time() - start_time < 4:
+            canvas_id = self.canvas.create_rectangle(100, 100, 540, 200, fill="white", outline="red", width="5")
+            self.canvas.create_text(320, 120, text=summary, font=('Helvetica', '16'))
+            self.canvas.create_text(320, 150, text=str(3 - int(time.time() - start_time)), font=('Helvetica', '16'), fill="red")
+            self.root.update()
+            time.sleep(0.2)
+                
         try:
             self.agent_host.startMission( mission_spec, mission_record_spec )
         except RuntimeError as e:
@@ -90,13 +118,12 @@ class HumanAgentHost:
             for error in self.world_state.errors:
                 print "Error:",error.text
         print
-        if action_space == 'continuous':
+        if self.action_space == 'continuous':
             self.canvas.config(cursor='none') # hide the mouse cursor while over the canvas
             self.canvas.event_generate('<Motion>', warp=True, x=self.canvas.winfo_width()/2, y=self.canvas.winfo_height()/2) # put cursor at center
             self.root.after(50, self.update)
         self.canvas.focus_set()
 
-        start_time = time.time()
         while self.world_state.is_mission_running:
             self.world_state = self.agent_host.getWorldState()
             if self.world_state.number_of_observations_since_last_state > 0:
@@ -109,18 +136,13 @@ class HumanAgentHost:
                 self.canvas.create_image(frame.width/2, frame.height/2, image=photo)
             self.canvas.create_line( self.canvas.winfo_width()/2-5, self.canvas.winfo_height()/2,   self.canvas.winfo_width()/2+6, self.canvas.winfo_height()/2,   fill='white' )
             self.canvas.create_line( self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2-5, self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2+6, fill='white' )
-            # print summary
-            if summary and time.time() - start_time < 4:
-                canvas_id = self.canvas.create_rectangle(100, 100, 540, 200, fill="white", outline="red", width="5")
-                self.canvas.create_text(320, 120, text=summary, font=('Helvetica', '16'))
-                self.canvas.create_text(320, 150, text=str(3 - int(time.time() - start_time)), font=('Helvetica', '16'), fill="red")
             # parse reward
             for reward in self.world_state.rewards:
                 total_reward += reward.getValue()
             self.reward.config(text = str(total_reward) )
             self.root.update()
             time.sleep(0.01)
-        if action_space == 'continuous':
+        if self.action_space == 'continuous':
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print 'Mission stopped'
         if not self.agent_host.receivedArgument("test"):
@@ -137,7 +159,7 @@ class HumanAgentHost:
         else:
             desc = "Running discrete-action mission.\nUse the arrow keys to turn and move."
         Label(self.root_frame, text=desc,font = our_font,wraplength=640).pack(padx=5, pady=5)
-        self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, width=640, height=480, bg="black" )
+        self.canvas = Canvas(self.root_frame, borderwidth=0, highlightthickness=0, width=640, height=480, bg="gray" )
         self.canvas.bind('<Motion>',self.onMouseMoveInCanvas)
         self.canvas.bind('<Button-1>',self.onLeftMouseDownInCanvas)
         self.canvas.bind('<ButtonRelease-1>',self.onLeftMouseUpInCanvas)
@@ -161,7 +183,7 @@ class HumanAgentHost:
         self.reward.pack()
         self.root_frame.pack()
         self.mouse_event = self.prev_mouse_event = None
-        
+ 
     def onSendCommand(self):
         '''Called when user presses the 'send' button or presses 'Enter' while the command entry box has focus.'''
         self.agent_host.sendCommand(self.command_entry.get())
@@ -248,8 +270,8 @@ class HumanAgentHost:
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 human_agent_host = HumanAgentHost()
-human_agent_host.addOptionalStringArgument("mission_xml,m", "Mission XML file name.", "NULL")
-human_agent_host.addOptionalStringArgument("action_set,a", "Action set: discrete or continuous.", "continuous")
+human_agent_host.addOptionalStringArgument( "mission_xml,m", "Mission XML file name.", "" )
+human_agent_host.addOptionalIntArgument( "role", "The role of the human agent. Zero based", 0 )
 try:
     human_agent_host.parse( sys.argv )
 except RuntimeError as e:
@@ -259,14 +281,14 @@ except RuntimeError as e:
 if human_agent_host.receivedArgument("help"):
     print human_agent_host.getUsage()
     exit(0)
-
-# Run some missions as a demonstration. Replace this with your own missions.
+    
+my_role = human_agent_host.getIntArgument("role")
 
 xml = human_agent_host.getStringArgument("mission_xml")
-if xml  != "NULL":
+if not xml == "":
     with open(xml) as fh:
         lines = fh.readlines()
-        summary = None
+        summary = None # TODO: get summary from API rather than parsing the XML
         for line in lines:
             m = re.search("<Summary>([^<]+)", line)
             if m:
@@ -285,14 +307,11 @@ if xml  != "NULL":
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
 
-        action_space = human_agent_host.getStringArgument("action_set")
-        human_agent_host.runMission( my_mission, my_mission_record, action_space, summary )
+        human_agent_host.runMission( my_mission, my_mission_record, role = my_role, summary = summary )
 
 else:
 
     for rep in range(2):
-        action_space = [ 'discrete', 'continuous'][rep%2]
-
         my_mission = MalmoPython.MissionSpec()
         my_mission.requestVideo( 640, 480 )
         my_mission.timeLimitInSeconds( 30 )
@@ -302,11 +321,11 @@ else:
         my_mission.observeChat()
         my_mission.observeGrid( -1, -1, -1, 1, 1, 1, 'grid' )
         my_mission.observeHotBar()
-        my_mission.drawBlock( 5, 226, 5, 'lava' )
+        my_mission.drawBlock( 5, 226, 5, 'gold_block' )
         my_mission.rewardForReachingPosition( 5.5, 227, 5.5, 100, 0.5 )
         my_mission.endAt( 5.5, 227, 5.5, 0.5 )
         my_mission.startAt( 0.5, 227, 0.5 )
-        if action_space=='discrete':
+        if rep%2 == 1: # alternate between continuous and discrete missions, for fun
             my_mission.removeAllCommandHandlers()
             my_mission.allowAllDiscreteMovementCommands()
 
@@ -316,4 +335,4 @@ else:
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
 
-        human_agent_host.runMission( my_mission, my_mission_record, action_space )
+        human_agent_host.runMission( my_mission, my_mission_record, role = my_role, summary = 'A sample mission - run onto the gold block' )

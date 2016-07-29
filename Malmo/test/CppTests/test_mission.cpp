@@ -53,6 +53,34 @@ int main()
     my_mission.allowContinuousMovementCommand("strafe");
     my_mission.allowDiscreteMovementCommand("movenorth");
     my_mission.allowInventoryCommand("swapInventoryItems");
+    
+    const vector< string > expected_command_handlers = { "ContinuousMovement", "DiscreteMovement", "Inventory" };
+    if( my_mission.getListOfCommandHandlers(0) != expected_command_handlers )
+    {
+        cout << "Unexpected command handlers." << endl;
+        return EXIT_FAILURE;
+    }
+
+    const vector< string > expected_continuous_commands = { "move", "strafe" };
+    if( my_mission.getAllowedCommands(0,"ContinuousMovement") != expected_continuous_commands )
+    {
+        cout << "Unexpected commands for ContinuousMovement." << endl;
+        return EXIT_FAILURE;
+    }
+
+    const vector< string > expected_discrete_commands = { "movenorth" };
+    if( my_mission.getAllowedCommands(0,"DiscreteMovement") != expected_discrete_commands )
+    {
+        cout << "Unexpected commands for DiscreteMovement." << endl;
+        return EXIT_FAILURE;
+    }
+
+    const vector< string > expected_inventory_commands = { "swapInventoryItems" };
+    if( my_mission.getAllowedCommands(0,"Inventory") != expected_inventory_commands )
+    {
+        cout << "Unexpected commands for Inventory." << endl;
+        return EXIT_FAILURE;
+    }
 
     // check that the XML we produce validates
     const bool pretty_print = false;
@@ -78,7 +106,7 @@ int main()
     }
     
     // check that known-good XML validates
-    const string xml3 = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Mission xmlns=\"http://ProjectMalmo.microsoft.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://ProjectMalmo.microsoft.com Mission.xsd\">\
+    const string xml3 = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Mission xmlns=\"http://ProjectMalmo.microsoft.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\
         <About><Summary>Run the maze!</Summary></About>\
         <ServerSection><ServerInitialConditions><AllowSpawning>true</AllowSpawning><Time><StartTime>1000</StartTime><AllowPassageOfTime>true</AllowPassageOfTime></Time><Weather>clear</Weather></ServerInitialConditions>\
         <ServerHandlers>\
@@ -89,13 +117,27 @@ int main()
         <AgentSection><Name>Jason Bourne</Name><AgentStart><Placement x=\"-204\" y=\"81\" z=\"217\"/></AgentStart><AgentHandlers>\
         <VideoProducer want_depth=\"true\"><Width>320</Width><Height>240</Height></VideoProducer>\
         <RewardForReachingPosition><Marker reward=\"100\" tolerance=\"1.1\" x=\"-104\" y=\"81\" z=\"217\"/></RewardForReachingPosition>\
-        <ContinuousMovementCommands />\
+        <ContinuousMovementCommands><ModifierList type=\"deny-list\"><command>attack</command><command>crouch</command></ModifierList></ContinuousMovementCommands>\
         <AgentQuitFromReachingPosition><Marker x=\"-104\" y=\"81\" z=\"217\"/></AgentQuitFromReachingPosition>\
         </AgentHandlers></AgentSection></Mission>";
     try 
     {
         const bool validate = true;
         MissionSpec my_mission3( xml3, validate );
+        
+        const vector< string > expected_command_handlers = { "ContinuousMovement" };
+        if( my_mission3.getListOfCommandHandlers(0) != expected_command_handlers )
+        {
+            cout << "Unexpected command handlers in xml3." << endl;
+            return EXIT_FAILURE;
+        }
+
+        const vector< string > expected_continuous_commands = { "jump", "move", "pitch", "strafe", "turn", "use" };
+        if( my_mission3.getAllowedCommands(0,"ContinuousMovement") != expected_continuous_commands )
+        {
+            cout << "Unexpected commands for ContinuousMovement in xml3." << endl;
+            return EXIT_FAILURE;
+        }
     } 
     catch( const xml_schema::exception& e )
     {

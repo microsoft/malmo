@@ -18,11 +18,10 @@
 // --------------------------------------------------------------------------------------------------
 
 // Malmo:
+#include <AgentHost.h>
 #ifdef WRAP_ALE
   #include <ALEAgentHost.h>
 #endif
-
-#include <AgentHost.h>
 #include <ClientPool.h>
 #include <MissionSpec.h>
 #include <ParameterSet.h>
@@ -36,7 +35,6 @@ using namespace malmo;
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
 #include <luabind/luabind.hpp>
-#include <luabind/return_reference_to_policy.hpp>
 #include <luabind/operator.hpp>
 
 // STL:
@@ -98,6 +96,28 @@ void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, co
 void recordMP4(MissionRecordSpec* mrs, int frames_per_second, long bitrate)
 {
     mrs->recordMP4(frames_per_second,static_cast<int64_t>(bitrate));
+}
+
+// wrapper for MissionSpec::getListOfCommandHandlers that returns a table
+luabind::object getListOfCommandHandlers( lua_State *L, const MissionSpec& m, int role )
+{
+    luabind::object result = luabind::newtable(L);
+    int index = 1;
+    for( const std::string& ch : m.getListOfCommandHandlers( role ) ) {
+        result[ index++ ] = ch;
+    }
+    return result;
+}
+
+// wrapper for MissionSpec::getAllowedCommands that returns a table
+luabind::object getAllowedCommands( lua_State *L, const MissionSpec& m, int role, const std::string& command_handler )
+{
+    luabind::object result = luabind::newtable(L);
+    int index = 1;
+    for( const std::string& ac : m.getAllowedCommands( role, command_handler ) ) {
+        result[ index++ ] = ac;
+    }
+    return result;
 }
 
 // Defines the API available to Lua.
@@ -234,6 +254,8 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("getVideoWidth",             &MissionSpec::getVideoWidth)
             .def("getVideoHeight",            &MissionSpec::getVideoHeight)
             .def("getVideoChannels",          &MissionSpec::getVideoChannels)
+            .def("getListOfCommandHandlers",  &getListOfCommandHandlers)
+            .def("getAllowedCommands",        &getAllowedCommands)
             .def(tostring(const_self))
         ,
         class_< MissionRecordSpec >("MissionRecordSpec")
