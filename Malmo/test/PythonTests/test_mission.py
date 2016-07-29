@@ -20,6 +20,7 @@
 import MalmoPython
 
 my_mission = MalmoPython.MissionSpec()
+my_mission.setSummary('example mission')
 my_mission.timeLimitInSeconds( 10 )
 my_mission.drawBlock( 19, 0, 19, "redstone_block" )
 my_mission.createDefaultTerrain()
@@ -44,6 +45,10 @@ my_mission.allowContinuousMovementCommand("move")
 my_mission.allowContinuousMovementCommand("strafe")
 my_mission.allowDiscreteMovementCommand("movenorth")
 my_mission.allowInventoryCommand("swapInventoryItems")
+
+if not my_mission.getSummary() == 'example mission':
+    print 'Unexpected summary'
+    exit(1)
 
 if not list( my_mission.getListOfCommandHandlers(0) ) == [ 'ContinuousMovement', 'DiscreteMovement', 'Inventory' ]:
     print 'Unexpected command handlers'
@@ -90,6 +95,10 @@ xml3 = ('<?xml version="1.0" encoding="UTF-8" ?><Mission xmlns="http://ProjectMa
         '<AgentQuitFromReachingPosition><Marker x="-104" y="81" z="217"/></AgentQuitFromReachingPosition>'
         '</AgentHandlers></AgentSection></Mission>')
 my_mission3 = MalmoPython.MissionSpec( xml3, validate )
+
+if not my_mission3.getSummary() == 'Run the maze!':
+    print 'Unexpected summary'
+    exit(1)
 
 if not list( my_mission3.getListOfCommandHandlers(0) ) == [ 'ContinuousMovement' ]:
     print 'Unexpected command handlers'
