@@ -1,5 +1,6 @@
 0.16.0
 -------------------
+New: MissionSpec has get/setSummary, getListOfCommandHandlers, getAllowedCommands. (#217)
 New: DiscreteCommandHandler now supports attack and use commands. (#219)
 New: Bonus - added AllowedMobs to ServerInitialConditions to control which mobs are allowed to spawn (does not affect mob_spawners)
 New: Bonus - can now draw mob_spawner blocks and specify the entity they spawn as a variant.

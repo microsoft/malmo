@@ -63,14 +63,13 @@ class HumanAgentHost:
     def getIntArgument(self,arg):
         return self.agent_host.getIntArgument(arg)
 
-    def runMission( self, mission_spec, mission_record_spec, role = 0, summary = None ):
+    def runMission( self, mission_spec, mission_record_spec, role = 0 ):
         '''Sets a mission running.
         
         Parameters:
         mission_spec : MissionSpec instance, specifying the mission.
         mission_record_spec : MissionRecordSpec instance, specifying what should be recorded.
         role : int, the index of the role this human agent is to play. Zero based.
-        summary : string, a short description of the mission to be shown to the user
         '''
         
         self.world_state = None
@@ -96,9 +95,9 @@ class HumanAgentHost:
 
         # show the mission summary
         start_time = time.time()
-        while summary and time.time() - start_time < 4:
+        while time.time() - start_time < 4:
             canvas_id = self.canvas.create_rectangle(100, 100, 540, 200, fill="white", outline="red", width="5")
-            self.canvas.create_text(320, 120, text=summary, font=('Helvetica', '16'))
+            self.canvas.create_text(320, 120, text=mission_spec.getSummary(), font=('Helvetica', '16'))
             self.canvas.create_text(320, 150, text=str(3 - int(time.time() - start_time)), font=('Helvetica', '16'), fill="red")
             self.root.update()
             time.sleep(0.2)
@@ -284,35 +283,28 @@ if human_agent_host.receivedArgument("help"):
     
 my_role = human_agent_host.getIntArgument("role")
 
-xml = human_agent_host.getStringArgument("mission_xml")
-if not xml == "":
-    with open(xml) as fh:
-        lines = fh.readlines()
-        summary = None # TODO: get summary from API rather than parsing the XML
-        for line in lines:
-            m = re.search("<Summary>([^<]+)", line)
-            if m:
-                summary = m.group(1)
-                break
-        print summary
-        xml_def = "".join(lines)
+xml_filename = human_agent_host.getStringArgument("mission_xml")
+if not xml_filename == "":
+    # load the mission from the specified XML file
 
-        my_mission = MalmoPython.MissionSpec(xml_def, True)
+    my_mission = MalmoPython.MissionSpec( open(xml_filename).read(), True)
+    my_mission.requestVideo( 640, 480 )
+    my_mission.timeLimitInSeconds( 300 )
+    
+    my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission.tgz')
+    my_mission_record.recordCommands()
+    my_mission_record.recordMP4( 20, 400000 )
+    my_mission_record.recordRewards()
+    my_mission_record.recordObservations()
 
-        my_mission.requestVideo( 640, 480 )
-        my_mission.timeLimitInSeconds( 300 )
-        my_mission_record = MalmoPython.MissionRecordSpec('./hac_saved_mission_climb.tgz')
-        my_mission_record.recordCommands()
-        my_mission_record.recordMP4( 20, 400000 )
-        my_mission_record.recordRewards()
-        my_mission_record.recordObservations()
-
-        human_agent_host.runMission( my_mission, my_mission_record, role = my_role, summary = summary )
+    human_agent_host.runMission( my_mission, my_mission_record, role = my_role )
 
 else:
+    # create some sample missions
 
     for rep in range(2):
         my_mission = MalmoPython.MissionSpec()
+        my_mission.setSummary('A sample mission - run onto the gold block')
         my_mission.requestVideo( 640, 480 )
         my_mission.timeLimitInSeconds( 30 )
         my_mission.allowAllChatCommands()
@@ -335,4 +327,4 @@ else:
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
 
-        human_agent_host.runMission( my_mission, my_mission_record, role = my_role, summary = 'A sample mission - run onto the gold block' )
+        human_agent_host.runMission( my_mission, my_mission_record, role = my_role )

@@ -297,6 +297,8 @@ public:
 
   std::string getAsXML( bool prettyPrint ) const;
   
+  void setSummary( const std::string& summary );
+
   void timeLimitInSeconds(float s);
 
   void forceWorldReset();
@@ -361,6 +363,8 @@ public:
   
   void allowAllChatCommands();
   
+  std::string getSummary() const;
+
   int getNumberOfAgents() const;
 
   bool isVideoRequested(int role) const;

@@ -27,6 +27,7 @@ public class test_mission
     public static void main(String argv[]) 
     {
         MissionSpec my_mission = new MissionSpec();
+        my_mission.setSummary("example mission");
         my_mission.timeLimitInSeconds( 10 );
         my_mission.drawBlock( 19, 0, 19, "redstone_block" );
         my_mission.createDefaultTerrain();
@@ -50,6 +51,11 @@ public class test_mission
         my_mission.allowContinuousMovementCommand("strafe");
         my_mission.allowDiscreteMovementCommand("movenorth");
         my_mission.allowInventoryCommand("swapInventoryItems");
+
+        if( !my_mission.getSummary().equals("example mission") ) {
+            System.out.println("Unexpected summary");
+            System.exit(1);
+        }
 
         String[] expected_command_handlers = { "ContinuousMovement", "DiscreteMovement", "Inventory" };
         StringVector actual_command_handlers = my_mission.getListOfCommandHandlers(0);
@@ -145,6 +151,11 @@ public class test_mission
             boolean validate = true;
             MissionSpec my_mission3 = new MissionSpec( xml3, validate );
             
+            if( !my_mission3.getSummary().equals("Run the maze!") ) {
+                System.out.println("Unexpected summary");
+                System.exit(1);
+            }
+
             String[] expected_command_handlers2 = { "ContinuousMovement" };
             StringVector actual_command_handlers2 = my_mission3.getListOfCommandHandlers(0);
             if( actual_command_handlers2.size() != expected_command_handlers2.length ) {
