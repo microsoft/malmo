@@ -28,6 +28,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -51,6 +53,20 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
     private boolean isOverriding;
     private int direction = -1;
+
+    public static class DiscretePartialMoveEvent extends Event
+    {
+        public final double x;
+        public final double y;
+        public final double z;
+
+        public DiscretePartialMoveEvent(double x, double y, double z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
 
     public static class UseActionMessage implements IMessage
     {
@@ -256,6 +272,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 // Now check where we ended up:
                 double newX = player.posX;
                 double newZ = player.posZ;
+                
                 // Are we still in the centre of a square, or did we get shunted?
                 double desiredX = Math.floor(newX) + 0.5;
                 double desiredZ = Math.floor(newZ) + 0.5;
@@ -263,7 +280,12 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 double deltaZ = desiredZ - newZ;
                 if (deltaX * deltaX + deltaZ * deltaZ > 0.001)
                 {
-                    // Need to re-centralise:
+                    // Need to re-centralise.
+                    // Before we do that, fire off a message - this will give the TouchingBlockType handlers
+                    // a chance to react to the current position:
+                    DiscretePartialMoveEvent event = new DiscretePartialMoveEvent(player.posX, player.posY, player.posZ);
+                    MinecraftForge.EVENT_BUS.post(event);
+                    // Now adjust the player:
                     player.moveEntity(deltaX, 0, deltaZ);
                     player.onUpdate();
                 }
