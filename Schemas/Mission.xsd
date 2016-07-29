@@ -337,6 +337,7 @@
 
             <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />
+            <xs:element ref="RewardForSendingMatchingChatMessage" minOccurs="0" />
             <xs:element ref="RewardForCollectingItem" minOccurs="0" />
             <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
             <xs:element ref="RewardForReachingPosition" minOccurs="0"/>

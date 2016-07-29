@@ -1388,6 +1388,26 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:complexType name="ChatMatchSpec">
+    <xs:attribute name="description" use="required" type="xs:string" />
+    <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="regex" use="required" type="xs:string" />
+  </xs:complexType>
+
+  <xs:element name="RewardForSendingMatchingChatMessage">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the agent sends a chat message that matches a given regular expression (supports Java regex syntax).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="ChatMatch" type="ChatMatchSpec"/>
+      </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:complexType name="ItemSpec">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
     <xs:attribute name="type" use="required" type="BlockOrItemList" />
