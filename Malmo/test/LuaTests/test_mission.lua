@@ -54,7 +54,7 @@ function tablesAreEqual(t1, t2)
   return true
 end
 
-assert( my_mission.getSummary() == 'example mission', 'Unexpected summary.' )
+assert( my_mission:getSummary() == 'example mission', 'Unexpected summary.' )
 assert( tablesAreEqual( my_mission:getListOfCommandHandlers(0),
         { "ContinuousMovement", "DiscreteMovement", "Inventory" } ), "Unexpected command handlers." )
 assert( tablesAreEqual( my_mission:getAllowedCommands(0,"ContinuousMovement"),
@@ -92,7 +92,7 @@ local xml3 = '<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Mission xmlns=\"http:/
     '</AgentHandlers></AgentSection></Mission>'
 local my_mission3 = MissionSpec( xml3, validate )
 
-assert( my_mission3.getSummary() == "Run the maze!", "Unexpected summary" );
+assert( my_mission3:getSummary() == "Run the maze!", "Unexpected summary" );
 assert( tablesAreEqual( my_mission3:getListOfCommandHandlers(0),
         { "ContinuousMovement" } ), "Unexpected command handlers." )
 assert( tablesAreEqual( my_mission3:getAllowedCommands(0,"ContinuousMovement"),
