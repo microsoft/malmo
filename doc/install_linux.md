@@ -26,7 +26,7 @@ On Fedora 23:
 
 `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-`sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat tkinter`
+`sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat tkinter python-pillow-tk`
 
 ### 2. Optional: Install Torch: ###
 
