@@ -30,6 +30,7 @@ using namespace std;
 int main() 
 {
     MissionSpec my_mission = MissionSpec();
+    my_mission.setSummary("example mission");
     my_mission.timeLimitInSeconds( 10 );
     my_mission.drawBlock( 19, 0, 19, "redstone_block" );
     my_mission.createDefaultTerrain();
@@ -54,6 +55,11 @@ int main()
     my_mission.allowDiscreteMovementCommand("movenorth");
     my_mission.allowInventoryCommand("swapInventoryItems");
     
+    if( my_mission.getSummary() != "example mission" ) {
+        cout << "Unexpected summary" << endl;
+        return EXIT_FAILURE;
+    }
+
     const vector< string > expected_command_handlers = { "ContinuousMovement", "DiscreteMovement", "Inventory" };
     if( my_mission.getListOfCommandHandlers(0) != expected_command_handlers )
     {
@@ -125,6 +131,11 @@ int main()
         const bool validate = true;
         MissionSpec my_mission3( xml3, validate );
         
+        if( my_mission3.getSummary() != "Run the maze!" ) {
+            cout << "Unexpected summary" << endl;
+            return EXIT_FAILURE;
+        }
+
         const vector< string > expected_command_handlers = { "ContinuousMovement" };
         if( my_mission3.getListOfCommandHandlers(0) != expected_command_handlers )
         {

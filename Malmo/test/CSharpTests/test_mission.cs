@@ -27,6 +27,7 @@ public class Program
     public static void Main(string[] args)
     {
         MissionSpec my_mission = new MissionSpec();
+        my_mission.setSummary("example mission");        
         my_mission.timeLimitInSeconds( 10 );
         my_mission.drawBlock( 19, 0, 19, "redstone_block" );
         my_mission.createDefaultTerrain();
@@ -50,6 +51,11 @@ public class Program
         my_mission.allowContinuousMovementCommand("strafe");
         my_mission.allowDiscreteMovementCommand("movenorth");
         my_mission.allowInventoryCommand("swapInventoryItems");
+
+        if( my_mission.getSummary() != "example mission" ) {
+            Console.WriteLine("Unexpected summary");
+            Environment.Exit(1);
+        }
 
         string[] expected_command_handlers = { "ContinuousMovement", "DiscreteMovement", "Inventory" };
         string[] actual_command_handlers = new List<string>(my_mission.getListOfCommandHandlers(0)).ToArray();
@@ -145,6 +151,11 @@ public class Program
             const bool validate = true;
             MissionSpec my_mission3 = new MissionSpec( xml3, validate );
             
+            if( my_mission3.getSummary() != "Run the maze!" ) {
+                Console.WriteLine("Unexpected summary");
+                Environment.Exit(1);
+            }
+
             string[] expected_command_handlers2 = { "ContinuousMovement" };
             string[] actual_command_handlers2 = new List<string>(my_mission3.getListOfCommandHandlers(0)).ToArray();
             if( actual_command_handlers2.Length != expected_command_handlers2.Length ) {
