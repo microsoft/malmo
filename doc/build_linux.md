@@ -24,7 +24,7 @@
          
     3. On Debian 8:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          

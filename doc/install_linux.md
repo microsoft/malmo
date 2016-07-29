@@ -12,7 +12,7 @@ On Ubuntu 15.10:
 
 On Ubuntu 14.04 or Debian 8:
 
-`sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools python-tk`  
+`sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools python-tk python-imaging-tk`  
 
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
