@@ -17,6 +17,8 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
+import com.microsoft.msr.malmo.*;
+
 public class test_agent_host
 {
     static 
