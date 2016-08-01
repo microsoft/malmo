@@ -27,6 +27,7 @@ set( SOURCES
   manual_input_test.py
   MazeRunner.py
   MultiMaze.py
+  mob_fun.py
   overclock_test.py
   patchwork_quilt.py
   quit_from_reaching_position_test.py
