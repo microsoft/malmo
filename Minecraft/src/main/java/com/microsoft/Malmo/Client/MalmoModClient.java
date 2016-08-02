@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.Client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
@@ -36,6 +37,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 
 import com.microsoft.Malmo.MalmoModGuiOptions;
+import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 
 public class MalmoModClient
@@ -154,6 +156,14 @@ public class MalmoModClient
             public void onPressed()
             {
                 // Use this if you want to test some code with a handy key press
+                try
+                {
+                    CraftingHelper.dumpRecipes("recipe_dump.txt");
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
         });
         this.keyManager = new KeyManager(settings, extraKeys);

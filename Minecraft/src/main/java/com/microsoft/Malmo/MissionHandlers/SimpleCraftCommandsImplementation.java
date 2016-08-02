@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -71,10 +72,18 @@ public class SimpleCraftCommandsImplementation extends CommandBase
         public IMessage onMessage(CraftMessage message, MessageContext ctx)
         {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            // Try crafting recipes first:
             List<IRecipe> matching_recipes = CraftingHelper.getRecipesForRequestedOutput(message.parameters);
             for (IRecipe recipe : matching_recipes)
             {
                 if (CraftingHelper.attemptCrafting(player, recipe))
+                    return null;
+            }
+            // Now try furnace recipes:
+            ItemStack input = CraftingHelper.getSmeltingRecipeForRequestedOutput(message.parameters);
+            if (input != null)
+            {
+                if (CraftingHelper.attemptSmelting(player, input))
                     return null;
             }
             return null;
@@ -106,6 +115,7 @@ public class SimpleCraftCommandsImplementation extends CommandBase
     @Override
     public void install(MissionInit missionInit)
     {
+        CraftingHelper.reset();
     }
 
     @Override

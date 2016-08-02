@@ -1,5 +1,6 @@
 0.16.1
 -------------------
+New: Simple "craft" command now works with smelting recipes - eg "craft cooked_rabbit" to cook raw rabbit meat. (#177)
 Fix: [BREAKING CHANGE] Malmo java bindings now use pacakge com.microsoft.msr.malmo (#232)
 
 0.16.0 (2016-07-29)
