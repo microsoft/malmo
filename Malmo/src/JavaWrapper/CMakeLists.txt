@@ -21,13 +21,15 @@ include( UseJava )
 include( UseSWIG )
 include_directories( ${JNI_INCLUDE_DIRS} )
 
-set( CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR} )
-
+set( JAVA_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/com/microsoft/msr/malmo )
+set( CMAKE_SWIG_OUTDIR ${JAVA_OUTDIR} )
+set( PACKAGE_NAME com.microsoft.msr.malmo )
 # Build the SWIG C++ classes into a .so/.dll module for dynamic loading
 set_source_files_properties( MalmoJava.i PROPERTIES CPLUSPLUS 1 )
 if( ALE_FOUND )
   set_source_files_properties( MalmoJava.i PROPERTIES SWIG_FLAGS "-DWRAP_ALE" )
 endif()
+set( CMAKE_SWIG_FLAGS -package ${PACKAGE_NAME} )
 
 swig_add_module(
   MalmoJava
@@ -39,27 +41,27 @@ install( TARGETS MalmoJava DESTINATION Java_Examples )
 
 # build the SWIG Java files into a .jar
 set( SWIG_JAVA_SOURCES
-  ${CMAKE_CURRENT_BINARY_DIR}/AgentHost.java
-  ${CMAKE_CURRENT_BINARY_DIR}/MalmoJava.java
-  ${CMAKE_CURRENT_BINARY_DIR}/MalmoJavaJNI.java
-  ${CMAKE_CURRENT_BINARY_DIR}/ArgumentParser.java
-  ${CMAKE_CURRENT_BINARY_DIR}/ByteVector.java
-  ${CMAKE_CURRENT_BINARY_DIR}/ClientInfo.java
-  ${CMAKE_CURRENT_BINARY_DIR}/ClientPool.java
-  ${CMAKE_CURRENT_BINARY_DIR}/MissionRecordSpec.java
-  ${CMAKE_CURRENT_BINARY_DIR}/MissionSpec.java
-  ${CMAKE_CURRENT_BINARY_DIR}/ParameterSet.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedReward.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedRewardVector.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedString.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedStringVector.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedUnsignedCharVector.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedVideoFrame.java
-  ${CMAKE_CURRENT_BINARY_DIR}/TimestampedVideoFrameVector.java
-  ${CMAKE_CURRENT_BINARY_DIR}/WorldState.java
+  ${JAVA_OUTDIR}/AgentHost.java
+  ${JAVA_OUTDIR}/MalmoJava.java
+  ${JAVA_OUTDIR}/MalmoJavaJNI.java
+  ${JAVA_OUTDIR}/ArgumentParser.java
+  ${JAVA_OUTDIR}/ByteVector.java
+  ${JAVA_OUTDIR}/ClientInfo.java
+  ${JAVA_OUTDIR}/ClientPool.java
+  ${JAVA_OUTDIR}/MissionRecordSpec.java
+  ${JAVA_OUTDIR}/MissionSpec.java
+  ${JAVA_OUTDIR}/ParameterSet.java
+  ${JAVA_OUTDIR}/TimestampedReward.java
+  ${JAVA_OUTDIR}/TimestampedRewardVector.java
+  ${JAVA_OUTDIR}/TimestampedString.java
+  ${JAVA_OUTDIR}/TimestampedStringVector.java
+  ${JAVA_OUTDIR}/TimestampedUnsignedCharVector.java
+  ${JAVA_OUTDIR}/TimestampedVideoFrame.java
+  ${JAVA_OUTDIR}/TimestampedVideoFrameVector.java
+  ${JAVA_OUTDIR}/WorldState.java
 )
 if ( ALE_FOUND )
-    set( SWIG_JAVA_SOURCES ${SWIG_JAVA_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/ALEAgentHost.java )
+    set( SWIG_JAVA_SOURCES ${SWIG_JAVA_SOURCES} ${JAVA_OUTDIR}/ALEAgentHost.java )
 endif()
 
 add_jar( 
