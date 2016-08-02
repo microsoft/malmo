@@ -1,3 +1,7 @@
+0.16.1
+-------------------
+Fix: [BREAKING CHANGE] Malmo java bindings now use pacakge com.microsoft.msr.malmo (#232)
+
 0.16.0 (2016-07-29)
 -------------------
 New: DiscreteCommandHandler now supports AgentQuitFromTouchingBlockType and RewardForTouchingBlockType. (#241)
