@@ -35,6 +35,8 @@ namespace malmo
     class TimestampedReward
     {
         public:
+            //! Constructs from a single reward float (assumes default dimension of 0)
+            TimestampedReward(float reward);
 
             //! Constructs from an XML string.
             TimestampedReward(boost::posix_time::ptime timestamp,std::string xml_string);

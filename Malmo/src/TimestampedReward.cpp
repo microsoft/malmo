@@ -32,6 +32,11 @@
 
 namespace malmo
 {
+    TimestampedReward::TimestampedReward(float reward)
+    {
+        this->values[0] = static_cast<double>(reward);
+    }
+
     TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp,std::string xml_string)
     {
         const bool validate = true;
