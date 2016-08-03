@@ -81,6 +81,7 @@ namespace malmo
 
         this->ale_interface = boost::make_shared<ALEInterface>(role != 0);
         this->ale_interface->setInt("random_seed", 123);
+        this->ale_interface->setFloat("repeat_action_probability", 0); // Default is 0.25. We really don't want this!
         this->ale_interface->loadROM(unique_experiment_id);
 
         if (this->video_frame_writer)
