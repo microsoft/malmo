@@ -24,14 +24,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -42,6 +50,16 @@ import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation
 
 public class CraftingHelper
 {
+    private static Map<EntityPlayerMP, Integer> fuelCaches = new HashMap<EntityPlayerMP, Integer>();
+
+    /** Reset caches<br>
+     * Needed to make sure the player starts with a fresh fuel stash.
+     */
+    public static void reset()
+    {
+        fuelCaches = new HashMap<EntityPlayerMP, Integer>();
+    }
+
     /** Attempt to return the raw ingredients required for this recipe.<br>
      * Ignores all shaping.
      * @param recipe the IRecipe to dissect.
@@ -186,6 +204,71 @@ public class CraftingHelper
         return ItemStack.areItemsEqual(A, B);
     }
 
+    /** Go through player's inventory and see how much fuel they have.
+     * @param player
+     * @return the amount of fuel available in ticks
+     */
+    public static int totalBurnTimeInInventory(EntityPlayerMP player)
+    {
+        Integer fromCache = fuelCaches.get(player);
+        int total = (fromCache != null) ? fromCache : 0;
+        for (int i = 0; i < player.inventory.mainInventory.length; i++)
+        {
+            ItemStack is = player.inventory.mainInventory[i];
+            total += TileEntityFurnace.getItemBurnTime(is);
+        }
+        return total;
+    }
+
+    /** Consume fuel from the player's inventory.<br>
+     * Take it first from their cache, if present, and then from their inventory, starting
+     * at the first slot and working upwards.
+     * @param player
+     * @param burnAmount amount of fuel to burn, in ticks.
+     */
+    public static void burnInventory(EntityPlayerMP player, int burnAmount, ItemStack input)
+    {
+        if (!fuelCaches.containsKey(player))
+            fuelCaches.put(player, -burnAmount);
+        else
+            fuelCaches.put(player, fuelCaches.get(player) - burnAmount);
+        int index = 0;
+        while (fuelCaches.get(player) < 0 && index < player.inventory.mainInventory.length)
+        {
+            ItemStack is = player.inventory.mainInventory[index];
+            if (is != null)
+            {
+                int burnTime = TileEntityFurnace.getItemBurnTime(is);
+                if (burnTime != 0)
+                {
+                    // Consume item:
+                    if (is.stackSize > 1)
+                        is.stackSize--;
+                    else
+                    {
+                        // If this is a bucket of lava, we need to consume the lava but leave the bucket.
+                        if (is.getItem() == Items.lava_bucket)
+                        {
+                            // And if we're cooking wet sponge, we need to leave the bucket filled with water.
+                            if (input.getItem() == Item.getItemFromBlock(Blocks.sponge) && input.getMetadata() == 1)
+                                player.inventory.mainInventory[index] = new ItemStack(Items.water_bucket);
+                            else
+                                player.inventory.mainInventory[index] = new ItemStack(Items.bucket);
+                        }
+                        else
+                            player.inventory.mainInventory[index] = null;
+                        index++;
+                    }
+                    fuelCaches.put(player, fuelCaches.get(player) + burnTime);
+                }
+                else
+                    index++;
+            }
+            else
+                index++;
+        }
+    }
+
     /** Manually attempt to remove ingredients from the player's inventory.<br>
      * @param player
      * @param ingredients
@@ -252,6 +335,24 @@ public class CraftingHelper
         return matchingRecipes;
     }
 
+    /** Attempt to find a smelting recipe that results in the requested output.
+     * @param output
+     * @return an ItemStack representing the required input.
+     */
+    public static ItemStack getSmeltingRecipeForRequestedOutput(String output)
+    {
+        ItemStack target = MinecraftTypeHelper.getItemStackFromParameterString(output);
+        Iterator<?> furnaceIt = FurnaceRecipes.instance().getSmeltingList().keySet().iterator();
+        while (furnaceIt.hasNext())
+        {
+            ItemStack isInput = (ItemStack)furnaceIt.next();
+            ItemStack isOutput = (ItemStack)FurnaceRecipes.instance().getSmeltingList().get(isInput);
+            if (itemStackIngredientsMatch(target, isOutput))
+                return isInput;
+        }
+        return null;
+    }
+
     /** Attempt to craft the given recipe.<br>
      * This pays no attention to tedious things like using the right crafting table / brewing stand etc, or getting the right shape.<br>
      * It simply takes the raw ingredients out of the player's inventory, and inserts the output of the recipe, if possible.
@@ -278,6 +379,39 @@ public class CraftingHelper
 
             ItemStack resultForInventory = is.copy();
             ItemStack resultForReward = is.copy();
+            player.inventory.addItemStackToInventory(resultForInventory);
+            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(resultForReward);
+            MinecraftForge.EVENT_BUS.post(event);
+
+            return true;
+        }
+        return false;
+    }
+
+    /** Attempt to smelt the given item.<br>
+     * This returns instantly, callously disregarding such frivolous niceties as cooking times or the presence of a furnace.<br>
+     * It will, however, consume fuel from the player's inventory.
+     * @param player
+     * @param input the raw ingredients we want to cook.
+     * @return true if cooking was successful.
+     */
+    public static boolean attemptSmelting(EntityPlayerMP player, ItemStack input)
+    {
+        if (player == null || input == null)
+            return false;
+        List<ItemStack> ingredients = new ArrayList<ItemStack>();
+        ingredients.add(input);
+        ItemStack isOutput = (ItemStack)FurnaceRecipes.instance().getSmeltingList().get(input);
+        if (isOutput == null)
+            return false;
+        int cookingTime = 200;  // Seems to be hard-coded in TileEntityFurnace.
+        if (playerHasIngredients(player, ingredients) && totalBurnTimeInInventory(player) >= cookingTime)
+        {
+            removeIngredientsFromPlayer(player, ingredients);
+            burnInventory(player, cookingTime, input);
+
+            ItemStack resultForInventory = isOutput.copy();
+            ItemStack resultForReward = isOutput.copy();
             player.inventory.addItemStackToInventory(resultForInventory);
             RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(resultForReward);
             MinecraftForge.EVENT_BUS.post(event);
@@ -321,6 +455,14 @@ public class CraftingHelper
                 s += "\n";
                 writer.write(s);
             }
+        }
+        Iterator<?> furnaceIt = FurnaceRecipes.instance().getSmeltingList().keySet().iterator();
+        while (furnaceIt.hasNext())
+        {
+            ItemStack isInput = (ItemStack)furnaceIt.next();
+            ItemStack isOutput = (ItemStack)FurnaceRecipes.instance().getSmeltingList().get(isInput);
+            String s = isOutput.stackSize + "x" + isOutput.getUnlocalizedName() + " = FUEL + " + isInput.stackSize + "x" + isInput.getUnlocalizedName() + "\n";
+            writer.write(s);
         }
         writer.close();
     }

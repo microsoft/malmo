@@ -18,8 +18,11 @@
 # ------------------------------------------------------------------------------------------------
 
 # Sample to demonstrate use of basic crafting.
-# 4 bowls = 3 Oak Wood Planks
-# 1 item.rabbitStew = 1 x item.rabbitCooked(Cooked Rabbit), 1 x item.carrots(Carrot), 1 x item.potatoBaked(Baked Potato), 1 x tile.mushroom(Mushroom), 1 x item.bowl(Bowl)
+# The goal of the mission is to make the rabbit stew. This requires four craft commands:
+# 1 cooked_rabbit = 1 rabbit + fuel
+# 1 baked_potato = 1 potato + fuel
+# 4 bowls = 3 planks
+# 1 rabbit_stew = 1 x cooked_rabbit + 1 x carrot + 1 x baked_potato + 1 x brown_mushroom + 1 x bowl
 
 import MalmoPython
 import os
@@ -30,7 +33,7 @@ import json
 import random
 import errno
 
-items=["red_flower white_tulip", "planks spruce", "planks birch", "planks dark_oak", "cooked_rabbit", "carrot", "baked_potato", "brown_mushroom"]
+items=["red_flower white_tulip", "coal", "planks spruce", "planks birch", "planks dark_oak", "rabbit", "carrot", "potato", "brown_mushroom"]
 
 def buildPositionList(items):
     positions=[]
@@ -84,6 +87,28 @@ def checkInventoryForBowlIngredients(obs):
             if item == 'bowl':
                 return False    # Already have a bowl, so don't want another one!
     return plank_count >= 3
+
+def checkInventoryForItem(obs, requested):
+    for i in xrange(0,39):
+        key = 'InventorySlot_'+str(i)+'_item'
+        if key in obs:
+            item = obs[key]
+            if item == requested:
+                return True
+    return False
+
+def checkFuelPosition(obs, agent_host):
+    '''Make sure our coal, if we have any, is in slot 0.'''
+    # (We need to do this because the furnace crafting commands - cooking the potato and the rabbit -
+    # take the first available item of fuel in the inventory. If this isn't the coal, it could end up burning the wood
+    # that we need for making the bowl.)
+    for i in xrange(1,39):
+        key = 'InventorySlot_'+str(i)+'_item'
+        if key in obs:
+            item = obs[key]
+            if item == 'coal':
+                agent_host.sendCommand("swapInventoryItems 0 " + str(i))
+                return
 
 def checkInventoryForStewIngredients(obs):
     # Need a bowl, a cooked rabbit, a carrot, a mushroom and a baked potato.
@@ -144,6 +169,7 @@ def GetMissionXML(summary):
                 </RewardForDiscardingItem>
                 <ContinuousMovementCommands turnSpeedDegs="480"/>
                 <SimpleCraftCommands/>
+                <InventoryCommands/>
                 <ObservationFromSubgoalPositionList>''' + getSubgoalPositions(positions) + '''
                 </ObservationFromSubgoalPositionList>
                 <ObservationFromFullInventory/>
@@ -236,7 +262,17 @@ for iRepeat in range(num_reps):
             else:
                 agent_host.sendCommand("move 0")
                 agent_host.sendCommand("turn 0")
-                if checkInventoryForBowlIngredients(ob):
+                if checkInventoryForItem(ob, "rabbit"):
+                    print "Cooking the rabbit..."
+                    checkFuelPosition(ob, agent_host)
+                    agent_host.sendCommand("craft cooked_rabbit")
+                    time.sleep(1)
+                elif checkInventoryForItem(ob, "potato"):
+                    print "Cooking the potato..."
+                    checkFuelPosition(ob, agent_host)
+                    agent_host.sendCommand("craft baked_potato")
+                    time.sleep(1)
+                elif checkInventoryForBowlIngredients(ob):
                     print "Crafting a bowl..."
                     agent_host.sendCommand("craft bowl")
                     time.sleep(1)
