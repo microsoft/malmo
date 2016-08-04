@@ -22,12 +22,20 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/posix_time/posix_time_io.hpp>
 
+// Boost:
+#include <boost/asio.hpp>
+
 namespace malmo
 {
     TimestampedVideoFrame::TimestampedVideoFrame()
         : width(0)
         , height(0)
-        , channels(0)        
+        , channels(0)
+        , xPos(0)
+        , yPos(0)
+        , zPos(0)
+        , yaw(0)
+        , pitch(0)
     {
 
     }
@@ -37,17 +45,30 @@ namespace malmo
         , width(width)
         , height(height)
         , channels(channels)
+        , xPos(0)
+        , yPos(0)
+        , zPos(0)
+        , yaw(0)
+        , pitch(0)
     {
+        // First extract the positional information from the header:
+        uint32_t * pInt = reinterpret_cast<uint32_t*>(&(message.data[0]));
+        this->xPos = ntoh_float(*pInt); pInt++;
+        this->yPos = ntoh_float(*pInt); pInt++;
+        this->zPos = ntoh_float(*pInt); pInt++;
+        this->yaw = ntoh_float(*pInt); pInt++;
+        this->pitch = ntoh_float(*pInt);
+
         const int stride = width * channels;
         switch (transform){
         case IDENTITY:
-            this->pixels = std::vector<unsigned char>(message.data);
+            this->pixels = std::vector<unsigned char>(message.data.begin() + FRAME_HEADER_SIZE, message.data.end());
             break;
 
         case REVERSE_SCANLINE:
             this->pixels = std::vector<unsigned char>();
             for (int i = 0, offset = (height - 1)*stride; i < height; i++, offset -= stride){
-                auto it = message.data.begin() + offset;
+                auto it = message.data.begin() + offset + FRAME_HEADER_SIZE;
                 this->pixels.insert(this->pixels.end(), it, it + stride);
             }
 
@@ -61,11 +82,20 @@ namespace malmo
     bool TimestampedVideoFrame::operator==(const TimestampedVideoFrame& other) const
     {
         return this->width == other.width && this->height == other.height && this->channels == other.channels && this->timestamp == other.timestamp && this->pixels == other.pixels;
+        // Not much point in comparing pos, pitch and yaw - covered by the pixel comparison.
     }
 
     std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe)
     {
-        os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels;
+        os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels << ", (" << tsvidframe.xPos << "," << tsvidframe.yPos << "," << tsvidframe.zPos << " - yaw:" << tsvidframe.yaw << ", pitch:" << tsvidframe.pitch << ")";
         return os;
+    }
+
+    float TimestampedVideoFrame::ntoh_float(uint32_t value) const
+    {
+        uint32_t temp = ntohl(value);
+        float ret;
+        *((uint32_t*)&ret) = temp;
+        return ret;
     }
 }

@@ -231,16 +231,17 @@ public class TCPSocketHelper
 	     * @param buffer the bytes to send
 	     * @return true if the message was sent successfully
 	     */
-        public boolean sendTCPBytes(ByteBuffer buffer, int length)
+        public boolean sendTCPBytes(ByteBuffer[] srcbuffers, int length)
         {
             boolean success = false;
             try
             {
                 ByteBuffer header = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(length);
                 header.flip();
-                ByteBuffer[] buffers = new ByteBuffer[2];
+                ByteBuffer[] buffers = new ByteBuffer[1 + srcbuffers.length];
                 buffers[0] = header;
-                buffers[1] = buffer;
+                for (int i = 0; i < srcbuffers.length; i++)
+                    buffers[i+1] = srcbuffers[i];
                 if (logging)
                 {
                     long t1 = System.nanoTime();

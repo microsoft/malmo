@@ -22,6 +22,7 @@ package com.microsoft.Malmo.Client;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -29,6 +30,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -90,7 +92,8 @@ public class VideoHook {
     private int renderHeight;
 
     ByteBuffer buffer = null;
-
+    ByteBuffer headerbuffer = null;
+    final int POS_HEADER_SIZE = 20; // 20 bytes for the five floats governing x,y,z,yaw and pitch.
     /**
      * Resize the rendering and start sending video over TCP.
      */
@@ -105,7 +108,7 @@ public class VideoHook {
         this.missionInit = missionInit;
         this.videoProducer = videoProducer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
-        
+        this.headerbuffer = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
         this.renderWidth = videoProducer.getWidth(missionInit);
         this.renderHeight = videoProducer.getHeight(missionInit);
         resizeIfNeeded();
@@ -209,6 +212,13 @@ public class VideoHook {
     @SubscribeEvent
     public void postRender(RenderWorldLastEvent event)
     {
+        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks);
+        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks);
+        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks);
+        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.partialTicks;
+        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.partialTicks;
+
         long time_before_ns = System.nanoTime();
 
         if (time_before_ns < retry_time_ns)
@@ -221,12 +231,21 @@ public class VideoHook {
             int size = this.videoProducer.getRequiredBufferSize();
             // Get buffer ready for writing to:
             this.buffer.clear();
-            // Write the frame:
+            this.headerbuffer.clear();
+            // Write the pos data:
+            this.headerbuffer.putFloat(x);
+            this.headerbuffer.putFloat(y);
+            this.headerbuffer.putFloat(z);
+            this.headerbuffer.putFloat(yaw);
+            this.headerbuffer.putFloat(pitch);
+            // Write the frame data:
             this.videoProducer.getFrame(this.missionInit, this.buffer);
-            long time_after_render_ns = System.nanoTime();
-            // The buffer gets flipped by getFrame(), so now we can simply write the frame to the socket:
-            success = this.connection.sendTCPBytes(this.buffer, size);
+            // The buffer gets flipped by getFrame(), but we need to flip our header buffer ourselves:
+            this.headerbuffer.flip();
+            ByteBuffer[] buffers = {this.headerbuffer, this.buffer};
 
+            long time_after_render_ns = System.nanoTime();
+            success = this.connection.sendTCPBytes(buffers, size + POS_HEADER_SIZE);
             long time_after_ns = System.nanoTime();
             float ms_send = (time_after_ns - time_after_render_ns) / 1000000.0f;
             float ms_render = (time_after_render_ns - time_before_ns) / 1000000.0f;
