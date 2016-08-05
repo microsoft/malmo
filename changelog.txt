@@ -1,4 +1,8 @@
-0.16.1
+0.16.2
+-------------------
+New: TimestampedFrame now includes xPos,yPos,zPos,yaw and pitch information. (#257, #250, #231)
+
+0.16.1 (2016-08-03)
 -------------------
 New: Simple "craft" command now works with smelting recipes - eg "craft cooked_rabbit" to cook raw rabbit meat. (#177)
 Fix: [BREAKING CHANGE] Malmo java bindings now use pacakge com.microsoft.msr.malmo (#232)

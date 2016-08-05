@@ -58,7 +58,26 @@ void handleFrame(TimestampedVideoFrame frame)
         exit(EXIT_FAILURE);
     }
 
+    if (frame.xPos != num_messages_received)
+    {
+        cout << "xPos not set correctly - frames out of order, or float passing has failed." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (frame.pitch != 90.0f)
+    {
+        cout << "Pitch not set correctly - float passing has failed - got " << frame.pitch << " - expected 90.0" << endl;
+        exit(EXIT_FAILURE);
+    }
+
     num_messages_received++;
+}
+
+uint32_t hton_float(float value)
+{
+    uint32_t temp;
+    *((float*)&temp) = value;
+    return htonl(temp);
 }
 
 int main()
@@ -77,9 +96,15 @@ int main()
 
         boost::this_thread::sleep(sleep_time);
 
-        vector<unsigned char> buffer(num_pixels);
+        vector<unsigned char> buffer(num_pixels + TimestampedVideoFrame::FRAME_HEADER_SIZE);
         for (int i = 0; i < num_frames; i++){
-            for (int r = width-1, p = 0; r >= 0; r--){
+            uint32_t* ptr = reinterpret_cast<uint32_t*>(&buffer[0]);
+            *ptr = hton_float((float)i); ptr++; //xPos
+            *ptr = hton_float(3.1415); ptr++;   //yPos
+            *ptr = hton_float(6.6666); ptr++;   //zPos
+            *ptr = hton_float(0); ptr++;        //yaw
+            *ptr = hton_float(90.0f);           //pitch
+            for (int r = width - 1, p = TimestampedVideoFrame::FRAME_HEADER_SIZE; r >= 0; r--){
                 for (int c = 0; c < width; c++, p += 3){
                     buffer[p] = width - c;
                     buffer[p + 2] = r;
@@ -89,14 +114,14 @@ int main()
             int boxPos = (i * 200) / num_frames;           
             for (int r = 0; r < 40; r++){
                 for (int c = 0; c < 40; c++){
-                    int p = (width - boxPos - r - 1) * width * 3 + (boxPos + c) * 3;
+                    int p = TimestampedVideoFrame::FRAME_HEADER_SIZE + (width - boxPos - r - 1) * width * 3 + (boxPos + c) * 3;
                     buffer[p] = 255;
                     buffer[p + 1] = 255;
                     buffer[p + 2] = 255;
                 }
             }
 
-            buffer[(width - 1) * width * 3] = i;
+            buffer[TimestampedVideoFrame::FRAME_HEADER_SIZE + (width - 1) * width * 3] = i;
             SendOverTCP(io_service, "127.0.0.1", port, buffer, true);
 
             boost::this_thread::sleep(sleep_time);

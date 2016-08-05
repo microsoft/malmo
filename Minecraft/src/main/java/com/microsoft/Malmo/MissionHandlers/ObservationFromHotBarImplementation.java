@@ -37,6 +37,5 @@ public class ObservationFromHotBarImplementation extends HandlerBase implements 
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
         ObservationFromFullInventoryImplementation.getInventoryJSON(json, "Hotbar_", 9);
-        System.out.println(json.toString());
     }
 }

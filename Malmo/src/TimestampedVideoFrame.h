@@ -38,6 +38,7 @@ namespace malmo
             IDENTITY                //!< Don't alter the incoming bytes in any way
             , REVERSE_SCANLINE      //!< Interpret input bytes as reverse scanline BGR
         };
+        static const int FRAME_HEADER_SIZE = 20;
 
         //! The timestamp.
         boost::posix_time::ptime timestamp;
@@ -50,7 +51,22 @@ namespace malmo
         
         //! The number of channels. e.g. 3 for RGB data, 4 for RGBD
         short channels;
-        
+
+        //! The pitch of the player at render time
+        float pitch;
+
+        //! The yaw of the player at render time
+        float yaw;
+
+        //! The x pos of the player at render time
+        float xPos;
+
+        //! The y pos of the player at render time
+        float yPos;
+
+        //! The z pos of the player at render time
+        float zPos;
+
         //! The pixels, stored as channels then columns then rows. Length should be width*height*channels.
         std::vector<unsigned char> pixels;
 
@@ -59,6 +75,7 @@ namespace malmo
         
         bool operator==(const TimestampedVideoFrame& other) const;
         friend std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe);
+        float ntoh_float(uint32_t value) const;
     };
 }
 

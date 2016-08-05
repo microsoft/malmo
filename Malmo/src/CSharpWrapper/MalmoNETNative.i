@@ -421,6 +421,16 @@ public:
 
   const short channels;
 
+  const float xPos;
+
+  const float yPos;
+
+  const float zPos;
+
+  const float yaw;
+
+  const float pitch;
+
   const std::vector<unsigned char> pixels;
 };
 
