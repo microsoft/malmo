@@ -7,37 +7,37 @@
 
 2. Install dependencies.
     1. On Ubuntu 15.10:  
-    
+
          `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
-         
+
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
-         
+
          `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
-         
+
     2. On Ubuntu 14.04:  
-    
+
          `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
-         
+
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
-         
+
          `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
-         
+
     3. On Debian 8:  
-    
+
          `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
-         
+
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
-         
+
          `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
-         
+
     4. On Debian 7:  
-    
+
          `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
-         
+
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
-         
+
          Also, remove Java 6 and make sure that `java -version` returns the right version (1.7).  
-         
+
          `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
     5. On Fedora 23:  
@@ -46,14 +46,23 @@
 
         `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat tkinter python-pillow-tk`
 
+    6. On Arch Linux:
+
+      `sudo pacman -S --needed git cmake python2 tk jdk8-openjdk swig xsd xerces-c doxygen libxslt ffmpeg gcc mono lua51 lua51-socket `
+
+      Install the following AUR packages:
+      `luabind-rpavlik-git boost-build torch7-git torch7-trepl-git`
+      (Skip to step 9)
+
+
 4. Install Torch: (if supported by your platform)
     1. Follow the instructions at http://torch.ch/docs/getting-started.html
     2. Test: `th`
 
-5. Install Mono: (if not Fedora)
+5. Install Mono: (if not Fedora or Arch Linux)
     1. The Mono Project has an excellent [Getting Started](http://www.mono-project.com/docs/) guide, please read it.
     2. For the impatient, Linux details are [here](http://www.mono-project.com/docs/getting-started/install/linux/)
-    
+
 6. On Debian 7 only: Build Boost
     1. `mkdir ~/boost`
     2. `cd ~/boost`
@@ -69,7 +78,7 @@
     3. `sudo apt-get install -f`  
        This step is needed because we require xsd version 4.0.  
        (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
-     
+
 8. Install Luabind:
     1. `git clone https://github.com/rpavlik/luabind.git ~/rpavlik-luabind`
     2. `cd rpavlik-luabind`
@@ -78,14 +87,17 @@
     5. `cmake -DCMAKE_BUILD_TYPE=Release ..`  
        On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
+       On Arch Linux only:
+       `cmake -DLUA_INCLUDE_DIR=/usr/include/lua5.1/ -DCMAKE_BUILD_TYPE=Release ..`
     6. `make`
     7. Test: `ctest`  
        (A few of the tests fail currently but this doesn't seem to affect us.)
 
 9. Install ALE: (optional - skip this if you don't want to provide ALE support)
+
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
-       `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora)
+       `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora, `sudo pacman -S sdl zlib` on Arch Linux)
     3. `cd ~/ALE`  
        `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
        `cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`  
@@ -94,7 +106,7 @@
     4. You will need to put ~/ALE on your LD_LIBRARY_PATH so that Malmo can find libAle.so:  
        Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc  
       `source ~/.bashrc`
-       
+
 10. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
@@ -131,4 +143,3 @@
 3. Navigate to the git repo and open the root CMakeLists.txt file.
 4. Make a build folder for KDevelop4.
 5. Build and debug from within the KDevelop4 GUI.
-
