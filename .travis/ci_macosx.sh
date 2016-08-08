@@ -8,8 +8,7 @@ set -o pipefail
 # install dependencies:
 
 brew update
-brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c doxygen
+brew install boost-python ffmpeg swig xerces-c doxygen
 sudo brew cask install java
 
 # mono and CodeSynthesis XSD both contain 'xsd' executables and we want the CodeSynthesis
