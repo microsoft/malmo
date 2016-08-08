@@ -8,8 +8,12 @@ set -o pipefail
 # install dependencies:
 
 brew update
-brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c doxygen
+# echo Installing boost --with-python (removed, think causing problems on new Travis image)
+# brew install boost --with-python
+echo Installing boost-python
+brew install boost-python
+echo Installing other things
+brew install ffmpeg swig xerces-c doxygen
 sudo brew cask install java
 
 # mono and CodeSynthesis XSD both contain 'xsd' executables and we want the CodeSynthesis
