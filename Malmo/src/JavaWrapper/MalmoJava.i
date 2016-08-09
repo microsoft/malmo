@@ -261,6 +261,10 @@ public:
   void setObservationsPolicy(AgentHost::ObservationsPolicy observationsPolicy);
 
   void sendCommand(std::string command);
+
+  std::string getRecordingTemporaryDirectory();
+
+  void setSeed(int seed);
 };
 #endif
 
