@@ -51,11 +51,20 @@ namespace malmo
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
             this->commands_path = (this->temp_dir / "commands.txt").string();
             this->mission_init_path = (this->temp_dir / "missionInit.xml").string();
-            if (boost::filesystem::create_directories(this->temp_dir)) {
+            bool created_tmp = false;
+            try {
+                created_tmp = boost::filesystem::create_directories(this->temp_dir);
+            }
+            catch (const std::exception& e) {
+                std::cout << "Unable to create temporary folder for recording " << this->temp_dir.string() << ": " << e.what() << std::endl;
+                throw std::runtime_error("Check your MALMO_TEMP_PATH and try again.");
+            }
+
+            if (created_tmp) {
                 this->is_closed = false;
             }
             else {
-                throw std::runtime_error("Could not create temporary folder for recording - trying to write to " + this->temp_dir.string() + " - do you need to change your MALMO_TEMP_PATH environment variable?");
+                throw std::runtime_error("Unable to create temporary folder for recording " + this->temp_dir.string() + ": check your MALMO_TEMP_PATH?");
             }
         }
     }
