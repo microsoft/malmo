@@ -123,7 +123,7 @@ print "(Each test should run faster than the previous one.)"
 for iRepeat in range(len(tickLengths)):
     msPerTick = tickLengths[iRepeat]
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(msPerTick)),validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//Overclock_Test" + str(iRepeat) + ".tgz");
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
