@@ -143,19 +143,6 @@ int runAgentHost(std::string filename)
         MissionRecord deleteTest(mission_record);
     }
 
-    threwError = false;
-    try{
-        std::string temp_dir = mission_record.getTemporaryDirectory();
-    }
-    catch (const exception&){
-        threwError = true;
-    }
-
-    if (!threwError){
-        cout << "Was able to access temporary directory before record creation." << endl;
-        return EXIT_FAILURE;
-    }
-    
     ClientInfo client_info( "127.0.0.1", 10031 );
     ClientPool client_pool;
     client_pool.add( client_info );
@@ -176,6 +163,25 @@ int runAgentHost(std::string filename)
     boost::this_thread::sleep(sleep_time);
 
     AgentHost agent_host;
+
+    threwError = false;
+    std::string temp_dir;
+    try{
+        temp_dir = agent_host.getRecordingTemporaryDirectory();
+    }
+    catch (const exception&){
+        threwError = true;
+    }
+
+    if (threwError){
+        cout << "Get temporary directory before start mission threw an exception." << endl;
+        return EXIT_FAILURE;
+    }
+    if (!temp_dir.empty()){
+        cout << "Get temporary directory before start mission should have returned an empty string." << endl;
+        return EXIT_FAILURE;
+    }
+
     try {
         agent_host.startMission( mission, client_pool, mission_record, 0, "" );
     }
@@ -184,14 +190,19 @@ int runAgentHost(std::string filename)
         return EXIT_FAILURE;
     }
 
+    threwError = false;
     try{
-        std::string temp_dir = mission_record.getTemporaryDirectory();
+        temp_dir = agent_host.getRecordingTemporaryDirectory();
     }
     catch (const exception&){
+        threwError = true;
+    }
+
+    if (threwError || temp_dir.empty()){
         cout << "Unable to access temporary directory after mission start.";
         return EXIT_FAILURE;
     }
-    
+
     mission_init = agent_host.getMissionInit();
 
     boost::thread gameShim(runGameShim);
