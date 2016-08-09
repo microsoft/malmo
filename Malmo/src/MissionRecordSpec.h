@@ -62,10 +62,6 @@ namespace malmo
         //! Requests that commands be recorded.
         void recordCommands();
 
-        //! Gets the temporary directory for this mission record.
-        //! \returns The temporary directory for the mission record.
-        std::string getTemporaryDirectory();
-
         friend std::ostream& operator<<(std::ostream& os, const MissionRecordSpec& msp);
 
     private:
@@ -77,12 +73,6 @@ namespace malmo
         bool is_recording_commands;
         int64_t mp4_bit_rate;
         int mp4_fps;
-        std::string mp4_path;
-        std::string observations_path;
-        std::string rewards_path;
-        std::string commands_path;
-        std::string mission_init_path;
-        boost::filesystem::path temp_dir;
         std::string destination;
     };
 }
