@@ -52,6 +52,7 @@ namespace malmo
         , rewards_policy(AgentHost::RewardsPolicy::SUM_REWARDS)
         , observations_policy(AgentHost::ObservationsPolicy::LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
+        , seed( 0 )
     {
         this->addOptionalFlag("help,h", "show description of allowed options");
     }
@@ -80,7 +81,7 @@ namespace malmo
         initialize(mission, mission_record, role, unique_experiment_id);
 
         this->ale_interface = boost::make_shared<ALEInterface>(role != 0);
-        this->ale_interface->setInt("random_seed", 123);
+        this->ale_interface->setInt("random_seed", this->seed);
         this->ale_interface->setFloat("repeat_action_probability", 0); // Default is 0.25. We really don't want this!
         this->ale_interface->loadROM(unique_experiment_id);
 
