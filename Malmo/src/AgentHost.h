@@ -90,6 +90,10 @@ namespace malmo
             //! \returns The world state.
             WorldState getWorldState();
 
+            //! Gets the temporary directory being used for the mission record, if recording is taking place.
+            //! \returns The temporary directory for the mission record, or an empty string if no recording is going on.
+            std::string getRecordingTemporaryDirectory() const;
+
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
             void setVideoPolicy(VideoPolicy videoPolicy);

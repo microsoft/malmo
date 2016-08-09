@@ -38,7 +38,7 @@ namespace malmo
     MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec)
     {
         this->is_closed = false;
-        if (spec.is_recording) {
+        if (spec.isRecording()) {
             boost::uuids::random_generator gen;
             boost::uuids::uuid temp_uuid = gen();
             this->temp_dir = boost::filesystem::path(".");
@@ -103,7 +103,7 @@ namespace malmo
 
     void MissionRecord::close()
     {
-        if (!this->spec.is_recording || this->is_closed){
+        if (!this->spec.isRecording() || this->is_closed){
             return;
         }
 
@@ -180,7 +180,7 @@ namespace malmo
 
     bool MissionRecord::isRecording() const
     {
-        return this->spec.is_recording;
+        return this->spec.isRecording();
     }
 
     bool MissionRecord::isRecordingMP4() const
@@ -240,7 +240,7 @@ namespace malmo
 
     std::string MissionRecord::getTemporaryDirectory() const
     {
-        if (!this->spec.is_recording){
+        if (!this->spec.isRecording()){
             throw std::runtime_error("Mission is not being recorded.");
         }
 

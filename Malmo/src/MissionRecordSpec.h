@@ -46,7 +46,10 @@ namespace malmo
         //! WARNING: You cannot re-use the instance of MissionRecordSpec - make a new one per call to AgentHost.startMission.
         //! \param destination Filename to save to.
         MissionRecordSpec(std::string destination);
-               
+
+        //! Specifies the destination for the recording.
+        void setDestination(const std::string& destination);
+
         //! Requests that video be recorded, at the specified quality.
         //! Ensure that the width of the video requested is divisible by 4, and the height of the video requested is divisible by 2.
         //! \param frames_per_second The number of frames to record per second. e.g. 20.
@@ -62,11 +65,13 @@ namespace malmo
         //! Requests that commands be recorded.
         void recordCommands();
 
+        //! Are we recording anything?
+        bool isRecording() const;
+
         friend std::ostream& operator<<(std::ostream& os, const MissionRecordSpec& msp);
 
     private:
 
-        bool is_recording;
         bool is_recording_mp4;
         bool is_recording_observations;
         bool is_recording_rewards;
