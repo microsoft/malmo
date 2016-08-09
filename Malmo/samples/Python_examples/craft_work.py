@@ -225,8 +225,7 @@ else:
 
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Crafty #" + str(iRepeat)),validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = MalmoPython.MissionRecordSpec() # Records nothing by default
     max_retries = 3
     for retry in range(max_retries):
         try:
