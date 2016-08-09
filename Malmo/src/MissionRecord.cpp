@@ -37,18 +37,26 @@ namespace malmo
 {
     MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec)
     {
-        this->is_closed = false;
         if (spec.isRecording()) {
             boost::uuids::random_generator gen;
             boost::uuids::uuid temp_uuid = gen();
-            this->temp_dir = boost::filesystem::path(".");
+            char *malmo_tmp_path = getenv("MALMO_TEMP_PATH");
+            if (malmo_tmp_path)
+                this->temp_dir = boost::filesystem::path(malmo_tmp_path);
+            else
+                this->temp_dir = boost::filesystem::path(".");
             this->temp_dir = this->temp_dir / "mission_records" / boost::uuids::to_string(temp_uuid);
             this->mp4_path = (this->temp_dir / "video.mp4").string();
             this->observations_path = (this->temp_dir / "observations.txt").string();
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
             this->commands_path = (this->temp_dir / "commands.txt").string();
             this->mission_init_path = (this->temp_dir / "missionInit.xml").string();
-            boost::filesystem::create_directories(this->temp_dir);
+            if (boost::filesystem::create_directories(this->temp_dir)) {
+                this->is_closed = false;
+            }
+            else {
+                throw std::runtime_error("Could not create temporary folder for recording - trying to write to " + this->temp_dir.string() + " - do you need to change your MALMO_TEMP_PATH environment variable?");
+            }
         }
     }
 
