@@ -165,7 +165,8 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("setRewardsPolicy",                &ALEAgentHost::setRewardsPolicy)
         .def("setObservationsPolicy",           &ALEAgentHost::setObservationsPolicy)
         .def("sendCommand",                     &ALEAgentHost::sendCommand)
-        .def("getRecordingTemporaryDirectory",  &ALEAgentHost::getRecordingTemporaryDirectory )
+        .def("getRecordingTemporaryDirectory",  &ALEAgentHost::getRecordingTemporaryDirectory)
+        .def("setSeed",                         &ALEAgentHost::setSeed)
         .def(self_ns::str(self_ns::self))
         ;
 #endif

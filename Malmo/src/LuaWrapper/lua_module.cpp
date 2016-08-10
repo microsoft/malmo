@@ -211,6 +211,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def("setObservationsPolicy",           &ALEAgentHost::setObservationsPolicy)
             .def("sendCommand",                     &ALEAgentHost::sendCommand)
             .def("getRecordingTemporaryDirectory",  &ALEAgentHost::getRecordingTemporaryDirectory)
+            .def("setSeed",                         &ALEAgentHost::setSeed)
             .def(tostring(const_self))
     ,
 #endif

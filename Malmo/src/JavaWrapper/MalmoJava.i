@@ -265,6 +265,8 @@ public:
   void sendCommand(std::string command);
 
   std::string getRecordingTemporaryDirectory();
+
+  void setSeed(int seed);
 };
 #endif
 
