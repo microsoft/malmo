@@ -35,12 +35,37 @@
 
 namespace malmo
 {
-    MissionRecord::MissionRecord(const MissionRecordSpec& spec)
-        : spec(spec)
+    MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec)
     {
-        this->is_closed = false;
-        if (spec.is_recording) {
-            boost::filesystem::create_directories(this->spec.temp_dir);
+        if (spec.isRecording()) {
+            boost::uuids::random_generator gen;
+            boost::uuids::uuid temp_uuid = gen();
+            char *malmo_tmp_path = getenv("MALMO_TEMP_PATH");
+            if (malmo_tmp_path)
+                this->temp_dir = boost::filesystem::path(malmo_tmp_path);
+            else
+                this->temp_dir = boost::filesystem::path(".");
+            this->temp_dir = this->temp_dir / "mission_records" / boost::uuids::to_string(temp_uuid);
+            this->mp4_path = (this->temp_dir / "video.mp4").string();
+            this->observations_path = (this->temp_dir / "observations.txt").string();
+            this->rewards_path = (this->temp_dir / "rewards.txt").string();
+            this->commands_path = (this->temp_dir / "commands.txt").string();
+            this->mission_init_path = (this->temp_dir / "missionInit.xml").string();
+            bool created_tmp = false;
+            try {
+                created_tmp = boost::filesystem::create_directories(this->temp_dir);
+            }
+            catch (const std::exception& e) {
+                std::cout << "Unable to create temporary folder for recording " << this->temp_dir.string() << ": " << e.what() << std::endl;
+                throw std::runtime_error("Check your MALMO_TEMP_PATH and try again.");
+            }
+
+            if (created_tmp) {
+                this->is_closed = false;
+            }
+            else {
+                throw std::runtime_error("Unable to create temporary folder for recording " + this->temp_dir.string() + ": check your MALMO_TEMP_PATH?");
+            }
         }
     }
 
@@ -65,6 +90,12 @@ namespace malmo
     MissionRecord::MissionRecord(MissionRecord&& record)
         : is_closed(record.is_closed)
         , spec(record.spec)
+        , commands_path(record.commands_path)
+        , mp4_path(record.mp4_path)
+        , observations_path(record.observations_path)
+        , rewards_path(record.rewards_path)
+        , mission_init_path(record.mission_init_path)
+        , temp_dir(record.temp_dir)
     {
         record.spec = MissionRecordSpec();
     }
@@ -74,6 +105,12 @@ namespace malmo
         if (this != &record){
             this->is_closed = record.is_closed;
             this->spec = record.spec;
+            this->commands_path = record.commands_path;
+            this->mp4_path = record.mp4_path;
+            this->observations_path = record.observations_path;
+            this->rewards_path = record.rewards_path;
+            this->mission_init_path = record.mission_init_path;
+            this->temp_dir = record.temp_dir;
 
             record.spec = MissionRecordSpec();
         }
@@ -83,13 +120,13 @@ namespace malmo
 
     void MissionRecord::close()
     {
-        if (!this->spec.is_recording || this->is_closed){
+        if (!this->spec.isRecording() || this->is_closed){
             return;
         }
 
         // create zip file, push to destination
         std::vector<boost::filesystem::path> fileList;
-        this->addFiles(fileList, this->spec.temp_dir);
+        this->addFiles(fileList, this->temp_dir);
 
         if (fileList.size() > 0){
             std::stringstream out("tempfile");
@@ -119,7 +156,7 @@ namespace malmo
             }
         }
 
-        boost::filesystem::remove_all(this->spec.temp_dir);
+        boost::filesystem::remove_all(this->temp_dir);
 
         this->is_closed = true;
     }
@@ -160,7 +197,7 @@ namespace malmo
 
     bool MissionRecord::isRecording() const
     {
-        return this->spec.is_recording;
+        return this->spec.isRecording();
     }
 
     bool MissionRecord::isRecordingMP4() const
@@ -185,7 +222,7 @@ namespace malmo
 
     std::string MissionRecord::getMP4Path() const
     {
-        return this->spec.mp4_path;
+        return this->mp4_path;
     }
 
     int64_t MissionRecord::getMP4BitRate() const
@@ -200,21 +237,35 @@ namespace malmo
 
     std::string MissionRecord::getObservationsPath() const
     {
-        return this->spec.observations_path;
+        return this->observations_path;
     }
 
     std::string MissionRecord::getRewardsPath() const
     {
-        return this->spec.rewards_path;
+        return this->rewards_path;
     }
 
     std::string MissionRecord::getCommandsPath() const
     {
-        return this->spec.commands_path;
+        return this->commands_path;
     }
 
     std::string MissionRecord::getMissionInitPath() const
     {
-        return this->spec.mission_init_path;
+        return this->mission_init_path;
+    }
+
+    std::string MissionRecord::getTemporaryDirectory() const
+    {
+        if (!this->spec.isRecording()){
+            throw std::runtime_error("Mission is not being recorded.");
+        }
+
+        if (boost::filesystem::exists(this->temp_dir)){
+            return this->temp_dir.string();
+        }
+        else{
+            throw std::runtime_error("Mission record does not yet exist. Temporary directory will be created once a mission has begun.");
+        }
     }
 }

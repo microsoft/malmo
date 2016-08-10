@@ -136,7 +136,7 @@ for iRepeat in range(len(sizes) * 2):
     if iRepeat % 2:
         num_pixels.append(width*height)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(width), str(height), prioritiseOffscreen), validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//RenderSpeed_Test" + str(iRepeat) + ".tgz");
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
