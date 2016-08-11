@@ -247,6 +247,11 @@ namespace malmo
         return old_world_state;
     }
 
+    std::string AgentHost::getRecordingTemporaryDirectory() const
+    {
+        return this->current_mission_record && this->current_mission_record->isRecording() ? this->current_mission_record->getTemporaryDirectory() : "";
+    }
+
     void AgentHost::setVideoPolicy(VideoPolicy videoPolicy)
     {
         this->video_policy = videoPolicy;

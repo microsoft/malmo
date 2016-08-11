@@ -52,6 +52,10 @@ namespace malmo
             //! Destructor
             ~ALEAgentHost();
 
+            //! Set the random seed used to seed the ALE.
+            //! If 0 (the default), the ALE will use the current time instead.
+            void setRandomSeed(int seed) { this->seed = seed; }
+
             //! Starts a mission running. Throws an exception if something goes wrong.
             //! \param mission The mission specification.
             //! \param client_pool leave this null - meaningless for ALE
@@ -116,6 +120,7 @@ namespace malmo
             int requested_height;
             std::ofstream commands_stream;
             std::ofstream reward_stream;
+            int seed;
     };
 }
 

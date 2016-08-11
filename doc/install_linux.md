@@ -1,6 +1,6 @@
 ## Installing dependencies for Linux ##
 
-For a minimal installation of running a python agent, follow steps 1 and 3. Then see the Getting Started section below.
+For a minimal installation of running a python agent, follow step 1. Then see the Getting Started section below.
 
 ### 1. Install dependencies available from the standard repositories: ###
 

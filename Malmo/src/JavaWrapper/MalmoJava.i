@@ -67,8 +67,8 @@ public:
     void recordMP4(int frames_per_second, int64_t bit_rate);
     void recordObservations();
     void recordRewards();
-    void recordCommands();        
-    std::string getTemporaryDirectory();
+    void recordCommands();
+    void setDestination(const std::string& destination);
 };
 
 class ArgumentParser
@@ -202,6 +202,8 @@ public:
   void setObservationsPolicy(ObservationsPolicy observationsPolicy);
 
   void sendCommand(std::string command);
+
+  std::string getRecordingTemporaryDirectory();
 };
 
 #ifdef WRAP_ALE
@@ -261,6 +263,10 @@ public:
   void setObservationsPolicy(AgentHost::ObservationsPolicy observationsPolicy);
 
   void sendCommand(std::string command);
+
+  std::string getRecordingTemporaryDirectory();
+
+  void setSeed(int seed);
 };
 #endif
 

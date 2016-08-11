@@ -1,5 +1,9 @@
 0.16.2
 -------------------
+New: ALEAgentHost.setSeed allows ALE experiments to be seeded (#254)
+Fix: No longer need a fresh MissionRecordSpec for each call to startMission (#256)
+New: [BREAKING CHANGE] MissionRecordSpec.getTemporaryDirectory() now moved to AgentHost.getRecordingTemporaryDirectory()
+New: MALMO_TEMP_PATH environment variable now used to determine where temp recording files are created (#21)
 New: TimestampedFrame now includes xPos,yPos,zPos,yaw and pitch information. (#257, #250, #231)
 
 0.16.1 (2016-08-03)
