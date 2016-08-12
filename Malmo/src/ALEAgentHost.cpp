@@ -131,6 +131,7 @@ namespace malmo
 
         WorldState old_world_state( this->world_state );
         this->world_state.clear();
+        this->world_state.has_mission_begun = this->ale_interface;
         this->world_state.is_mission_running = this->ale_interface && !this->ale_interface->game_over();
 
         return old_world_state;
