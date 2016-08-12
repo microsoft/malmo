@@ -28,10 +28,8 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
@@ -43,8 +41,10 @@ import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -63,15 +63,12 @@ import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
-import com.microsoft.Malmo.Schemas.InventoryBlock;
-import com.microsoft.Malmo.Schemas.InventoryItem;
 import com.microsoft.Malmo.Schemas.InventoryObjectType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
-import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
@@ -184,6 +181,85 @@ public class ServerStateMachine extends StateMachine
     {
         // Use the server tick to ensure we regularly update our state (from the server thread)
         updateState();
+    }
+
+    /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
+    @SubscribeEvent
+    public void onGetPotentialSpawns(PotentialSpawns ps)
+    {
+        // Decide whether or not to allow spawning.
+        // We shouldn't allow spawning unless it has been specifically turned on - whether
+        // a mission is running or not. (Otherwise spawning may happen in between missions.)
+        boolean allowSpawning = false;
+        if (currentMissionInit() != null && currentMissionInit().getMission() != null)
+        {
+            // There is a mission running - does it allow spawning?
+            ServerSection ss = currentMissionInit().getMission().getServerSection();
+            ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
+            if (sic != null)
+                allowSpawning = (sic.isAllowSpawning() == Boolean.TRUE);
+
+            if (allowSpawning && sic.getAllowedMobs() != null && !sic.getAllowedMobs().isEmpty())
+            {
+                // Spawning is allowed, but restricted to our list:
+                Iterator<SpawnListEntry> it = ps.list.iterator();
+                while (it.hasNext())
+                {
+                    // Is this on our list?
+                    SpawnListEntry sle = it.next();
+                    String mobName = EntityList.classToStringMapping.get(sle.entityClass).toString();
+                    boolean allowed = false;
+                    for (EntityTypes mob : sic.getAllowedMobs())
+                    {
+                        if (mob.value().equals(mobName))
+                            allowed = true;
+                    }
+                    if (!allowed)
+                        it.remove();
+                }
+            }
+        }
+        // Cancel spawn event:
+        if (!allowSpawning)
+            ps.setCanceled(true);
+    }
+
+    /** Called by Forge - return ALLOW, DENY or DEFAULT to control spawning in our world.*/
+    @SubscribeEvent
+    public void onCheckSpawn(CheckSpawn cs)
+    {
+        // Decide whether or not to allow spawning.
+        // We shouldn't allow spawning unless it has been specifically turned on - whether
+        // a mission is running or not. (Otherwise spawning may happen in between missions.)
+        boolean allowSpawning = false;
+        if (currentMissionInit() != null && currentMissionInit().getMission() != null)
+        {
+            // There is a mission running - does it allow spawning?
+            ServerSection ss = currentMissionInit().getMission().getServerSection();
+            ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
+            if (sic != null)
+                allowSpawning = (sic.isAllowSpawning() == Boolean.TRUE);
+
+            if (allowSpawning && sic.getAllowedMobs() != null && !sic.getAllowedMobs().isEmpty())
+            {
+                // Spawning is allowed, but restricted to our list.
+                // Is this mob on our list?
+                String mobName = EntityList.classToStringMapping.get(cs.entity.getClass()).toString();
+                allowSpawning = false;
+                for (EntityTypes mob : sic.getAllowedMobs())
+                {
+                    if (mob.value().equals(mobName))
+                    {
+                        allowSpawning = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (allowSpawning)
+            cs.setResult(Result.DEFAULT);
+        else
+            cs.setResult(Result.DENY);
     }
 
     /** Create the episode object for the requested state.
@@ -301,55 +377,6 @@ public class ServerStateMachine extends StateMachine
         protected void onError(Map<String, String> errorData) {}	// Default does nothing, but can be overridden.
     }
 
-    /** Base class for all episodes that need to be in control of spawning. */
-    public abstract class SpawnControlEpisode extends ErrorAwareEpisode
-    {
-        protected SpawnControlEpisode(ServerStateMachine machine)
-        {
-            super(machine);
-        }
-
-        @Override
-        public void onGetPotentialSpawns(PotentialSpawns ps)
-        {
-            // Decide whether or not to allow spawning.
-            // We shouldn't allow spawning unless it has been specifically turned on - whether
-            // a mission is running or not. (Otherwise spawning may happen in between missions.)
-            boolean allowSpawning = false;
-            if (currentMissionInit() != null && currentMissionInit().getMission() != null)
-            {
-                // There is a mission running - does it allow spawning?
-                ServerSection ss = currentMissionInit().getMission().getServerSection();
-                ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
-                if (sic != null)
-                    allowSpawning = (sic.isAllowSpawning() == Boolean.TRUE);
-
-                if (allowSpawning && sic.getAllowedMobs() != null && !sic.getAllowedMobs().isEmpty())
-                {
-                    // Spawning is allowed, but restricted to our list:
-                    Iterator<SpawnListEntry> it = ps.list.iterator();
-                    while (it.hasNext())
-                    {
-                        // Is this on our list?
-                        SpawnListEntry sle = it.next();
-                        String mobName = EntityList.classToStringMapping.get(sle.entityClass).toString();
-                        boolean allowed = false;
-                        for (EntityTypes mob : sic.getAllowedMobs())
-                        {
-                            if (mob.value().equals(mobName))
-                                allowed = true;
-                        }
-                        if (!allowed)
-                            it.remove();
-                    }
-                }
-            }
-            // Cancel spawn event:
-            if (!allowSpawning)
-                ps.setCanceled(true);
-        }
-    }
-
     /** Initial episode - perform client setup */
     public class InitialiseServerModEpisode extends StateEpisode
     {
@@ -376,7 +403,7 @@ public class ServerStateMachine extends StateMachine
 
     //---------------------------------------------------------------------------------------------------------
     /** Dormant state - receptive to new missions */
-    public class DormantEpisode extends SpawnControlEpisode
+    public class DormantEpisode extends ErrorAwareEpisode
     {
         private ServerStateMachine ssmachine;
 
@@ -465,7 +492,7 @@ public class ServerStateMachine extends StateMachine
 
     //---------------------------------------------------------------------------------------------------------
     /** Building world episode - assess world requirements and set up our server accordingly */
-    public class BuildingWorldEpisode extends SpawnControlEpisode
+    public class BuildingWorldEpisode extends ErrorAwareEpisode
     {
         private ServerStateMachine ssmachine;
 
@@ -540,7 +567,7 @@ public class ServerStateMachine extends StateMachine
 
     //---------------------------------------------------------------------------------------------------------
     /** Wait for all agents to stop running and get themselves into a ready state.*/
-    public class WaitingForAgentsToQuitEpisode extends SpawnControlEpisode implements MalmoMod.IMalmoMessageListener
+    public class WaitingForAgentsToQuitEpisode extends ErrorAwareEpisode implements MalmoMod.IMalmoMessageListener
     {
         private HashMap<String, Boolean> agentsStopped = new HashMap<String, Boolean>();
 
@@ -604,7 +631,7 @@ public class ServerStateMachine extends StateMachine
 
     //---------------------------------------------------------------------------------------------------------
     /** Wait for all participants to join the game.*/
-    public class WaitingForAgentsEpisode extends SpawnControlEpisode implements MalmoMod.IMalmoMessageListener
+    public class WaitingForAgentsEpisode extends ErrorAwareEpisode implements MalmoMod.IMalmoMessageListener
     {
         // pendingReadyAgents starts full - agent is removed when it joins the server. When list is empty, moves to next phase (waiting for running).
         private ArrayList<String> pendingReadyAgents = new ArrayList<String>();
@@ -838,7 +865,7 @@ public class ServerStateMachine extends StateMachine
     //---------------------------------------------------------------------------------------------------------
     /** Mission running state.
      */
-    public class RunningEpisode extends SpawnControlEpisode
+    public class RunningEpisode extends ErrorAwareEpisode
     {
         ArrayList<String> runningAgents = new ArrayList<String>();
         boolean missionHasEnded = false;
