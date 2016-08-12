@@ -120,6 +120,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< WorldState >( "WorldState", no_init )
         .def_readonly( "is_mission_running",                      &WorldState::is_mission_running )
+        .def_readonly( "has_mission_begun",                       &WorldState::has_mission_begun )
         .def_readonly( "number_of_observations_since_last_state", &WorldState::number_of_observations_since_last_state )
         .def_readonly( "number_of_rewards_since_last_state",      &WorldState::number_of_rewards_since_last_state )
         .def_readonly( "number_of_video_frames_since_last_state", &WorldState::number_of_video_frames_since_last_state )

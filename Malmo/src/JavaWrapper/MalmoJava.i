@@ -114,6 +114,8 @@ class WorldState
 public:
   const bool is_mission_running;
 
+  const bool has_mission_begun;
+
   const int number_of_video_frames_since_last_state;
 
   const int number_of_rewards_since_last_state;
