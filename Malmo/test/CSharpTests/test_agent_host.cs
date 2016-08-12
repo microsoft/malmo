@@ -34,7 +34,7 @@ class Program
 
             if (world_state.has_mission_begun)
                 Environment.Exit(1);
-            
+
             if (world_state.is_mission_running)
                 Environment.Exit(1);
 
