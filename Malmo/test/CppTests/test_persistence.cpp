@@ -216,7 +216,7 @@ int runAgentHost(std::string filename)
         world_state = agent_host.getWorldState();
         for (auto e : world_state.errors)
             cout << "Error: " << e->text << endl;
-    } while (!world_state.is_mission_running);
+    } while (!world_state.has_mission_begun);
     cout << endl;
 
     do {
