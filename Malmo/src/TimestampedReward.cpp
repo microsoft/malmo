@@ -43,6 +43,8 @@ namespace malmo
 
     TimestampedReward& TimestampedReward::createFromXML(boost::posix_time::ptime timestamp, std::string xml_string)
     {
+        this->timestamp = timestamp;
+
         const bool validate = true;
         
         xml_schema::properties props;
@@ -60,6 +62,8 @@ namespace malmo
 
     TimestampedReward& TimestampedReward::createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string)
     {
+        this->timestamp = timestamp;
+
         // String should be comma-delimited sets of <dimension>:<value>.
         size_t nextpos = 0, lastpos = 0;
         while (nextpos != std::string::npos)
