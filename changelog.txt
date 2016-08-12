@@ -1,5 +1,6 @@
 0.16.2
 -------------------
+Fix: Stopped mobs spawing illegally (#280)
 Fix: [BREAKING CHANGE] Rewards now sent as simple strings rather than XML, for speed - changes recorded rewards format (#261)
 New: ALEAgentHost.setSeed allows ALE experiments to be seeded (#254)
 Fix: No longer need a fresh MissionRecordSpec for each call to startMission (#256)
