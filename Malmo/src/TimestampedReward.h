@@ -35,12 +35,18 @@ namespace malmo
     class TimestampedReward
     {
         public:
+            //! Constructs an empty reward.
+            TimestampedReward();
+
             //! Constructs from a single reward float (assumes default dimension of 0)
             TimestampedReward(float reward);
 
             //! Constructs from an XML string.
-            TimestampedReward(boost::posix_time::ptime timestamp,std::string xml_string);
-        
+            TimestampedReward& createFromXML(boost::posix_time::ptime timestamp,std::string xml_string);
+
+            //! Constructs from a simple string.
+            TimestampedReward& createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string);
+
             //! Constructs from an XML node element.
             TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
             
@@ -51,7 +57,11 @@ namespace malmo
             //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
             //! \returns The reward as an XML string.
             std::string getAsXML( bool prettyPrint ) const;
-            
+
+            //! Formats as a simple string.
+            //! \returns The reward in simple string form.
+            std::string getAsSimpleString() const;
+
             //! The timestamp.
             boost::posix_time::ptime timestamp;
 

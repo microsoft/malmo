@@ -407,7 +407,7 @@ namespace malmo
                     if( final_reward_optional.present() ) {
                         TimestampedReward final_reward(xml.timestamp,final_reward_optional.get());
                         this->processReceivedReward(final_reward);
-                        this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsXML(false)));
+                        this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsSimpleString()));
                     }
                 }
             }
@@ -492,14 +492,14 @@ namespace malmo
     void AgentHost::onReward(TimestampedString message)
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
-
         try {
-            TimestampedReward reward(message.timestamp, message.text);
+            TimestampedReward reward;
+            reward.createFromSimpleString(message.timestamp, message.text);
             this->processReceivedReward(reward);
         }
-        catch( const xml_schema::exception& e ) {
+        catch (std::exception& e) {
             std::ostringstream oss;
-            oss << "Error parsing Reward message XML: " << e.what() << " : " << e << ":" << message.text.substr(0, 20) << "...";
+            oss << "Error parsing Reward message: " << e.what() << " : " << message.text;
             TimestampedString error_message(message);
             error_message.text = oss.str();
             this->world_state.errors.push_back(boost::make_shared<TimestampedString>(error_message));

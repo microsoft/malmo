@@ -32,13 +32,19 @@
 
 namespace malmo
 {
+    TimestampedReward::TimestampedReward()
+    {
+    }
+
     TimestampedReward::TimestampedReward(float reward)
     {
         this->values[0] = static_cast<double>(reward);
     }
 
-    TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp,std::string xml_string)
+    TimestampedReward& TimestampedReward::createFromXML(boost::posix_time::ptime timestamp, std::string xml_string)
     {
+        this->timestamp = timestamp;
+
         const bool validate = true;
         
         xml_schema::properties props;
@@ -51,6 +57,32 @@ namespace malmo
         std::istringstream iss(xml_string);
         std::unique_ptr<malmo::schemas::Reward> reward = malmo::schemas::Reward_(iss, flags, props);
         setValuesFromRewardStructure(*reward);
+        return *this;
+    }
+
+    TimestampedReward& TimestampedReward::createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string)
+    {
+        this->timestamp = timestamp;
+
+        // String should be comma-delimited sets of <dimension>:<value>.
+        size_t nextpos = 0, lastpos = 0;
+        while (nextpos != std::string::npos)
+        {
+            nextpos = simple_string.find(",", lastpos);
+            std::string token = (nextpos != std::string::npos) ? simple_string.substr(lastpos, nextpos - lastpos) : simple_string.substr(lastpos);
+            size_t split = token.find(":");
+            if (split == std::string::npos)
+            {
+                throw std::runtime_error("Malformed reward message.");
+            }
+            else
+            {
+                int dimension = std::stoi(token.substr(0, split));
+                double value = std::stod(token.substr(split + 1));
+                this->values[dimension] = value;
+            }
+            lastpos = nextpos + 1;
+        }
     }
 
     TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward)
@@ -91,6 +123,17 @@ namespace malmo
 
         Reward_( oss, this->getAsRewardStructure(), map, "UTF-8", flags );
         
+        return oss.str();
+    }
+
+    std::string TimestampedReward::getAsSimpleString() const
+    {
+        std::ostringstream oss;
+        for (std::map<int, double>::const_iterator it = this->values.begin(); it != this->values.end(); it++) {
+            if (it != this->values.begin())
+                oss << ",";
+            oss << it->first << ":" << it->second;
+        }
         return oss.str();
     }
 

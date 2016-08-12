@@ -1495,7 +1495,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(), reward);
                 if (!reward.isEmpty())
                 {
-                    if (this.rewardSocket.sendTCPString(reward.getAsString()))
+                    String strReward = reward.getAsSimpleString();
+                    if (this.rewardSocket.sendTCPString(strReward))
                     {
                         this.failedTCPRewardSendCount = 0; // Reset the count of consecutive TCP failures.
                     }
