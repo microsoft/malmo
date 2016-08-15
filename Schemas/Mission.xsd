@@ -349,7 +349,8 @@
             <xs:element ref="InventoryCommands" minOccurs="0"/>
             <xs:element ref="ChatCommands" minOccurs="0"/>
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
-            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands -->
+            <xs:element ref="MissionQuitCommands" minOccurs="0"/>
+            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands --> 
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />

@@ -901,8 +901,21 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="MissionQuitCommand">
+    <xs:annotation>
+      <xs:documentation>
+        A command for ending the mission, example:
+      
+        "{{{quit}}}" - terminates the current mission.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="quit" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="Command">
-    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand"/>
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand"/>
   </xs:simpleType>
 
   <xs:simpleType name="CommandList">
@@ -1074,6 +1087,29 @@
               <xs:restriction base="CommandListModifier">
                 <xs:choice maxOccurs="unbounded">
                   <xs:element name="command" type="ChatCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="MissionQuitCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept a command that quits the mission.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="MissionQuitCommand" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
               </xs:restriction>
             </xs:complexContent>
