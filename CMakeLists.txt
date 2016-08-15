@@ -24,8 +24,8 @@ project( Malmo )
 # -------------------- Options --------------------------------
 
 set( MALMO_VERSION_MAJOR 0)
-set( MALMO_VERSION_MINOR 16)
-set( MALMO_VERSION_REVISION 1)
+set( MALMO_VERSION_MINOR 17)
+set( MALMO_VERSION_REVISION 0)
 set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION_REVISION} )
 # N.B. Check that this version number matches the one in Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java
 

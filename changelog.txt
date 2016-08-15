@@ -1,4 +1,4 @@
-0.16.2
+0.17.0
 -------------------
 Fix: Stopped mobs spawing illegally (#280)
 New: Added has_mission_begun flag to world state, to solve problems with short missions (#118, #236)
