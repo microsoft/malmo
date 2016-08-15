@@ -74,7 +74,7 @@ class Program
 
             foreach (TimestampedString error in worldState.errors) Console.Error.WriteLine("Error: {0}", error.text);
         }
-        while (!worldState.is_mission_running);
+        while (!worldState.has_mission_begun);
         
         Console.WriteLine();
 

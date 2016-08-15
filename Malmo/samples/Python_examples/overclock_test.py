@@ -141,7 +141,7 @@ for iRepeat in range(len(tickLengths)):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         if len(world_state.errors):

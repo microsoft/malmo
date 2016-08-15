@@ -76,7 +76,7 @@ int main(int argc, const char **argv)
         world_state = agent_host.getWorldState();
         for( boost::shared_ptr<TimestampedString> error : world_state.errors )
             cout << "Error: " << error->text << endl;
-    } while (!world_state.is_mission_running);
+    } while (!world_state.has_mission_begun);
     cout << endl;
 
     // main loop:

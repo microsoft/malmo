@@ -35,7 +35,10 @@ int main()
     
     WorldState world_state = agent_host.getWorldState();
 
-    if( world_state.is_mission_running )
+    if (world_state.has_mission_begun)
+        return EXIT_FAILURE;
+
+    if (world_state.is_mission_running)
         return EXIT_FAILURE;
     
     if( world_state.number_of_observations_since_last_state != 0 )

@@ -155,7 +155,7 @@ for iRepeat in xrange(NUM_REPEATS):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.01)
         sys.stdout.write(".")
         world_state = agent_host.getWorldState()

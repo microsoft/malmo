@@ -32,6 +32,9 @@ class Program
 
             WorldState world_state = agent_host.getWorldState();
 
+            if (world_state.has_mission_begun)
+                Environment.Exit(1);
+
             if (world_state.is_mission_running)
                 Environment.Exit(1);
 

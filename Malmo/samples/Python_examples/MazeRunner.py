@@ -192,7 +192,7 @@ for iRepeat in xrange(num_reps):
 
     print "Waiting for the mission to start",
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
