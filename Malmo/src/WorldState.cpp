@@ -24,6 +24,7 @@ namespace malmo
 {
     WorldState::WorldState()
         : is_mission_running( false )
+        , has_mission_begun( false )
         , number_of_video_frames_since_last_state(0)
         , number_of_rewards_since_last_state(0)
         , number_of_observations_since_last_state(0)
@@ -33,6 +34,7 @@ namespace malmo
     void WorldState::clear()
     {
         this->is_mission_running = false;
+        this->has_mission_begun = false;
         this->number_of_observations_since_last_state = 0;
         this->number_of_rewards_since_last_state = 0;
         this->number_of_video_frames_since_last_state = 0;
@@ -49,7 +51,7 @@ namespace malmo
         if (ws.is_mission_running)
             os << "running): ";
         else
-            os << "not running): ";
+            os << (ws.has_mission_begun ? "ended): " : "not running): ");
         os << ws.number_of_observations_since_last_state << " obs, ";
         os << ws.number_of_rewards_since_last_state << " rewards, ";
         os << ws.number_of_video_frames_since_last_state << " frames since last state.";

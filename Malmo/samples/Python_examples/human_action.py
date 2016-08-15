@@ -110,7 +110,7 @@ class HumanAgentHost:
 
         print "Waiting for the mission to start",
         self.world_state = self.agent_host.peekWorldState()
-        while not self.world_state.is_mission_running:
+        while not self.world_state.has_mission_begun:
             sys.stdout.write(".")
             time.sleep(0.1)
             self.world_state = self.agent_host.peekWorldState()

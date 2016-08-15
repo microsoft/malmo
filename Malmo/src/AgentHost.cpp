@@ -244,6 +244,7 @@ namespace malmo
         WorldState old_world_state( this->world_state );
         this->world_state.clear();
         this->world_state.is_mission_running = old_world_state.is_mission_running;
+        this->world_state.has_mission_begun = old_world_state.has_mission_begun;
         return old_world_state;
     }
 
@@ -361,6 +362,7 @@ namespace malmo
                 const bool validate = true;
                 this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
                 this->world_state.is_mission_running = true;
+                this->world_state.has_mission_begun = true;
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;

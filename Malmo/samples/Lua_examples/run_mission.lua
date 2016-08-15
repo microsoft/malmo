@@ -55,7 +55,7 @@ end
 
 io.write( "Waiting for the mission to start" )
 world_state = agent_host:getWorldState()
-while not world_state.is_mission_running do
+while not world_state.has_mission_begun do
     io.write( "." )
     io.flush()
     sleep(0.1)
