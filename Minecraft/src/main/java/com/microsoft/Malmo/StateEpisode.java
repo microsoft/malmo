@@ -20,6 +20,7 @@
 package com.microsoft.Malmo;
 
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -106,6 +107,4 @@ public abstract class StateEpisode
     protected void onConfigChanged(OnConfigChangedEvent event) {}
     /** Subclass should override this to act when the player joins the server.*/
     protected void onPlayerJoinedServer(PlayerLoggedInEvent event) {}
-    /** Subclass should override this to control spawning logic.*/
-    protected void onGetPotentialSpawns(PotentialSpawns ps) {}
 }
