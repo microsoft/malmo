@@ -20,12 +20,14 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.common.MinecraftForge;
@@ -107,9 +109,21 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     Block b = Block.getBlockFromItem( itemStack.getItem() );
                     if( b != null ) {
                         BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
-                        IBlockState blockType = b.getStateFromMeta( itemStack.getMetadata() );
-                        player.worldObj.setBlockState( pos, blockType );
-                        // For now we leave the held item as-is. Will eventually want to decrease the item stack size or remove.
+                        // Can we place this block here?
+                        AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
+                        if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
+                        {
+                            // Yes!
+                            IBlockState blockType = b.getStateFromMeta( itemStack.getMetadata() );
+                            if (player.worldObj.setBlockState( pos, blockType ))
+                            {
+                                // We set the block, so remove it from the inventory.
+                                if (player.inventory.getCurrentItem().stackSize > 1)
+                                    player.inventory.getCurrentItem().stackSize--;
+                                else
+                                    player.inventory.mainInventory[player.inventory.currentItem] = null;
+                            }
+                        }
                     }
                 }
             }
@@ -151,16 +165,28 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
             if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
                 BlockPos hitPos = mop.getBlockPos();
-                boolean dropBlock = false;
                 EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-                player.worldObj.destroyBlock( hitPos, dropBlock );
-                // For now we just destroy the block. Eventually we will want to give the player a corresponding item,
-                // if there's room in their inventory.
+                IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
+                Block block = iblockstate.getBlock();
+                if (block.getMaterial() != Material.air)
+                {
+                    boolean dropBlock = false;
+                    // We do things this way, rather than pass true for dropBlock in world.destroyBlock,
+                    // because we want this to take instant effect - we don't want the intermediate stage
+                    // of spawning a free-floating item that the player must pick up.
+                    java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
+                    player.worldObj.destroyBlock( hitPos, dropBlock );
+                    for (ItemStack item : items)
+                    {
+                        if (!player.inventory.addItemStackToInventory(item))
+                            Block.spawnAsEntity(player.worldObj, hitPos, item); // Didn't fit in inventory, so spawn it.
+                    }
+                }
             }
             return null;
         }
     }
-    
+
     @Override
     public boolean parseParameters(Object params)
     {
