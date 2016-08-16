@@ -266,6 +266,9 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     this.direction = (this.direction + 4) % 4;
                     player.rotationYaw = this.direction * 90;
                     player.onUpdate();
+                    // Send a message that the ContinuousMovementCommands can pick up on:
+                    Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(true, player.rotationYaw, false, 0);
+                    MinecraftForge.EVENT_BUS.post(event);
                     handled = true;
                 }
             }
@@ -276,6 +279,9 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     float pitchDelta = Float.valueOf(parameter);
                     player.rotationPitch += (pitchDelta < 0) ? -45 : ((pitchDelta > 0) ? 45 : 0);
                     player.onUpdate();
+                    // Send a message that the ContinuousMovementCommands can pick up on:
+                    Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(false, 0, true, player.rotationPitch);
+                    MinecraftForge.EVENT_BUS.post(event);
                     handled = true;
                 }
             }
