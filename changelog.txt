@@ -1,4 +1,4 @@
-0.17.0
+0.17.0 (2016-08-16)
 -------------------
 Fix: Discrete use and attack now affect the inventory. (#247)
 Fix: Rewards would occasionally get doubled. (#275)
