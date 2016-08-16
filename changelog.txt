@@ -1,5 +1,6 @@
 0.17.0
 -------------------
+Fix: Discrete use and attack now affect the inventory. (#247)
 Fix: Rewards would occasionally get doubled. (#275)
 Fix: Stopped mobs spawing illegally. (#280)
 New: Added has_mission_begun flag to world state, to solve problems with short missions. (#118, #236)
