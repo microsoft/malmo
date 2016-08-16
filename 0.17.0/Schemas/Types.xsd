@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ProjectMalmo.microsoft.com"
+           xmlns="http://ProjectMalmo.microsoft.com"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           elementFormDefault="qualified"
+           jaxb:version="2.1"
+           version="0.17">
+
+<xs:simpleType name="Colour">
+    <xs:annotation>
+      <xs:documentation>
+        The sixteen block colours allowed in the Minecraft world: {{{WHITE}}}, {{{ORANGE}}}, {{{MAGENTA}}}, {{{LIGHT_BLUE}}}, {{{YELLOW}}}, {{{LIME}}}, {{{PINK}}},
+        {{{GRAY}}}, {{{SILVER}}}, {{{CYAN}}}, {{{PURPLE}}}, {{{BLUE}}}, {{{BROWN}}}, {{{GREEN}}}, {{{RED}}}, {{{BLACK}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="WHITE" />
+        <xs:enumeration value="ORANGE" />
+        <xs:enumeration value="MAGENTA" />
+        <xs:enumeration value="LIGHT_BLUE" />
+        <xs:enumeration value="YELLOW" />
+        <xs:enumeration value="LIME" />
+        <xs:enumeration value="PINK" />
+        <xs:enumeration value="GRAY" />
+        <xs:enumeration value="SILVER" />
+        <xs:enumeration value="CYAN" />
+        <xs:enumeration value="PURPLE" />
+        <xs:enumeration value="BLUE" />
+        <xs:enumeration value="BROWN" />
+        <xs:enumeration value="GREEN" />
+        <xs:enumeration value="RED" />
+        <xs:enumeration value="BLACK" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="Facing">
+    <xs:annotation>
+      <xs:documentation>
+        Enum to specify block faces: {{{DOWN}}}, {{{UP}}}, {{{NORTH}}}, {{{SOUTH}}}, {{{WEST}}}, {{{EAST}}}, {{{UP_X}}}, {{{DOWN_X}}}, {{{UP_Z}}}, {{{DOWN_Z}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="DOWN" />
+        <xs:enumeration value="UP" />
+        <xs:enumeration value="NORTH" />
+        <xs:enumeration value="SOUTH" />
+        <xs:enumeration value="WEST" />
+        <xs:enumeration value="EAST" />
+        <xs:enumeration value="UP_X" />
+        <xs:enumeration value="DOWN_X" />
+        <xs:enumeration value="UP_Z" />
+        <xs:enumeration value="DOWN_Z" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="ItemType">
+    <xs:annotation>
+      <xs:documentation>
+        The 188 types of item allowed in the Minecraft world: {{{iron_shovel}}}, {{{iron_pickaxe}}}, {{{iron_axe}}}, {{{flint_and_steel}}}, {{{apple}}}, {{{bow}}},
+        {{{arrow}}}, {{{coal}}}, {{{diamond}}}, {{{iron_ingot}}}, {{{gold_ingot}}}, {{{iron_sword}}}, {{{wooden_sword}}}, {{{wooden_shovel}}},
+        {{{wooden_pickaxe}}}, {{{wooden_axe}}}, {{{stone_sword}}}, {{{stone_shovel}}}, {{{stone_pickaxe}}}, {{{stone_axe}}}, {{{diamond_sword}}},
+        {{{diamond_shovel}}}, {{{diamond_pickaxe}}}, {{{diamond_axe}}}, {{{stick}}}, {{{bowl}}}, {{{mushroom_stew}}}, {{{golden_sword}}}, {{{golden_shovel}}},
+        {{{golden_pickaxe}}}, {{{golden_axe}}}, {{{string}}}, {{{feather}}}, {{{gunpowder}}}, {{{wooden_hoe}}}, {{{stone_hoe}}}, {{{iron_hoe}}}, {{{diamond_hoe}}},
+        {{{golden_hoe}}}, {{{wheat_seeds}}}, {{{wheat}}}, {{{bread}}}, {{{leather_helmet}}}, {{{leather_chestplate}}}, {{{leather_leggings}}}, {{{leather_boots}}},
+        {{{chainmail_helmet}}}, {{{chainmail_chestplate}}}, {{{chainmail_leggings}}}, {{{chainmail_boots}}}, {{{iron_helmet}}}, {{{iron_chestplate}}},
+        {{{iron_leggings}}}, {{{iron_boots}}}, {{{diamond_helmet}}}, {{{diamond_chestplate}}}, {{{diamond_leggings}}}, {{{diamond_boots}}}, {{{golden_helmet}}},
+        {{{golden_chestplate}}}, {{{golden_leggings}}}, {{{golden_boots}}}, {{{flint}}}, {{{porkchop}}}, {{{cooked_porkchop}}}, {{{painting}}}, {{{golden_apple}}},
+        {{{sign}}}, {{{wooden_door}}}, {{{bucket}}}, {{{bucket}}}, {{{water_bucket}}}, {{{lava_bucket}}}, {{{minecart}}}, {{{saddle}}}, {{{iron_door}}},
+        {{{redstone}}}, {{{snowball}}}, {{{boat}}}, {{{leather}}}, {{{milk_bucket}}}, {{{brick}}}, {{{clay_ball}}}, {{{reeds}}}, {{{paper}}}, {{{book}}},
+        {{{slime_ball}}}, {{{chest_minecart}}}, {{{furnace_minecart}}}, {{{egg}}}, {{{compass}}}, {{{fishing_rod}}}, {{{clock}}}, {{{glowstone_dust}}}, {{{fish}}},
+        {{{cooked_fish}}}, {{{dye}}}, {{{bone}}}, {{{sugar}}}, {{{cake}}}, {{{bed}}}, {{{repeater}}}, {{{cookie}}}, {{{filled_map}}}, {{{shears}}}, {{{melon}}},
+        {{{pumpkin_seeds}}}, {{{melon_seeds}}}, {{{beef}}}, {{{cooked_beef}}}, {{{chicken}}}, {{{cooked_chicken}}}, {{{rotten_flesh}}}, {{{ender_pearl}}},
+        {{{blaze_rod}}}, {{{ghast_tear}}}, {{{gold_nugget}}}, {{{nether_wart}}}, {{{potion}}}, {{{glass_bottle}}}, {{{spider_eye}}}, {{{fermented_spider_eye}}},
+        {{{blaze_powder}}}, {{{magma_cream}}}, {{{brewing_stand}}}, {{{cauldron}}}, {{{ender_eye}}}, {{{speckled_melon}}}, {{{spawn_egg}}}, {{{experience_bottle}}},
+        {{{fire_charge}}}, {{{writable_book}}}, {{{written_book}}}, {{{emerald}}}, {{{item_frame}}}, {{{flower_pot}}}, {{{carrot}}}, {{{potato}}},
+        {{{baked_potato}}}, {{{poisonous_potato}}}, {{{map}}}, {{{golden_carrot}}}, {{{skull}}}, {{{carrot_on_a_stick}}}, {{{nether_star}}}, {{{pumpkin_pie}}},
+        {{{fireworks}}}, {{{firework_charge}}}, {{{enchanted_book}}}, {{{comparator}}}, {{{netherbrick}}}, {{{quartz}}}, {{{tnt_minecart}}}, {{{hopper_minecart}}},
+        {{{prismarine_shard}}}, {{{prismarine_crystals}}}, {{{rabbit}}}, {{{cooked_rabbit}}}, {{{rabbit_stew}}}, {{{rabbit_foot}}}, {{{rabbit_hide}}},
+        {{{armor_stand}}}, {{{iron_horse_armor}}}, {{{golden_horse_armor}}}, {{{diamond_horse_armor}}}, {{{lead}}}, {{{name_tag}}}, {{{command_block_minecart}}},
+        {{{mutton}}}, {{{cooked_mutton}}}, {{{banner}}}, {{{spruce_door}}}, {{{birch_door}}}, {{{jungle_door}}}, {{{acacia_door}}}, {{{dark_oak_door}}},
+        {{{record_13}}}, {{{record_cat}}}, {{{record_blocks}}}, {{{record_chirp}}}, {{{record_far}}}, {{{record_mall}}}, {{{record_mellohi}}}, {{{record_stal}}},
+        {{{record_strad}}}, {{{record_ward}}}, {{{record_11}}}, {{{record_wait}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="iron_shovel" />
+        <xs:enumeration value="iron_pickaxe" />
+        <xs:enumeration value="iron_axe" />
+        <xs:enumeration value="flint_and_steel" />
+        <xs:enumeration value="apple" />
+        <xs:enumeration value="bow" />
+        <xs:enumeration value="arrow" />
+        <xs:enumeration value="coal" />
+        <xs:enumeration value="diamond" />
+        <xs:enumeration value="iron_ingot" />
+        <xs:enumeration value="gold_ingot" />
+        <xs:enumeration value="iron_sword" />
+        <xs:enumeration value="wooden_sword" />
+        <xs:enumeration value="wooden_shovel" />
+        <xs:enumeration value="wooden_pickaxe" />
+        <xs:enumeration value="wooden_axe" />
+        <xs:enumeration value="stone_sword" />
+        <xs:enumeration value="stone_shovel" />
+        <xs:enumeration value="stone_pickaxe" />
+        <xs:enumeration value="stone_axe" />
+        <xs:enumeration value="diamond_sword" />
+        <xs:enumeration value="diamond_shovel" />
+        <xs:enumeration value="diamond_pickaxe" />
+        <xs:enumeration value="diamond_axe" />
+        <xs:enumeration value="stick" />
+        <xs:enumeration value="bowl" />
+        <xs:enumeration value="mushroom_stew" />
+        <xs:enumeration value="golden_sword" />
+        <xs:enumeration value="golden_shovel" />
+        <xs:enumeration value="golden_pickaxe" />
+        <xs:enumeration value="golden_axe" />
+        <xs:enumeration value="string" />
+        <xs:enumeration value="feather" />
+        <xs:enumeration value="gunpowder" />
+        <xs:enumeration value="wooden_hoe" />
+        <xs:enumeration value="stone_hoe" />
+        <xs:enumeration value="iron_hoe" />
+        <xs:enumeration value="diamond_hoe" />
+        <xs:enumeration value="golden_hoe" />
+        <xs:enumeration value="wheat_seeds" />
+        <xs:enumeration value="wheat" />
+        <xs:enumeration value="bread" />
+        <xs:enumeration value="leather_helmet" />
+        <xs:enumeration value="leather_chestplate" />
+        <xs:enumeration value="leather_leggings" />
+        <xs:enumeration value="leather_boots" />
+        <xs:enumeration value="chainmail_helmet" />
+        <xs:enumeration value="chainmail_chestplate" />
+        <xs:enumeration value="chainmail_leggings" />
+        <xs:enumeration value="chainmail_boots" />
+        <xs:enumeration value="iron_helmet" />
+        <xs:enumeration value="iron_chestplate" />
+        <xs:enumeration value="iron_leggings" />
+        <xs:enumeration value="iron_boots" />
+        <xs:enumeration value="diamond_helmet" />
+        <xs:enumeration value="diamond_chestplate" />
+        <xs:enumeration value="diamond_leggings" />
+        <xs:enumeration value="diamond_boots" />
+        <xs:enumeration value="golden_helmet" />
+        <xs:enumeration value="golden_chestplate" />
+        <xs:enumeration value="golden_leggings" />
+        <xs:enumeration value="golden_boots" />
+        <xs:enumeration value="flint" />
+        <xs:enumeration value="porkchop" />
+        <xs:enumeration value="cooked_porkchop" />
+        <xs:enumeration value="painting" />
+        <xs:enumeration value="golden_apple" />
+        <xs:enumeration value="sign" />
+        <xs:enumeration value="wooden_door" />
+        <xs:enumeration value="bucket" />
+        <xs:enumeration value="bucket" />
+        <xs:enumeration value="water_bucket" />
+        <xs:enumeration value="lava_bucket" />
+        <xs:enumeration value="minecart" />
+        <xs:enumeration value="saddle" />
+        <xs:enumeration value="iron_door" />
+        <xs:enumeration value="redstone" />
+        <xs:enumeration value="snowball" />
+        <xs:enumeration value="boat" />
+        <xs:enumeration value="leather" />
+        <xs:enumeration value="milk_bucket" />
+        <xs:enumeration value="brick" />
+        <xs:enumeration value="clay_ball" />
+        <xs:enumeration value="reeds" />
+        <xs:enumeration value="paper" />
+        <xs:enumeration value="book" />
+        <xs:enumeration value="slime_ball" />
+        <xs:enumeration value="chest_minecart" />
+        <xs:enumeration value="furnace_minecart" />
+        <xs:enumeration value="egg" />
+        <xs:enumeration value="compass" />
+        <xs:enumeration value="fishing_rod" />
+        <xs:enumeration value="clock" />
+        <xs:enumeration value="glowstone_dust" />
+        <xs:enumeration value="fish" />
+        <xs:enumeration value="cooked_fish" />
+        <xs:enumeration value="dye" />
+        <xs:enumeration value="bone" />
+        <xs:enumeration value="sugar" />
+        <xs:enumeration value="cake" />
+        <xs:enumeration value="bed" />
+        <xs:enumeration value="repeater" />
+        <xs:enumeration value="cookie" />
+        <xs:enumeration value="filled_map" />
+        <xs:enumeration value="shears" />
+        <xs:enumeration value="melon" />
+        <xs:enumeration value="pumpkin_seeds" />
+        <xs:enumeration value="melon_seeds" />
+        <xs:enumeration value="beef" />
+        <xs:enumeration value="cooked_beef" />
+        <xs:enumeration value="chicken" />
+        <xs:enumeration value="cooked_chicken" />
+        <xs:enumeration value="rotten_flesh" />
+        <xs:enumeration value="ender_pearl" />
+        <xs:enumeration value="blaze_rod" />
+        <xs:enumeration value="ghast_tear" />
+        <xs:enumeration value="gold_nugget" />
+        <xs:enumeration value="nether_wart" />
+        <xs:enumeration value="potion" />
+        <xs:enumeration value="glass_bottle" />
+        <xs:enumeration value="spider_eye" />
+        <xs:enumeration value="fermented_spider_eye" />
+        <xs:enumeration value="blaze_powder" />
+        <xs:enumeration value="magma_cream" />
+        <xs:enumeration value="brewing_stand" />
+        <xs:enumeration value="cauldron" />
+        <xs:enumeration value="ender_eye" />
+        <xs:enumeration value="speckled_melon" />
+        <xs:enumeration value="spawn_egg" />
+        <xs:enumeration value="experience_bottle" />
+        <xs:enumeration value="fire_charge" />
+        <xs:enumeration value="writable_book" />
+        <xs:enumeration value="written_book" />
+        <xs:enumeration value="emerald" />
+        <xs:enumeration value="item_frame" />
+        <xs:enumeration value="flower_pot" />
+        <xs:enumeration value="carrot" />
+        <xs:enumeration value="potato" />
+        <xs:enumeration value="baked_potato" />
+        <xs:enumeration value="poisonous_potato" />
+        <xs:enumeration value="map" />
+        <xs:enumeration value="golden_carrot" />
+        <xs:enumeration value="skull" />
+        <xs:enumeration value="carrot_on_a_stick" />
+        <xs:enumeration value="nether_star" />
+        <xs:enumeration value="pumpkin_pie" />
+        <xs:enumeration value="fireworks" />
+        <xs:enumeration value="firework_charge" />
+        <xs:enumeration value="enchanted_book" />
+        <xs:enumeration value="comparator" />
+        <xs:enumeration value="netherbrick" />
+        <xs:enumeration value="quartz" />
+        <xs:enumeration value="tnt_minecart" />
+        <xs:enumeration value="hopper_minecart" />
+        <xs:enumeration value="prismarine_shard" />
+        <xs:enumeration value="prismarine_crystals" />
+        <xs:enumeration value="rabbit" />
+        <xs:enumeration value="cooked_rabbit" />
+        <xs:enumeration value="rabbit_stew" />
+        <xs:enumeration value="rabbit_foot" />
+        <xs:enumeration value="rabbit_hide" />
+        <xs:enumeration value="armor_stand" />
+        <xs:enumeration value="iron_horse_armor" />
+        <xs:enumeration value="golden_horse_armor" />
+        <xs:enumeration value="diamond_horse_armor" />
+        <xs:enumeration value="lead" />
+        <xs:enumeration value="name_tag" />
+        <xs:enumeration value="command_block_minecart" />
+        <xs:enumeration value="mutton" />
+        <xs:enumeration value="cooked_mutton" />
+        <xs:enumeration value="banner" />
+        <xs:enumeration value="spruce_door" />
+        <xs:enumeration value="birch_door" />
+        <xs:enumeration value="jungle_door" />
+        <xs:enumeration value="acacia_door" />
+        <xs:enumeration value="dark_oak_door" />
+        <xs:enumeration value="record_13" />
+        <xs:enumeration value="record_cat" />
+        <xs:enumeration value="record_blocks" />
+        <xs:enumeration value="record_chirp" />
+        <xs:enumeration value="record_far" />
+        <xs:enumeration value="record_mall" />
+        <xs:enumeration value="record_mellohi" />
+        <xs:enumeration value="record_stal" />
+        <xs:enumeration value="record_strad" />
+        <xs:enumeration value="record_ward" />
+        <xs:enumeration value="record_11" />
+        <xs:enumeration value="record_wait" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="BlockType">
+    <xs:annotation>
+      <xs:documentation>
+        The 198 block types allowed in the Minecraft world: {{{air}}}, {{{stone}}}, {{{grass}}}, {{{dirt}}}, {{{cobblestone}}}, {{{planks}}}, {{{sapling}}}, {{{bedrock}}},
+        {{{flowing_water}}}, {{{water}}}, {{{flowing_lava}}}, {{{lava}}}, {{{sand}}}, {{{gravel}}}, {{{gold_ore}}}, {{{iron_ore}}}, {{{coal_ore}}}, {{{log}}}, {{{leaves}}},
+        {{{sponge}}}, {{{glass}}}, {{{lapis_ore}}}, {{{lapis_block}}}, {{{dispenser}}}, {{{sandstone}}}, {{{noteblock}}}, {{{bed}}}, {{{golden_rail}}}, {{{detector_rail}}},
+        {{{sticky_piston}}}, {{{web}}}, {{{tallgrass}}}, {{{deadbush}}}, {{{piston}}}, {{{piston_head}}}, {{{wool}}}, {{{piston_extension}}}, {{{yellow_flower}}},
+        {{{red_flower}}}, {{{brown_mushroom}}}, {{{red_mushroom}}}, {{{gold_block}}}, {{{iron_block}}}, {{{double_stone_slab}}}, {{{stone_slab}}}, {{{brick_block}}},
+        {{{tnt}}}, {{{bookshelf}}}, {{{mossy_cobblestone}}}, {{{obsidian}}}, {{{torch}}}, {{{fire}}}, {{{mob_spawner}}}, {{{oak_stairs}}}, {{{chest}}}, {{{redstone_wire}}},
+        {{{diamond_ore}}}, {{{diamond_block}}}, {{{crafting_table}}}, {{{wheat}}}, {{{farmland}}}, {{{furnace}}}, {{{lit_furnace}}}, {{{standing_sign}}}, {{{wooden_door}}},
+        {{{ladder}}}, {{{rail}}}, {{{stone_stairs}}}, {{{wall_sign}}}, {{{lever}}}, {{{stone_pressure_plate}}}, {{{iron_door}}}, {{{wooden_pressure_plate}}},
+        {{{redstone_ore}}}, {{{lit_redstone_ore}}}, {{{unlit_redstone_torch}}}, {{{redstone_torch}}}, {{{stone_button}}}, {{{snow_layer}}}, {{{ice}}}, {{{snow}}},
+        {{{cactus}}}, {{{clay}}}, {{{reeds}}}, {{{jukebox}}}, {{{fence}}}, {{{pumpkin}}}, {{{netherrack}}}, {{{soul_sand}}}, {{{glowstone}}}, {{{portal}}},
+        {{{lit_pumpkin}}}, {{{cake}}}, {{{unpowered_repeater}}}, {{{powered_repeater}}}, {{{stained_glass}}}, {{{trapdoor}}}, {{{monster_egg}}}, {{{stonebrick}}},
+        {{{brown_mushroom_block}}}, {{{red_mushroom_block}}}, {{{iron_bars}}}, {{{glass_pane}}}, {{{melon_block}}}, {{{pumpkin_stem}}}, {{{melon_stem}}}, {{{vine}}},
+        {{{fence_gate}}}, {{{brick_stairs}}}, {{{stone_brick_stairs}}}, {{{mycelium}}}, {{{waterlily}}}, {{{nether_brick}}}, {{{nether_brick_fence}}},
+        {{{nether_brick_stairs}}}, {{{nether_wart}}}, {{{enchanting_table}}}, {{{brewing_stand}}}, {{{cauldron}}}, {{{end_portal}}}, {{{end_portal_frame}}},
+        {{{end_stone}}}, {{{dragon_egg}}}, {{{redstone_lamp}}}, {{{lit_redstone_lamp}}}, {{{double_wooden_slab}}}, {{{wooden_slab}}}, {{{cocoa}}}, {{{sandstone_stairs}}},
+        {{{emerald_ore}}}, {{{ender_chest}}}, {{{tripwire_hook}}}, {{{tripwire}}}, {{{emerald_block}}}, {{{spruce_stairs}}}, {{{birch_stairs}}}, {{{jungle_stairs}}},
+        {{{command_block}}}, {{{beacon}}}, {{{cobblestone_wall}}}, {{{flower_pot}}}, {{{carrots}}}, {{{potatoes}}}, {{{wooden_button}}}, {{{skull}}}, {{{anvil}}},
+        {{{trapped_chest}}}, {{{light_weighted_pressure_plate}}}, {{{heavy_weighted_pressure_plate}}}, {{{unpowered_comparator}}}, {{{powered_comparator}}},
+        {{{daylight_detector}}}, {{{redstone_block}}}, {{{quartz_ore}}}, {{{hopper}}}, {{{quartz_block}}}, {{{quartz_stairs}}}, {{{activator_rail}}}, {{{dropper}}},
+        {{{stained_hardened_clay}}}, {{{stained_glass_pane}}}, {{{leaves2}}}, {{{log2}}}, {{{acacia_stairs}}}, {{{dark_oak_stairs}}}, {{{slime}}}, {{{barrier}}},
+        {{{iron_trapdoor}}}, {{{prismarine}}}, {{{sea_lantern}}}, {{{hay_block}}}, {{{carpet}}}, {{{hardened_clay}}}, {{{coal_block}}}, {{{packed_ice}}},
+        {{{double_plant}}}, {{{standing_banner}}}, {{{wall_banner}}}, {{{daylight_detector_inverted}}}, {{{red_sandstone}}}, {{{red_sandstone_stairs}}},
+        {{{double_stone_slab2}}}, {{{stone_slab2}}}, {{{spruce_fence_gate}}}, {{{birch_fence_gate}}}, {{{jungle_fence_gate}}}, {{{dark_oak_fence_gate}}},
+        {{{acacia_fence_gate}}}, {{{spruce_fence}}}, {{{birch_fence}}}, {{{jungle_fence}}}, {{{dark_oak_fence}}}, {{{acacia_fence}}}, {{{spruce_door}}}, {{{birch_door}}},
+        {{{jungle_door}}}, {{{acacia_door}}}, {{{dark_oak_door}}}.
+       </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="air" />
+        <xs:enumeration value="stone" />
+        <xs:enumeration value="grass" />
+        <xs:enumeration value="dirt" />
+        <xs:enumeration value="cobblestone" />
+        <xs:enumeration value="planks" />
+        <xs:enumeration value="sapling" />
+        <xs:enumeration value="bedrock" />
+        <xs:enumeration value="flowing_water" />
+        <xs:enumeration value="water" />
+        <xs:enumeration value="flowing_lava" />
+        <xs:enumeration value="lava" />
+        <xs:enumeration value="sand" />
+        <xs:enumeration value="gravel" />
+        <xs:enumeration value="gold_ore" />
+        <xs:enumeration value="iron_ore" />
+        <xs:enumeration value="coal_ore" />
+        <xs:enumeration value="log" />
+        <xs:enumeration value="leaves" />
+        <xs:enumeration value="sponge" />
+        <xs:enumeration value="glass" />
+        <xs:enumeration value="lapis_ore" />
+        <xs:enumeration value="lapis_block" />
+        <xs:enumeration value="dispenser" />
+        <xs:enumeration value="sandstone" />
+        <xs:enumeration value="noteblock" />
+        <xs:enumeration value="bed" />
+        <xs:enumeration value="golden_rail" />
+        <xs:enumeration value="detector_rail" />
+        <xs:enumeration value="sticky_piston" />
+        <xs:enumeration value="web" />
+        <xs:enumeration value="tallgrass" />
+        <xs:enumeration value="deadbush" />
+        <xs:enumeration value="piston" />
+        <xs:enumeration value="piston_head" />
+        <xs:enumeration value="wool" />
+        <xs:enumeration value="piston_extension" />
+        <xs:enumeration value="yellow_flower" />
+        <xs:enumeration value="red_flower" />
+        <xs:enumeration value="brown_mushroom" />
+        <xs:enumeration value="red_mushroom" />
+        <xs:enumeration value="gold_block" />
+        <xs:enumeration value="iron_block" />
+        <xs:enumeration value="double_stone_slab" />
+        <xs:enumeration value="stone_slab" />
+        <xs:enumeration value="brick_block" />
+        <xs:enumeration value="tnt" />
+        <xs:enumeration value="bookshelf" />
+        <xs:enumeration value="mossy_cobblestone" />
+        <xs:enumeration value="obsidian" />
+        <xs:enumeration value="torch" />
+        <xs:enumeration value="fire" />
+        <xs:enumeration value="mob_spawner" />
+        <xs:enumeration value="oak_stairs" />
+        <xs:enumeration value="chest" />
+        <xs:enumeration value="redstone_wire" />
+        <xs:enumeration value="diamond_ore" />
+        <xs:enumeration value="diamond_block" />
+        <xs:enumeration value="crafting_table" />
+        <xs:enumeration value="wheat" />
+        <xs:enumeration value="farmland" />
+        <xs:enumeration value="furnace" />
+        <xs:enumeration value="lit_furnace" />
+        <xs:enumeration value="standing_sign" />
+        <xs:enumeration value="wooden_door" />
+        <xs:enumeration value="ladder" />
+        <xs:enumeration value="rail" />
+        <xs:enumeration value="stone_stairs" />
+        <xs:enumeration value="wall_sign" />
+        <xs:enumeration value="lever" />
+        <xs:enumeration value="stone_pressure_plate" />
+        <xs:enumeration value="iron_door" />
+        <xs:enumeration value="wooden_pressure_plate" />
+        <xs:enumeration value="redstone_ore" />
+        <xs:enumeration value="lit_redstone_ore" />
+        <xs:enumeration value="unlit_redstone_torch" />
+        <xs:enumeration value="redstone_torch" />
+        <xs:enumeration value="stone_button" />
+        <xs:enumeration value="snow_layer" />
+        <xs:enumeration value="ice" />
+        <xs:enumeration value="snow" />
+        <xs:enumeration value="cactus" />
+        <xs:enumeration value="clay" />
+        <xs:enumeration value="reeds" />
+        <xs:enumeration value="jukebox" />
+        <xs:enumeration value="fence" />
+        <xs:enumeration value="pumpkin" />
+        <xs:enumeration value="netherrack" />
+        <xs:enumeration value="soul_sand" />
+        <xs:enumeration value="glowstone" />
+        <xs:enumeration value="portal" />
+        <xs:enumeration value="lit_pumpkin" />
+        <xs:enumeration value="cake" />
+        <xs:enumeration value="unpowered_repeater" />
+        <xs:enumeration value="powered_repeater" />
+        <xs:enumeration value="stained_glass" />
+        <xs:enumeration value="trapdoor" />
+        <xs:enumeration value="monster_egg" />
+        <xs:enumeration value="stonebrick" />
+        <xs:enumeration value="brown_mushroom_block" />
+        <xs:enumeration value="red_mushroom_block" />
+        <xs:enumeration value="iron_bars" />
+        <xs:enumeration value="glass_pane" />
+        <xs:enumeration value="melon_block" />
+        <xs:enumeration value="pumpkin_stem" />
+        <xs:enumeration value="melon_stem" />
+        <xs:enumeration value="vine" />
+        <xs:enumeration value="fence_gate" />
+        <xs:enumeration value="brick_stairs" />
+        <xs:enumeration value="stone_brick_stairs" />
+        <xs:enumeration value="mycelium" />
+        <xs:enumeration value="waterlily" />
+        <xs:enumeration value="nether_brick" />
+        <xs:enumeration value="nether_brick_fence" />
+        <xs:enumeration value="nether_brick_stairs" />
+        <xs:enumeration value="nether_wart" />
+        <xs:enumeration value="enchanting_table" />
+        <xs:enumeration value="brewing_stand" />
+        <xs:enumeration value="cauldron" />
+        <xs:enumeration value="end_portal" />
+        <xs:enumeration value="end_portal_frame" />
+        <xs:enumeration value="end_stone" />
+        <xs:enumeration value="dragon_egg" />
+        <xs:enumeration value="redstone_lamp" />
+        <xs:enumeration value="lit_redstone_lamp" />
+        <xs:enumeration value="double_wooden_slab" />
+        <xs:enumeration value="wooden_slab" />
+        <xs:enumeration value="cocoa" />
+        <xs:enumeration value="sandstone_stairs" />
+        <xs:enumeration value="emerald_ore" />
+        <xs:enumeration value="ender_chest" />
+        <xs:enumeration value="tripwire_hook" />
+        <xs:enumeration value="tripwire" />
+        <xs:enumeration value="emerald_block" />
+        <xs:enumeration value="spruce_stairs" />
+        <xs:enumeration value="birch_stairs" />
+        <xs:enumeration value="jungle_stairs" />
+        <xs:enumeration value="command_block" />
+        <xs:enumeration value="beacon" />
+        <xs:enumeration value="cobblestone_wall" />
+        <xs:enumeration value="flower_pot" />
+        <xs:enumeration value="carrots" />
+        <xs:enumeration value="potatoes" />
+        <xs:enumeration value="wooden_button" />
+        <xs:enumeration value="skull" />
+        <xs:enumeration value="anvil" />
+        <xs:enumeration value="trapped_chest" />
+        <xs:enumeration value="light_weighted_pressure_plate" />
+        <xs:enumeration value="heavy_weighted_pressure_plate" />
+        <xs:enumeration value="unpowered_comparator" />
+        <xs:enumeration value="powered_comparator" />
+        <xs:enumeration value="daylight_detector" />
+        <xs:enumeration value="redstone_block" />
+        <xs:enumeration value="quartz_ore" />
+        <xs:enumeration value="hopper" />
+        <xs:enumeration value="quartz_block" />
+        <xs:enumeration value="quartz_stairs" />
+        <xs:enumeration value="activator_rail" />
+        <xs:enumeration value="dropper" />
+        <xs:enumeration value="stained_hardened_clay" />
+        <xs:enumeration value="stained_glass_pane" />
+        <xs:enumeration value="leaves2" />
+        <xs:enumeration value="log2" />
+        <xs:enumeration value="acacia_stairs" />
+        <xs:enumeration value="dark_oak_stairs" />
+        <xs:enumeration value="slime" />
+        <xs:enumeration value="barrier" />
+        <xs:enumeration value="iron_trapdoor" />
+        <xs:enumeration value="prismarine" />
+        <xs:enumeration value="sea_lantern" />
+        <xs:enumeration value="hay_block" />
+        <xs:enumeration value="carpet" />
+        <xs:enumeration value="hardened_clay" />
+        <xs:enumeration value="coal_block" />
+        <xs:enumeration value="packed_ice" />
+        <xs:enumeration value="double_plant" />
+        <xs:enumeration value="standing_banner" />
+        <xs:enumeration value="wall_banner" />
+        <xs:enumeration value="daylight_detector_inverted" />
+        <xs:enumeration value="red_sandstone" />
+        <xs:enumeration value="red_sandstone_stairs" />
+        <xs:enumeration value="double_stone_slab2" />
+        <xs:enumeration value="stone_slab2" />
+        <xs:enumeration value="spruce_fence_gate" />
+        <xs:enumeration value="birch_fence_gate" />
+        <xs:enumeration value="jungle_fence_gate" />
+        <xs:enumeration value="dark_oak_fence_gate" />
+        <xs:enumeration value="acacia_fence_gate" />
+        <xs:enumeration value="spruce_fence" />
+        <xs:enumeration value="birch_fence" />
+        <xs:enumeration value="jungle_fence" />
+        <xs:enumeration value="dark_oak_fence" />
+        <xs:enumeration value="acacia_fence" />
+        <xs:enumeration value="spruce_door" />
+        <xs:enumeration value="birch_door" />
+        <xs:enumeration value="jungle_door" />
+        <xs:enumeration value="acacia_door" />
+        <xs:enumeration value="dark_oak_door" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="BlockOrItem">
+  <xs:union memberTypes="BlockType ItemType"/>
+</xs:simpleType>
+
+<xs:simpleType name="StoneTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Types of stone for stone blocks/items
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="stone" />
+        <xs:enumeration value="granite" />
+        <xs:enumeration value="smooth_granite" />
+        <xs:enumeration value="diorite" />
+        <xs:enumeration value="smooth_diorite" />
+        <xs:enumeration value="andesite" />
+        <xs:enumeration value="smooth_andesite" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="WoodTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Types of wood for wooden blocks/items
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="oak" />
+        <xs:enumeration value="spruce" />
+        <xs:enumeration value="birch" />
+        <xs:enumeration value="jungle" />
+        <xs:enumeration value="acacia" />
+        <xs:enumeration value="dark_oak" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="FlowerTypes">
+    <xs:annotation>
+        <xs:documentation>
+            Types of flower
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="dandelion" />
+        <xs:enumeration value="poppy" />
+        <xs:enumeration value="blue_orchid" />
+        <xs:enumeration value="allium" />
+        <xs:enumeration value="houstonia" />
+        <xs:enumeration value="red_tulip" />
+        <xs:enumeration value="orange_tulip" />
+        <xs:enumeration value="white_tulip" />
+        <xs:enumeration value="pink_tulip" />
+        <xs:enumeration value="oxeye_daisy" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="MonsterEggTypes">
+    <xs:annotation>
+        <xs:documentation>
+            Types of monster egg blocks
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="cobblestone" />
+        <xs:enumeration value="stone_brick" />
+        <xs:enumeration value="mossy_brick" />
+        <xs:enumeration value="cracked_brick" />
+        <xs:enumeration value="chiseled_brick" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="EntityTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Types of entity for eggs, spawners etc: {{{Creeper}}}, {{{Skeleton}}}, {{{Spider}}}, {{{Giant}}}, {{{Zombie}}}, {{{Slime}}}, {{{Ghast}}}, {{{PigZombie}}},
+        {{{Enderman}}}, {{{CaveSpider}}}, {{{Silverfish}}}, {{{Blaze}}}, {{{LavaSlime}}}, {{{EnderDragon}}}, {{{WitherBoss}}}, {{{Bat}}}, {{{Witch}}},
+        {{{Endermite}}}, {{{Guardian}}}, {{{Pig}}}, {{{Sheep}}}, {{{Cow}}}, {{{Chicken}}}, {{{Squid}}}, {{{Wolf}}}, {{{MushroomCow}}}, {{{SnowMan}}},
+        {{{Ozelot}}}, {{{VillagerGolem}}}, {{{EntityHorse}}}, {{{Rabbit}}}, {{{Villager}}}, {{{EnderCrystal}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="Creeper" />
+        <xs:enumeration value="Skeleton" />
+        <xs:enumeration value="Spider" />
+        <xs:enumeration value="Giant" />
+        <xs:enumeration value="Zombie" />
+        <xs:enumeration value="Slime" />
+        <xs:enumeration value="Ghast" />
+        <xs:enumeration value="PigZombie" />
+        <xs:enumeration value="Enderman" />
+        <xs:enumeration value="CaveSpider" />
+        <xs:enumeration value="Silverfish" />
+        <xs:enumeration value="Blaze" />
+        <xs:enumeration value="LavaSlime" />    <!-- Magma Cube -->
+        <xs:enumeration value="EnderDragon" />
+        <xs:enumeration value="WitherBoss" />
+        <xs:enumeration value="Bat" />
+        <xs:enumeration value="Witch" />
+        <xs:enumeration value="Endermite" />
+        <xs:enumeration value="Guardian" />
+        <xs:enumeration value="Pig" />
+        <xs:enumeration value="Sheep" />
+        <xs:enumeration value="Cow" />
+        <xs:enumeration value="Chicken" />
+        <xs:enumeration value="Squid" />
+        <xs:enumeration value="Wolf" />
+        <xs:enumeration value="MushroomCow" />
+        <xs:enumeration value="SnowMan" />
+        <xs:enumeration value="Ozelot" />
+        <xs:enumeration value="VillagerGolem" />
+        <xs:enumeration value="EntityHorse" />
+        <xs:enumeration value="Rabbit" />
+        <xs:enumeration value="Villager" />
+        <xs:enumeration value="EnderCrystal" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="Variation">
+    <xs:annotation>
+      <xs:documentation>
+        Variants of block types, item types, entities etc
+      </xs:documentation>
+      <xs:appinfo>
+        <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes MonsterEggTypes"/>
+</xs:simpleType>
+
+</xs:schema>

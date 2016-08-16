@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ProjectMalmo.microsoft.com"
+           xmlns="http://ProjectMalmo.microsoft.com"
+           elementFormDefault="qualified"
+           version="0.17">
+           
+<xs:include schemaLocation="Mission.xsd" />
+
+<xs:element name="MissionInit">
+  <xs:annotation>
+    <xs:documentation>
+      A MissionInit message tells the agent and client to talk to each other to complete the supplied mission.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="Mission" />
+      <xs:element name="ExperimentUID" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            A unique ID to disambiguate experiments.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="MinecraftServerConnection" minOccurs="0" maxOccurs="1" />
+      <xs:element name="ClientRole" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>
+            The role this client will play in a multi-agent mission.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="ClientAgentConnection" />
+    </xs:sequence>
+    <xs:attribute name="SchemaVersion" type="xs:token" />
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="MinecraftServerConnection">
+  <xs:annotation>
+    <xs:documentation>
+      The MinecraftServerConnection is used to tell other clients where to find their server.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:attribute name="address" use="required" type="xs:string"/>
+    <xs:attribute name="port" use="required" type="xs:int"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="ClientAgentConnection">
+  <xs:annotation>
+    <xs:documentation>
+      A ClientAgentConnection tells the client and the agent the IP address and ports they should talk to each other on.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="ClientIPAddress"             type="xs:string" />
+      <xs:element name="ClientMissionControlPort"    type="xs:int" />
+      <xs:element name="ClientCommandsPort"          type="xs:int" />
+      <xs:element name="AgentIPAddress"              type="xs:string" />
+      <xs:element name="AgentMissionControlPort"     type="xs:int" />
+      <xs:element name="AgentVideoPort"              type="xs:int" />
+      <xs:element name="AgentObservationsPort"       type="xs:int" />
+      <xs:element name="AgentRewardsPort"            type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

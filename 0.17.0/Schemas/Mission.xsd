@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ProjectMalmo.microsoft.com"
+           xmlns="http://ProjectMalmo.microsoft.com"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           elementFormDefault="qualified"
+           jaxb:version="2.1"
+           version="0.17">
+
+    <xs:include schemaLocation="Types.xsd" /> 
+    <xs:include schemaLocation="MissionHandlers.xsd" /> 
+
+    <xs:element name="Mission">
+        <xs:annotation>
+            <xs:documentation>
+              A mission definition has a description, a starting point and some kind of scoring system. It also defines the agents and roles involved.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="About" />
+                <xs:element ref="ModSettings" minOccurs="0" maxOccurs="1" />
+                <xs:element ref="ServerSection" minOccurs="1" maxOccurs="1" />
+                <xs:element ref="AgentSection" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute name="SchemaVersion" type="xs:token" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ModSettings">
+        <xs:annotation>
+            <xs:documentation>
+              Settings here are independent of the mission but affect how it is run. 
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="MsPerTick" minOccurs="0" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>
+                            Use this to overclock Minecraft - to make Minecraft time run faster than normal.
+                        
+                            This sets the delay that Minecraft uses between world ticks, in milliseconds. The default is 50ms per tick (20Hz).
+                            Double-speed would be 25ms/tick (40Hz). For best results, stick to reasonable values (that the server 
+                            might be able to cope with), which also result in a whole number of ticks per second.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:int">
+                            <xs:minInclusive value="1" />
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="PrioritiseOffscreenRendering" type="xs:boolean" minOccurs="0" maxOccurs="1" >
+                    <xs:annotation>
+                        <xs:documentation>
+                            If set to true, the Minecraft window will only be updated once per second during the run of the mission. This will allow the
+                            render pipeline to run much faster, resulting in the platform receiving frames at a higher rate.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ServerSection">
+        <xs:annotation>
+            <xs:documentation>
+              The Minecraft server stores the world and keeps track of the blocks that have changed. Each Minecraft client connects to the server when it needs to
+              change blocks or ask what blocks are present, for example. With multi-agent missions there may be many clients, all connected to a single server.
+              
+              Settings here affect the shared world that the clients experience.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="ServerInitialConditions" minOccurs="0" maxOccurs="1" />
+                <xs:element ref="ServerHandlers" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AgentSection">
+        <xs:annotation>
+            <xs:documentation>
+              Each agent is specified in one of these sections, detailing the way they experience the world and the actions they can perform to interact with it.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Name" type="xs:string" />
+                <xs:element ref="AgentStart" />
+                <xs:element ref="AgentHandlers" />
+            </xs:sequence>
+            <xs:attribute name="mode" use="optional" type="GameMode" default="Survival" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="About">
+        <xs:annotation>
+            <xs:documentation>
+              Description of the mission.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Summary" type="xs:string" />
+                <xs:element name="Description" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AgentStart">
+        <xs:annotation>
+            <xs:documentation>
+              Defines the initial conditions of the player. This includes the location and the contents of their inventory.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="Placement" type="PosAndDirection" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                    <xs:documentation>
+                      The player's starting location; if unspecified, will be the game's randomly-chosen spawn point.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="Inventory" minOccurs="0" maxOccurs="1" >
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
+                            <xs:element ref="InventoryObject" />
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ServerInitialConditions">
+        <xs:annotation>
+            <xs:documentation>
+              Defines the initial conditions of the world.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="Time" minOccurs="0" maxOccurs="1" />
+                <xs:element ref="Weather" minOccurs="0" maxOccurs="1" />
+                <xs:element name="AllowSpawning" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
+                  <xs:annotation>
+                    <xs:documentation>
+                      Set this to true to allow mobs (animals and hostiles) to spawn during a mission.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="AllowedMobs" minOccurs="0" maxOccurs="1">
+                  <xs:annotation>
+                    <xs:documentation>
+                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings do not effect mob_spawner blocks.
+                    </xs:documentation>
+                  </xs:annotation>
+                    <xs:simpleType>
+                        <xs:list itemType="EntityTypes"/>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="Time">
+        <xs:annotation>
+          <xs:documentation>
+            Minecraft has a day-night cycle that affects the light levels and the appearance of hostile mobs.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element ref="StartTime" minOccurs="0" maxOccurs="1" />
+                <xs:element name="AllowPassageOfTime" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true">
+                  <xs:annotation>
+                    <xs:documentation>
+                      Set this to false to stop the day-night cycle. The sun position and weather will remain fixed for the duration of the mission.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="StartTime" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the time of day at the start of the mission, in thousandths of an hour.
+          
+          0 = dawn
+          
+          6000 = noon
+          
+          18000 = midnight
+          
+          Time in Minecraft travels (by default) 72 times faster than real-time. Thus a Minecraft day lasts 20 minutes.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="23999" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="Weather" default="normal">
+        <xs:annotation>
+            <xs:documentation>
+              Specifies the type of weather at the start of the mission.
+
+              "normal" = let Minecraft do what it normally does
+              
+              "clear" = start with clear weather
+              
+              "rain" = start with rain (or snow, in a cold biome)
+              
+              "thunder" = start with thundery weather
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:enumeration value="normal"/>
+                <xs:enumeration value="clear"/>
+                <xs:enumeration value="rain"/>
+                <xs:enumeration value="thunder"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+    <xs:complexType name="InventoryObjectType">
+        <xs:attribute name="slot" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="0"/>
+                    <xs:maxInclusive value="39"/>
+                </xs:restriction>    
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="type" use="required" type="BlockOrItem"/>
+        <xs:attribute name="variant" use="optional" type="Variation" />
+        <xs:attribute name="colour" use="optional" type="Colour" />
+        <xs:attribute name="quantity" default="1">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="1"/>
+                    <xs:maxInclusive value="64"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="InventoryObject" type="InventoryObjectType">
+        <xs:annotation>
+            <xs:documentation>
+              Defines an item or block in the inventory.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+
+    <xs:element name="InventoryItem" substitutionGroup="InventoryObject">
+        <xs:annotation>
+            <xs:documentation>
+              Defines an item in the inventory - deprecated, use InventoryObject instead
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="InventoryObjectType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="InventoryBlock" substitutionGroup="InventoryObject">
+        <xs:annotation>
+            <xs:documentation>
+              Defines a block in the inventory - deprecated, use InventoryObject instead
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="InventoryObjectType"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="GameMode">
+        <xs:annotation>
+            <xs:documentation>
+              In survival mode the player can be hurt and experience hunger and must collect blocks. In creative mode they can fly and have an infinite supply of blocks.
+              In spectator mode the player cannot change anything and can fly through blocks.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Survival" />
+            <xs:enumeration value="Creative" />
+            <xs:enumeration value="Adventure" />
+            <xs:enumeration value="Spectator" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!--=============================================================================================================-->
+    <!--=========================================== MISSION HANDLER TYPES ===========================================-->
+    <!--=============================================================================================================-->
+    <!--======= When new mission handlers are created, make sure they are added to the correct section below ======= -->
+    <!--=============================================================================================================-->
+
+    <xs:group name="AgentMissionHandlers">
+        <xs:annotation>
+            <xs:documentation>
+              Lists the available Mission Handlers for an agent. Each can only be used once.
+            </xs:documentation>
+            <xs:appinfo>
+                <jaxb:property name="AgentMissionHandlers"/>
+            </xs:appinfo>
+        </xs:annotation>
+        <xs:all>
+            <xs:element ref="ObservationFromRecentCommands" minOccurs="0"/>
+            <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
+            <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
+            <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>
+            <xs:element ref="ObservationFromSubgoalPositionList" minOccurs="0"/>
+            <xs:element ref="ObservationFromGrid" minOccurs="0"/>
+            <xs:element ref="ObservationFromDistance" minOccurs="0"/>
+            <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
+            <xs:element ref="ObservationFromChat" minOccurs="0"/>
+            <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
+            <xs:element ref="ObservationFromRay" minOccurs="0"/>
+
+            <xs:element ref="VideoProducer" minOccurs="0"/>
+
+            <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />
+            <xs:element ref="RewardForSendingCommand" minOccurs="0" />
+            <xs:element ref="RewardForSendingMatchingChatMessage" minOccurs="0" />
+            <xs:element ref="RewardForCollectingItem" minOccurs="0" />
+            <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
+            <xs:element ref="RewardForReachingPosition" minOccurs="0"/>
+            <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
+
+            <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
+            <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
+            <xs:element ref="DiscreteMovementCommands" minOccurs="0"/>
+            <xs:element ref="InventoryCommands" minOccurs="0"/>
+            <xs:element ref="ChatCommands" minOccurs="0"/>
+            <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
+            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands -->
+
+            <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
+            <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
+            <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
+            <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
+        </xs:all>
+    </xs:group>
+    
+    <xs:element name="AgentHandlers">
+        <xs:annotation>
+            <xs:documentation>
+              Defines the Mission Handlers block for an individual agent.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:group ref="AgentMissionHandlers" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ServerHandlers">
+        <xs:annotation>
+            <xs:documentation>
+              Defines the Mission Handlers block for the server.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice>
+                    <xs:annotation>
+                        <xs:appinfo>
+                            <jaxb:property name="WorldGenerator"/>
+                        </xs:appinfo>
+                    </xs:annotation>
+                    <xs:element ref="FlatWorldGenerator" />
+                    <xs:element ref="FileWorldGenerator" />
+                    <xs:element ref="DefaultWorldGenerator" />
+                </xs:choice>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:annotation>
+                        <xs:appinfo>
+                            <jaxb:property name="WorldDecorators"/>
+                        </xs:appinfo>
+                    </xs:annotation>
+                    <xs:element ref="DrawingDecorator" />
+                    <xs:element ref="MazeDecorator"  />
+                    <xs:element ref="ClassroomDecorator" />
+                    <xs:element ref="SnakeDecorator"  />
+                </xs:choice>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:annotation>
+                        <xs:appinfo>
+                            <jaxb:property name="ServerQuitProducers"/>
+                        </xs:appinfo>
+                    </xs:annotation>
+                    <xs:element ref="ServerQuitFromTimeUp"/>
+                    <xs:element ref="ServerQuitWhenAnyAgentFinishes"/>
+                </xs:choice>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
