@@ -154,7 +154,7 @@ namespace malmo
     
     void TimestampedReward::add(const TimestampedReward& other)
     {
-        for( std::map<int,double>::const_iterator it = this->values.begin(); it!= this->values.end(); it++) {
+        for( std::map<int,double>::const_iterator it = other.values.begin(); it!= other.values.end(); it++) {
             int dimension = it->first;
             double value = it->second;
             if( this->values.find(dimension) != this->values.end() )
