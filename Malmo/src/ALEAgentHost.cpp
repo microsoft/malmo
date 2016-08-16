@@ -131,10 +131,15 @@ namespace malmo
 
         WorldState old_world_state( this->world_state );
         this->world_state.clear();
-        this->world_state.has_mission_begun = this->ale_interface;
+        this->world_state.has_mission_begun = this->ale_interface != 0;
         this->world_state.is_mission_running = this->ale_interface && !this->ale_interface->game_over();
 
         return old_world_state;
+    }
+
+    std::string ALEAgentHost::getRecordingTemporaryDirectory() const
+    {
+        return this->current_mission_record && this->current_mission_record->isRecording() ? this->current_mission_record->getTemporaryDirectory() : "";
     }
 
     void ALEAgentHost::setVideoPolicy(AgentHost::VideoPolicy videoPolicy)
