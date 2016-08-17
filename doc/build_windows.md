@@ -10,7 +10,7 @@
     3. Add `C:\ffmpeg\bin` to your `PATH` ([How To](https://support.microsoft.com/en-us/kb/310519))
     4. Check that typing `ffmpeg` at a command prompt works.
 
-3. Install git and Visual Studio and Python 2.7 (64-bit) and the JDK (64-bit). Hints:
+3. Install git and Visual Studio and [Python 2.7 (64-bit)](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi) and the JDK (64-bit). Hints:
     1. Get the latest Windows git from https://git-scm.com/downloads
     2. Check that git and msbuild and python are on your path.  
        N.B. MSBuild lives in an odd place: e.g. `C:\Program Files (x86)\MSBuild\12.0\Bin`
