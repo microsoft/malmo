@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +27,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
@@ -43,8 +43,6 @@ import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
-import io.netty.buffer.ByteBuf;
-
 /**
  * Fairly dumb command handler that attempts to move the player one block N,S,E
  * or W.<br>
@@ -54,7 +52,6 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     public static final String MOVE_ATTEMPTED_KEY = "attemptedToMove";
 
     private boolean isOverriding;
-    private int direction = -1;
 
     public static class DiscretePartialMoveEvent extends Event
     {
@@ -198,6 +195,13 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         return true;
     }
 
+    private int getDirectionFromYaw(float yaw)
+    {
+        // Initialise direction:
+        int direction = (int)((yaw + 45.0f) / 90.0f);
+        return (direction + 4) % 4;
+    }
+
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
@@ -205,12 +209,6 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
         if (player != null)
         {
-            if (this.direction == -1)
-            {
-                // Initialise direction:
-                this.direction = (int)((player.rotationYaw + 45.0f) / 90.0f);
-                this.direction = (this.direction + 4) % 4;
-            }
             int z = 0;
             int x = 0;
             int y = 0;
@@ -240,7 +238,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 {
                     float velocity = Float.valueOf(parameter);
                     int offset = (velocity > 0) ? 1 : ((velocity < 0) ? -1 : 0);
-                    switch (this.direction)
+                    int direction = getDirectionFromYaw(player.rotationYaw);
+                    switch (direction)
                     {
                     case 0: // North
                         z = offset;
@@ -262,9 +261,10 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 if (parameter != null && parameter.length() != 0)
                 {
                     float yawDelta = Float.valueOf(parameter);
-                    this.direction += (yawDelta > 0) ? 1 : ((yawDelta < 0) ? -1 : 0);
-                    this.direction = (this.direction + 4) % 4;
-                    player.rotationYaw = this.direction * 90;
+                    int direction = getDirectionFromYaw(player.rotationYaw);
+                    direction += (yawDelta > 0) ? 1 : ((yawDelta < 0) ? -1 : 0);
+                    direction = (direction + 4) % 4;
+                    player.rotationYaw = direction * 90;
                     player.onUpdate();
                     // Send a message that the ContinuousMovementCommands can pick up on:
                     Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(true, player.rotationYaw, false, 0);
