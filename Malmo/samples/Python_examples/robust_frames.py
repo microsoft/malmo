@@ -41,12 +41,6 @@ class RandomAgent:
         self.agent_host = agent_host
         self.action_set = action_set
         self.tolerance = 0.01
-        if action_set == 'discrete_absolute':
-            self.actions = ['movenorth 1', 'movesouth 1', 'movewest 1', 'moveeast 1']
-            self.require_move = True
-        else:
-            print 'ERROR: Unsupported action set:',action_set
-            exit(1)
 
     def waitForInitialState( self ):
         # wait for a valid observation
@@ -64,9 +58,10 @@ class RandomAgent:
             assert len(world_state.video_frames) > 0, 'No video frames!?'
             
             obs = json.loads( world_state.observations[-1].text )
-            self.prev_x = obs[u'XPos']
-            self.prev_z = obs[u'ZPos']
-            print 'Initial position:',self.prev_x,',',self.prev_z
+            self.prev_x   = obs[u'XPos']
+            self.prev_z   = obs[u'ZPos']
+            self.prev_yaw = obs[u'Yaw']
+            print 'Initial position:',self.prev_x,',',self.prev_z,'yaw',self.prev_yaw
             
             if save_images:
                 # save the frame, for debugging
@@ -89,11 +84,16 @@ class RandomAgent:
                 break
             if len(world_state.rewards) > 0 and not all(e.text=='{}' for e in world_state.observations):
                 obs = json.loads( world_state.observations[-1].text )
-                self.curr_x = obs[u'XPos']
-                self.curr_z = obs[u'ZPos']
+                self.curr_x   = obs[u'XPos']
+                self.curr_z   = obs[u'ZPos']
+                self.curr_yaw = obs[u'Yaw']
                 if self.require_move:
                     if math.hypot( self.curr_x - self.prev_x, self.curr_z - self.prev_z ) > self.tolerance:
-                        print 'received.'
+                        print 'received expected move.'
+                        break
+                elif self.require_yaw_change:
+                    if math.fabs( self.curr_yaw - self.prev_yaw ) > self.tolerance:
+                        print 'received expected turn.'
                         break
                 else:
                     print 'received.'
@@ -121,36 +121,81 @@ class RandomAgent:
             assert num_frames_after_get >= num_frames_before_get, 'Fewer frames after getWorldState!?'
             frame = world_state.video_frames[-1]
             obs = json.loads( world_state.observations[-1].text )
-            self.curr_x = obs[u'XPos']
-            self.curr_z = obs[u'ZPos']
-            print 'New position from observation:',self.curr_x,',',self.curr_z,
-            if math.hypot( self.curr_x - self.expected_x, self.curr_z - self.expected_z ) > self.tolerance:
-                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_z
+            self.curr_x   = obs[u'XPos']
+            self.curr_z   = obs[u'ZPos']
+            self.curr_yaw = obs[u'Yaw']
+            print 'New position from observation:',self.curr_x,',',self.curr_z,'yaw',self.curr_yaw,
+            if math.hypot( self.curr_x - self.expected_x, self.curr_z - self.expected_z ) > self.tolerance \
+                    or math.fabs( self.curr_yaw - self.expected_yaw ) > self.tolerance:
+                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_z,'yaw',self.expected_yaw
                 raw_input("Press Enter to continue...")
             else:
                 print 'as expected.'
-            curr_x_from_render = frame.xPos
-            curr_z_from_render = frame.zPos
-            print 'New position from render:',curr_x_from_render,',',curr_z_from_render,
-            if math.hypot( curr_x_from_render - self.expected_x, curr_z_from_render - self.expected_z ) > self.tolerance:
-                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_z
+            curr_x_from_render   = frame.xPos
+            curr_z_from_render   = frame.zPos
+            curr_yaw_from_render = frame.yaw
+            print 'New position from render:',curr_x_from_render,',',curr_z_from_render,'yaw',curr_yaw_from_render,
+            if math.hypot( curr_x_from_render - self.expected_x, curr_z_from_render - self.expected_z ) > self.tolerance \
+                    or math.fabs( curr_yaw_from_render - self.expected_yaw ) > self.tolerance:
+                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_z,'yaw',self.expected_yaw
                 raw_input("Press Enter to continue...")
             else:
                 print 'as expected.'
-            self.prev_x = self.curr_x
-            self.prev_z = self.curr_z
+            self.prev_x   = self.curr_x
+            self.prev_z   = self.curr_z
+            self.prev_yaw = self.curr_yaw
             
         return world_state
         
     def act( self ):
-        i_action = random.randint(0,len(self.actions)-1)
-        action = self.actions[ i_action ]
+        if self.action_set == 'discrete_absolute':
+            actions = ['movenorth 1', 'movesouth 1', 'movewest 1', 'moveeast 1']
+        elif self.action_set == 'discrete_relative':
+            actions = ['move 1', 'move -1', 'turn 1', 'turn -1']
+        else:
+            print 'ERROR: Unsupported action set:',self.action_set
+            exit(1)
+        i_action = random.randint(0,len(actions)-1)
+        action = actions[ i_action ]
         print 'Sending',action
         self.agent_host.sendCommand( action )
         if self.action_set == 'discrete_absolute':
             self.expected_x = self.prev_x + [0,0,-1,1][i_action]
             self.expected_z = self.prev_z + [-1,1,0,0][i_action]
-        
+            self.expected_yaw = self.prev_yaw
+            self.require_move = True
+            self.require_yaw_change = False
+        elif self.action_set == 'discrete_relative':
+            if i_action == 0 or i_action == 1:
+                i_yaw = indexOfClosest( [0,90,180,270], self.prev_yaw )
+                forward = [ (0,1), (-1,0), (0,-1), (1,0) ][ i_yaw ]
+                if i_action == 0:
+                    self.expected_x = self.prev_x + forward[0]
+                    self.expected_z = self.prev_z + forward[1]
+                else:
+                    self.expected_x = self.prev_x - forward[0]
+                    self.expected_z = self.prev_z - forward[1]
+                self.expected_yaw = self.prev_yaw
+                self.require_move = True
+                self.require_yaw_change = False
+            else:
+                self.expected_x = self.prev_x
+                self.expected_z = self.prev_z
+                self.expected_yaw = math.fmod( 360 + self.prev_yaw + [90,-90][i_action-2], 360 )
+                self.require_move = False
+                self.require_yaw_change = True
+        else:
+            print 'ERROR: Unsupported action set:',self.action_set
+            exit(1)
+            
+def indexOfClosest( arr, val ):
+    i_closest = None
+    for i,v in enumerate(arr):
+        d = math.fabs( v - val )
+        if i_closest == None or d < d_closest:
+            i_closest = i
+            d_closest = d
+    return i_closest
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
@@ -192,10 +237,9 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         <Height>240</Height>
       </VideoProducer>
       <RewardForReachingPosition dimension="0">
-        <Marker oneshot="true" reward="100" tolerance="1.100000023841858" x="19.5" y="0" z="19.5"/>
+        <Marker oneshot="true" reward="100" tolerance="1.1" x="19.5" y="0" z="19.5"/>
       </RewardForReachingPosition>
       <RewardForSendingCommand reward="0" />
-      <DiscreteMovementCommands/>
     </AgentHandlers>
   </AgentSection>
 </Mission>'''
@@ -208,6 +252,15 @@ my_mission_record.recordCommands()
 my_mission_record.recordMP4(20, 400000)
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
+
+action_set = 'discrete_relative'
+if action_set == 'discrete_absolute':
+    my_mission.allowAllDiscreteMovementCommands()
+elif action_set == 'discrete_relative':
+    my_mission.allowAllDiscreteMovementCommands()
+else:
+    print 'ERROR: Unsupported action set:',action_set
+    exit(1)
 
 for retry in range(max_retries):
     try:
@@ -231,7 +284,6 @@ while not world_state.has_mission_begun:
 print
 
 # the main loop:
-action_set = 'discrete_absolute'
 agent = RandomAgent( agent_host, action_set )
 world_state = agent.waitForInitialState()
 while world_state.is_mission_running:
