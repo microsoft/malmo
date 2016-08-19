@@ -362,6 +362,7 @@ namespace malmo
         this->mission->AgentSection().front().AgentHandlers().AbsoluteMovementCommands().reset();
         this->mission->AgentSection().front().AgentHandlers().InventoryCommands().reset();
         this->mission->AgentSection().front().AgentHandlers().ChatCommands().reset();
+        this->mission->AgentSection().front().AgentHandlers().MissionQuitCommands().reset();
     }
 
     void MissionSpec::allowAllContinuousMovementCommands()
@@ -495,6 +496,8 @@ namespace malmo
             command_handlers.push_back( "Chat" );
         if( ah.SimpleCraftCommands().present() )
             command_handlers.push_back( "SimpleCraft" );
+        if( ah.MissionQuitCommands().present() )
+            command_handlers.push_back( "MissionQuit" );
         return command_handlers;
     }
     
@@ -540,6 +543,13 @@ namespace malmo
             vector<string> commands( begin(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_), end(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_) );
             if( ah.SimpleCraftCommands()->ModifierList().present() )
                 return getModifiedCommandList( commands, *ah.SimpleCraftCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "MissionQuit" && ah.MissionQuitCommands().present() ) {
+            vector<string> commands( begin(MissionQuitCommand::_xsd_MissionQuitCommand_literals_), end(MissionQuitCommand::_xsd_MissionQuitCommand_literals_) );
+            if( ah.MissionQuitCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.MissionQuitCommands()->ModifierList() );
             else
                 return commands;
         }
