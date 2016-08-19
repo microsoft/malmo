@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -92,6 +93,12 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
         if (this.setX || this.setY || this.setZ || this.setYaw || this.setPitch)
         {
 	    	MalmoMod.network.sendToServer(new TeleportMessage(x, y, z, yaw, pitch, this.setX, this.setY, this.setZ, this.setYaw, this.setPitch));
+            if (this.setYaw || this.setPitch)
+            {
+                // Send a message that the ContinuousMovementCommands can pick up on:
+                Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(this.setYaw, this.rotationYaw, this.setPitch, this.rotationPitch);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
             this.setX = this.setY = this.setZ = this.setYaw = this.setPitch = false;
         }
     }
