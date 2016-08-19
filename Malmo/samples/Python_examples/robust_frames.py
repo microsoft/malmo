@@ -43,6 +43,7 @@ class RandomAgent:
         self.tolerance = 0.01
 
     def waitForInitialState( self ):
+        '''Before a command has been sent we wait for an observation of the world and a frame.'''
         # wait for a valid observation
         world_state = self.agent_host.peekWorldState()
         while world_state.is_mission_running and all(e.text=='{}' for e in world_state.observations):
@@ -75,7 +76,7 @@ class RandomAgent:
         return world_state
 
     def waitForNextState( self ):
-       
+        '''After each command has been sent we wait for the observation to change as expected and a frame.'''
         # wait for the position to have changed
         print 'Waiting for data...',
         while True:
@@ -159,6 +160,7 @@ class RandomAgent:
         return world_state
         
     def act( self ):
+        '''Take an action from the action_set and set the expected outcome so we can wait for it.'''
         if self.action_set == 'discrete_absolute':
             actions = ['movenorth 1', 'movesouth 1', 'movewest 1', 'moveeast 1']
         elif self.action_set == 'discrete_relative':
@@ -218,6 +220,7 @@ class RandomAgent:
             exit(1)
             
 def indexOfClosest( arr, val ):
+    '''Return the index in arr of the closest float value to val.'''
     i_closest = None
     for i,v in enumerate(arr):
         d = math.fabs( v - val )
@@ -273,15 +276,10 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 </Mission>'''
 my_mission = MalmoPython.MissionSpec(xml,True)
 
+# -- test each action set in turn --
 max_retries = 3
-
-my_mission_record = MalmoPython.MissionRecordSpec( 'robust_frames.tgz' )
-my_mission_record.recordCommands()
-my_mission_record.recordMP4(20, 400000)
-my_mission_record.recordRewards()
-my_mission_record.recordObservations()
-
 for action_set in ['discrete_absolute','discrete_relative', 'teleport']:
+
     if action_set == 'discrete_absolute':
         my_mission.allowAllDiscreteMovementCommands()
     elif action_set == 'discrete_relative':
@@ -294,7 +292,7 @@ for action_set in ['discrete_absolute','discrete_relative', 'teleport']:
 
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, my_mission_record )
+            agent_host.startMission( my_mission, MalmoPython.MissionRecordSpec() )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
