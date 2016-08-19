@@ -146,24 +146,25 @@ public class MissionBehaviour
         // won't have to be added to often, if at all.
         if (handler == null)
             return;
-        
+
         if (handler instanceof IVideoProducer)
             addVideoProducer((IVideoProducer)handler);
-        else if (handler instanceof IAudioProducer)
+        if (handler instanceof IAudioProducer)
             addAudioProducer((IAudioProducer)handler);
-        else if (handler instanceof ICommandHandler)
+        if (handler instanceof ICommandHandler)
             addCommandHandler((ICommandHandler)handler);
-        else if (handler instanceof IObservationProducer)
+        if (handler instanceof IObservationProducer)
             addObservationProducer((IObservationProducer)handler);
-        else if (handler instanceof IRewardProducer)
+        if (handler instanceof IRewardProducer)
             addRewardProducer((IRewardProducer)handler);
-        else if (handler instanceof IWorldGenerator)
+        if (handler instanceof IWorldGenerator)
         	addWorldGenerator((IWorldGenerator)handler);
-        else if (handler instanceof IWorldDecorator)
-            addWorldDecorator((IWorldDecorator)handler);
-        else if (handler instanceof IWantToQuit)
+        if (handler instanceof IWorldDecorator)
+        	addWorldDecorator((IWorldDecorator)handler);
+        if (handler instanceof IWantToQuit)
             addQuitProducer((IWantToQuit)handler);
-        else
+
+        if (! (handler instanceof IVideoProducer || handler instanceof IAudioProducer || handler instanceof ICommandHandler || handler instanceof IObservationProducer || handler instanceof IRewardProducer || handler instanceof IWorldGenerator || handler instanceof IWorldDecorator || handler instanceof IWantToQuit))
             this.failedHandlers += handler.getClass().getSimpleName() + " isn't of a recognised handler type.\n";
     }
     
