@@ -71,7 +71,7 @@ class RandomAgent:
                 image = Image.frombytes('RGB', (frame.width, frame.height), str(frame.pixels) )
                 self.iFrame = 0
                 self.rep = self.rep + 1
-                image.save( 'rep_' + str(self.rep).zfill(3) + '_saved_frame_' + str(iFrame).zfill(4) + '.png' )
+                image.save( 'rep_' + str(self.rep).zfill(3) + '_saved_frame_' + str(self.iFrame).zfill(4) + '.png' )
             
         return world_state
 
