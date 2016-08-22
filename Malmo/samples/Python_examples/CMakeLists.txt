@@ -26,6 +26,7 @@ set( SOURCES
   human_action.py
   manual_input_test.py
   MazeRunner.py
+  mission_quit_command_example.py
   MultiMaze.py
   mob_fun.py
   overclock_test.py

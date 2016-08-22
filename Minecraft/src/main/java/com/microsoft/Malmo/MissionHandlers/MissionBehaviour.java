@@ -146,7 +146,7 @@ public class MissionBehaviour
         // won't have to be added to often, if at all.
         if (handler == null)
             return;
-        
+
         if (handler instanceof IVideoProducer)
             addVideoProducer((IVideoProducer)handler);
         else if (handler instanceof IAudioProducer)
@@ -158,7 +158,7 @@ public class MissionBehaviour
         else if (handler instanceof IRewardProducer)
             addRewardProducer((IRewardProducer)handler);
         else if (handler instanceof IWorldGenerator)
-        	addWorldGenerator((IWorldGenerator)handler);
+            addWorldGenerator((IWorldGenerator)handler);
         else if (handler instanceof IWorldDecorator)
             addWorldDecorator((IWorldDecorator)handler);
         else if (handler instanceof IWantToQuit)
@@ -191,7 +191,7 @@ public class MissionBehaviour
             this.worldGenerator = handler;
     }
     
-    private void addRewardProducer(IRewardProducer handler)
+    public void addRewardProducer(IRewardProducer handler)
     {
         if (this.rewardProducer == null)
         	this.rewardProducer = handler;
@@ -208,7 +208,7 @@ public class MissionBehaviour
         }
     }
 
-    private void addCommandHandler(ICommandHandler handler)
+    public void addCommandHandler(ICommandHandler handler)
     {
         if (this.commandHandler == null)
             this.commandHandler = handler;
@@ -225,7 +225,7 @@ public class MissionBehaviour
         }
     }
     
-    private void addObservationProducer(IObservationProducer handler)
+    public void addObservationProducer(IObservationProducer handler)
     {
         if (this.observationProducer == null)
             this.observationProducer = handler;
@@ -241,7 +241,7 @@ public class MissionBehaviour
         }
     }
  
-    private void addWorldDecorator(IWorldDecorator handler)
+    public void addWorldDecorator(IWorldDecorator handler)
     {
         if (this.worldDecorator == null)
             this.worldDecorator = handler;
@@ -257,7 +257,7 @@ public class MissionBehaviour
         }
     }
  
-    private void addQuitProducer(IWantToQuit handler)
+    public void addQuitProducer(IWantToQuit handler)
     {
         if (this.quitProducer == null)
             this.quitProducer = handler;
