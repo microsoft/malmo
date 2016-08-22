@@ -1116,6 +1116,7 @@
           </xs:complexType>
         </xs:element>
       </xs:all>
+      <xs:attribute name="quitDescription" type="xs:string" use="optional" default="" />
     </xs:complexType>
   </xs:element>
 

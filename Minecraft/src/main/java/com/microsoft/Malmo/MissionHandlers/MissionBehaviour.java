@@ -149,22 +149,21 @@ public class MissionBehaviour
 
         if (handler instanceof IVideoProducer)
             addVideoProducer((IVideoProducer)handler);
-        if (handler instanceof IAudioProducer)
+        else if (handler instanceof IAudioProducer)
             addAudioProducer((IAudioProducer)handler);
-        if (handler instanceof ICommandHandler)
+        else if (handler instanceof ICommandHandler)
             addCommandHandler((ICommandHandler)handler);
-        if (handler instanceof IObservationProducer)
+        else if (handler instanceof IObservationProducer)
             addObservationProducer((IObservationProducer)handler);
-        if (handler instanceof IRewardProducer)
+        else if (handler instanceof IRewardProducer)
             addRewardProducer((IRewardProducer)handler);
-        if (handler instanceof IWorldGenerator)
-        	addWorldGenerator((IWorldGenerator)handler);
-        if (handler instanceof IWorldDecorator)
-        	addWorldDecorator((IWorldDecorator)handler);
-        if (handler instanceof IWantToQuit)
+        else if (handler instanceof IWorldGenerator)
+            addWorldGenerator((IWorldGenerator)handler);
+        else if (handler instanceof IWorldDecorator)
+            addWorldDecorator((IWorldDecorator)handler);
+        else if (handler instanceof IWantToQuit)
             addQuitProducer((IWantToQuit)handler);
-
-        if (! (handler instanceof IVideoProducer || handler instanceof IAudioProducer || handler instanceof ICommandHandler || handler instanceof IObservationProducer || handler instanceof IRewardProducer || handler instanceof IWorldGenerator || handler instanceof IWorldDecorator || handler instanceof IWantToQuit))
+        else
             this.failedHandlers += handler.getClass().getSimpleName() + " isn't of a recognised handler type.\n";
     }
     
@@ -192,7 +191,7 @@ public class MissionBehaviour
             this.worldGenerator = handler;
     }
     
-    private void addRewardProducer(IRewardProducer handler)
+    public void addRewardProducer(IRewardProducer handler)
     {
         if (this.rewardProducer == null)
         	this.rewardProducer = handler;
@@ -209,7 +208,7 @@ public class MissionBehaviour
         }
     }
 
-    private void addCommandHandler(ICommandHandler handler)
+    public void addCommandHandler(ICommandHandler handler)
     {
         if (this.commandHandler == null)
             this.commandHandler = handler;
@@ -226,7 +225,7 @@ public class MissionBehaviour
         }
     }
     
-    private void addObservationProducer(IObservationProducer handler)
+    public void addObservationProducer(IObservationProducer handler)
     {
         if (this.observationProducer == null)
             this.observationProducer = handler;
@@ -242,7 +241,7 @@ public class MissionBehaviour
         }
     }
  
-    private void addWorldDecorator(IWorldDecorator handler)
+    public void addWorldDecorator(IWorldDecorator handler)
     {
         if (this.worldDecorator == null)
             this.worldDecorator = handler;
@@ -258,7 +257,7 @@ public class MissionBehaviour
         }
     }
  
-    private void addQuitProducer(IWantToQuit handler)
+    public void addQuitProducer(IWantToQuit handler)
     {
         if (this.quitProducer == null)
             this.quitProducer = handler;

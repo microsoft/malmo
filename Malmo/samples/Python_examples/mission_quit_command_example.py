@@ -26,13 +26,11 @@ import time
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
-# More interesting generator string: "3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"
-
 missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             
               <About>
-                <Summary>Hello world!</Summary>
+                <Summary>If at first you don't succeed, give up.</Summary>
               </About>
               
               <ServerSection>
@@ -44,13 +42,16 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
               </ServerSection>
               
               <AgentSection mode="Survival">
-                <Name>MalmoTutorialBot</Name>
+                <Name>QuitBot</Name>
                 <AgentStart/>
                 <AgentHandlers>
                   <ObservationFromFullStats/>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
                   <ChatCommands />
-                  <MissionQuitCommands />
+                  <MissionQuitCommands quitDescription="give_up"/>
+                  <RewardForMissionEnd>
+                    <Reward description="give_up" reward="-1000"/>
+                  </RewardForMissionEnd>
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
@@ -87,7 +88,7 @@ for retry in range(max_retries):
 # Loop until mission starts:
 print "Waiting for the mission to start ",
 world_state = agent_host.getWorldState()
-while not world_state.is_mission_running:
+while not world_state.has_mission_begun:
     sys.stdout.write(".")
     time.sleep(0.1)
     world_state = agent_host.getWorldState()
@@ -103,13 +104,16 @@ count = 0
 while world_state.is_mission_running:
     sys.stdout.write(".")
     time.sleep(0.5)
-    if count > 10:
+    if count == 10:
+        print
+        print "Giving up!"
         agent_host.sendCommand("quit")
     count += 1
     world_state = agent_host.getWorldState()
     for error in world_state.errors:
         print "Error:",error.text
-
+    for reward in world_state.rewards:
+        print "Reward:",reward.getValue()
 print
 print "Mission ended"
 # Mission has ended.
