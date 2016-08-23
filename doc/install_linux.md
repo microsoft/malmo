@@ -1,6 +1,6 @@
 ## Installing dependencies for Linux ##
 
-For a minimal installation of running a python agent, follow step 1. Then see the Getting Started section below.
+For a minimal installation of running a python agent, follow step 1.
 
 ### 1. Install dependencies available from the standard repositories: ###
 
@@ -69,3 +69,8 @@ Then:
 Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc
 `source ~/.bashrc`
 
+### 5. Set the MALMO_XSD_PATH to the location of the schemas: ###
+
+1. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).
+2. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` (or your Schemas location) to your `~/.bashrc` and do `source ~/.bashrc`
+3. When you update Malmo you will need to update the MALMO_XSD_PATH too.

@@ -1,6 +1,6 @@
 ## Installing dependencies on Windows ##
 
-For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5 and 6. Then see the Getting Started section below.
+For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5, 6 and 8. Then see the Getting Started section below.
 
 If you just want to run the Minecraft Mod (maybe your agents run on a different machine) then you only need to follow step 6.
 
@@ -68,3 +68,10 @@ Download `vcredist_x64.exe` and run.
 If you don't want to use Malmo from C# then you can skip this step.
 
 Visit https://www.microsoft.com/net to download and install the latest dotNET framework.
+
+### 8. Set MALMO_XSD_PATH to the location of the schemas: ###
+
+1. If you have not already done so, unzip the Malmo zip to some location (e.g. your `C:\` drive).
+2. Make a new environment variable called MALMO_XSD_PATH. ([How To](https://support.microsoft.com/en-us/kb/310519) )
+3. Set it to the location of the Schemas folder where you unzipped the Malmo package. e.g. `C:\Malmo\Schemas`
+4. When you update Malmo you will need to update the MALMO_XSD_PATH too.
