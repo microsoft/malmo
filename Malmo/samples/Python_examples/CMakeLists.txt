@@ -36,6 +36,7 @@ set( SOURCES
   reward_for_discarding_items_test.py
   reward_for_items_test.py
   reward_for_mission_end_test.py
+  robust_frames.py
   run_mission.py
   sample_missions_loader.py
   tabular_q_learning.py
@@ -54,7 +55,7 @@ set( SOURCES
 )
 
 set( ALESOURCES
-    ALE_HAC.py
+  ALE_HAC.py
 )
 
 set( OTHER_FILES
@@ -64,8 +65,8 @@ set( OTHER_FILES
 
 install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )
 
-if ( ALE_FOUND )
-    install( FILES ${ALESOURCES} DESTINATION Python_Examples )
+if( ALE_FOUND )
+  install( FILES ${ALESOURCES} DESTINATION Python_Examples )
 endif()
 
 # add an integration test for each sample
