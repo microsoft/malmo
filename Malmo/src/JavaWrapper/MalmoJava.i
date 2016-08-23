@@ -284,6 +284,11 @@ public:
       oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
       jclass clazz = jenv->FindClass("java/lang/Exception");
       jenv->ThrowNew(clazz, oss.str().c_str());
+    } catch (const std::runtime_error& e) {
+      std::ostringstream oss;
+      oss << "Caught std::runtime_error: " << e.what();
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, oss.str().c_str());
     }
   %}
 

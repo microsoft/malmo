@@ -298,6 +298,10 @@ public:
       std::ostringstream oss;
       oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
       SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, oss.str().c_str());
+    } catch (const std::runtime_error& e) {
+      std::ostringstream oss;
+      oss << "Caught std::runtime_error: " << e.what();
+      SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, oss.str().c_str());
     }
   %}
 
