@@ -17,8 +17,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-# A sample intended to demonstrate how to robustly obtain frame-action pairs for different
-# types of movement.
+# A sample intended to demonstrate how to robustly obtain frame-action pairs for different types
+# of movement.
+#
+# To do this we assume that the move always succeeds - that there are always blocks to stand on,
+# no blocks in the way, and no animals or other effects that could move us. If this assumption is
+# not valid for your experiment then you will need to find a different approach to obtain frame-
+# action pairs robustly.
 
 import MalmoPython
 import json
@@ -77,8 +82,8 @@ class RandomAgent:
 
     def waitForNextState( self ):
         '''After each command has been sent we wait for the observation to change as expected and a frame.'''
-        # wait for the position to have changed
-        print 'Waiting for data...',
+        # wait for the observation position to have changed
+        print 'Waiting for observation...',
         while True:
             world_state = self.agent_host.peekWorldState()
             if not world_state.is_mission_running:
@@ -103,10 +108,31 @@ class RandomAgent:
                 else:
                     print 'received.'
                     break
-        # wait for a frame to arrive after that
-        num_frames_seen = world_state.number_of_video_frames_since_last_state
-        while world_state.is_mission_running and world_state.number_of_video_frames_since_last_state == num_frames_seen:
+        # wait for the render position to have changed
+        print 'Waiting for render...',
+        while True:
             world_state = self.agent_host.peekWorldState()
+            if not world_state.is_mission_running:
+                print 'mission ended.'
+                break
+            frame = world_state.video_frames[-1]
+            curr_x_from_render   = frame.xPos
+            curr_y_from_render   = frame.yPos
+            curr_z_from_render   = frame.zPos
+            curr_yaw_from_render = frame.yaw
+            if self.require_move:
+                if math.fabs( curr_x_from_render - self.prev_x ) > self.tolerance or\
+                   math.fabs( curr_y_from_render - self.prev_y ) > self.tolerance or\
+                   math.fabs( curr_z_from_render - self.prev_z ) > self.tolerance:
+                    print 'received a move.'
+                    break
+            elif self.require_yaw_change:
+                if math.fabs( curr_yaw_from_render - self.prev_yaw ) > self.tolerance:
+                    print 'received a turn.'
+                    break
+            else:
+                print 'received.'
+                break
             
         num_frames_before_get = len(world_state.video_frames)
         world_state = self.agent_host.getWorldState()
@@ -245,7 +271,7 @@ if agent_host.receivedArgument("help"):
 
 # -- set up the mission --
 xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <About>
     <Summary/>
   </About>
@@ -254,14 +280,16 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
   </ModSettings>
   <ServerSection>
     <ServerHandlers>
-      <FlatWorldGenerator forceReset="false" generatorString="3;7,220*1,5*3,2;3;,biome_1" seed=""/>
-      <ServerQuitFromTimeUp description="" timeLimitMs="130000"/>
+      <FlatWorldGenerator forceReset="true" generatorString="3;7,220*1,5*3,2;3;,biome_1" seed=""/>
+      <ServerQuitFromTimeUp description="" timeLimitMs="250000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
     </ServerHandlers>
   </ServerSection>
   <AgentSection mode="Survival">
     <Name>Cristina</Name>
-    <AgentStart/>
+    <AgentStart>
+      <Placement x="0.5" y="227.0" z="0.5" pitch="30" yaw="0"/>
+    </AgentStart>
     <AgentHandlers>
       <ObservationFromFullStats/>
       <VideoProducer viewpoint="0" want_depth="false">
@@ -278,7 +306,8 @@ my_mission = MalmoPython.MissionSpec(xml,True)
 
 # -- test each action set in turn --
 max_retries = 3
-for action_set in ['discrete_absolute','discrete_relative', 'teleport']:
+action_sets = ['discrete_absolute','discrete_relative', 'teleport']
+for action_set in action_sets:
 
     if action_set == 'discrete_absolute':
         my_mission.allowAllDiscreteMovementCommands()
