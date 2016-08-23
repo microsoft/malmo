@@ -21,8 +21,20 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
+import net.minecraft.client.AnvilConverterException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.storage.ISaveFormat;
+import net.minecraft.world.storage.ISaveHandler;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.world.storage.SaveFormatComparator;
+import net.minecraft.world.storage.SaveHandler;
+import net.minecraft.world.storage.WorldInfo;
 
 import org.apache.commons.io.FileUtils;
 
@@ -75,4 +87,45 @@ public class MapFileHelper
         
         return dst;
     }
+
+    /**
+     * Creates and launches a unique world according to the settings. 
+     * @param worldsettings the world's settings
+     * @param isTemporary if true, the world will be deleted whenever newer worlds are created
+     * @return
+     */
+	public static boolean createAndLaunchWorld(WorldSettings worldsettings, boolean isTemporary) {
+
+        String s = SimpleDateFormat.getDateTimeInstance().format(new Date()).replace(":", "_");
+        if (isTemporary){
+            s = "TEMP_"+s;
+        }
+        Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
+        cleanupTemporaryWorlds(s);
+        return true;
+	}
+
+	/**
+	 * Attempts to delete all Minecraft Worlds with "TEMP_" in front of the name
+	 * @param currentWorld excludes this world from deletion, can be null
+	 */
+	public static void cleanupTemporaryWorlds(String currentWorld){
+		List<SaveFormatComparator> saveList;
+		ISaveFormat isaveformat = Minecraft.getMinecraft().getSaveLoader();
+		isaveformat.flushCache();
+
+		try{
+			saveList = isaveformat.getSaveList();
+		} catch (AnvilConverterException e){
+			e.printStackTrace();
+			return;
+		}
+
+		for (SaveFormatComparator s: saveList){
+			String folderName = s.getFileName();
+			if (folderName.startsWith("TEMP_") && !folderName.equals(currentWorld)){
+				isaveformat.deleteWorldDirectory(folderName);
+			}
+		}
+	}
 }

@@ -19,8 +19,6 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
@@ -33,6 +31,7 @@ import net.minecraft.world.WorldType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.DefaultWorldGenerator;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.MapFileHelper;
 
 public class DefaultWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
@@ -78,9 +77,7 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
         worldsettings.enableCommands();
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
-        String s = SimpleDateFormat.getDateTimeInstance().format(new Date()).replace(":", "_");
-        Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
-        return true;
+        return MapFileHelper.createAndLaunchWorld(worldsettings, this.dwparams.isDestroyAfterMission());
     }
 
     @Override
@@ -109,4 +106,5 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
     {
         return "";  // Don't currently have any error exit points.
     }
+
 }

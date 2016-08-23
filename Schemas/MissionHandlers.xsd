@@ -94,6 +94,14 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="destroyAfterMission" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -116,6 +124,14 @@
           <xs:documentation>
             Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
             Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="destroyAfterMission" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
