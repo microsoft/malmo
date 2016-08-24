@@ -34,6 +34,17 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 agent_host1 = MalmoPython.AgentHost()
 agent_host2 = MalmoPython.AgentHost()
 
+try:
+    agent_host1.parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_host1.getUsage()
+    exit(1)
+if agent_host1.receivedArgument("help"):
+    print agent_host1.getUsage()
+    exit(0)
+
+
 # -- set up the mission --
 xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -48,7 +59,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
     </ServerInitialConditions>
     <ServerHandlers>
       <FlatWorldGenerator forceReset="true" generatorString="3;7,220*1,5*3,2;3;,biome_1" seed=""/>
-      <ServerQuitFromTimeUp description="" timeLimitMs="20000"/>
+      <ServerQuitFromTimeUp description="" timeLimitMs="10000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
     </ServerHandlers>
   </ServerSection>
@@ -117,13 +128,16 @@ for i in xrange(reps):
     agent_host2.sendCommand('use 1')
     time.sleep(1)
     
+# wait for the missions to end    
+while agent_host1.peekWorldState().is_mission_running or agent_host2.peekWorldState().is_mission_running:
+    time.sleep(1)
+
+# check the rewards obtained
 expected_reward1 = reps*1  + reps*10  # reward of 1 for collecting, 10 for discarding
 expected_reward2 = reps*10 + reps*100 # reward of 10 for collecting, 100 for discarding
-    
-# check the rewards obtained
 world_state1 = agent_host1.getWorldState()
 world_state2 = agent_host2.getWorldState()
 reward1 = sum(reward.getValue() for reward in world_state1.rewards)
 reward2 = sum(reward.getValue() for reward in world_state2.rewards)
-assert reward1 == reps, 'ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1)
-assert reward2 == reps, 'ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2)
+assert reward1 == expected_reward1, 'ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1)
+assert reward2 == expected_reward2, 'ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2)
