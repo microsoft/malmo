@@ -69,26 +69,32 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
     public static class UseActionMessage implements IMessage
     {
-        String parameters;
+        public BlockPos pos;
+        public ItemStack itemStack;
         public UseActionMessage()
         {
         }
-    
-        public UseActionMessage(String parameters)
+
+        public UseActionMessage(BlockPos pos,ItemStack itemStack)
         {
-            this.parameters = parameters;
+            this.pos = pos;
+            this.itemStack = itemStack;
         }
 
         @Override
         public void fromBytes(ByteBuf buf)
         {
-            this.parameters = ByteBufUtils.readUTF8String(buf);
+            this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
+            this.itemStack = ByteBufUtils.readItemStack(buf);
         }
 
         @Override
         public void toBytes(ByteBuf buf)
         {
-            ByteBufUtils.writeUTF8String(buf, this.parameters);
+            buf.writeInt(this.pos.getX());
+            buf.writeInt(this.pos.getY());
+            buf.writeInt(this.pos.getZ());
+            ByteBufUtils.writeItemStack(buf, this.itemStack);
         }
     }
 
@@ -97,31 +103,17 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         @Override
         public IMessage onMessage(UseActionMessage message, MessageContext ctx)
         {
-            MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-            if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
-            {
-                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-                if( player.getCurrentEquippedItem() != null ) {
-                    ItemStack itemStack = player.getCurrentEquippedItem();
-                    Block b = Block.getBlockFromItem( itemStack.getItem() );
-                    if( b != null ) {
-                        BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
-                        // Can we place this block here?
-                        AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
-                        if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
-                        {
-                            // Yes!
-                            IBlockState blockType = b.getStateFromMeta( itemStack.getMetadata() );
-                            if (player.worldObj.setBlockState( pos, blockType ))
-                            {
-                                // We set the block, so remove it from the inventory.
-                                if (player.inventory.getCurrentItem().stackSize > 1)
-                                    player.inventory.getCurrentItem().stackSize--;
-                                else
-                                    player.inventory.mainInventory[player.inventory.currentItem] = null;
-                            }
-                        }
-                    }
+            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            Block b = Block.getBlockFromItem( message.itemStack.getItem() );
+            if( b != null ) {
+                IBlockState blockType = b.getStateFromMeta( message.itemStack.getMetadata() );
+                if (player.worldObj.setBlockState( message.pos, blockType ))
+                {
+                    // We set the block, so remove it from the inventory.
+                    if (player.inventory.getCurrentItem().stackSize > 1)
+                        player.inventory.getCurrentItem().stackSize--;
+                    else
+                        player.inventory.mainInventory[player.inventory.currentItem] = null;
                 }
             }
             return null;
@@ -131,26 +123,28 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
     public static class AttackActionMessage implements IMessage
     {
-        String parameters;
+        public BlockPos pos;
         public AttackActionMessage()
         {
         }
-    
-        public AttackActionMessage(String parameters)
+
+        public AttackActionMessage(BlockPos hitPos)
         {
-            this.parameters = parameters;
+            this.pos = hitPos;
         }
 
         @Override
         public void fromBytes(ByteBuf buf)
         {
-            this.parameters = ByteBufUtils.readUTF8String(buf);
+            this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
         }
 
         @Override
         public void toBytes(ByteBuf buf)
         {
-            ByteBufUtils.writeUTF8String(buf, this.parameters);
+            buf.writeInt(this.pos.getX());
+            buf.writeInt(this.pos.getY());
+            buf.writeInt(this.pos.getZ());
         }
     }
 
@@ -159,25 +153,21 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         @Override
         public IMessage onMessage(AttackActionMessage message, MessageContext ctx)
         {
-            MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-            if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
-                BlockPos hitPos = mop.getBlockPos();
-                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-                IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
-                Block block = iblockstate.getBlock();
-                if (block.getMaterial() != Material.air)
+            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            IBlockState iblockstate = player.worldObj.getBlockState(message.pos);
+            Block block = iblockstate.getBlock();
+            if (block.getMaterial() != Material.air)
+            {
+                boolean dropBlock = false;
+                // We do things this way, rather than pass true for dropBlock in world.destroyBlock,
+                // because we want this to take instant effect - we don't want the intermediate stage
+                // of spawning a free-floating item that the player must pick up.
+                java.util.List<ItemStack> items = block.getDrops(player.worldObj, message.pos, iblockstate, 0);
+                player.worldObj.destroyBlock( message.pos, dropBlock );
+                for (ItemStack item : items)
                 {
-                    boolean dropBlock = false;
-                    // We do things this way, rather than pass true for dropBlock in world.destroyBlock,
-                    // because we want this to take instant effect - we don't want the intermediate stage
-                    // of spawning a free-floating item that the player must pick up.
-                    java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
-                    player.worldObj.destroyBlock( hitPos, dropBlock );
-                    for (ItemStack item : items)
-                    {
-                        if (!player.inventory.addItemStackToInventory(item))
-                            Block.spawnAsEntity(player.worldObj, hitPos, item); // Didn't fit in inventory, so spawn it.
-                    }
+                    if (!player.inventory.addItemStackToInventory(item))
+                        Block.spawnAsEntity(player.worldObj, message.pos, item); // Didn't fit in inventory, so spawn it.
                 }
             }
             return null;
@@ -287,12 +277,38 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             }
             else if (verb.equalsIgnoreCase(DiscreteMovementCommand.ATTACK.value()))
             {
-                MalmoMod.network.sendToServer(new AttackActionMessage(parameter));
+                MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+                if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
+                    BlockPos hitPos = mop.getBlockPos();
+                    IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
+                    Block block = iblockstate.getBlock();
+                    if (block.getMaterial() != Material.air)
+                    {
+                        MalmoMod.network.sendToServer(new AttackActionMessage(hitPos));
+                    }
+                }
                 handled = true;
             }
             else if (verb.equalsIgnoreCase(DiscreteMovementCommand.USE.value()))
             {
-                MalmoMod.network.sendToServer(new UseActionMessage(parameter));
+                MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+                if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+                {
+                    if( player.getCurrentEquippedItem() != null ) {
+                        ItemStack itemStack = player.getCurrentEquippedItem();
+                        Block b = Block.getBlockFromItem( itemStack.getItem() );
+                        if( b != null ) {
+                            BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
+                            // Can we place this block here?
+                            AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
+                            if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
+                            {
+                                // Yes!
+                                MalmoMod.network.sendToServer(new UseActionMessage(pos,itemStack));
+                            }
+                        }
+                    }
+                }
                 handled = true;
             }
 
@@ -304,7 +320,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 // Now check where we ended up:
                 double newX = player.posX;
                 double newZ = player.posZ;
-                
+
                 // Are we still in the centre of a square, or did we get shunted?
                 double desiredX = Math.floor(newX) + 0.5;
                 double desiredZ = Math.floor(newZ) + 0.5;
