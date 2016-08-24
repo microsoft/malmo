@@ -204,7 +204,7 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:int">
-          <xs:minInclusive value="1" />
+          <xs:minInclusive value="0" />
           <xs:maxInclusive value="23999" />
         </xs:restriction>
       </xs:simpleType>
