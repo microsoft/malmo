@@ -51,6 +51,7 @@ set( SOURCES
   tutorial_6.py
   tutorial_7.py
   tutorial_8.py
+  two_diggers.py
   use_file.py
 )
 
