@@ -54,6 +54,7 @@ execute_process(
     OUTPUT_VARIABLE MOD_FILES
 )
 STRING(REGEX REPLACE "\n" ";" MOD_FILES "${MOD_FILES}")
+list(REMOVE_ITEM MOD_FILES launch_minecraft_in_background.py)
 foreach ( file ${MOD_FILES} )
     get_filename_component( dir ${file} PATH )
     install( FILES ${file} DESTINATION Minecraft/${dir} )
