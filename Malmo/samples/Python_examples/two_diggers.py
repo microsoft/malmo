@@ -172,7 +172,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
   <AgentSection mode="Survival">
     <Name>Ant</Name>
     <AgentStart>
-      <Placement x="-1.5" y="227.0" z="0.5" pitch="20" yaw="0"/>
+      <Placement x="-1.5" y="227.0" z="0.5" pitch="25" yaw="0"/>
     </AgentStart>
     <AgentHandlers>
       <ContinuousMovementCommands/>
@@ -188,7 +188,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
   <AgentSection mode="Survival">
     <Name>Bee</Name>
     <AgentStart>
-      <Placement x="1.5" y="227.0" z="6.5" pitch="20" yaw="180"/>
+      <Placement x="1.5" y="227.0" z="6.5" pitch="25" yaw="180"/>
     </AgentStart>
     <AgentHandlers>
       <ContinuousMovementCommands/>
@@ -224,6 +224,7 @@ for agent_host in [ agent_host1, agent_host2 ]:
     print
 
 # perform a few actions
+time.sleep(1)
 agent_host1.sendCommand('attack 1')
 agent_host2.sendCommand('attack 1')
 time.sleep(1)
@@ -234,14 +235,19 @@ agent_host2.sendCommand('move 1')
 time.sleep(1)
 agent_host1.sendCommand('move 0')
 agent_host2.sendCommand('move 0')
+agent_host1.sendCommand('use 1')
+agent_host2.sendCommand('use 1')
+time.sleep(1)
+agent_host1.sendCommand('use 0')
+agent_host2.sendCommand('use 0')
     
 # wait for the missions to end    
 while agent_host1.peekWorldState().is_mission_running or agent_host2.peekWorldState().is_mission_running:
     time.sleep(1)
 
 # check the rewards obtained
-expected_reward1 = 1  # reward of 1 for collecting, 10 for discarding
-expected_reward2 = 10 # reward of 10 for collecting, 100 for discarding
+expected_reward1 = 1 + 10   # reward of 1 for collecting, 10 for discarding
+expected_reward2 = 10 + 100 # reward of 10 for collecting, 100 for discarding
 world_state1 = agent_host1.getWorldState()
 world_state2 = agent_host2.getWorldState()
 reward1 = sum(reward.getValue() for reward in world_state1.rewards)
