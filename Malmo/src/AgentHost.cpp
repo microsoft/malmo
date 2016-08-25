@@ -52,6 +52,8 @@ namespace malmo
         , observations_policy(LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
     {
+        xercesc::XMLPlatformUtils::Initialize();
+
         this->addOptionalFlag("help,h", "show description of allowed options");
         this->addOptionalFlag("test",   "run this as an integration test");
 
@@ -69,6 +71,8 @@ namespace malmo
         for( auto& t : this->background_threads )
             t->join();
         this->close();
+
+        xercesc::XMLPlatformUtils::Terminate();
     }
 
     void AgentHost::startMission(const MissionSpec& mission, const MissionRecordSpec& mission_record)
