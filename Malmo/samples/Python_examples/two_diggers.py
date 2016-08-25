@@ -104,7 +104,7 @@ client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10000) )
 client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001) )
 
 agent_host1.startMission( my_mission, client_pool, MalmoPython.MissionRecordSpec(), 0, '' )
-time.sleep(5)
+time.sleep(10)
 agent_host2.startMission( my_mission, client_pool, MalmoPython.MissionRecordSpec(), 1, '' )
 
 for agent_host in [ agent_host1, agent_host2 ]:
@@ -120,13 +120,28 @@ for agent_host in [ agent_host1, agent_host2 ]:
 
 # perform a few actions
 reps = 3
+time.sleep(1)
 for i in xrange(reps):
     agent_host1.sendCommand('attack 1')
     agent_host2.sendCommand('attack 1')
     time.sleep(1)
+    world_state1 = agent_host1.peekWorldState()
+    world_state2 = agent_host2.peekWorldState()
+    reward1 = sum(reward.getValue() for reward in world_state1.rewards)
+    reward2 = sum(reward.getValue() for reward in world_state2.rewards)
+    print 'So far, agent 1 received',reward1
+    print 'So far, agent 2 received',reward2
     agent_host1.sendCommand('use 1')
     agent_host2.sendCommand('use 1')
     time.sleep(1)
+    world_state1 = agent_host1.peekWorldState()
+    world_state2 = agent_host2.peekWorldState()
+    reward1 = sum(reward.getValue() for reward in world_state1.rewards)
+    reward2 = sum(reward.getValue() for reward in world_state2.rewards)
+    print 'So far, agent 1 received',reward1
+    print 'So far, agent 2 received',reward2
+    agent_host1.sendCommand('use 1')
+    agent_host2.sendCommand('use 1')
     
 # wait for the missions to end    
 while agent_host1.peekWorldState().is_mission_running or agent_host2.peekWorldState().is_mission_running:
@@ -139,5 +154,7 @@ world_state1 = agent_host1.getWorldState()
 world_state2 = agent_host2.getWorldState()
 reward1 = sum(reward.getValue() for reward in world_state1.rewards)
 reward2 = sum(reward.getValue() for reward in world_state2.rewards)
+print 'Agent 1 received',reward1
+print 'Agent 2 received',reward2
 assert reward1 == expected_reward1, 'ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1)
 assert reward2 == expected_reward2, 'ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2)
