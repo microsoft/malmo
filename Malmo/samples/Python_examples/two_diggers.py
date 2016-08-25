@@ -109,11 +109,11 @@ agent_host2.startMission( my_mission, client_pool, MalmoPython.MissionRecordSpec
 
 for agent_host in [ agent_host1, agent_host2 ]:
     print "Waiting for the mission to start",
-    world_state = agent_host.getWorldState()
+    world_state = agent_host.peekWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
-        world_state = agent_host.getWorldState()
+        world_state = agent_host.peekWorldState()
         for error in world_state.errors:
             print "Error:",error.text
     print
@@ -125,23 +125,9 @@ for i in xrange(reps):
     agent_host1.sendCommand('attack 1')
     agent_host2.sendCommand('attack 1')
     time.sleep(1)
-    world_state1 = agent_host1.peekWorldState()
-    world_state2 = agent_host2.peekWorldState()
-    reward1 = sum(reward.getValue() for reward in world_state1.rewards)
-    reward2 = sum(reward.getValue() for reward in world_state2.rewards)
-    print 'So far, agent 1 received',reward1
-    print 'So far, agent 2 received',reward2
     agent_host1.sendCommand('use 1')
     agent_host2.sendCommand('use 1')
     time.sleep(1)
-    world_state1 = agent_host1.peekWorldState()
-    world_state2 = agent_host2.peekWorldState()
-    reward1 = sum(reward.getValue() for reward in world_state1.rewards)
-    reward2 = sum(reward.getValue() for reward in world_state2.rewards)
-    print 'So far, agent 1 received',reward1
-    print 'So far, agent 2 received',reward2
-    agent_host1.sendCommand('use 1')
-    agent_host2.sendCommand('use 1')
     
 # wait for the missions to end    
 while agent_host1.peekWorldState().is_mission_running or agent_host2.peekWorldState().is_mission_running:

@@ -287,9 +287,12 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     {
                         MalmoMod.network.sendToServer(new AttackActionMessage(hitPos));
                         // Trigger a reward for collecting the block
-                        ItemStack itemStack = new ItemStack(block);
-                        RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(itemStack);
-                        MinecraftForge.EVENT_BUS.post(event);
+                        java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
+                        for (ItemStack item : items)
+                        {
+                            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(item);
+                            MinecraftForge.EVENT_BUS.post(event);
+                        }
                     }
                 }
                 handled = true;
@@ -311,7 +314,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                 // Yes!
                                 MalmoMod.network.sendToServer(new UseActionMessage(pos,itemStack));
                                 // Trigger a reward for discarding the block
-                                ItemStack droppedItemStack = new ItemStack(b);
+                                ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
                                 RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
                                 MinecraftForge.EVENT_BUS.post(event);
                             }
