@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.17">
+           version="0.18">
 
   <xs:include schemaLocation="Types.xsd" />
 
@@ -94,7 +94,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="destroyAfterMission" use="optional" type="xs:boolean" default="false">
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
         <xs:annotation>
           <xs:documentation>
             Set this to true to force the world data files to be deleted after the mission is done.
@@ -127,7 +127,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="destroyAfterMission" use="optional" type="xs:boolean" default="false">
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
         <xs:annotation>
           <xs:documentation>
             Set this to true to force the world data files to be deleted after the mission is done.
@@ -161,6 +161,14 @@
           <xs:documentation>
             Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename).
             Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+       <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>

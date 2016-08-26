@@ -77,7 +77,7 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
         worldsettings.enableCommands();
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
-        return MapFileHelper.createAndLaunchWorld(worldsettings, this.dwparams.isDestroyAfterMission());
+        return MapFileHelper.createAndLaunchWorld(worldsettings, this.dwparams.isDestroyAfterUse());
     }
 
     @Override
