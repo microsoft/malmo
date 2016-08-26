@@ -56,7 +56,7 @@ public class FlatWorldGeneratorImplementation extends HandlerBase implements IWo
         worldsettings.enableCommands(); // Enables cheat commands.
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
-        return MapFileHelper.createAndLaunchWorld(worldsettings, this.fwparams.isDestroyAfterMission());
+        return MapFileHelper.createAndLaunchWorld(worldsettings, this.fwparams.isDestroyAfterUse());
     }
 
     @Override
