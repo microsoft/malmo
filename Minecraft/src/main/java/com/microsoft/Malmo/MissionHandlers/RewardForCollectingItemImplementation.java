@@ -88,6 +88,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     public void onPickupItem(EntityItemPickupEvent event)
     {
         if (event.item != null && event.entityPlayer instanceof EntityPlayerMP ) {
+            // This event is received on the server side, so we need to pass it to the client.
             ByteBuf buf = Unpooled.buffer();
             ByteBufUtils.writeItemStack(buf, event.item.getEntityItem());
             MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(
