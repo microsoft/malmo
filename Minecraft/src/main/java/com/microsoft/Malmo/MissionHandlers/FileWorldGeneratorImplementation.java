@@ -67,7 +67,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
             this.errorDetails = "Basemap location " + this.mapFilename + " needs to be a folder. Check the path in your Mission XML.";
             return false;
         }
-        File mapCopy = MapFileHelper.copyMapFiles(mapSource, true);
+        File mapCopy = MapFileHelper.copyMapFiles(mapSource, this.fwparams.isDestroyAfterUse());
         if (mapCopy == null)
         {
             this.errorDetails = "Unable to copy " + this.mapFilename + " - is the hard drive full?";
@@ -87,6 +87,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
             this.errorDetails = "Minecraft could not load " + this.mapFilename + " - is it a valid saved world?";
             return false;
         }
+        MapFileHelper.cleanupTemporaryWorlds(mapCopy.getName());    // Now we are safely running a new file, we can attempt to clean up old ones.
         return true;
     }
     
