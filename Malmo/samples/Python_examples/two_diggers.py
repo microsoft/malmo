@@ -161,8 +161,8 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
     <ServerHandlers>
       <FlatWorldGenerator forceReset="true" generatorString="3;7,220*1,5*3,2;3;,biome_1" seed=""/>
       <DrawingDecorator>
-        <DrawBlock type="sand" x="-2" y="228" z="3" />
-        <DrawBlock type="sand" x="1" y="228" z="3" />
+        <DrawBlock type="sand" x="-2" y="227" z="3" />
+        <DrawBlock type="sponge" x="1" y="227" z="3" />
       </DrawingDecorator>
       <ServerQuitFromTimeUp description="" timeLimitMs="10000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
@@ -193,10 +193,10 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
     <AgentHandlers>
       <ContinuousMovementCommands/>
       <RewardForCollectingItem>
-        <Item reward="10" type="sand"/>
+        <Item reward="10" type="sponge"/>
       </RewardForCollectingItem>
       <RewardForDiscardingItem>
-        <Item reward="100" type="sand"/>
+        <Item reward="100" type="sponge"/>
       </RewardForDiscardingItem>
     </AgentHandlers>
   </AgentSection>

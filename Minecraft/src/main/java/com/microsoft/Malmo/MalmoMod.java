@@ -175,9 +175,10 @@ public class MalmoMod
         SERVER_OBSERVATIONSREADY,
         SERVER_TEXT,
         SERVER_ABORT,
+        SERVER_COLLECTITEM,
         SERVER_SOMEOTHERMESSAGE,
         CLIENT_AGENTREADY,			// Client response to server's ready request
-        CLIENT_AGENTRUNNING,				// Client has just started running
+        CLIENT_AGENTRUNNING,		// Client has just started running
         CLIENT_AGENTSTOPPED,		// Client response to server's stop request
         CLIENT_AGENTFINISHEDMISSION,// Individual agent has finished a mission
         CLIENT_BAILED,				// Client has hit an error and been forced to enter error state
