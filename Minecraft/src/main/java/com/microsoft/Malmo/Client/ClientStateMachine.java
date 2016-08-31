@@ -293,11 +293,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
     protected boolean areMissionsEqual(Mission m1, Mission m2)
     {
-        // TODO - compare missions.
-        // A simple string comparison on the serialisations won't necessarily work, since there are
-        // variations in the way JAXB, CodeSynthesis etc perform the serialisation/deserialisation.
-        // For the time being, we just return true here.
-        return true;
+        try {
+            String s1 = SchemaHelper.serialiseObject(m1, Mission.class);
+            String s2 = SchemaHelper.serialiseObject(m2, Mission.class);
+            return s1.compareTo(s2) == 0;
+        } catch( JAXBException e ) {
+            System.out.println("JAXB exception: " + e);
+            return false;
+        }
     }
 
     /**
