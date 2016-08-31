@@ -396,17 +396,31 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         {
                             // MissionInit passed to us, no server details, and role 0 specified -
                             // this means WE should become the server, and launch this mission.
-                            IState currentState = getStableState();
-                            if (currentState != null && currentState.equals(ClientState.DORMANT))
+                            if( currentMissionInit() != null && currentMissionInit().getClientRole() == 0
+                             && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
+                             && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
                             {
-                                reply = "MALMOOK";
-                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                            }
-                            else
-                            {
-                                // We're busy - we can't run this mission.
-                                reply = "MALMOBUSY";
+                                // Give an error because this is a dangerous situation - two multi-agent missions have been
+                                // launched with identical mission specifications and without the users ensuring that each
+                                // has a unique experiment ID to identify it. The second agent from researcher B might join
+                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
+                                // ways.
+                                reply = "MALMOERROR Non-unique experiment ID detected!";
                                 keepProcessing = false; // Ignore the message.
+                            }
+                            else {
+                                IState currentState = getStableState();
+                                if (currentState != null && currentState.equals(ClientState.DORMANT))
+                                {
+                                    reply = "MALMOOK";
+                                    keepProcessing = true; // State machine will now process this MissionInit and start the mission.
+                                }
+                                else
+                                {
+                                    // We're busy - we can't run this mission.
+                                    reply = "MALMOBUSY";
+                                    keepProcessing = false; // Ignore the message.
+                                }
                             }
                         }
                         else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
