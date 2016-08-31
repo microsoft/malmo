@@ -18,12 +18,12 @@
 # ------------------------------------------------------------------------------------------------
 
 import MalmoPython
+import json
+import math
 import os
 import random
 import sys
 import time
-import json
-import random
 
 #-------------------------------------------------------------------------------------------------------------------------------------
 #Very simple script to test drawing code - starts a mission in order to draw, but quits after a second.
@@ -104,6 +104,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <Placement x="0.5" y="86.0" z="420.5"/>
             </AgentStart>
             <AgentHandlers>
+              <ObservationFromFullStats/>
             </AgentHandlers>
         </AgentSection>
 
@@ -136,13 +137,21 @@ for retry in range(max_retries):
         else:
             time.sleep(2)
 
-world_state = agent_host.getWorldState()
+world_state = agent_host.peekWorldState()
 while not world_state.has_mission_begun:
     time.sleep(0.1)
-    world_state = agent_host.getWorldState()
+    world_state = agent_host.peekWorldState()
     
 while world_state.is_mission_running:
-    world_state = agent_host.getWorldState()
+    world_state = agent_host.peekWorldState()
+
+if agent_host.receivedArgument("test"):
+    # check the height of the player in the last observation    
+    assert len(world_state.observations) > 0, 'No observations received'
+    obs = json.loads( world_state.observations[-1].text )
+    player_y = obs[u'YPos']
+    print 'Player at y =',player_y
+    assert math.fabs( player_y - 83.0 ) < 0.01, 'Player not at expected height'
 
 # mission has ended.
 print "Mission over - feel free to explore the world."
