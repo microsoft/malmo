@@ -166,8 +166,9 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 player.worldObj.destroyBlock( message.pos, dropBlock );
                 for (ItemStack item : items)
                 {
-                    if (!player.inventory.addItemStackToInventory(item))
-                        Block.spawnAsEntity(player.worldObj, message.pos, item); // Didn't fit in inventory, so spawn it.
+                    if (!player.inventory.addItemStackToInventory(item)) {
+                       Block.spawnAsEntity(player.worldObj, message.pos, item); // Didn't fit in inventory, so spawn it.
+                    }
                 }
             }
             return null;
@@ -285,6 +286,13 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     if (block.getMaterial() != Material.air)
                     {
                         MalmoMod.network.sendToServer(new AttackActionMessage(hitPos));
+                        // Trigger a reward for collecting the block
+                        java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
+                        for (ItemStack item : items)
+                        {
+                            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(item);
+                            MinecraftForge.EVENT_BUS.post(event);
+                        }
                     }
                 }
                 handled = true;
@@ -305,6 +313,10 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                             {
                                 // Yes!
                                 MalmoMod.network.sendToServer(new UseActionMessage(pos,itemStack));
+                                // Trigger a reward for discarding the block
+                                ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
+                                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
+                                MinecraftForge.EVENT_BUS.post(event);
                             }
                         }
                     }
