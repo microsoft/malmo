@@ -293,11 +293,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
     protected boolean areMissionsEqual(Mission m1, Mission m2)
     {
-        // TODO - compare missions.
-        // A simple string comparison on the serialisations won't necessarily work, since there are
-        // variations in the way JAXB, CodeSynthesis etc perform the serialisation/deserialisation.
-        // For the time being, we just return true here.
-        return true;
+        try {
+            String s1 = SchemaHelper.serialiseObject(m1, Mission.class);
+            String s2 = SchemaHelper.serialiseObject(m2, Mission.class);
+            return s1.compareTo(s2) == 0;
+        } catch( JAXBException e ) {
+            System.out.println("JAXB exception: " + e);
+            return false;
+        }
     }
 
     /**
@@ -393,17 +396,31 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         {
                             // MissionInit passed to us, no server details, and role 0 specified -
                             // this means WE should become the server, and launch this mission.
-                            IState currentState = getStableState();
-                            if (currentState != null && currentState.equals(ClientState.DORMANT))
+                            if( currentMissionInit() != null && currentMissionInit().getClientRole() == 0
+                             && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
+                             && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
                             {
-                                reply = "MALMOOK";
-                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                            }
-                            else
-                            {
-                                // We're busy - we can't run this mission.
-                                reply = "MALMOBUSY";
+                                // Give an error because this is a dangerous situation - two multi-agent missions have been
+                                // launched with identical mission specifications and without the users ensuring that each
+                                // has a unique experiment ID to identify it. The second agent from researcher B might join
+                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
+                                // ways.
+                                reply = "MALMOERROR Non-unique experiment ID detected!";
                                 keepProcessing = false; // Ignore the message.
+                            }
+                            else {
+                                IState currentState = getStableState();
+                                if (currentState != null && currentState.equals(ClientState.DORMANT))
+                                {
+                                    reply = "MALMOOK";
+                                    keepProcessing = true; // State machine will now process this MissionInit and start the mission.
+                                }
+                                else
+                                {
+                                    // We're busy - we can't run this mission.
+                                    reply = "MALMOBUSY";
+                                    keepProcessing = false; // Ignore the message.
+                                }
                             }
                         }
                         else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
