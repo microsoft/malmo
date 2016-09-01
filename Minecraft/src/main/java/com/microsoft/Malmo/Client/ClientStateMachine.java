@@ -394,29 +394,30 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         }
                         else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
                         {
-                            // MissionInit passed to us, no server details, and role 0 specified -
-                            // this means WE should become the server, and launch this mission.
-                            if( currentMissionInit() != null && currentMissionInit().getClientRole() == 0
-                             && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
-                             && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
+                            IState currentState = getStableState();
+                            if (currentState != null && currentState.equals(ClientState.DORMANT))
                             {
-                                // Give an error because this is a dangerous situation - two multi-agent missions have been
-                                // launched with identical mission specifications and without the users ensuring that each
-                                // has a unique experiment ID to identify it. The second agent from researcher B might join
-                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
-                                // ways.
-                                reply = "MALMOERROR Non-unique experiment ID detected!";
-                                keepProcessing = false; // Ignore the message.
+                                reply = "MALMOOK";
+                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
                             }
-                            else {
-                                IState currentState = getStableState();
-                                if (currentState != null && currentState.equals(ClientState.DORMANT))
+                            else
+                            {
+                                // MissionInit passed to us, no server details, and role 0 specified -
+                                // this means WE should become the server, and launch this mission.
+                                if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
+                                    && currentMissionInit().getClientRole() == 0
+                                    && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
+                                    && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
                                 {
-                                    reply = "MALMOOK";
-                                    keepProcessing = true; // State machine will now process this MissionInit and start the mission.
+                                    // Give a warning because this is a dangerous situation - two multi-agent missions have been
+                                    // launched with identical mission specifications and without the users ensuring that each
+                                    // has a unique experiment ID to identify it. The second agent from researcher B might join
+                                    // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
+                                    // ways.
+                                    reply = "MALMOBUSY (Warning: Identical mission and experiment ID as currently running - danger that your agents will join the wrong mission.)";
+                                    keepProcessing = false; // Ignore the message.
                                 }
-                                else
-                                {
+                                else {
                                     // We're busy - we can't run this mission.
                                     reply = "MALMOBUSY";
                                     keepProcessing = false; // Ignore the message.
