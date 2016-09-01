@@ -1,4 +1,4 @@
-0.17.1
+0.18.0
 -------------------
 New: [BREAKING CHANGE] Mission worlds are now deleted after use unless destroyAfterUse is false. (#76)
 Fix: ContinuousMovementCommands now allow the setting of yaw/pitch by Discrete or Absolute movement commands. (#255)
