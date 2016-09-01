@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+Fix: Weather is periodically reset to mission requirements. (#264)
 New: [BREAKING CHANGE] Mission worlds are now deleted after use unless destroyAfterUse is false. (#76)
 Fix: ContinuousMovementCommands now allow the setting of yaw/pitch by Discrete or Absolute movement commands. (#255)
 Fix: Continuous-mode use/attack weren't correctly triggering rewards for discarding/collecting items. (#303)

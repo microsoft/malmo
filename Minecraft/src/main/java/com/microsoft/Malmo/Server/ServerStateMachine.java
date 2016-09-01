@@ -36,10 +36,8 @@ import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
-import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
@@ -69,6 +67,7 @@ import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.ServerInitialConditions;
 import com.microsoft.Malmo.Schemas.ServerSection;
+import com.microsoft.Malmo.Utils.EnvironmentHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
@@ -531,30 +530,8 @@ public class ServerStateMachine extends StateMachine
             if (builtOkay)
             {
                 // Now set up other attributes of the environment (eg weather)
-                initialiseWeather();
+                EnvironmentHelper.setMissionWeather(currentMissionInit());
                 episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_ASSEMBLE);
-            }
-        }
-
-        private void initialiseWeather()
-        {
-            ServerSection ss = currentMissionInit().getMission().getServerSection();
-            ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
-            if (sic != null && sic.getWeather() != null && !sic.getWeather().equalsIgnoreCase("normal"))
-            {
-                int maxtime = 1000000 * 20; // Max allowed by Minecraft's own Weather Command.
-                int cleartime = (sic.getWeather().equalsIgnoreCase("clear")) ? maxtime : 0;
-                int raintime = (sic.getWeather().equalsIgnoreCase("rain")) ? maxtime : 0;
-                int thundertime = (sic.getWeather().equalsIgnoreCase("thunder")) ? maxtime : 0;
-
-                WorldServer worldserver = MinecraftServer.getServer().worldServers[0];
-                WorldInfo worldinfo = worldserver.getWorldInfo();
-
-                worldinfo.setCleanWeatherTime(cleartime);
-                worldinfo.setRainTime(raintime);
-                worldinfo.setThunderTime(thundertime);
-                worldinfo.setRaining(raintime + thundertime > 0);
-                worldinfo.setThundering(thundertime > 0);
             }
         }
 
@@ -991,6 +968,14 @@ public class ServerStateMachine extends StateMachine
                 {
                     ServerStateMachine.this.quitCode = "All agents finished";
                     onMissionEnded(true);
+                }
+                // We need to make sure we keep the weather within mission parameters.
+                // We set the weather just after building the world, but it's not a permanent setting,
+                // and apparently there is a known bug in Minecraft that means the weather sometimes changes early.
+                // To get around this, we reset it periodically.
+                if (MinecraftServer.getServer().getTickCounter() % 500 == 0)
+                {
+                    EnvironmentHelper.setMissionWeather(currentMissionInit());
                 }
             }
         }
