@@ -36,32 +36,34 @@ import com.google.gson.JsonPrimitive;
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
  * This class contains helper methods to build up a JSON tree of useful information, such as health, XP, food levels, distance travelled, etc.etc.<br>
- * It can also build up a grid of the block types around the player.
+ * It can also build up a grid of the block types around the player or somewhere else in the world.
  * Call this on the Server side only.
  */
 public class JSONWorldDataHelper
 {
     /**
-     * Simple class to hold the dimensions of the environment around the player
+     * Simple class to hold the dimensions of the environment
      * that we want to return in the World Data.<br>
-     * Min and max define an inclusive range, where the player's feet are situated at (0,0,0)
+     * Min and max define an inclusive range, where the player's feet are situated at (0,0,0) if absoluteCoords=false.
      */
-    static public class ImmediateEnvironmentDimensions {
+    static public class GridDimensions {
         public int xMin;
         public int xMax;
         public int yMin;
         public int yMax;
         public int zMin;
         public int zMax;
+        public boolean absoluteCoords;
         
         /**
          * Default constructor asks for an environment just big enough to contain
          * the player and one block all around him.
          */
-        public ImmediateEnvironmentDimensions() {
+        public GridDimensions() {
             this.xMin = -1; this.xMax = 1;
             this.zMin = -1; this.zMax = 1;
             this.yMin = -1; this.yMax = 2;
+            this.absoluteCoords = false;
         }
         
         /**
@@ -71,10 +73,11 @@ public class JSONWorldDataHelper
          * @param yMargin number of blocks above and below player
          * @param zMargin number of blocks in front of and behind player
          */
-        public ImmediateEnvironmentDimensions(int xMargin, int yMargin, int zMargin) {
+        public GridDimensions(int xMargin, int yMargin, int zMargin) {
             this.xMin = -xMargin; this.xMax = xMargin;
             this.yMin = -yMargin; this.yMax = yMargin + 1;  // +1 because the player is two blocks tall.
             this.zMin = -zMargin; this.zMax = zMargin;
+            this.absoluteCoords = false;
         }
         
         /**
@@ -83,10 +86,11 @@ public class JSONWorldDataHelper
          * @param xMargin number of blocks around the player in the x-axis
          * @param zMargin number of blocks around the player in the z-axis
          */
-        public ImmediateEnvironmentDimensions(int xMargin, int zMargin) {
+        public GridDimensions(int xMargin, int zMargin) {
             this.xMin = -xMargin; this.xMax = xMargin;
             this.yMin = -1; this.yMax = -1;  // Flat patch of ground at the player's feet.
             this.zMin = -zMargin; this.zMax = zMargin;
+            this.absoluteCoords = false;
         }
     };
     
@@ -147,7 +151,7 @@ public class JSONWorldDataHelper
      * @param environmentDimensions object which specifies the required dimensions of the grid to be returned.
      * @param jsonName name to use for identifying the returned JSON array.
      */
-    public static void buildGridData(JsonObject json, ImmediateEnvironmentDimensions environmentDimensions, EntityPlayerMP player, String jsonName)
+    public static void buildGridData(JsonObject json, GridDimensions environmentDimensions, EntityPlayerMP player, String jsonName)
     {
         if (player == null || json == null)
             return;
@@ -160,7 +164,11 @@ public class JSONWorldDataHelper
             {
                 for (int x = environmentDimensions.xMin; x <= environmentDimensions.xMax; x++)
                 {
-                    BlockPos p = pos.add(x, y, z);
+                    BlockPos p;
+                    if( environmentDimensions.absoluteCoords )
+                        p = new BlockPos(x, y, z);
+                    else
+                        p = pos.add(x, y, z);
                     String name = "";
                     IBlockState state = player.worldObj.getBlockState(p);
                     Object blockName = Block.blockRegistry.getNameForObject(state.getBlock());
