@@ -4,6 +4,7 @@ New: [BREAKING CHANGE] Mission worlds are now deleted after use unless destroyAf
 Fix: ContinuousMovementCommands now allow the setting of yaw/pitch by Discrete or Absolute movement commands. (#255)
 Fix: Continuous-mode use/attack weren't correctly triggering rewards for discarding/collecting items. (#303)
 Fix: Discrete-mode use/attack weren't correctly triggering rewards for discarding/collecting items. (#297)
+ObservationFromGrid has new optional attribute 'absoluteCoords' for fixed-location grids. (#293)
 
 0.17.0 (2016-08-16)
 -------------------
