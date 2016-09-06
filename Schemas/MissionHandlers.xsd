@@ -1262,11 +1262,22 @@
   </xs:element>
 
   <xs:complexType name="GridDefinition">
+    <xs:annotation>
+      <xs:documentation>
+        {{{name}}} - Each grid has a text label to identify it.
+        
+        {{{absoluteCoords}}} - If true, the min and max coordinates of the grid are interpreted as world coordinates. If false (the default)
+        then the coordinates are relative to the player.
+        
+        {{{min}}}, {{{max}}} - The corners of the grid.
+      </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="min" type="Pos" />
       <xs:element name="max" type="Pos" />
     </xs:sequence>
     <xs:attribute name="name" type="xs:Name" use="required" />
+    <xs:attribute name="absoluteCoords" type="xs:boolean" use="optional" default="false" />
   </xs:complexType>
 
   <xs:element name="ObservationFromGrid">
@@ -1274,7 +1285,7 @@
       <xs:documentation>
         When present, the Mod will return observations that say what the nearby blocks are.
 
-        A JSON element {{{Cells}}} will be returned, with a 1D array of block types, in order along the x, then z, then y axes.
+        For each {{{Grid}}} entry, a named JSON element will be returned with a 1D array of block types, in order along the x, then z, then y axes.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
