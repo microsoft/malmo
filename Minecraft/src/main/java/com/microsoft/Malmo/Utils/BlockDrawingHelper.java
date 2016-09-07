@@ -61,14 +61,144 @@ import com.microsoft.Malmo.Schemas.Variation;
  */
 public class BlockDrawingHelper
 {
+    private class StateCheck
+    {
+        IBlockState desiredState;
+        BlockPos pos;
+        List<IProperty> propertiesToCheck;
+    }
+
+    private List<StateCheck> checkList;
+
+    public static class XMLBlockState implements IBlockState
+    {
+        IBlockState state;
+        Colour colour;
+        Facing face;
+        Variation variant;
+        BlockType type;
+        
+        public XMLBlockState(IBlockState state)
+        {
+            this.state = state;
+        }
+        
+        public XMLBlockState(BlockType type, Colour colour, Facing face, Variation variant)
+        {
+            IBlockState blockType = MinecraftTypeHelper.ParseBlockType(type.value());
+            if (blockType != null)
+            {
+                blockType = applyModifications(blockType, colour, face, variant);
+                this.state = blockType;
+            }
+            this.colour = colour;
+            this.face = face;
+            this.variant = variant;
+        }
+
+        public XMLBlockState(IBlockState state, Colour colour, Facing face, Variation variant)
+        {
+            if (state != null)
+            {
+                state = applyModifications(state, colour, face, variant);
+                this.state = state;
+            }
+            this.colour = colour;
+            this.face = face;
+            this.variant = variant;
+        }
+
+        @Override
+        public Collection getPropertyNames()
+        {
+            return this.state != null ? this.state.getPropertyNames() : null;
+        }
+
+        @Override
+        public Comparable getValue(IProperty property)
+        {
+            return this.state != null ? this.state.getValue(property) : null;
+        }
+
+        @Override
+        public IBlockState withProperty(IProperty property, Comparable value)
+        {
+            return this.state != null ? this.state.withProperty(property, value) : null;
+        }
+
+        @Override
+        public IBlockState cycleProperty(IProperty property)
+        {
+            return this.state != null ? this.state.cycleProperty(property) : null;
+        }
+
+        @Override
+        public ImmutableMap getProperties()
+        {
+            return this.state != null ? this.state.getProperties() : null;
+        }
+
+        @Override
+        public Block getBlock()
+        {
+            return this.state != null ? this.state.getBlock() : null;
+        }
+
+        public boolean isValid()
+        {
+            return this.state != null;
+        }
+    }
+
+    public void beginDrawing(World w)
+    {
+        // Any pre-drawing initialisation code here.
+        this.checkList = new ArrayList<StateCheck>();
+    }
+    
+    public void endDrawing(World w)
+    {
+        // Post-drawing code.
+        for (StateCheck sc : this.checkList)
+        {
+            IBlockState stateActual = w.getBlockState(sc.pos);
+            Block blockActual = stateActual.getBlock();
+            Block blockDesired = sc.desiredState.getBlock();
+            if (blockActual == blockDesired)
+            {
+                // The blocks are the same, so we can assume the block hasn't been deliberately overwritten.
+                // Now check the block states:
+                if (stateActual != sc.desiredState)
+                {
+                    if (sc.propertiesToCheck == null)
+                    {
+                        // No specific properties to check - just do a blanket reset.
+                        w.setBlockState(sc.pos, sc.desiredState);
+                    }
+                    else
+                    {
+                        // Reset only the properties we've been asked to check:
+                        for (IProperty prop : sc.propertiesToCheck)
+                        {
+                            stateActual = stateActual.withProperty(prop, sc.desiredState.getValue(prop));
+                        }
+                        w.setBlockState(sc.pos,  stateActual);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Draws the specified drawing into the Minecraft world supplied.
      * @param drawingNode The sequence of drawing primitives to draw.
      * @param world The world in which to draw them.
      * @throws Exception Unrecognised block types or primitives cause an exception to be thrown.
      */
-    public static void Draw( DrawingDecorator drawingNode, World world ) throws Exception
+    public void Draw( DrawingDecorator drawingNode, World world ) throws Exception
     {
+        beginDrawing(world);
+
         for(JAXBElement<?> jaxbobj : drawingNode.getDrawObjectType())
         {
             Object obj = jaxbobj.getValue();
@@ -88,6 +218,8 @@ public class BlockDrawingHelper
             else
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
+
+        endDrawing(world);
     }
 
     /**
@@ -96,15 +228,13 @@ public class BlockDrawingHelper
      * @param w The world in which to draw.
      * @throws Exception Throws an exception if the block type is not recognised.
      */
-    private static void DrawPrimitive( DrawBlock b, World w ) throws Exception
+    private void DrawPrimitive( DrawBlock b, World w ) throws Exception
     {
-        IBlockState blockType = MinecraftTypeHelper.ParseBlockType( b.getType().value() );
-        if( blockType == null )
-            throw new Exception("Unrecognised block type: "+b.getType().value());
+        XMLBlockState blockType = new XMLBlockState(b.getType(), b.getColour(),  b.getFace(), b.getVariant());
+        if (!blockType.isValid())
+            throw new Exception("Unrecogised item type: " + b.getType().value());
         BlockPos pos = new BlockPos( b.getX(), b.getY(), b.getZ() );
-        blockType = applyModifications(blockType, b.getColour(),  b.getFace(), b.getVariant());
-        w.setBlockState( pos, blockType );
-        applyTileEntityProps(pos, w, b.getType(), b.getColour(), b.getFace(), b.getVariant());
+        setBlockState(w, pos, blockType );
     }
 
     public static IBlockState applyModifications(IBlockState blockType, Colour colour, Facing facing, Variation variant )
@@ -128,13 +258,12 @@ public class BlockDrawingHelper
      * @param w The world in which to draw.
      * @throws Exception Throws an exception if the block type is not recognised.
      */
-    private static void DrawPrimitive( DrawSphere s, World w ) throws Exception
+    private void DrawPrimitive( DrawSphere s, World w ) throws Exception
     {
-        IBlockState blockType = MinecraftTypeHelper.ParseBlockType( s.getType().value() );
-        if( blockType == null )
+        XMLBlockState blockType = new XMLBlockState(s.getType(), s.getColour(), null, s.getVariant());
+        if (!blockType.isValid())
             throw new Exception("Unrecognised block type: " + s.getType().value());
-        blockType = applyModifications(blockType, s.getColour(),  null, s.getVariant());
-
+ 
         int radius = s.getRadius();
         for( int x = s.getX() - radius; x <= s.getX() + radius; x++ )
         {
@@ -145,12 +274,11 @@ public class BlockDrawingHelper
                     if ((z - s.getZ()) * (z - s.getZ()) + (y - s.getY()) * (y - s.getY()) + (x - s.getX()) * (x - s.getX()) <= (radius*radius))
                     {
                         BlockPos pos = new BlockPos( x, y, z );
-                        w.setBlockState( pos, blockType );
-                        applyTileEntityProps(pos, w, s.getType(), s.getColour(), s.getFace(), s.getVariant());
+                        setBlockState( w, pos, blockType );
                         List<Entity> entities = w.getEntitiesWithinAABBExcludingEntity(null,  new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5));
                         for (Entity ent : entities)
-                        	if (!(ent instanceof EntityPlayer))
-                        		w.removeEntity(ent);
+                            if (!(ent instanceof EntityPlayer))
+                                w.removeEntity(ent);
                     }
                 }
             }
@@ -165,25 +293,20 @@ public class BlockDrawingHelper
      * @param w The world in which to draw.
      * @throws Exception Throws an exception if the block type is not recognised.
      */
-    private static void DrawPrimitive( DrawLine l, World w ) throws Exception
+    private void DrawPrimitive( DrawLine l, World w ) throws Exception
     {
         // Set up the blocktype for the main blocks of the line:
-        IBlockState blockType = MinecraftTypeHelper.ParseBlockType( l.getType().value() );
-        if( blockType == null )
+        XMLBlockState blockType = new XMLBlockState(l.getType(), l.getColour(), l.getFace(), l.getVariant());
+        if (!blockType.isValid())
             throw new Exception("Unrecognised block type: " + l.getType().value());
-        blockType = applyModifications(blockType, l.getColour(),  l.getFace(), l.getVariant());
 
         // Set up the blocktype for the steps of the line, if one has been specified:
-        BlockType btNormal = l.getType();
-        BlockType btStep = l.getType();
-        IBlockState stepType = blockType;
+        XMLBlockState stepType = blockType;
         if (l.getSteptype() != null)
         {
-            stepType = MinecraftTypeHelper.ParseBlockType( l.getSteptype().value() );
-            if( stepType == null )
+            stepType = new XMLBlockState(l.getSteptype(), l.getColour(), l.getFace(), l.getVariant());
+            if (!stepType.isValid())
                 throw new Exception("Unrecognised block type: " + l.getSteptype().value());
-            stepType = applyModifications(stepType, l.getColour(),  l.getFace(), l.getVariant());
-            btStep = l.getSteptype();
         }
 
         float dx = (l.getX2() - l.getX1());
@@ -206,16 +329,14 @@ public class BlockDrawingHelper
             int z = Math.round(l.getZ1() + (float)i * dz);
             BlockPos pos = new BlockPos(x, y, z);
             clearEntities(w, x-0.5,y-0.5,z-0.5,x+0.5,y+0.5,z+0.5);
-            w.setBlockState(pos, y == prevY ? blockType : stepType);
-            applyTileEntityProps(pos, w, y == prevY ? btNormal : btStep, l.getColour(), l.getFace(), l.getVariant());
+            setBlockState(w, pos, y == prevY ? blockType : stepType);
 
             // Ensure 4-connected:
             if (x != prevX && z != prevZ)
             {
                 pos = new BlockPos(x, y, prevZ);
                 clearEntities(w, x-0.5,y-0.5,prevZ-0.5,x+0.5,y+0.5,prevZ+0.5);
-                w.setBlockState(pos, y == prevY ? blockType : stepType);
-                applyTileEntityProps(pos, w, y == prevY ? btNormal : btStep, l.getColour(), l.getFace(), l.getVariant());
+                setBlockState(w, pos, y == prevY ? blockType : stepType);
             }
             prevY = y;
             prevX = x;
@@ -223,12 +344,12 @@ public class BlockDrawingHelper
         }
     }
     
-    public static void clearEntities(World w, double x1, double y1, double z1, double x2, double y2, double z2)
+    public void clearEntities(World w, double x1, double y1, double z1, double x2, double y2, double z2)
     {
         List<Entity> entities = w.getEntitiesWithinAABBExcludingEntity(null,  new AxisAlignedBB(x1, y1, z1, x2, y2, z2));
         for (Entity ent : entities)
-        	if (!(ent instanceof EntityPlayer))
-        		w.removeEntity(ent);
+            if (!(ent instanceof EntityPlayer))
+                w.removeEntity(ent);
     }
 
     /**
@@ -237,7 +358,7 @@ public class BlockDrawingHelper
      * @param w The world in which to spawn.
      * @throws Exception Throws an exception if the item type is not recognised.
      */
-    private static void DrawPrimitive( DrawItem i, World w ) throws Exception
+    private void DrawPrimitive( DrawItem i, World w ) throws Exception
     {
         ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(i);
         if (item == null)
@@ -279,9 +400,9 @@ public class BlockDrawingHelper
      * @param pos the position at which to spawn it.
      * @param world the world in which to spawn the item.
      */
-    public static void placeItem(ItemStack stack, BlockPos pos, World world, boolean centreItem)
+    public void placeItem(ItemStack stack, BlockPos pos, World world, boolean centreItem)
     {
-    	double offset = (centreItem) ? 0.5D : 0.0D;
+        double offset = (centreItem) ? 0.5D : 0.0D;
         EntityItem entityitem = new EntityItem(world, (double)pos.getX() + offset, (double)pos.getY() + offset, (double)pos.getZ() + offset, stack);
         // Set the motions to zero to prevent random movement.
         entityitem.motionX = 0;
@@ -297,12 +418,11 @@ public class BlockDrawingHelper
      * @param w The world in which to draw.
      * @throws Exception Throws an exception if the block type is not recognised.
      */
-    private static void DrawPrimitive( DrawCuboid c, World w ) throws Exception
+    private void DrawPrimitive( DrawCuboid c, World w ) throws Exception
     {
-        IBlockState blockType = MinecraftTypeHelper.ParseBlockType( c.getType().value() );
-        if( blockType == null)
+        XMLBlockState blockType = new XMLBlockState(c.getType(), c.getColour(), c.getFace(), c.getVariant());
+        if (!blockType.isValid())
             throw new Exception("Unrecogised item type: "+c.getType().value());
-        blockType = applyModifications(blockType, c.getColour(),  c.getFace(), c.getVariant());
 
         clearEntities(w, c.getX1(), c.getY1(), c.getZ1(), c.getX2(), c.getY2(), c.getZ2());
 
@@ -316,17 +436,49 @@ public class BlockDrawingHelper
             for( int y = y1; y <= y2; y++ ) {
                 for( int z = z1; z <= z2; z++ ) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    w.setBlockState(pos, blockType );
-                    applyTileEntityProps(pos, w, c.getType(), c.getColour(), c.getFace(), c.getVariant());
+                    setBlockState(w, pos, blockType);
                 }
             }
         }
     }
 
-    public static void applyTileEntityProps(BlockPos pos, World w, BlockType t, Colour c, Facing f, Variation v)
+    public void setBlockState(World w, BlockPos pos, XMLBlockState state)
     {
-        // At the moment, we only need this method for adjusting mob spawners - but may come in handy for other objects.
-        if (t == BlockType.MOB_SPAWNER)
+        if (!state.isValid())
+            return;
+
+        // Do some depressingly necessary specific stuff here for different block types:
+        if (state.getBlock() instanceof BlockRailBase && state.variant != null)
+        {
+            // Caller has specified a variant - is it a shape variant?
+            try
+            {
+                ShapeTypes shape = ShapeTypes.fromValue(state.variant.getValue());
+                if (shape != null)
+                {
+                    // Yes, user has requested a particular shape.
+                    // Minecraft won't honour this - and, worse, it may get altered by neighbouring pieces that are added later.
+                    // So we don't bother trying to get this right now - we add it as a state check, and set it correctly
+                    // after drawing has finished.
+                    StateCheck sc = new StateCheck();
+                    sc.pos = pos;
+                    sc.desiredState = state;
+                    sc.propertiesToCheck = new ArrayList<IProperty>();
+                    sc.propertiesToCheck.add(((BlockRailBase)state.getBlock()).getShapeProperty());
+                    this.checkList.add(sc);
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                // Wasn't a shape variation. Ignore.
+            }
+        }
+
+        // Actually set the block state into the world:
+        w.setBlockState(pos, state.state);
+
+        // And now do the necessary post-placement processing:
+        if (state.type == BlockType.MOB_SPAWNER)
         {
             TileEntity te = w.getTileEntity(pos);
             if (te != null && te instanceof TileEntityMobSpawner)   // Ought to be!
@@ -334,12 +486,12 @@ public class BlockDrawingHelper
                 // Attempt to use the variation to control what type of mob this spawns:
                 try
                 {
-                    EntityTypes entvar = EntityTypes.fromValue(v.getValue());
+                    EntityTypes entvar = EntityTypes.fromValue(state.variant.getValue());
                     ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
                 }
                 catch (Exception e)
                 {
-                    // Do nothing - use has requested a non-entity variant.
+                    // Do nothing - user has requested a non-entity variant.
                 }
             }
         }
