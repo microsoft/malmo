@@ -293,6 +293,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
     protected boolean areMissionsEqual(Mission m1, Mission m2)
     {
+        return true;
+        // FIX NEEDED - the following code fails because m1 may have been
+        // modified since loading - eg the MazeDecorator writes directly to the XML,
+        // and the use of some of the getters in the XSD-generated code can cause extra
+        // (empty) nodes to be added to the resulting XML.
+        // We need a more robust way of comparing two mission objects.
+        // For now, simply return true, since a false positive is less dangerous
+        // than a false negative.
+        /*
         try {
             String s1 = SchemaHelper.serialiseObject(m1, Mission.class);
             String s2 = SchemaHelper.serialiseObject(m2, Mission.class);
@@ -300,7 +309,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         } catch( JAXBException e ) {
             System.out.println("JAXB exception: " + e);
             return false;
-        }
+        }*/
     }
 
     /**
