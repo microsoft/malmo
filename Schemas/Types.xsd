@@ -580,6 +580,22 @@
     </xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="ShapeTypes">
+    <xs:annotation>
+        <xs:documentation>
+            Shapes for, eg, rails
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="north_south" />
+        <xs:enumeration value="east_west" />
+        <xs:enumeration value="north_east" />
+        <xs:enumeration value="north_west" />
+        <xs:enumeration value="south_east" />
+        <xs:enumeration value="south_west" />
+    </xs:restriction>
+</xs:simpleType>
+
 <xs:simpleType name="EntityTypes">
     <xs:annotation>
       <xs:documentation>
@@ -661,7 +677,7 @@
         <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
-    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes MonsterEggTypes"/>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes"/>
 </xs:simpleType>
 
 </xs:schema>
