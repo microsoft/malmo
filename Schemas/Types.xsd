@@ -593,6 +593,10 @@
         <xs:enumeration value="north_west" />
         <xs:enumeration value="south_east" />
         <xs:enumeration value="south_west" />
+        <xs:enumeration value="ascending_east" />
+        <xs:enumeration value="ascending_west" />
+        <xs:enumeration value="ascending_north" />
+        <xs:enumeration value="ascending_south" />
     </xs:restriction>
 </xs:simpleType>
 
