@@ -19,31 +19,41 @@
 
 package com.microsoft.Malmo.Utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockRailBase;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+import com.google.common.collect.ImmutableMap;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
+import com.microsoft.Malmo.Schemas.DrawEntity;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.DrawLine;
 import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 
 /**
@@ -73,7 +83,9 @@ public class BlockDrawingHelper
                 DrawPrimitive( (DrawSphere)obj, world );
             else if (obj instanceof DrawLine )
                 DrawPrimitive( (DrawLine)obj, world );
-            else 
+            else if (obj instanceof DrawEntity)
+                DrawPrimitive( (DrawEntity)obj, world );
+            else
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
     }
@@ -232,6 +244,34 @@ public class BlockDrawingHelper
             throw new Exception("Unrecognised item type: "+i.getType());
         BlockPos pos = new BlockPos( i.getX(), i.getY(), i.getZ() );
         placeItem(item, pos, w, true);
+    }
+    
+    /** Spawn a single entity at the specified position.
+     * @param e the actual entity to be spawned.
+     * @param w the world in which to spawn the entity.
+     * @throws Exception
+     */
+    private void DrawPrimitive( DrawEntity e, World w )
+    {
+        String entityName = e.getType().getValue();
+        NBTTagCompound nbttagcompound = new NBTTagCompound();
+        nbttagcompound.setString("id", entityName);
+        Entity entity;
+        try
+        {
+            entity = EntityList.createEntityFromNBT(nbttagcompound, w);
+            if (entity != null)
+            {
+                entity.setLocationAndAngles(e.getX().doubleValue(), e.getY().doubleValue(), e.getZ().doubleValue(), e.getYaw().floatValue(), e.getPitch().floatValue());
+                entity.setVelocity(e.getXVel().doubleValue(), e.getYVel().doubleValue(), e.getZVel().doubleValue());
+                w.spawnEntityInWorld(entity);
+            }
+        }
+        catch (RuntimeException runtimeexception)
+        {
+            // Cannot summon this entity.
+            //throw new CommandException("commands.summon.failed", new Object[0]);
+        }
     }
 
     /** Spawn a single item at the specified position.

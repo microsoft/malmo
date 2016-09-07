@@ -626,6 +626,32 @@
     </xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="NonLivingEntityTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Non-living entities, such as boats, minecarts etc.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="Minecart" />
+        <xs:enumeration value="Boat" />
+        <xs:enumeration value="ArmorStand" />
+        <xs:enumeration value="ItemFrame" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="SpawnableTypes">
+    <xs:annotation>
+        <xs:documentation>
+            An entity that can be placed using the DrawingDecorator.
+        </xs:documentation>
+        <xs:appinfo>
+            <jaxb:class name="SpawnableTypes"/>  <!-- needed or jaxb just binds it to a String -->
+        </xs:appinfo>
+    </xs:annotation>
+    <xs:union memberTypes="EntityTypes NonLivingEntityTypes"/>
+</xs:simpleType>
+
 <xs:simpleType name="Variation">
     <xs:annotation>
       <xs:documentation>
