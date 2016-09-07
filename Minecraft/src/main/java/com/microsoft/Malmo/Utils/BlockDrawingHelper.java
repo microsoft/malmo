@@ -251,7 +251,7 @@ public class BlockDrawingHelper
      * @param w the world in which to spawn the entity.
      * @throws Exception
      */
-    private void DrawPrimitive( DrawEntity e, World w )
+    private void DrawPrimitive( DrawEntity e, World w ) throws Exception
     {
         String entityName = e.getType().getValue();
         NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -270,7 +270,7 @@ public class BlockDrawingHelper
         catch (RuntimeException runtimeexception)
         {
             // Cannot summon this entity.
-            //throw new CommandException("commands.summon.failed", new Object[0]);
+            throw new Exception("Couldn't create entity type: " + e.getType().getValue());
         }
     }
 
