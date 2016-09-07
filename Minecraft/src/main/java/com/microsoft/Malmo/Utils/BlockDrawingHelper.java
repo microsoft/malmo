@@ -20,7 +20,6 @@
 package com.microsoft.Malmo.Utils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.xml.bind.JAXBElement;
@@ -41,7 +40,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.DrawBlock;
@@ -70,19 +68,22 @@ public class BlockDrawingHelper
 
     private List<StateCheck> checkList;
 
-    public static class XMLBlockState implements IBlockState
+    /** Small class which captures an IBlockState, but also the XML values
+     * which created it, if they exist.
+     */
+    public static class XMLBlockState
     {
         IBlockState state;
         Colour colour;
         Facing face;
         Variation variant;
         BlockType type;
-        
+ 
         public XMLBlockState(IBlockState state)
         {
             this.state = state;
         }
-        
+
         public XMLBlockState(BlockType type, Colour colour, Facing face, Variation variant)
         {
             IBlockState blockType = MinecraftTypeHelper.ParseBlockType(type.value());
@@ -108,37 +109,6 @@ public class BlockDrawingHelper
             this.variant = variant;
         }
 
-        @Override
-        public Collection getPropertyNames()
-        {
-            return this.state != null ? this.state.getPropertyNames() : null;
-        }
-
-        @Override
-        public Comparable getValue(IProperty property)
-        {
-            return this.state != null ? this.state.getValue(property) : null;
-        }
-
-        @Override
-        public IBlockState withProperty(IProperty property, Comparable value)
-        {
-            return this.state != null ? this.state.withProperty(property, value) : null;
-        }
-
-        @Override
-        public IBlockState cycleProperty(IProperty property)
-        {
-            return this.state != null ? this.state.cycleProperty(property) : null;
-        }
-
-        @Override
-        public ImmutableMap getProperties()
-        {
-            return this.state != null ? this.state.getProperties() : null;
-        }
-
-        @Override
         public Block getBlock()
         {
             return this.state != null ? this.state.getBlock() : null;
@@ -462,7 +432,7 @@ public class BlockDrawingHelper
                     // after drawing has finished.
                     StateCheck sc = new StateCheck();
                     sc.pos = pos;
-                    sc.desiredState = state;
+                    sc.desiredState = state.state;
                     sc.propertiesToCheck = new ArrayList<IProperty>();
                     sc.propertiesToCheck.add(((BlockRailBase)state.getBlock()).getShapeProperty());
                     this.checkList.add(sc);
