@@ -481,6 +481,27 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
+  <xs:complexType name="DrawEntity">
+    <xs:annotation>
+        <xs:documentation>
+            Specify an entity by location and type.
+        </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+        <xs:extension base="DrawObjectType">
+            <xs:attribute name="x" type="xs:decimal" use="required" />
+            <xs:attribute name="y" type="xs:decimal" use="required" />
+            <xs:attribute name="z" type="xs:decimal" use="required" />
+            <xs:attribute name="type" type="SpawnableTypes" use="required" />
+            <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0" />
+        </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
 
   <xs:complexType name="DrawCuboid">
     <xs:annotation>
@@ -536,6 +557,7 @@
   </xs:complexType>
 
   <xs:element name="DrawObjectType" type="DrawObjectType"/>
+  <xs:element name="DrawEntity" type="DrawEntity" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawItem" type="DrawItem" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawLine" type="DrawLine" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawSphere" type="DrawSphere" substitutionGroup="DrawObjectType"/>
