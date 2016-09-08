@@ -45,6 +45,7 @@ import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
 import com.microsoft.Malmo.Schemas.FlowerTypes;
+import com.microsoft.Malmo.Schemas.HalfTypes;
 import com.microsoft.Malmo.Schemas.MonsterEggTypes;
 import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.StoneTypes;
@@ -280,6 +281,20 @@ public class MinecraftTypeHelper
         try
         {
             ShapeTypes var = ShapeTypes.fromValue(part);
+            if (var != null)
+            {
+                Variation bv = new Variation();
+                bv.setValue(var.value());
+                return bv;
+            }
+        }
+        catch (Exception e)
+        {
+            // Does nothing.
+        }
+        try
+        {
+            HalfTypes var = HalfTypes.fromValue(part);
             if (var != null)
             {
                 Variation bv = new Variation();

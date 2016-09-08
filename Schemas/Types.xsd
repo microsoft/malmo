@@ -600,6 +600,25 @@
     </xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="HalfTypes">
+    <xs:annotation>
+        <xs:documentation>
+            Specify which half - for stairs or double blocks (doors, tall flowers, etc)
+        </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <!-- for stairs -->
+        <xs:enumeration value="top" />
+        <xs:enumeration value="bottom" />
+        <!-- for bed -->
+        <xs:enumeration value="head" />
+        <xs:enumeration value="foot" />
+        <!-- for doors -->
+        <xs:enumeration value="upper" />
+        <xs:enumeration value="lower" />
+    </xs:restriction>
+</xs:simpleType>
+
 <xs:simpleType name="EntityTypes">
     <xs:annotation>
       <xs:documentation>
@@ -681,7 +700,7 @@
         <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
-    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes"/>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes HalfTypes"/>
 </xs:simpleType>
 
 </xs:schema>
