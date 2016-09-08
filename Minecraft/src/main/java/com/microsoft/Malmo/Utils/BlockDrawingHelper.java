@@ -51,6 +51,7 @@ import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 
 /**
@@ -341,7 +342,7 @@ public class BlockDrawingHelper
      * @param w the world in which to spawn the entity.
      * @throws Exception
      */
-    private static void DrawPrimitive( DrawEntity e, World w ) throws Exception
+    private void DrawPrimitive( DrawEntity e, World w ) throws Exception
     {
         String entityName = e.getType().getValue();
         NBTTagCompound nbttagcompound = new NBTTagCompound();
