@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+New: Greater control over drawing of rails and stairs. (#323)
 New: Entities can now be placed by DrawingDecorator. (#322)
 Fix: Weather is periodically reset to mission requirements. (#264)
 New: [BREAKING CHANGE] Mission worlds are now deleted after use unless destroyAfterUse is false. (#76)
