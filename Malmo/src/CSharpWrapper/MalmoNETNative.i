@@ -333,6 +333,8 @@ public:
   
   void startAt(float x, float y, float z);
 
+  void startAtWithPitchAndYaw(float x, float y, float z, float pitch, float yaw);
+
   void endAt(float x, float y, float z, float tolerance);
   
   void setModeToCreative();
