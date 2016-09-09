@@ -35,14 +35,19 @@ import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.WorldSettings.GameType;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -881,6 +886,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (extraHandlers != null && extraHandlers.length() > 0)
                 attemptToAddExtraHandlers(extraHandlers);
 
+            // If our start position is a long way from our spawn point, it's possible that we've just been moved
+            // by the server to a chunk that hasn't yet been loaded.
+            // Force load the chunk now, if necessary - this will prevent problems
+            // with getting stuck in blocks.
+            IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
+            BlockPos playerpos = Minecraft.getMinecraft().thePlayer.getPosition();
+            Chunk startChunk = chunkprov.provideChunk(playerpos);
+            if (startChunk == null || startChunk instanceof EmptyChunk)
+            {
+                if (chunkprov instanceof ChunkProviderClient)
+                    ((ChunkProviderClient)chunkprov).loadChunk(playerpos.getX() >> 4, playerpos.getZ() >> 4);
+            }
             // The server is ready, so send our MissionInit back to the agent and go!
             // We launch the agent by sending it the MissionInit message we were sent
             // (but with the Launcher's IP address included)
