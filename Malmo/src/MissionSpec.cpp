@@ -224,10 +224,18 @@ namespace malmo
     }
     
     // ------------------ settings for the agents --------------------------------
-    
+
     void MissionSpec::startAt(float x, float y, float z)
     {
         this->mission->AgentSection().front().AgentStart().Placement() = PosAndDirection(x,y,z);
+    }
+
+    void MissionSpec::startAtWithPitchAndYaw(float x, float y, float z, float pitch, float yaw)
+    {
+        PosAndDirection pos(x, y, z);
+        pos.pitch(pitch);
+        pos.yaw(yaw);
+        this->mission->AgentSection().front().AgentStart().Placement() = pos;
     }
 
     void MissionSpec::endAt(float x, float y, float z, float tolerance)
