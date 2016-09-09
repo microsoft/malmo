@@ -33,9 +33,8 @@ import net.minecraft.world.World;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
-import com.microsoft.Malmo.Schemas.Colour;
-import com.microsoft.Malmo.Schemas.PaletteEnum;
 import com.microsoft.Malmo.Schemas.ClassroomDecorator;
+import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.Facing;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
@@ -99,6 +98,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
 
     @Override
     public void buildOnWorld(MissionInit missionInit) throws DecoratorException {
+        this.drawContext = new BlockDrawingHelper();
         if(this.buildingWidth == 0){
             // We are using complexity so these need to be sampled from the Gaussian
             this.buildingWidth = Math.max((int)(rand.nextGaussian()*2 + this.buildingComplexity*MAX_BUILDING_SIZE + MIN_ROOM_SIZE), MIN_ROOM_SIZE);
@@ -179,9 +179,10 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
                 throw new DecoratorException("Unable to join orphan room to goal path");
             }
         }
-        
+
         // carve out the building
         World world = MinecraftServer.getServer().getEntityWorld();
+        this.drawContext.beginDrawing(world);
         for(int x=START_X; x<START_X + this.buildingWidth; x++){
             for(int y=START_Y; y<START_Y + this.buildingHeight; y++){
                 for(int z=START_Z; z<START_Z + this.buildingLength; z++){
@@ -200,7 +201,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         
         // place goal
         setBlockState(world, new BlockPos(goalRoom.x+this.rand.nextInt(goalRoom.width-4) + 2, goalRoom.y, goalRoom.z + goalRoom.length - 2), this.palette.goal);
-        
+        this.drawContext.endDrawing(world);
         // set the agent positions
         PosAndDirection p2 = new PosAndDirection();
         p2.setX(new BigDecimal(startRoom.x + this.rand.nextInt(goalRoom.width-2) + 0.5));
