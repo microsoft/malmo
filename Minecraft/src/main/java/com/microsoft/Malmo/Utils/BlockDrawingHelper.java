@@ -86,6 +86,7 @@ public class BlockDrawingHelper
 
         public XMLBlockState(BlockType type, Colour colour, Facing face, Variation variant)
         {
+            this.type = type;
             IBlockState blockType = MinecraftTypeHelper.ParseBlockType(type.value());
             if (blockType != null)
             {
