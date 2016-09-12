@@ -89,7 +89,6 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 SET(Boost_ADDITIONAL_VERSIONS "1.59" "1.59.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.60" "1.60.0")
-SET(Boost_ADDITIONAL_VERSIONS "1.61" "1.61.0")
 if( WIN32 )
   set( Boost_USE_STATIC_LIBS ON )
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options python regex system thread zlib REQUIRED )
