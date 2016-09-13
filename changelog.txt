@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+New: Python sample to test initial chunk loading. (#338)
 New: Added startAtWithPitchAndYaw to API. (#295)
 New: Greater control over drawing of rails and stairs. (#323)
 New: Entities can now be placed by DrawingDecorator. (#322)

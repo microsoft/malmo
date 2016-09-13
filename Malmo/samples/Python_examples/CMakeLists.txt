@@ -20,6 +20,7 @@
 set( SOURCES
   cart_test.py
   chat_reward.py
+  chunk_test.py
   craft_work.py
   default_world_test.py
   depth_map_runner.py
