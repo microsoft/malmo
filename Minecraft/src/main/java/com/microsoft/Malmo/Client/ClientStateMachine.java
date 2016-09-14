@@ -1225,6 +1225,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     public class CreateWorldEpisode extends ConfigAwareStateEpisode
     {
         boolean serverStarted = false;
+        boolean worldCreated = false;
 
         CreateWorldEpisode(ClientStateMachine machine)
         {
@@ -1240,7 +1241,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 MissionBehaviour serverHandlers = MissionBehaviour.createServerHandlersFromMissionInit(currentMissionInit());
                 if (serverHandlers != null && serverHandlers.worldGenerator != null)
                 {
-                    if (!serverHandlers.worldGenerator.createWorld(currentMissionInit()))
+                    if (serverHandlers.worldGenerator.createWorld(currentMissionInit()))
+                    {
+                        this.worldCreated = true;
+                    }
+                    else
                     {
                         // World has not been created.
                         episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CREATE_WORLD, "Server world-creation handler failed to create a world: " + serverHandlers.worldGenerator.getErrorDetails());
@@ -1256,7 +1261,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void onServerTick(ServerTickEvent ev)
         {
-            if (!this.serverStarted)
+            if (this.worldCreated && !this.serverStarted)
             {
                 // The server has started ticking - we can set up its state machine,
                 // and move on to the next state in our own machine.
