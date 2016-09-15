@@ -19,12 +19,20 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.DrawItem;
@@ -113,5 +121,16 @@ public abstract class RewardForItemBase extends HandlerBase
                 this.accumulatedRewards.add(dimension, stack.stackSize * matcher.reward());
             }
         }
+    }
+
+    protected static void sendItemStackToClient(EntityPlayerMP player, MalmoMessageType message, ItemStack is)
+    {
+        ByteBuf buf = Unpooled.buffer();
+        ByteBufUtils.writeItemStack(buf, is);
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.getBytes(0, bytes);
+        String data = Base64.getEncoder().encodeToString(bytes);
+        MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(message, data);
+        MalmoMod.network.sendTo(msg, player);
     }
 }

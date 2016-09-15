@@ -28,6 +28,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
+import java.util.Base64;
 import java.util.Map;
 
 import com.microsoft.Malmo.MalmoMod;
@@ -48,9 +49,17 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @Override
     public void onMessage(MalmoMessageType messageType, Map<String, String> data) 
     {
-        ByteBuf buf = Unpooled.copiedBuffer(data.get("message").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String bufstring = data.get("message");
+        ByteBuf buf = Unpooled.copiedBuffer(Base64.getDecoder().decode(bufstring));
         ItemStack itemStack = ByteBufUtils.readItemStack(buf);
-        accumulateReward(this.params.getDimension(), itemStack);
+        if (itemStack != null && itemStack.getItem() != null)
+        {
+            accumulateReward(this.params.getDimension(), itemStack);
+        }
+        else
+        {
+            System.out.println("Error - couldn't understand the itemstack we received.");
+        }
     }
     
     public static class LoseItemEvent extends Event
@@ -89,25 +98,20 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onTossItem(ItemTossEvent event)
     {
-        if (event.entityItem != null)
+        if (event.entityItem != null && event.player instanceof EntityPlayerMP)
         {
             ItemStack stack = event.entityItem.getEntityItem();
-            accumulateReward(this.params.getDimension(),stack);
+            sendItemStackToClient((EntityPlayerMP)event.player, MalmoMessageType.SERVER_DISCARDITEM, stack);
         }
     }
 
     @SubscribeEvent
     public void onPlaceBlock(BlockEvent.PlaceEvent event)
     {
-        if (event.itemInHand != null && event.player instanceof EntityPlayerMP ) {
+        if (event.itemInHand != null && event.player instanceof EntityPlayerMP )
+        {
             // This event is received on the server side, so we need to pass it to the client.
-            ByteBuf buf = Unpooled.buffer();
-            ByteBufUtils.writeItemStack(buf, event.itemInHand);
-            MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(
-                    MalmoMessageType.SERVER_PLACEBLOCK,
-                    buf.toString(java.nio.charset.StandardCharsets.UTF_8)
-                    );
-            MalmoMod.network.sendTo( msg, (EntityPlayerMP)event.player);
+            sendItemStackToClient((EntityPlayerMP)event.player, MalmoMessageType.SERVER_DISCARDITEM, event.itemInHand);
         }
     }
 
@@ -124,13 +128,13 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     public void prepare(MissionInit missionInit)
     {
         MinecraftForge.EVENT_BUS.register(this);
-        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_PLACEBLOCK);
+        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_DISCARDITEM);
     }
 
     @Override
     public void cleanup()
     {
         MinecraftForge.EVENT_BUS.unregister(this);
-        MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_PLACEBLOCK);
+        MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_DISCARDITEM);
     }
 }

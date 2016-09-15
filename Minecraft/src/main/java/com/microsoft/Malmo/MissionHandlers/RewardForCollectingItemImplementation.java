@@ -19,6 +19,12 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.util.Base64;
+import java.util.Map;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,8 +32,6 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-
-import java.util.Map;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
@@ -37,9 +41,6 @@ import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer, IMalmoMessageListener
 {
     private RewardForCollectingItem params;
@@ -47,9 +48,17 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     @Override
     public void onMessage(MalmoMessageType messageType, Map<String, String> data) 
     {
-        ByteBuf buf = Unpooled.copiedBuffer(data.get("message").getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        String bufstring = data.get("message");
+        ByteBuf buf = Unpooled.copiedBuffer(Base64.getDecoder().decode(bufstring));
         ItemStack itemStack = ByteBufUtils.readItemStack(buf);
-        accumulateReward(this.params.getDimension(), itemStack);
+        if (itemStack != null && itemStack.getItem() != null)
+        {
+            accumulateReward(this.params.getDimension(), itemStack);
+        }
+        else
+        {
+            System.out.println("Error - couldn't understand the itemstack we received.");
+        }
     }
     
     public static class GainItemEvent extends Event
@@ -87,15 +96,10 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onPickupItem(EntityItemPickupEvent event)
     {
-        if (event.item != null && event.entityPlayer instanceof EntityPlayerMP ) {
+        if (event.item != null && event.entityPlayer instanceof EntityPlayerMP )
+        {
             // This event is received on the server side, so we need to pass it to the client.
-            ByteBuf buf = Unpooled.buffer();
-            ByteBufUtils.writeItemStack(buf, event.item.getEntityItem());
-            MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(
-                    MalmoMessageType.SERVER_COLLECTITEM,
-                    buf.toString(java.nio.charset.StandardCharsets.UTF_8)
-                    );
-            MalmoMod.network.sendTo( msg, (EntityPlayerMP)event.entityPlayer);
+            sendItemStackToClient((EntityPlayerMP)event.entityPlayer, MalmoMessageType.SERVER_COLLECTITEM, event.item.getEntityItem());
         }
     }
 
