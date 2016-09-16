@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+Fix: FileWorldGenerator load issue + file_test.py to test fix. (#342)
 New: Python sample to test initial chunk loading. (#338)
 New: Added startAtWithPitchAndYaw to API. (#295)
 New: Greater control over drawing of rails and stairs. (#323)
