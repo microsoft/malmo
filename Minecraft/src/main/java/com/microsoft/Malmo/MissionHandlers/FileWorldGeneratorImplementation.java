@@ -82,7 +82,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
         net.minecraftforge.fml.client.FMLClientHandler.instance().tryLoadExistingWorld(null, mapCopy.getName(), mapSource.getName());
         IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
         String worldName = (server != null) ? server.getWorldName() : null;
-        if (worldName == null || !worldName.equals(mapCopy.getName()))
+        if (worldName == null || !worldName.equals(mapSource.getName()))
         {
             this.errorDetails = "Minecraft could not load " + this.mapFilename + " - is it a valid saved world?";
             return false;

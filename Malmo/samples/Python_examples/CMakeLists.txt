@@ -25,6 +25,7 @@ set( SOURCES
   default_world_test.py
   depth_map_runner.py
   drawing_test.py
+  file_test.py
   human_action.py
   manual_input_test.py
   MazeRunner.py
