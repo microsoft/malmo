@@ -313,7 +313,7 @@ public class MinecraftTypeHelper
      * @param state the IBlockState to be examined
      * @return A DrawBlock object
      */
-    public static DrawBlock getDrawBlockFromBlockState(IBlockState state, Map<String,String> extraProperties)
+    public static DrawBlock getDrawBlockFromBlockState(IBlockState state, List<IProperty> extraProperties)
     {
         if (state == null)
             return null;
@@ -360,7 +360,7 @@ public class MinecraftTypeHelper
             if (!matched)
             {
                 if (extraProperties != null)
-                    extraProperties.put(prop.getName(), propVal);
+                    extraProperties.add(prop);
             }
         }
         if (col != null)
