@@ -19,11 +19,13 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -94,7 +96,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
             jsonMop.addProperty("y", mop.hitVec.yCoord);
             jsonMop.addProperty("z", mop.hitVec.zCoord);
             IBlockState state = Minecraft.getMinecraft().theWorld.getBlockState(mop.getBlockPos());
-            Map<String, String> extraProperties = new HashMap<String, String>();
+            List<IProperty> extraProperties = new ArrayList<IProperty>();
             DrawBlock db = MinecraftTypeHelper.getDrawBlockFromBlockState(state, extraProperties);
             jsonMop.addProperty("type", db.getType().value());
             if (db.getColour() != null)
@@ -106,9 +108,15 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
             if (extraProperties.size() > 0)
             {
                 // Add the extra properties that aren't covered by colour/variant/facing.
-                for (Entry<String, String> ent : extraProperties.entrySet())
+                for (IProperty prop : extraProperties)
                 {
-                    jsonMop.addProperty(ent.getKey(), ent.getValue());
+                    String key = "prop_" + prop.getName();
+                    if (prop.getValueClass() == Boolean.class)
+                        jsonMop.addProperty(key, Boolean.valueOf(state.getValue(prop).toString()));
+                    else if (prop.getValueClass() == Integer.class)
+                        jsonMop.addProperty(key, Integer.valueOf(state.getValue(prop).toString()));
+                    else
+                        jsonMop.addProperty(key, state.getValue(prop).toString());
                 }
             }
             jsonMop.addProperty("inRange", hitDist <= blockReach);
