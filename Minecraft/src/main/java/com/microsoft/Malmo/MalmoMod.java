@@ -176,7 +176,7 @@ public class MalmoMod
         SERVER_TEXT,
         SERVER_ABORT,
         SERVER_COLLECTITEM,
-        SERVER_PLACEBLOCK,
+        SERVER_DISCARDITEM,
         SERVER_SOMEOTHERMESSAGE,
         CLIENT_AGENTREADY,			// Client response to server's ready request
         CLIENT_AGENTRUNNING,		// Client has just started running
