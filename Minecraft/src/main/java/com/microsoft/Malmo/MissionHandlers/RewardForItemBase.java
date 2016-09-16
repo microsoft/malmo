@@ -23,8 +23,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -129,7 +130,7 @@ public abstract class RewardForItemBase extends HandlerBase
         ByteBufUtils.writeItemStack(buf, is);
         byte[] bytes = new byte[buf.readableBytes()];
         buf.getBytes(0, bytes);
-        String data = Base64.getEncoder().encodeToString(bytes);
+        String data = DatatypeConverter.printBase64Binary(bytes);
         MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(message, data);
         MalmoMod.network.sendTo(msg, player);
     }

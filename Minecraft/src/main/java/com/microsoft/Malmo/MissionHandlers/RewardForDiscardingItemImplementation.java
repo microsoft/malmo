@@ -19,6 +19,13 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
+import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -28,9 +35,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
-import java.util.Base64;
-import java.util.Map;
-
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
@@ -38,9 +42,6 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForDiscardingItem;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 public class RewardForDiscardingItemImplementation extends RewardForItemBase implements IRewardProducer, IMalmoMessageListener
 {
@@ -50,7 +51,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     public void onMessage(MalmoMessageType messageType, Map<String, String> data) 
     {
         String bufstring = data.get("message");
-        ByteBuf buf = Unpooled.copiedBuffer(Base64.getDecoder().decode(bufstring));
+        ByteBuf buf = Unpooled.copiedBuffer(DatatypeConverter.parseBase64Binary(bufstring));
         ItemStack itemStack = ByteBufUtils.readItemStack(buf);
         if (itemStack != null && itemStack.getItem() != null)
         {

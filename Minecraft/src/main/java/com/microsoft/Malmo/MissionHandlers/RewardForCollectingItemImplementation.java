@@ -22,8 +22,9 @@ package com.microsoft.Malmo.MissionHandlers;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-import java.util.Base64;
 import java.util.Map;
+
+import javax.xml.bind.DatatypeConverter;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -49,7 +50,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     public void onMessage(MalmoMessageType messageType, Map<String, String> data) 
     {
         String bufstring = data.get("message");
-        ByteBuf buf = Unpooled.copiedBuffer(Base64.getDecoder().decode(bufstring));
+        ByteBuf buf = Unpooled.copiedBuffer(DatatypeConverter.parseBase64Binary(bufstring));
         ItemStack itemStack = ByteBufUtils.readItemStack(buf);
         if (itemStack != null && itemStack.getItem() != null)
         {
