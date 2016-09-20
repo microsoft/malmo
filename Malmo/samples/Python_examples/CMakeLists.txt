@@ -43,6 +43,7 @@ set( SOURCES
   run_mission.py
   sample_missions_loader.py
   tabular_q_learning.py
+  teleport_test.py
   to_string_test.py
   tutorial_1.py
   tutorial_2.py
