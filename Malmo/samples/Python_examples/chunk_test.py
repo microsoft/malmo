@@ -46,8 +46,9 @@ oresome=["gold_ore", "lapis_ore", "iron_ore", "emerald_ore", "redstone_ore", "qu
 frilly=["web", "stained_glass WHITE", "wool PINK", "wool WHITE", "stained_hardened_clay PINK", "stained_hardened_clay WHITE"]
 icepalace=["ice", "air", "air", "air", "air", "snow"]
 volatile=["tnt", "air", "air", "redstone_block", "air", "air"]
-
-palletes = [colourful, fiery, oresome, frilly, icepalace, volatile]
+oak=["planks", "planks", "planks", "planks", "lapis_block", "lapis_block"]
+sponge=["sponge", "glass", "sponge", "glass", "sponge", "glass"]
+palletes = [colourful, fiery, oresome, frilly, icepalace, volatile, oak, sponge]
 
 # dimensions of the test structure:
 SIZE_X = 21
@@ -128,7 +129,7 @@ def getMissionXMLAndJson(forceReset, structure):
     xpos = int((random.random() - 0.5) * 20000)
     zpos = int((random.random() - 0.5) * 20000)
     structureXML, gridJson = structureToXMLAndJson(structure, xpos - int(SIZE_X / 2), 1, zpos + 1)
-
+    
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
@@ -157,6 +158,10 @@ def getMissionXMLAndJson(forceReset, structure):
                     <max x="''' + str(SIZE_X / 2) + '''" y="''' + str(SIZE_Y-1) + '''" z="''' + str(SIZE_Z) + '''"/>
                 </Grid>
             </ObservationFromGrid>
+            <VideoProducer viewpoint="1">
+                <Width>860</Width>
+                <Height>480</Height>
+            </VideoProducer>
         </AgentHandlers>
     </AgentSection>
 
@@ -224,4 +229,17 @@ for i in xrange(num_iterations):
                 else:
                     print
                     print "No match - test failed on iteration " + str(i)
-                    exit(1)
+                    # Find the discrepancies:
+                    index = 0
+                    for y in xrange(SIZE_Y):
+                        for z in xrange(SIZE_Z):
+                            for x in xrange(SIZE_X):
+                                expected = gridJson[index]
+                                actual = struct[index]
+                                if expected != actual:
+                                    print "(" + str(x) + "," + str(y) + "," + str(z) + "), -" + actual + " +" + expected
+                                index += 1
+                    agent_host.sendCommand("quit")
+                    if agent_host.receivedArgument("test"):
+                        exit(1) # Fail the test.
+                    break
