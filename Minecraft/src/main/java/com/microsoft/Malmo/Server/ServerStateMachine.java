@@ -680,13 +680,13 @@ public class ServerStateMachine extends StateMachine
                                 player.posX = pos.getX().doubleValue();
                                 player.posY = pos.getY().doubleValue();
                                 player.posZ = pos.getZ().doubleValue();
-                                // And set their game type back now:
-                                player.setGameType(GameType.getByName(as.getMode().name().toLowerCase()));
-                                // Also make sure we haven't accidentally left the player flying:
-                                player.capabilities.isFlying = false;
-                                player.sendPlayerAbilities();
-                                player.onUpdate();
                             }
+                            // And set their game type back now:
+                            player.setGameType(GameType.getByName(as.getMode().name().toLowerCase()));
+                            // Also make sure we haven't accidentally left the player flying:
+                            player.capabilities.isFlying = false;
+                            player.sendPlayerAbilities();
+                            player.onUpdate();
                         }
                     }
                     this.pendingRunningAgents.remove(username);
