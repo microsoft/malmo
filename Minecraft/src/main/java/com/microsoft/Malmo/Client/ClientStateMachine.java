@@ -31,22 +31,21 @@ import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -80,6 +79,7 @@ import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
 import com.microsoft.Malmo.Schemas.ModSettings;
+import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
@@ -765,6 +765,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         String agentName;
         int ticksUntilNextPing = 0;
         TCPSocketHelper sender;
+        boolean waitingForChunk = false;
 
         protected WaitingForServerEpisode(ClientStateMachine machine)
         {
@@ -783,6 +784,42 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             return this.sender;
         }
 
+        private boolean isChunkReady()
+        {
+            // First, find the starting position we ought to have:
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            if (agents == null || agents.size() <= currentMissionInit().getClientRole())
+                return true;    // This should never happen.
+            AgentSection as = agents.get(currentMissionInit().getClientRole());
+            if (as.getAgentStart() != null && as.getAgentStart().getPlacement() != null)
+            {
+                PosAndDirection pos = as.getAgentStart().getPlacement();
+                int x = MathHelper.floor_double(pos.getX().doubleValue() / 16.0D);
+                int z = MathHelper.floor_double(pos.getZ().doubleValue() / 16.0D);
+                // Now get the chunk we should be starting in:
+                IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
+                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                if (player.addedToChunk)
+                {
+                    // Our player is already added to a chunk - is it the right one?
+                    Chunk actualChunk = chunkprov.provideChunk(player.chunkCoordX, player.chunkCoordZ);
+                    Chunk requestedChunk = chunkprov.provideChunk(x,  z);
+                    if (actualChunk == requestedChunk && actualChunk != null && !actualChunk.isEmpty())
+                    {
+                        // We're in the right chunk, and it's not an empty chunk.
+                        // We're ready to proceed, but first set our client positions to where we ought to be.
+                        // The server should be doing this too, but there's no harm (probably) in doing it ourselves.
+                        player.posX = pos.getX().doubleValue();
+                        player.posY = pos.getY().doubleValue();
+                        player.posZ = pos.getZ().doubleValue();
+                        return true;
+                    }
+                }
+                return false;   // Our starting position has been specified, but it's not yet ready.
+            }
+            return true;    // No starting position specified, so doesn't matter where we start.
+        }
+
         @Override
         protected void onClientTick(ClientTickEvent ev)
         {
@@ -790,39 +827,48 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
-            if (ticksUntilNextPing == 0)
+            if (this.waitingForChunk)
             {
-                // Tell the server what our agent name is.
-                // We do this repeatedly, because the server might not yet be listening.
-                if (Minecraft.getMinecraft().thePlayer != null)
-                {
-                    HashMap<String, String> map = new HashMap<String, String>();
-                    map.put("agentname", agentName);
-                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
-                    System.out.println("***Telling server we are ready - " + agentName);
-                    MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
-                }
-
-                // We also ping our agent, just to check it is still available:
-                boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
-                if (!sentOkay)
-                {
-                    // It's not available - bail.
-                    ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
-                    episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
-                }
-
-                ticksUntilNextPing = 10; // Try again in ten ticks.
+                // The server is ready, we're just waiting for our chunk to appear.
+                if (isChunkReady())
+                    proceed();
             }
             else
             {
-                ticksUntilNextPing--;
+                if (ticksUntilNextPing == 0)
+                {
+                    // Tell the server what our agent name is.
+                    // We do this repeatedly, because the server might not yet be listening.
+                    if (Minecraft.getMinecraft().thePlayer != null)
+                    {
+                        HashMap<String, String> map = new HashMap<String, String>();
+                        map.put("agentname", agentName);
+                        map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                        System.out.println("***Telling server we are ready - " + agentName);
+                        MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
+                    }
+    
+                    // We also ping our agent, just to check it is still available:
+                    boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+                    if (!sentOkay)
+                    {
+                        // It's not available - bail.
+                        ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
+                        episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+                    }
+    
+                    ticksUntilNextPing = 10; // Try again in ten ticks.
+                }
+                else
+                {
+                    ticksUntilNextPing--;
+                }
             }
 
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
             if (agents.size() > 1 && currentMissionInit().getClientRole() != 0)
             {
-                // We are waiting to join a out-of-process server. Need to pay attention to what happens -
+                // We are waiting to join an out-of-process server. Need to pay attention to what happens -
                 // if we can't join, for any reason, we should abort the mission.
                 GuiScreen screen = Minecraft.getMinecraft().currentScreen;
                 if (screen != null && screen instanceof GuiDisconnected)
@@ -886,18 +932,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (extraHandlers != null && extraHandlers.length() > 0)
                 attemptToAddExtraHandlers(extraHandlers);
 
-            // If our start position is a long way from our spawn point, it's possible that we've just been moved
-            // by the server to a chunk that hasn't yet been loaded.
-            // Force load the chunk now, if necessary - this will prevent problems
-            // with getting stuck in blocks.
-            IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
-            BlockPos playerpos = Minecraft.getMinecraft().thePlayer.getPosition();
-            Chunk startChunk = chunkprov.provideChunk(playerpos);
-            if (startChunk == null || startChunk instanceof EmptyChunk)
-            {
-                if (chunkprov instanceof ChunkProviderClient)
-                    ((ChunkProviderClient)chunkprov).loadChunk(playerpos.getX() >> 4, playerpos.getZ() >> 4);
-            }
+            this.waitingForChunk = true;
+        }
+        
+        private void proceed()
+        {
             // The server is ready, so send our MissionInit back to the agent and go!
             // We launch the agent by sending it the MissionInit message we were sent
             // (but with the Launcher's IP address included)
