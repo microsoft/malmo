@@ -158,7 +158,9 @@ world_state = agent_host.peekWorldState()
 total_reward = 0
 for x in xrange(10):
     for z in xrange(10):
-        tp_command = "tp " + str(x * 1000) + ".5 4 " + str(z * 1000) + ".5"
+        teleport_x = x * 1000 + 0.5
+        teleport_z = z * 1000 + 0.5
+        tp_command = "tp " + str(teleport_x)+ " 4 " + str(teleport_z)
         print "Sending command: " + tp_command
         agent_host.sendCommand(tp_command)
         # Hang around until the image stabilises and the reward is collected.
@@ -181,10 +183,13 @@ for x in xrange(10):
                 collected_reward = True
                 end_reward = timer()
             if not good_frame and world_state.number_of_video_frames_since_last_state > 0:
-                r,g,b = processFrame(world_state.video_frames[0].pixels)
-                if b == 0:
-                    good_frame = True
-                    end_frame = timer()
+                frame_x = world_state.video_frames[-1].xPos
+                frame_z = world_state.video_frames[-1].zPos
+                if math.fabs(frame_x - teleport_x) < 0.001 and math.fabs(frame_z - teleport_z) < 0.001:
+                    r,g,b = processFrame(world_state.video_frames[-1].pixels)
+                    if b == 0:
+                        good_frame = True
+                        end_frame = timer()
         print "Took " + "{0:.2f}".format((end_frame - start) * 1000) + "ms to stabilise frame; " + "{0:.2f}".format((end_reward - start) * 1000) + "ms to collect reward."
 
 # Visited all the locations - quit the mission.
