@@ -75,15 +75,7 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
         if (player == null)
             return;
 
-        // Set the client positions directly:
-        double client_x = this.setX ? this.x : player.posX;
-        double client_y = this.setY ? this.y : player.posY;
-        double client_z = this.setZ ? this.z : player.posZ;
-        float client_yaw = this.setYaw ? this.rotationYaw : player.rotationYaw;
-        float client_pitch = this.setPitch ? this.rotationPitch : player.rotationPitch;
-        player.setPositionAndRotation(client_x, client_y, client_z, client_yaw, client_pitch);
-
-        // Now send any changes requested over the wire to the server:
+        // Send any changes requested over the wire to the server:
         double x = this.setX ? this.x : 0;
         double y = this.setY ? this.y : 0;
         double z = this.setZ ? this.z : 0;
@@ -95,8 +87,7 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
             MalmoMod.network.sendToServer(new TeleportMessage(x, y, z, yaw, pitch, this.setX, this.setY, this.setZ, this.setYaw, this.setPitch));
             if (this.setYaw || this.setPitch)
             {
-                // Send a message that the ContinuousMovementCommands can pick
-                // up on:
+                // Send a message that the ContinuousMovementCommands can pick up on:
                 Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(this.setYaw, this.rotationYaw, this.setPitch, this.rotationPitch);
                 MinecraftForge.EVENT_BUS.post(event);
             }
