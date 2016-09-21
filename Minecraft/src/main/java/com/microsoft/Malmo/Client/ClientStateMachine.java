@@ -650,6 +650,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // And clear out any stale commands left over from recent missions:
             if (ClientStateMachine.this.controlInputPoller != null)
                 ClientStateMachine.this.controlInputPoller.clearCommands();
+            // Finally, do some Java housekeeping:
+            System.gc();
         }
 
         @Override
