@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.Server;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import javax.xml.bind.JAXBException;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.ChatComponentText;
@@ -736,6 +738,7 @@ public class ServerStateMachine extends StateMachine
                 player.setHealth(player.getMaxHealth());
                 player.getFoodStats().addStats(20, 40);
                 player.maxHurtResistantTime = 1; // Set this to a low value so that lava will kill the player straight away.
+                disablePlayerGracePeriod(player);   // Otherwise player will be invulnerable for the first 60 ticks.
                 player.extinguish();	// In case the player was left burning.
 
                 // Set their initial position and speed:
@@ -758,6 +761,41 @@ public class ServerStateMachine extends StateMachine
                 // SetAgentNameMessage.SetAgentNameActor actor = new SetAgentNameMessage.SetAgentNameActor(player, agentname);
                 // actor.go();
             }
+        }
+
+        private boolean disablePlayerGracePeriod(EntityPlayerMP player)
+        {
+            // Are we in the dev environment or deployed?
+            boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+            // We need to know, because the member name will either be obfuscated or not.
+            String ritFieldName = devEnv ? "respawnInvulnerabilityTicks" : "field_147101_bU";
+            // NOTE: obfuscated name may need updating if Forge changes - search for "respawnInvulnerabilityTicks" in Malmo\Minecraft\build\tasklogs\retromapSources.log
+            // (If this file doesn't exist, comment out the line in build.gradle that sets makeObfSourceJar to false, and re-build.)
+            Field rit;
+            try
+            {
+                rit = EntityPlayerMP.class.getDeclaredField(ritFieldName);
+                rit.setAccessible(true);
+                rit.set(player, 0);
+                return true;
+            }
+            catch (SecurityException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IllegalAccessException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IllegalArgumentException e)
+            {
+                e.printStackTrace();
+            }
+            catch (NoSuchFieldException e)
+            {
+                e.printStackTrace();
+            }
+            return false;
         }
 
         @Override
