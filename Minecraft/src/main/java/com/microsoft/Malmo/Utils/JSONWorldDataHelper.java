@@ -143,8 +143,8 @@ public class JSONWorldDataHelper
 
     public static void buildEnvironmentStats(JsonObject json, EntityPlayerMP player)
     {
-        json.addProperty("WorldTime", player.worldObj.getWorldTime());  // Ranges from 0 to 23999
-        json.addProperty("TotalTime", player.worldObj.getWorldTime());  // Total time world has been running
+        json.addProperty("WorldTime", player.worldObj.getWorldTime());  // Current time in ticks
+        json.addProperty("TotalTime", player.worldObj.getTotalWorldTime());  // Total time world has been running
     }
     /**
      * Build a signal for the cubic block grid centred on the player.<br>
