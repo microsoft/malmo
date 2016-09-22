@@ -141,6 +141,11 @@ public class JSONWorldDataHelper
         json.addProperty("Yaw", player.rotationYaw);
     }
 
+    public static void buildEnvironmentStats(JsonObject json, EntityPlayerMP player)
+    {
+        json.addProperty("WorldTime", player.worldObj.getWorldTime());  // Current time in ticks
+        json.addProperty("TotalTime", player.worldObj.getTotalWorldTime());  // Total time world has been running
+    }
     /**
      * Build a signal for the cubic block grid centred on the player.<br>
      * Default is 3x3x4. (One cube all around the player.)<br>
