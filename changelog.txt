@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+Fix: [BREAKING CHANGE] temp folder and "mission_recordings" now removed from path of files in recordings. (#298)
 Fix: Three second grace period on spawning removed. (#88)
 New: WorldTime and TotalTime added to ObservationFromFullStats. (#262)
 Fix: AbsoluteMovementCommands can now teleport outside the current chunk. (#353)
