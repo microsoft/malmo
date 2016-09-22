@@ -117,6 +117,7 @@ namespace malmo
             std::string rewards_path;
             std::string commands_path;
             std::string mission_init_path;
+            std::string mission_id;
             boost::filesystem::path temp_dir;
 
             void addFiles(std::vector<boost::filesystem::path> &fileList, boost::filesystem::path directory);

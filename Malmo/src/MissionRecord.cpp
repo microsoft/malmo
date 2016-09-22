@@ -45,7 +45,8 @@ namespace malmo
                 this->temp_dir = boost::filesystem::path(malmo_tmp_path);
             else
                 this->temp_dir = boost::filesystem::path(".");
-            this->temp_dir = this->temp_dir / "mission_records" / boost::uuids::to_string(temp_uuid);
+            this->mission_id = boost::uuids::to_string(temp_uuid);
+            this->temp_dir = this->temp_dir / "mission_records" / this->mission_id;
             this->mp4_path = (this->temp_dir / "video.mp4").string();
             this->observations_path = (this->temp_dir / "observations.txt").string();
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
@@ -96,6 +97,7 @@ namespace malmo
         , rewards_path(record.rewards_path)
         , mission_init_path(record.mission_init_path)
         , temp_dir(record.temp_dir)
+        , mission_id(record.mission_id)
     {
         record.spec = MissionRecordSpec();
     }
@@ -111,6 +113,7 @@ namespace malmo
             this->rewards_path = record.rewards_path;
             this->mission_init_path = record.mission_init_path;
             this->temp_dir = record.temp_dir;
+            this->mission_id = record.mission_id;
 
             record.spec = MissionRecordSpec();
         }
@@ -189,9 +192,9 @@ namespace malmo
 
     void MissionRecord::addFile(lindenb::io::Tar& archive, boost::filesystem::path path)
     {
-        std::string file_name_in_archive = path.relative_path().normalize().string();
+        boost::filesystem::path rel_path = this->mission_id / boost::filesystem::relative(path, this->temp_dir);
+        std::string file_name_in_archive = rel_path.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
-        file_name_in_archive = file_name_in_archive.substr(2, file_name_in_archive.size());
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
 
