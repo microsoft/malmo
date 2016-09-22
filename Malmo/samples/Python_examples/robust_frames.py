@@ -115,24 +115,25 @@ class RandomAgent:
             if not world_state.is_mission_running:
                 print 'mission ended.'
                 break
-            frame = world_state.video_frames[-1]
-            curr_x_from_render   = frame.xPos
-            curr_y_from_render   = frame.yPos
-            curr_z_from_render   = frame.zPos
-            curr_yaw_from_render = frame.yaw
-            if self.require_move:
-                if math.fabs( curr_x_from_render - self.prev_x ) > self.tolerance or\
-                   math.fabs( curr_y_from_render - self.prev_y ) > self.tolerance or\
-                   math.fabs( curr_z_from_render - self.prev_z ) > self.tolerance:
-                    print 'received a move.'
+            if len(world_state.video_frames) > 0:
+                frame = world_state.video_frames[-1]
+                curr_x_from_render   = frame.xPos
+                curr_y_from_render   = frame.yPos
+                curr_z_from_render   = frame.zPos
+                curr_yaw_from_render = frame.yaw
+                if self.require_move:
+                    if math.fabs( curr_x_from_render - self.prev_x ) > self.tolerance or\
+                       math.fabs( curr_y_from_render - self.prev_y ) > self.tolerance or\
+                       math.fabs( curr_z_from_render - self.prev_z ) > self.tolerance:
+                        print 'received a move.'
+                        break
+                elif self.require_yaw_change:
+                    if math.fabs( curr_yaw_from_render - self.prev_yaw ) > self.tolerance:
+                        print 'received a turn.'
+                        break
+                else:
+                    print 'received.'
                     break
-            elif self.require_yaw_change:
-                if math.fabs( curr_yaw_from_render - self.prev_yaw ) > self.tolerance:
-                    print 'received a turn.'
-                    break
-            else:
-                print 'received.'
-                break
             
         num_frames_before_get = len(world_state.video_frames)
         world_state = self.agent_host.getWorldState()

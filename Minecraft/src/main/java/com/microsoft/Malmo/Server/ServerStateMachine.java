@@ -663,8 +663,32 @@ public class ServerStateMachine extends StateMachine
             {
                 // A client has entered the running state (only happens once all CLIENT_AGENTREADY messages have arrived).
                 String username = data.get("username");
+                String agentname = this.usernameToAgentnameMap.get(username);
                 if (username != null && this.pendingRunningAgents.contains(username))
                 {
+                    // Reset their position once more. We need to do this because the player can easily sink into
+                    // a chunk if it takes too long to load.
+                    if (agentname != null && !agentname.isEmpty())
+                    {
+                        AgentSection as = getAgentSectionFromAgentName(agentname);
+                        EntityPlayerMP player = getPlayerFromUsername(username);
+                        if (player != null && as != null)
+                        {
+                            // Set their initial position and speed:
+                            PosAndDirection pos = as.getAgentStart().getPlacement();
+                            if (pos != null) {
+                                player.posX = pos.getX().doubleValue();
+                                player.posY = pos.getY().doubleValue();
+                                player.posZ = pos.getZ().doubleValue();
+                            }
+                            // And set their game type back now:
+                            player.setGameType(GameType.getByName(as.getMode().name().toLowerCase()));
+                            // Also make sure we haven't accidentally left the player flying:
+                            player.capabilities.isFlying = false;
+                            player.sendPlayerAbilities();
+                            player.onUpdate();
+                        }
+                    }
                     this.pendingRunningAgents.remove(username);
                     // If all clients are now running, we can finally enter the running state ourselves.
                     if (this.pendingRunningAgents.isEmpty())
@@ -730,7 +754,6 @@ public class ServerStateMachine extends StateMachine
 
                 // Set their game mode to spectator for now, to protect them while we wait for the rest of the cast to assemble:
                 player.setGameType(GameType.SPECTATOR);
-
                 // Set the custom name.
                 // SetAgentNameMessage.SetAgentNameActor actor = new SetAgentNameMessage.SetAgentNameActor(player, agentname);
                 // actor.go();
@@ -771,8 +794,6 @@ public class ServerStateMachine extends StateMachine
 
         private void onCastAssembled()
         {
-            // Ready the players:
-            resetPlayerGameTypes();
             // Build up any extra mission handlers required:
             MissionBehaviour handlers = getHandlers();
             AgentHandlers extraHandlers = new AgentHandlers();
@@ -805,7 +826,7 @@ public class ServerStateMachine extends StateMachine
             // And abort ourselves:
             episodeHasCompleted(ServerState.ERROR);
         }
-        
+
         @Override
         protected void onServerTick(ServerTickEvent ev)
         {
