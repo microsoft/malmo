@@ -45,7 +45,8 @@ namespace malmo
                 this->temp_dir = boost::filesystem::path(malmo_tmp_path);
             else
                 this->temp_dir = boost::filesystem::path(".");
-            this->temp_dir = this->temp_dir / "mission_records" / boost::uuids::to_string(temp_uuid);
+            this->mission_id = boost::uuids::to_string(temp_uuid);
+            this->temp_dir = this->temp_dir / "mission_records" / this->mission_id;
             this->mp4_path = (this->temp_dir / "video.mp4").string();
             this->observations_path = (this->temp_dir / "observations.txt").string();
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
@@ -96,6 +97,7 @@ namespace malmo
         , rewards_path(record.rewards_path)
         , mission_init_path(record.mission_init_path)
         , temp_dir(record.temp_dir)
+        , mission_id(record.mission_id)
     {
         record.spec = MissionRecordSpec();
     }
@@ -111,6 +113,7 @@ namespace malmo
             this->rewards_path = record.rewards_path;
             this->mission_init_path = record.mission_init_path;
             this->temp_dir = record.temp_dir;
+            this->mission_id = record.mission_id;
 
             record.spec = MissionRecordSpec();
         }
@@ -189,9 +192,25 @@ namespace malmo
 
     void MissionRecord::addFile(lindenb::io::Tar& archive, boost::filesystem::path path)
     {
-        std::string file_name_in_archive = path.relative_path().normalize().string();
+        // boost::filesystem::relative would do what we want here, but it wasn't introduced until boost 1.60, and
+        // we still want to support operating systems with older versions.
+        boost::filesystem::path filepath = boost::filesystem::absolute(path);
+        boost::filesystem::path tempdirpath = boost::filesystem::absolute(this->temp_dir);
+        boost::filesystem::path::iterator it_file = filepath.begin();
+        boost::filesystem::path::iterator it_tmpdir = tempdirpath.begin();
+        boost::filesystem::path relpath = this->mission_id; // Start with the mission_id as our root.
+        // Skip everything which is in both paths:
+        while (*it_file == *it_tmpdir && it_file != filepath.end() && it_tmpdir != tempdirpath.end())
+        {
+            it_file++, it_tmpdir++;
+        }
+        // Now get rest of file path:
+        for (; it_file != filepath.end(); it_file++)
+        {
+            relpath /= *it_file;
+        }
+        std::string file_name_in_archive = relpath.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
-        file_name_in_archive = file_name_in_archive.substr(2, file_name_in_archive.size());
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
 
