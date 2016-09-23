@@ -28,7 +28,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <boost/filesystem/operations.hpp>
 
 // STL:
 #include <exception>
@@ -193,8 +192,24 @@ namespace malmo
 
     void MissionRecord::addFile(lindenb::io::Tar& archive, boost::filesystem::path path)
     {
-        boost::filesystem::path rel_path = this->mission_id / boost::filesystem::relative(path, this->temp_dir);
-        std::string file_name_in_archive = rel_path.normalize().string();
+        // boost::filesystem::relative would do what we want here, but it wasn't introduced until boost 1.60, and
+        // we still want to support operating systems with older versions.
+        boost::filesystem::path filepath = boost::filesystem::absolute(path);
+        boost::filesystem::path tempdirpath = boost::filesystem::absolute(this->temp_dir);
+        boost::filesystem::path::iterator it_file = filepath.begin();
+        boost::filesystem::path::iterator it_tmpdir = tempdirpath.begin();
+        boost::filesystem::path relpath = this->mission_id; // Start with the mission_id as our root.
+        // Skip everything which is in both paths:
+        while (*it_file == *it_tmpdir && it_file != filepath.end() && it_tmpdir != tempdirpath.end())
+        {
+            it_file++, it_tmpdir++;
+        }
+        // Now get rest of file path:
+        for (; it_file != filepath.end(); it_file++)
+        {
+            relpath /= *it_file;
+        }
+        std::string file_name_in_archive = relpath.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
