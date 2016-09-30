@@ -106,7 +106,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     private MissionInit currentMissionInit = null; // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
     private String missionQuitCode = ""; // The reason why this mission ended.
-    private MultidimensionalReward finalReward = new MultidimensionalReward(); // The reward at the end of the mission, sent separately to ensure timely delivery.
+    private MultidimensionalReward finalReward = new MultidimensionalReward(true); // The reward at the end of the mission, sent separately to ensure timely delivery.
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 

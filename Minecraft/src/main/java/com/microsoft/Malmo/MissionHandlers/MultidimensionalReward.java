@@ -35,6 +35,16 @@ import com.microsoft.Malmo.Utils.SchemaHelper;
 public class MultidimensionalReward {
 
     private Map<Integer, Float> map = new HashMap<Integer, Float>();
+    private boolean isFinalReward = false;
+
+    public MultidimensionalReward()
+    {
+    }
+
+    public MultidimensionalReward(boolean isFinalReward)
+    {
+        this.isFinalReward = isFinalReward;
+    }
 
     /**
      * True if no rewards have been received.
@@ -43,6 +53,10 @@ public class MultidimensionalReward {
      */
     public boolean isEmpty() {
         return this.map.isEmpty();
+    }
+
+    public boolean isFinalReward() {
+        return this.isFinalReward;
     }
 
     /**

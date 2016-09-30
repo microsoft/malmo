@@ -1556,6 +1556,109 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:simpleType name="RewardDensityForBuildAndBreak">
+    <xs:annotation>
+      <xs:documentation>
+        Reward type for {{{RewardForStructureCopying}}}:
+        
+        - {{{PER_BLOCK}}} - reward will be given whenever a block is placed/destroyed in the goal volume, and will be determined by {{{RewardScale}}}. An additional reward of {{{RewardForCompletion}}} will be added the *first* time the copy is correctly completed.
+        
+        - {{{MISSION_END}}} - no reward will be given until the mission ends. Reward will be scaled from 0-1, where 0 means "no blocks correct" and 1 means "all blocks correct", and then multipled by {{{RewardScale}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PER_BLOCK"/>
+      <xs:enumeration value="MISSION_END"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="UnnamedGridDefinition">
+    <xs:sequence>
+      <xs:element name="min">
+        <xs:complexType>
+          <xs:attribute name="x" type="xs:int" use="required" />
+          <xs:attribute name="y" type="xs:int" use="required" />
+          <xs:attribute name="z" type="xs:int" use="required" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="max">
+        <xs:complexType>
+          <xs:attribute name="x" type="xs:int" use="required" />
+          <xs:attribute name="y" type="xs:int" use="required" />
+          <xs:attribute name="z" type="xs:int" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RewardForStructureCopying">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the agent copies blocks from a given structure.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="GoalStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the structure to be copied. Anything in this volume when the mission starts will be used as the blueprint - eg anything drawn here using the {{{DrawingDecorator}}}, etc.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="PlayerStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds in which the agent should build their copy.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnCorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, correctly placed blocks (in the source and the copy) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnIncorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, incorrectly placed blocks (in the copy only) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="RewardDensity" type="RewardDensityForBuildAndBreak"/>
+        <xs:element name="AddQuitProducer" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+              If present, the mission will end when the copy exactly matches the original. Set {{{description}}} to the quit code you'd like to receive when this happens. (See {{{RewardForMissionEnd}}}.)
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+      <xs:attribute name="rewardScale" type="xs:decimal" use="optional" default="5.0">
+          <xs:annotation>
+            <xs:documentation>
+              If {{{RewardDensity}}} is set to {{{PER_BLOCK}}}, this is the reward to be added for each correct block, or deducted for each incorrect block. Eg, if this is 5, the agent will get 5 points each time they place a correct block, or remove an incorrect block, and a reward of -5 each time they place an incorrect block or remove a correct one.
+              
+              If {{{RewardDensity}}} is set to {{{MISSION_END}}}, this will be used to scale the final reward, and will effectively be the maximum reward available if all blocks are correct - eg the final reward will be (num_correct_blocks / total_blocks) * reward_scale.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
+          <xs:annotation>
+            <xs:documentation>
+              If {{{RewardDensity}}} is set to {{{PER_BLOCK}}}, this is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
   <xs:complexType name="PointWithToleranceAndDescription">

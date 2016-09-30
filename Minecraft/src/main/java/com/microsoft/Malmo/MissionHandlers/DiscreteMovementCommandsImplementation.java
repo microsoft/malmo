@@ -19,6 +19,9 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import com.microsoft.Malmo.MissionHandlers.RewardForStructureCopyingImplementation;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -27,21 +30,31 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
+
+import java.util.HashMap;
 
 /**
  * Fairly dumb command handler that attempts to move the player one block N,S,E
@@ -71,14 +84,16 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     {
         public BlockPos pos;
         public ItemStack itemStack;
+        public EnumFacing face;
         public UseActionMessage()
         {
         }
 
-        public UseActionMessage(BlockPos pos,ItemStack itemStack)
+        public UseActionMessage(BlockPos pos, ItemStack itemStack, EnumFacing face)
         {
             this.pos = pos;
             this.itemStack = itemStack;
+            this.face = face;
         }
 
         @Override
@@ -86,6 +101,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         {
             this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
             this.itemStack = ByteBufUtils.readItemStack(buf);
+            this.face = EnumFacing.values()[buf.readInt()];
         }
 
         @Override
@@ -95,27 +111,48 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             buf.writeInt(this.pos.getY());
             buf.writeInt(this.pos.getZ());
             ByteBufUtils.writeItemStack(buf, this.itemStack);
+            buf.writeInt(this.face.ordinal());
         }
     }
 
     public static class UseActionMessageHandler implements IMessageHandler<UseActionMessage, IMessage>
     {
         @Override
-        public IMessage onMessage(UseActionMessage message, MessageContext ctx)
+        public IMessage onMessage(final UseActionMessage message, final MessageContext ctx)
         {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            Block b = Block.getBlockFromItem( message.itemStack.getItem() );
-            if( b != null ) {
-                IBlockState blockType = b.getStateFromMeta( message.itemStack.getMetadata() );
-                if (player.worldObj.setBlockState( message.pos, blockType ))
+            IThreadListener mainThread = null;
+            if (ctx.side == Side.CLIENT)
+                return null;    // Not interested.
+
+            mainThread = MinecraftServer.getServer();
+            mainThread.addScheduledTask(new Runnable()
+            {
+                @Override
+                public void run()
                 {
-                    // We set the block, so remove it from the inventory.
-                    if (player.inventory.getCurrentItem().stackSize > 1)
-                        player.inventory.getCurrentItem().stackSize--;
-                    else
-                        player.inventory.mainInventory[player.inventory.currentItem] = null;
+                    EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                    PlayerInteractEvent event = new PlayerInteractEvent(player, PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK, message.pos, message.face, player.worldObj);
+                    MinecraftForge.EVENT_BUS.post(event);
+                    if (!event.isCanceled()) {
+                        BlockPos pos = message.pos.add( message.face.getDirectionVec() );
+                        Block b = Block.getBlockFromItem( message.itemStack.getItem() );
+                        if( b != null ) {
+                            IBlockState blockType = b.getStateFromMeta( message.itemStack.getMetadata() );
+                            if (player.worldObj.setBlockState( pos, blockType ))
+                            {
+                                BlockSnapshot snapshot = new BlockSnapshot(player.worldObj, pos, blockType);
+                                BlockEvent.PlaceEvent placeevent = new BlockEvent.PlaceEvent(snapshot, player.worldObj.getBlockState(message.pos), player);
+                                MinecraftForge.EVENT_BUS.post(placeevent);
+                                // We set the block, so remove it from the inventory.
+                                if (player.inventory.getCurrentItem().stackSize > 1)
+                                    player.inventory.getCurrentItem().stackSize--;
+                                else
+                                    player.inventory.mainInventory[player.inventory.currentItem] = null;
+                            }
+                        }
+                    }
                 }
-            }
+            });
             return null;
         }
     }
@@ -124,19 +161,22 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     public static class AttackActionMessage implements IMessage
     {
         public BlockPos pos;
+        public EnumFacing face;
         public AttackActionMessage()
         {
         }
 
-        public AttackActionMessage(BlockPos hitPos)
+        public AttackActionMessage(BlockPos hitPos, EnumFacing face)
         {
             this.pos = hitPos;
+            this.face = face;
         }
 
         @Override
         public void fromBytes(ByteBuf buf)
         {
             this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
+            this.face = EnumFacing.values()[buf.readInt()];
         }
 
         @Override
@@ -145,32 +185,52 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             buf.writeInt(this.pos.getX());
             buf.writeInt(this.pos.getY());
             buf.writeInt(this.pos.getZ());
+            buf.writeInt(this.face.ordinal());
         }
     }
 
     public static class AttackActionMessageHandler implements IMessageHandler<AttackActionMessage, IMessage>
     {
         @Override
-        public IMessage onMessage(AttackActionMessage message, MessageContext ctx)
+        public IMessage onMessage(final AttackActionMessage message, final MessageContext ctx)
         {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            IBlockState iblockstate = player.worldObj.getBlockState(message.pos);
-            Block block = iblockstate.getBlock();
-            if (block.getMaterial() != Material.air)
+            IThreadListener mainThread = null;
+            if (ctx.side == Side.CLIENT)
+                return null;    // Not interested.
+
+            mainThread = MinecraftServer.getServer();
+            mainThread.addScheduledTask(new Runnable()
             {
-                boolean dropBlock = false;
-                // We do things this way, rather than pass true for dropBlock in world.destroyBlock,
-                // because we want this to take instant effect - we don't want the intermediate stage
-                // of spawning a free-floating item that the player must pick up.
-                java.util.List<ItemStack> items = block.getDrops(player.worldObj, message.pos, iblockstate, 0);
-                player.worldObj.destroyBlock( message.pos, dropBlock );
-                for (ItemStack item : items)
+                @Override
+                public void run()
                 {
-                    if (!player.inventory.addItemStackToInventory(item)) {
-                       Block.spawnAsEntity(player.worldObj, message.pos, item); // Didn't fit in inventory, so spawn it.
+                    EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                    IBlockState iblockstate = player.worldObj.getBlockState(message.pos);
+                    Block block = iblockstate.getBlock();
+                    if (block.getMaterial() != Material.air)
+                    {
+                        PlayerInteractEvent event = new PlayerInteractEvent(player, PlayerInteractEvent.Action.LEFT_CLICK_BLOCK, message.pos, message.face, player.worldObj);
+                        MinecraftForge.EVENT_BUS.post(event);
+                        if (!event.isCanceled())
+                        {
+                            boolean dropBlock = false;
+                            // We do things this way, rather than pass true for dropBlock in world.destroyBlock,
+                            // because we want this to take instant effect - we don't want the intermediate stage
+                            // of spawning a free-floating item that the player must pick up.
+                            java.util.List<ItemStack> items = block.getDrops(player.worldObj, message.pos, iblockstate, 0);
+                            player.worldObj.destroyBlock( message.pos, dropBlock );
+                            for (ItemStack item : items)
+                            {
+                                if (!player.inventory.addItemStackToInventory(item)) {
+                                   Block.spawnAsEntity(player.worldObj, message.pos, item); // Didn't fit in inventory, so spawn it.
+                                }
+                            }
+                            BlockEvent.BreakEvent breakevent = new BlockEvent.BreakEvent(player.worldObj, message.pos, iblockstate, player);
+                            MinecraftForge.EVENT_BUS.post(breakevent);
+                        }
                     }
                 }
-            }
+            });
             return null;
         }
     }
@@ -281,11 +341,12 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
                 if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
                     BlockPos hitPos = mop.getBlockPos();
+                    EnumFacing face = mop.sideHit;
                     IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
                     Block block = iblockstate.getBlock();
                     if (block.getMaterial() != Material.air)
                     {
-                        MalmoMod.network.sendToServer(new AttackActionMessage(hitPos));
+                        MalmoMod.network.sendToServer(new AttackActionMessage(hitPos, face));
                         // Trigger a reward for collecting the block
                         java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
                         for (ItemStack item : items)
@@ -312,7 +373,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                             if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
                             {
                                 // Yes!
-                                MalmoMod.network.sendToServer(new UseActionMessage(pos,itemStack));
+                                MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit));
                                 // Trigger a reward for discarding the block
                                 ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
                                 RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
