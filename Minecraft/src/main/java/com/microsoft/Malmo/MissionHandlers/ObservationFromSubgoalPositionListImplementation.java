@@ -22,10 +22,12 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromSubgoalPositionList;
+import com.microsoft.Malmo.Schemas.PointWithToleranceAndDescription;
 
 public class ObservationFromSubgoalPositionListImplementation extends HandlerBase implements IObservationProducer
 {
@@ -85,6 +87,13 @@ public class ObservationFromSubgoalPositionListImplementation extends HandlerBas
         // Normalise:
         difference /= 180.0;
         json.addProperty("yawDelta",  difference);
+        PointWithToleranceAndDescription point = this.positions.getPoint().get(this.subgoalIndex);
+        JsonObject pointElement = new JsonObject();
+        pointElement.addProperty("XPos", point.getX().doubleValue());
+        pointElement.addProperty("YPos", point.getY().doubleValue());
+        pointElement.addProperty("ZPos",  point.getZ().doubleValue());
+        pointElement.addProperty("description", point.getDescription());
+        json.add("nextSubgoal", pointElement);
     }
 
     @Override
