@@ -78,8 +78,8 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
         DrawBlockBasedObjectType tickBlock = rscparams.getBlockTypeOnCorrectPlacement();
         DrawBlockBasedObjectType crossBlock = rscparams.getBlockTypeOnIncorrectPlacement();
 
-        this.blockTypeOnCorrectPlacement = new XMLBlockState(tickBlock.getType(), tickBlock.getColour(), tickBlock.getFace(), tickBlock.getVariant());
-        this.blockTypeOnIncorrectPlacement = new XMLBlockState(crossBlock.getType(), crossBlock.getColour(), crossBlock.getFace(), crossBlock.getVariant());
+        this.blockTypeOnCorrectPlacement = (tickBlock != null) ? new XMLBlockState(tickBlock.getType(), tickBlock.getColour(), tickBlock.getFace(), tickBlock.getVariant()) : null;
+        this.blockTypeOnIncorrectPlacement = (crossBlock != null) ? new XMLBlockState(crossBlock.getType(), crossBlock.getColour(), crossBlock.getFace(), crossBlock.getVariant()) : null;
 
         this.dimension = rscparams.getDimension();
         return true;
