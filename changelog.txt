@@ -1,5 +1,6 @@
 0.18.0
 -------------------
+New: Added RewardForStructureCopying. (#337)
 Fix: [BREAKING CHANGE] The centre of the grid observation was being rounded to the nearest int in the y-axis. (#370)
 Fix: [BREAKING CHANGE] temp folder and "mission_recordings" now removed from path of files in recordings. (#298)
 Fix: Three second grace period on spawning removed. (#88)
