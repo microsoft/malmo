@@ -19,6 +19,8 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.List;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
@@ -101,9 +103,9 @@ public class MissionBehaviour
             createAndAddHandler(handler);
     }
 
-    public boolean addExtraHandlers(AgentHandlers handlers)
+    public boolean addExtraHandlers(List<Object> handlers)
     {
-        for (Object handler : handlers.getAgentMissionHandlers())
+        for (Object handler : handlers)
             createAndAddHandler(handler);
         return true;
     }

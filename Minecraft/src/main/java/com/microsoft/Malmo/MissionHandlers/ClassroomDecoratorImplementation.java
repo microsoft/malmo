@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import net.minecraft.block.BlockDoor;
@@ -1514,7 +1515,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
     }
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlers(List<Object> handlers)
     {
         return false;
     }

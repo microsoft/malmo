@@ -20,6 +20,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.world.World;
 
@@ -57,7 +58,7 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
     }
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlers(List<Object> handlers)
     {
         boolean added = false;
         for (IWorldDecorator builder : this.builders)
