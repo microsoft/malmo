@@ -785,4 +785,14 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         }
         return added;
     }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
+    }
 }

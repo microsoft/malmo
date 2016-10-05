@@ -295,4 +295,14 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     {
         return false;
     }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
+    }
 }

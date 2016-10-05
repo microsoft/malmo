@@ -67,4 +67,22 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
         }
         return added;
     }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+        for (IWorldDecorator builder : this.builders)
+        {
+            builder.prepare(missionInit);
+        }
+    }
+
+    @Override
+    public void cleanup()
+    {
+        for (IWorldDecorator builder : this.builders)
+        {
+            builder.cleanup();
+        }
+    }
 }

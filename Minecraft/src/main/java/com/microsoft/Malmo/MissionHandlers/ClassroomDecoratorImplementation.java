@@ -1519,4 +1519,14 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
     {
         return false;
     }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
+    }
 }

@@ -978,7 +978,10 @@ public class ServerStateMachine extends StateMachine
                 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
-            
+
+            if (getHandlers().worldDecorator != null)
+                getHandlers().worldDecorator.prepare(currentMissionInit());
+
             // Fire the starting pistol:
             MalmoMod.safeSendToAll(MalmoMessageType.SERVER_GO);
         }
@@ -1049,7 +1052,10 @@ public class ServerStateMachine extends StateMachine
 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.cleanup();
-            
+
+            if (getHandlers().worldDecorator != null)
+                getHandlers().worldDecorator.cleanup();
+
             TimeHelper.serverTickLength = 50;   // Return tick length to 50ms default.
 
             if (success)
