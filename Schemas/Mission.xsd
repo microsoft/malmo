@@ -342,7 +342,6 @@
             <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
             <xs:element ref="RewardForReachingPosition" minOccurs="0"/>
             <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
-            <xs:element ref="RewardForStructureCopying" minOccurs="0"/>
 
             <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
             <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
@@ -400,6 +399,7 @@
                     <xs:element ref="MazeDecorator"  />
                     <xs:element ref="ClassroomDecorator" />
                     <xs:element ref="SnakeDecorator"  />
+                    <xs:element ref="BuildBattleDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>

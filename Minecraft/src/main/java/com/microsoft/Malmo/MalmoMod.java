@@ -177,6 +177,7 @@ public class MalmoMod
         SERVER_ABORT,
         SERVER_COLLECTITEM,
         SERVER_DISCARDITEM,
+        SERVER_BUILDBATTLEREWARD,   // Server has detected a reward from the build battle
         SERVER_SOMEOTHERMESSAGE,
         CLIENT_AGENTREADY,			// Client response to server's ready request
         CLIENT_AGENTRUNNING,		// Client has just started running

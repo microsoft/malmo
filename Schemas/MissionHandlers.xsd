@@ -659,6 +659,47 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:element name="BuildBattleDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Adds a series of joined rooms into the world.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="GoalStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the structure to be copied. Anything in this volume when the mission starts will be used as the blueprint - eg anything drawn here using the {{{DrawingDecorator}}}, etc.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="PlayerStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds in which the agent should build their copy.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnCorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, correctly placed blocks (in the source and the copy) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnIncorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, incorrectly placed blocks (in the copy only) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="RewardForStructureCopying"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
   <xs:element name="ServerQuitFromTimeUp">
@@ -1599,34 +1640,6 @@
     </xs:annotation>
     <xs:complexType>
       <xs:all>
-        <xs:element name="GoalStructureBounds" type="UnnamedGridDefinition">
-          <xs:annotation>
-            <xs:documentation>
-              Define the bounds of the structure to be copied. Anything in this volume when the mission starts will be used as the blueprint - eg anything drawn here using the {{{DrawingDecorator}}}, etc.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="PlayerStructureBounds" type="UnnamedGridDefinition">
-          <xs:annotation>
-            <xs:documentation>
-              Define the bounds in which the agent should build their copy.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="BlockTypeOnCorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              If present, correctly placed blocks (in the source and the copy) will be changed to this block type.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
-        <xs:element name="BlockTypeOnIncorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              If present, incorrectly placed blocks (in the copy only) will be changed to this block type.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:element>
         <xs:element name="RewardDensity" type="RewardDensityForBuildAndBreak"/>
         <xs:element name="AddQuitProducer" minOccurs="0" maxOccurs="1">
           <xs:annotation>
