@@ -89,8 +89,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     @Override
     public boolean getExtraAgentHandlers(List<Object> handlers)
     {
-        handlers.add(this.params.getRewardForStructureCopying());
-        return true;
+        return false;
     }
 
     @Override

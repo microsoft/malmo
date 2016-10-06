@@ -662,7 +662,9 @@
   <xs:element name="BuildBattleDecorator">
     <xs:annotation>
       <xs:documentation>
-        Adds a series of joined rooms into the world.
+        Sets up a build battle area, with a source structure that can't be edited, and a goal structure, with optional recolouring of blocks to indicate correct/incorrect placement.
+        
+        NOTE: Make sure to add a {{{RewardForStructureCopying}}} handler to the AgentHandlers if you want your agent to be rewarded for contributing to the build.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -695,7 +697,6 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element ref="RewardForStructureCopying"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
@@ -1636,6 +1637,8 @@
     <xs:annotation>
       <xs:documentation>
         Sends a reward when the agent copies blocks from a given structure.
+        
+        NOTE: This will do nothing unless you have set up a {{{BuildBattleDecorator}}} on the server.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -1656,16 +1659,22 @@
       <xs:attribute name="rewardScale" type="xs:decimal" use="optional" default="5.0">
           <xs:annotation>
             <xs:documentation>
-              If {{{RewardDensity}}} is set to {{{PER_BLOCK}}}, this is the reward to be added for each correct block, or deducted for each incorrect block. Eg, if this is 5, the agent will get 5 points each time they place a correct block, or remove an incorrect block, and a reward of -5 each time they place an incorrect block or remove a correct one.
+              This is the reward to be added or deducted for each block event.
               
-              If {{{RewardDensity}}} is set to {{{MISSION_END}}}, this will be used to scale the final reward, and will effectively be the maximum reward available if all blocks are correct - eg the final reward will be (num_correct_blocks / total_blocks) * reward_scale.
+              The rewards are calculated as follows:
+              - For destroying a correct block: -1 * rewardScale
+              - For destroying an incorrect block: +1 * rewardScale
+              - For placing a correct block: +1 * rewardScale
+              - For placing an incorrect block: -1 * rewardScale
+
+              If {{{RewardDensity}}} is set to {{{{PER_BLOCK}}}, this reward will arrive after each block transaction. If it's set to {{{MISSION_END}}}, the individual rewards will not be sent, but will be summed throughout the course of the mission, and the resulting total will be sent as the final reward.
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
           <xs:annotation>
             <xs:documentation>
-              If {{{RewardDensity}}} is set to {{{PER_BLOCK}}}, this is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
+              This is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
