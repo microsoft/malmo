@@ -258,15 +258,14 @@ public class AuthenticationHelper
             if (!AuthenticationHelper.username.equals(UNAUTH) && !AuthenticationHelper.password.isEmpty())
             {
                 auth.logIn();
-                if (!forceSessionUpdate(auth))
-                    return false;
+                if (forceSessionUpdate(auth))
+                    return true;
             }
         }
         catch (AuthenticationException e)
         {
-            return false;
         }
-        return true;
+        return false;
     }
 
     private static boolean forceSessionUpdate(YggdrasilUserAuthentication auth)
