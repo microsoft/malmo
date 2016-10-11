@@ -19,9 +19,6 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import com.microsoft.Malmo.MissionHandlers.RewardForStructureCopyingImplementation;
-import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -40,7 +37,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -53,8 +49,6 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommand;
 import com.microsoft.Malmo.Schemas.DiscreteMovementCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
-
-import java.util.HashMap;
 
 /**
  * Fairly dumb command handler that attempts to move the player one block N,S,E
@@ -144,10 +138,13 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                 BlockEvent.PlaceEvent placeevent = new BlockEvent.PlaceEvent(snapshot, player.worldObj.getBlockState(message.pos), player);
                                 MinecraftForge.EVENT_BUS.post(placeevent);
                                 // We set the block, so remove it from the inventory.
-                                if (player.inventory.getCurrentItem().stackSize > 1)
-                                    player.inventory.getCurrentItem().stackSize--;
-                                else
-                                    player.inventory.mainInventory[player.inventory.currentItem] = null;
+                                if (!player.theItemInWorldManager.isCreative())
+                                {
+                                    if (player.inventory.getCurrentItem().stackSize > 1)
+                                        player.inventory.getCurrentItem().stackSize--;
+                                    else
+                                        player.inventory.mainInventory[player.inventory.currentItem] = null;
+                                }
                             }
                         }
                     }
