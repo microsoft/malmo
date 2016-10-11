@@ -347,7 +347,7 @@ if agent_host.receivedArgument("help"):
 
 num_iterations = 30000
 if agent_host.receivedArgument("test"):
-    num_iterations = 10
+    num_iterations = 5
 
 # Set up a recording
 recording = False
