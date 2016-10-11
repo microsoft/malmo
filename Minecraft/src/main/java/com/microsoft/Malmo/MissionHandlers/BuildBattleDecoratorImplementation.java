@@ -24,7 +24,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.BuildBattleDecorator;
 import com.microsoft.Malmo.Schemas.DrawBlockBasedObjectType;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -84,6 +83,8 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     @Override
     public void buildOnWorld(MissionInit missionInit) throws DecoratorException
     {
+        // Does nothing at the moment, though we could add an option to draw the bounds of the arenas here,
+        // if it seems to be something people want.
     }
 
     @Override
@@ -101,23 +102,23 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 
     private boolean blockInBounds(BlockPos pos, UnnamedGridDefinition bounds)
     {
-        return pos.getX() >= bounds.getMin().getX() && pos.getX() < bounds.getMax().getX() &&
-               pos.getZ() >= bounds.getMin().getZ() && pos.getZ() < bounds.getMax().getZ() &&
-               pos.getY() >= bounds.getMin().getY() && pos.getY() < bounds.getMax().getY();
+        return pos.getX() >= bounds.getMin().getX() && pos.getX() <= bounds.getMax().getX() &&
+               pos.getZ() >= bounds.getMin().getZ() && pos.getZ() <= bounds.getMax().getZ() &&
+               pos.getY() >= bounds.getMin().getY() && pos.getY() <= bounds.getMax().getY();
     }
 
     private int volumeOfBounds(UnnamedGridDefinition bounds)
     {
-        return (bounds.getMax().getX() - bounds.getMin().getX()) *
-               (bounds.getMax().getY() - bounds.getMin().getY()) *
-               (bounds.getMax().getZ() - bounds.getMin().getZ());
+        return (1 + bounds.getMax().getX() - bounds.getMin().getX()) *
+               (1 + bounds.getMax().getY() - bounds.getMin().getY()) *
+               (1 + bounds.getMax().getZ() - bounds.getMin().getZ());
     }
 
     private int blockPosToIndex(BlockPos pos, UnnamedGridDefinition gd)
     {
         // Flatten block pos into single dimension index.
-        int depth = gd.getMax().getZ() - gd.getMin().getZ();
-        int width = gd.getMax().getX() - gd.getMin().getX();
+        int depth = 1 + gd.getMax().getZ() - gd.getMin().getZ();
+        int width = 1 + gd.getMax().getX() - gd.getMin().getX();
         int ind = (pos.getX() - gd.getMin().getX()) +
                (pos.getZ() - gd.getMin().getZ()) * width +
                (pos.getY() - gd.getMin().getY()) * width * depth;
@@ -162,11 +163,11 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         BlockDrawingHelper drawContext = new BlockDrawingHelper();
         drawContext.beginDrawing(w);
 
-        for (int x = this.sourceBounds.getMin().getX(); x < this.sourceBounds.getMax().getX(); x++)
+        for (int x = this.sourceBounds.getMin().getX(); x <= this.sourceBounds.getMax().getX(); x++)
         {
-            for (int y = this.sourceBounds.getMin().getY(); y < this.sourceBounds.getMax().getY(); y++)
+            for (int y = this.sourceBounds.getMin().getY(); y <= this.sourceBounds.getMax().getY(); y++)
             {
-                for (int z = this.sourceBounds.getMin().getZ(); z < this.sourceBounds.getMax().getZ(); z++)
+                for (int z = this.sourceBounds.getMin().getZ(); z <= this.sourceBounds.getMax().getZ(); z++)
                 {
                     BlockPos goalStructurePos = new BlockPos(x, y, z);
                     BlockPos playerStructurePos = goalStructurePos.add(this.delta);
@@ -213,7 +214,6 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             }
         }
         drawContext.endDrawing(w);
-        System.out.println("Right: " + rightBlocks + "; Wrong: " + wrongBlocks);
         int score = rightBlocks - wrongBlocks;
         boolean sendData = false;
         boolean sendCompletionBonus = false;
