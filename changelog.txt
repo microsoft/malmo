@@ -1,6 +1,6 @@
 0.18.0
 -------------------
-New: Added RewardForStructureCopying. (#337)
+New: Added RewardForStructureCopying and BuildBattleDecorator. (#337)
 Fix: [BREAKING CHANGE] The centre of the grid observation was being rounded to the nearest int in the y-axis. (#370)
 Fix: [BREAKING CHANGE] temp folder and "mission_recordings" now removed from path of files in recordings. (#298)
 Fix: Three second grace period on spawning removed. (#88)
@@ -8,6 +8,7 @@ New: WorldTime and TotalTime added to ObservationFromFullStats. (#262)
 Fix: AbsoluteMovementCommands can now teleport outside the current chunk. (#353)
 New: [BREAKING CHANGE] AbsoluteMovementCommands tpx, tpy, tpz now applied immediately.
 Fix: [BREAKING CHANGE] Extra block properties returned by ObservationFromRay are now prefixed with "prop_" to prevent collisions. (#355)
+New: Agent can now quit by using MissionQuitCommands. (#170)
 Fix: FileWorldGenerator load issue + file_test.py to test fix. (#342)
 New: Python sample to test initial chunk loading. (#338)
 New: Added startAtWithPitchAndYaw to API. (#295)
