@@ -134,8 +134,10 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
     {
         if (messageType == MalmoMessageType.SERVER_BUILDBATTLEREWARD && data != null)
         {
-            Boolean completed = Boolean.valueOf(data.getOrDefault("completed", "false"));
-            Integer reward = Integer.valueOf(data.getOrDefault("reward", "0"));
+            String strCompleted = data.get("completed");
+            String strReward = data.get("reward");
+            Boolean completed = strCompleted != null ? Boolean.valueOf(strCompleted) : Boolean.FALSE;
+            Integer reward = strReward != null ? Integer.valueOf(strReward) : 0;
             synchronized (this)
             {
                 if (completed == Boolean.TRUE)
