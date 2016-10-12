@@ -96,7 +96,7 @@ void runGameShim( )
         boost::this_thread::sleep(sleep_time / 2);
     }
 
-    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "<Reward xmlns=\"http://ProjectMalmo.microsoft.com\"><Value dimension=\"0\" value=\"123.45\" /></Reward>", true);
+    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "0:123.45", true);
 
     std::stringstream end_xml;
     end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus></MissionEnded>";
