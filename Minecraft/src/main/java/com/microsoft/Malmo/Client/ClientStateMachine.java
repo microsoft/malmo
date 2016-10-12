@@ -23,9 +23,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -70,7 +72,6 @@ import com.microsoft.Malmo.Client.MalmoModClient.InputType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
@@ -106,7 +107,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     private MissionInit currentMissionInit = null; // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
     private String missionQuitCode = ""; // The reason why this mission ended.
-    private MultidimensionalReward finalReward = new MultidimensionalReward(); // The reward at the end of the mission, sent separately to ensure timely delivery.
+    private MultidimensionalReward finalReward = new MultidimensionalReward(true); // The reward at the end of the mission, sent separately to ensure timely delivery.
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 
@@ -930,10 +931,27 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (messageType != MalmoMessageType.SERVER_ALLPLAYERSJOINED)
                 return;
 
-            String extraHandlers = data.get("extra_handlers");
-            if (extraHandlers != null && extraHandlers.length() > 0)
-                attemptToAddExtraHandlers(extraHandlers);
-
+            List<Object> handlers = new ArrayList<Object>();
+            for (Entry<String, String> entry : data.entrySet())
+            {
+                String extraHandler = entry.getValue();
+                if (extraHandler != null && extraHandler.length() > 0)
+                {
+                    try
+                    {
+                        Class<?> handlerClass = Class.forName(entry.getKey());
+                        Object handler = SchemaHelper.deserialiseObject(extraHandler, "MissionInit.xsd", handlerClass);
+                        handlers.add(handler);
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Error trying to create extra handlers: " + e);
+                        // Do something... like episodeHasCompletedWithErrors(nextState, error)?
+                    }
+                }
+            }
+            if (!handlers.isEmpty())
+                currentMissionBehaviour().addExtraHandlers(handlers);
             this.waitingForChunk = true;
         }
         
@@ -965,19 +983,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     errorReport = ": " + errorReport;
                 }
                 episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_START_AGENT, "Failed to send MissionInit back to agent" + errorReport);
-            }
-        }
-
-        private void attemptToAddExtraHandlers(String extraHandlers)
-        {
-            try
-            {
-                AgentHandlers handlers = (AgentHandlers) SchemaHelper.deserialiseObject(extraHandlers, "MissionInit.xsd", AgentHandlers.class);
-                currentMissionBehaviour().addExtraHandlers(handlers);
-            }
-            catch (Exception e)
-            {
-                // Do something... like episodeHasCompletedWithErrors(nextState, error)?
             }
         }
 

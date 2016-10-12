@@ -58,7 +58,6 @@ import com.microsoft.Malmo.StateEpisode;
 import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator.DecoratorException;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.DrawItem;
@@ -834,19 +833,24 @@ public class ServerStateMachine extends StateMachine
         {
             // Build up any extra mission handlers required:
             MissionBehaviour handlers = getHandlers();
-            AgentHandlers extraHandlers = new AgentHandlers();
+            List<Object> extraHandlers = new ArrayList<Object>();
             Map<String, String> data = new HashMap<String, String>();
+
             if (handlers.worldDecorator != null && handlers.worldDecorator.getExtraAgentHandlers(extraHandlers))
             {
-                String xml;
-                try
+                for (Object handler : extraHandlers)
                 {
-                    xml = SchemaHelper.serialiseObject(extraHandlers, MissionInit.class);
-                    data.put("extra_handlers", xml);
-                }
-                catch (JAXBException e)
-                {
-                    // TODO - is this worth aborting the mission for?
+                    String xml;
+                    try
+                    {
+                        xml = SchemaHelper.serialiseObject(handler, MissionInit.class);
+                        data.put(handler.getClass().getName(), xml);
+                    }
+                    catch (JAXBException e)
+                    {
+                        // TODO - is this worth aborting the mission for?
+                        System.out.println("Exception trying to describe extra handlers: " + e);
+                    }
                 }
             }
             // And tell them all they can proceed:
@@ -974,7 +978,10 @@ public class ServerStateMachine extends StateMachine
                 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
-            
+
+            if (getHandlers().worldDecorator != null)
+                getHandlers().worldDecorator.prepare(currentMissionInit());
+
             // Fire the starting pistol:
             MalmoMod.safeSendToAll(MalmoMessageType.SERVER_GO);
         }
@@ -1045,7 +1052,10 @@ public class ServerStateMachine extends StateMachine
 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.cleanup();
-            
+
+            if (getHandlers().worldDecorator != null)
+                getHandlers().worldDecorator.cleanup();
+
             TimeHelper.serverTickLength = 50;   // Return tick length to 50ms default.
 
             if (success)

@@ -291,8 +291,18 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     }
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlers(List<Object> handlers)
     {
         return false;
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
     }
 }

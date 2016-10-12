@@ -770,19 +770,29 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlers(List<Object> handlers)
     {
         boolean added = false;
         if (this.quitter != null)
         {
-            handlers.getAgentMissionHandlers().add(this.quitter);
+            handlers.add(this.quitter);
             added = true;
         }
         if (this.navigator != null)
         {
-            handlers.getAgentMissionHandlers().add(this.navigator);
+            handlers.add(this.navigator);
             added = true;
         }
         return added;
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
     }
 }
