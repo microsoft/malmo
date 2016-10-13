@@ -26,6 +26,6 @@ export MALMO_XSD_PATH=$TRAVIS_BUILD_DIR/Schemas
 cd $TRAVIS_BUILD_DIR
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPYTHON_EXECUTABLE="/usr/bin/python" -DCMAKE_BUILD_TYPE=Release ..
 make
 ctest -E Integration -VV
