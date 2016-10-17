@@ -47,7 +47,7 @@ public class JavaExamples_run_mission
         catch( Exception e )
         {
             System.err.println( "ERROR: " + e.getMessage() );
-            System.out.println( agent_host.getUsage() );
+            System.err.println( agent_host.getUsage() );
             System.exit(1);
         }
         if( agent_host.receivedArgument("help") )
