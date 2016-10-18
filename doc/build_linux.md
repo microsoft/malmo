@@ -81,8 +81,12 @@
     6. `make`
     7. Test: `ctest`  
        (A few of the tests fail currently but this doesn't seem to affect us.)
+       
+9. Install Lua dependencies:
+    1. `sudo apt-get install luarocks`
+    2. `sudo luarocks install luasocket`
 
-9. Install ALE: (optional - skip this if you don't want to provide ALE support)
+10. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
        `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora)
@@ -95,7 +99,7 @@
        Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc  
       `source ~/.bashrc`
        
-10. Build Malmo:
+11. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
@@ -113,12 +117,12 @@
     9. `make install`
     10. You can then run the samples from e.g. `install/Python_Examples`
 
-10. Test Malmo:
+12. Test Malmo:
     1. `ctest`
     2. `ctest -E Integration` to exclude the integration tests.
     3. `ctest -VV` to get verbose output.
 
-11. Make a distributable:
+13. Make a distributable:
     1. Run all the tests.
     2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
     3. `cmake -DCMAKE_BUILD_TYPE=Release ..`
