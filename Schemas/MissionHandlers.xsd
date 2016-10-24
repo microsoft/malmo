@@ -867,6 +867,8 @@
         Commands for moving and turning in discrete increments. Some examples:
       
         "{{{move 1}}}" - move the agent one block forwards (1 = forwards, -1 = backwards).
+
+        "{{{strafe 1}}}" - move the agent one block sideways (1 = right, -1 = left).
         
         "{{{turn 1}}}" - rotate the agent 90 degrees right (1 = right, -1 = left).
         
@@ -889,6 +891,7 @@
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="move" />
+      <xs:enumeration value="strafe" />
       <xs:enumeration value="turn" />
       <xs:enumeration value="movenorth" />
       <xs:enumeration value="moveeast" />

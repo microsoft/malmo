@@ -304,6 +304,30 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     }
                 }
             }
+            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.STRAFE.value()))
+            {
+                if (parameter != null && parameter.length() != 0)
+                {
+                    float velocity = Float.valueOf(parameter);
+                    int offset = (velocity > 0) ? 1 : ((velocity < 0) ? -1 : 0);
+                    int direction = getDirectionFromYaw(player.rotationYaw);
+                    switch (direction)
+                    {
+                    case 0: // North
+                        x = -offset;
+                        break;
+                    case 1: // East
+                        z = -offset;
+                        break;
+                    case 2: // South
+                        x = offset;
+                        break;
+                    case 3: // West
+                        z = offset;
+                        break;
+                    }
+                }
+            }
             else if (verb.equalsIgnoreCase(DiscreteMovementCommand.TURN.value()))
             {
                 if (parameter != null && parameter.length() != 0)
