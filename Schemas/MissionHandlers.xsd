@@ -1115,6 +1115,7 @@
           </xs:complexType>
         </xs:element>
       </xs:all>
+      <xs:attribute name="autoFall" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
   </xs:element>
 

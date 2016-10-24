@@ -59,6 +59,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     public static final String MOVE_ATTEMPTED_KEY = "attemptedToMove";
 
     private boolean isOverriding;
+    DiscreteMovementCommands params;
 
     public static class DiscretePartialMoveEvent extends Event
     {
@@ -238,8 +239,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         if (params == null || !(params instanceof DiscreteMovementCommands))
             return false;
 
-        DiscreteMovementCommands dmparams = (DiscreteMovementCommands)params;
-        setUpAllowAndDenyLists(dmparams.getModifierList());
+        this.params = (DiscreteMovementCommands)params;
+        setUpAllowAndDenyLists(this.params.getModifierList());
         return true;
     }
 
@@ -411,6 +412,19 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 // Attempt to move the entity:
                 player.moveEntity(x, y, z);
                 player.onUpdate();
+                if (this.params.isAutoFall())
+                {
+                    // Did we step off a block? If so, attempt to fast-forward our fall.
+                    int bailCountdown=256;  // Give up after this many attempts
+                    // (This is needed because, for example, if the player is caught in a web, the downward movement will have no effect.)
+                    while (!player.onGround && !player.capabilities.isFlying && bailCountdown > 0)
+                    {
+                        // Fast-forward downwards.
+                        player.moveEntity(0, Math.floor(player.posY-0.0000001) - player.posY, 0);
+                        player.onUpdate();
+                        bailCountdown--;
+                    }
+                }
                 // Now check where we ended up:
                 double newX = player.posX;
                 double newZ = player.posZ;
