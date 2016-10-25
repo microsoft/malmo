@@ -413,6 +413,13 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 command == DiscreteMovementCommand.JUMPSTRAFE)
                 y = 1;
 
+            if (this.params.isAutoJump() && y == 0 && (z != 0 || x != 0))
+            {
+                // Do we need to jump?
+                if (!player.worldObj.getCollidingBoundingBoxes(player, player.getEntityBoundingBox().offset(x, 0, z)).isEmpty())
+                    y = 1;
+            }
+
             if (z != 0 || x != 0 || y != 0)
             {
                 // Attempt to move the entity:
