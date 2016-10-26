@@ -2,7 +2,7 @@
 
 For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5, 6 and 8. Then see the Getting Started section below.
 
-If you just want to run the Minecraft Mod (maybe your agents run on a different machine) then you only need to follow step 6.
+If you just want to run the Minecraft Mod (maybe your agents run on a different machine) then you only need to follow step 5.
 
 ### 1. Install 7-Zip: ###
 
