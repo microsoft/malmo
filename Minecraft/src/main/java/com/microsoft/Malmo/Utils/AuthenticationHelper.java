@@ -41,8 +41,10 @@ import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
 public class AuthenticationHelper
 {
     public static final String PROP_USERNAMES = "usernames";
+    public static final String PROP_PORTS = "ports";
     public static final String PROP_PORT_TO_USER_MAPPINGS = "portToUserMappings";
     public static final String PROP_USER_TO_PASSWORD_MAPPINGS = "usernameToPasswordMappings";
+    public static final String PROP_PORT_TO_PLAYERNAME_MAPPINGS = "portToPlayernameMappings";
     protected static final String UNAUTH = "unauthenticated";
 
     public static String username = UNAUTH;
@@ -56,17 +58,24 @@ public class AuthenticationHelper
         public String username;
         public int port;
         public String password;
+        public String playername;
 
-        public LoginDetails(String username, int port, String password)
+        public LoginDetails(String username, int port, String password, String playername)
         {
             this.username = username;
             this.port = port;
             this.password = password;
+            this.playername = playername;
         }
 
         public boolean hasPassword()
         {
             return this.password != null && !this.password.isEmpty();
+        }
+
+        public boolean hasPlayername()
+        {
+            return this.playername != null && !this.playername.isEmpty();
         }
 
         public boolean hasPortMapping()
@@ -85,7 +94,7 @@ public class AuthenticationHelper
         List<LoginDetails> logins = new ArrayList<LoginDetails>();
         for (LoginDetails ld : AuthenticationHelper.logins)
         {
-            logins.add(new LoginDetails(ld.username, ld.port, ld.password));
+            logins.add(new LoginDetails(ld.username, ld.port, ld.password, ld.playername));
         }
         return logins;
     }
@@ -96,7 +105,7 @@ public class AuthenticationHelper
         AuthenticationHelper.logins.clear();
         for (LoginDetails ld : logins)
         {
-            AuthenticationHelper.logins.add(new LoginDetails(ld.username, ld.port, ld.password));
+            AuthenticationHelper.logins.add(new LoginDetails(ld.username, ld.port, ld.password, ld.playername));
         }
     }
 
@@ -107,19 +116,21 @@ public class AuthenticationHelper
         if (Minecraft.getMinecraft().getSession().getToken().equals("FML"))
             AuthenticationHelper.isAuthenticated = false;
 
-        String[] validUsernames = config.getStringList(PROP_USERNAMES, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_USERNAMES, new Object[0]));
+        String[] validPorts = config.getStringList(PROP_PORTS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORTS, new Object[0]));
         String[] portToUserMappings = config.getStringList(PROP_PORT_TO_USER_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORT_TO_USER_MAPPINGS, new Object[0]));
         String[] usernameToPasswordMappings = config.getStringList(PROP_USER_TO_PASSWORD_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_USER_TO_PASSWORD_MAPPINGS,  new Object[0]));
+        String[] portToPlayernameMappings = config.getStringList(PROP_PORT_TO_PLAYERNAME_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORT_TO_PLAYERNAME_MAPPINGS, new Object[0]));
         // Decrypt:
         for (int i = 0; i < usernameToPasswordMappings.length; i++)
             usernameToPasswordMappings[i] = decode(usernameToPasswordMappings[i]);
 
         // Store in a sensible format:
         AuthenticationHelper.logins.clear();
-        for (int i = 0; i < validUsernames.length; i++)
+        for (int i = 0; i < validPorts.length; i++)
         {
-            String user = validUsernames[i];
-            AuthenticationHelper.logins.add(new LoginDetails(user, getPortForUser(user, portToUserMappings), getPasswordForUsername(user, usernameToPasswordMappings)));
+            int port = Integer.valueOf(validPorts[i]);
+            String user = getUserForPort(port, portToUserMappings);
+            AuthenticationHelper.logins.add(new LoginDetails(user, port, getPasswordForUsername(user, usernameToPasswordMappings), getPlayernameForPort(port, portToPlayernameMappings)));
         }
 
         String username = getUserForPort(AddressHelper.getMissionControlPort(), portToUserMappings);
@@ -148,25 +159,31 @@ public class AuthenticationHelper
     {
         // Write our LoginDetails back out as seperate string lists:
         ArrayList<String> names = new ArrayList<String>();
+        ArrayList<String> ports = new ArrayList<String>();
         ArrayList<String> portToUserMappings = new ArrayList<String>();
         ArrayList<String> usernameToPasswordMappings = new ArrayList<String>();
+        ArrayList<String> portToPlayernameMappings = new ArrayList<String>();
         for (LoginDetails ld : AuthenticationHelper.logins)
         {
-            names.add(ld.username);
+            ports.add(String.valueOf(ld.port));
             if (ld.hasPassword())
                 usernameToPasswordMappings.add(AuthenticationHelper.encode(ld.username + ":" + ld.password));
             if (ld.hasPortMapping())
                 portToUserMappings.add(String.valueOf(ld.port) + ":" + ld.username);
+            if (ld.hasPlayername())
+                portToPlayernameMappings.add(String.valueOf(ld.port) + ":" + ld.playername);
         }
 
         Configuration config = MalmoMod.instance.getModPermanentConfigFile();
-        Property propUsernames = config.get(MalmoMod.AUTHENTICATION_CONFIGS, PROP_USERNAMES, new String[0], I18n.format("auth."+PROP_USERNAMES, new Object[0]));
+        Property propPorts = config.get(MalmoMod.AUTHENTICATION_CONFIGS, PROP_PORTS, new String[0], I18n.format("auth."+PROP_PORTS, new Object[0]));
         Property propPortToUserMappings = config.get(MalmoMod.AUTHENTICATION_CONFIGS, PROP_PORT_TO_USER_MAPPINGS, new String[0], I18n.format("auth."+PROP_PORT_TO_USER_MAPPINGS, new Object[0]));
         Property propUsernameToPasswordMappings = config.get(MalmoMod.AUTHENTICATION_CONFIGS, PROP_USER_TO_PASSWORD_MAPPINGS, new String[0], I18n.format("auth."+PROP_USER_TO_PASSWORD_MAPPINGS,  new Object[0]));
+        Property propPortToPlayernameMappings = config.get(MalmoMod.AUTHENTICATION_CONFIGS, PROP_PORT_TO_PLAYERNAME_MAPPINGS, new String[0], I18n.format("auth."+PROP_PORT_TO_PLAYERNAME_MAPPINGS, new Object[0]));
 
-        propUsernames.set(names.toArray(new String[0]));
+        propPorts.set(ports.toArray(new String[0]));
         propPortToUserMappings.set(portToUserMappings.toArray(new String[0]));
         propUsernameToPasswordMappings.set(usernameToPasswordMappings.toArray(new String[0]));
+        propPortToPlayernameMappings.set(portToPlayernameMappings.toArray(new String[0]));
         config.save();
     }
 
@@ -205,6 +222,17 @@ public class AuthenticationHelper
             }
         }
         return LoginDetails.nullPortMapping;
+    }
+
+    public static String getPlayernameForPort(int port, String[] portToPlayernameMappings)
+    {
+        String portstring = String.valueOf(port) + ":";
+        for (int i = 0; i < portToPlayernameMappings.length; i++)
+        {
+            if (portToPlayernameMappings[i].startsWith(portstring))
+                return portToPlayernameMappings[i].substring(portstring.length());
+        }
+        return null;
     }
 
     public static String getPasswordForUsername(String username, String[] usernameToPasswordMappings)
@@ -270,8 +298,15 @@ public class AuthenticationHelper
 
     private static boolean forceSessionUpdate(YggdrasilUserAuthentication auth)
     {
+//        String playername = auth.getSelectedProfile().getName()+"_"+String.valueOf(AddressHelper.getMissionControlPort());
+        Configuration config = MalmoMod.instance.getModPermanentConfigFile();
+        String[] portToPlayernameMappings = config.getStringList(PROP_PORT_TO_PLAYERNAME_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORT_TO_PLAYERNAME_MAPPINGS, new Object[0]));
+        String playername = getPlayernameForPort(AddressHelper.getMissionControlPort(), portToPlayernameMappings);
+        if ( playername == null )
+            playername = auth.getSelectedProfile().getName();
+
         // Create new session object:
-        Session newSession = new Session(auth.getSelectedProfile().getName(), auth.getSelectedProfile().getId().toString(), auth.getAuthenticatedToken(), auth.getUserType().getName());
+        Session newSession = new Session(playername, auth.getSelectedProfile().getId().toString(), auth.getAuthenticatedToken(), auth.getUserType().getName());
         // Are we in the dev environment or deployed?
         boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
         // We need to know, because the member name will either be obfuscated or not.
@@ -283,6 +318,14 @@ public class AuthenticationHelper
             session = Minecraft.class.getDeclaredField(sessionMemberName);
             session.setAccessible(true);
             session.set(Minecraft.getMinecraft(), newSession);
+            // It seems setting the session doesn't apply to the game profile correctly
+            // Using code from (net.minecraft.client.Minecraft@launchIntegratedServer), we force a reload (using same fix as for Fixes MC-52974.)
+            com.mojang.authlib.GameProfile gameProfile = Minecraft.getMinecraft().getSession().getProfile();
+            if (!Minecraft.getMinecraft().getSession().hasCachedProperties())
+            {
+                gameProfile = Minecraft.getMinecraft().getSessionService().fillProfileProperties(gameProfile, true);
+                Minecraft.getMinecraft().getSession().setProperties(gameProfile.getProperties());
+            }
             return true;
         }
         catch (SecurityException e)

@@ -44,6 +44,7 @@ public class MalmoAuthenticationScreen extends GuiScreen
     private GuiTextField usernameField;
     private GuiTextField passwordField;
     private GuiTextField portField;
+    private GuiTextField playernameField;
     private List<GuiTextField> fields = new ArrayList<GuiTextField>();
 
     private enum ScreenMode
@@ -52,7 +53,8 @@ public class MalmoAuthenticationScreen extends GuiScreen
         SCREEN_ADDUSER,
         SCREEN_EDITPASSWORD,
         SCREEN_EDITPORT,
-        SCREEN_EDITUSERNAME
+        SCREEN_EDITUSERNAME,
+        SCREEN_EDITPLAYERNAME
     }
     private ScreenMode mode = ScreenMode.SCREEN_LIST;
     private final int NO_USER_SELECTED = -1;
@@ -105,6 +107,7 @@ public class MalmoAuthenticationScreen extends GuiScreen
             this.usernameField = null;
             this.portField = null;
             this.passwordField = null;
+            this.playernameField = null;
             this.fields.clear();
 
             // Find new max name width.
@@ -114,24 +117,35 @@ public class MalmoAuthenticationScreen extends GuiScreen
                 maxNameWidth = Math.max(maxNameWidth, mc.fontRendererObj.getStringWidth(this.logins.get(i).username));
             int maxwidth = maxNameWidth + 8;	// Leave a little room.
 
+            // New player name max width
+            int maxPlayernameWidth = 0;
+            for (int i = 0; i < this.logins.size(); i++)
+                maxPlayernameWidth = Math.max(maxPlayernameWidth, mc.fontRendererObj.getStringWidth(this.logins.get(i).playername));
+            maxPlayernameWidth = maxPlayernameWidth + 8;    // Leave a little room.
+
             int i = 0;
+            int numberOfFields = 5;
             for (AuthenticationHelper.LoginDetails ld : this.logins)
             {
-                // Button for the username:
                 String name =  ld.username;
-                if (name.equals(AuthenticationHelper.username))
-                    name = EnumChatFormatting.GOLD + name;
-                this.buttonList.add(new GuiButton(0 + (i*4), this.width/16, 32 + (i*22), maxwidth, 20, name));
-                // Button for the port override:
                 String port = ld.hasPortMapping() ? String.valueOf(ld.port) : "---";
+                String password = ld.hasPassword() ? "password" : EnumChatFormatting.DARK_GRAY + "password";
+                String playername =  ld.hasPlayername() ? ld.playername : "---";
+
+                // Button for the username:
+                if (port.equals(String.valueOf(AddressHelper.getMissionControlPort())))
+                    name = EnumChatFormatting.GOLD + name;
+                this.buttonList.add(new GuiButton(0 + (i*numberOfFields), this.width/16, 32 + (i*22), maxwidth, 20, name));
+                // Button for the port override:
                 if (ld.hasPortMapping() && (ld.port < AddressHelper.MIN_MISSION_CONTROL_PORT || ld.port > AddressHelper.MAX_FREE_PORT))
                     port = EnumChatFormatting.DARK_RED + port;	// Port number is out of range.
-                this.buttonList.add(new GuiButton(1 + (i*4), this.width/16 + maxwidth + 2, 32 + (i*22), 64, 20, port));
+                this.buttonList.add(new GuiButton(1 + (i*numberOfFields), this.width/16 + maxwidth + 2, 32 + (i*22), 64, 20, port));
                 // Button to edit the password:
-                String password = ld.hasPassword() ? "password" : EnumChatFormatting.DARK_GRAY + "password";
-                this.buttonList.add(new GuiButton(2 + (i*4), this.width/16 + maxwidth + 68, 32 + (i*22), 64, 20, password));
+                this.buttonList.add(new GuiButton(2 + (i*numberOfFields), this.width/16 + maxwidth + 68, 32 + (i*22), 64, 20, password));
+                // Button for the playername:
+                this.buttonList.add(new GuiButton(3 + (i*numberOfFields), this.width/16 + maxwidth + 134, 32 + (i*22), maxPlayernameWidth, 20, playername));
                 // Delete button:
-                this.buttonList.add(new GuiButton(3 + (i*4), this.width/16 + maxwidth + 134, 32 + (i*22), 16, 20, EnumChatFormatting.RED + "X"));
+                this.buttonList.add(new GuiButton(4 + (i*numberOfFields), this.width/16 + maxwidth + maxPlayernameWidth + 136, 32 + (i*22), 16, 20, EnumChatFormatting.RED + "X"));
                 i++;
             }
             GuiButton addButton = new GuiButton(2001, cancelButton.xPosition + cancelButton.width + 5, cancelButton.yPosition, cancelButton.width, cancelButton.height, "Add user");
@@ -183,6 +197,18 @@ public class MalmoAuthenticationScreen extends GuiScreen
                         this.passwordField.setText(this.logins.get(this.selectedUser).password);
                     }
                 }
+            }
+            if (this.mode == ScreenMode.SCREEN_ADDUSER || this.mode == ScreenMode.SCREEN_EDITPLAYERNAME)
+            {
+                this.playernameField = new GuiTextField(2, this.fontRendererObj, this.width / 2 - 100, 130, 200, 20);
+                this.playernameField.setMaxStringLength(128);
+                this.playernameField.setFocused(true);
+
+                if (this.selectedUser != NO_USER_SELECTED)
+                {
+                    this.playernameField.setText(this.logins.get(this.selectedUser).playername);
+                }
+                this.fields.add(this.playernameField);
             }
         }
     }
@@ -269,7 +295,7 @@ public class MalmoAuthenticationScreen extends GuiScreen
                 }
                 if (port == null)
                     port = AuthenticationHelper.LoginDetails.nullPortMapping;
-                this.logins.add(new AuthenticationHelper.LoginDetails(this.usernameField.getText(), port, this.passwordField.getText()));
+                this.logins.add(new AuthenticationHelper.LoginDetails(this.usernameField.getText(), port, this.passwordField.getText(), this.playernameField.getText()));
                 setMode(ScreenMode.SCREEN_LIST);
             }
             else if (this.mode == ScreenMode.SCREEN_EDITPASSWORD && this.selectedUser != NO_USER_SELECTED)
@@ -297,6 +323,11 @@ public class MalmoAuthenticationScreen extends GuiScreen
                 this.logins.get(this.selectedUser).username = this.usernameField.getText();
                 setMode(ScreenMode.SCREEN_LIST);
             }
+            else if (this.mode == ScreenMode.SCREEN_EDITPLAYERNAME && this.selectedUser != NO_USER_SELECTED)
+            {
+                this.logins.get(this.selectedUser).playername = this.playernameField.getText();
+                setMode(ScreenMode.SCREEN_LIST);
+            }
         }
         else if (button.id == 2001)	// "Add user" button
         {
@@ -312,8 +343,9 @@ public class MalmoAuthenticationScreen extends GuiScreen
         }
         else
         {
-            this.selectedUser = button.id / 4;
-            int action = button.id % 4;
+            int numberOfFields = 5;
+            this.selectedUser = button.id / numberOfFields;
+            int action = button.id % numberOfFields;
             switch (action)
             {
             case 0:	// Name
@@ -325,7 +357,10 @@ public class MalmoAuthenticationScreen extends GuiScreen
             case 2:	// Password
                 setMode(ScreenMode.SCREEN_EDITPASSWORD);
                 break;
-            case 3:	// Delete
+            case 3:	// Player Name
+                setMode(ScreenMode.SCREEN_EDITPLAYERNAME);
+                break;
+            case 4:	// Delete
                 this.logins.remove(this.selectedUser);
                 this.selectedUser = NO_USER_SELECTED;
                 this.setWorldAndResolution(this.mc,  this.width,  this.height);	// Refresh gui
@@ -360,8 +395,11 @@ public class MalmoAuthenticationScreen extends GuiScreen
         if (this.portField != null)
             this.drawCenteredString(this.fontRendererObj, "Port:", this.width / 2 - 138, 90, 0xdddddd);
         if (this.passwordField != null)
-        {
             this.drawCenteredString(this.fontRendererObj, "Password:", this.width / 2 - 138, 114, 0xdddddd);
+        if (this.playernameField != null)
+            this.drawCenteredString(this.fontRendererObj, "Playername:", this.width / 2 - 138, 138, 0xdddddd);
+        if (this.passwordField != null)
+        {
             this.drawCenteredString(this.fontRendererObj, "WARNING: passwords are stored in PLAIN TEXT in", this.width/2, this.height - 64, 0xff0000);
             this.drawCenteredString(this.fontRendererObj, MalmoMod.instance.getModPermanentConfigFile().getConfigFile().getAbsolutePath(), this.width/2, this.height - 50, 0xff0000);
         }
