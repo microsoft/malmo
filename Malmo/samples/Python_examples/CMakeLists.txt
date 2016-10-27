@@ -25,6 +25,7 @@ set( SOURCES
   craft_work.py
   default_world_test.py
   depth_map_runner.py
+  discrete_3d_test.py
   drawing_test.py
   file_test.py
   human_action.py
