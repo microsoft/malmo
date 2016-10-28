@@ -125,7 +125,7 @@ def makePath(s, xorg, yorg, zorg, path_type):
     hoverable = lambda x,y,z: True if (x < 0 or x >= SIZE_X or z < 0 or z >= SIZE_Z) else ((y + 1 >= SIZE_Y or s[x][y+1][z] == 0) and (y + 2 >= SIZE_Y or s[x][y+2][z] == 0))
     jumpable = lambda x,y,z: True if (x < 0 or x >= SIZE_X or z < 0 or z >= SIZE_Z) else (s[x][y][z] > 0 and (y + 1 >= SIZE_Y or s[x][y+1][z] == 0) and (y + 2 >= SIZE_Y or s[x][y+2][z] == 0) and (y + 3 >= SIZE_Y or s[x][y+3][z] == 0))
     safeblock = lambda x,y,z: (x,y,z) if s[x][y][z] > 0 else (x,y-1,z) if s[x][y-1][z] > 0 else (x,y-2,z) if s[x][y-2][z] > 0 else (x,y-3,z) if s[x][y-3][z] > 0 else None
-    neighbour = lambda x,y,z,dx,dz: safeblock(x+dx,y,z+dz) if (x+dx < SIZE_X and x+dx >= 0 and z+dz < SIZE_Z and z+dz >= 0) else (x+dx,0,z+dz) if y <= 3 else None
+    neighbour = lambda x,y,z,dx,dz: safeblock(x+dx,y,z+dz) if (x+dx < SIZE_X and x+dx >= 0 and z+dz < SIZE_Z and z+dz >= 0) else None
     index = lambda x,y,z: x + (y * SIZE_X * SIZE_Z) + (z * SIZE_X)
 
     links = [[[[] for x in range(SIZE_X)] for y in range(SIZE_Y)] for z in range(SIZE_Z)]
