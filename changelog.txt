@@ -1,3 +1,7 @@
+0.19.0
+-------------------
+New: Discrete strafe and jump actions, autojump and autofall. (#352, #321)
+
 0.18.0
 -------------------
 New: Added RewardForStructureCopying and BuildBattleDecorator. (#337)

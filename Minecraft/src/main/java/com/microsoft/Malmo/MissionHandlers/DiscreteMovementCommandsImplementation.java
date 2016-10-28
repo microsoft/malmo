@@ -59,6 +59,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     public static final String MOVE_ATTEMPTED_KEY = "attemptedToMove";
 
     private boolean isOverriding;
+    DiscreteMovementCommands params;
 
     public static class DiscretePartialMoveEvent extends Event
     {
@@ -238,8 +239,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         if (params == null || !(params instanceof DiscreteMovementCommands))
             return false;
 
-        DiscreteMovementCommands dmparams = (DiscreteMovementCommands)params;
-        setUpAllowAndDenyLists(dmparams.getModifierList());
+        this.params = (DiscreteMovementCommands)params;
+        setUpAllowAndDenyLists(this.params.getModifierList());
         return true;
     }
 
@@ -248,6 +249,16 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         // Initialise direction:
         int direction = (int)((yaw + 45.0f) / 90.0f);
         return (direction + 4) % 4;
+    }
+
+    private DiscreteMovementCommand verbToCommand(String verb)
+    {
+        for (DiscreteMovementCommand com : DiscreteMovementCommand.values())
+        {
+            if (verb.equalsIgnoreCase(com.value()))
+                return com;
+        }
+        return null;
     }
 
     @Override
@@ -260,33 +271,40 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             int z = 0;
             int x = 0;
             int y = 0;
-            if (verb.equalsIgnoreCase(DiscreteMovementCommand.MOVENORTH.value()))
+            DiscreteMovementCommand command = verbToCommand(verb);
+            if (command == null)
+                return false;   // Did not recognise this command.
+
+            switch (command)
             {
+            case MOVENORTH:
+            case JUMPNORTH:
                 z = -1;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.MOVESOUTH.value()))
-            {
+                break;
+            case MOVESOUTH:
+            case JUMPSOUTH:
                 z = 1;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.MOVEEAST.value()))
-            {
+                break;
+            case MOVEEAST:
+            case JUMPEAST:
                 x = 1;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.MOVEWEST.value()))
-            {
+                break;
+            case MOVEWEST:
+            case JUMPWEST:
                 x = -1;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.JUMP.value()))
-            {
-                y = 1;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.MOVE.value()))
-            {
+                break;
+            case MOVE:
+            case JUMPMOVE:
+            case STRAFE:
+            case JUMPSTRAFE:
                 if (parameter != null && parameter.length() != 0)
                 {
                     float velocity = Float.valueOf(parameter);
                     int offset = (velocity > 0) ? 1 : ((velocity < 0) ? -1 : 0);
                     int direction = getDirectionFromYaw(player.rotationYaw);
+                    // For strafing, add one to direction:
+                    if (command == DiscreteMovementCommand.STRAFE || command == DiscreteMovementCommand.JUMPSTRAFE)
+                        direction = (direction + 1) % 4;
                     switch (direction)
                     {
                     case 0: // North
@@ -302,10 +320,9 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                         x = offset;
                         break;
                     }
-                }
+                break;
             }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.TURN.value()))
-            {
+            case TURN:
                 if (parameter != null && parameter.length() != 0)
                 {
                     float yawDelta = Float.valueOf(parameter);
@@ -319,9 +336,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     MinecraftForge.EVENT_BUS.post(event);
                     handled = true;
                 }
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.LOOK.value()))
-            {
+                break;
+            case LOOK:
                 if (parameter != null && parameter.length() != 0)
                 {
                     float pitchDelta = Float.valueOf(parameter);
@@ -332,54 +348,76 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     MinecraftForge.EVENT_BUS.post(event);
                     handled = true;
                 }
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.ATTACK.value()))
-            {
-                MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-                if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
-                    BlockPos hitPos = mop.getBlockPos();
-                    EnumFacing face = mop.sideHit;
-                    IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
-                    Block block = iblockstate.getBlock();
-                    if (block.getMaterial() != Material.air)
-                    {
-                        MalmoMod.network.sendToServer(new AttackActionMessage(hitPos, face));
-                        // Trigger a reward for collecting the block
-                        java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
-                        for (ItemStack item : items)
-                        {
-                            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(item);
-                            MinecraftForge.EVENT_BUS.post(event);
-                        }
-                    }
-                }
-                handled = true;
-            }
-            else if (verb.equalsIgnoreCase(DiscreteMovementCommand.USE.value()))
-            {
-                MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
-                if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+                break;
+            case ATTACK:
                 {
-                    if( player.getCurrentEquippedItem() != null ) {
-                        ItemStack itemStack = player.getCurrentEquippedItem();
-                        Block b = Block.getBlockFromItem( itemStack.getItem() );
-                        if( b != null ) {
-                            BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
-                            // Can we place this block here?
-                            AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
-                            if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
+                    MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+                    if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK ) {
+                        BlockPos hitPos = mop.getBlockPos();
+                        EnumFacing face = mop.sideHit;
+                        IBlockState iblockstate = player.worldObj.getBlockState(hitPos);
+                        Block block = iblockstate.getBlock();
+                        if (block.getMaterial() != Material.air)
+                        {
+                            MalmoMod.network.sendToServer(new AttackActionMessage(hitPos, face));
+                            // Trigger a reward for collecting the block
+                            java.util.List<ItemStack> items = block.getDrops(player.worldObj, hitPos, iblockstate, 0);
+                            for (ItemStack item : items)
                             {
-                                // Yes!
-                                MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit));
-                                // Trigger a reward for discarding the block
-                                ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
-                                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
+                                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(item);
                                 MinecraftForge.EVENT_BUS.post(event);
                             }
                         }
                     }
+                    handled = true;
+                    break;
                 }
-                handled = true;
+            case USE:
+                {
+                    MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+                    if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+                    {
+                        if( player.getCurrentEquippedItem() != null ) {
+                            ItemStack itemStack = player.getCurrentEquippedItem();
+                            Block b = Block.getBlockFromItem( itemStack.getItem() );
+                            if( b != null ) {
+                                BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
+                                // Can we place this block here?
+                                AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
+                                if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
+                                {
+                                    // Yes!
+                                    MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit));
+                                    // Trigger a reward for discarding the block
+                                    ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
+                                    RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
+                                    MinecraftForge.EVENT_BUS.post(event);
+                                }
+                            }
+                        }
+                    }
+                    handled = true;
+                    break;
+                }
+            case JUMP:
+                break;  // Handled below.
+            }
+
+            // Handle jumping cases:
+            if (command == DiscreteMovementCommand.JUMP ||
+                command == DiscreteMovementCommand.JUMPNORTH ||
+                command == DiscreteMovementCommand.JUMPEAST ||
+                command == DiscreteMovementCommand.JUMPSOUTH ||
+                command == DiscreteMovementCommand.JUMPWEST ||
+                command == DiscreteMovementCommand.JUMPMOVE ||
+                command == DiscreteMovementCommand.JUMPSTRAFE)
+                y = 1;
+
+            if (this.params.isAutoJump() && y == 0 && (z != 0 || x != 0))
+            {
+                // Do we need to jump?
+                if (!player.worldObj.getCollidingBoundingBoxes(player, player.getEntityBoundingBox().offset(x, 0, z)).isEmpty())
+                    y = 1;
             }
 
             if (z != 0 || x != 0 || y != 0)
@@ -387,6 +425,20 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 // Attempt to move the entity:
                 player.moveEntity(x, y, z);
                 player.onUpdate();
+                if (this.params.isAutoFall())
+                {
+                    // Did we step off a block? If so, attempt to fast-forward our fall.
+                    int bailCountdown=256;  // Give up after this many attempts
+                    // (This is needed because, for example, if the player is caught in a web, the downward movement will have no effect.)
+                    while (!player.onGround && !player.capabilities.isFlying && bailCountdown > 0)
+                    {
+                        // Fast-forward downwards.
+                        player.moveEntity(0, Math.floor(player.posY-0.0000001) - player.posY, 0);
+                        player.onUpdate();
+                        bailCountdown--;
+                    }
+                }
+
                 // Now check where we ended up:
                 double newX = player.posX;
                 double newZ = player.posZ;

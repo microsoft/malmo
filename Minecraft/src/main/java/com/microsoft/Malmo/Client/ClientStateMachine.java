@@ -354,7 +354,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             public boolean onCommand(String command, String ipFrom, DataOutputStream dos)
             {
                 System.out.println("Received from " + ipFrom + ":");
-                System.out.println(command);
+                System.out.println(command.substring(0, Math.min(command.length(), 1024)));
 
                 String reply = null;
                 boolean keepProcessing = true;
@@ -371,96 +371,92 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     reply = "MALMOERRORNOTUNDERSTOOD";
                     keepProcessing = false; // Don't understand this message - not a MissionInit.
                 }
-                else if (missionInitResult.missionInit != null)
+                else if (missionInitResult.missionInit != null && missionInitResult.wasMissionInit)
                 {
                     MissionInit missionInit = missionInitResult.missionInit;
-                    String rootNodeName = SchemaHelper.getRootNodeName(command);
-                    if (rootNodeName != null && rootNodeName.equals("MissionInit"))
+                    // We've been sent a MissionInit message.
+                    // If the server information is missing, we interpret this as a request to find it.
+                    // (Unless the requested role is 0, in which case the server information *should* be missing.)
+                    if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
                     {
-                        // We've been sent a MissionInit message.
-                        // If the server information is missing, we interpret this as a request to find it.
-                        // (Unless the requested role is 0, in which case the server information *should* be missing.)
-                        if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
+                        if (currentMissionInit() == null)
                         {
-                            if (currentMissionInit() == null)
-                            {
-                                // We don't have a MissionInit ourselves, so we can't help:
-                                reply = "MALMONOMISSION";
-                                keepProcessing = false; // No further action required.
-                            }
-                            else if (currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID()) && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()))
-                            {
-                                // Our Missions and Experiment IDs match, so we are running the same experiment.
-                                // Return the port and server IP address to the caller:
-                                MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
-                                if (msc == null)
-                                    reply = "MALMOERRORMinecraftServerConnection missing!";
-                                else
-                                    reply = "MALMOS" + msc.getAddress() + ":" + msc.getPort();
+                            // We don't have a MissionInit ourselves, so we can't help:
+                            reply = "MALMONOMISSION";
+                            keepProcessing = false; // No further action required.
+                        }
+                        else if (currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID()) && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()))
+                        {
+                            // Our Missions and Experiment IDs match, so we are running the same experiment.
+                            // Return the port and server IP address to the caller:
+                            MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
+                            if (msc == null)
+                                reply = "MALMOERRORMinecraftServerConnection missing!";
+                            else
+                                reply = "MALMOS" + msc.getAddress() + ":" + msc.getPort();
 
-                                keepProcessing = false;
-                            }
-                            else
-                            {
-                                // We have a MissionInit, but it doesn't match theirs, or we're not the server:
-                                reply = "MALMOBUSY";
-                                keepProcessing = false; // No further action required.
-                            }
+                            keepProcessing = false;
                         }
-                        else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
+                        else
                         {
-                            IState currentState = getStableState();
-                            if (currentState != null && currentState.equals(ClientState.DORMANT))
-                            {
-                                reply = "MALMOOK";
-                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                            }
-                            else
-                            {
-                                // MissionInit passed to us, no server details, and role 0 specified -
-                                // this means WE should become the server, and launch this mission.
-                                if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
-                                    && currentMissionInit().getClientRole() == 0
-                                    && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
-                                    && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
-                                {
-                                    // Give a warning because this is a dangerous situation - two multi-agent missions have been
-                                    // launched with identical mission specifications and without the users ensuring that each
-                                    // has a unique experiment ID to identify it. The second agent from researcher B might join
-                                    // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
-                                    // ways.
-                                    reply = "MALMOBUSY (Warning: Identical mission and experiment ID as currently running - danger that your agents will join the wrong mission.)";
-                                    keepProcessing = false; // Ignore the message.
-                                }
-                                else {
-                                    // We're busy - we can't run this mission.
-                                    reply = "MALMOBUSY";
-                                    keepProcessing = false; // Ignore the message.
-                                }
-                            }
+                            // We have a MissionInit, but it doesn't match theirs, or we're not the server:
+                            reply = "MALMOBUSY";
+                            keepProcessing = false; // No further action required.
                         }
-                        else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
+                    }
+                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
+                    {
+                        IState currentState = getStableState();
+                        if (currentState != null && currentState.equals(ClientState.DORMANT))
                         {
-                            // We have server details filled in - this is a equest for US to run the mission.
-                            IState currentState = getStableState();
-                            if (currentState != null && currentState.equals(ClientState.DORMANT))
+                            reply = "MALMOOK";
+                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
+                        }
+                        else
+                        {
+                            // MissionInit passed to us, no server details, and role 0 specified -
+                            // this means WE should become the server, and launch this mission.
+                            if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
+                                && currentMissionInit().getClientRole() == 0
+                                && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
+                                && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
                             {
-                                reply = "MALMOOK";
-                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
+                                // Give a warning because this is a dangerous situation - two multi-agent missions have been
+                                // launched with identical mission specifications and without the users ensuring that each
+                                // has a unique experiment ID to identify it. The second agent from researcher B might join
+                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
+                                // ways.
+                                reply = "MALMOBUSY (Warning: Identical mission and experiment ID as currently running - danger that your agents will join the wrong mission.)";
+                                keepProcessing = false; // Ignore the message.
                             }
-                            else
-                            {
+                            else {
                                 // We're busy - we can't run this mission.
                                 reply = "MALMOBUSY";
                                 keepProcessing = false; // Ignore the message.
                             }
                         }
-                        else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() == 0)
+                    }
+                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
+                    {
+                        // We have server details filled in - this is a equest for US to run the mission.
+                        IState currentState = getStableState();
+                        if (currentState != null && currentState.equals(ClientState.DORMANT))
                         {
-                            // Error condition - currently makes no sense to fill in the server details for role 0.
-                            reply = "MALMOERRORServer details provided for server role";
-                            keepProcessing = false; // Ditch this message.
+                            reply = "MALMOOK";
+                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
                         }
+                        else
+                        {
+                            // We're busy - we can't run this mission.
+                            reply = "MALMOBUSY";
+                            keepProcessing = false; // Ignore the message.
+                        }
+                    }
+                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() == 0)
+                    {
+                        // Error condition - currently makes no sense to fill in the server details for role 0.
+                        reply = "MALMOERRORServer details provided for server role";
+                        keepProcessing = false; // Ditch this message.
                     }
                 }
 
