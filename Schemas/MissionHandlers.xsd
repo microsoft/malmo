@@ -659,6 +659,63 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:element name="AnimationDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Go crazy.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="Seed">
+          <xs:annotation>
+            <xs:documentation>
+              The master seed for the random number generator used for any stochastic elements.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="random|[0-9]+"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="CanvasBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the canvas within which to draw the animations.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="InitialPos" type="Pos">
+          <xs:annotation>
+            <xs:documentation>
+              Define the starting position of the drawing's origin.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="InitialVelocity" type="Pos">
+          <xs:annotation>
+            <xs:documentation>
+              Define the initial velocity of the drawing's origin.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element ref="DrawingDecorator">
+          <xs:annotation>
+            <xs:documentation>
+              Define the drawing, relative to (0,0,0), which will be drawn for each frame of the animation.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="BuildBattleDecorator">
     <xs:annotation>
       <xs:documentation>
