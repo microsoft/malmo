@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------------
 
 set( SOURCES
+  animation_test.py
   build_test.py
   cart_test.py
   chat_reward.py
