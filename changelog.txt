@@ -1,6 +1,7 @@
 0.19.0
 -------------------
 New: Discrete strafe and jump actions, autojump and autofall. (#352, #321)
+New: Simple animation decorator. (#389)
 
 0.18.0
 -------------------
