@@ -209,7 +209,7 @@ public class AuthenticationHelper
             String s = portToUserMappings[i];
             if (s.endsWith(user))
             {
-                String strport = s.substring(0, s.length() - (user.length() + 1));	// +1 for the colon - portnumber:username
+                String strport = s.substring(0, s.length() - (user.length() + 1));  // +1 for the colon - portnumber:username
                 Integer port = null;
                 try
                 {
@@ -283,8 +283,31 @@ public class AuthenticationHelper
         auth.setPassword(AuthenticationHelper.password);
         try
         {
+//auth.logIn();
+
             if (!AuthenticationHelper.username.equals(UNAUTH) && !AuthenticationHelper.password.isEmpty())
             {
+//
+//        Configuration config = MalmoMod.instance.getModPermanentConfigFile();
+//        String[] portToPlayernameMappings = config.getStringList(PROP_PORT_TO_PLAYERNAME_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORT_TO_PLAYERNAME_MAPPINGS, new Object[0]));
+//System.err.println("TNARIK - set playername");
+//        String playername = getPlayernameForPort(AddressHelper.getMissionControlPort(), portToPlayernameMappings);
+//        if ( playername == null )
+//            playername = auth.getSelectedProfile().getName();
+//// try to change gameprofile before login
+//    com.mojang.authlib.GameProfile gameProfileOld = Minecraft.getMinecraft().getSession().getProfile();
+//System.err.println("TNARIK - get a old gameprofile - pre login "+gameProfileOld);
+//try{
+//    com.mojang.authlib.GameProfile aa = new com.mojang.authlib.GameProfile(gameProfileOld.getId(), playername);
+//    auth.selectGameProfile(aa);
+//System.err.println("TNARIK - get a refreshed gameprofile - pre login "+aa);
+//// let's see
+//}catch(Exception e) {
+//    e.printStackTrace();
+//}
+
+
+
                 auth.logIn();
                 if (forceSessionUpdate(auth))
                     return true;
@@ -298,15 +321,43 @@ public class AuthenticationHelper
 
     private static boolean forceSessionUpdate(YggdrasilUserAuthentication auth)
     {
+
+
+System.err.println("TNARIK - forcing session update");
+System.err.println("TNARIK - forcing session update with auth "+auth);
 //        String playername = auth.getSelectedProfile().getName()+"_"+String.valueOf(AddressHelper.getMissionControlPort());
         Configuration config = MalmoMod.instance.getModPermanentConfigFile();
         String[] portToPlayernameMappings = config.getStringList(PROP_PORT_TO_PLAYERNAME_MAPPINGS, MalmoMod.AUTHENTICATION_CONFIGS, new String[0], I18n.format("auth."+PROP_PORT_TO_PLAYERNAME_MAPPINGS, new Object[0]));
+System.err.println("TNARIK - set playername");
         String playername = getPlayernameForPort(AddressHelper.getMissionControlPort(), portToPlayernameMappings);
         if ( playername == null )
             playername = auth.getSelectedProfile().getName();
+System.err.println("TNARIK - get session");
+Session asession = Minecraft.getMinecraft().getSession();
+if (!asession.hasCachedProperties()) {
+    System.err.println("TNARIK - current session has no cached properties");
+}
 
+
+// atempt with same session
+    com.mojang.authlib.GameProfile gameProfileOld = Minecraft.getMinecraft().getSession().getProfile();
+System.err.println("TNARIK - get a old gameprofile "+gameProfileOld);
+try{
+    com.mojang.authlib.GameProfile aa = new com.mojang.authlib.GameProfile(gameProfileOld.getId(), playername);
+    auth.selectGameProfile(aa);
+System.err.println("TNARIK - get a refreshed gameprofile "+aa);
+// let's see
+}catch(Exception e) {
+    e.printStackTrace();
+}
+
+
+System.err.println("TNARIK - no cached properties");
+System.err.println("TNARIK - got session "+asession);
+System.err.println("TNARIK - create session");
         // Create new session object:
         Session newSession = new Session(playername, auth.getSelectedProfile().getId().toString(), auth.getAuthenticatedToken(), auth.getUserType().getName());
+System.err.println("TNARIK - a new session is born");
         // Are we in the dev environment or deployed?
         boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
         // We need to know, because the member name will either be obfuscated or not.
@@ -321,9 +372,12 @@ public class AuthenticationHelper
             // It seems setting the session doesn't apply to the game profile correctly
             // Using code from (net.minecraft.client.Minecraft@launchIntegratedServer), we force a reload (using same fix as for Fixes MC-52974.)
             com.mojang.authlib.GameProfile gameProfile = Minecraft.getMinecraft().getSession().getProfile();
+System.err.println("TNARIK - get a pre new gameprofile "+gameProfile);
             if (!Minecraft.getMinecraft().getSession().hasCachedProperties())
             {
+System.err.println("TNARIK - new session has no cached properties "+session);
                 gameProfile = Minecraft.getMinecraft().getSessionService().fillProfileProperties(gameProfile, true);
+System.err.println("TNARIK - get a new gameprofile "+gameProfile);
                 Minecraft.getMinecraft().getSession().setProperties(gameProfile.getProperties());
             }
             return true;
