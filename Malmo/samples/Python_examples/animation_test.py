@@ -77,7 +77,7 @@ def getAnimation():
     xml=""
     for x in xrange(4):
         xml+='''
-            <AnimationDecorator>
+            <AnimationDecorator ticksPerUpdate="10">
                 <Linear>
                     <CanvasBounds>
                         <min x="-20" y="226" z="-20"/>

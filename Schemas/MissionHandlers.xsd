@@ -753,6 +753,13 @@
           </xs:annotation>
         </xs:element>
       </xs:sequence>
+      <xs:attribute name="ticksPerUpdate" type="xs:int" default="1">
+        <xs:annotation>
+          <xs:documentation>
+            The number of server ticks between each update of the animation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 

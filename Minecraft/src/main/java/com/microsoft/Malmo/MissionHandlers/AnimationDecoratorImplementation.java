@@ -44,7 +44,8 @@ public class AnimationDecoratorImplementation extends HandlerBase implements IWo
     Vec3 velocity;
     Vec3 minCanvas;
     Vec3 maxCanvas;
-    int tickCount;
+    int frameCount = 0;
+    int tickCounter = 0;
     Random rng;
 
     @Override
@@ -112,7 +113,14 @@ public class AnimationDecoratorImplementation extends HandlerBase implements IWo
     @Override
     public void update(World world)
     {
-        this.tickCount++;
+        this.tickCounter++;
+        if (this.tickCounter < this.params.getTicksPerUpdate())
+        {
+            this.tickCounter++;
+            return;
+        }
+        this.frameCount++;
+        this.tickCounter = 0;
         BlockPos oldpos = new BlockPos(this.origin);
         if (this.params.getLinear() != null)
         {
@@ -133,9 +141,9 @@ public class AnimationDecoratorImplementation extends HandlerBase implements IWo
         {
             try
             {
-                double x = EvaluationHelper.eval(this.params.getParametric().getX(), this.tickCount, this.rng);
-                double y = EvaluationHelper.eval(this.params.getParametric().getY(), this.tickCount, this.rng);
-                double z = EvaluationHelper.eval(this.params.getParametric().getZ(), this.tickCount, this.rng);
+                double x = EvaluationHelper.eval(this.params.getParametric().getX(), this.frameCount, this.rng);
+                double y = EvaluationHelper.eval(this.params.getParametric().getY(), this.frameCount, this.rng);
+                double z = EvaluationHelper.eval(this.params.getParametric().getZ(), this.frameCount, this.rng);
                 this.origin = new Vec3(x, y, z);
             }
             catch (Exception e)
