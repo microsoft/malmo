@@ -105,21 +105,23 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     }
 
     @Override
-    public void prepare(MissionInit missionInit) {
+    public void prepare(MissionInit missionInit)
+    {
+        super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
     }
 
     @Override
-    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
-        // Return the rewards that have accumulated since last time we were asked:
-        reward.add(this.accumulatedRewards);
-        // And reset the count:
-        this.accumulatedRewards.clear();
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward)
+    {
+        super.getReward(missionInit, reward);
     }
 
     @Override
-    public void cleanup() {
+    public void cleanup()
+    {
+        super.cleanup();
         MinecraftForge.EVENT_BUS.unregister(this);
         MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
     }

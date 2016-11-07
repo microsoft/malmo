@@ -30,6 +30,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
+import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
 
@@ -101,6 +102,12 @@ public class MissionBehaviour
         // Instantiate the various handlers:
         for (Object handler : handlerset.getAgentMissionHandlers())
             createAndAddHandler(handler);
+
+        // If this is a multi-agent mission, need to ensure we have a team reward handler
+        // to receive rewards from other agents.
+        List<AgentSection> agents = missionInit.getMission().getAgentSection();
+        if (agents != null && agents.size() > 1)
+            addHandler(new RewardFromTeamImplementation());
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

@@ -14,7 +14,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardDensityForBuildAndBreak;
 import com.microsoft.Malmo.Schemas.RewardForStructureCopying;
 
-public class RewardForStructureCopyingImplementation extends HandlerBase implements IRewardProducer, IMalmoMessageListener
+public class RewardForStructureCopyingImplementation extends RewardBase implements IRewardProducer, IMalmoMessageListener
 {
     private RewardForStructureCopying rscparams;
     private RewardDensityForBuildAndBreak rewardDensity;
@@ -32,6 +32,7 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
     @Override
     public boolean parseParameters(Object params)
     {
+        super.parseParameters(params);
         if (params == null || !(params instanceof RewardForStructureCopying))
             return false;
 
@@ -52,12 +53,14 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward multidimReward)
     {
+        super.getReward(missionInit, multidimReward);
         if (this.rewardDensity == RewardDensityForBuildAndBreak.MISSION_END)
         {
             // Only send the reward at the very end of the mission.
             if (multidimReward.isFinalReward() && this.reward != 0)
             {
-                multidimReward.add(this.dimension, this.reward);
+                float adjusted_reward = adjustAndDistributeReward(this.reward, this.dimension, this.rscparams.getRewardDistribution());
+                multidimReward.add(this.dimension, adjusted_reward);
             }
         }
         else
@@ -67,7 +70,8 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
             {
                 synchronized (this)
                 {
-                    multidimReward.add(this.dimension, this.reward);
+                    float adjusted_reward = adjustAndDistributeReward(this.reward, this.dimension, this.rscparams.getRewardDistribution());
+                    multidimReward.add(this.dimension, adjusted_reward);
                     this.reward = 0;
                 }
             }
@@ -81,6 +85,7 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
     @Override
     public void prepare(MissionInit missionInit)
     {
+        super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
         FMLCommonHandler.instance().bus().register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_BUILDBATTLEREWARD);
@@ -123,6 +128,7 @@ public class RewardForStructureCopyingImplementation extends HandlerBase impleme
     @Override
     public void cleanup()
     {
+        super.cleanup();
         MinecraftForge.EVENT_BUS.unregister(this);
         FMLCommonHandler.instance().bus().unregister(this);
         structureHasBeenCompleted = false;

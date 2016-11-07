@@ -119,15 +119,13 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @Override
     public void getReward(MissionInit missionInit,MultidimensionalReward reward)
     {
-        // Return the rewards that have accumulated since last time we were asked:
-        reward.add( this.accumulatedRewards );
-        // And reset the count:
-        this.accumulatedRewards.clear();
+        super.getReward(missionInit, reward);
     }
 
     @Override
     public void prepare(MissionInit missionInit)
     {
+        super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_DISCARDITEM);
     }
@@ -135,6 +133,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @Override
     public void cleanup()
     {
+        super.cleanup();
         MinecraftForge.EVENT_BUS.unregister(this);
         MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_DISCARDITEM);
     }

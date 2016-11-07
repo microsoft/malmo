@@ -1569,6 +1569,7 @@
         <xs:attribute name="reward" type="xs:decimal" use="required" />
         <xs:attribute name="tolerance" type="xs:decimal" use="required" />
         <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1603,6 +1604,7 @@
     <xs:complexContent>
       <xs:extension base="BlockSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
         <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock" />
         <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000" />
       </xs:extension>
@@ -1613,6 +1615,7 @@
     <xs:complexContent>
       <xs:extension base="BlockOrItemSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1648,6 +1651,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
+      <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1655,7 +1659,8 @@
   <xs:complexType name="ChatMatchSpec">
     <xs:attribute name="description" use="required" type="xs:string" />
     <xs:attribute name="reward" use="required" type="xs:decimal" />
-    <xs:attribute name="regex" use="required" type="xs:string" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+   <xs:attribute name="regex" use="required" type="xs:string" />
   </xs:complexType>
 
   <xs:element name="RewardForSendingMatchingChatMessage">
@@ -1674,6 +1679,7 @@
 
   <xs:complexType name="ItemSpec">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="type" use="required" type="BlockOrItemList" />
   </xs:complexType>
 
@@ -1707,6 +1713,7 @@
 
   <xs:complexType name="MissionEndRewardCase">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="description" use="required" type="xs:string" />
   </xs:complexType>
 
@@ -1721,6 +1728,7 @@
         <xs:element name="Reward" type="MissionEndRewardCase"/>
       </xs:choice>
       <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0" />
+      <xs:attribute name="rewardForDeathDistribution" type="xs:string" use="optional" default="" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1798,6 +1806,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
         <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
           <xs:annotation>
             <xs:documentation>

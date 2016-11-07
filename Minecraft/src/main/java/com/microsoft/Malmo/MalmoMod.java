@@ -178,12 +178,14 @@ public class MalmoMod
         SERVER_COLLECTITEM,
         SERVER_DISCARDITEM,
         SERVER_BUILDBATTLEREWARD,   // Server has detected a reward from the build battle
+        SERVER_SHARE_REWARD,        // Server has received a reward from a client and is distributing it to the other agents
         SERVER_SOMEOTHERMESSAGE,
         CLIENT_AGENTREADY,			// Client response to server's ready request
         CLIENT_AGENTRUNNING,		// Client has just started running
         CLIENT_AGENTSTOPPED,		// Client response to server's stop request
         CLIENT_AGENTFINISHEDMISSION,// Individual agent has finished a mission
         CLIENT_BAILED,				// Client has hit an error and been forced to enter error state
+        CLIENT_SHARE_REWARD,        // Client has received a reward and needs to share it with other agents
         CLIENT_SOMEOTHERMESSAGE
     }
 

@@ -40,9 +40,8 @@ import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
-public abstract class RewardForItemBase extends HandlerBase
+public abstract class RewardForItemBase extends RewardBase
 {
-    protected MultidimensionalReward accumulatedRewards = new MultidimensionalReward();
     List<ItemRewardMatcher> rewardMatchers = new ArrayList<ItemRewardMatcher>();
     
     public static class ItemMatcher
@@ -95,16 +94,23 @@ public abstract class RewardForItemBase extends HandlerBase
     public class ItemRewardMatcher extends ItemMatcher
     {
         float reward;
+        String distribution;
 
         ItemRewardMatcher(BlockOrItemSpecWithReward spec)
         {
             super(spec);
             this.reward = spec.getReward().floatValue();
+            this.distribution = spec.getDistribution();
         }
 
         float reward()
         {
             return this.reward;
+        }
+        
+        String distribution()
+        {
+            return this.distribution;
         }
     }
 
@@ -119,7 +125,7 @@ public abstract class RewardForItemBase extends HandlerBase
         {
             if (matcher.matches(stack))
             {
-                this.accumulatedRewards.add(dimension, stack.stackSize * matcher.reward());
+                addAndShareCachedReward(dimension, stack.stackSize * matcher.reward(), matcher.distribution());
             }
         }
     }

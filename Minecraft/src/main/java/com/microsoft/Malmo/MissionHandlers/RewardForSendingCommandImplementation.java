@@ -28,13 +28,14 @@ import com.microsoft.Malmo.Schemas.RewardForSendingCommand;
  * Simple discrete reward signal, which tests for movement, goal-reaching, and
  * lava-swimming.<br>
  */
-public class RewardForSendingCommandImplementation extends HandlerBase implements IRewardProducer {
+public class RewardForSendingCommandImplementation extends RewardBase implements IRewardProducer {
     protected float rewardPerCommand;
     protected Integer commandTally = 0;
     private RewardForSendingCommand params;
 
     @Override
     public boolean parseParameters(Object params) {
+        super.parseParameters(params);
         if (params == null || !(params instanceof RewardForSendingCommand))
             return false;
 
@@ -45,6 +46,7 @@ public class RewardForSendingCommandImplementation extends HandlerBase implement
 
     @Override
     public void prepare(MissionInit missionInit) {
+        super.prepare(missionInit);
         // We need to see the commands as they come in, so we can calculate the
         // reward.
         // To do this we create our own command handler and insert it at the
@@ -76,13 +78,17 @@ public class RewardForSendingCommandImplementation extends HandlerBase implement
 
     @Override
     public void cleanup() {
+        super.cleanup();
     }
 
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
+        super.getReward(missionInit, reward);
         synchronized (RewardForSendingCommandImplementation.this.commandTally) {
             if( this.commandTally > 0) {
-                reward.add( this.params.getDimension(), this.rewardPerCommand * this.commandTally );
+                float reward_value = this.rewardPerCommand * this.commandTally;
+                float adjusted_reward = adjustAndDistributeReward(reward_value, this.params.getDimension(), this.params.getDistribution());
+                reward.add( this.params.getDimension(), adjusted_reward );
                 this.commandTally = 0;
             }
         }
