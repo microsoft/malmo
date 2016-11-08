@@ -46,6 +46,8 @@ public class RewardBase extends HandlerBase implements IRewardProducer
                 }
             }
         }
+        else
+            scaled_reward = 0;  // There's a distribution, but we're not included in it - we get nothing.
         // Now broadcast the reward to the other clients (but don't make a map entry for ourselves)
         Map<String, String> data = new HashMap<String, String>();
         for (String agent : parties)

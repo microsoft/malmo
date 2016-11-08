@@ -2,8 +2,10 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.Map;
 
+import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
+import com.microsoft.Malmo.Schemas.MissionInit;
 
 public class RewardFromTeamImplementation extends RewardBase implements IMalmoMessageListener
 {
@@ -30,5 +32,19 @@ public class RewardFromTeamImplementation extends RewardBase implements IMalmoMe
                 }
             }
         }
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+        super.prepare(missionInit);
+        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_SHARE_REWARD);
+    }
+
+    @Override
+    public void cleanup()
+    {
+        super.cleanup();
+        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_SHARE_REWARD);
     }
 }
