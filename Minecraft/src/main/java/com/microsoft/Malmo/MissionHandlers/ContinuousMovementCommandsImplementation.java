@@ -45,4 +45,7 @@ public class ContinuousMovementCommandsImplementation extends CommandGroup
         setUpAllowAndDenyLists(cmparams.getModifierList());
         return true;
     }
+
+    @Override
+    public boolean isFixed() { return true; }
 }

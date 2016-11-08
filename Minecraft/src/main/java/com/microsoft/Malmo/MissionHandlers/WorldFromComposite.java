@@ -25,7 +25,6 @@ import java.util.List;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Composite class that manages a set of world builders
@@ -84,5 +83,10 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
         {
             builder.cleanup();
         }
+    }
+
+    public boolean isFixed()
+    {
+        return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.
     }
 }

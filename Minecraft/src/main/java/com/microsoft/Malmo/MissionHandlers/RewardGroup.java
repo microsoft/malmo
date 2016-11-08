@@ -63,4 +63,9 @@ public class RewardGroup extends RewardBase implements IRewardProducer {
                 rp.cleanup();
         }
     }
+
+    public boolean isFixed()
+    {
+        return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.
+    }
 }
