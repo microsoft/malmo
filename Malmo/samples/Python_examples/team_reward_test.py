@@ -84,7 +84,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         <DrawCuboid x1="-44" y1="227" z1="-2" x2="-44" y2="206" z2="-2" type="air"/>
         <DrawBlock x="-44" y="206" z="-2" type="redstone_block"/>
       </DrawingDecorator>
-      <ServerQuitFromTimeUp description="" timeLimitMs="400000"/>
+      <ServerQuitFromTimeUp description="" timeLimitMs="500000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
     </ServerHandlers>
   </ServerSection>
