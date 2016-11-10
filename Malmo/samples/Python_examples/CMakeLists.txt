@@ -58,7 +58,6 @@ set( SOURCES
   tutorial_6.py
   tutorial_7.py
   tutorial_8.py
-  two_diggers.py
   use_file.py
 )
 
@@ -69,6 +68,8 @@ set( ALESOURCES
 set( OTHER_FILES
   tutorial_6.xml
   Tutorial.pdf
+  two_diggers.py
+  team_reward_test.py
 )
 
 install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )
