@@ -78,7 +78,7 @@ public class RewardForMissionEndImplementation extends RewardBase implements IRe
                     if (merc.getDescription().equalsIgnoreCase(s))
                     {
                         float this_reward = merc.getReward().floatValue();
-                        float adjusted_reward = adjustAndDistributeReward(this_reward, this.params.getDimension(), merc.getDescription());
+                        float adjusted_reward = adjustAndDistributeReward(this_reward, this.params.getDimension(), merc.getDistribution());
                         reward += adjusted_reward;
                     }
                 }
