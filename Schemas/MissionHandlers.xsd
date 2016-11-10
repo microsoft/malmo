@@ -659,6 +659,110 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:element name="AnimationDecorator">
+    <xs:annotation>
+      <xs:documentation>
+          Basic animation created by repeatedly applying a DrawingDecorator at different positions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element name="Parametric">
+            <xs:annotation>
+              <xs:documentation>
+                Create an animation where the (x,y,z) position are determined by parametric equations. Recognised tokens are:
+
+                * basic arithmetic operations: +, -, /, *, % (modulo), ^ (to the power of)
+                * basic trig: sin, cos, tan, asin, acos, atan
+                * abs (absolute value)
+                * rand - replaces with a random float between 0 and 1
+                * t - the integer time variable, incremented with each time interval
+
+                For example, to create a structure which orbits in the x-z plane about the point (100,100,100) at a radius of 20, use:
+                "100+20*cos(t)" and "100+20*sin(t)" for the x and z strings.
+
+                The parser is not robust to mismatched brackets, typos, unrecognised tokens etc, and will fail silently.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:all>
+                <xs:element name="x" type="xs:string"/>
+                <xs:element name="y" type="xs:string"/>
+                <xs:element name="z" type="xs:string"/>
+              </xs:all>
+              <xs:attribute name="seed">
+                <xs:annotation>
+                  <xs:documentation>
+                    The master seed for the random number generator used for any stochastic elements.
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                  <xs:annotation>
+                    <xs:documentation>
+                      Either an integer number, or the string "random".
+                    </xs:documentation>
+                  </xs:annotation>
+                  <xs:restriction base="xs:string">
+                    <xs:pattern value="random|[0-9]+"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Linear">
+            <xs:annotation>
+              <xs:documentation>
+                Create an animation where the (x,y,z) position is determined by the starting position, a constant velocity, and a bounding box.
+
+                Each time step, the position is updated by adding the velocity values. If the object goes outside of the bounding box in one dimension, that dimension's velocity will be flipped to reverse the direction.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:all>
+                <xs:element name="CanvasBounds" type="UnnamedGridDefinition">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the bounds of the canvas within which to move the object.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="InitialPos" type="Pos">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the starting position of the drawing's origin.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="InitialVelocity" type="Pos">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the initial velocity of the drawing's origin.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+        <xs:element ref="DrawingDecorator">
+          <xs:annotation>
+            <xs:documentation>
+                Define the drawing, relative to (0,0,0), which will be drawn for each frame of the animation.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="ticksPerUpdate" type="xs:int" default="1">
+        <xs:annotation>
+          <xs:documentation>
+            The number of server ticks between each update of the animation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="BuildBattleDecorator">
     <xs:annotation>
       <xs:documentation>
@@ -1465,6 +1569,7 @@
         <xs:attribute name="reward" type="xs:decimal" use="required" />
         <xs:attribute name="tolerance" type="xs:decimal" use="required" />
         <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1499,6 +1604,7 @@
     <xs:complexContent>
       <xs:extension base="BlockSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
         <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock" />
         <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000" />
       </xs:extension>
@@ -1509,6 +1615,7 @@
     <xs:complexContent>
       <xs:extension base="BlockOrItemSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1544,6 +1651,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
+      <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1551,7 +1659,8 @@
   <xs:complexType name="ChatMatchSpec">
     <xs:attribute name="description" use="required" type="xs:string" />
     <xs:attribute name="reward" use="required" type="xs:decimal" />
-    <xs:attribute name="regex" use="required" type="xs:string" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+   <xs:attribute name="regex" use="required" type="xs:string" />
   </xs:complexType>
 
   <xs:element name="RewardForSendingMatchingChatMessage">
@@ -1570,6 +1679,7 @@
 
   <xs:complexType name="ItemSpec">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="type" use="required" type="BlockOrItemList" />
   </xs:complexType>
 
@@ -1603,6 +1713,7 @@
 
   <xs:complexType name="MissionEndRewardCase">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="description" use="required" type="xs:string" />
   </xs:complexType>
 
@@ -1617,6 +1728,7 @@
         <xs:element name="Reward" type="MissionEndRewardCase"/>
       </xs:choice>
       <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0" />
+      <xs:attribute name="rewardForDeathDistribution" type="xs:string" use="optional" default="" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1694,6 +1806,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:attribute>
+        <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
         <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
           <xs:annotation>
             <xs:documentation>

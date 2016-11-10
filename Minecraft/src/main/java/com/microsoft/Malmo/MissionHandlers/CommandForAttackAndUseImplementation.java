@@ -28,4 +28,7 @@ public class CommandForAttackAndUseImplementation extends CommandGroup
         addCommandHandler(new CommandForKey("key.attack"));
         addCommandHandler(new CommandForKey("key.use"));
     }
+
+    @Override
+    public boolean isFixed() { return true; }
 }

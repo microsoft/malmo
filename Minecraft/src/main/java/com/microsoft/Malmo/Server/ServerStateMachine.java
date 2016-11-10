@@ -928,6 +928,7 @@ public class ServerStateMachine extends StateMachine
 
             // And register for the agent-finished message:
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.CLIENT_AGENTFINISHEDMISSION);
+            MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.CLIENT_SHARE_REWARD);
         }
 
         @Override
@@ -935,6 +936,7 @@ public class ServerStateMachine extends StateMachine
         {
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.CLIENT_AGENTFINISHEDMISSION);
+            MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.CLIENT_SHARE_REWARD);
         }
 
         @Override
@@ -948,6 +950,10 @@ public class ServerStateMachine extends StateMachine
                 {
                     this.runningAgents.remove(agentName);
                 }
+            }
+            else if (messageType == MalmoMessageType.CLIENT_SHARE_REWARD)
+            {
+                MalmoMod.safeSendToAll(MalmoMessageType.SERVER_SHARE_REWARD, data);
             }
         }
 

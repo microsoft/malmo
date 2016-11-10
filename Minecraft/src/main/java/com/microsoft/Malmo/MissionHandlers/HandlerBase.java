@@ -20,16 +20,11 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import org.w3c.dom.Element;
 
 /** Lightweight baseclass for all handlers - provides access to parameters from the XML file.
  */
 public class HandlerBase
 {
-    private List<Element> params = null;
-    
     /** A static list of all classes that implement a handler - used to aid dynamic handler creation.
      */
     static ArrayList<String> handlers;

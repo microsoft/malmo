@@ -237,4 +237,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         parsedParams.add(rhs);
         return true;
     }
+
+    @Override
+    public boolean isFixed() { return true; }
 }

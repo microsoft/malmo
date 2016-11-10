@@ -46,7 +46,7 @@ public class CommandGroup extends CommandBase
      */
     protected void setShareParametersWithChildren(boolean share)
     {
-    	this.shareParametersWithChildren = share;
+        this.shareParametersWithChildren = share;
     }
     
     void addCommandHandler(ICommandHandler handler)
@@ -108,21 +108,26 @@ public class CommandGroup extends CommandBase
     @Override
     public boolean parseParameters(Object params)
     {
-    	// Normal handling:
-    	boolean ok = super.parseParameters(params);
-    	
-    	// Now, pass the params to each child handler, if that was requested:
-    	if (this.shareParametersWithChildren)
-		{
-        	// AND the results, but without short-circuit evaluation.
-        	for (ICommandHandler han : this.handlers)
-        	{
-        		if (han instanceof HandlerBase)
-        		{
-        			ok &= ((HandlerBase)han).parseParameters(params);
-        		}
-        	}
-		}
-    	return ok;
+        // Normal handling:
+        boolean ok = super.parseParameters(params);
+
+        // Now, pass the params to each child handler, if that was requested:
+        if (this.shareParametersWithChildren)
+        {
+            // AND the results, but without short-circuit evaluation.
+            for (ICommandHandler han : this.handlers)
+            {
+                if (han instanceof HandlerBase)
+                {
+                    ok &= ((HandlerBase) han).parseParameters(params);
+                }
+            }
+        }
+        return ok;
+    }
+
+    public boolean isFixed()
+    {
+        return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.
     }
 }

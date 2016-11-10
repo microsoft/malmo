@@ -246,10 +246,8 @@ public class BlockDrawingHelper
                     {
                         BlockPos pos = new BlockPos( x, y, z );
                         setBlockState( w, pos, blockType );
-                        List<Entity> entities = w.getEntitiesWithinAABBExcludingEntity(null,  new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5));
-                        for (Entity ent : entities)
-                            if (!(ent instanceof EntityPlayer))
-                                w.removeEntity(ent);
+                        AxisAlignedBB aabb = new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5);
+                        clearEntities(w, aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
                     }
                 }
             }
@@ -354,7 +352,7 @@ public class BlockDrawingHelper
             entity = EntityList.createEntityFromNBT(nbttagcompound, w);
             if (entity != null)
             {
-                entity.setLocationAndAngles(e.getX().doubleValue(), e.getY().doubleValue(), e.getZ().doubleValue(), e.getYaw().floatValue(), e.getPitch().floatValue());
+                positionEntity(entity, e.getX().doubleValue(), e.getY().doubleValue(), e.getZ().doubleValue(), e.getYaw().floatValue(), e.getPitch().floatValue());
                 entity.setVelocity(e.getXVel().doubleValue(), e.getYVel().doubleValue(), e.getZVel().doubleValue());
                 w.spawnEntityInWorld(entity);
             }
@@ -366,6 +364,11 @@ public class BlockDrawingHelper
         }
     }
 
+    protected void positionEntity( Entity entity, double x, double y, double z, float yaw, float pitch )
+    {
+        entity.setLocationAndAngles(x, y, z, yaw, pitch);
+    }
+    
     /** Spawn a single item at the specified position.
      * @param item the actual item to be spawned.
      * @param pos the position at which to spawn it.
@@ -373,8 +376,7 @@ public class BlockDrawingHelper
      */
     public void placeItem(ItemStack stack, BlockPos pos, World world, boolean centreItem)
     {
-        double offset = (centreItem) ? 0.5D : 0.0D;
-        EntityItem entityitem = new EntityItem(world, (double)pos.getX() + offset, (double)pos.getY() + offset, (double)pos.getZ() + offset, stack);
+        EntityItem entityitem = createItem(stack, (double)pos.getX(), (double)pos.getY(), (double)pos.getZ(), world, centreItem);
         // Set the motions to zero to prevent random movement.
         entityitem.motionX = 0;
         entityitem.motionY = 0;
@@ -383,6 +385,16 @@ public class BlockDrawingHelper
         world.spawnEntityInWorld(entityitem);
     }
 
+    protected EntityItem createItem(ItemStack stack, double x, double y, double z, World w, boolean centreItem)
+    {
+        if (centreItem)
+        {
+            x = ((int)x) + 0.5;
+            y = ((int)y) + 0.5;
+            z = ((int)z) + 0.5;
+        }
+        return new EntityItem(w, x, y, z, stack);
+    }
     /**
      * Draw a filled cuboid of Minecraft blocks of a single type.
      * @param c Contains information about the cuboid to be drawn.

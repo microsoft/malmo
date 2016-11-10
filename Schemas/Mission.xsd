@@ -397,6 +397,7 @@
                         </xs:appinfo>
                     </xs:annotation>
                     <xs:element ref="DrawingDecorator" />
+                    <xs:element ref="AnimationDecorator" />
                     <xs:element ref="MazeDecorator"  />
                     <xs:element ref="ClassroomDecorator" />
                     <xs:element ref="SnakeDecorator"  />
