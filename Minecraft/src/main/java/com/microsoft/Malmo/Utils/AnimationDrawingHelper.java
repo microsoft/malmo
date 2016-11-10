@@ -1,11 +1,12 @@
 package com.microsoft.Malmo.Utils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -92,5 +93,23 @@ public class AnimationDrawingHelper extends BlockDrawingHelper
                 this.maxPos = new Vec3(x,y,z);
         }
         super.setBlockState(w, offsetPos, state);
+    }
+
+    @Override
+    public void clearEntities(World w, double x1, double y1, double z1, double x2, double y2, double z2)
+    {
+        super.clearEntities(w, x1+this.origin.xCoord, y1+this.origin.yCoord, z1+this.origin.zCoord, x2+this.origin.xCoord, y2+this.origin.yCoord, z2+this.origin.zCoord);
+    }
+
+    @Override
+    protected EntityItem createItem(ItemStack stack, double x, double y, double z, World w, boolean centreItem)
+    {
+        return super.createItem(stack, x+this.origin.xCoord, y+this.origin.yCoord, z+this.origin.zCoord, w, centreItem);
+    }
+
+    @Override
+    protected void positionEntity( Entity entity, double x, double y, double z, float yaw, float pitch )
+    {
+        super.positionEntity(entity, x+this.origin.xCoord, y+this.origin.yCoord, z+this.origin.zCoord, yaw, pitch);
     }
 }
