@@ -25,6 +25,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -33,6 +34,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -80,15 +82,17 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
         public BlockPos pos;
         public ItemStack itemStack;
         public EnumFacing face;
+        public boolean standOnPlacedBlock;
         public UseActionMessage()
         {
         }
 
-        public UseActionMessage(BlockPos pos, ItemStack itemStack, EnumFacing face)
+        public UseActionMessage(BlockPos pos, ItemStack itemStack, EnumFacing face, boolean standOnPlacedBlock)
         {
             this.pos = pos;
             this.itemStack = itemStack;
             this.face = face;
+            this.standOnPlacedBlock = standOnPlacedBlock;
         }
 
         @Override
@@ -97,6 +101,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
             this.itemStack = ByteBufUtils.readItemStack(buf);
             this.face = EnumFacing.values()[buf.readInt()];
+            this.standOnPlacedBlock = buf.readBoolean();
         }
 
         @Override
@@ -107,6 +112,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             buf.writeInt(this.pos.getZ());
             ByteBufUtils.writeItemStack(buf, this.itemStack);
             buf.writeInt(this.face.ordinal());
+            buf.writeBoolean(this.standOnPlacedBlock);
         }
     }
 
@@ -145,6 +151,11 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                         player.inventory.getCurrentItem().stackSize--;
                                     else
                                         player.inventory.mainInventory[player.inventory.currentItem] = null;
+                                }
+                                if (message.standOnPlacedBlock)
+                                {
+                                    // Eg after a jump-use, the player might expect to stand on the block that was just placed.
+                                    player.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                                 }
                             }
                         }
@@ -373,8 +384,9 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                     break;
                 }
             case USE:
+            case JUMPUSE:
                 {
-                    MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+                    MovingObjectPosition mop = getObjectMouseOver(command);
                     if( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
                     {
                         if( player.getCurrentEquippedItem() != null ) {
@@ -384,10 +396,12 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                 BlockPos pos = mop.getBlockPos().add( mop.sideHit.getDirectionVec() );
                                 // Can we place this block here?
                                 AxisAlignedBB axisalignedbb = b.getCollisionBoundingBox(player.worldObj, pos, b.getDefaultState());
-                                if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, null))
+                                Entity exceptedEntity = (command == DiscreteMovementCommand.USE) ? null : player;
+                                // (Not ideal, but needed by jump-use to allow the player to place a block where their feet would be.)
+                                if (axisalignedbb == null || player.worldObj.checkNoEntityCollision(axisalignedbb, exceptedEntity))
                                 {
-                                    // Yes!
-                                    MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit));
+                                    boolean standOnBlockPlaced = (command == DiscreteMovementCommand.JUMPUSE && mop.getBlockPos().equals(new BlockPos(player.posX, player.posY - 1, player.posZ)));
+                                    MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit, standOnBlockPlaced));
                                     // Trigger a reward for discarding the block
                                     ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
                                     RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
@@ -410,6 +424,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 command == DiscreteMovementCommand.JUMPSOUTH ||
                 command == DiscreteMovementCommand.JUMPWEST ||
                 command == DiscreteMovementCommand.JUMPMOVE ||
+                command == DiscreteMovementCommand.JUMPUSE ||
                 command == DiscreteMovementCommand.JUMPSTRAFE)
                 y = 1;
 
@@ -477,6 +492,25 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             }
         }
         return handled;
+    }
+
+    private MovingObjectPosition getObjectMouseOver(DiscreteMovementCommand command)
+    {
+        MovingObjectPosition mop = null;
+        if (command.equals(DiscreteMovementCommand.USE))
+            mop = Minecraft.getMinecraft().objectMouseOver;
+        else if (command.equals(DiscreteMovementCommand.JUMPUSE))
+        {
+            long partialTicks = 0;  //Minecraft.timer.renderPartialTicks
+            Entity viewer = Minecraft.getMinecraft().thePlayer;
+            double blockReach = Minecraft.getMinecraft().playerController.getBlockReachDistance();
+            Vec3 eyePos = viewer.getPositionEyes(partialTicks);
+            Vec3 lookVec = viewer.getLook(partialTicks);
+            int yOffset = 1;    // For the jump
+            Vec3 searchVec = eyePos.addVector(lookVec.xCoord * blockReach, yOffset + lookVec.yCoord * blockReach, lookVec.zCoord * blockReach);
+            mop = Minecraft.getMinecraft().theWorld.rayTraceBlocks(eyePos, searchVec, false, false, false);
+        }
+        return mop;
     }
 
     @Override

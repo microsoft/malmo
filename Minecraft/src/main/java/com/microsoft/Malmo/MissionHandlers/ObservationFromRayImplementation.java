@@ -20,10 +20,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;

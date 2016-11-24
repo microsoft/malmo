@@ -1003,6 +1003,8 @@
         "{{{attack 1}}}" - destroy the block that has focus.
         
         "{{{use 1}}}" - place the held block item on the block face that has focus.
+        
+        "{{{jumpuse}}}" - simultaneously jump and place the held block on the block face that has focus.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -1023,6 +1025,7 @@
       <xs:enumeration value="look" />
       <xs:enumeration value="attack" />
       <xs:enumeration value="use" />
+      <xs:enumeration value="jumpuse" />
     </xs:restriction>
   </xs:simpleType>
 
