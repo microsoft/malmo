@@ -19,8 +19,8 @@
 
 # A sample that demonstrates the use of reward sharing.
 # Two agents:
-#   Simeon the Stylite
-#   Fred Dibnah
+#   Simeon the Stylite (https://en.wikipedia.org/wiki/Simeon_Stylites)
+#   Fred Dibnah (https://en.wikipedia.org/wiki/Fred_Dibnah)
 
 # Goal: Simeon must safely walk from his starting point to a goal square...
 # but his starting point is at the top of a pole, 21 blocks above ground level, and the goal
@@ -113,7 +113,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       <Placement x="-22.5" y="227.0" z="-1.5" pitch="90" yaw="180"/>
     </AgentStart>
     <AgentHandlers>
-      <DiscreteMovementCommands autoJump="true" autoFall="false"/>
+      <DiscreteMovementCommands autoJump="true" autoFall="true"/>
       <ObservationFromChat/>
       <RewardForSendingCommand reward="1" distribution="SimeonTheStylite:1"/>
     </AgentHandlers>
@@ -142,7 +142,7 @@ for x in xrange(20):
         instructions.append("strafe 1")
     instructions.append("move -1")
     for y in xrange(x+1):
-        instructions.append("jump-use")
+        instructions.append("jumpuse")
     for y in xrange(x+1):
         instructions.append("strafe -1")
 
@@ -207,12 +207,7 @@ while agent_host_simeon.peekWorldState().is_mission_running or agent_host_fred.p
         for command in chat:
             parts = command.split("> ")
             if len(parts) > 1:
-                if parts[1] == "jump-use":
-                    agent_host_fred.sendCommand("jump")
-                    agent_host_fred.sendCommand("jump")
-                    agent_host_fred.sendCommand("use")
-                else:
-                    agent_host_fred.sendCommand(str(parts[1]))
+                agent_host_fred.sendCommand(str(parts[1]))
 
 # check the rewards obtained
 world_state1 = agent_host_simeon.getWorldState()
