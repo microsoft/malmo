@@ -1820,6 +1820,40 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:simpleType name="RewardDensityForTimeTaken">
+    <xs:annotation>
+      <xs:documentation>
+        Reward type for {{{RewardForTimeTaken}}}:
+
+        - {{{PER_TICK}}} - only the reward delta will be sent as a reward, at each tick. The initial reward will be ignored.
+
+        - {{{PER_TICK_ACCUMULATED}}} - the initial reward will be adjusted by the delta at each tick, and the current total sent. Eg: if the initial reward is 1000 and the delta is -1, the agent will receive rewards of 1000,999,998,997 for the first four ticks.
+
+        - {{{MISSION_END}}} - the initial reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PER_TICK"/>
+      <xs:enumeration value="PER_TICK_ACCUMULATED"/>
+      <xs:enumeration value="MISSION_END"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="RewardForTimeTaken">
+    <xs:annotation>
+      <xs:documentation>
+        Reward that is dependent on time. Can be received per tick, or just once at the end.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+      <xs:attribute name="initialReward" type="xs:decimal" use="required"/>
+      <xs:attribute name="delta" type="xs:decimal" use="required"/>
+      <xs:attribute name="density" type="RewardDensityForTimeTaken" use="required"/>
+      <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+    </xs:complexType>
+  </xs:element>
+
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
   <xs:complexType name="PointWithToleranceAndDescription">
