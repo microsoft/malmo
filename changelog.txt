@@ -1,5 +1,6 @@
 0.19.0
 -------------------
+New: Discrete jumpuse action (great for nerd poling). (#400)
 New: Team rewards. (#279)
 New: Discrete strafe and jump actions, autojump and autofall. (#352, #321)
 New: Simple animation decorator. (#389)
