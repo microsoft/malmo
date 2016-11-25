@@ -9,7 +9,7 @@ set -o pipefail
 
 brew update
 brew install boost-python ffmpeg swig xerces-c doxygen
-sudo brew cask install java
+brew cask install java
 
 # mono and CodeSynthesis XSD both contain 'xsd' executables and we want the CodeSynthesis
 # one, so we force it:
