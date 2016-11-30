@@ -85,6 +85,13 @@ namespace malmo
 
     void AgentHost::startMission(const MissionSpec& mission, const ClientPool& client_pool, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id)
     {
+        if (role < 0 || role >= mission.getNumberOfAgents())
+        {
+            if (mission.getNumberOfAgents() == 1)
+                throw std::runtime_error("Role " + std::to_string(role) + " is invalid for this single-agent mission - must be 0.");
+            else
+                throw std::runtime_error("Role " + std::to_string(role) + " is invalid for this multi-agent mission - must be in range 0-" + std::to_string(mission.getNumberOfAgents() - 1) + ".");
+        }
         if( mission.isVideoRequested( role ) ) 
         {
             if( mission.getVideoWidth( role ) % 4 )
