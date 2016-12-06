@@ -27,15 +27,18 @@ endif()
 add_custom_target( Minecraft
   ALL
   COMMAND ${GRADLE} setupDecompWorkspace build testClasses -x test --stacktrace -Pversion=${MALMO_VERSION}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "Building Minecraft..."
 )
 
 # Write the Malmo version number into a properties file for the Mod and gradle to use:
 add_custom_command(
-  TARGET Minecraft PRE_BUILD
+  OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
   COMMAND ${CMAKE_COMMAND} -E echo "malmomod.version=" ${MALMO_VERSION} > 
-          ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties)
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
+  COMMENT "Creating version file..."
+)
 
 set( TEST_MOD OFF )
 if( TEST_MOD )
