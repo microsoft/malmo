@@ -5,10 +5,10 @@
   "description": "Platform for AI experimentation.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
+  "url": "https://github.com/Microsoft/malmo",
   "updateUrl": "",
-  "authorList": ["Microsoft Research Cambridge"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["Tim, Dave, Katja, Matt"],
+  "credits": "Made possible with help from many people",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

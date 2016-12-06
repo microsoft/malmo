@@ -31,6 +31,12 @@ add_custom_target( Minecraft
   COMMENT "Building Minecraft..."
 )
 
+# Write the Malmo version number into a properties file for the Mod and gradle to use:
+add_custom_command(
+  TARGET Minecraft PRE_BUILD
+  COMMAND ${CMAKE_COMMAND} -E echo "malmomod.version=" ${MALMO_VERSION} > 
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties)
+
 set( TEST_MOD OFF )
 if( TEST_MOD )
   add_test( 
@@ -55,11 +61,14 @@ execute_process(
 )
 STRING(REGEX REPLACE "\n" ";" MOD_FILES "${MOD_FILES}")
 list(REMOVE_ITEM MOD_FILES launch_minecraft_in_background.py)
+list(REMOVE_ITEM MOD_FILES CMakeLists.txt)
 foreach ( file ${MOD_FILES} )
     get_filename_component( dir ${file} PATH )
     install( FILES ${file} DESTINATION Minecraft/${dir} )
 endforeach()
 install( PROGRAMS gradlew DESTINATION Minecraft/ )
 install( PROGRAMS launchClient.sh DESTINATION Minecraft/ )
+# Make sure the version number is part of the installation:
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties DESTINATION Minecraft/src/main/resources )
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar DESTINATION "Mod" )
 
