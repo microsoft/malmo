@@ -23,6 +23,7 @@
 
 // Boost:
 #include <boost/make_shared.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 // Schemas:
 using namespace malmo::schemas;
@@ -59,6 +60,7 @@ namespace malmo
             , role
             , cac
             );
+        this->mission_init->PlatformVersion(BOOST_PP_STRINGIZE(MALMO_VERSION));
     }
 
     MissionInitSpec::MissionInitSpec(const std::string& xml, bool validate)

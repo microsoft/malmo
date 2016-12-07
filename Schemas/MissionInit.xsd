@@ -35,6 +35,7 @@
       <xs:element ref="ClientAgentConnection" />
     </xs:sequence>
     <xs:attribute name="SchemaVersion" type="xs:token" />
+    <xs:attribute name="PlatformVersion" type="xs:token" />
   </xs:complexType>
 </xs:element>
 
