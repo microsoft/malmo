@@ -37,7 +37,7 @@
           </xs:annotation>
           <xs:simpleType>
             <xs:restriction base="xs:decimal">
-              <xs:minInclusive value="0"/>
+              <xs:minInclusive value="-360"/>
               <xs:maxInclusive value="360"/>
             </xs:restriction>
           </xs:simpleType>
