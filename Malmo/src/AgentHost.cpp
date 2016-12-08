@@ -34,6 +34,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/algorithm/string.hpp>
 
 // Schemas:
 #include <MissionEnded.h>
@@ -41,9 +42,13 @@
 // STL:
 #include <exception>
 #include <sstream>
+#include <regex>
+#include <mutex>
 
 namespace malmo
 {
+    std::once_flag test_schemas_flag;
+
     // set defaults
     AgentHost::AgentHost()
         : ArgumentParser( std::string("Malmo version: ") + BOOST_PP_STRINGIZE(MALMO_VERSION) )
@@ -53,6 +58,7 @@ namespace malmo
         , current_role( 0 )
     {
         xercesc::XMLPlatformUtils::Initialize();
+        std::call_once(test_schemas_flag, testSchemasCompatible);
 
         this->addOptionalFlag("help,h", "show description of allowed options");
         this->addOptionalFlag("test",   "run this as an integration test");
@@ -73,6 +79,51 @@ namespace malmo
         this->close();
 
         xercesc::XMLPlatformUtils::Terminate();
+    }
+
+    void AgentHost::testSchemasCompatible()
+    {
+        // Attempt to find each of the required schemas and check their version number
+        // against the version number we were built with.
+        std::string targetVersion = BOOST_PP_STRINGIZE(MALMO_VERSION);
+        // Version number should be in the form MAJOR.MINOR.PATCH; we only care about the major and minor numbers.
+        std::vector<std::string> parts;
+        boost::split(parts, targetVersion, [](char c){ return c == '.'; });
+        if (parts.size() != 3)
+            throw std::runtime_error("Malformed version number - check root CMakeLists.txt. MALMO_VERSION should be in form MAJOR.MINOR.PATCH - instead we got " + targetVersion + ".");
+        targetVersion = parts[0] + "." + parts[1];
+
+        std::vector<std::string> schemas = { "Mission.xsd", "MissionInit.xsd", "MissionEnded.xsd", "MissionHandlers.xsd", "Types.xsd" };
+        for (auto it : schemas)
+        {
+            std::string xsdVersion = extractVersionNumber(it);
+            if (xsdVersion != targetVersion)
+                throw std::runtime_error("Schema " + it + " has the wrong version number - should be " + targetVersion + " but we got " + xsdVersion + ". Check that MALMO_XSD_PATH is correct.");
+        }
+    }
+
+    std::string AgentHost::extractVersionNumber(std::string name)
+    {
+        // Doesn't seem to be a way to use CodeSynthesis to parse the xsd itself, and we don't
+        // want to introduce another dependency by using a dedicated xml parsing library, so we
+        // extract the version number ourselves using a good old fashioned regex.
+        std::regex re(".*<xs:schema.*(?!jaxb:).{5}version=\"([0-9.]*)\"");  // Find the first version number after the <xs:schema opening tag, taking care to ignore the jaxb:version number.
+        std::ifstream stream(FindSchemaFile(name));
+        std::string xml = "";
+        std::string line = "";
+        std::string version = "";
+        // Keep concatenating lines until we have a match, or we run out of schema.
+        while (version.empty() && getline(stream, line))
+        {
+            boost::trim(line);
+            xml += line;
+            std::smatch matches;
+            if (std::regex_search(xml, matches, re) && matches.size() > 1)
+            {
+                version = matches.str(1);
+            }
+        }
+        return version;
     }
 
     void AgentHost::startMission(const MissionSpec& mission, const MissionRecordSpec& mission_record)

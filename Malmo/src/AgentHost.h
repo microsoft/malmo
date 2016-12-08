@@ -119,7 +119,10 @@ namespace malmo
 
             friend std::ostream& operator<<(std::ostream& os, const AgentHost& ah);
         private:
-        
+
+            static void testSchemasCompatible();
+            static std::string extractVersionNumber(std::string name);
+
             void initializeOurServers(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id);
             std::string generateMissionInit();
             void searchThroughClientPool( const ClientPool& client_pool, bool looking_for_server );

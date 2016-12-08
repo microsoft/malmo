@@ -20,6 +20,15 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.1"
 }
 
+// Read the version number from the Mod's version properties file.
+if (!file('src/main/resources/version.properties').exists()) {
+    ant.fail("version.properties file is missing - this is created automatically by CMake. If you are building from source, make sure you have built the full source tree, not just the Minecraft folder.")
+}
+def propFile = file('src/main/resources/version.properties')
+def versionProp = new Properties()
+versionProp.load(propFile.newReader())
+version = versionProp['malmomod.version']
+
 group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MalmoMod"
 
@@ -122,9 +131,24 @@ dependencies {
     jaxb group: 'com.sun.xml.bind', name: 'jaxb-xjc', version: '2.2.4-1'
 }
 
+task copySchemas(type: Copy) {
+    from '../Schemas/'
+    into 'src/main/resources/'
+    include ('*.xsd')
+}
+
 task jaxb() {
     description 'Generate source files for our XML schemas using JAXB'
-    
+
+    // Create an index file listing all the schemas:
+    def schemaIndexFile = new File('src/main/resources/schemas.index')
+    def contents = ""
+    def tree = copySchemas.source
+    tree.visit { fileDetails ->
+        contents += "${fileDetails.relativePath}" + "\n"
+    }
+    schemaIndexFile.write contents
+
     inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
     outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
     
@@ -146,12 +170,6 @@ task deleteSchemas() {
         // first clear the old .xsd files out of the folder in case some are no longer current
         delete fileTree(dir: 'src/main/resources', include: '*.xsd')
     }
-}
-
-task copySchemas(type: Copy) {
-    from '../Schemas/'
-    into 'src/main/resources/'
-    include ('*.xsd')
 }
 
 // -------------- Task 'copyMds' copied the .md files into the javadoc folder --------------------

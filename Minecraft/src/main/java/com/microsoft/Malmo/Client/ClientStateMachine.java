@@ -53,6 +53,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -375,9 +376,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     MissionInit missionInit = missionInitResult.missionInit;
                     // We've been sent a MissionInit message.
+                    // First, check the version number:
+                    String platformVersion = missionInit.getPlatformVersion();
+                    String ourVersion = Loader.instance().activeModContainer().getVersion();
+                    if (platformVersion == null || !platformVersion.equals(ourVersion))
+                    {
+                        reply = "MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + ")";
+                        keepProcessing = false; // No further action required.
+                    }
                     // If the server information is missing, we interpret this as a request to find it.
                     // (Unless the requested role is 0, in which case the server information *should* be missing.)
-                    if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
+                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
                     {
                         if (currentMissionInit() == null)
                         {

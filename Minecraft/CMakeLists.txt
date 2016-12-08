@@ -27,8 +27,17 @@ endif()
 add_custom_target( Minecraft
   ALL
   COMMAND ${GRADLE} setupDecompWorkspace build testClasses -x test --stacktrace -Pversion=${MALMO_VERSION}
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "Building Minecraft..."
+)
+
+# Write the Malmo version number into a properties file for the Mod and gradle to use:
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
+  COMMAND ${CMAKE_COMMAND} -E echo "malmomod.version=" ${MALMO_VERSION} > 
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties
+  COMMENT "Creating version file..."
 )
 
 set( TEST_MOD OFF )
@@ -55,11 +64,14 @@ execute_process(
 )
 STRING(REGEX REPLACE "\n" ";" MOD_FILES "${MOD_FILES}")
 list(REMOVE_ITEM MOD_FILES launch_minecraft_in_background.py)
+list(REMOVE_ITEM MOD_FILES CMakeLists.txt)
 foreach ( file ${MOD_FILES} )
     get_filename_component( dir ${file} PATH )
     install( FILES ${file} DESTINATION Minecraft/${dir} )
 endforeach()
 install( PROGRAMS gradlew DESTINATION Minecraft/ )
 install( PROGRAMS launchClient.sh DESTINATION Minecraft/ )
+# Make sure the version number is part of the installation:
+install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/main/resources/version.properties DESTINATION Minecraft/src/main/resources )
 install( FILES ${CMAKE_CURRENT_SOURCE_DIR}/build/libs/MalmoMod-${MALMO_VERSION}.jar DESTINATION "Mod" )
 
