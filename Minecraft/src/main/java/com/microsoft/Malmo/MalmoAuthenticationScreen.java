@@ -252,9 +252,9 @@ public class MalmoAuthenticationScreen extends GuiScreen
             if (this.mode == ScreenMode.SCREEN_LIST)
             {
                 // Save any changes to our configuration:
-                AuthenticationHelper.setLoginDetails(this.logins);
-                AuthenticationHelper.save();
-                AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
+                //AuthenticationHelper.setLoginDetails(this.logins);
+                //AuthenticationHelper.save();
+                //AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
                 this.mc.displayGuiScreen(this.parentScreen);
             }
             else if (this.mode == ScreenMode.SCREEN_ADDUSER)

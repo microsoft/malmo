@@ -603,7 +603,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             else if (ev.configID.equals(MalmoMod.AUTHENTICATION_CONFIGS))
             {
-                AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
+                //AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
             }
         }
     }
@@ -1295,6 +1295,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (serverHandlers.worldGenerator.createWorld(currentMissionInit()))
                     {
                         this.worldCreated = true;
+                        if (Minecraft.getMinecraft().getIntegratedServer() != null)
+                            Minecraft.getMinecraft().getIntegratedServer().setOnlineMode(false);
                     }
                     else
                     {
