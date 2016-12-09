@@ -35,6 +35,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/regex.hpp>
 
 // Schemas:
 #include <MissionEnded.h>
@@ -107,7 +108,7 @@ namespace malmo
         // Doesn't seem to be a way to use CodeSynthesis to parse the xsd itself, and we don't
         // want to introduce another dependency by using a dedicated xml parsing library, so we
         // extract the version number ourselves using a good old fashioned regex.
-        std::regex re(".*<xs:schema.*(?!jaxb:).{5}version=\"([0-9.]*)\"");  // Find the first version number after the <xs:schema opening tag, taking care to ignore the jaxb:version number.
+        boost::regex re{ ".*<xs:schema.*(?!jaxb:).{5}version=\"([0-9.]*)\"" }; // Find the first version number after the <xs:schema opening tag, taking care to ignore the jaxb:version number.
         std::ifstream stream(FindSchemaFile(name));
         std::string xml = "";
         std::string line = "";
@@ -117,8 +118,8 @@ namespace malmo
         {
             boost::trim(line);
             xml += line;
-            std::smatch matches;
-            if (std::regex_search(xml, matches, re) && matches.size() > 1)
+            boost::smatch matches;
+            if (boost::regex_search(xml, matches, re) && matches.size() > 1)
             {
                 version = matches.str(1);
             }
