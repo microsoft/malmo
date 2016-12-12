@@ -5,6 +5,7 @@ key.categories.malmo=Malmo
 key.toggleMalmo=Toggle AI/human control
 key.handyTestHook=Test hook (dump recipe list)
 
-auth.usernames=List of authenticated usernames
+auth.ports=List of configured ports
 auth.portToUserMappings=Map ports to usernames in format <port>:<username>
 auth.usernameToPasswordMappings=Map usernames to passwords in format <username>:<password>
+auth.portToPlayernameMappings=Map ports to playernames in format <port>:<playername>

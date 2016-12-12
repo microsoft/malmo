@@ -907,6 +907,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Do we need to open to LAN?
                 if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
                 {
+                    Minecraft.getMinecraft().getIntegratedServer().setOnlineMode(false);
                     String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, false); // Set to true to stop spam kicks?
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
@@ -924,7 +925,27 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 System.out.println("We should be joining " + targetIP);
                 // Always connect, even if we're already on the same server -
                 // otherwise things get out of step.
+try {
+    net.minecraft.client.multiplayer.ServerData serverData = new net.minecraft.client.multiplayer.ServerData("Command Line", address+":"+port);
+
+    net.minecraftforge.fml.client.FMLClientHandler.instance().showGuiScreen(new net.minecraft.client.multiplayer.GuiConnecting(new net.minecraft.client.gui.GuiMainMenu(), Minecraft.getMinecraft(), serverData));
+
+
                 net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+
+//net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServer(new GuiMainMenu(), new net.minecraft.client.multiplayer.ServerData("Command Line", address+":"+port));
+//
+//UserAuthentication uauth = ((com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService)service).getAuthenticationService().createUserAuthentication(Agent.MINECRAFT);
+//        if (!(uauth instanceof com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication))
+//            return null;
+//
+//        com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService auth= (com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication)uauth;
+//
+//Minecraft.getMinecraft().getSessionService().joinServer(Minecraft.getMinecraft().getSession().getProfile(), auth.getAuthenticatedToken(), serverid);
+//
+//System.err.println("TNARIK - after connectToServerAtStartup" + targetIP);
+} catch(Exception e) { e.printStackTrace(); throw(e); }
+
             }
         }
 
