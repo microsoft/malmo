@@ -908,7 +908,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Do we need to open to LAN?
                 if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
                 {
-                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, false); // Set to true to stop spam kicks?
+                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
