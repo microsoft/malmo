@@ -447,7 +447,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     }
                     else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
                     {
-                        // We have server details filled in - this is a equest for US to run the mission.
+                        // We have server details filled in - this is a request for US to run the mission.
                         IState currentState = getStableState();
                         if (currentState != null && currentState.equals(ClientState.DORMANT))
                         {
