@@ -923,9 +923,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
                 System.out.println("We should be joining " + targetIP);
-                // Always connect, even if we're already on the same server -
-                // otherwise things get out of step.
-                net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+                if (Minecraft.getMinecraft().getCurrentServerData() == null || !Minecraft.getMinecraft().getCurrentServerData().serverIP.equals(targetIP))
+                {
+                    net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+                }
             }
         }
 
