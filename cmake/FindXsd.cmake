@@ -28,7 +28,7 @@ set(XSD_NAMES_DEBUG xerces-cD xerces-c_3D)
 # Malmo-specific thing: on some platforms we need to manually install CodeSynthesis XSD and so the standard
 # exectable name is 'xsd' instead of 'xsdcxx'. On others, 'xsd' matches an executable in Mono
 # and so we have to avoid that.
-if( ( ${SYSTEM_NAME} MATCHES "^Linux-Ubuntu-14.04.*$" ) OR ( ${SYSTEM_NAME} MATCHES "^Linux-Debian-7\\..*$" ) OR ( ${SYSTEM_NAME} STREQUAL "Mac-64bit" ) )
+if( ( "${SYSTEM_NAME}" MATCHES "^Linux-Ubuntu-14.04.*$" ) OR ( "${SYSTEM_NAME}" MATCHES "^Linux-Debian-7\\..*$" ) OR ( "${SYSTEM_NAME}" STREQUAL "Mac-64bit" ) )
   set( EXTRA_XSD_EXECUTABLE_NAMES "xsd" )
 endif()
 
@@ -45,7 +45,7 @@ if(NOT XSD_LIBRARY)
   else()
     set( _XSD_LIB_DIR lib )
   endif()
-  
+
   foreach(search ${_XSD_SEARCHES})
     find_library(XSD_LIBRARY_RELEASE NAMES ${XSD_NAMES} ${${search}} PATH_SUFFIXES ${_XSD_LIB_DIR}/vc-12.0)
     find_library(XSD_LIBRARY_DEBUG NAMES ${XSD_NAMES_DEBUG} ${${search}} PATH_SUFFIXES ${_XSD_LIB_DIR}/vc-12.0)
@@ -62,7 +62,7 @@ MARK_AS_ADVANCED(
   XSD_LIBRARY
   XSD_INCLUDE_DIR
   XSD_EXECUTABLE
-) 
+)
 
 # if the include and the program are found then we have it
 IF(XSD_INCLUDE_DIR)
@@ -94,11 +94,10 @@ IF(XSD_INCLUDE_DIR)
 		set_target_properties(XSD::XSD PROPERTIES
 			IMPORTED_LOCATION_DEBUG "${XSD_LIBRARY_DEBUG}")
 		endif()
-		
+
 		if(NOT XSD_LIBRARY_RELEASE AND NOT XSD_LIBRARY_DEBUG)
         set_property(TARGET XSD::XSD APPEND PROPERTY
           IMPORTED_LOCATION "${XSD_LIBRARY}")
       endif()
 	ENDIF()
 ENDIF(XSD_INCLUDE_DIR)
-
