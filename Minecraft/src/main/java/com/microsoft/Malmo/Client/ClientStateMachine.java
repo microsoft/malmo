@@ -601,10 +601,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
                 ScreenHelper.update(MalmoMod.instance.getModPermanentConfigFile());
             }
-            else if (ev.configID.equals(MalmoMod.AUTHENTICATION_CONFIGS))
-            {
-                //AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
-            }
         }
     }
 
