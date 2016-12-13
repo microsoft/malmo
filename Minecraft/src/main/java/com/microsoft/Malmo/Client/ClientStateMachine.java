@@ -743,6 +743,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
+            // Set the agent's name as the current username:
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            String agentName = agents.get(currentMissionInit().getClientRole()).getName();
+            AuthenticationHelper.setPlayerName(Minecraft.getMinecraft().getSession(), agentName);
+
             // Handlers and poller created successfully; proceed to next stage of loading.
             // We will either need to connect to an existing server, or to start
             // a new integrated server ourselves, depending on our role.
