@@ -1469,16 +1469,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }
 
         @Override
-        public void onPlayerDies(LivingDeathEvent event)
-        {
-            if (event.entity instanceof EntityPlayerMP)
-            {
-                this.playerDied = true;
-                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
-            }
-        }
-
-        @Override
         public void onClientTick(ClientTickEvent event)
         {
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
@@ -1491,6 +1481,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Connection has been lost.
                 onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+            }
+
+            // Check here to see whether the player has died or not:
+            if (!this.playerDied && Minecraft.getMinecraft().thePlayer.isDead)
+            {
+                this.playerDied = true;
+                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
             }
 
             // Although we only arrive in this episode once the server has determined that all clients are ready to go,
