@@ -40,7 +40,7 @@ import java.util.logging.SimpleFormatter;
 
 public class TCPSocketHelper
 {
-	public static final int DEFAULT_SOCKET_TIMEOUT_MS = 100;
+	public static final int DEFAULT_SOCKET_TIMEOUT_MS = 1000;
 	private static Logger logger = Logger.getLogger("com.microsoft.Malmo.TCPSocketHelper");
 	private static FileHandler filehandler = null;
 	private static boolean logging = false;
