@@ -94,6 +94,9 @@ namespace malmo
             //! \returns The temporary directory for the mission record, or an empty string if no recording is going on.
             std::string getRecordingTemporaryDirectory() const;
 
+            //! Switches on/off debug print statements. (Currently just client-pool / agenthost connection messages.)
+            void setDebugOutput(bool debug);
+
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
             void setVideoPolicy(VideoPolicy videoPolicy);
@@ -164,6 +167,7 @@ namespace malmo
             boost::shared_ptr<MissionInitSpec> current_mission_init;
             boost::shared_ptr<MissionRecord> current_mission_record;
             int current_role;
+            bool display_client_pool_messages;
     };
 
 }

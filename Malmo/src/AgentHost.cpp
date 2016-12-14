@@ -57,6 +57,7 @@ namespace malmo
         , rewards_policy(SUM_REWARDS)
         , observations_policy(LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
+        , display_client_pool_messages( false )
     {
         xercesc::XMLPlatformUtils::Initialize();
         std::call_once(test_schemas_flag, testSchemasCompatible);
@@ -244,7 +245,8 @@ namespace malmo
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
     
-            std::cout << "DEBUG: Sending MissionInit to " << item.ip_address << " : " << item.port << std::endl;
+            if (this->display_client_pool_messages)
+                std::cout << "DEBUG: Sending MissionInit to " << item.ip_address << " : " << item.port << std::endl;
             try 
             {
                 reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
@@ -255,7 +257,8 @@ namespace malmo
             }
             if( looking_for_server ) 
             {
-                std::cout << "DEBUG: Looking for server, received reply from " << item.ip_address << ": " << reply << std::endl;
+                if (this->display_client_pool_messages)
+                    std::cout << "DEBUG: Looking for server, received reply from " << item.ip_address << ": " << reply << std::endl;
                 // this is a multi-agent mission and we are looking for the Minecraft client that has the integrated server attached
                 // expected: MALMOS#, MALMONOMISSION, MALMOBUSY, MALMOERROR...
                 const std::string malmo_server_prefix = "MALMOS";
@@ -277,7 +280,8 @@ namespace malmo
             }
             else 
             {
-                std::cout << "DEBUG: Looking for client, received reply from " << item.ip_address << ": " << reply << std::endl;
+                if (this->display_client_pool_messages)
+                    std::cout << "DEBUG: Looking for client, received reply from " << item.ip_address << ": " << reply << std::endl;
                 // this is either a) a single agent mission, b) a multi-agent mission but we are role 0, 
                 // or c) a multi-agent mission where we have already located the server
                 // expected: MALMOBUSY, MALMOOK, MALMOERROR...
@@ -314,6 +318,11 @@ namespace malmo
     std::string AgentHost::getRecordingTemporaryDirectory() const
     {
         return this->current_mission_record && this->current_mission_record->isRecording() ? this->current_mission_record->getTemporaryDirectory() : "";
+    }
+
+    void AgentHost::setDebugOutput(bool debug)
+    {
+        this->display_client_pool_messages = debug;
     }
 
     void AgentHost::setVideoPolicy(VideoPolicy videoPolicy)
