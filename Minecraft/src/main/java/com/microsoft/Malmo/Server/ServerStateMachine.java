@@ -861,7 +861,7 @@ public class ServerStateMachine extends StateMachine
             // Do some tidying:
             resetPlayerGameTypes();
             // And tell all the clients to abort:
-            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
+            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT, errorData);
             // And abort ourselves:
             episodeHasCompleted(ServerState.ERROR);
         }

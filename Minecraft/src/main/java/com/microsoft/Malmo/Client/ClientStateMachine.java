@@ -415,6 +415,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     }
                     else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
                     {
+                        // MissionInit passed to us, no server details, and role 0 specified -
+                        // this means WE should become the server, and launch this mission.
                         IState currentState = getStableState();
                         if (currentState != null && currentState.equals(ClientState.DORMANT))
                         {
@@ -423,8 +425,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         }
                         else
                         {
-                            // MissionInit passed to us, no server details, and role 0 specified -
-                            // this means WE should become the server, and launch this mission.
                             if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
                                 && currentMissionInit().getClientRole() == 0
                                 && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
@@ -533,9 +533,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Save the error message, if there is one:
                     if (data != null)
                     {
-                        String err = data.get("message");
-                        if (err != null)
-                            ClientStateMachine.this.saveErrorDetails(err);
+                        String message = data.get("message");
+                        String user = data.get("username");
+                        String error = data.get("error");
+                        String report = "";
+                        if (user != null)
+                            report += "From " + user + ": ";
+                        if (error != null)
+                            report += error;
+                        if (message != null)
+                            report += " (" + message + ")";
+                        ClientStateMachine.this.saveErrorDetails(report);
                     }
                     onAbort(data);
                 }
