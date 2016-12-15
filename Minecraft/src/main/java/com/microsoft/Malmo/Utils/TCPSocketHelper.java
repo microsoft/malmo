@@ -45,8 +45,8 @@ public class TCPSocketHelper
 	private static FileHandler filehandler = null;
 	private static boolean logging = false;
 
-	String address;
-	int port;
+	public String address;
+	public int port;
 	Socket socket = null;
 	
 	/** Create a new socket helper, bound to a specific endpoint, which will keep a connection alive for repeated use.

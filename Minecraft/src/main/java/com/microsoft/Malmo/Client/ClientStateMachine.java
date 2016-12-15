@@ -119,6 +119,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     protected int integratedServerPort;
     String reservationID = "";   // empty if we are not reserved, otherwise "RESERVED" + the experiment ID we are reserved for.
     long reservationExpirationTime = 0;
+    private TCPSocketHelper missionControlSocket;
 
     private void reserveClient(String id)
     {
@@ -170,6 +171,22 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.reservationID = "";
             ClientStateMachine.this.getScreenHelper().clearFragment(INFO_RESERVE_STATUS);
         }            
+    }
+
+    protected TCPSocketHelper getMissionControlSocket() { return this.missionControlSocket; }
+    
+    protected void createMissionControlSocket()
+    {
+        // Set up a TCP connection to the agent:
+        ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
+        if (this.missionControlSocket == null ||
+            this.missionControlSocket.port != cac.getAgentMissionControlPort() ||
+            this.missionControlSocket.address != cac.getAgentIPAddress())
+        {
+            if (this.missionControlSocket != null)
+                this.missionControlSocket.close();
+            this.missionControlSocket = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentMissionControlPort());
+        }
     }
 
     public ClientStateMachine(ClientState initialState, MalmoModClient inputController)
@@ -565,6 +582,19 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_ABORT);
         }
 
+        protected boolean pingAgent(boolean abortIfFailed)
+        {
+            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+            if (!sentOkay)
+            {
+                // It's not available - bail.
+                ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
+                if (abortIfFailed)
+                    episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+            }
+            return sentOkay;
+        }
+
         @Override
         public void onMessage(MalmoMessageType messageType, Map<String, String> data)
         {
@@ -733,6 +763,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionInit.getClientAgentConnection().setAgentIPAddress(comip.ipAddress);
                 System.out.println("Mission received: " + missionInit.getMission().getAbout().getSummary());
                 csMachine.currentMissionInit = missionInit;
+                ClientStateMachine.this.createMissionControlSocket();
                 // Move on to next state:
                 episodeHasCompleted(ClientState.CREATING_HANDLERS);
             }
@@ -828,24 +859,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     {
         String agentName;
         int ticksUntilNextPing = 0;
-        TCPSocketHelper sender;
         boolean waitingForChunk = false;
 
         protected WaitingForServerEpisode(ClientStateMachine machine)
         {
             super(machine);
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_ALLPLAYERSJOINED);
-        }
-
-        private TCPSocketHelper sender()
-        {
-            if (this.sender == null)
-            {
-                // Set up a TCP connection to the agent:
-                ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
-                this.sender = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentMissionControlPort());
-            }
-            return this.sender;
         }
 
         private boolean isChunkReady()
@@ -905,13 +924,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
 
                 // We also ping our agent, just to check it is still available:
-                boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
-                if (!sentOkay)
-                {
-                    // It's not available - bail.
-                    ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
-                    episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
-                }
+                pingAgent(true);    // Will abort to an error state if client unavailable.
 
                 ticksUntilNextPing = 10; // Try again in ten ticks.
             }
@@ -1026,7 +1039,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 xml = SchemaHelper.serialiseObject(currentMissionInit(), MissionInit.class);
-                sentOkay = this.sender().sendTCPString(xml);
+                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml);
             }
             catch (JAXBException e)
             {
@@ -1051,8 +1064,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_ALLPLAYERSJOINED);
-            if (this.sender != null)
-                this.sender.close();
         }
     }
 
@@ -1440,6 +1451,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private String quitCode = "";
         private TCPSocketHelper observationSocket = null;
         private TCPSocketHelper rewardSocket = null;
+        private long lastPingSent = 0;
+        private long pingFrequencyMs = 1000;
 
         protected void onMissionStarted()
         {
@@ -1534,6 +1547,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Connection has been lost.
                 onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+            }
+
+            // Check we are still in touch with the agent:
+            if (System.currentTimeMillis() > this.lastPingSent + this.pingFrequencyMs)
+            {
+                this.lastPingSent = System.currentTimeMillis();
+                if (!pingAgent(false))
+                {
+                    System.out.println("Error - agent is not responding to pings.");
+                    this.wantsToQuit = true;
+                    this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
+                }
             }
 
             // Check here to see whether the player has died or not:
@@ -1818,10 +1843,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void sendMissionEnded(MissionEnded missionEnded)
         {
             // Send a MissionEnded message to the agent to inform it that the mission has ended.
-            ClientAgentConnection conn = currentMissionInit().getClientAgentConnection();
-            String address = conn.getAgentIPAddress();
-            int port = conn.getAgentMissionControlPort();
-
             // Create a string XML representation:
             String missionEndedString = null;
             try
@@ -1835,10 +1856,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             boolean sentOkay = false;
             if (missionEndedString != null)
             {
-                System.out.println(String.format("Sending mission ended message to %s:%d.", address, port));
-                TCPSocketHelper sender = new TCPSocketHelper(address, port);
+                TCPSocketHelper sender = ClientStateMachine.this.getMissionControlSocket();
+                System.out.println(String.format("Sending mission ended message to %s:%d.", sender.address, sender.port));
                 sentOkay = sender.sendTCPString(missionEndedString);
-                sender.close();
             }
 
             if (!sentOkay)
