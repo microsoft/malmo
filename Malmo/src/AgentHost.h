@@ -128,8 +128,11 @@ namespace malmo
 
             void initializeOurServers(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id);
             std::string generateMissionInit();
-            void searchThroughClientPool( const ClientPool& client_pool, bool looking_for_server );
-        
+
+            ClientPool reserveClients(const ClientPool& client_pool, int clients_required);
+            void findClient(const ClientPool& client_pool);
+            bool findServer(const ClientPool& client_pool);
+
             void listenForMissionControlMessages( int port );
             void listenForVideo( int port, short width, short height, short channels );
             void listenForRewards( int port );

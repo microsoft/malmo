@@ -104,6 +104,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 {
     private static final String MISSING_MCP_PORT_ERROR = "no_mcp";
     private static final String INFO_MCP_PORT = "info_mcp";
+    private static final String INFO_RESERVE_STATUS = "info_reservation";
 
     private MissionInit currentMissionInit = null; // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
@@ -116,6 +117,60 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     protected TCPInputPoller missionPoller;
     protected TCPInputPoller controlInputPoller;
     protected int integratedServerPort;
+    String reservationID = "";   // empty if we are not reserved, otherwise "RESERVED" + the experiment ID we are reserved for.
+    long reservationExpirationTime = 0;
+
+    private void reserveClient(String id)
+    {
+        synchronized(this.reservationID)
+        {
+            ClientStateMachine.this.getScreenHelper().clearFragment(INFO_RESERVE_STATUS);
+
+            // id is in the form <long>:<expID>, where long is the length of time to keep the reservation for,
+            // and expID is the experimentationID used to ensure the client is reserved for the correct experiment.
+            int separator = id.indexOf(":");
+            if (separator == -1)
+            {
+                System.out.println("Error - malformed reservation request - client will not be reserved.");
+                this.reservationID = "";
+            }
+            else
+            {
+                long duration = Long.valueOf(id.substring(0, separator));
+                String expID = id.substring(separator + 1);
+                this.reservationExpirationTime = System.currentTimeMillis() + duration;
+                // We don't just use the id, in case users have supplied a blank string as their experiment ID.
+                this.reservationID = "RESERVED" + expID;
+                ClientStateMachine.this.getScreenHelper().addFragment("Reserved: " + expID, TextCategory.TXT_INFO, (int)duration);//INFO_RESERVE_STATUS);
+            }
+        }
+    }
+
+    private boolean isReserved()
+    {
+        synchronized(this.reservationID)
+        {
+            System.out.println("==== RES: " + this.reservationID + " - " + (this.reservationExpirationTime - System.currentTimeMillis()));
+            return !this.reservationID.isEmpty() && this.reservationExpirationTime > System.currentTimeMillis();
+        }
+    }
+
+    private boolean isAvailable(String id)
+    {
+        synchronized(this.reservationID)
+        {
+            return (this.reservationID.isEmpty() || this.reservationID.equals("RESERVED" + id) || System.currentTimeMillis() >= this.reservationExpirationTime);
+        }
+    }
+
+    private void cancelReservation()
+    {
+        synchronized(this.reservationID)
+        {
+            this.reservationID = "";
+            ClientStateMachine.this.getScreenHelper().clearFragment(INFO_RESERVE_STATUS);
+        }            
+    }
 
     public ClientStateMachine(ClientState initialState, MalmoModClient inputController)
     {
@@ -351,134 +406,123 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
+            private void reply(String reply, DataOutputStream dos)
+            {
+                System.out.println("REPLYING WITH: " + reply);
+                try
+                {
+                    dos.writeInt(reply.length());
+                    dos.writeBytes(reply);
+                }
+                catch (IOException e)
+                {
+                    System.out.println("Failed to reply to message!");
+                }
+            }
+
             @Override
             public boolean onCommand(String command, String ipFrom, DataOutputStream dos)
             {
                 System.out.println("Received from " + ipFrom + ":");
                 System.out.println(command.substring(0, Math.min(command.length(), 1024)));
+                boolean keepProcessing = false;
 
-                String reply = null;
-                boolean keepProcessing = true;
+                // Possible commands:
+                // 1: MALMO_REQUEST_CLIENT:<malmo version>:<reservation_length(ms)><experiment_id>
+                // 2: MALMO_CANCEL_REQUEST
+                // 3: MALMO_FIND_SERVER<experiment_id>
+                // 4: MissionInit
 
-                // See if we've been sent a MissionInit message:
-                MissionInitResult missionInitResult = decodeMissionInit(command);
-                if (missionInitResult.wasMissionInit && missionInitResult.missionInit == null)
+                String reservePrefix = "MALMO_REQUEST_CLIENT:" + Loader.instance().activeModContainer().getVersion() + ":";
+                String findServerPrefix = "MALMO_FIND_SERVER";
+                String cancelRequestCommand = "MALMO_CANCEL_REQUEST";
+
+                if (command.startsWith(reservePrefix))
                 {
-                    reply = "MALMOERROR" + missionInitResult.error;
-                    keepProcessing = false; // Got sent a duff MissionInit xml - pass back the JAXB/SAXB errors.
-                }
-                else if (!missionInitResult.wasMissionInit)
-                {
-                    reply = "MALMOERRORNOTUNDERSTOOD";
-                    keepProcessing = false; // Don't understand this message - not a MissionInit.
-                }
-                else if (missionInitResult.missionInit != null && missionInitResult.wasMissionInit)
-                {
-                    MissionInit missionInit = missionInitResult.missionInit;
-                    // We've been sent a MissionInit message.
-                    // First, check the version number:
-                    String platformVersion = missionInit.getPlatformVersion();
-                    String ourVersion = Loader.instance().activeModContainer().getVersion();
-                    if (platformVersion == null || !platformVersion.equals(ourVersion))
+                    // Reservation request.
+                    // We either reply with MALMOOK, if we are free, or MALMOBUSY if not.
+                    IState currentState = getStableState();
+                    if (currentState != null && currentState.equals(ClientState.DORMANT) && !isReserved())
                     {
-                        reply = "MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + ")";
-                        keepProcessing = false; // No further action required.
+                        reserveClient(command.substring(reservePrefix.length()));
+                        reply("MALMOOK", dos);
                     }
-                    // If the server information is missing, we interpret this as a request to find it.
-                    // (Unless the requested role is 0, in which case the server information *should* be missing.)
-                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
+                    else
                     {
-                        if (currentMissionInit() == null)
+                        // We're busy - we can't be reserved.
+                        reply("MALMOBUSY", dos);
+                    }
+                }
+                else if (command.equals(cancelRequestCommand))
+                {
+                    // If we've been reserved, cancel the reservation.
+                    if (isReserved())
+                    {
+                        cancelReservation();
+                        reply("MALMOOK", dos);
+                    }
+                    else
+                    {
+                        // We weren't reserved in the first place - something is odd.
+                        reply("MALMOERRORAttempt to cancel a reservation that was never made.", dos);
+                    }
+                }
+                else if (command.startsWith(findServerPrefix))
+                {
+                    // Request to find the server for the given experiment ID.
+                    String expID = command.substring(findServerPrefix.length());
+                    if (currentMissionInit() != null && currentMissionInit().getExperimentUID().equals(expID))
+                    {
+                        // Our Experiment IDs match, so we are running the same experiment.
+                        // Return the port and server IP address to the caller:
+                        MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
+                        if (msc == null)
+                            reply("MALMONOSERVERYET", dos); // Mission might be starting up.
+                        else
+                            reply("MALMOS" + msc.getAddress() + ":" + msc.getPort(), dos);
+                    }
+                    else
+                    {
+                        // We don't have a MissionInit ourselves, or we're running a different experiment,
+                        // so we can't help.
+                        reply("MALMONOSERVER", dos);
+                    }
+                }
+                else
+                {
+                    // See if we've been sent a MissionInit message:
+                    MissionInitResult missionInitResult = decodeMissionInit(command);
+                    if (missionInitResult.wasMissionInit && missionInitResult.missionInit == null)
+                    {
+                        // Got sent a duff MissionInit xml - pass back the JAXB/SAXB errors.
+                        reply("MALMOERROR" + missionInitResult.error, dos);
+                    }
+                    else if (missionInitResult.wasMissionInit && missionInitResult.missionInit != null)
+                    {
+                        MissionInit missionInit = missionInitResult.missionInit;
+                        // We've been sent a MissionInit message.
+                        // First, check the version number:
+                        String platformVersion = missionInit.getPlatformVersion();
+                        String ourVersion = Loader.instance().activeModContainer().getVersion();
+                        if (platformVersion == null || !platformVersion.equals(ourVersion))
                         {
-                            // We don't have a MissionInit ourselves, so we can't help:
-                            reply = "MALMONOMISSION";
-                            keepProcessing = false; // No further action required.
-                        }
-                        else if (currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID()) && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()))
-                        {
-                            // Our Missions and Experiment IDs match, so we are running the same experiment.
-                            // Return the port and server IP address to the caller:
-                            MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
-                            if (msc == null)
-                                reply = "MALMOERRORMinecraftServerConnection missing!";
-                            else
-                                reply = "MALMOS" + msc.getAddress() + ":" + msc.getPort();
-
-                            keepProcessing = false;
+                            reply("MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + ")", dos);
                         }
                         else
                         {
-                            // We have a MissionInit, but it doesn't match theirs, or we're not the server:
-                            reply = "MALMOBUSY";
-                            keepProcessing = false; // No further action required.
-                        }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
-                    {
-                        // MissionInit passed to us, no server details, and role 0 specified -
-                        // this means WE should become the server, and launch this mission.
-                        IState currentState = getStableState();
-                        if (currentState != null && currentState.equals(ClientState.DORMANT))
-                        {
-                            reply = "MALMOOK";
-                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                        }
-                        else
-                        {
-                            if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
-                                && currentMissionInit().getClientRole() == 0
-                                && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
-                                && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
+                            // MissionInit passed to us - this is a request to launch this mission. Can we?
+                            IState currentState = getStableState();
+                            if (currentState != null && currentState.equals(ClientState.DORMANT) && isAvailable(missionInit.getExperimentUID()))
                             {
-                                // Give a warning because this is a dangerous situation - two multi-agent missions have been
-                                // launched with identical mission specifications and without the users ensuring that each
-                                // has a unique experiment ID to identify it. The second agent from researcher B might join
-                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
-                                // ways.
-                                reply = "MALMOBUSY (Warning: Identical mission and experiment ID as currently running - danger that your agents will join the wrong mission.)";
-                                keepProcessing = false; // Ignore the message.
+                                reply("MALMOOK", dos);
+                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
                             }
-                            else {
+                            else
+                            {
                                 // We're busy - we can't run this mission.
-                                reply = "MALMOBUSY";
-                                keepProcessing = false; // Ignore the message.
+                                reply("MALMOBUSY", dos);
                             }
                         }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
-                    {
-                        // We have server details filled in - this is a request for US to run the mission.
-                        IState currentState = getStableState();
-                        if (currentState != null && currentState.equals(ClientState.DORMANT))
-                        {
-                            reply = "MALMOOK";
-                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                        }
-                        else
-                        {
-                            // We're busy - we can't run this mission.
-                            reply = "MALMOBUSY";
-                            keepProcessing = false; // Ignore the message.
-                        }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() == 0)
-                    {
-                        // Error condition - currently makes no sense to fill in the server details for role 0.
-                        reply = "MALMOERRORServer details provided for server role";
-                        keepProcessing = false; // Ditch this message.
-                    }
-                }
-
-                if (reply != null)
-                {
-                    System.out.println("REPLYING WITH: " + reply);
-                    try
-                    {
-                        dos.writeInt(reply.length());
-                        dos.writeBytes(reply);
-                    }
-                    catch (IOException e)
-                    {
                     }
                 }
                 return keepProcessing;
@@ -714,6 +758,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute() throws Exception
         {
+            // First, clear our reservation state, if we were reserved:
+            ClientStateMachine.this.cancelReservation();
+
             // Now try creating the handlers:
             try
             {
@@ -811,8 +858,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (as.getAgentStart() != null && as.getAgentStart().getPlacement() != null)
             {
                 PosAndDirection pos = as.getAgentStart().getPlacement();
-                int x = MathHelper.floor_double(pos.getX().doubleValue() / 16.0D);
-                int z = MathHelper.floor_double(pos.getZ().doubleValue() / 16.0D);
+                int x = MathHelper.floor_double(pos.getX().doubleValue()) >> 4;
+                int z = MathHelper.floor_double(pos.getZ().doubleValue()) >> 4;
                 // Now get the chunk we should be starting in:
                 IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
                 EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;

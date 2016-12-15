@@ -92,7 +92,12 @@ namespace malmo
         
         return oss.str();
     }
-    
+
+    std::string MissionInitSpec::getExperimentID() const
+    {
+        return this->mission_init->ExperimentUID();
+    }
+
     std::string MissionInitSpec::getClientAddress() const
     {
         return this->mission_init->ClientAgentConnection().ClientIPAddress();
