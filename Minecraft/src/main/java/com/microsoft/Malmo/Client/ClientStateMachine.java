@@ -891,42 +891,40 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
+            if (ticksUntilNextPing == 0)
+            {
+                // Tell the server what our agent name is.
+                // We do this repeatedly, because the server might not yet be listening.
+                if (Minecraft.getMinecraft().thePlayer != null && !this.waitingForChunk)
+                {
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put("agentname", agentName);
+                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    System.out.println("***Telling server we are ready - " + agentName);
+                    MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
+                }
+
+                // We also ping our agent, just to check it is still available:
+                boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+                if (!sentOkay)
+                {
+                    // It's not available - bail.
+                    ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
+                    episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+                }
+
+                ticksUntilNextPing = 10; // Try again in ten ticks.
+            }
+            else
+            {
+                ticksUntilNextPing--;
+            }
+
             if (this.waitingForChunk)
             {
                 // The server is ready, we're just waiting for our chunk to appear.
                 if (isChunkReady())
                     proceed();
-            }
-            else
-            {
-                if (ticksUntilNextPing == 0)
-                {
-                    // Tell the server what our agent name is.
-                    // We do this repeatedly, because the server might not yet be listening.
-                    if (Minecraft.getMinecraft().thePlayer != null)
-                    {
-                        HashMap<String, String> map = new HashMap<String, String>();
-                        map.put("agentname", agentName);
-                        map.put("username", Minecraft.getMinecraft().thePlayer.getName());
-                        System.out.println("***Telling server we are ready - " + agentName);
-                        MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
-                    }
-    
-                    // We also ping our agent, just to check it is still available:
-                    boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
-                    if (!sentOkay)
-                    {
-                        // It's not available - bail.
-                        ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
-                        episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
-                    }
-    
-                    ticksUntilNextPing = 10; // Try again in ten ticks.
-                }
-                else
-                {
-                    ticksUntilNextPing--;
-                }
             }
 
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
