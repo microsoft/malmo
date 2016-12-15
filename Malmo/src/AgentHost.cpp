@@ -350,8 +350,14 @@ namespace malmo
     void AgentHost::findClient(const ClientPool& client_pool)
     {
         std::string reply;
-        for( const ClientInfo& item : client_pool.clients ) 
+        // As a reasonable optimisation, assume that clients are started in the order of their role, for multi-agent missions.
+        // So start looking at position <role> within the client pool.
+        // Eg, if the first four agents get clients 1,2,3 and 4 respectively, agent 5 doesn't need to waste time checking
+        // the first four clients.
+        int num_clients = client_pool.clients.size();
+        for (int i = 0; i < num_clients; i++)
         {
+            const ClientInfo& item = client_pool.clients[(i + this->current_role) % num_clients];
             this->current_mission_init->setClientAddress( item.ip_address );
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
