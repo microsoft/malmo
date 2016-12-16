@@ -543,7 +543,7 @@ namespace malmo
                 xml_schema::properties props;
                 props.schema_location(xml_namespace, FindSchemaFile("MissionEnded.xsd"));
 
-                xml_schema::flags flags = 0;
+                xml_schema::flags flags = xml_schema::flags::dont_initialize;
                 if( !validate )
                     flags = flags | xml_schema::flags::dont_validate;
 
