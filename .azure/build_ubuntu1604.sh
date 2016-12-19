@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Install malmo dependencies:
 sudo apt-get -y install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk
 # Set JAVA_HOME:
