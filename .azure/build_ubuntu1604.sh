@@ -30,6 +30,7 @@ if [ $result -ne 0 ]; then
 fi
 
 # Set JAVA_HOME:
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 sudo echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> ~/.bashrc
 
 # Update certificates (http://stackoverflow.com/a/29313285/126823)
@@ -42,7 +43,7 @@ git clone https://github.com/torch/distro.git ~/torch --recursive &>~/build_logs
 cd ~/torch
 bash install-deps &>~/build_logs/install_deps_torch.log
 ./install.sh -b &>~/build_logs/install_torch.log
-source ~/.bashrc
+source ~/torch/install/bin/torch-activate
 th -e "print 'Torch installed correctly'"
 result=$?;
 if [ $result -ne 0 ]; then
@@ -103,16 +104,16 @@ if [ $result -ne 0 ]; then
         echo "Failed to build ALE."
         exit $result
 fi
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/
 sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> ~/.bashrc
-source ~/.bashrc
 
 # Build Malmo:
 echo "Building Malmo..."
 {
 git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform
 wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas
+export MALMO_XSD_PATH=~/MalmoPlatform/Schemas
 sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> ~/.bashrc
-source ~/.bashrc
 cd ~/MalmoPlatform
 mkdir build
 cd build
