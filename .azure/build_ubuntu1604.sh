@@ -4,6 +4,7 @@ mkdir ~/build_logs
 
 # Install malmo dependencies:
 echo "Installing dependencies..."
+sudo apt-get update &>~/build_logs/install_deps_malmo.log
 sudo apt-get -y install build-essential \
                 git \
                 cmake \
@@ -22,7 +23,7 @@ sudo apt-get -y install build-essential \
                 python-tk \
                 xinit \
                 apt-file \
-                python-imaging-tk &>~/build_logs/install_deps_malmo.log
+                python-imaging-tk &>>~/build_logs/install_deps_malmo.log
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to install dependencies."
@@ -129,13 +130,13 @@ fi
 # Run the tests:
 echo "Running integration tests..."
 {
-nohup xinit & disown
+nohup sudo xinit & disown
 export DISPLAY=:0.0
 ctest -VV
 } &>~/build_logs/test_malmo.log
 result=$?;
 if [ $result -ne 0 ]; then
-    echo "Malmo tests failed!! Please inspect /build_logs/test_malmo.log for details."
+    echo "Malmo tests failed!! Please inspect ~/build_logs/test_malmo.log for details."
     exit $result
 fi
 
