@@ -254,7 +254,8 @@ namespace malmo
     {
         ClientPool reservedClients;
         std::string reply;
-        std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":2000:" + this->current_mission_init->getExperimentID() + +"\n";
+        // TODO - currently reserved for 20 seconds (the 20000 below) - make this configurable.
+        std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":20000:" + this->current_mission_init->getExperimentID() + +"\n";
         for (const ClientInfo& item : client_pool.clients)
         {
             if (this->display_client_pool_messages)
