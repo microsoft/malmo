@@ -74,7 +74,7 @@ public class AddressHelper
 				md.description = EnumChatFormatting.RED + "ERROR: No mission control port - check configuration";
 
 			// See if changing the port should lead to changing the login details:
-			AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
+			//AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
 		}
 	}
 }

@@ -33,6 +33,7 @@ set( SOURCES
   manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
+  multi_agent_test.py
   MultiMaze.py
   mob_fun.py
   overclock_test.py
@@ -70,6 +71,7 @@ set( OTHER_FILES
   Tutorial.pdf
   two_diggers.py
   team_reward_test.py
+  multi_agent_test.py
 )
 
 install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )

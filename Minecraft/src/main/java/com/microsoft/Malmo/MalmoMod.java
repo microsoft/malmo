@@ -418,6 +418,11 @@ public class MalmoMod
     public static void safeSendToAll(MalmoMessageType malmoMessage, Map<String, String> data)
     {
         // network.sendToAll() is buggy - race conditions result in the message getting trashed if there is more than one client.
+        if (data == null)
+        {
+            safeSendToAll(malmoMessage);
+            return;
+        }
         MinecraftServer server = MinecraftServer.getServer();
         for (Object player : server.getConfigurationManager().playerEntityList)
         {

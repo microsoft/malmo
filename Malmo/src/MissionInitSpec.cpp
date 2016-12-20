@@ -68,7 +68,7 @@ namespace malmo
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("MissionInit.xsd"));
 
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !validate )
             flags = flags | xml_schema::flags::dont_validate;
 
@@ -84,7 +84,7 @@ namespace malmo
         map[""].name = xml_namespace;
         map[""].schema = "MissionInit.xsd";
         
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !prettyPrint )
             flags = flags | xml_schema::flags::dont_pretty_print;
 
@@ -92,7 +92,12 @@ namespace malmo
         
         return oss.str();
     }
-    
+
+    std::string MissionInitSpec::getExperimentID() const
+    {
+        return this->mission_init->ExperimentUID();
+    }
+
     std::string MissionInitSpec::getClientAddress() const
     {
         return this->mission_init->ClientAgentConnection().ClientIPAddress();

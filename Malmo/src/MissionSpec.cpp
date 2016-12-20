@@ -67,7 +67,7 @@ namespace malmo
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("Mission.xsd"));
         
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !validate )
             flags = flags | xml_schema::flags::dont_validate;
 
@@ -83,7 +83,7 @@ namespace malmo
         map[""].name = xml_namespace;
         map[""].schema = "Mission.xsd";
 
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !prettyPrint )
             flags = flags | xml_schema::flags::dont_pretty_print;
 

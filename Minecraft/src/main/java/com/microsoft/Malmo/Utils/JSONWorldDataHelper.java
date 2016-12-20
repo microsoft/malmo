@@ -108,8 +108,9 @@ public class JSONWorldDataHelper
                 ); // TODO: there are many other ways of moving!
         json.addProperty("TimeAlive", sfw.readStat((StatBase)StatList.timeSinceDeathStat));
         json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.mobKillsStat));
+        json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.playerKillsStat));
         json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.damageTakenStat));
-    	
+
         /* Other potential reinforcement signals that may be worth researching:
         json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);
         json.addProperty("Blocked", ev.player.isMovementBlocked()) - but isMovementBlocker() is a protected method (can get round this with reflection)
@@ -127,6 +128,7 @@ public class JSONWorldDataHelper
         json.addProperty("XP", player.experienceTotal);
         json.addProperty("IsAlive", !player.isDead);
         json.addProperty("Air", player.getAir());
+        json.addProperty("Name", player.getName());
     }
     
     /** Builds the player position data to be used as observation signals by the listener.
