@@ -21,6 +21,7 @@ sudo apt-get -y install build-essential \
                 ffmpeg \
                 python-tk \
                 xinit \
+                apt-file \
                 python-imaging-tk &>~/build_logs/install_deps_malmo.log
 result=$?;
 if [ $result -ne 0 ]; then
@@ -144,3 +145,9 @@ if [ $result -eq 0 ]; then
     echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
     ls *.zip
 fi
+
+# Copy the binary?
+sudo mkdir /mnt/drive
+sudo mount -t cifs //malmobuildartifacts.file.core.windows.net/builds /mnt/drive -o vers=3.0,username=malmobuildartifacts,password=brRWGDPSvrV35273GDkJHt+Hhuxcx1GStH+oK1lWVvvtlNHxTyYnW0RI6oXZV+Gaq4R3wSgK+U0Q3lSiis2qVQ==,dir_mode=0777,file_mode=0777
+cp *.zip /mnt/drive/builds
+
