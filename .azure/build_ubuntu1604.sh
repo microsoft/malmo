@@ -130,14 +130,14 @@ sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> /home/$USER/.bashrc
 # Build Malmo:
 echo "Building Malmo..."
 {
-git clone https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
+git clone -b azureBuildFarm https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
 wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
 export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
 sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
 cd /home/$USER/MalmoPlatform
 mkdir build
 cd build
-cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_${BOOST_VERSION_NUMBER}_0/include -DCMAKE_BUILD_TYPE=Release ..
+cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_${BOOST_VERSION_NUMBER}_0/include -DCMAKE_BUILD_TYPE=Release ..
 make install
 } &>/home/$USER/build_logs/build_malmo.log
 result=$?;
