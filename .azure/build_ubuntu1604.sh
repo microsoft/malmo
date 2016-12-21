@@ -1,9 +1,9 @@
 #!/bin/bash
+BOOST_VERSION_NUMBER=62
+
+mkdir /home/$USER
 rm -rf /home/$USER/build_logs
 mkdir /home/$USER/build_logs
-
-BOOST_VERSION_NUMBER=62
-USER=malmo
 
 # Install malmo dependencies:
 echo "Installing dependencies..."
