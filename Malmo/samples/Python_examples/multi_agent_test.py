@@ -353,14 +353,17 @@ for mission_no in xrange(1,30000):
                 survival_scores[i] += 1
 
     print "Waiting for mission to end ",
+    # Mission should have ended already, but we want to wait until all the various agent hosts
+    # have had a chance to respond to their mission ended message.
     hasEnded = False
     while not hasEnded:
+        hasEnded = True # assume all good
         sys.stdout.write(".")
         time.sleep(0.1)
         for ah in agent_hosts:
             world_state = ah.getWorldState()
-            if not world_state.is_mission_running:
-                hasEnded = True
+            if world_state.is_mission_running:
+                hasEnded = False # all not good
 
     win_counts = [0 for robot in xrange(NUM_AGENTS)]
     winner_survival = survival_scores.index(max(survival_scores))
