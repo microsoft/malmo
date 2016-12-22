@@ -27,8 +27,8 @@ elif [ "$KERNEL" == 'Linux' ]; then
     # First try to use /etc/os-release:
     if [ -f /etc/os-release ]; then
         SPECS=`( . /etc/os-release &>/dev/null; echo $ID $VERSION_ID )`
-        DIST=${SPECS## *}
-        VERSION=${SPEC%%* }
+        DIST=${SPECS%% *}
+        VERSION=${SPECS##* }
     fi
 else
     echo "Not an OS we understand. This script currently supports Ubuntu 14-16, Debian 7-8, Fedora, OSX."
