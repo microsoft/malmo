@@ -1,5 +1,103 @@
 #!/bin/bash
-BOOST_VERSION_NUMBER=62
+while getopts 'sh' x; do
+    case "$x" in
+        h)
+            echo "usage: $0
+This script will install, build, test, and package Malmo.
+    -s      Force static linking of Boost (will also build boost)
+"
+            exit 2
+            ;;
+        s)
+            BUILD_BOOST=1
+            ;;
+    esac
+done
+
+# Extra dependencies needed for running headless integration tests, and mounting azure blob storage.
+EXTRA_DEPS="xinit apt-file"
+
+# Determine the operating system:
+KERNEL=`uname -s`
+if [ "$KERNEL" == 'Darwin' ]; then
+    # Do OSX installation stuff...
+    exit 0
+elif [ "$KERNEL" == 'Linux' ]; then
+    # Determine Unix distribution and version...
+    # First try to use /etc/os-release:
+    if [ -f /etc/os-release ]; then
+        SPECS=`( . /etc/os-release &>/dev/null; echo $ID $VERSION_ID )`
+        DIST=${SPECS## *}
+        VERSION=${SPEC%%* }
+    fi
+else
+    echo "Not an OS we understand. This script currently supports Ubuntu 14-16, Debian 7-8, Fedora, OSX."
+    exit 1
+fi
+
+# Strip minor version numbers:
+VERSION=${VERSION%%.*}
+echo "==============================================================================="
+echo "Building Malmo for $DIST version $VERSION."
+echo "==============================================================================="
+
+#    DIST=`lsb_release -is`
+#    VERSION=`lsb_release -rs`
+
+LIB_PYTHON="libpython2.7-dev"
+
+if [ "$DIST" == 'ubuntu' ]; then
+    INSTALL_TORCH=1
+    if [ "$VERSION" -ge 15 ]; then
+        # Ubuntu 15 and 16:
+        BOOST_VERSION_NUMBER=62
+        AVLIB=ffmpeg
+        JAVA_VERSION=8
+    elif [ "$VERSION" -ge 14 ]; then
+        # Ubuntu 14:
+        BOOST_VERSION_NUMBER=60
+        AVLIB=libav-tools
+        JAVA_VERSION=7
+        BUILD_XSD=1
+    else
+        echo "Ubuntu versions lower than 14 are not supported."
+        exit 1
+    fi
+elif [ "$DIST" == 'debian' ]; then
+    if [ "$VERSION" -ge 8 ]; then
+        # Debian 8:
+        BOOST_VERSION_NUMBER=60
+        AVLIB=libav-tools
+        JAVA_VERSION=7
+    elif [ "$VERSION" -ge 7 ]; then
+        # Debian 7:
+        BOOST_VERSION_NUMBER=60
+        AVLIB=ffmpeg
+        JAVA_VERSION=7
+        BUILD_XSD=1
+        BUILD_BOOST=1
+        LIB_PYTHON="python2.7-dev"
+    else
+        echo "Debian versions lower than 7 are not supported."
+        exit 1
+    fi
+else
+    echo "Linux ${DIST} version ${VERSION} isn't currently supported by this installation script."
+    echo "But please consider adding the necessary code and making a pull request!"
+    exit 1
+fi
+
+# If we are building boost ourselves, we don't need to install it, but we will need to install zlib.
+if [ "$BUILD_BOOST" ]; then
+    LIB_BZ="libbz2-dev"
+else
+    LIB_BOOST="libboost-all-dev"
+fi
+
+# If we are building xsd ourselves, we don't need to install it.
+if [ -z "$BUILD_XSD" ]; then
+    LIB_XSD="xsdcxx"
+fi
 
 rm -rf /home/$USER/build_logs
 mkdir /home/$USER/build_logs
@@ -11,20 +109,20 @@ sudo apt-get -y install build-essential \
                 git \
                 cmake \
                 cmake-qt-gui \
-                libboost-all-dev \
-                libpython2.7-dev \
+                ${LIB_BZ} \
+                ${LIB_BOOST} \
+                ${LIB_PYTHON} \
                 lua5.1 \
                 liblua5.1-0-dev \
-                openjdk-8-jdk \
+                openjdk-${JAVA_VERSION}-jdk \
                 swig \
-                xsdcxx \
+                ${LIB_XSD} \
                 libxerces-c-dev \
                 doxygen \
                 xsltproc \
-                ffmpeg \
+                ${AVLIB} \
+                ${EXTRA_DEPS} \
                 python-tk \
-                xinit \
-                apt-file \
                 python-imaging-tk &>>/home/$USER/build_logs/install_deps_malmo.log
 result=$?;
 if [ $result -ne 0 ]; then
@@ -33,36 +131,50 @@ if [ $result -ne 0 ]; then
 fi
 
 # Set JAVA_HOME:
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-sudo echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/$USER/.bashrc
+export JAVA_HOME=/usr/lib/jvm/java-${JAVA_VERSION}-openjdk-amd64/
+sudo echo "export JAVA_HOME=/usr/lib/jvm/java-"${JAVA_VERSION}"-openjdk-amd64/" >> /home/$USER/.bashrc
 
 # Update certificates (http://stackoverflow.com/a/29313285/126823)
 echo "Updating certificates..."
 sudo update-ca-certificates -f &>/home/$USER/build_logs/certificates.log
 
 # Install Torch:
-echo "Installing torch..."
-git clone https://github.com/torch/distro.git /home/$USER/torch --recursive &>/home/$USER/build_logs/clone_torch.log
-cd /home/$USER/torch
-bash install-deps &>/home/$USER/build_logs/install_deps_torch.log
-./install.sh -b &>/home/$USER/build_logs/install_torch.log
-source /home/$USER/torch/install/bin/torch-activate
-th -e "print 'Torch installed correctly'"
-result=$?;
-if [ $result -ne 0 ]; then
-        echo "Failed to install Torch."
-        exit 1
+if [ $INSTALL_TORCH ]; then
+    echo "Installing torch..."
+    git clone https://github.com/torch/distro.git /home/$USER/torch --recursive &>/home/$USER/build_logs/clone_torch.log
+    cd /home/$USER/torch
+    bash install-deps &>/home/$USER/build_logs/install_deps_torch.log
+    ./install.sh -b &>/home/$USER/build_logs/install_torch.log
+    source /home/$USER/torch/install/bin/torch-activate
+    th -e "print 'Torch installed correctly'"
+    result=$?;
+    if [ $result -ne 0 ]; then
+            echo "Failed to install Torch."
+            exit 1
+    fi
 fi
 
 # Install Mono:
 echo "Installing mono..."
 {
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
-sudo apt-get -y update
-echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
-sudo apt-get -y install mono-devel
-sudo apt-get -y install mono-complete
+if [ "$DIST" == 'debian' ] || [ "$DIST" == 'ubuntu' ]; then
+    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
+    sudo apt-get -y update
+    if [ "$VERSION" -ne 7 ]; then
+        # Ubuntu >=13.10 and Debian >=8 also need this:
+        echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+    fi
+    if [ "$VERSION" -ge 8 ] && [ "&DIST" == 'debian' ]; then
+        # Debian >=8 also needs this:
+        echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+    fi
+    sudo apt-get -y install mono-devel
+    sudo apt-get -y install mono-complete
+elif [ "$DIST" == 'fedora' ]; then
+    sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+    sudo dnf config-manager --add-repo http://download.mono-project.com/repo/centos/
+fi
 } &>/home/$USER/build_logs/install_mono.log
 mono -V &>/home/$USER/build_logs/mono_version.log
 result=$?;
@@ -72,20 +184,39 @@ if [ $result -ne 0 ]; then
 fi
 
 # Build Boost:
-echo "Building boost..."
-{
-mkdir /home/$USER/boost
-cd /home/$USER/boost
-wget http://sourceforge.net/projects/boost/files/boost/1.${BOOST_VERSION_NUMBER}.0/boost_1_${BOOST_VERSION_NUMBER_0}.tar.gz
-tar xvf boost_1_${BOOST_VERSION_NUMBER}_0.tar.gz
-cd boost_1_${BOOST_VERSION_NUMBER}_0
-./bootstrap.sh --prefix=.
-./b2 link=static cxxflags=-fPIC install
-} &>/home/$USER/build_logs/build_boost.log
-result=$?;
-if [ $result -ne 0 ]; then
-    echo "Failed to build boost version "${BOOST_VERSION_NUMBER}
-    exit $result
+if [ "$BUILD_BOOST" ]; then
+    echo "Building boost..."
+    {
+    mkdir /home/$USER/boost
+    cd /home/$USER/boost
+    wget http://sourceforge.net/projects/boost/files/boost/1.${BOOST_VERSION_NUMBER}.0/boost_1_${BOOST_VERSION_NUMBER_0}.tar.gz
+    tar xvf boost_1_${BOOST_VERSION_NUMBER}_0.tar.gz
+    cd boost_1_${BOOST_VERSION_NUMBER}_0
+    ./bootstrap.sh --prefix=.
+    ./b2 link=static cxxflags=-fPIC install
+    } &>/home/$USER/build_logs/build_boost.log
+    result=$?;
+    if [ $result -ne 0 ]; then
+        echo "Failed to build boost version "${BOOST_VERSION_NUMBER}
+        exit $result
+    fi
+    BOOST_PATH_FOR_CMAKE="-DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_${BOOST_VERSION_NUMBER}_0/include"
+    BOOST_CMAKE_FLAGS="-DSTATIC_BOOST=ON"
+fi
+
+# Install Code-Synthesis XSD:
+if [ $BUILD_XSD ]; then
+    echo "Installing Code-Synthesis XSD:"
+    {
+    wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb
+    sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb
+    sudo apt-get -y install -f
+    } &>/home/$USER/build_logs/install_codesynthesis.log
+    result=$?;
+    if [ $result -ne 0 ]; then
+        echo "Failed to install CodeSynthesis."
+        exit $result
+    fi
 fi
 
 # Install Luabind:
@@ -95,7 +226,7 @@ git clone https://github.com/rpavlik/luabind.git /home/$USER/rpavlik-luabind
 cd /home/$USER/rpavlik-luabind
 mkdir build
 cd build
-cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_${BOOST_VERSION_NUMBER}_0/include -DCMAKE_BUILD_TYPE=Release ..
+cmake $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
 make
 } &>/home/$USER/build_logs/build_luabind.log
 result=$?;
@@ -137,7 +268,7 @@ sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
 cd /home/$USER/MalmoPlatform
 mkdir build
 cd build
-cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_${BOOST_VERSION_NUMBER}_0/include -DCMAKE_BUILD_TYPE=Release ..
+cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
 make install
 } &>/home/$USER/build_logs/build_malmo.log
 result=$?;
