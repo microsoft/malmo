@@ -1,4 +1,7 @@
 #!/bin/bash
+# Need pipefail for testing success of each stage because we pipe all commands to tee for logging.
+set -o pipefail
+
 while getopts 'shv' x; do
     case "$x" in
         h)
@@ -199,7 +202,7 @@ if [ "$BUILD_BOOST" ]; then
     {
     mkdir /home/$USER/boost
     cd /home/$USER/boost
-    wget http://sourceforge.net/projects/boost/files/boost/1.${BOOST_VERSION_NUMBER}.0/boost_1_${BOOST_VERSION_NUMBER_0}.tar.gz
+    wget http://sourceforge.net/projects/boost/files/boost/1.${BOOST_VERSION_NUMBER}.0/boost_1_${BOOST_VERSION_NUMBER}_0.tar.gz
     tar xvf boost_1_${BOOST_VERSION_NUMBER}_0.tar.gz
     cd boost_1_${BOOST_VERSION_NUMBER}_0
     ./bootstrap.sh --prefix=.
