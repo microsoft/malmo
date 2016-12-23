@@ -20,6 +20,7 @@
 // Local:
 #include "FindSchemaFile.h"
 #include "MissionSpec.h"
+#include "Init.h"
 
 // Boost:
 #include <boost/make_shared.hpp>
@@ -39,6 +40,8 @@ namespace malmo
 
     MissionSpec::MissionSpec()
     {
+        initialiser::initXSD();
+
         // construct a default mission
         About about("");
         FlatWorldGenerator flat_world_gen;
