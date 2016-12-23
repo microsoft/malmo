@@ -1,18 +1,28 @@
 #!/bin/bash
-while getopts 'sh' x; do
+while getopts 'shv' x; do
     case "$x" in
         h)
             echo "usage: $0
 This script will install, build, test, and package Malmo.
-    -s      Force static linking of Boost (will also build boost)
+    -s      Force static linking of Boost (will also build Boost)
+    -v      Verbose output (very verbose!)
 "
             exit 2
             ;;
         s)
             BUILD_BOOST=1
             ;;
+        v)
+            VERBOSE_MODE=1
+            ;;
     esac
 done
+
+if [ $VERBOSE_MODE ]; then
+    exec 4>&2 3>&1
+else
+    exec 4>/dev/null 3>/dev/null
+fi
 
 # Extra dependencies needed for running headless integration tests, and mounting azure blob storage.
 EXTRA_DEPS="xinit apt-file"
@@ -104,7 +114,7 @@ mkdir /home/$USER/build_logs
 
 # Install malmo dependencies:
 echo "Installing dependencies..."
-sudo apt-get update &>/home/$USER/build_logs/install_deps_malmo.log
+sudo apt-get update | tee /home/$USER/build_logs/install_deps_malmo.log >&3
 sudo apt-get -y install build-essential \
                 git \
                 cmake \
@@ -123,7 +133,7 @@ sudo apt-get -y install build-essential \
                 ${AVLIB} \
                 ${EXTRA_DEPS} \
                 python-tk \
-                python-imaging-tk &>>/home/$USER/build_logs/install_deps_malmo.log
+                python-imaging-tk | tee -a /home/$USER/build_logs/install_deps_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to install dependencies."
@@ -136,15 +146,15 @@ sudo echo "export JAVA_HOME=/usr/lib/jvm/java-"${JAVA_VERSION}"-openjdk-amd64/" 
 
 # Update certificates (http://stackoverflow.com/a/29313285/126823)
 echo "Updating certificates..."
-sudo update-ca-certificates -f &>/home/$USER/build_logs/certificates.log
+sudo update-ca-certificates -f | tee /home/$USER/build_logs/certificates.log >&3
 
 # Install Torch:
 if [ $INSTALL_TORCH ]; then
     echo "Installing torch..."
-    git clone https://github.com/torch/distro.git /home/$USER/torch --recursive &>/home/$USER/build_logs/clone_torch.log
+    git clone https://github.com/torch/distro.git /home/$USER/torch --recursive | tee /home/$USER/build_logs/clone_torch.log >&3
     cd /home/$USER/torch
-    bash install-deps &>/home/$USER/build_logs/install_deps_torch.log
-    ./install.sh -b &>/home/$USER/build_logs/install_torch.log
+    bash install-deps | tee /home/$USER/build_logs/install_deps_torch.log >&3
+    ./install.sh -b | tee /home/$USER/build_logs/install_torch.log >&3
     source /home/$USER/torch/install/bin/torch-activate
     th -e "print 'Torch installed correctly'"
     result=$?;
@@ -175,8 +185,8 @@ elif [ "$DIST" == 'fedora' ]; then
     sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
     sudo dnf config-manager --add-repo http://download.mono-project.com/repo/centos/
 fi
-} &>/home/$USER/build_logs/install_mono.log
-mono -V &>/home/$USER/build_logs/mono_version.log
+} | tee /home/$USER/build_logs/install_mono.log >&3
+mono -V | tee /home/$USER/build_logs/mono_version.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to install Mono."
@@ -194,7 +204,7 @@ if [ "$BUILD_BOOST" ]; then
     cd boost_1_${BOOST_VERSION_NUMBER}_0
     ./bootstrap.sh --prefix=.
     ./b2 link=static cxxflags=-fPIC install
-    } &>/home/$USER/build_logs/build_boost.log
+    } | tee /home/$USER/build_logs/build_boost.log >&3
     result=$?;
     if [ $result -ne 0 ]; then
         echo "Failed to build boost version "${BOOST_VERSION_NUMBER}
@@ -211,7 +221,7 @@ if [ $BUILD_XSD ]; then
     wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb
     sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb
     sudo apt-get -y install -f
-    } &>/home/$USER/build_logs/install_codesynthesis.log
+    } | tee /home/$USER/build_logs/install_codesynthesis.log >&3
     result=$?;
     if [ $result -ne 0 ]; then
         echo "Failed to install CodeSynthesis."
@@ -228,7 +238,7 @@ mkdir build
 cd build
 cmake $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
 make
-} &>/home/$USER/build_logs/build_luabind.log
+} | tee /home/$USER/build_logs/build_luabind.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to build LuaBind."
@@ -237,8 +247,8 @@ fi
 
 # Install lua dependencies:
 echo "Installing lua dependencies:"
-sudo apt-get -y install luarocks &> /home/$USER/build_logs/install_deps_lua.log
-sudo luarocks install luasocket &>> /home/$USER/build_logs/install_deps_lua.log
+sudo apt-get -y install luarocks | tee /home/$USER/build_logs/install_deps_lua.log >&3
+sudo luarocks install luasocket | tee -a /home/$USER/build_logs/install_deps_lua.log >&3
 
 # Install ALE:
 echo "Building ALE..."
@@ -249,7 +259,7 @@ cd /home/$USER/ALE
 git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .
 cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .
 make
-} &>/home/$USER/build_logs/build_ALE.log
+} | tee /home/$USER/build_logs/build_ALE.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to build ALE."
@@ -270,7 +280,7 @@ mkdir build
 cd build
 cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
 make install
-} &>/home/$USER/build_logs/build_malmo.log
+} | tee /home/$USER/build_logs/build_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Error building Malmo."
@@ -283,7 +293,7 @@ echo "Running integration tests..."
 nohup sudo xinit & disown
 export DISPLAY=:0.0
 ctest -VV
-} &>/home/$USER/build_logs/test_malmo.log
+} | tee /home/$USER/build_logs/test_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Malmo tests failed!! Please inspect /home/$USER/build_logs/test_malmo.log for details."
@@ -292,7 +302,7 @@ fi
 
 # Build the package:
 echo "Building Malmo package..."
-make package &>/home/$USER/build_logs/build_malmo_package.log
+make package | tee /home/$USER/build_logs/build_malmo_package.log >&3
 result=$?;
 if [ $result -eq 0 ]; then
     echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
