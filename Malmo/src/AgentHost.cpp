@@ -60,7 +60,7 @@ namespace malmo
         , current_role( 0 )
         , display_client_pool_messages( false )
     {
-        malmo::initialiseXSD();
+        initialiser::initXSD();
         std::call_once(test_schemas_flag, testSchemasCompatible);
 
         this->addOptionalFlag("help,h", "show description of allowed options");

@@ -40,7 +40,7 @@ namespace malmo
 
     MissionSpec::MissionSpec()
     {
-        malmo::initialiseXSD();
+        initialiser::initXSD();
 
         // construct a default mission
         About about("");

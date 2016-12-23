@@ -37,7 +37,7 @@ namespace malmo
 {
     MissionInitSpec::MissionInitSpec( const MissionSpec& mission_spec, std::string unique_experiment_id, int role )
     {
-        malmo::initialiseXSD();
+        initialiser::initXSD();
 
         // construct a default MissionInit using the provided MissionSpec
         const string client_IP_address = "127.0.0.1";

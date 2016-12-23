@@ -34,11 +34,8 @@ namespace malmo
         {
             xercesc::XMLPlatformUtils::Terminate();
         }
+        static void initXSD();
     };
-    void initialiseXSD()
-    {
-        static initialiser init;
-    }
 }
 
 #endif
