@@ -305,7 +305,7 @@ fi
 # Build Malmo:
 echo "Building Malmo..."
 {
-git clone -b buildChanges https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
+git clone https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
 wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
 export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
 sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
@@ -342,8 +342,3 @@ if [ $result -eq 0 ]; then
     echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
     ls *.zip
 fi
-
-# Copy the binary?
-sudo mkdir /mnt/drive
-sudo mount -t cifs //malmobuildartifacts.file.core.windows.net/builds /mnt/drive -o vers=3.0,username=malmobuildartifacts,password=brRWGDPSvrV35273GDkJHt+Hhuxcx1GStH+oK1lWVvvtlNHxTyYnW0RI6oXZV+Gaq4R3wSgK+U0Q3lSiis2qVQ==,dir_mode=0777,file_mode=0777
-cp *.zip /mnt/drive/
