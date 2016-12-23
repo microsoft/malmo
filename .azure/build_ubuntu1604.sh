@@ -2,13 +2,14 @@
 # Need pipefail for testing success of each stage because we pipe all commands to tee for logging.
 set -o pipefail
 
-while getopts 'shv' x; do
+while getopts 'shva' x; do
     case "$x" in
         h)
             echo "usage: $0
 This script will install, build, test, and package Malmo.
     -s      Force static linking of Boost (will also build Boost)
     -v      Verbose output (very verbose!)
+    -a      Build ALE support
 "
             exit 2
             ;;
@@ -17,6 +18,9 @@ This script will install, build, test, and package Malmo.
             ;;
         v)
             VERBOSE_MODE=1
+            ;;
+        a)
+            BUILD_ALE=1
             ;;
     esac
 done
@@ -254,22 +258,24 @@ sudo apt-get -y install luarocks | tee /home/$USER/build_logs/install_deps_lua.l
 sudo luarocks install luasocket | tee -a /home/$USER/build_logs/install_deps_lua.log >&3
 
 # Install ALE:
-echo "Building ALE..."
-{
-git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git /home/$USER/ALE
-sudo apt-get -y install libsdl1.2-dev
-cd /home/$USER/ALE
-git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .
-cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .
-make
-} | tee /home/$USER/build_logs/build_ALE.log >&3
-result=$?;
-if [ $result -ne 0 ]; then
-        echo "Failed to build ALE."
-        exit $result
+if [ $BUILD_ALE ]; then
+    echo "Building ALE..."
+    {
+    git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git /home/$USER/ALE
+    sudo apt-get -y install libsdl1.2-dev
+    cd /home/$USER/ALE
+    git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .
+    cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .
+    make
+    } | tee /home/$USER/build_logs/build_ALE.log >&3
+    result=$?;
+    if [ $result -ne 0 ]; then
+            echo "Failed to build ALE."
+            exit $result
+    fi
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$USER/ALE/
+    sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> /home/$USER/.bashrc
 fi
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$USER/ALE/
-sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> /home/$USER/.bashrc
 
 # Build Malmo:
 echo "Building Malmo..."
