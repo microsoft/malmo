@@ -305,7 +305,7 @@ fi
 # Build Malmo:
 echo "Building Malmo..."
 {
-git clone -b buildChanges https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
+git clone https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
 wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
 export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
 sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
