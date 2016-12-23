@@ -298,6 +298,8 @@ if [ $BUILD_ALE ]; then
     fi
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$USER/ALE/
     sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> /home/$USER/.bashrc
+    ALE_CMAKE_FLAGS="-DINCLUDE_ALE=ON"
+
 fi
 
 # Build Malmo:
@@ -310,7 +312,7 @@ sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
 cd /home/$USER/MalmoPlatform
 mkdir build
 cd build
-cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
+cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE $ALE_CMAKE_FLAGS -DCMAKE_BUILD_TYPE=Release ..
 make install
 } | tee /home/$USER/build_logs/build_malmo.log >&3
 result=$?;
