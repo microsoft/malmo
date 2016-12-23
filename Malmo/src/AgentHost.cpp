@@ -24,6 +24,7 @@
 #include "FindSchemaFile.h"
 #include "TCPClient.h"
 #include "WorldState.h"
+#include "Init.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -59,7 +60,7 @@ namespace malmo
         , current_role( 0 )
         , display_client_pool_messages( false )
     {
-        xercesc::XMLPlatformUtils::Initialize();
+        malmo::initialiseXSD();
         std::call_once(test_schemas_flag, testSchemasCompatible);
 
         this->addOptionalFlag("help,h", "show description of allowed options");
@@ -79,8 +80,6 @@ namespace malmo
         for( auto& t : this->background_threads )
             t->join();
         this->close();
-
-        xercesc::XMLPlatformUtils::Terminate();
     }
 
     void AgentHost::testSchemasCompatible()
