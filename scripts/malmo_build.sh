@@ -1,4 +1,27 @@
 #!/bin/bash
+# ------------------------------------------------------------------------------------------------
+# Copyright (c) 2016 Microsoft Corporation
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+# associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge, publish, distribute,
+# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# ------------------------------------------------------------------------------------------------
+
+# WARNING: THIS IS A WORK IN PROGRESS
+# This script will attempt to install all Malmo dependencies, download, build and package Malmo.
+# It was designed for use on fresh VMs, and assumes everything needs installing.
+
 # Need pipefail for testing success of each stage because we pipe all commands to tee for logging.
 set -o pipefail
 
@@ -280,7 +303,7 @@ fi
 # Build Malmo:
 echo "Building Malmo..."
 {
-git clone -b azureBuildFarm https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
+git clone -b buildChanges https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
 wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
 export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
 sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
