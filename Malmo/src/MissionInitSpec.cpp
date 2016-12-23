@@ -65,6 +65,8 @@ namespace malmo
 
     MissionInitSpec::MissionInitSpec(const std::string& xml, bool validate)
     {
+        initialiser::initXSD();
+
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("MissionInit.xsd"));
 

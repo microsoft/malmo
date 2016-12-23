@@ -64,6 +64,8 @@ namespace malmo
 
     MissionSpec::MissionSpec(const std::string& xml, bool validate)
     {
+        initialiser::initXSD();
+
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("Mission.xsd"));
         
@@ -74,7 +76,7 @@ namespace malmo
         istringstream iss(xml);
         this->mission = Mission_(iss, flags, props);
     }
-    
+
     std::string MissionSpec::getAsXML( bool prettyPrint ) const
     {
         ostringstream oss;
