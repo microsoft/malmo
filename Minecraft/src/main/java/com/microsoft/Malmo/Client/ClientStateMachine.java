@@ -523,7 +523,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         String ourVersion = Loader.instance().activeModContainer().getVersion();
                         if (platformVersion == null || !platformVersion.equals(ourVersion))
                         {
-                            reply("MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + ")", dos);
+                            reply("MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + " - check your path for old versions of MalmoPython/MalmoJava/Malmo.lib etc)", dos);
                         }
                         else
                         {
