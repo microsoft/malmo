@@ -51,7 +51,7 @@
     2. Install to the default location. You don't need to set up the VS search paths.
     
 9. Install xsltproc:
-    1. Visit ftp://ftp.zlatkovic.com/libxml/ and download libxslt, libxml2, zlib and iconv:
+    1. Visit ftp://ftp.zlatkovic.com/libxml/ and download libxslt, libxml2, zlib and iconv: _(NOTE: the zlatkovic site has been down for a while - you can also get the binaries from http://xmlsoft.org/sources/win32/)_
         1. Download e.g. `libxslt-1.1.26.win32.zip` and extract to `C:\XSLT`
         2. Download e.g. `libxml2-2.7.8.win32.zip` and extract to `C:\XSLT`
         3. Download e.g. `zlib-1.2.5.win32.zip` and extract to `C:\XSLT`
