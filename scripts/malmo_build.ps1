@@ -36,8 +36,13 @@ function Add-to-Path
 
 function Should-Install
 {
-    $result = $installedapps | where {$_.DisplayName -match $args[0]}
-    return ($result -eq $null)
+    $target = $args[0]
+    $result = $installedapps | where {$_.DisplayName -match $target}
+    if ($result)
+    {
+        return $False
+    }
+    return $True
 }
 
 #Python 2.7
