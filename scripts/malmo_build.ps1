@@ -61,13 +61,16 @@ function Display-Heading
 
 $homepath = [Environment]::GetEnvironmentVariable("HOMEPATH")
 cd $homepath
-mkdir temp
+if (-Not (Test-Path .\temp))
+{
+    mkdir temp
+}
 
 # Install 7-Zip:
 if (Should-Install "7-Zip")
 {
     Display-Heading "Installing 7-Zip"
-    Download-File "http://www.7-zip.org/a/7z1604-x64.exe" ".\temp\7z_install.exe"
+    Download-File "http://www.7-zip.org/a/7z1604-x64.exe" ($homepath + "\temp\7z_install.exe")
     Start-Process ".\temp\7z_install.exe" /S -Wait
 }
 
@@ -75,7 +78,7 @@ if (Should-Install "7-Zip")
 if ($env:path -notmatch "ffmpeg")
 {
     Display-Heading "Installing ffmpeg"
-    Download-File "http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z" ".\temp\ffmpeg.7z"
+    Download-File "http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z" ($homepath + "\temp\ffmpeg.7z")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\ffmpeg.7z -oC:\ffmpeg
     cp -r C:\ffmpeg\ffmpeg-latest-win64-static\* C:\ffmpeg
     rm -r C:\ffmpeg\ffmpeg-latest-win64-static
@@ -86,7 +89,7 @@ if ($env:path -notmatch "ffmpeg")
 if (Should-Install "Git version")
 {
     Display-Heading "Installing git"
-    Download-File "https://github.com/git-for-windows/git/releases/download/v2.11.0.windows.1/Git-2.11.0-64-bit.exe" ".\temp\git_install.exe"
+    Download-File "https://github.com/git-for-windows/git/releases/download/v2.11.0.windows.1/Git-2.11.0-64-bit.exe" ($homepath + "\temp\git_install.exe")
     .\temp\git_install.exe /SILENT
 }
 
@@ -95,7 +98,7 @@ if (Should-Install "Java SE Development")
 {
     Display-Heading "Installing java"
     $source = "http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-windows-x64.exe"
-    $destination = ".\temp\jdkinstaller.exe"
+    $destination = ($homepath + "\temp\jdkinstaller.exe")
     $client = new-object System.Net.WebClient 
     # Need to do some cookie business to sign the oracle licence agreement:
     $cookie = "oraclelicense=accept-securebackup-cookie"
@@ -114,7 +117,7 @@ if (Should-Install "Java SE Development")
 if (Should-Install "CMake")
 {
     Display-Heading "Installing cmake"
-    Download-File "https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.msi" ".\temp\cmake.msi"
+    Download-File "https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.msi" ($homepath + "\temp\cmake.msi")
     Start-Process "temp\cmake.msi" /qn -Wait
     Add-to-Path "C:\Program Files\CMake\bin"
 }
@@ -123,7 +126,7 @@ if (Should-Install "CMake")
 if (Should-Install "Python 2.7")
 {
     Display-Heading "Installing python"
-    Download-File "https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi" ".\temp\python_install.msi"
+    Download-File "https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi" ($homepath + "\temp\python_install.msi")
     Start-Process "temp\python_install.msi" /qn -Wait
     Add-to-Path "C:\Python27"
 }
@@ -136,7 +139,7 @@ Add-to-Path "C:\Program Files (x86)\MSBuild\12.0\Bin"
 if ($env:path -notmatch "doxygen")
 {
     Display-Heading "Installing doxygen"
-    Download-File "http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.13.windows.x64.bin.zip" ".\temp\doxygen.zip"
+    Download-File "http://ftp.stack.nl/pub/users/dimitri/doxygen-1.8.13.windows.x64.bin.zip" ($homepath + "\temp\doxygen.zip")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\doxygen.zip -oC:\doxygen
     Add-to-Path "C:\doxygen"
 }
@@ -145,7 +148,7 @@ if ($env:path -notmatch "doxygen")
 if ($env:path -notmatch "zlib")
 {
     Display-Heading "Installing and building zlib"
-    Download-File "http://zlib.net/zlib1210.zip" ".\temp\zlib.zip"
+    Download-File "http://zlib.net/zlib1210.zip" ($homepath + "\temp\zlib.zip")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\zlib.zip -oC:\
     powershell {
         cd C:\zlib-1.2.10\
@@ -161,7 +164,7 @@ if (-Not (Test-Path C:\boost))
 {
     Display-Heading "Downloading and building boost - be patient!"
     # Download:
-    Download-File "https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.7z" ".\temp\boost.7z"
+    Download-File "https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.7z" ($homepath + "\temp\boost.7z")
     # Unzip:
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\boost.7z -oC:\boost
     powershell {
@@ -176,7 +179,7 @@ if (-Not (Test-Path C:\boost))
 if ($env:path -notmatch "swigwin")
 {
     Display-Heading "Installing swig"
-    Download-File "http://prdownloads.sourceforge.net/swig/swigwin-3.0.11.zip" ".\temp\swig.zip"
+    Download-File "http://prdownloads.sourceforge.net/swig/swigwin-3.0.11.zip" ($homepath + "\temp\swig.zip")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\swig.zip -oC:\
     Add-to-Path "C:\swigwin-3.0.11"
 }
@@ -185,7 +188,7 @@ if ($env:path -notmatch "swigwin")
 if (Should-Install "CodeSynthesis")
 {
     Display-Heading "Installing codesynthesis"
-    Download-File "http://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.msi" ".\temp\xsd.msi"
+    Download-File "http://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.msi" ($homepath + "\temp\xsd.msi")
     Start-Process "temp\xsd.msi" /qn -Wait
     Add-to-Path "C:\Program Files (x86)\CodeSynthesis XSD 4.0\bin64;C:\Program Files (x86)\CodeSynthesis XSD 4.0\bin"
 }
@@ -200,8 +203,8 @@ if ($env:path -notmatch "XSLT")
     $files = "libxslt-1.1.26.win32", "libxml2-2.7.8.win32", "iconv-1.9.2.win32"
     foreach ($file in $files + "zlib-1.2.5.win32") {
         $zipfile = $file + ".zip"
-        $dstfile = ".\temp\" + $zipfile
-        $client.downloadFile($archive + $zipfile, $dstfile)
+        $dstfile = "temp\" + $zipfile
+        $client.downloadFile(($archive + $zipfile), ($homepath + "\" + $dstfile))
         & 'C:\Program Files\7-Zip\7z.exe' x $dstfile -oC:\XSLT
     }
     # Add to path:
@@ -218,7 +221,7 @@ Display-Heading "TIME TO BUILD MALMO!"
 mkdir MalmoPlatform
 cd MalmoPlatform
 git clone https://github.com/Microsoft/malmo.git .
-Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl" "Schemas/xs3p.xsl"
+Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl" ($homepath + "\MalmoPlatform\Schemas\xs3p.xsl")
 [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "MalmoPlatform\Schemas", "Machine")
 [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "MalmoPlatform\Schemas", "Process")
 mkdir build
