@@ -37,15 +37,13 @@ function Add-to-Path
 function Should-Install
 {
     $target = $args[0]
-    $result = $installedapps | where {$_.DisplayName -match $target}
+    $result = $installedapps | where {$_.DisplayName -match [regex]::escape($target)}
     if ($result)
     {
         return $False
     }
     return $True
 }
-
-#Python 2.7
 
 function Download-File
 {
@@ -227,8 +225,8 @@ mkdir MalmoPlatform
 cd MalmoPlatform
 git clone https://github.com/Microsoft/malmo.git .
 Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl" ($homepath + "\MalmoPlatform\Schemas\xs3p.xsl")
-[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "MalmoPlatform\Schemas", "Machine")
-[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "MalmoPlatform\Schemas", "Process")
+[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "\MalmoPlatform\Schemas", "Machine")
+[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $homepath + "\MalmoPlatform\Schemas", "Process")
 mkdir build
 cd build
 cmake -G "Visual Studio 12 2013 Win64" ..
