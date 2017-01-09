@@ -185,7 +185,7 @@ function Install-XSD
 
 function Install-VCRedist
 {
-    if (Should-Install 'Microsoft Visual C++ 2012 Redistributable (x64)')
+    if (Should-Install 'Microsoft Visual C++ 2013 Redistributable (x64)')
     {
         Display-Heading "Installing Visual C++ runtime"
         Download-File "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe" ($env:HOMEPATH + "\temp\vcredist_x64.exe")
