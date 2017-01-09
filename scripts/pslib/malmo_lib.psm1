@@ -196,12 +196,15 @@ function Install-VCRedist
             exit 1
         }
     }
-    Write-Host "MSVCRT already installed."
+    else
+    {
+        Write-Host "MSVCRT already installed."
+    }
 }
 
 function Add-MalmoXSDPathEnv
 {
-    $malmopath = $env[0]
+    $malmopath = $args[0]
     [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Machine")
     [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Process")
 }

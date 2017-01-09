@@ -17,15 +17,15 @@ Install-VCRedist
 Install-Mesa
 
 # Now install Malmo:
-Display-Heading "Installing Visual C++ runtime"
+Display-Heading "Installing Minecraft"
 Download-File "https://github.com/Microsoft/malmo/releases/download/0.19.0/Malmo-0.19.0-Windows-64bit.zip" ($env:HOMEPATH + "\temp\malmo.zip")
 & 'C:\Program Files\7-Zip\7z.exe' x .\temp\malmo.zip -o"$env:HOMEPATH" | Out-Host
 if ($?)
 {
     Add-MalmoXSDPathEnv (($env:HOMEPATH) + "\Malmo-0.19.0-Windows-64bit")
-    cd MalmoPlatform\Minecraft
+    cd 'Malmo-0.19.0-Windows-64bit\Minecraft'
     launchClient.bat
-    cd MalmoPlatform\Python_Examples
+    cd 'Malmo-0.19.0-Windows-64bit\Python_Examples'
 }
 else
 {
