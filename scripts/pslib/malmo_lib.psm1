@@ -201,8 +201,9 @@ function Install-VCRedist
 
 function Add-MalmoXSDPathEnv
 {
-    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Machine")
-    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Process")
+    $malmopath = $env[0]
+    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Machine")
+    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Process")
 }
 
 function Install-Mesa
@@ -215,7 +216,7 @@ function Install-Mesa
         exit 1
     }
     mv .\temp\mesa\opengl32sw.dll .\temp\mesa\opengl32.dll
-    cp .\temp\mesa\opengl32.dll $JAVA_HOME\bin
+    cp .\temp\mesa\opengl32.dll "$env:JAVA_HOME\bin"
     if (-Not $?)
     {
         Write-Host "SOFTWARE RENDERER NOT ADDED TO JAVA HOME"

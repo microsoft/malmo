@@ -193,7 +193,7 @@ if (-Not (Test-Path MalmoPlatform))
 cd MalmoPlatform
 git clone https://github.com/Microsoft/malmo.git .
 Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl" ($env:HOMEPATH + "\MalmoPlatform\Schemas\xs3p.xsl")
-Add-MalmoXSDPathEnv
+Add-MalmoXSDPathEnv (($env:HOMEPATH) + "\MalmoPlatform")
 mkdir build
 cd build
 cmake -G "Visual Studio 12 2013 Win64" ..
