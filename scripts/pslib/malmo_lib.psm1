@@ -198,3 +198,27 @@ function Install-VCRedist
     }
     Write-Host "MSVCRT already installed."
 }
+
+function Add-MalmoXSDPathEnv
+{
+    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Machine")
+    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Process")
+}
+
+function Install-Mesa
+{
+    Download-File "http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ($env:HOMEPATH + "\temp\mesa.7z")
+    & 'C:\Program Files\7-Zip\7z.exe' x .\temp\mesa.7z -o'.\temp\mesa' | Out-Host
+    if (-Not $?)
+    {
+        Write-Host "FAILED TO INSTALL MESA"
+        exit 1
+    }
+    mv .\temp\mesa\opengl32sw.dll .\temp\mesa\opengl32.dll
+    cp .\temp\mesa\opengl32.dll $JAVA_HOME\bin
+    if (-Not $?)
+    {
+        Write-Host "SOFTWARE RENDERER NOT ADDED TO JAVA HOME"
+        exit 1
+    }
+}

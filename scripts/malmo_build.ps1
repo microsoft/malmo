@@ -182,6 +182,8 @@ if ($env:path -notmatch "XSLT")
     cp C:\XSLT\zlib-1.2.5\bin\zlib1.dll C:\XSLT\libxslt-1.1.26.win32\bin
 }
 
+Install-Mesa
+
 # Install and build Malmo:
 Display-Heading "TIME TO BUILD MALMO!"
 if (-Not (Test-Path MalmoPlatform))
@@ -191,8 +193,7 @@ if (-Not (Test-Path MalmoPlatform))
 cd MalmoPlatform
 git clone https://github.com/Microsoft/malmo.git .
 Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl" ($env:HOMEPATH + "\MalmoPlatform\Schemas\xs3p.xsl")
-[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Machine")
-[Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $env:HOMEPATH + "\MalmoPlatform\Schemas", "Process")
+Add-MalmoXSDPathEnv
 mkdir build
 cd build
 cmake -G "Visual Studio 12 2013 Win64" ..
