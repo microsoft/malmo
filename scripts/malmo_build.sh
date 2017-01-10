@@ -25,25 +25,29 @@
 # Need pipefail for testing success of each stage because we pipe all commands to tee for logging.
 set -o pipefail
 
-while getopts 'shva' x; do
+while getopts 'shvai' x; do
     case "$x" in
         h)
             echo "usage: $0
 This script will install, build, test, and package Malmo.
-    -s      Force static linking of Boost (will also build Boost)
+    -s      Use static linking of Boost (will also build Boost if building)
     -v      Verbose output (very verbose!)
     -a      Build ALE support
+    -i      Install only - downloads Malmo, rather than building it - involves fewer dependencies
 "
             exit 2
             ;;
         s)
-            BUILD_BOOST=1
+            STATIC_BOOST=1
             ;;
         v)
             VERBOSE_MODE=1
             ;;
         a)
             BUILD_ALE=1
+            ;;
+        i)
+            INSTALL_ONLY=1
             ;;
     esac
 done
@@ -54,8 +58,9 @@ else
     exec 4>/dev/null 3>/dev/null
 fi
 
-# Extra dependencies needed for running headless integration tests, and mounting azure blob storage.
-EXTRA_DEPS="xinit apt-file"
+# Create somewhere for log files:
+rm -rf /home/$USER/build_logs
+mkdir /home/$USER/build_logs
 
 # Determine the operating system:
 KERNEL=`uname -s`
@@ -98,7 +103,9 @@ if [ "$DIST" == 'ubuntu' ]; then
         BOOST_VERSION_NUMBER=60
         AVLIB=libav-tools
         JAVA_VERSION=7
-        BUILD_XSD=1
+        if [ -z "$INSTALL_ONLY" ]; then
+            DOWNLOAD_XSD=1 # If we are building, we need XSD.
+        fi
     else
         echo "Ubuntu versions lower than 14 are not supported."
         exit 1
@@ -114,8 +121,11 @@ elif [ "$DIST" == 'debian' ]; then
         BOOST_VERSION_NUMBER=60
         AVLIB=ffmpeg
         JAVA_VERSION=7
-        BUILD_XSD=1
-        BUILD_BOOST=1
+        if [ -z "$INSTALL_ONLY" ]; then
+            # If we are building, we need XSD and to build our own boost.
+            DOWNLOAD_XSD=1
+            STATIC_BOOST=1
+        fi
         LIB_PYTHON="python2.7-dev"
     else
         echo "Debian versions lower than 7 are not supported."
@@ -127,43 +137,40 @@ else
     exit 1
 fi
 
+# Gather the dependencies into an array:
+declare -a deps
+
 # If we are building boost ourselves, we don't need to install it, but we will need to install zlib.
-if [ "$BUILD_BOOST" ]; then
-    LIB_BZ="libbz2-dev"
+if [ -z "$INSTALL_ONLY" ] && [ "$STATIC_BOOST" ]; then
+    deps+=(libbz2-dev)
 else
-    LIB_BOOST="libboost-all-dev"
+    deps+=(libboost-all-dev)
 fi
 
-# If we are building xsd ourselves, we don't need to install it.
-if [ -z "$BUILD_XSD" ]; then
-    LIB_XSD="xsdcxx"
+# If we are downloading xsd ourselves, we don't need to apt-get it.
+if [ -z "$INSTALL_ONLY" ] && [ -z "$DOWNLOAD_XSD" ]; then
+    deps+=(xsdcxx)
 fi
 
-rm -rf /home/$USER/build_logs
-mkdir /home/$USER/build_logs
+# If we are building Malmo, we need these:
+if [ -z "$INSTALL_ONLY" ]; then
+    deps+=(git cmake cmake-qt-gui swig doxygen xsltproc)
+    # Extra dependencies needed for running headless integration tests, and mounting azure blob storage.
+    deps+=(xinit apt-file)
+fi
 
-# Install malmo dependencies:
-echo "Installing dependencies..."
+# Remaining dependencies:
+deps+=(build-essential ${LIB_BOOST} ${LIB_PYTHON} lua5.1 liblua5.1-0-dev openjdk-${JAVA_VERSION}-jdk libxerces-c-dev ${AVLIB} python-tk  python-imaging-tk)
+
+# Install dependencies:
+echo "Installing the following dependencies:"
+for i in ${deps[@]}
+do
+    echo $i
+done
+
 sudo apt-get update | tee /home/$USER/build_logs/install_deps_malmo.log >&3
-sudo apt-get -y install build-essential \
-                git \
-                cmake \
-                cmake-qt-gui \
-                ${LIB_BZ} \
-                ${LIB_BOOST} \
-                ${LIB_PYTHON} \
-                lua5.1 \
-                liblua5.1-0-dev \
-                openjdk-${JAVA_VERSION}-jdk \
-                swig \
-                ${LIB_XSD} \
-                libxerces-c-dev \
-                doxygen \
-                xsltproc \
-                ${AVLIB} \
-                ${EXTRA_DEPS} \
-                python-tk \
-                python-imaging-tk | tee -a /home/$USER/build_logs/install_deps_malmo.log >&3
+sudo apt-get -y install ${deps[@]} | tee -a /home/$USER/build_logs/install_deps_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
         echo "Failed to install dependencies."
@@ -224,7 +231,7 @@ if [ $result -ne 0 ]; then
 fi
 
 # Build Boost:
-if [ "$BUILD_BOOST" ]; then
+if [ -z "$INSTALL_ONLY" ] && [ "$STATIC_BOOST" ]; then
     echo "Building boost..."
     {
     mkdir /home/$USER/boost
@@ -245,7 +252,7 @@ if [ "$BUILD_BOOST" ]; then
 fi
 
 # Install Code-Synthesis XSD:
-if [ $BUILD_XSD ]; then
+if [ $DOWNLOAD_XSD ]; then
     echo "Installing Code-Synthesis XSD:"
     {
     wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb
@@ -260,19 +267,21 @@ if [ $BUILD_XSD ]; then
 fi
 
 # Install Luabind:
-echo "Building luabind..."
-{
-git clone https://github.com/rpavlik/luabind.git /home/$USER/rpavlik-luabind
-cd /home/$USER/rpavlik-luabind
-mkdir build
-cd build
-cmake $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
-make
-} | tee /home/$USER/build_logs/build_luabind.log >&3
-result=$?;
-if [ $result -ne 0 ]; then
-        echo "Failed to build LuaBind."
-        exit $result
+if [ -z "$INSTALL_ONLY" ]; then
+    echo "Building luabind..."
+    {
+    git clone https://github.com/rpavlik/luabind.git /home/$USER/rpavlik-luabind
+    cd /home/$USER/rpavlik-luabind
+    mkdir build
+    cd build
+    cmake $BOOST_PATH_FOR_CMAKE -DCMAKE_BUILD_TYPE=Release ..
+    make
+    } | tee /home/$USER/build_logs/build_luabind.log >&3
+    result=$?;
+    if [ $result -ne 0 ]; then
+            echo "Failed to build LuaBind."
+            exit $result
+    fi
 fi
 
 # Install lua dependencies:
@@ -299,46 +308,63 @@ if [ $BUILD_ALE ]; then
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$USER/ALE/
     sudo echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/" >> /home/$USER/.bashrc
     ALE_CMAKE_FLAGS="-DINCLUDE_ALE=ON"
-
 fi
 
-# Build Malmo:
-echo "Building Malmo..."
-{
-git clone https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
-wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
-export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
-sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
-cd /home/$USER/MalmoPlatform
-mkdir build
-cd build
-cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE $ALE_CMAKE_FLAGS -DCMAKE_BUILD_TYPE=Release ..
-make install
-} | tee /home/$USER/build_logs/build_malmo.log >&3
-result=$?;
-if [ $result -ne 0 ]; then
-    echo "Error building Malmo."
-    exit $result
-fi
+if [ "$INSTALL_ONLY" ]; then
+    # Download and install Malmo:
+    packagename="Malmo-0.19.0-$kernel-$DIST-$VERSION-64bit"
+    if [ "$BUILD_ALE" ]; then
+        packagename+="_withALE"
+    fi
+    if [ "$STATIC_BOOST" ]; then
+        packagename+="_withBoost"
+    fi
+    echo "Attempting to download $packagename"
+    wget https://github.com/Microsoft/malmo/releases/download/0.19.0/${packagename}.zip -P /home/$USER/build_logs
+    unzip /home/$USER/build_logs/${packagename}.zip -d /home/$USER/
+    export MALMO_XSD_PATH=/home/$USER/$packagename/Schemas
+    sudo echo "export MALMO_XSD_PATH=~/$packagename/Schemas" >> /home/$USER/.bashrc
+    cd /home/$USER/$packagename/Minecraft
+    launchClient.sh
+else
+    # Build Malmo:
+    echo "Building Malmo..."
+    {
+    git clone https://github.com/Microsoft/malmo.git /home/$USER/MalmoPlatform
+    wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P /home/$USER/MalmoPlatform/Schemas
+    export MALMO_XSD_PATH=/home/$USER/MalmoPlatform/Schemas
+    sudo echo "export MALMO_XSD_PATH=~/MalmoPlatform/Schemas" >> /home/$USER/.bashrc
+    cd /home/$USER/MalmoPlatform
+    mkdir build
+    cd build
+    cmake $BOOST_CMAKE_FLAGS $BOOST_PATH_FOR_CMAKE $ALE_CMAKE_FLAGS -DCMAKE_BUILD_TYPE=Release ..
+    make install
+    } | tee /home/$USER/build_logs/build_malmo.log >&3
+    result=$?;
+    if [ $result -ne 0 ]; then
+        echo "Error building Malmo."
+        exit $result
+    fi
 
-# Run the tests:
-echo "Running integration tests..."
-{
-nohup sudo xinit & disown
-export DISPLAY=:0.0
-ctest -VV
-} | tee /home/$USER/build_logs/test_malmo.log >&3
-result=$?;
-if [ $result -ne 0 ]; then
-    echo "Malmo tests failed!! Please inspect /home/$USER/build_logs/test_malmo.log for details."
-    exit $result
-fi
+    # Run the tests:
+    echo "Running integration tests..."
+    {
+    nohup sudo xinit & disown
+    export DISPLAY=:0.0
+    ctest -VV
+    } | tee /home/$USER/build_logs/test_malmo.log >&3
+    result=$?;
+    if [ $result -ne 0 ]; then
+        echo "Malmo tests failed!! Please inspect /home/$USER/build_logs/test_malmo.log for details."
+        exit $result
+    fi
 
-# Build the package:
-echo "Building Malmo package..."
-make package | tee /home/$USER/build_logs/build_malmo_package.log >&3
-result=$?;
-if [ $result -eq 0 ]; then
-    echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
-    ls *.zip
+    # Build the package:
+    echo "Building Malmo package..."
+    make package | tee /home/$USER/build_logs/build_malmo_package.log >&3
+    result=$?;
+    if [ $result -eq 0 ]; then
+        echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
+        ls *.zip
+    fi
 fi
