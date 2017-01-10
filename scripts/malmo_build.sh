@@ -165,9 +165,15 @@ fi
 # If we are building Malmo, we need these:
 if [ -z "$INSTALL_ONLY" ]; then
     deps+=(git cmake cmake-qt-gui swig doxygen xsltproc)
-    # Extra dependencies needed for running headless integration tests, and mounting azure blob storage.
-    deps+=(xinit apt-file)
+    # Extra dependency needed for mounting azure blob storage:
+    deps+=(apt-file)
+else
+    # Extra dependency needed for unzipping Malmo release:
+    deps+=(unzip)
 fi
+
+# Extra dependency needed for running headless:
+deps+=(xinit)
 
 # Remaining dependencies:
 deps+=(build-essential ${LIB_BOOST} ${LIB_PYTHON} lua5.1 liblua5.1-0-dev openjdk-${JAVA_VERSION}-jdk libxerces-c-dev ${AVLIB} python-tk  python-imaging-tk)
