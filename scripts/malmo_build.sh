@@ -25,7 +25,7 @@
 # Need pipefail for testing success of each stage because we pipe all commands to tee for logging.
 set -o pipefail
 
-while getopts 'shvai' x; do
+while getopts 'shvail' x; do
     case "$x" in
         h)
             echo "usage: $0
