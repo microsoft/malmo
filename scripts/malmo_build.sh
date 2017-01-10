@@ -202,7 +202,7 @@ echo "Updating certificates..."
 sudo update-ca-certificates -f | tee /home/$USER/build_logs/certificates.log >&3
 
 # Install Torch:
-if [ $INSTALL_TORCH ]; then
+if [ "$INSTALL_TORCH" ] && [ -z "$LIGHT_WEIGHT" ]; then
     echo "Installing torch..."
     git clone https://github.com/torch/distro.git /home/$USER/torch --recursive | tee /home/$USER/build_logs/clone_torch.log >&3
     cd /home/$USER/torch
