@@ -81,6 +81,7 @@ else
 fi
 
 # Strip minor version numbers:
+FULLVERSION=$VERSION
 VERSION=${VERSION%%.*}
 echo "==============================================================================="
 echo "Building Malmo for $DIST version $VERSION."
@@ -312,7 +313,7 @@ fi
 
 if [ "$INSTALL_ONLY" ]; then
     # Download and install Malmo:
-    packagename="Malmo-0.19.0-$kernel-$DIST-$VERSION-64bit"
+    packagename="Malmo-0.19.0-$KERNEL-${DIST^}-$FULLVERSION-64bit"
     if [ "$BUILD_ALE" ]; then
         packagename+="_withALE"
     fi
@@ -325,7 +326,12 @@ if [ "$INSTALL_ONLY" ]; then
     export MALMO_XSD_PATH=/home/$USER/$packagename/Schemas
     sudo echo "export MALMO_XSD_PATH=~/$packagename/Schemas" >> /home/$USER/.bashrc
     cd /home/$USER/$packagename/Minecraft
-    launchClient.sh
+    nohup sudo xinit & disown
+    export DISPLAY=:0.0
+    nohup ./launchClient.sh & disown
+    sleep 120   # Wait for Minecraft to starte
+    cd ../Python_Examples
+    python MazeRunner.py
 else
     # Build Malmo:
     echo "Building Malmo..."
