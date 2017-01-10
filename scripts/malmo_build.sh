@@ -32,8 +32,9 @@ while getopts 'shvai' x; do
 This script will install, build, test, and package Malmo.
     -s      Use static linking of Boost (will also build Boost if building)
     -v      Verbose output (very verbose!)
-    -a      Build ALE support
+    -a      Build ALE support (not compatible with -l)
     -i      Install only - downloads Malmo, rather than building it - involves fewer dependencies
+    -l      (For installation-only): Light-weight install - skip torch, mono, lua and ALE
 "
             exit 2
             ;;
@@ -49,8 +50,16 @@ This script will install, build, test, and package Malmo.
         i)
             INSTALL_ONLY=1
             ;;
+        l)
+            LIGHT_WEIGHT=1
+            ;;
     esac
 done
+
+if [ $LIGHT_WEIGHT ] && [ -z $INSTALL_ONLY ]; then
+    echo "Can't strip out Mono, Torch and Lua if you are building."
+    exit 1
+fi
 
 if [ $VERBOSE_MODE ]; then
     exec 4>&2 3>&1
@@ -203,32 +212,34 @@ if [ $INSTALL_TORCH ]; then
 fi
 
 # Install Mono:
-echo "Installing mono..."
-{
-if [ "$DIST" == 'debian' ] || [ "$DIST" == 'ubuntu' ]; then
-    sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-    echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
-    sudo apt-get -y update
-    if [ "$VERSION" -ne 7 ]; then
-        # Ubuntu >=13.10 and Debian >=8 also need this:
-        echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+if [ -z "$LIGHT_WEIGHT" ]; then
+    echo "Installing mono..."
+    {
+    if [ "$DIST" == 'debian' ] || [ "$DIST" == 'ubuntu' ]; then
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+        echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
+        sudo apt-get -y update
+        if [ "$VERSION" -ne 7 ]; then
+            # Ubuntu >=13.10 and Debian >=8 also need this:
+            echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+        fi
+        if [ "$VERSION" -ge 8 ] && [ "&DIST" == 'debian' ]; then
+            # Debian >=8 also needs this:
+            echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+        fi
+        sudo apt-get -y install mono-devel
+        sudo apt-get -y install mono-complete
+    elif [ "$DIST" == 'fedora' ]; then
+        sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+        sudo dnf config-manager --add-repo http://download.mono-project.com/repo/centos/
     fi
-    if [ "$VERSION" -ge 8 ] && [ "&DIST" == 'debian' ]; then
-        # Debian >=8 also needs this:
-        echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | sudo tee -a /etc/apt/sources.list.d/mono-xamarin.list
+    } | tee /home/$USER/build_logs/install_mono.log >&3
+    mono -V | tee /home/$USER/build_logs/mono_version.log >&3
+    result=$?;
+    if [ $result -ne 0 ]; then
+            echo "Failed to install Mono."
+            exit 1
     fi
-    sudo apt-get -y install mono-devel
-    sudo apt-get -y install mono-complete
-elif [ "$DIST" == 'fedora' ]; then
-    sudo rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-    sudo dnf config-manager --add-repo http://download.mono-project.com/repo/centos/
-fi
-} | tee /home/$USER/build_logs/install_mono.log >&3
-mono -V | tee /home/$USER/build_logs/mono_version.log >&3
-result=$?;
-if [ $result -ne 0 ]; then
-        echo "Failed to install Mono."
-        exit 1
 fi
 
 # Build Boost:
@@ -286,12 +297,14 @@ if [ -z "$INSTALL_ONLY" ]; then
 fi
 
 # Install lua dependencies:
-echo "Installing lua dependencies:"
-sudo apt-get -y install luarocks | tee /home/$USER/build_logs/install_deps_lua.log >&3
-sudo luarocks install luasocket | tee -a /home/$USER/build_logs/install_deps_lua.log >&3
+if [ -z "$LIGHT_WEIGHT" ]; then
+    echo "Installing lua dependencies:"
+    sudo apt-get -y install luarocks | tee /home/$USER/build_logs/install_deps_lua.log >&3
+    sudo luarocks install luasocket | tee -a /home/$USER/build_logs/install_deps_lua.log >&3
+fi
 
 # Install ALE:
-if [ $BUILD_ALE ]; then
+if [ "$BUILD_ALE" ] && [ -z "$LIGHT_WEIGHT" ]; then
     echo "Building ALE..."
     {
     git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git /home/$USER/ALE
