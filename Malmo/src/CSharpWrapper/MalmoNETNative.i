@@ -223,6 +223,8 @@ public:
   void sendCommand(std::string command);
 
   std::string getRecordingTemporaryDirectory();
+
+  void setDebugOutput(bool debug);
 };
 
 #ifdef WRAP_ALE

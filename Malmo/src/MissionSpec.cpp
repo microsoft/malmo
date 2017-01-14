@@ -20,6 +20,7 @@
 // Local:
 #include "FindSchemaFile.h"
 #include "MissionSpec.h"
+#include "Init.h"
 
 // Boost:
 #include <boost/make_shared.hpp>
@@ -39,6 +40,8 @@ namespace malmo
 
     MissionSpec::MissionSpec()
     {
+        initialiser::initXSD();
+
         // construct a default mission
         About about("");
         FlatWorldGenerator flat_world_gen;
@@ -64,17 +67,19 @@ namespace malmo
 
     MissionSpec::MissionSpec(const std::string& xml, bool validate)
     {
+        initialiser::initXSD();
+
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("Mission.xsd"));
         
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !validate )
             flags = flags | xml_schema::flags::dont_validate;
 
         istringstream iss(xml);
         this->mission = Mission_(iss, flags, props);
     }
-    
+
     std::string MissionSpec::getAsXML( bool prettyPrint ) const
     {
         ostringstream oss;
@@ -83,7 +88,7 @@ namespace malmo
         map[""].name = xml_namespace;
         map[""].schema = "Mission.xsd";
 
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !prettyPrint )
             flags = flags | xml_schema::flags::dont_pretty_print;
 

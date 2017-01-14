@@ -19,6 +19,7 @@
 
 // Malmo:
 #include <MissionSpec.h>
+#include <AgentHost.h>
 using namespace malmo;
 
 // STL:

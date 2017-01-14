@@ -756,9 +756,6 @@ public class ServerStateMachine extends StateMachine
 
                 // Set their game mode to spectator for now, to protect them while we wait for the rest of the cast to assemble:
                 player.setGameType(GameType.SPECTATOR);
-                // Set the custom name.
-                // SetAgentNameMessage.SetAgentNameActor actor = new SetAgentNameMessage.SetAgentNameActor(player, agentname);
-                // actor.go();
             }
         }
 
@@ -864,7 +861,7 @@ public class ServerStateMachine extends StateMachine
             // Do some tidying:
             resetPlayerGameTypes();
             // And tell all the clients to abort:
-            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
+            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT, errorData);
             // And abort ourselves:
             episodeHasCompleted(ServerState.ERROR);
         }

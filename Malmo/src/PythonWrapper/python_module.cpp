@@ -154,6 +154,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "setObservationsPolicy",          &AgentHost::setObservationsPolicy )
         .def( "sendCommand",                    &AgentHost::sendCommand )
         .def( "getRecordingTemporaryDirectory", &AgentHost::getRecordingTemporaryDirectory )
+        .def( "setDebugOutput",                 &AgentHost::setDebugOutput )
         .def(self_ns::str(self_ns::self))
     ;
 #ifdef WRAP_ALE

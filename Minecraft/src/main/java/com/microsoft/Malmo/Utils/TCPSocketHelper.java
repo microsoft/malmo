@@ -40,13 +40,13 @@ import java.util.logging.SimpleFormatter;
 
 public class TCPSocketHelper
 {
-	public static final int DEFAULT_SOCKET_TIMEOUT_MS = 100;
+	public static final int DEFAULT_SOCKET_TIMEOUT_MS = 1000;
 	private static Logger logger = Logger.getLogger("com.microsoft.Malmo.TCPSocketHelper");
 	private static FileHandler filehandler = null;
 	private static boolean logging = false;
 
-	String address;
-	int port;
+	public String address;
+	public int port;
 	Socket socket = null;
 	
 	/** Create a new socket helper, bound to a specific endpoint, which will keep a connection alive for repeated use.

@@ -70,6 +70,7 @@ set( OTHER_FILES
   Tutorial.pdf
   two_diggers.py
   team_reward_test.py
+  multi_agent_test.py
 )
 
 install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )

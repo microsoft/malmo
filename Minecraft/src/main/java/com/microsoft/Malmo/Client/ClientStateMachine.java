@@ -104,6 +104,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 {
     private static final String MISSING_MCP_PORT_ERROR = "no_mcp";
     private static final String INFO_MCP_PORT = "info_mcp";
+    private static final String INFO_RESERVE_STATUS = "info_reservation";
 
     private MissionInit currentMissionInit = null; // The MissionInit object for the mission currently being loaded/run.
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
@@ -116,6 +117,77 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     protected TCPInputPoller missionPoller;
     protected TCPInputPoller controlInputPoller;
     protected int integratedServerPort;
+    String reservationID = "";   // empty if we are not reserved, otherwise "RESERVED" + the experiment ID we are reserved for.
+    long reservationExpirationTime = 0;
+    private TCPSocketHelper missionControlSocket;
+
+    private void reserveClient(String id)
+    {
+        synchronized(this.reservationID)
+        {
+            ClientStateMachine.this.getScreenHelper().clearFragment(INFO_RESERVE_STATUS);
+
+            // id is in the form <long>:<expID>, where long is the length of time to keep the reservation for,
+            // and expID is the experimentationID used to ensure the client is reserved for the correct experiment.
+            int separator = id.indexOf(":");
+            if (separator == -1)
+            {
+                System.out.println("Error - malformed reservation request - client will not be reserved.");
+                this.reservationID = "";
+            }
+            else
+            {
+                long duration = Long.valueOf(id.substring(0, separator));
+                String expID = id.substring(separator + 1);
+                this.reservationExpirationTime = System.currentTimeMillis() + duration;
+                // We don't just use the id, in case users have supplied a blank string as their experiment ID.
+                this.reservationID = "RESERVED" + expID;
+                ClientStateMachine.this.getScreenHelper().addFragment("Reserved: " + expID, TextCategory.TXT_INFO, (int)duration);//INFO_RESERVE_STATUS);
+            }
+        }
+    }
+
+    private boolean isReserved()
+    {
+        synchronized(this.reservationID)
+        {
+            System.out.println("==== RES: " + this.reservationID + " - " + (this.reservationExpirationTime - System.currentTimeMillis()));
+            return !this.reservationID.isEmpty() && this.reservationExpirationTime > System.currentTimeMillis();
+        }
+    }
+
+    private boolean isAvailable(String id)
+    {
+        synchronized(this.reservationID)
+        {
+            return (this.reservationID.isEmpty() || this.reservationID.equals("RESERVED" + id) || System.currentTimeMillis() >= this.reservationExpirationTime);
+        }
+    }
+
+    private void cancelReservation()
+    {
+        synchronized(this.reservationID)
+        {
+            this.reservationID = "";
+            ClientStateMachine.this.getScreenHelper().clearFragment(INFO_RESERVE_STATUS);
+        }            
+    }
+
+    protected TCPSocketHelper getMissionControlSocket() { return this.missionControlSocket; }
+    
+    protected void createMissionControlSocket()
+    {
+        // Set up a TCP connection to the agent:
+        ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
+        if (this.missionControlSocket == null ||
+            this.missionControlSocket.port != cac.getAgentMissionControlPort() ||
+            this.missionControlSocket.address != cac.getAgentIPAddress())
+        {
+            if (this.missionControlSocket != null)
+                this.missionControlSocket.close();
+            this.missionControlSocket = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentMissionControlPort());
+        }
+    }
 
     public ClientStateMachine(ClientState initialState, MalmoModClient inputController)
     {
@@ -351,134 +423,123 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
+            private void reply(String reply, DataOutputStream dos)
+            {
+                System.out.println("REPLYING WITH: " + reply);
+                try
+                {
+                    dos.writeInt(reply.length());
+                    dos.writeBytes(reply);
+                }
+                catch (IOException e)
+                {
+                    System.out.println("Failed to reply to message!");
+                }
+            }
+
             @Override
             public boolean onCommand(String command, String ipFrom, DataOutputStream dos)
             {
                 System.out.println("Received from " + ipFrom + ":");
                 System.out.println(command.substring(0, Math.min(command.length(), 1024)));
+                boolean keepProcessing = false;
 
-                String reply = null;
-                boolean keepProcessing = true;
+                // Possible commands:
+                // 1: MALMO_REQUEST_CLIENT:<malmo version>:<reservation_length(ms)><experiment_id>
+                // 2: MALMO_CANCEL_REQUEST
+                // 3: MALMO_FIND_SERVER<experiment_id>
+                // 4: MissionInit
 
-                // See if we've been sent a MissionInit message:
-                MissionInitResult missionInitResult = decodeMissionInit(command);
-                if (missionInitResult.wasMissionInit && missionInitResult.missionInit == null)
+                String reservePrefix = "MALMO_REQUEST_CLIENT:" + Loader.instance().activeModContainer().getVersion() + ":";
+                String findServerPrefix = "MALMO_FIND_SERVER";
+                String cancelRequestCommand = "MALMO_CANCEL_REQUEST";
+
+                if (command.startsWith(reservePrefix))
                 {
-                    reply = "MALMOERROR" + missionInitResult.error;
-                    keepProcessing = false; // Got sent a duff MissionInit xml - pass back the JAXB/SAXB errors.
-                }
-                else if (!missionInitResult.wasMissionInit)
-                {
-                    reply = "MALMOERRORNOTUNDERSTOOD";
-                    keepProcessing = false; // Don't understand this message - not a MissionInit.
-                }
-                else if (missionInitResult.missionInit != null && missionInitResult.wasMissionInit)
-                {
-                    MissionInit missionInit = missionInitResult.missionInit;
-                    // We've been sent a MissionInit message.
-                    // First, check the version number:
-                    String platformVersion = missionInit.getPlatformVersion();
-                    String ourVersion = Loader.instance().activeModContainer().getVersion();
-                    if (platformVersion == null || !platformVersion.equals(ourVersion))
+                    // Reservation request.
+                    // We either reply with MALMOOK, if we are free, or MALMOBUSY if not.
+                    IState currentState = getStableState();
+                    if (currentState != null && currentState.equals(ClientState.DORMANT) && !isReserved())
                     {
-                        reply = "MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + ")";
-                        keepProcessing = false; // No further action required.
+                        reserveClient(command.substring(reservePrefix.length()));
+                        reply("MALMOOK", dos);
                     }
-                    // If the server information is missing, we interpret this as a request to find it.
-                    // (Unless the requested role is 0, in which case the server information *should* be missing.)
-                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() != 0)
+                    else
                     {
-                        if (currentMissionInit() == null)
+                        // We're busy - we can't be reserved.
+                        reply("MALMOBUSY", dos);
+                    }
+                }
+                else if (command.equals(cancelRequestCommand))
+                {
+                    // If we've been reserved, cancel the reservation.
+                    if (isReserved())
+                    {
+                        cancelReservation();
+                        reply("MALMOOK", dos);
+                    }
+                    else
+                    {
+                        // We weren't reserved in the first place - something is odd.
+                        reply("MALMOERRORAttempt to cancel a reservation that was never made.", dos);
+                    }
+                }
+                else if (command.startsWith(findServerPrefix))
+                {
+                    // Request to find the server for the given experiment ID.
+                    String expID = command.substring(findServerPrefix.length());
+                    if (currentMissionInit() != null && currentMissionInit().getExperimentUID().equals(expID))
+                    {
+                        // Our Experiment IDs match, so we are running the same experiment.
+                        // Return the port and server IP address to the caller:
+                        MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
+                        if (msc == null)
+                            reply("MALMONOSERVERYET", dos); // Mission might be starting up.
+                        else
+                            reply("MALMOS" + msc.getAddress() + ":" + msc.getPort(), dos);
+                    }
+                    else
+                    {
+                        // We don't have a MissionInit ourselves, or we're running a different experiment,
+                        // so we can't help.
+                        reply("MALMONOSERVER", dos);
+                    }
+                }
+                else
+                {
+                    // See if we've been sent a MissionInit message:
+                    MissionInitResult missionInitResult = decodeMissionInit(command);
+                    if (missionInitResult.wasMissionInit && missionInitResult.missionInit == null)
+                    {
+                        // Got sent a duff MissionInit xml - pass back the JAXB/SAXB errors.
+                        reply("MALMOERROR" + missionInitResult.error, dos);
+                    }
+                    else if (missionInitResult.wasMissionInit && missionInitResult.missionInit != null)
+                    {
+                        MissionInit missionInit = missionInitResult.missionInit;
+                        // We've been sent a MissionInit message.
+                        // First, check the version number:
+                        String platformVersion = missionInit.getPlatformVersion();
+                        String ourVersion = Loader.instance().activeModContainer().getVersion();
+                        if (platformVersion == null || !platformVersion.equals(ourVersion))
                         {
-                            // We don't have a MissionInit ourselves, so we can't help:
-                            reply = "MALMONOMISSION";
-                            keepProcessing = false; // No further action required.
-                        }
-                        else if (currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID()) && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()))
-                        {
-                            // Our Missions and Experiment IDs match, so we are running the same experiment.
-                            // Return the port and server IP address to the caller:
-                            MinecraftServerConnection msc = currentMissionInit().getMinecraftServerConnection();
-                            if (msc == null)
-                                reply = "MALMOERRORMinecraftServerConnection missing!";
-                            else
-                                reply = "MALMOS" + msc.getAddress() + ":" + msc.getPort();
-
-                            keepProcessing = false;
+                            reply("MALMOERRORVERSIONMISMATCH (Got " + platformVersion + ", expected " + ourVersion + " - check your path for old versions of MalmoPython/MalmoJava/Malmo.lib etc)", dos);
                         }
                         else
                         {
-                            // We have a MissionInit, but it doesn't match theirs, or we're not the server:
-                            reply = "MALMOBUSY";
-                            keepProcessing = false; // No further action required.
-                        }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() == null && missionInit.getClientRole() == 0)
-                    {
-                        IState currentState = getStableState();
-                        if (currentState != null && currentState.equals(ClientState.DORMANT))
-                        {
-                            reply = "MALMOOK";
-                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                        }
-                        else
-                        {
-                            // MissionInit passed to us, no server details, and role 0 specified -
-                            // this means WE should become the server, and launch this mission.
-                            if( currentMissionInit() != null && missionInit.getMission().getAgentSection().size() > 1
-                                && currentMissionInit().getClientRole() == 0
-                                && currentMissionInit().getExperimentUID().equals(missionInit.getExperimentUID())
-                                && areMissionsEqual(currentMissionInit().getMission(), missionInit.getMission()) )
+                            // MissionInit passed to us - this is a request to launch this mission. Can we?
+                            IState currentState = getStableState();
+                            if (currentState != null && currentState.equals(ClientState.DORMANT) && isAvailable(missionInit.getExperimentUID()))
                             {
-                                // Give a warning because this is a dangerous situation - two multi-agent missions have been
-                                // launched with identical mission specifications and without the users ensuring that each
-                                // has a unique experiment ID to identify it. The second agent from researcher B might join
-                                // a mission with the first agent of researcher A, ruining their experiments in hard-to-notice
-                                // ways.
-                                reply = "MALMOBUSY (Warning: Identical mission and experiment ID as currently running - danger that your agents will join the wrong mission.)";
-                                keepProcessing = false; // Ignore the message.
+                                reply("MALMOOK", dos);
+                                keepProcessing = true; // State machine will now process this MissionInit and start the mission.
                             }
-                            else {
+                            else
+                            {
                                 // We're busy - we can't run this mission.
-                                reply = "MALMOBUSY";
-                                keepProcessing = false; // Ignore the message.
+                                reply("MALMOBUSY", dos);
                             }
                         }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() != 0)
-                    {
-                        // We have server details filled in - this is a equest for US to run the mission.
-                        IState currentState = getStableState();
-                        if (currentState != null && currentState.equals(ClientState.DORMANT))
-                        {
-                            reply = "MALMOOK";
-                            keepProcessing = true; // State machine will now process this MissionInit and start the mission.
-                        }
-                        else
-                        {
-                            // We're busy - we can't run this mission.
-                            reply = "MALMOBUSY";
-                            keepProcessing = false; // Ignore the message.
-                        }
-                    }
-                    else if (missionInit.getMinecraftServerConnection() != null && missionInit.getClientRole() == 0)
-                    {
-                        // Error condition - currently makes no sense to fill in the server details for role 0.
-                        reply = "MALMOERRORServer details provided for server role";
-                        keepProcessing = false; // Ditch this message.
-                    }
-                }
-
-                if (reply != null)
-                {
-                    System.out.println("REPLYING WITH: " + reply);
-                    try
-                    {
-                        dos.writeInt(reply.length());
-                        dos.writeBytes(reply);
-                    }
-                    catch (IOException e)
-                    {
                     }
                 }
                 return keepProcessing;
@@ -521,6 +582,19 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_ABORT);
         }
 
+        protected boolean pingAgent(boolean abortIfFailed)
+        {
+            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+            if (!sentOkay)
+            {
+                // It's not available - bail.
+                ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
+                if (abortIfFailed)
+                    episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+            }
+            return sentOkay;
+        }
+
         @Override
         public void onMessage(MalmoMessageType messageType, Map<String, String> data)
         {
@@ -533,9 +607,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Save the error message, if there is one:
                     if (data != null)
                     {
-                        String err = data.get("message");
-                        if (err != null)
-                            ClientStateMachine.this.saveErrorDetails(err);
+                        String message = data.get("message");
+                        String user = data.get("username");
+                        String error = data.get("error");
+                        String report = "";
+                        if (user != null)
+                            report += "From " + user + ": ";
+                        if (error != null)
+                            report += error;
+                        if (message != null)
+                            report += " (" + message + ")";
+                        ClientStateMachine.this.saveErrorDetails(report);
                     }
                     onAbort(data);
                 }
@@ -600,10 +682,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     e.printStackTrace();
                 }
                 ScreenHelper.update(MalmoMod.instance.getModPermanentConfigFile());
-            }
-            else if (ev.configID.equals(MalmoMod.AUTHENTICATION_CONFIGS))
-            {
-                AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
             }
         }
     }
@@ -685,6 +763,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionInit.getClientAgentConnection().setAgentIPAddress(comip.ipAddress);
                 System.out.println("Mission received: " + missionInit.getMission().getAbout().getSummary());
                 csMachine.currentMissionInit = missionInit;
+                ClientStateMachine.this.createMissionControlSocket();
                 // Move on to next state:
                 episodeHasCompleted(ClientState.CREATING_HANDLERS);
             }
@@ -710,6 +789,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute() throws Exception
         {
+            // First, clear our reservation state, if we were reserved:
+            ClientStateMachine.this.cancelReservation();
+
             // Now try creating the handlers:
             try
             {
@@ -747,6 +829,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
+            // Set the agent's name as the current username:
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            String agentName = agents.get(currentMissionInit().getClientRole()).getName();
+            AuthenticationHelper.setPlayerName(Minecraft.getMinecraft().getSession(), agentName);
+
             // Handlers and poller created successfully; proceed to next stage of loading.
             // We will either need to connect to an existing server, or to start
             // a new integrated server ourselves, depending on our role.
@@ -772,24 +859,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     {
         String agentName;
         int ticksUntilNextPing = 0;
-        TCPSocketHelper sender;
         boolean waitingForChunk = false;
 
         protected WaitingForServerEpisode(ClientStateMachine machine)
         {
             super(machine);
             MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_ALLPLAYERSJOINED);
-        }
-
-        private TCPSocketHelper sender()
-        {
-            if (this.sender == null)
-            {
-                // Set up a TCP connection to the agent:
-                ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
-                this.sender = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentMissionControlPort());
-            }
-            return this.sender;
         }
 
         private boolean isChunkReady()
@@ -802,8 +877,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (as.getAgentStart() != null && as.getAgentStart().getPlacement() != null)
             {
                 PosAndDirection pos = as.getAgentStart().getPlacement();
-                int x = MathHelper.floor_double(pos.getX().doubleValue() / 16.0D);
-                int z = MathHelper.floor_double(pos.getZ().doubleValue() / 16.0D);
+                int x = MathHelper.floor_double(pos.getX().doubleValue()) >> 4;
+                int z = MathHelper.floor_double(pos.getZ().doubleValue()) >> 4;
                 // Now get the chunk we should be starting in:
                 IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
                 EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
@@ -835,42 +910,34 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
+            if (ticksUntilNextPing == 0)
+            {
+                // Tell the server what our agent name is.
+                // We do this repeatedly, because the server might not yet be listening.
+                if (Minecraft.getMinecraft().thePlayer != null && !this.waitingForChunk)
+                {
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    map.put("agentname", agentName);
+                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    System.out.println("***Telling server we are ready - " + agentName);
+                    MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
+                }
+
+                // We also ping our agent, just to check it is still available:
+                pingAgent(true);    // Will abort to an error state if client unavailable.
+
+                ticksUntilNextPing = 10; // Try again in ten ticks.
+            }
+            else
+            {
+                ticksUntilNextPing--;
+            }
+
             if (this.waitingForChunk)
             {
                 // The server is ready, we're just waiting for our chunk to appear.
                 if (isChunkReady())
                     proceed();
-            }
-            else
-            {
-                if (ticksUntilNextPing == 0)
-                {
-                    // Tell the server what our agent name is.
-                    // We do this repeatedly, because the server might not yet be listening.
-                    if (Minecraft.getMinecraft().thePlayer != null)
-                    {
-                        HashMap<String, String> map = new HashMap<String, String>();
-                        map.put("agentname", agentName);
-                        map.put("username", Minecraft.getMinecraft().thePlayer.getName());
-                        System.out.println("***Telling server we are ready - " + agentName);
-                        MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
-                    }
-    
-                    // We also ping our agent, just to check it is still available:
-                    boolean sentOkay = sender().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
-                    if (!sentOkay)
-                    {
-                        // It's not available - bail.
-                        ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Lost contact with agent - aborting mission", TextCategory.TXT_CLIENT_WARNING, 10000);
-                        episodeHasCompletedWithErrors(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
-                    }
-    
-                    ticksUntilNextPing = 10; // Try again in ten ticks.
-                }
-                else
-                {
-                    ticksUntilNextPing--;
-                }
             }
 
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
@@ -907,7 +974,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Do we need to open to LAN?
                 if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
                 {
-                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, false); // Set to true to stop spam kicks?
+                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
@@ -922,9 +989,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
                 System.out.println("We should be joining " + targetIP);
-                // Always connect, even if we're already on the same server -
-                // otherwise things get out of step.
-                net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+                if (Minecraft.getMinecraft().getCurrentServerData() == null || !Minecraft.getMinecraft().getCurrentServerData().serverIP.equals(targetIP))
+                {
+                    net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+                }
             }
         }
 
@@ -971,7 +1039,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 xml = SchemaHelper.serialiseObject(currentMissionInit(), MissionInit.class);
-                sentOkay = this.sender().sendTCPString(xml);
+                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml);
             }
             catch (JAXBException e)
             {
@@ -996,8 +1064,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_ALLPLAYERSJOINED);
-            if (this.sender != null)
-                this.sender.close();
         }
     }
 
@@ -1295,6 +1361,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if (serverHandlers.worldGenerator.createWorld(currentMissionInit()))
                     {
                         this.worldCreated = true;
+                        if (Minecraft.getMinecraft().getIntegratedServer() != null)
+                            Minecraft.getMinecraft().getIntegratedServer().setOnlineMode(false);
                     }
                     else
                     {
@@ -1383,6 +1451,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private String quitCode = "";
         private TCPSocketHelper observationSocket = null;
         private TCPSocketHelper rewardSocket = null;
+        private long lastPingSent = 0;
+        private long pingFrequencyMs = 1000;
 
         protected void onMissionStarted()
         {
@@ -1465,16 +1535,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }
 
         @Override
-        public void onPlayerDies(LivingDeathEvent event)
-        {
-            if (event.entity instanceof EntityPlayerMP)
-            {
-                this.playerDied = true;
-                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
-            }
-        }
-
-        @Override
         public void onClientTick(ClientTickEvent event)
         {
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
@@ -1487,6 +1547,25 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Connection has been lost.
                 onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+            }
+
+            // Check we are still in touch with the agent:
+            if (System.currentTimeMillis() > this.lastPingSent + this.pingFrequencyMs)
+            {
+                this.lastPingSent = System.currentTimeMillis();
+                if (!pingAgent(false))
+                {
+                    System.out.println("Error - agent is not responding to pings.");
+                    this.wantsToQuit = true;
+                    this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
+                }
+            }
+
+            // Check here to see whether the player has died or not:
+            if (!this.playerDied && Minecraft.getMinecraft().thePlayer.isDead)
+            {
+                this.playerDied = true;
+                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
             }
 
             // Although we only arrive in this episode once the server has determined that all clients are ready to go,
@@ -1764,10 +1843,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void sendMissionEnded(MissionEnded missionEnded)
         {
             // Send a MissionEnded message to the agent to inform it that the mission has ended.
-            ClientAgentConnection conn = currentMissionInit().getClientAgentConnection();
-            String address = conn.getAgentIPAddress();
-            int port = conn.getAgentMissionControlPort();
-
             // Create a string XML representation:
             String missionEndedString = null;
             try
@@ -1781,10 +1856,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             boolean sentOkay = false;
             if (missionEndedString != null)
             {
-                System.out.println(String.format("Sending mission ended message to %s:%d.", address, port));
-                TCPSocketHelper sender = new TCPSocketHelper(address, port);
+                TCPSocketHelper sender = ClientStateMachine.this.getMissionControlSocket();
+                System.out.println(String.format("Sending mission ended message to %s:%d.", sender.address, sender.port));
                 sentOkay = sender.sendTCPString(missionEndedString);
-                sender.close();
             }
 
             if (!sentOkay)
