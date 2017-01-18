@@ -1553,7 +1553,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (System.currentTimeMillis() > this.lastPingSent + this.pingFrequencyMs)
             {
                 this.lastPingSent = System.currentTimeMillis();
-                if (!pingAgent(false))
+                // Ping the agent - if serverHasFiredStartingPistol is true, we don't need to abort -
+                // we can simply set the wantsToQuit flag and end the mission cleanly.
+                // If serverHasFiredStartingPistol is false, then the mission isn't yet running, and
+                // setting the quit flag will do nothing - so let the pingAgent method abort for us.
+                if (!pingAgent(!this.serverHasFiredStartingPistol))
                 {
                     System.out.println("Error - agent is not responding to pings.");
                     this.wantsToQuit = true;
