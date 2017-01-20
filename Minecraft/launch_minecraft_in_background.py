@@ -33,22 +33,25 @@ def PortHasListener( port ):
     result = sock.connect_ex( ('127.0.0.1',port) )
     sock.close()
     return result == 0
-    
-for port in [ 10000, 10001 ]:
 
+ports = [int(port_arg) for port_arg in sys.argv[1:]]
+if len(ports) == 0:
+    ports = [10000] # Default
+
+for port in ports:
     if PortHasListener( port ):
         print 'Something is listening on port',port,'- will assume Minecraft is running.'
         continue
         
     print 'Nothing is listening on port',port,'- will attempt to launch Minecraft from a new terminal.'
     if os.name == 'nt':
-        os.startfile("launchClient.bat")
+        subprocess.Popen(['launchClient.bat', '-port', str(port)])
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh'])
+        subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh', '-port', str(port)])
     elif platform.linux_distribution()[0] == 'Fedora':
-        subprocess.Popen( "gnome-terminal -e ./launchClient.sh", close_fds=True, shell=True )
+        subprocess.Popen( "gnome-terminal -e ./launchClient.sh", "-port", str(port), close_fds=True, shell=True )
     else:
-        subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", close_fds=True, shell=True )
+        subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", "-port", str(port), close_fds=True, shell=True )
 
     print 'Giving Minecraft some time to launch... '
     launched = False
