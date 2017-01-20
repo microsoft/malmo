@@ -45,7 +45,7 @@ for port in ports:
         
     print 'Nothing is listening on port',port,'- will attempt to launch Minecraft from a new terminal.'
     if os.name == 'nt':
-        subprocess.Popen(['launchClient.bat', '-port', str(port)])
+        subprocess.Popen(['launchClient.bat', '-port', str(port)], creationflags=subprocess.CREATE_NEW_CONSOLE, close_fds=True)
     elif sys.platform == 'darwin':
         subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh', '-port', str(port)])
     elif platform.linux_distribution()[0] == 'Fedora':

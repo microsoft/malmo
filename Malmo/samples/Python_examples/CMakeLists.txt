@@ -83,7 +83,7 @@ if( ALE_FOUND )
   install( FILES ${ALESOURCES} DESTINATION Python_Examples )
 endif()
 
-function addTestsFromFiles( SOURCES_TO_TEST )
+function(addTestsFromFiles SOURCES_TO_TEST)
     # add an integration test for each sample
     foreach( file ${SOURCES_TO_TEST} )
 
@@ -106,13 +106,13 @@ function addTestsFromFiles( SOURCES_TO_TEST )
 endfunction(addTestsFromFiles)
 
 # First run the single-agent tests:
-addTestsFromFiles( ${SOURCES} )
+addTestsFromFiles( "${SOURCES}" )
 
 # Now run the multi-agent tests - which will require launching more copies of Minecraft
 add_test(
   NAME PreMultiAgentIntegrationTests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Minecraft
-  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001 10002 10003 10004
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001 10002 10003
 )
 set_tests_properties( PreMultiAgentIntegrationTests PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
-addTestsFromFiles( ${MULTI_AGENT_TESTS} )
+addTestsFromFiles( "${MULTI_AGENT_TESTS}" )
