@@ -13,7 +13,7 @@
 
 ## Notes: ##
 
-These instructions were tested on MacOSX 10.11 (El Capitan). 
+These instructions were tested on MacOSX 10.12. 
 
 On MacOSX we currently only support the system python, so please use `/usr/bin/python` for running agents, if it is not already the default. 
 
