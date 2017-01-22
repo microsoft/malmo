@@ -22,6 +22,7 @@ These instructions were tested on MacOSX 10.12 (El Capitan).
   brew link --overwrite xsd
   ```
 Installing some of these dependencies may create linking errors. Follow the instructions suggested by the error messages.
+You may also need to follow the first three steps found here to update Java 3D to version 1.5: https://blogs.oracle.com/mart/entry/installing_java3d_1_5_on
 
 3. Clone and build Project Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`  
