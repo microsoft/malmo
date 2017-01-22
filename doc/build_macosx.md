@@ -1,9 +1,9 @@
 
 ## Build on MacOSX ##
 
-These instructions were tested on MacOSX 10.11.1 (El Capitan).
+These instructions were tested on MacOSX 10.12 (El Capitan).
 
-1. Install Homebrew: http://www.howtogeek.com/211541/homebrew-for-os-x-easily-installs-desktop-apps-and-terminal-utilities/
+1. Install Homebrew: https://coolestguidesontheplanet.com/installing-homebrew-on-os-x-el-capitan-10-11-package-manager-for-unix-apps/
 
 2. Install dependencies:
 
@@ -12,16 +12,20 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
   brew upgrade
   brew install boost --with-python
   brew install ffmpeg swig boost-python xerces-c doxygen git cmake
-  sudo brew cask install java
+  brew cask install java
+  brew install cmake
+  brew install doxygen
+  brew install swig
   brew install xsd
   brew unlink xsd
   brew install mono
   brew link --overwrite xsd
   ```
+Installing some of these dependencies may create linking errors. Follow the instructions suggested by the error messages.
 
 3. Clone and build Project Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`  
-    2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
+    2. `wget --no-check-certificate https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
     3. `cd MalmoPlatform`
     4. `mkdir build`
