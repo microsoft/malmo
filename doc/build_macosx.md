@@ -1,7 +1,7 @@
 
 ## Build on MacOSX ##
 
-These instructions were tested on MacOSX 10.12 (El Capitan).
+These instructions were tested on MacOSX 10.12 (Sierra).
 
 1. Install Homebrew: https://coolestguidesontheplanet.com/installing-homebrew-on-os-x-el-capitan-10-11-package-manager-for-unix-apps/
 
