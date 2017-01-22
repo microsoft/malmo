@@ -13,6 +13,7 @@ These instructions were tested on MacOSX 10.12 (Sierra).
   brew install boost --with-python
   brew install ffmpeg swig boost-python xerces-c doxygen git cmake
   brew cask install java
+  brew install wget --with-libressl
   brew install cmake
   brew install doxygen
   brew install swig
