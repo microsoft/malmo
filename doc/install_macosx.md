@@ -1,3 +1,5 @@
+These instructions seem to cause a lot of errors with many users, especially on OSX 10.12. It is recomended that you [build Malmo yourself](build_macosx.md). 
+
 ## Installing dependencies for MacOSX ##
 
 1. Install Homebrew: https://coolestguidesontheplanet.com/installing-homebrew-on-os-x-el-capitan-10-11-package-manager-for-unix-apps/
@@ -13,7 +15,7 @@
 
 ## Notes: ##
 
-These instructions were tested on MacOSX 10.12. 
+These instructions were tested on MacOSX 10.11. 
 
 On MacOSX we currently only support the system python, so please use `/usr/bin/python` for running agents, if it is not already the default. 
 

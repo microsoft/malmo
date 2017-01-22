@@ -32,8 +32,10 @@ You may also need to follow the first three steps found here to update Java 3D t
     4. `mkdir build`
     5. `cd build`
     6. `cmake ..`
-    7. `make install`
-    8. Then you can run the samples that are installed ready-to-run in e.g. `install/Python_Examples`
+    7. `make install` (this could take awhile)
+    8. `cd ../Minecract`
+    9. `./launchClient.sh`
+    8. Then you can run the samples from another terminal window that are installed ready-to-run in e.g. `install/Python_Examples`
 
 4. Run the tests:
     1. `cd MalmoPlatform/build`
