@@ -257,7 +257,7 @@ def processFrame(width, height, pixels, agent, mission_count):
         failed_frame_count += 1
     return test_passed
 
-def createMissionXML(num_agents, width, height):
+def createMissionXML(num_agents, width, height, reset):
     # Set up the Mission XML.
     # First, the server section.
     # Weather MUST be set to clear, since the dark thundery sky plays havoc with the image thresholding.
@@ -274,7 +274,7 @@ def createMissionXML(num_agents, width, height):
           <Weather>clear</Weather>
         </ServerInitialConditions>
         <ServerHandlers>
-          <FlatWorldGenerator forceReset="false" generatorString="3;2*4,225*22;1;" seed=""/>
+          <FlatWorldGenerator forceReset="'''+reset+'''" generatorString="3;2*4,225*22;1;" seed=""/>
           <ServerQuitFromTimeUp description="" timeLimitMs="10000"/>
         </ServerHandlers>
       </ServerSection>
@@ -316,13 +316,12 @@ for x in xrange(10000, 10000 + NUM_AGENTS):
 
 failed_frames = [0 for x in xrange(NUM_AGENTS)] # keep a count of the frames that failed for each agent.
 
-# Create the mission:
-my_mission = MalmoPython.MissionSpec(createMissionXML(NUM_AGENTS, WIDTH, HEIGHT),True)
-
 # If we're running as part of the integration tests, just do ten iterations. Otherwise keep going.
 missions_to_run = 10 if INTEGRATION_TEST_MODE else 30000
 
 for mission_no in xrange(1,missions_to_run+1):
+    # Create the mission. Force reset for the first mission, to ensure a clean world. No need for subsequent missions.
+    my_mission = MalmoPython.MissionSpec(createMissionXML(NUM_AGENTS, WIDTH, HEIGHT, "true" if mission_no == 1 else "false"), True)
     print "Running mission #" + str(mission_no)
     # Generate an experiment ID for this mission.
     # This is used to make sure the right clients join the right servers -
