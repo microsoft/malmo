@@ -35,9 +35,36 @@ from operator import add
 EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, colour, variation, quantity')
 EntityInfo.__new__.__defaults__ = (0, 0, 0, "", "", "", 1)
 
-NUM_AGENTS = 5  # Will be NUM_AGENTS robots running around, plus one static observer.
-NUM_MOBS = 10
-NUM_ITEMS = 10
+# Create one agent host for parsing:
+agent_hosts = [MalmoPython.AgentHost()]
+
+# Parse the command-line options:
+agent_hosts[0].addOptionalFlag( "debug,d", "Display debug information.")
+agent_hosts[0].addOptionalIntArgument("agents,n", "Number of agents to use, including observer.", 4)
+
+try:
+    agent_hosts[0].parse( sys.argv )
+except RuntimeError as e:
+    print 'ERROR:',e
+    print agent_hosts[0].getUsage()
+    exit(1)
+if agent_hosts[0].receivedArgument("help"):
+    print agent_hosts[0].getUsage()
+    exit(0)
+
+DEBUG = agent_hosts[0].receivedArgument("debug")
+INTEGRATION_TEST_MODE = agent_hosts[0].receivedArgument("test")
+agents_requested = agent_hosts[0].getIntArgument("agents")
+NUM_AGENTS = max(1, agents_requested - 1) # Will be NUM_AGENTS robots running around, plus one static observer.
+NUM_MOBS = NUM_AGENTS * 2
+NUM_ITEMS = NUM_AGENTS * 2
+
+# Create the rest of the agent hosts - one for each robot, plus one to give a bird's-eye view:
+agent_hosts += [MalmoPython.AgentHost() for x in xrange(1, NUM_AGENTS + 1) ]
+
+# Set up debug output:
+for ah in agent_hosts:
+    ah.setDebugOutput(DEBUG)    # Turn client-pool connection messages on/off.
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
@@ -133,101 +160,82 @@ def drawItems():
         xml += '<DrawItem x="' + x + '" y="224" z="' + z + '" type="apple"/>'
     return xml
 
-# Create some agent hosts - one for each robot, plus one to give a bird's-eye view:
-agent_hosts = [MalmoPython.AgentHost() for x in range(NUM_AGENTS + 1) ]
+def getXML(reset):
+    # Set up the Mission XML:
+    xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+    <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <About>
+        <Summary/>
+      </About>
+      <ModSettings>
+        <MsPerTick>50</MsPerTick>
+      </ModSettings>
+      <ServerSection>
+        <ServerInitialConditions>
+          <Time>
+            <StartTime>13000</StartTime>
+          </Time>
+        </ServerInitialConditions>
+        <ServerHandlers>
+          <FlatWorldGenerator forceReset="'''+reset+'''" generatorString="3;2*4,225*22;1;" seed=""/>
+          <DrawingDecorator>
+            <DrawCuboid x1="-20" y1="200" z1="-20" x2="20" y2="200" z2="20" type="glowstone"/>
+            <DrawCuboid x1="-19" y1="200" z1="-19" x2="19" y2="227" z2="19" type="stained_glass" colour="RED"/>
+            <DrawCuboid x1="-18" y1="202" z1="-18" x2="18" y2="247" z2="18" type="air"/>
+            <DrawBlock x="0" y="226" z="0" type="fence"/>''' + drawMobs() + drawItems() + '''
+          </DrawingDecorator>
+          <ServerQuitFromTimeUp description="" timeLimitMs="50000"/>
+        </ServerHandlers>
+      </ServerSection>
+    '''
 
-# Parse the command-line options:
-agent_hosts[0].addOptionalFlag( "debug,d", "Display debug information.")
-try:
-    agent_hosts[0].parse( sys.argv )
-except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_hosts[0].getUsage()
-    exit(1)
-if agent_hosts[0].receivedArgument("help"):
-    print agent_hosts[0].getUsage()
-    exit(0)
+    # Add an agent section for each robot. Robots run in survival mode.
+    # Give each one a wooden pickaxe for protection...
 
-DEBUG = agent_hosts[0].receivedArgument("debug")
-
-for ah in agent_hosts:
-    ah.setDebugOutput(DEBUG)    # Turn client-pool connection messages on/off.
-
-# Set up the Mission XML:
-xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <About>
-    <Summary/>
-  </About>
-  <ModSettings>
-    <MsPerTick>50</MsPerTick>
-  </ModSettings>
-  <ServerSection>
-    <ServerInitialConditions>
-      <Time>
-        <StartTime>13000</StartTime>
-      </Time>
-    </ServerInitialConditions>
-    <ServerHandlers>
-      <FlatWorldGenerator forceReset="false" generatorString="3;2*4,225*22;1;" seed=""/>
-      <DrawingDecorator>
-        <DrawCuboid x1="-20" y1="200" z1="-20" x2="20" y2="200" z2="20" type="glowstone"/>
-        <DrawCuboid x1="-19" y1="200" z1="-19" x2="19" y2="227" z2="19" type="stained_glass" colour="RED"/>
-        <DrawCuboid x1="-18" y1="202" z1="-18" x2="18" y2="247" z2="18" type="air"/>
-        <DrawBlock x="0" y="226" z="0" type="fence"/>''' + drawMobs() + drawItems() + '''
-      </DrawingDecorator>
-      <ServerQuitFromTimeUp description="" timeLimitMs="50000"/>
-    </ServerHandlers>
-  </ServerSection>
-'''
-
-# Add an agent section for each robot. Robots run in survival mode.
-# Give each one a wooden pickaxe for protection...
-
-for i in xrange(NUM_AGENTS):
-  xml += '''<AgentSection mode="Survival">
-    <Name>''' + agentName(i) + '''</Name>
-    <AgentStart>
-      <Placement x="''' + str(random.randint(-17,17)) + '''" y="204" z="''' + str(random.randint(-17,17)) + '''"/>
-      <Inventory>
-        <InventoryObject type="wooden_pickaxe" slot="0" quantity="1"/>
-      </Inventory>
-    </AgentStart>
-    <AgentHandlers>
-      <ContinuousMovementCommands turnSpeedDegs="360"/>
-      <ChatCommands/>
-      <MissionQuitCommands/>
-      <RewardForCollectingItem>
-        <Item type="apple" reward="1"/>
-      </RewardForCollectingItem>
-      <ObservationFromNearbyEntities>
-        <Range name="entities" xrange="40" yrange="2" zrange="40"/>
-      </ObservationFromNearbyEntities>
-      <ObservationFromRay/>
-      <ObservationFromFullStats/>
-    </AgentHandlers>
-  </AgentSection>'''
+    for i in xrange(NUM_AGENTS):
+      xml += '''<AgentSection mode="Survival">
+        <Name>''' + agentName(i) + '''</Name>
+        <AgentStart>
+          <Placement x="''' + str(random.randint(-17,17)) + '''" y="204" z="''' + str(random.randint(-17,17)) + '''"/>
+          <Inventory>
+            <InventoryObject type="wooden_pickaxe" slot="0" quantity="1"/>
+          </Inventory>
+        </AgentStart>
+        <AgentHandlers>
+          <ContinuousMovementCommands turnSpeedDegs="360"/>
+          <ChatCommands/>
+          <MissionQuitCommands/>
+          <RewardForCollectingItem>
+            <Item type="apple" reward="1"/>
+          </RewardForCollectingItem>
+          <ObservationFromNearbyEntities>
+            <Range name="entities" xrange="40" yrange="2" zrange="40"/>
+          </ObservationFromNearbyEntities>
+          <ObservationFromRay/>
+          <ObservationFromFullStats/>
+        </AgentHandlers>
+      </AgentSection>'''
 
 
-# Add a section for the observer. Observer runs in creative mode.
+    # Add a section for the observer. Observer runs in creative mode.
 
-xml += '''<AgentSection mode="Creative">
-    <Name>TheWatcher</Name>
-    <AgentStart>
-      <Placement x="0.5" y="228" z="0.5" pitch="90"/>
-    </AgentStart>
-    <AgentHandlers>
-      <ContinuousMovementCommands turnSpeedDegs="360"/>
-      <MissionQuitCommands/>
-      <VideoProducer>
-        <Width>640</Width>
-        <Height>640</Height>
-      </VideoProducer>
-    </AgentHandlers>
-  </AgentSection>'''
+    xml += '''<AgentSection mode="Creative">
+        <Name>TheWatcher</Name>
+        <AgentStart>
+          <Placement x="0.5" y="228" z="0.5" pitch="90"/>
+        </AgentStart>
+        <AgentHandlers>
+          <ContinuousMovementCommands turnSpeedDegs="360"/>
+          <MissionQuitCommands/>
+          <VideoProducer>
+            <Width>640</Width>
+            <Height>640</Height>
+          </VideoProducer>
+        </AgentHandlers>
+      </AgentSection>'''
 
-xml += '</Mission>'
-my_mission = MalmoPython.MissionSpec(xml,True)
+    xml += '</Mission>'
+    return xml
 
 # Set up a client pool.
 # IMPORTANT: If ANY of the clients will be on a different machine, then you MUST
@@ -246,8 +254,12 @@ apple_scores = [0 for x in range(NUM_AGENTS)]       # Collecting apples is good.
 zombie_kill_scores = [0 for x in range(NUM_AGENTS)] # Good! Help rescue humanity from zombie-kind.
 player_kill_scores = [0 for x in range(NUM_AGENTS)] # Bad! Don't kill the other players!
 
-for mission_no in xrange(1,30000):
+num_missions = 5 if INTEGRATION_TEST_MODE else 30000
+for mission_no in xrange(1, num_missions+1):
     print "Running mission #" + str(mission_no)
+    # Create mission xml - use forcereset if this is the first mission.
+    my_mission = MalmoPython.MissionSpec(getXML("true" if mission_no == 1 else "false"), True)
+
     # Generate an experiment ID for this mission.
     # This is used to make sure the right clients join the right servers -
     # if the experiment IDs don't match, the startMission request will be rejected.
