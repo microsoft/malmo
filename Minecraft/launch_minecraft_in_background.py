@@ -50,7 +50,7 @@ for port in ports:
     elif sys.platform == 'darwin':
         subprocess.Popen(['open', '-a', 'Terminal.app ' + minecraft_path + '/launchClient.sh', '-port', str(port)])
     elif platform.linux_distribution()[0] == 'Fedora':
-        subprocess.Popen( "gnome-terminal -e " + minecraft_path + "/launchClient.sh", "-port", str(port), close_fds=True, shell=True )
+        subprocess.Popen( "gnome-terminal -e " + minecraft_path + "/launchClient.sh", "-port", str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
     else:
         subprocess.Popen( minecraft_path + "/launchClient.sh -port " + str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
     print 'Giving Minecraft some time to launch... '
