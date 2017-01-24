@@ -27,6 +27,7 @@ import sys
 import time
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+minecraft_path = os.path.dirname(os.path.abspath(__file__))
 
 def PortHasListener( port ):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,14 +46,13 @@ for port in ports:
         
     print 'Nothing is listening on port',port,'- will attempt to launch Minecraft from a new terminal.'
     if os.name == 'nt':
-        subprocess.Popen(['launchClient.bat', '-port', str(port)], creationflags=subprocess.CREATE_NEW_CONSOLE, close_fds=True)
+        subprocess.Popen([minecraft_path + '/launchClient.bat', '-port', str(port)], creationflags=subprocess.CREATE_NEW_CONSOLE, close_fds=True)
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', '-a', 'Terminal.app', 'launchClient.sh', '-port', str(port)])
+        subprocess.Popen(['open', '-a', 'Terminal.app ' + minecraft_path + '/launchClient.sh', '-port', str(port)])
     elif platform.linux_distribution()[0] == 'Fedora':
-        subprocess.Popen( "gnome-terminal -e ./launchClient.sh", "-port", str(port), close_fds=True, shell=True )
+        subprocess.Popen( "gnome-terminal -e " + minecraft_path + "/launchClient.sh", "-port", str(port), close_fds=True, shell=True )
     else:
-        subprocess.Popen( "x-terminal-emulator -e ./launchClient.sh", "-port", str(port), close_fds=True, shell=True )
-
+        subprocess.Popen( minecraft_path + "/launchClient.sh -port " + str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
     print 'Giving Minecraft some time to launch... '
     launched = False
     for i in xrange( 100 ):
