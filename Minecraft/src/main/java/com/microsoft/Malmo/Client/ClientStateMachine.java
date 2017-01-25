@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,7 +41,7 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.Entity;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -50,7 +51,6 @@ import net.minecraft.world.WorldSettings.GameType;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -1553,7 +1553,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (System.currentTimeMillis() > this.lastPingSent + this.pingFrequencyMs)
             {
                 this.lastPingSent = System.currentTimeMillis();
-                if (!pingAgent(false))
+                // Ping the agent - if serverHasFiredStartingPistol is true, we don't need to abort -
+                // we can simply set the wantsToQuit flag and end the mission cleanly.
+                // If serverHasFiredStartingPistol is false, then the mission isn't yet running, and
+                // setting the quit flag will do nothing - so let the pingAgent method abort for us.
+                if (!pingAgent(!this.serverHasFiredStartingPistol))
                 {
                     System.out.println("Error - agent is not responding to pings.");
                     this.wantsToQuit = true;
@@ -1766,6 +1770,33 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             else if (messageType == MalmoMessageType.SERVER_GO)
             {
+                // First, force all entities to get re-added to their chunks, clearing out any old entities in the process.
+                // We need to do this because the process of teleporting all agents to their start positions, combined
+                // with setting them to/from spectator mode, leaves the client chunk entity lists etc in a parlous state.
+                List lel = Minecraft.getMinecraft().theWorld.loadedEntityList;
+                for (int i = 0; i < lel.size(); i++)
+                {
+                    Entity entity = (Entity)lel.get(i);
+                    Chunk chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(entity.chunkCoordX, entity.chunkCoordZ);
+                    List<Entity> entitiesToRemove = new ArrayList<Entity>();
+                    for (int k = 0; k < chunk.getEntityLists().length; k++)
+                    {
+                        Iterator iterator = chunk.getEntityLists()[k].iterator();
+                        while (iterator.hasNext())
+                        {
+                            Entity chunkent = (Entity)iterator.next();
+                            if (chunkent.getEntityId() == entity.getEntityId())
+                            {
+                                entitiesToRemove.add(chunkent);
+                            }
+                        }
+                    }
+                    for (Entity removeEnt : entitiesToRemove)
+                    {
+                        chunk.removeEntity(removeEnt);
+                    }
+                    entity.addedToChunk = false;    // Will force it to get re-added to the chunk list.
+                }
                 this.serverHasFiredStartingPistol = true; // GO GO GO!
             }
         }

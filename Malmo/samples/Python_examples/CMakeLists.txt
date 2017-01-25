@@ -65,36 +65,54 @@ set( ALESOURCES
   ALE_HAC.py
 )
 
+set( MULTI_AGENT_TESTS
+    two_diggers.py
+    team_reward_test.py
+    multi_agent_test.py
+    agent_visibility_test.py
+)
+
 set( OTHER_FILES
   tutorial_6.xml
   Tutorial.pdf
-  two_diggers.py
-  team_reward_test.py
-  multi_agent_test.py
 )
 
-install( FILES ${SOURCES} ${OTHER_FILES} DESTINATION Python_Examples )
+install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )
 
 if( ALE_FOUND )
   install( FILES ${ALESOURCES} DESTINATION Python_Examples )
 endif()
 
-# add an integration test for each sample
-foreach( file ${SOURCES} )
+function(addTestsFromFiles SOURCES_TO_TEST)
+    # add an integration test for each sample
+    foreach( file ${SOURCES_TO_TEST} )
 
-  get_filename_component( test_name "${file}" NAME_WE )
-  set( test_name "PythonIntegrationTests_${test_name}" )
-  
-  add_test(NAME ${test_name}_help
-    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
-  )
-  set_tests_properties( ${test_name}_help PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
+      get_filename_component( test_name "${file}" NAME_WE )
+      set( test_name "PythonIntegrationTests_${test_name}" )
+      
+      add_test(NAME ${test_name}_help
+        WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --help
+      )
+      set_tests_properties( ${test_name}_help PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
 
-  add_test(NAME ${test_name}
-    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test
-  )
-  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
+      add_test(NAME ${test_name}
+        WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test
+      )
+      set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
 
-endforeach()
+    endforeach()
+endfunction(addTestsFromFiles)
+
+# First run the single-agent tests:
+addTestsFromFiles( "${SOURCES}" )
+
+# Now run the multi-agent tests - which will require launching more copies of Minecraft
+add_test(
+  NAME PreMultiAgentIntegrationTests
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Minecraft
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001 10002 10003
+)
+set_tests_properties( PreMultiAgentIntegrationTests PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
+addTestsFromFiles( "${MULTI_AGENT_TESTS}" )
