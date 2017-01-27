@@ -9,6 +9,7 @@
            version="0.19">
 
   <xs:include schemaLocation="Types.xsd" />
+  <xs:include schemaLocation="Mission.xsd" /> 
 
   <xs:complexType name="Pos">
     <xs:annotation>
@@ -1121,7 +1122,7 @@
     <xs:annotation>
       <xs:documentation>
         A command for ending the mission, example:
-      
+
         "{{{quit}}}" - terminates the current mission.
       </xs:documentation>
     </xs:annotation>
@@ -1338,6 +1339,24 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="TurnBasedCommands">
+    <xs:annotation>
+      <xs:documentation>
+        Er?
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:group ref="TurnBasedApplicableCommandHandlers" />
+      <xs:attribute name="requestedPosition">
+        <xs:simpleType>
+          <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
   <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
   <xs:element name="ObservationFromRecentCommands">
@@ -1347,6 +1366,15 @@
 
         Note that the commands returned might not yet have taken effect, depending on the command and the way in which Minecraft responds to it -
         but they will have been processed by the command handling chain.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromTurnScheduler">
+    <xs:annotation>
+      <xs:documentation>
+        Er...?
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>

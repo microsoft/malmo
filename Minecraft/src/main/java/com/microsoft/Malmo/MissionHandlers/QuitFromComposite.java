@@ -20,7 +20,9 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -119,6 +121,16 @@ String quitCode = "";
     {
         for (IWantToQuit quitter : this.quitters)
             quitter.cleanup();
+    }
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (IWantToQuit quitter : this.quitters)
+        {
+            if (quitter instanceof HandlerBase)
+                ((HandlerBase)quitter).appendExtraServerInformation(map);
+        }
     }
 
     @Override

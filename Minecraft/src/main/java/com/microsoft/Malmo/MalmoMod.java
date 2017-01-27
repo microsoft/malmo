@@ -180,6 +180,7 @@ public class MalmoMod
         SERVER_DISCARDITEM,
         SERVER_BUILDBATTLEREWARD,   // Server has detected a reward from the build battle
         SERVER_SHARE_REWARD,        // Server has received a reward from a client and is distributing it to the other agents
+        SERVER_YOUR_TURN,           // Server turn scheduler is telling client that it is their go next
         SERVER_SOMEOTHERMESSAGE,
         CLIENT_AGENTREADY,			// Client response to server's ready request
         CLIENT_AGENTRUNNING,		// Client has just started running
@@ -187,6 +188,7 @@ public class MalmoMod
         CLIENT_AGENTFINISHEDMISSION,// Individual agent has finished a mission
         CLIENT_BAILED,				// Client has hit an error and been forced to enter error state
         CLIENT_SHARE_REWARD,        // Client has received a reward and needs to share it with other agents
+        CLIENT_TURN_TAKEN,          // Client is telling the server turn scheduler that they have just taken their turn
         CLIENT_SOMEOTHERMESSAGE
     }
 
