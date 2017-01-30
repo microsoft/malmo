@@ -67,6 +67,9 @@ void translateXMLSchemaException(xml_schema::exception const& e)
 void (AgentHost::*startMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &AgentHost::startMission;
 void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, const MissionRecordSpec&, int, std::string) = &AgentHost::startMission;
 
+void (AgentHost::*sendCommand)(std::string) = &AgentHost::sendCommand;
+void (AgentHost::*sendCommandWithKey)(std::string, std::string) = &AgentHost::sendCommand;
+
 #ifdef WRAP_ALE
 void (ALEAgentHost::*startALEMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &ALEAgentHost::startMission;
 void (ALEAgentHost::*startALEMissionComplex)(const MissionSpec&, const ClientPool&, const MissionRecordSpec&, int, std::string) = &ALEAgentHost::startMission;
@@ -152,8 +155,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "setVideoPolicy",                 &AgentHost::setVideoPolicy )
         .def( "setRewardsPolicy",               &AgentHost::setRewardsPolicy )
         .def( "setObservationsPolicy",          &AgentHost::setObservationsPolicy )
-        .def( "sendCommand",                    &AgentHost::sendCommand )
-        .def( "getRecordingTemporaryDirectory", &AgentHost::getRecordingTemporaryDirectory )
+        .def( "sendCommand",                    sendCommand )
+        .def( "sendCommand",                    sendCommandWithKey )
+        .def("getRecordingTemporaryDirectory",  &AgentHost::getRecordingTemporaryDirectory)
         .def( "setDebugOutput",                 &AgentHost::setDebugOutput )
         .def(self_ns::str(self_ns::self))
     ;
