@@ -1342,7 +1342,7 @@
   <xs:element name="TurnBasedCommands">
     <xs:annotation>
       <xs:documentation>
-        Er?
+        Allows a user to specify that certain commands must be sent on a turn-by-turn basis - ie, in a multi-agent mission, placing the {{{DiscreteMovementCommand}}} handler inside the TurnBasedCommands section will mean that each agent must take it in turns to send a discrete movement command. See turn_based_test.py in the Python Samples for a demonstration/explanation of this.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -1374,7 +1374,7 @@
   <xs:element name="ObservationFromTurnScheduler">
     <xs:annotation>
       <xs:documentation>
-        Er...?
+        Automatically addd by Malmo when the user specifies the {{{TurnBasedCommands}}} handler. This provides vital observations back to the agent to allow them to make use of the turn scheduler. When it is the agent's turn, the JSON will contain {{{turn_number}}} - an integer which tracks the number of turns the agent has taken, and {{{turn_key}}} - a one-shot key which must be passed back to Malmo as a parameter in {{{sendCommand}}} in order for the command to be accepted.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
