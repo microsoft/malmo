@@ -5,18 +5,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
+import com.microsoft.Malmo.Schemas.BlockType;
+import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawBlockBasedObjectType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MovingTargetDecorator;
 import com.microsoft.Malmo.Schemas.Pos;
 import com.microsoft.Malmo.Schemas.UnnamedGridDefinition;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
 
 public class MovingTargetDecoratorImplementation extends HandlerBase implements IWorldDecorator
@@ -72,6 +82,23 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         return false;
     }
 
+    private boolean pinchedByPlayer(World world)
+    {
+        for (BlockPos bp : this.path)
+        {
+            //Block b = world.getBlockState(bp).getBlock();
+            //AxisAlignedBB aabb = b.getCollisionBoundingBox(world, bp, b.getDefaultState());
+            //aabb.expand(0, 1, 0);
+            BlockPos bp2 = new BlockPos(bp.getX()+1, bp.getY()+2, bp.getZ()+1);
+            AxisAlignedBB aabb = new AxisAlignedBB(bp, bp2);
+            List<Entity> entities = world.getEntitiesWithinAABBExcludingEntity(null, aabb);
+            for (Entity ent : entities)
+                if (ent instanceof EntityPlayer)
+                    return true;
+        }
+        return false;
+    }
+
     @Override
     public void update(World world)
     {
@@ -79,6 +106,9 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         if (this.timeSinceLastUpdate < this.speedInTicks)
             return;
         this.timeSinceLastUpdate = 0;
+        if (pinchedByPlayer(world))
+            return;
+
         BlockPos posHead = this.path.peekFirst();
         BlockPos posTail = this.path.peekLast();
         // For now, only move in 2D - can make this more flexible later.
@@ -95,9 +125,9 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
                 // Check this is a valid move...
                 BlockPos candidateHeadPos = new BlockPos(posHead.getX() + x, posHead.getY(), posHead.getZ() + z);
                 BlockPos candidateTailPos = new BlockPos(posTail.getX() + x, posTail.getY(), posTail.getZ() + z);
-                if (isValid(candidateHeadPos))
+                if (isValid(world, candidateHeadPos))
                     possibleMovesForward.add(candidateHeadPos);
-                if (isValid(candidateTailPos))
+                if (isValid(world, candidateTailPos))
                     possibleMovesBackward.add(candidateTailPos);
             }
         }
@@ -155,7 +185,7 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         }
     }
 
-    private boolean isValid(BlockPos pos)
+    private boolean isValid(World world, BlockPos pos)
     {
         // In bounds?
         if (!blockInBounds(pos, this.arenaBounds))
@@ -163,7 +193,55 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         // Already in path?
         if (this.path.contains(pos))
             return false;
-        // TODO: also check the current block is "permeable"...
+        // Does there need to be air above the target?
+        if (this.targetParams.isRequiresAirAbove() && !world.isAirBlock(pos.up()))
+            return false;
+        // Check the current block is "permeable"...
+        IBlockState block = world.getBlockState(pos);
+        List<IProperty> extraProperties = new ArrayList<IProperty>();
+        DrawBlock db = MinecraftTypeHelper.getDrawBlockFromBlockState(block, extraProperties);
+
+        boolean typesMatch = this.targetParams.getPermeableBlocks().getType().isEmpty();
+        for (BlockType bt : this.targetParams.getPermeableBlocks().getType())
+        {
+            if (db.getType() == bt)
+            {
+                typesMatch = true;
+                break;
+            }
+        }
+        if (!typesMatch)
+            return false;
+
+        if (db.getColour() != null)
+        {
+            boolean coloursMatch = this.targetParams.getPermeableBlocks().getColour().isEmpty();
+            for (Colour col : this.targetParams.getPermeableBlocks().getColour())
+            {
+                if (db.getColour() == col)
+                {
+                    coloursMatch = true;
+                    break;
+                }
+            }
+            if (!coloursMatch)
+                return false;
+        }
+
+        if (db.getVariant() != null)
+        {
+            boolean variantsMatch = this.targetParams.getPermeableBlocks().getVariant().isEmpty();
+            for (Variation var : this.targetParams.getPermeableBlocks().getVariant())
+            {
+                if (db.getVariant() == var)
+                {
+                    variantsMatch = true;
+                    break;
+                }
+            }
+            if (!variantsMatch)
+                return false;
+        }
         return true;
     }
 

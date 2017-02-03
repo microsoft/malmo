@@ -259,6 +259,7 @@
         <xs:element name="PermeableBlocks" type="BlockSpec"/>
         <xs:element name="BlockType" type="DrawBlockBasedObjectType"/>
       </xs:all>
+      <xs:attribute name="requiresAirAbove" type="xs:boolean" default="true"/>
     </xs:complexType>
   </xs:element>
 
