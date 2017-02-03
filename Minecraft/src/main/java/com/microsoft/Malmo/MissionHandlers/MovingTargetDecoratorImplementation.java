@@ -157,8 +157,14 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
 
     private boolean isValid(BlockPos pos)
     {
-        // Also check the current block is "permeable"...
-        return blockInBounds(pos, this.arenaBounds);
+        // In bounds?
+        if (!blockInBounds(pos, this.arenaBounds))
+            return false;
+        // Already in path?
+        if (this.path.contains(pos))
+            return false;
+        // TODO: also check the current block is "permeable"...
+        return true;
     }
 
     private boolean blockInBounds(BlockPos pos, UnnamedGridDefinition bounds)
