@@ -919,6 +919,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     HashMap<String, String> map = new HashMap<String, String>();
                     map.put("agentname", agentName);
                     map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    currentMissionBehaviour().appendExtraServerInformation(map);
                     System.out.println("***Telling server we are ready - " + agentName);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
                 }
@@ -989,6 +990,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
                 System.out.println("We should be joining " + targetIP);
+                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                boolean namesMatch = (player == null) || Minecraft.getMinecraft().thePlayer.getName().equals(this.agentName);
+                if (!namesMatch)
+                {
+                    // The name of our agent no longer matches the agent in our game profile -
+                    // safest way to update is to log out and back in again.
+                    Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+                    Minecraft.getMinecraft().loadWorld((WorldClient)null);
+                }
                 if (Minecraft.getMinecraft().getCurrentServerData() == null || !Minecraft.getMinecraft().getCurrentServerData().serverIP.equals(targetIP))
                 {
                     net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
@@ -1145,6 +1155,19 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             boolean needsNewWorld = serverHandlers != null && serverHandlers.worldGenerator != null && serverHandlers.worldGenerator.shouldCreateWorld(currentMissionInit());
             boolean worldCurrentlyExists = Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().theWorld != null;
+            if (worldCurrentlyExists)
+            {
+                // If a world already exists, we need to check that our requested agent name matches the name
+                // of the player. If not, the safest thing to do is start a new server.
+                // Get our name from the Mission:
+                List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+                String agentName = agents.get(currentMissionInit().getClientRole()).getName();
+                if (Minecraft.getMinecraft().thePlayer != null)
+                {
+                    if (!Minecraft.getMinecraft().thePlayer.getName().equals(agentName))
+                        needsNewWorld = true;
+                }
+            }
             if (needsNewWorld && worldCurrentlyExists)
             {
                 // We want a new world, and there is currently a world running,

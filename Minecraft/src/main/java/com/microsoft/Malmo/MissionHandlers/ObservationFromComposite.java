@@ -20,8 +20,10 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gson.JsonObject;
+import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -73,6 +75,16 @@ public class ObservationFromComposite extends HandlerBase implements IObservatio
         for (IObservationProducer producer : this.producers)
         {
             producer.cleanup();
+        }
+    }
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (IObservationProducer producer : this.producers)
+        {
+            if (producer instanceof HandlerBase)
+                ((HandlerBase)producer).appendExtraServerInformation(map);
         }
     }
 

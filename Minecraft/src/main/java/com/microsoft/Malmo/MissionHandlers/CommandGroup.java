@@ -20,6 +20,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -104,7 +105,17 @@ public class CommandGroup extends CommandBase
             han.setOverriding(b);
         }
     }
-    
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (ICommandHandler han : this.handlers)
+        {
+            if (han instanceof HandlerBase)
+                ((HandlerBase)han).appendExtraServerInformation(map);
+        }
+    }
+
     @Override
     public boolean parseParameters(Object params)
     {

@@ -713,6 +713,11 @@ namespace malmo
     
     void AgentHost::sendCommand(std::string command)
     {
+        sendCommand(command, std::string());
+    }
+
+    void AgentHost::sendCommand(std::string command, std::string key)
+    {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
         if( !this->commands_connection ) {
@@ -724,8 +729,9 @@ namespace malmo
             return;
         }
 
+        std::string full_command = key.empty() ? command : key + " " + command;
         try {
-            this->commands_connection->send(command);
+            this->commands_connection->send(full_command);
         }
         catch (const std::runtime_error& e) {
             TimestampedString error_message(

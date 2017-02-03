@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.19">
+           version="0.20">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -332,6 +332,7 @@
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
+            <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
 
@@ -352,13 +353,33 @@
             <xs:element ref="ChatCommands" minOccurs="0"/>
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>
-            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands --> 
+            <xs:element ref="TurnBasedCommands" minOccurs="0"/>
+            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands, and add to TurnBasedApplicableCommandHandlers (below) if appropriate --> 
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
+        </xs:all>
+    </xs:group>
+
+    <xs:group name="TurnBasedApplicableCommandHandlers">
+        <xs:annotation>
+            <xs:documentation>
+              Lists the command handlers which are applicable to a turn-based scenario.
+            </xs:documentation>
+            <xs:appinfo>
+                <jaxb:property name="TurnBasedApplicableCommandHandlers"/>
+            </xs:appinfo>
+        </xs:annotation>
+        <xs:all>
+            <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
+            <xs:element ref="DiscreteMovementCommands" minOccurs="0"/>
+            <xs:element ref="InventoryCommands" minOccurs="0"/>
+            <xs:element ref="ChatCommands" minOccurs="0"/>
+            <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
+            <xs:element ref="MissionQuitCommands" minOccurs="0"/>
         </xs:all>
     </xs:group>
     

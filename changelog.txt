@@ -1,3 +1,7 @@
+0.20.0
+-------------------
+New: Multi-agent turn-based scheduler. (#441)
+
 0.19.0
 -------------------
 New: Multi-agent scenario reworked.

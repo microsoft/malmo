@@ -70,6 +70,7 @@ set( MULTI_AGENT_TESTS
     team_reward_test.py
     multi_agent_test.py
     agent_visibility_test.py
+    turn_based_test.py
 )
 
 set( OTHER_FILES

@@ -114,6 +114,12 @@ namespace malmo
             //! \param command The command to send as a string. e.g. "move 1"
             void sendCommand(std::string command);
 
+            //! Sends a turn-based command to the game client.
+            //! See the mission handlers documentation for the permitted commands for your chosen command handler.
+            //! \param command The command to send as a string. e.g. "move 1"
+            //! \param key The command-key (provided via observations) which must match in order for the command to be processed.
+            void sendCommand(std::string command, std::string key);
+
             //! Returns a pointer to the current MissionInitSpec, to allow retrieval of the ports being used.
             //! (If port 0 is requested this means bind to any port that is available.)
             //! \returns A shared pointer to the MissionInitSpec.

@@ -6,9 +6,10 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.19">
+           version="0.20">
 
   <xs:include schemaLocation="Types.xsd" />
+  <xs:include schemaLocation="Mission.xsd" /> 
 
   <xs:complexType name="Pos">
     <xs:annotation>
@@ -1121,7 +1122,7 @@
     <xs:annotation>
       <xs:documentation>
         A command for ending the mission, example:
-      
+
         "{{{quit}}}" - terminates the current mission.
       </xs:documentation>
     </xs:annotation>
@@ -1338,6 +1339,24 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="TurnBasedCommands">
+    <xs:annotation>
+      <xs:documentation>
+        Allows a user to specify that certain commands must be sent on a turn-by-turn basis - ie, in a multi-agent mission, placing the {{{DiscreteMovementCommand}}} handler inside the TurnBasedCommands section will mean that each agent must take it in turns to send a discrete movement command. See turn_based_test.py in the Python Samples for a demonstration/explanation of this.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:group ref="TurnBasedApplicableCommandHandlers" />
+      <xs:attribute name="requestedPosition">
+        <xs:simpleType>
+          <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
   <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
   <xs:element name="ObservationFromRecentCommands">
@@ -1347,6 +1366,15 @@
 
         Note that the commands returned might not yet have taken effect, depending on the command and the way in which Minecraft responds to it -
         but they will have been processed by the command handling chain.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromTurnScheduler">
+    <xs:annotation>
+      <xs:documentation>
+        Automatically addd by Malmo when the user specifies the {{{TurnBasedCommands}}} handler. This provides vital observations back to the agent to allow them to make use of the turn scheduler. When it is the agent's turn, the JSON will contain {{{turn_number}}} - an integer which tracks the number of turns the agent has taken, and {{{turn_key}}} - a one-shot key which must be passed back to Malmo as a parameter in {{{sendCommand}}} in order for the command to be accepted.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>

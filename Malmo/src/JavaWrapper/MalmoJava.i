@@ -205,6 +205,8 @@ public:
 
   void sendCommand(std::string command);
 
+  void sendCommand(std::string command, std::string key);
+
   std::string getRecordingTemporaryDirectory();
 
   void setDebugOutput(bool debug);

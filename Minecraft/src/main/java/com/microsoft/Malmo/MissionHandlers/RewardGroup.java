@@ -20,7 +20,9 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -61,6 +63,16 @@ public class RewardGroup extends RewardBase implements IRewardProducer {
         if (this.producers != null) {
             for (IRewardProducer rp : this.producers)
                 rp.cleanup();
+        }
+    }
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (IRewardProducer rp : this.producers)
+        {
+            if (rp instanceof HandlerBase)
+                ((HandlerBase)rp).appendExtraServerInformation(map);
         }
     }
 
