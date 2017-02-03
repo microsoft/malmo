@@ -304,4 +304,16 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     public void cleanup()
     {
     }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
+    }
 }

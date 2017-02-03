@@ -19,8 +19,11 @@
 
 package com.microsoft.Malmo.MissionHandlerInterfaces;
 
+import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.world.World;
+
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Interface for objects which can determine the world structure for the Minecraft mission.
@@ -59,4 +62,17 @@ public interface IWorldDecorator
     /** Called once after the mission ends - use for any necessary mission cleanup.
      */
     public void cleanup();
+
+    /** Used by the turn scheduler - if decorator matches this string, it must acknowledge and take its turn.
+     * @param nextAgentName - string to match against
+     * @return true if matching
+     */
+    public boolean targetedUpdate(String nextAgentName);
+
+    /** Used by the turn scheduler - if the decorator wants to be part of the turn schedule, it must add a name
+     * and a requested slot (can be null) to these arrays.
+     * @param participants
+     * @param participantSlots
+     */
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots);
 }

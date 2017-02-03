@@ -794,4 +794,16 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     public void cleanup()
     {
     }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
+    }
 }

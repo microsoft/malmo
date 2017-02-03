@@ -85,6 +85,26 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
         }
     }
 
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        for (IWorldDecorator builder : this.builders)
+        {
+            if (builder.targetedUpdate(nextAgentName))
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        for (IWorldDecorator builder : this.builders)
+        {
+            builder.getTurnParticipants(participants, participantSlots);
+        }
+    }
+
     public boolean isFixed()
     {
         return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.

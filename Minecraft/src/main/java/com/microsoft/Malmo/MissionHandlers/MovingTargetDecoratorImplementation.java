@@ -2,8 +2,11 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -14,6 +17,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
@@ -40,6 +45,9 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
     private int timeSinceLastUpdate = 0;
     private int speedInTicks = 10;
     private int pathSize = 2;
+    private boolean mustWaitTurn = false;
+    private boolean isOurTurn = false;
+    private String guid = UUID.randomUUID().toString();
 
     @Override
     public boolean parseParameters(Object params)
@@ -61,7 +69,7 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         this.startPos = new BlockPos(xPos, yPos, zPos);
         if (this.targetParams.getUpdateSpeed() == null || this.targetParams.getUpdateSpeed().equals("turnbased"))
         {
-            
+            this.mustWaitTurn = true;
         }
         else
         {
@@ -109,86 +117,100 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
     @Override
     public void update(World world)
     {
-        this.timeSinceLastUpdate++;
-        if (this.timeSinceLastUpdate < this.speedInTicks)
+        if (this.mustWaitTurn && !this.isOurTurn)   // Using the turn scheduler?
             return;
+        if (!this.mustWaitTurn)
+        {
+            // Not using turn scheduler - using update speed
+            this.timeSinceLastUpdate++;
+            if (this.timeSinceLastUpdate < this.speedInTicks)
+                return;
+        }
         this.timeSinceLastUpdate = 0;
-        if (pinchedByPlayer(world))
-            return;
-
-        BlockPos posHead = this.path.peekFirst();
-        BlockPos posTail = this.path.peekLast();
-        // For now, only move in 2D - can make this more flexible later.
-        ArrayList<BlockPos> possibleMovesForward = new ArrayList<BlockPos>();
-        ArrayList<BlockPos> possibleMovesBackward = new ArrayList<BlockPos>();
-        for (int x = -1; x <= 1; x++)
+        this.isOurTurn = false; // We're taking it right now.
+        if (!pinchedByPlayer(world))
         {
-            for (int z = -1; z <= 1; z++)
+            BlockPos posHead = this.path.peekFirst();
+            BlockPos posTail = this.path.peekLast();
+            // For now, only move in 2D - can make this more flexible later.
+            ArrayList<BlockPos> possibleMovesForward = new ArrayList<BlockPos>();
+            ArrayList<BlockPos> possibleMovesBackward = new ArrayList<BlockPos>();
+            for (int x = -1; x <= 1; x++)
             {
-                if (z != 0 && x != 0)
-                    continue;   // No diagonal moves.
-                if (z == 0 && x == 0)
-                    continue;   // Don't allow no-op.
-                // Check this is a valid move...
-                BlockPos candidateHeadPos = new BlockPos(posHead.getX() + x, posHead.getY(), posHead.getZ() + z);
-                BlockPos candidateTailPos = new BlockPos(posTail.getX() + x, posTail.getY(), posTail.getZ() + z);
-                if (isValid(world, candidateHeadPos))
-                    possibleMovesForward.add(candidateHeadPos);
-                if (isValid(world, candidateTailPos))
-                    possibleMovesBackward.add(candidateTailPos);
-            }
-        }
-        // Choose whether to move the "head" or the "tail"
-        ArrayList<BlockPos> candidates = null;
-        boolean forwards = true;
-        if (possibleMovesBackward.isEmpty())
-        {
-            candidates = possibleMovesForward;
-            forwards = true;
-        }
-        else if (possibleMovesForward.isEmpty())
-        {
-            candidates = possibleMovesBackward;
-            forwards = false;
-        }
-        else
-        {
-            forwards = this.rng.nextDouble() < 0.5;
-            candidates = forwards ? possibleMovesForward : possibleMovesBackward;
-        }
-        if (!candidates.isEmpty())
-        {
-            BlockDrawingHelper drawContext = new BlockDrawingHelper();
-            drawContext.beginDrawing(world);
-
-            BlockPos newPos = candidates.get(this.rng.nextInt(candidates.size()));
-            if (forwards)
-            {
-                // Add the new head:
-                this.originalPath.addFirst(world.getBlockState(newPos));
-                drawContext.setBlockState(world, newPos, this.blockType);
-                this.path.addFirst(newPos);
-                // Move the tail?
-                if (this.path.size() > this.pathSize)
+                for (int z = -1; z <= 1; z++)
                 {
-                    drawContext.setBlockState(world, posTail, new XMLBlockState(this.originalPath.removeLast()));
-                    this.path.removeLast();
+                    if (z != 0 && x != 0)
+                        continue;   // No diagonal moves.
+                    if (z == 0 && x == 0)
+                        continue;   // Don't allow no-op.
+                    // Check this is a valid move...
+                    BlockPos candidateHeadPos = new BlockPos(posHead.getX() + x, posHead.getY(), posHead.getZ() + z);
+                    BlockPos candidateTailPos = new BlockPos(posTail.getX() + x, posTail.getY(), posTail.getZ() + z);
+                    if (isValid(world, candidateHeadPos))
+                        possibleMovesForward.add(candidateHeadPos);
+                    if (isValid(world, candidateTailPos))
+                        possibleMovesBackward.add(candidateTailPos);
                 }
+            }
+            // Choose whether to move the "head" or the "tail"
+            ArrayList<BlockPos> candidates = null;
+            boolean forwards = true;
+            if (possibleMovesBackward.isEmpty())
+            {
+                candidates = possibleMovesForward;
+                forwards = true;
+            }
+            else if (possibleMovesForward.isEmpty())
+            {
+                candidates = possibleMovesBackward;
+                forwards = false;
             }
             else
             {
-                // Backwards - add the new tail:
-                this.originalPath.addLast(world.getBlockState(newPos));
-                drawContext.setBlockState(world, newPos, this.blockType);
-                this.path.addLast(newPos);
-                // Move the head?
-                if (this.path.size() > this.pathSize)
-                {
-                    drawContext.setBlockState(world, posHead, new XMLBlockState(this.originalPath.removeFirst()));
-                    this.path.removeFirst();
-                }
+                forwards = this.rng.nextDouble() < 0.5;
+                candidates = forwards ? possibleMovesForward : possibleMovesBackward;
             }
-            drawContext.endDrawing(world);
+            if (!candidates.isEmpty())
+            {
+                BlockDrawingHelper drawContext = new BlockDrawingHelper();
+                drawContext.beginDrawing(world);
+    
+                BlockPos newPos = candidates.get(this.rng.nextInt(candidates.size()));
+                if (forwards)
+                {
+                    // Add the new head:
+                    this.originalPath.addFirst(world.getBlockState(newPos));
+                    drawContext.setBlockState(world, newPos, this.blockType);
+                    this.path.addFirst(newPos);
+                    // Move the tail?
+                    if (this.path.size() > this.pathSize)
+                    {
+                        drawContext.setBlockState(world, posTail, new XMLBlockState(this.originalPath.removeLast()));
+                        this.path.removeLast();
+                    }
+                }
+                else
+                {
+                    // Backwards - add the new tail:
+                    this.originalPath.addLast(world.getBlockState(newPos));
+                    drawContext.setBlockState(world, newPos, this.blockType);
+                    this.path.addLast(newPos);
+                    // Move the head?
+                    if (this.path.size() > this.pathSize)
+                    {
+                        drawContext.setBlockState(world, posHead, new XMLBlockState(this.originalPath.removeFirst()));
+                        this.path.removeFirst();
+                    }
+                }
+                drawContext.endDrawing(world);
+            }
+        }
+        if (this.mustWaitTurn)
+        {
+            // Let server know we have finished.
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("agentname", this.guid);
+            MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_TURN_TAKEN, 0, data));
         }
     }
 
@@ -278,5 +300,26 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         else
             seed = Long.parseLong(this.targetParams.getSeed());
         this.rng = new Random(seed);
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        if (this.mustWaitTurn && nextAgentName == this.guid)
+        {
+            this.isOurTurn = true;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        if (this.mustWaitTurn)
+        {
+            participants.add(this.guid);
+            participantSlots.add(0);    // We want to go first!
+        }
     }
 }
