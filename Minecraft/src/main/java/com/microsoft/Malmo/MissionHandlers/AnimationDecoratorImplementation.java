@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -181,5 +182,17 @@ public class AnimationDecoratorImplementation extends HandlerBase implements IWo
     @Override
     public void cleanup()
     {
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
     }
 }

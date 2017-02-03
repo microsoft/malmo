@@ -31,7 +31,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentQuitFromReachingPosition;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
@@ -794,5 +793,17 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     @Override
     public void cleanup()
     {
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
     }
 }

@@ -315,4 +315,17 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         MinecraftForge.EVENT_BUS.unregister(this);
         FMLCommonHandler.instance().bus().unregister(this);
     }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
+    }
+
 }

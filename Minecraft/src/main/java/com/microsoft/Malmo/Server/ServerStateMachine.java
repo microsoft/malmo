@@ -925,6 +925,17 @@ public class ServerStateMachine extends StateMachine
                     }
                 }
             }
+            // Allow the world decorators to add themselves to the turn schedule if required.
+            if (handlers.worldDecorator != null)
+            {
+                ArrayList<String> participants = new ArrayList<String>();
+                ArrayList<Integer> participantSlots = new ArrayList<Integer>();
+                handlers.worldDecorator.getTurnParticipants(participants, participantSlots);
+                for (int i = 0; i < Math.min(participants.size(), participantSlots.size()); i++)
+                {
+                    addUsernameToTurnSchedule(participants.get(i), participantSlots.get(i));
+                }
+            }
             // Save the turn schedule, if there is one:
             saveTurnSchedule();
 
@@ -1059,14 +1070,19 @@ public class ServerStateMachine extends StateMachine
                     {
                         MalmoMod.network.sendTo(new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_YOUR_TURN, ""), player);
                     }
-                    else
+                    else if (getHandlers().worldDecorator != null)
                     {
-                        // Couldn't reach the client whose turn it is - abort!
-                        String error = "ERROR IN TURN SCHEDULER - could not find client for user " + nextAgentName;
-                        saveErrorDetails(error);
-                        System.out.println(error);
-                        MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
-                        episodeHasCompleted(ServerState.ERROR);
+                        // Not a player - is it a world decorator?
+                        boolean handled = getHandlers().worldDecorator.targetedUpdate(nextAgentName);
+                        if (!handled)
+                        {
+                            // Couldn't reach the client whose turn it is, and doesn't seem to be a decorator's turn - abort!
+                            String error = "ERROR IN TURN SCHEDULER - could not find client for user " + nextAgentName;
+                            saveErrorDetails(error);
+                            System.out.println(error);
+                            MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
+                            episodeHasCompleted(ServerState.ERROR);
+                        }
                     }
                 }
             }
@@ -1114,6 +1130,11 @@ public class ServerStateMachine extends StateMachine
                 if (player != null)
                 {
                     MalmoMod.network.sendTo(new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_YOUR_TURN, ""), player);
+                }
+                else if (getHandlers().worldDecorator != null)
+                {
+                    // Not a player - is it a world decorator?
+                    getHandlers().worldDecorator.targetedUpdate(agentName);
                 }
             }
         }

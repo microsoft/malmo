@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.server.MinecraftServer;
@@ -81,5 +82,17 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
     @Override
     public void cleanup()
     {
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
     }
 }
