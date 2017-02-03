@@ -256,6 +256,23 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+        <xs:element name="UpdateSpeed">
+          <xs:annotation>
+            <xs:documentation>
+              The length, in ticks, between each update, or the string "turnbased" to use the turn scheduler.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "turnbased".
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="turnbased|[0-9]+"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
         <xs:element name="PermeableBlocks" type="BlockSpec"/>
         <xs:element name="BlockType" type="DrawBlockBasedObjectType"/>
       </xs:all>

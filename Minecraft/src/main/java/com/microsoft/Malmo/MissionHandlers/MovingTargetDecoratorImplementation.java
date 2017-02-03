@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -26,8 +25,8 @@ import com.microsoft.Malmo.Schemas.Pos;
 import com.microsoft.Malmo.Schemas.UnnamedGridDefinition;
 import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
-import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public class MovingTargetDecoratorImplementation extends HandlerBase implements IWorldDecorator
 {
@@ -60,6 +59,14 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
         yPos = Math.min(this.arenaBounds.getMax().getY(), Math.max(this.arenaBounds.getMin().getY(),  yPos));
         zPos = Math.min(this.arenaBounds.getMax().getZ(), Math.max(this.arenaBounds.getMin().getZ(),  zPos));
         this.startPos = new BlockPos(xPos, yPos, zPos);
+        if (this.targetParams.getUpdateSpeed() == null || this.targetParams.getUpdateSpeed().equals("turnbased"))
+        {
+            
+        }
+        else
+        {
+            this.speedInTicks = Integer.parseInt(this.targetParams.getUpdateSpeed());
+        }
         createRNG();
         return true;
     }
