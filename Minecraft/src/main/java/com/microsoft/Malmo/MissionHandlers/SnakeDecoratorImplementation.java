@@ -32,15 +32,14 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Schemas.SnakeBlock;
 import com.microsoft.Malmo.Schemas.SnakeDecorator;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 

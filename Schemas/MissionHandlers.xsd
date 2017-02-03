@@ -222,6 +222,46 @@
     <xs:attribute name="lifetimeVariance" use="optional" type="xs:int" default="0" />
   </xs:complexType>
 
+  <xs:element name="MovingTargetDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Creates a moving two-block target which takes random moves within a specified arena. Can be linked to the turn scheduler.
+        This can be made more general in the future, but is currently tailored specifically for the Malmo collaborative challenge.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ArenaBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the arena within which the target can move.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StartPos" type="Pos"/>
+        <xs:element name="Seed">
+          <xs:annotation>
+            <xs:documentation>
+              The master seed for the random number generator used to move the target.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="random|[0-9]+"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="PermeableBlocks" type="BlockSpec"/>
+        <xs:element name="BlockType" type="DrawBlockBasedObjectType"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="SnakeDecorator">
     <xs:annotation>
       <xs:documentation>

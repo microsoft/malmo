@@ -423,6 +423,7 @@
                     <xs:element ref="MazeDecorator"  />
                     <xs:element ref="ClassroomDecorator" />
                     <xs:element ref="SnakeDecorator"  />
+                    <xs:element ref="MovingTargetDecorator" />
                     <xs:element ref="BuildBattleDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
