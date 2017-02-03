@@ -35,6 +35,7 @@ set( SOURCES
   mission_quit_command_example.py
   MultiMaze.py
   mob_fun.py
+  moving_target_test.py
   overclock_test.py
   patchwork_quilt.py
   quit_from_reaching_position_test.py
