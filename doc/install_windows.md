@@ -13,4 +13,4 @@ Steps:
 1. `cd C:\Malmo-0.20.0-Windows-64bit\scripts`
 1. `.\malmo_install.ps1`
 
-In case you run into problems, please follow the [manual installation](https://github.com/Microsoft/malmo/edit/build_ps_fixes/doc/install_windows_manual.md) instead. If you find a problem that has not yet been reported, please raise a [new issue](https://github.com/Microsoft/malmo/issues/new).
+In case you run into problems, please follow the [manual installation](https://github.com/Microsoft/malmo/blob/build_ps_fixes/doc/install_windows_manual.md) instead. If you find a problem that has not yet been reported, please raise a [new issue](https://github.com/Microsoft/malmo/issues/new).
