@@ -18,17 +18,18 @@ Install-Mesa
 
 # Now install Malmo:
 Display-Heading "Installing Minecraft"
-Download-File "https://github.com/Microsoft/malmo/releases/download/0.19.0/Malmo-0.19.0-Windows-64bit.zip" ($env:HOMEPATH + "\temp\malmo.zip")
-& 'C:\Program Files\7-Zip\7z.exe' x .\temp\malmo.zip -o"$env:HOMEPATH" | Out-Host
-if ($?)
-{
-    Add-MalmoXSDPathEnv (($env:HOMEPATH) + "\Malmo-0.19.0-Windows-64bit")
-    cd 'Malmo-0.19.0-Windows-64bit\Minecraft'
-    launchClient.bat
-    cd 'Malmo-0.19.0-Windows-64bit\Python_Examples'
-}
-else
-{
-    Write-Host "FAILED TO INSTALL MALMO"
-    exit 1
-}
+
+cd ..
+$MALMO_HOME = (Get-Item -Path ".\" -Verbose).FullName
+Add-MalmoXSDPathEnv $MALMO_HOME
+
+Write-Output "Malmo installed successfully"
+Write-Output ""
+Write-Output "To start a Malmo client, use:"
+Write-Output ("cd " + $MALMO_HOME + "\Minecraft")
+Write-Output ".\launchClient.bat"
+Write-Output "To run a first Malmo example, open a separate PowerShell and run:"
+Write-Output ("cd " + $MALMO_HOME + "\Python_Examples")
+Write-Output ("python tabular_q_learning.py")
+Write-Output ""
+Write-Output ("For more details see the tutorial in " + $MALMO_HOME + "\Documentation\index.html")
