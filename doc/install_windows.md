@@ -1,4 +1,22 @@
-## Installing dependencies on Windows ##
+## Installing dependencies on Windows (automated) ##
+
+We provide a PowerShell script for installing all required dependencies. Please note that this script is still experimental.
+
+Prerequisites:
+
+- Download the current pre-built release for Windows from https://github.com/Microsoft/malmo/releases (for example: `Malmo-0.20.0-Windows-64bit.zip`)
+- Extract the contents to a directory (for example `C:\Malmo-0.20.0-Windows-64bit`)
+
+Steps:
+
+1. Open a Powershell and run `Set-ExecutionPolicy Unrestricted` ([Details](https://technet.microsoft.com/en-us/library/ee176961.aspx))
+1. `cd C:\Malmo-0.20.0-Windows-64bit\scripts`
+1. `.\malmo_install.ps1`
+
+In case you run into problems, please follow the manual steps below instead. If you find a problem that has not yet been reported, please raise a [new issue](https://github.com/Microsoft/malmo/issues/new).
+
+
+## Installing dependencies on Windows (manual) ##
 
 For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5, 6 and 8. Then see the Getting Started section below.
 
