@@ -14,13 +14,28 @@ $error.clear()
 try {
     # Install dependencies:
     Display-Heading "Checking dependencies"
-    Install-7Zip
-    Install-Ffmpeg
-    Install-Java
-    Install-Python
-    Install-XSD
-    Install-VCRedist
-    Install-Mesa
+    $InstallList = "Install-7Zip;
+         Install-Ffmpeg;
+         Install-Java;
+         Install-Python;
+         Install-XSD;
+         Install-VCRedist;
+         Install-Mesa;"
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+    {
+        Write-Host "Elevating to admin ..."
+        $InstallScript = [ScriptBlock]::Create("cd $env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + "Check-Error")
+        $process = Start-Process -FilePath powershell.exe -ArgumentList $InstallScript -verb RunAs -WorkingDirectory $env:HOMEPATH -PassThru -Wait
+        if ($process.ExitCode)
+        {
+            throw new-object System.ApplicationException "Error while installing dependencies"
+        }
+    }
+    else
+    {
+        $InstallScript = [ScriptBlock]::Create($InstallList)
+        Invoke-Command $InstallScript
+    }
 
     # Now install Malmo:
     Display-Heading ("Installing Malmo in " + $MALMO_HOME)
@@ -50,4 +65,5 @@ if (!$error) {
     Write-Host (" - Detailed documentation: " + $MALMO_HOME + "\Documentation\index.html.")
     Write-Host (" - Wiki (troubleshooting and more) : https://github.com/Microsoft/malmo/wiki.")
     Write-Host (" - Malmo gitter channel for community discussions: https://gitter.im/Microsoft/malmo.")
+    Write-Host ""
 }
