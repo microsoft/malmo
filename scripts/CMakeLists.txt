@@ -21,9 +21,9 @@ if( WIN32)
     set( SCRIPT_FILES
       malmo_build.ps1
       malmo_install.ps1
-      pslib/malmo_lib.psm1
     )
     install( FILES ${SCRIPT_FILES} DESTINATION scripts )
+    install( FILES pslib/malmo_lib.psm1 DESTINATION scripts/pslib )
 endif()
 
 if( UNIX AND NOT APPLE )
