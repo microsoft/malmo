@@ -1,3 +1,18 @@
+function Check-Error
+{
+    # generates an exit code depending on error status
+    if ($error)
+    {
+        Start-Sleep 3
+        exit 1
+    }
+    else
+    {
+        Start-Sleep 3
+        exit 0
+    }
+}
+
 function Get-InstalledApps
 {
     # Cribbed from here: http://stackoverflow.com/a/31714410
@@ -57,6 +72,7 @@ function Download-File
     else
     {
         Write-Host FAILED TO DOWNLOAD - ABORTING
+        Start-Sleep 3
         exit 1
     }
 }
@@ -80,6 +96,7 @@ function Install-7Zip
         if (-Not $?)
         {
             Write-Host "FAILED TO INSTALL 7-ZIP"
+            Start-Sleep 3
             exit 1
         }
     }
@@ -105,6 +122,7 @@ function Install-Ffmpeg
             }
         }
         Write-Host "FAILED TO INSTALL"
+        Start-Sleep 3
         exit 1
     }
     Write-Host "FFMPEG already installed."
@@ -128,6 +146,7 @@ function Install-Java
         if (-Not $?)
         {
             Write-Host "FAILED TO DOWNLOAD JAVA"
+            Start-Sleep 3
             exit 1
         }
         # Silently install:
@@ -141,6 +160,7 @@ function Install-Java
             return $True
         }
         Write-Host "FAILED TO INSTALL JAVA"
+        Start-Sleep 3
         exit 1
     }
     Write-Host "Java already installed."
@@ -160,6 +180,7 @@ function Install-Python
             return $True
         }
         Write-Host "FAILED TO INSTALL PYTHON"
+        Start-Sleep 3
         exit 1
     }
     Write-Host "Python already installed."
@@ -178,6 +199,7 @@ function Install-XSD
             return $True
         }
         Write-Host "FAILED TO INSTALL CODESYNTHESIS"
+        Start-Sleep 3
         exit 1
     }
     Write-Host "XSD already installed."
@@ -193,6 +215,7 @@ function Install-VCRedist
         if (-Not $?)
         {
             Write-Host "FAILED TO INSTALL VCREDIST"
+            Start-Sleep 3
             exit 1
         }
     }
@@ -205,24 +228,34 @@ function Install-VCRedist
 function Add-MalmoXSDPathEnv
 {
     $malmopath = $args[0]
-    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Machine")
+    [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "User")
     [Environment]::SetEnvironmentVariable("MALMO_XSD_PATH", $malmopath + "\Schemas", "Process")
 }
 
 function Install-Mesa
 {
-    Download-File "http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ($env:HOMEPATH + "\temp\mesa.7z")
-    & 'C:\Program Files\7-Zip\7z.exe' x .\temp\mesa.7z -o'.\temp\mesa' | Out-Host
-    if (-Not $?)
+    if (-Not (Test-Path ($env:HOMEPATH + "\temp\mesa.7z")))
     {
-        Write-Host "FAILED TO INSTALL MESA"
-        exit 1
+        Display-Heading "Installing Mesa software renderer"
+        Download-File "http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ($env:HOMEPATH + "\temp\mesa.7z")
+        & 'C:\Program Files\7-Zip\7z.exe' x .\temp\mesa.7z -o'.\temp\mesa' | Out-Host
+        if (-Not $?)
+        {
+            Write-Host "FAILED TO INSTALL MESA"
+            Start-Sleep 3
+            exit 1
+        }
+        mv .\temp\mesa\opengl32sw.dll .\temp\mesa\opengl32.dll
+        cp .\temp\mesa\opengl32.dll "$env:JAVA_HOME\bin"
+        if (-Not $?)
+        {
+            Write-Host "SOFTWARE RENDERER NOT ADDED TO JAVA HOME"
+            Start-Sleep 3
+            exit 1
+        }
     }
-    mv .\temp\mesa\opengl32sw.dll .\temp\mesa\opengl32.dll
-    cp .\temp\mesa\opengl32.dll "$env:JAVA_HOME\bin"
-    if (-Not $?)
+    else
     {
-        Write-Host "SOFTWARE RENDERER NOT ADDED TO JAVA HOME"
-        exit 1
+        Write-Host "Mesa already installed."
     }
 }

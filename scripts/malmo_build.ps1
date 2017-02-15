@@ -28,11 +28,11 @@ Install-Java
 if (Should-Install "CMake")
 {
     Display-Heading "Installing cmake"
-    Download-File "https://cmake.org/files/v3.7/cmake-3.7.1-win64-x64.msi" ($env:HOMEPATH + "\temp\cmake.msi")
+    Download-File "https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi" ($env:HOMEPATH + "\temp\cmake.msi")
     Start-Process "temp\cmake.msi" -ArgumentList "/qn" -Wait
     if ($?)
     {
-        Add-to-Path "C:\Program Files\CMake\bin"
+        Append-Path "C:\Program Files\CMake\bin"
     }
     else
     {
@@ -45,7 +45,7 @@ Install-Python
 
 # Add MSBuild to path:
 Write-Host
-Add-to-Path "C:\Program Files (x86)\MSBuild\12.0\Bin"
+Append-Path "C:\Program Files (x86)\MSBuild\12.0\Bin"
 
 # Install Doxygen:
 if ($env:path -notmatch "doxygen")
@@ -55,7 +55,7 @@ if ($env:path -notmatch "doxygen")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\doxygen.zip -oC:\doxygen
     if ($?)
     {
-        Add-to-Path "C:\doxygen"
+        Append-Path "C:\doxygen"
     }
     else
     {
@@ -68,14 +68,14 @@ if ($env:path -notmatch "doxygen")
 if ($env:path -notmatch "zlib")
 {
     Display-Heading "Installing and building zlib"
-    Download-File "http://zlib.net/zlib1210.zip" ($env:HOMEPATH + "\temp\zlib.zip")
+    Download-File "http://zlib.net/zlib1211.zip" ($env:HOMEPATH + "\temp\zlib.zip")
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\zlib.zip -oC:\
     if (-Not $?)
     {
         Write-Host "FAILED TO DOWNLOAD/UNZIP ZLIB"
         exit 1
     }
-    cd C:\zlib-1.2.10\
+    cd C:\zlib-1.2.11\
     cmake -G "Visual Studio 12 2013 Win64" .
     if (-Not $?)
     {
@@ -94,7 +94,7 @@ if ($env:path -notmatch "zlib")
         Write-Host "FAILED TO BUILD RELEASE ZLIB"
         exit 1
     }
-    Add-to-Path "C:\Program Files\zlib\bin"
+    Append-Path "C:\Program Files\zlib\bin"
     cd $env:HOMEPATH
 }
 
@@ -124,7 +124,7 @@ if (-Not (Test-Path C:\boost))
         Write-Host "FAILED TO BOOTSTRAP BOOST"
         exit 1
     }
-    .\b2.exe toolset=msvc-12.0 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.10"
+    .\b2.exe toolset=msvc-12.0 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.11"
     if (-Not $?)
     {
         Write-Host "FAILED TO BUILD BOOST"
@@ -144,7 +144,7 @@ if ($env:path -notmatch "swigwin")
         Write-Host "FAILED TO UNZIP SWIG"
         exit 1
     }
-    Add-to-Path "C:\swigwin-3.0.11"
+    Append-Path "C:\swigwin-3.0.11"
 }
 
 Install-XSD
@@ -178,7 +178,7 @@ if ($env:path -notmatch "XSLT")
     foreach ($file in $files) {
         $add_to_path += ";C:\XSLT\" + $file + "\bin"
     }
-    Add-to-Path $add_to_path
+    Append-Path $add_to_path
     cp C:\XSLT\zlib-1.2.5\bin\zlib1.dll C:\XSLT\libxslt-1.1.26.win32\bin
 }
 
