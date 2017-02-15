@@ -4,7 +4,7 @@ Import-Module .\pslib\malmo_lib.psm1
 $MALMO_HOME = (Get-Item -Path "..\" -Verbose).FullName
 
 # Make a temp directory for all the downloaded installers:
-cd $env:HOMEPATH
+cd $env:HOMEDRIVE$env:HOMEPATH
 if (-Not (Test-Path .\temp))
 {
     mkdir temp
@@ -24,8 +24,8 @@ try {
     if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
         Write-Host "Elevating to admin ..."
-        $InstallScript = [ScriptBlock]::Create("cd $env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + "Check-Error")
-        $process = Start-Process -FilePath powershell.exe -ArgumentList $InstallScript -verb RunAs -WorkingDirectory $env:HOMEPATH -PassThru -Wait
+        $InstallScript = [ScriptBlock]::Create("cd $env:HOMEDRIVE$env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + "Check-Error")
+        $process = Start-Process -FilePath powershell.exe -ArgumentList $InstallScript -verb RunAs -WorkingDirectory $env:HOMEDRIVE$env:HOMEPATH -PassThru -Wait
         if ($process.ExitCode)
         {
             throw new-object System.ApplicationException "Error while installing dependencies"
@@ -37,7 +37,12 @@ try {
         Invoke-Command $InstallScript
     }
 
-    # Now install Malmo:
+    # catch the case that java was installed in a separate process
+    if (!$env:JAVA_HOME) {
+        [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Process")
+    }
+
+    # Now "install" Malmo
     Display-Heading ("Installing Malmo in " + $MALMO_HOME)
     cd $MALMO_HOME
     Add-MalmoXSDPathEnv $MALMO_HOME
@@ -58,6 +63,10 @@ if (!$error) {
     Write-Host "2. Start a second PowerShell and start an agent:" -foreground Yellow
     Write-Host ("   > cd " + $MALMO_HOME + "\Python_Examples")
     Write-Host ("   > python tabular_q_learning.py")
+
+    Write-Host ""
+    Write-Host "To enable Malmo for other projects or programming languages, check the examples (e.g., " + $MALMO_HOME + "\Python_Examples) and ensure that the required libraries are correctly included in your project (e.g., place MalmoPython.pyd in your project folder), or make the libraries globally available (e.g., copy MalmoPython.pyd to your python site-packages folder - typically C:\Python27\Lib\site-packages)"
+    Write-Host ""
 
     Display-Heading "Further reading & getting help"
     Write-Host (" - Tutorial " + $MALMO_HOME + "\Python_Examples\Tutorial.pdf")
