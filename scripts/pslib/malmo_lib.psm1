@@ -238,7 +238,7 @@ function Install-Mesa
     {
         Display-Heading "Installing Mesa software renderer"
         Download-File "http://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ($env:HOMEPATH + "\temp\mesa.7z")
-        & 'C:\Program Files\7-Zip\7z.exe' x .\temp\mesa.7z -o'.\temp\mesa' | Out-Host
+        & 'C:\Program Files\7-Zip\7z.exe' x .\temp\mesa.7z '-o.\temp\mesa' | Out-Host
         if (-Not $?)
         {
             Write-Host "FAILED TO INSTALL MESA"
