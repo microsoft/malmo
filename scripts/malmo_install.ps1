@@ -21,7 +21,7 @@ try {
          Install-XSD;
          Install-VCRedist;
          Install-Mesa;"
-    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
+    if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
         Write-Host "Elevating to admin ..."
         $InstallScript = [ScriptBlock]::Create("cd $env:HOMEDRIVE$env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + "Check-Error")
@@ -40,6 +40,21 @@ try {
     # catch the case that java was installed in a separate process
     if (!$env:JAVA_HOME) {
         [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Process")
+    }
+
+    # update pythonpath
+    $newPyPath = $MALMO_HOME + "\Python_Examples"
+    if (!$env:PYTHONPATH) {
+        [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "User")
+        [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "Process")
+    } else {
+        $parts = $env:PYTHONPATH.split(";")
+        if (-Not ($parts -Contains $newPyPath))
+        {
+            $newPyPath = env:PYTHONPATH + ";" + $newPyPath
+            [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "User")
+            [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "Process")
+        }
     }
 
     # Now "install" Malmo
