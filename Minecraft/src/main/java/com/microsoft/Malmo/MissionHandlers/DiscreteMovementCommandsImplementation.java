@@ -402,10 +402,6 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                 {
                                     boolean standOnBlockPlaced = (command == DiscreteMovementCommand.JUMPUSE && mop.getBlockPos().equals(new BlockPos(player.posX, player.posY - 1, player.posZ)));
                                     MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit, standOnBlockPlaced));
-                                    // Trigger a reward for discarding the block
-                                    ItemStack droppedItemStack = new ItemStack(itemStack.getItem(), 1, itemStack.getItemDamage());
-                                    RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(droppedItemStack);
-                                    MinecraftForge.EVENT_BUS.post(event);
                                 }
                             }
                         }
