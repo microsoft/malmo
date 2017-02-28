@@ -13,6 +13,6 @@ Steps:
 1. `cd $env:HOMEPATH\Malmo-0.20.0-Windows-64bit\scripts`
 1. `.\malmo_install.ps1`
 
-Depending on your setup, you may be asked to confirm a switch to "Run as Administrator" (for checking and installing dependencies). In case you run into problems, please follow the [manual installation](https://github.com/Microsoft/malmo/blob/build_ps_fixes/doc/install_windows_manual.md) instead. If you find a problem that has not yet been reported, please raise a [new issue](https://github.com/Microsoft/malmo/issues/new) (please check the gitter channel and existing issues to see whether the problem is known, before raising a new issue).
+Depending on your setup, you may be asked to confirm a switch to "Run as Administrator" (for checking and installing dependencies). In case you run into problems, please follow the [manual installation](https://github.com/Microsoft/malmo/blob/master/doc/install_windows_manual.md) instead. If you find a problem that has not yet been reported, please raise a [new issue](https://github.com/Microsoft/malmo/issues/new) (please check the gitter channel and existing issues to see whether the problem is known, before raising a new issue).
 
 To test if everything is installed correctly, you can launch minecraft with the Malmo mod, and launch an example agent, as detailed [here](https://github.com/Microsoft/malmo#getting-started).
