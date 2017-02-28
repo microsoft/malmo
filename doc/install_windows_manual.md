@@ -1,6 +1,6 @@
 ## Installing dependencies on Windows (manual) ##
 
-Note: alternative instructions using an experimental script for automating these steps can be found [here](https://github.com/Microsoft/malmo/edit/build_ps_fixes/doc/install_windows.md)
+Note: alternative instructions using an experimental script for automating these steps can be found [here](https://github.com/Microsoft/malmo/edit/master/doc/install_windows.md)
 
 For a minimal installation of running a python agent, follow steps 1, 2, 3, 4, 5, 6 and 8. Then see the Getting Started section below.
 
