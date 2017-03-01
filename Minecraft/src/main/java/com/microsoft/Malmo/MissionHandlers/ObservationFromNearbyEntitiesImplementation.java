@@ -115,6 +115,8 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                     jsent.addProperty("x", e.posX);
                     jsent.addProperty("y", e.posY);
                     jsent.addProperty("z", e.posZ);
+                    jsent.addProperty("yaw", e.rotationYaw);
+                    jsent.addProperty("pitch", e.rotationPitch);
                     String name = e.getName();
                     if (e instanceof EntityItem)
                     {
