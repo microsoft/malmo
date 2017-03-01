@@ -1,3 +1,7 @@
+0.20.1
+-------------------
+New: yaw and pitch added to nearby entity observations.
+
 0.20.0
 -------------------
 New: Moving target decorator. (#458)
