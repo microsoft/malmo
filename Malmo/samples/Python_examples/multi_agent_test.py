@@ -32,8 +32,8 @@ import uuid
 from collections import namedtuple
 from operator import add
 
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, colour, variation, quantity')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, "", "", "", 1)
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1)
 
 # Create one agent host for parsing:
 agent_hosts = [MalmoPython.AgentHost()]

@@ -38,8 +38,8 @@ from collections import namedtuple
 # For a bit more fun, set MOB_TYPE = "Creeper"...
 MOB_TYPE = "Villager"
 
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, colour, variation, quantity')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, "", "", "", 1)
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1)
 
 def drawrailline(x1, z1, x2, z2, y):
     ''' Draw a powered rail between the two points '''

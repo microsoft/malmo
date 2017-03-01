@@ -30,8 +30,8 @@ import json
 import random
 import errno
 from collections import namedtuple
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, quantity')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, "", 1)
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, quantity')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", 1)
 
 def GetMissionXML(summary, itemDrawingXML):
     ''' Build an XML mission string that uses the RewardForCollectingItem mission handler.'''
