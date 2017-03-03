@@ -434,6 +434,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
             if (z != 0 || x != 0 || y != 0)
             {
                 // Attempt to move the entity:
+                double oldX = player.posX;
+                double oldZ = player.posZ;
                 player.moveEntity(x, y, z);
                 player.onUpdate();
                 if (this.params.isAutoFall())
@@ -455,19 +457,24 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                 double newZ = player.posZ;
 
                 // Are we still in the centre of a square, or did we get shunted?
-                double desiredX = Math.floor(newX) + 0.5;
-                double desiredZ = Math.floor(newZ) + 0.5;
-                double deltaX = desiredX - newX;
-                double deltaZ = desiredZ - newZ;
-                if (deltaX * deltaX + deltaZ * deltaZ > 0.001)
+                double offsetX = newX - Math.floor(newX);
+                double offsetZ = newZ - Math.floor(newZ);
+                if (Math.abs(offsetX - 0.5) + Math.abs(offsetZ - 0.5) > 0.01)
                 {
-                    // Need to re-centralise.
+                    // We failed to move to the centre of the target square.
+                    // This might be because the target square was occupied, and we
+                    // were shunted back into our source square,
+                    // or it might be that the target square is occupied by something smaller
+                    // than one block (eg a fence post), and we're in the target square but
+                    // shunted off-centre.
+                    // Either way, we can't stay here, so move back to our original position.
+
                     // Before we do that, fire off a message - this will give the TouchingBlockType handlers
                     // a chance to react to the current position:
                     DiscretePartialMoveEvent event = new DiscretePartialMoveEvent(player.posX, player.posY, player.posZ);
                     MinecraftForge.EVENT_BUS.post(event);
                     // Now adjust the player:
-                    player.moveEntity(deltaX, 0, deltaZ);
+                    player.moveEntity(oldX - newX, 0, oldZ - newZ);
                     player.onUpdate();
                 }
                 // Now set the last tick pos values, to turn off inter-tick positional interpolation:
