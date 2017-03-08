@@ -1640,6 +1640,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     HashMap<String, String> map = new HashMap<String, String>();
                     map.put("agentname", agentName);
                     map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    map.put("quitcode", this.quitCode);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
                     onMissionEnded(ClientState.IDLING, null);
                 }
