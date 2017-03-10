@@ -97,7 +97,7 @@ public class RewardForCatchingMobImplementation extends RewardBase
                 String mobName = et.value();
                 for (Entity e : trappedEntities)
                 {
-                    if (e.getName() == mobName)
+                    if (e.getName().equals(mobName))
                     {
                         // Potential match... check other options.
                         if (!mob.isGlobal())
