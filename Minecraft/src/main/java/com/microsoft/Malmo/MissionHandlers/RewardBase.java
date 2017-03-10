@@ -23,10 +23,26 @@ public class RewardBase extends HandlerBase implements IRewardProducer
         if (distribution == null || distribution.isEmpty())
             return reward;
         List<String> parties = Arrays.asList(distribution.split(" "));
-        int ind = parties.indexOf(this.agentName);
-        if (ind == -1)
-            ind = parties.indexOf("me");
-        if (ind != -1)
+        // Search for our agent name in this list of parties:
+        int ind = 0;
+        for (String party : parties)
+        {
+            if (party.startsWith(this.agentName + ":"))
+                break;
+            ind++;
+        }
+        if (ind == parties.size())
+        {
+            // Didn't find it - search for "me":
+            ind = 0;
+            for (String party : parties)
+            {
+                if (party.startsWith("me:"))
+                    break;
+                ind++;
+            }
+        }
+        if (ind != parties.size())
         {
             String us = parties.get(ind);
             String[] parts = us.split(":");

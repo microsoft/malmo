@@ -1,6 +1,7 @@
-0.20.1
+0.21.0
 -------------------
 New: yaw and pitch added to nearby entity observations.
+New: reward handler and quit producer for mob catching. (#440)
 
 0.20.0
 -------------------

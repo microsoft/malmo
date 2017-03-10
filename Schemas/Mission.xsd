@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.20">
+           version="0.21">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -345,6 +345,7 @@
             <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
             <xs:element ref="RewardForStructureCopying" minOccurs="0"/>
             <xs:element ref="RewardForTimeTaken" minOccurs="0"/>
+            <xs:element ref="RewardForCatchingMob" minOccurs="0"/>
 
             <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
             <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
@@ -361,6 +362,7 @@
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCatchingMob" minOccurs="0" />
         </xs:all>
     </xs:group>
 

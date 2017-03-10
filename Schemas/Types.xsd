@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.20">
+           version="0.21">
 
 <xs:simpleType name="Colour">
     <xs:annotation>

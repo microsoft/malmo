@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.20">
+           version="0.21">
 
   <xs:include schemaLocation="Types.xsd" />
   <xs:include schemaLocation="Mission.xsd" /> 
@@ -1940,6 +1940,33 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:complexType name="MobWithDescriptionAndReward">
+    <xs:complexContent>
+      <xs:extension base="MobWithDescription">
+        <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+        <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RewardForCatchingMob">
+    <xs:annotation>
+      <xs:documentation>
+        Reward for cornering a mob, such that it cannot move from its current square without passing through an agent.
+        If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
+        For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+        If {{{oneshot}}} is true, the reward will only be counted once per entity.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithDescriptionAndReward"/>
+      </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+    </xs:complexType>
+  </xs:element>
+
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
   <xs:complexType name="PointWithToleranceAndDescription">
@@ -2014,6 +2041,30 @@
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="MobList">
+    <xs:list itemType="EntityTypes"/>
+  </xs:simpleType>
+
+  <xs:complexType name="MobWithDescription">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="description" type="xs:string" use="optional" default=""/>
+    <xs:attribute name="global" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+ 
+  <xs:element name="AgentQuitFromCatchingMob">
+    <xs:annotation>
+      <xs:documentation>
+        Agent's mission will end when they corner a mob. If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
+        For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithDescription"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
