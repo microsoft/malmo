@@ -51,7 +51,7 @@ try {
         $parts = $env:PYTHONPATH.split(";")
         if (-Not ($parts -Contains $newPyPath))
         {
-            $newPyPath = env:PYTHONPATH + ";" + $newPyPath
+            $newPyPath = $env:PYTHONPATH + ";" + $newPyPath
             [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "User")
             [Environment]::SetEnvironmentVariable("PYTHONPATH", $newPyPath, "Process")
         }
