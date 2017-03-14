@@ -1,3 +1,7 @@
+0.?
+-------------------
+New: ObservationFromRay now returns distance.
+
 0.21.0
 -------------------
 New: yaw and pitch added to nearby entity observations.

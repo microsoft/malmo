@@ -117,6 +117,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                 }
             }
             jsonMop.addProperty("inRange", hitDist <= blockReach);
+            jsonMop.addProperty("distance", hitDist);
         }
         else if (mop.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY)
         {
@@ -145,6 +146,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                 jsonMop.addProperty("hitType", hitType);
             }
             jsonMop.addProperty("inRange", hitDist <= entityReach);
+            jsonMop.addProperty("distance", hitDist);
         }
         json.add("LineOfSight", jsonMop);
     }
