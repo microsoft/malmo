@@ -32,6 +32,31 @@ using namespace std;
 // Local:
 #include "connectmalmo.h"
 
+
+
+// MissionSpec --------------------------------------------------------------------------------------
+
+ptMissionSpec new_mission_spec() {
+    MissionSpec * pt = new MissionSpec;
+    return (void*)pt;
+}
+
+void free_mission_spec(ptMissionSpec mission_spec) {
+    if (mission_spec != NULL) {
+        MissionSpec * pt = (MissionSpec*)mission_spec;
+        delete pt;
+    }
+}
+
+void mission_spec_time_limit_in_seconds(ptMissionSpec mission_spec_in, float s) {
+    MissionSpec * mission_spec = (MissionSpec*)mission_spec_in;
+    mission_spec->timeLimitInSeconds(s);
+}
+
+
+
+// AgentHost ----------------------------------------------------------------------------------------
+
 ptAgentHost new_agent_host() {
     AgentHost * pt = new AgentHost;
     return (void*)pt;

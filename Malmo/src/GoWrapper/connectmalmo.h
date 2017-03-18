@@ -24,9 +24,22 @@
 extern "C" {
 #endif
 
+
+
 // MissionSpec --------------------------------------------------------------------------------------
 
 typedef void* ptMissionSpec;
+
+// constructor
+ptMissionSpec new_mission_spec();
+
+// destructor
+void free_mission_spec(ptMissionSpec mission_spec);
+
+// methods
+void mission_spec_time_limit_in_seconds(ptMissionSpec mission_spec, float s);
+
+
 
 // ptMissionRecordSpec ------------------------------------------------------------------------------
 
@@ -49,6 +62,8 @@ long agent_host_get_usage(ptAgentHost agent_host);
 
 void agent_host_start_mission_simple(ptAgentHost, ptMissionSpec, ptMissionRecordSpec);
 
+
+
 // Messages -----------------------------------------------------------------------------------------
 
 // ERRORMESSAGE is a global variable to communicate exception errors from C++ to Go
@@ -58,6 +73,8 @@ char ERRORMESSAGE[ERRMSIZE];
 // USAGEMESSAGE is a global variable to communicate usage message from C++ to Go
 #define USGMSIZE 512
 char USAGEMESSAGE[USGMSIZE];
+
+
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -43,6 +43,31 @@ import (
 	"unsafe"
 )
 
+// MissionSpec --------------------------------------------------------------------------------------
+
+// MissionSpec specifies a mission to be run.
+type MissionSpec struct {
+	mission_spec C.ptMissionSpec // pointer to C.MissionSpec
+}
+
+func NewMissionSpec() (o *MissionSpec) {
+	o = new(MissionSpec)
+	o.mission_spec = C.new_mission_spec()
+	return
+}
+
+func (o *MissionSpec) Free() {
+	if o.mission_spec != nil {
+		C.free_mission_spec(o.mission_spec)
+	}
+}
+
+func (o *MissionSpec) TimeLimitInSeconds(s float32) {
+	C.mission_spec_time_limit_in_seconds(o.mission_spec, C.float(s))
+}
+
+// AgentHost ----------------------------------------------------------------------------------------
+
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
 	agent_host C.ptAgentHost // pointer to C.AgentHost
