@@ -35,7 +35,6 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
 	"unsafe"
 )
 
@@ -67,7 +66,8 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	}
 	status := C.agent_host_parse(o.agent_host, argc, argv)
 	if status != 0 {
-		return errors.New(fmt.Sprintf("error"))
+		message := C.GoString(&C.ERRORMESSAGE[0])
+		return errors.New(message)
 	}
 	return
 }

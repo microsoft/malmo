@@ -24,6 +24,7 @@ using namespace malmo;
 
 // STL:
 #include <cstddef>
+#include <cstring>
 
 // Local:
 #include "connectmalmo.h"
@@ -42,8 +43,6 @@ void free_agent_host(ptAgentHost agent_host) {
 
 // return status: 0=OK, 1=Failed(see CurrentError)
 long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv) {
-    if (agent_host == NULL) {
-        return 1;
-    }
-    return 0;
+    strncpy(ERRORMESSAGE, "1234567890", ERRMSIZE);
+    return 1;
 }

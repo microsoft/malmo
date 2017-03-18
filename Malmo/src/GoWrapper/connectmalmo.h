@@ -48,7 +48,9 @@ void agent_host_start_mission_simple(ptAgentHost, ptMissionSpec, ptMissionRecord
 
 // ErrorMessage -------------------------------------------------------------------------------------
 
-typedef void* ptErrorMessage; // cast to std::string
+// ERRORMESSAGE is a global variable to communicate exception errors between Go and C++
+#define ERRMSIZE 1024
+char ERRORMESSAGE[ERRMSIZE];
 
 #ifdef __cplusplus
 } /* extern "C" */
