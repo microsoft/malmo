@@ -25,6 +25,9 @@ using namespace malmo;
 // STL:
 #include <cstddef>
 #include <cstring>
+#include <exception>
+#include <iostream>
+using namespace std;
 
 // Local:
 #include "connectmalmo.h"
@@ -41,8 +44,34 @@ void free_agent_host(ptAgentHost agent_host) {
     }
 }
 
-// return status: 0=OK, 1=Failed(see CurrentError)
-long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv) {
-    strncpy(ERRORMESSAGE, "1234567890", ERRMSIZE);
-    return 1;
+void make_error_message(const AgentHost* agent_host, const exception& e) {
+    string message = string("ERROR: ") + e.what();
+    message += "\n\n" + agent_host->getUsage();
+    strncpy(ERRORMESSAGE, message.c_str(), ERRMSIZE);
+}
+
+long agent_host_parse(ptAgentHost agent_host_in, int argc, const char** argv) {
+    AgentHost * agent_host = (AgentHost*)agent_host_in;
+    try {
+        agent_host->parseArgs(argc, argv);
+    } catch(const exception& e) {
+        make_error_message(agent_host, e);
+        return 1;
+    }
+    return 0;
+}
+
+long agent_host_received_argument(ptAgentHost agent_host_in, const char* name, long* yes_no) {
+    AgentHost * agent_host = (AgentHost*)agent_host_in;
+    try {
+        if (agent_host->receivedArgument(name)) {
+            yes_no[0] = 1;
+        } else {
+            yes_no[0] = 0;
+        }
+    } catch(const exception& e) {
+        make_error_message(agent_host, e);
+        return 1;
+    }
+    return 0;
 }

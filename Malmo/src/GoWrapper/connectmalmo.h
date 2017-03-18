@@ -42,15 +42,22 @@ ptAgentHost new_agent_host();
 // destructor
 void free_agent_host(ptAgentHost agent_host);
 
-// methods
+// methods: all return status: 0=OK, 1=Failed(check ERRORMESSAGE out)
 long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv);
+long agent_host_received_argument(ptAgentHost agent_host, const char* name, long* yes_no);
+long agent_host_get_usage(ptAgentHost agent_host);
+
 void agent_host_start_mission_simple(ptAgentHost, ptMissionSpec, ptMissionRecordSpec);
 
-// ErrorMessage -------------------------------------------------------------------------------------
+// Messages -----------------------------------------------------------------------------------------
 
-// ERRORMESSAGE is a global variable to communicate exception errors between Go and C++
+// ERRORMESSAGE is a global variable to communicate exception errors from C++ to Go
 #define ERRMSIZE 1024
 char ERRORMESSAGE[ERRMSIZE];
+
+// USAGEMESSAGE is a global variable to communicate usage message from C++ to Go
+#define USGMSIZE 512
+char USAGEMESSAGE[USGMSIZE];
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -30,6 +30,11 @@ static inline char** make_argv(int argc) {
 static inline void set_arg(char** argv, int i, char* str) {
 	argv[i] = str;
 }
+#ifdef WIN32
+#define LONG long long
+#else
+#define LONG long
+#endif
 */
 import "C"
 
@@ -70,4 +75,20 @@ func (o *AgentHost) Parse(args []string) (err error) {
 		return errors.New(message)
 	}
 	return
+}
+
+func (o *AgentHost) ReceivedArgument(name string) bool {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	yes_no := []int{0}
+	cyes_no := (*C.LONG)(unsafe.Pointer(&yes_no[0]))
+	status := C.agent_host_received_argument(o.agent_host, cname, cyes_no)
+	if status != 0 {
+		message := C.GoString(&C.ERRORMESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	if yes_no[0] == 1 {
+		return true
+	}
+	return false
 }

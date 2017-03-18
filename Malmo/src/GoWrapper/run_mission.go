@@ -17,35 +17,28 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-package malmo
+// +build ignore
 
-import "testing"
+package main
 
-func Test_agenthost01(tst *testing.T) {
+import (
+	"fmt"
+	"malmo"
+	"os"
+)
 
-	agent_host := NewAgentHost()
+func main() {
+
+	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
-	args := []string{"filename", "--run", "3", "--remote"} // we expect this to give an error
-
-	err := agent_host.Parse(args)
-	if err == nil {
-		tst.Errorf("this test expects an error from Parse\n")
-	}
-}
-
-func Test_agenthost02(tst *testing.T) {
-	agent_host := NewAgentHost()
-	defer agent_host.Free()
-
-	err := agent_host.Parse([]string{"filename", "--help"})
+	err := agent_host.Parse(os.Args)
 	if err != nil {
-		tst.Errorf("ParseArgs failed:\n%v\n", err)
+		fmt.Println(err)
 		return
 	}
-
-	if !agent_host.ReceivedArgument("help") {
-		tst.Errorf("ReceivedArgument failed: '--help' argument should be in there")
+	if agent_host.ReceivedArgument("help") {
+		fmt.Println(agent_host.GetUsage())
 		return
 	}
 }
