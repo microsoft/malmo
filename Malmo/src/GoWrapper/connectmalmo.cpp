@@ -75,3 +75,15 @@ long agent_host_received_argument(ptAgentHost agent_host_in, const char* name, l
     }
     return 0;
 }
+
+long agent_host_get_usage(ptAgentHost agent_host_in) {
+    AgentHost * agent_host = (AgentHost*)agent_host_in;
+    try {
+        string usage = agent_host->getUsage();
+        strncpy(USAGEMESSAGE, usage.c_str(), USGMSIZE);
+    } catch(const exception& e) {
+        make_error_message(agent_host, e);
+        return 1;
+    }
+    return 0;
+}

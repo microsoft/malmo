@@ -46,6 +46,15 @@ func Test_agenthost02(tst *testing.T) {
 
 	if !agent_host.ReceivedArgument("help") {
 		tst.Errorf("ReceivedArgument failed: '--help' argument should be in there")
-		return
+	}
+}
+
+func Test_agenthost03(tst *testing.T) {
+	agent_host := NewAgentHost()
+	defer agent_host.Free()
+
+	usage := agent_host.GetUsage()
+	if len(usage) == 0 {
+		tst.Errorf("GetUsage failed")
 	}
 }

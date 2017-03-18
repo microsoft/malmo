@@ -92,3 +92,13 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	}
 	return false
 }
+
+func (o *AgentHost) GetUsage() string {
+	status := C.agent_host_get_usage(o.agent_host)
+	if status != 0 {
+		message := C.GoString(&C.ERRORMESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	usage := C.GoString(&C.USAGEMESSAGE[0])
+	return usage
+}
