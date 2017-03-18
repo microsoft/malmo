@@ -22,6 +22,12 @@ package malmo
 import "testing"
 
 func Test_agenthost01(tst *testing.T) {
-	agenthost := NewAgentHost()
-	defer agenthost.Free()
+	agent_host := NewAgentHost()
+	defer agent_host.Free()
+
+	err := agent_host.Parse([]string{"--test"})
+	if err != nil {
+		tst.Errorf("ParseArgs failed:\n%v\n", err)
+		return
+	}
 }

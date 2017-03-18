@@ -36,12 +36,19 @@ typedef void* ptMissionRecordSpec;
 
 typedef void* ptAgentHost;
 
-// constructor and destructor
+// constructor
 ptAgentHost new_agent_host();
-void free_agent_host(ptAgentHost);
+
+// destructor
+void free_agent_host(ptAgentHost agent_host);
 
 // methods
+long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv);
 void agent_host_start_mission_simple(ptAgentHost, ptMissionSpec, ptMissionRecordSpec);
+
+// ErrorMessage -------------------------------------------------------------------------------------
+
+typedef void* ptErrorMessage; // cast to std::string
 
 #ifdef __cplusplus
 } /* extern "C" */

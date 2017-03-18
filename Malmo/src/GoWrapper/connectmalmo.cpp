@@ -22,21 +22,28 @@
 #include <AgentHost.h>
 using namespace malmo;
 
+// STL:
 #include <cstddef>
 
+// Local:
 #include "connectmalmo.h"
 
-ptAgentHost new_agent_host()
-{
+ptAgentHost new_agent_host() {
     AgentHost * pt = new AgentHost;
     return (void*)pt;
 }
 
-void free_agent_host(ptAgentHost agent_host)
-{
-    if (agent_host != NULL)
-    {
+void free_agent_host(ptAgentHost agent_host) {
+    if (agent_host != NULL) {
         AgentHost * pt = (AgentHost*)agent_host;
         delete pt;
     }
+}
+
+// return status: 0=OK, 1=Failed(see CurrentError)
+long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv) {
+    if (agent_host == NULL) {
+        return 1;
+    }
+    return 0;
 }

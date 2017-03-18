@@ -23,8 +23,21 @@ package malmo
 #cgo CXXFLAGS: -I. -I.. -I../../../Schemas -std=c++11 -Wno-deprecated-declarations
 #cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 #include "connectmalmo.h"
+#include "stdlib.h"
+static inline char** make_argv(int argc) {
+	return (char**)malloc(sizeof(char*) * argc);
+}
+static inline void set_arg(char** argv, int i, char* str) {
+	argv[i] = str;
+}
 */
 import "C"
+
+import (
+	"errors"
+	"fmt"
+	"unsafe"
+)
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
@@ -41,4 +54,20 @@ func (o *AgentHost) Free() {
 	if o.agent_host != nil {
 		C.free_agent_host(o.agent_host)
 	}
+}
+
+func (o *AgentHost) Parse(args []string) (err error) {
+	argc := C.int(len(args))
+	argv := C.make_argv(argc)
+	defer C.free(unsafe.Pointer(argv))
+	for i, arg := range args {
+		carg := C.CString(arg)
+		C.set_arg(argv, C.int(i), carg)
+		defer C.free(unsafe.Pointer(carg))
+	}
+	status := C.agent_host_parse(o.agent_host, argc, argv)
+	if status != 0 {
+		return errors.New(fmt.Sprintf("error"))
+	}
+	return
 }
