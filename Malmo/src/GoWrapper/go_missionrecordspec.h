@@ -29,6 +29,9 @@ typedef void* ptMissionRecordSpec;
 // constructor
 ptMissionRecordSpec new_mission_record_spec();
 
+// alternative constructor
+ptMissionRecordSpec new_mission_record_spec_target(const char* destination);
+
 // destructor
 void free_mission_record_spec(ptMissionRecordSpec mission_record_spec);
 

@@ -41,4 +41,15 @@ func main() {
 		fmt.Println(agent_host.GetUsage())
 		return
 	}
+
+	my_mission := malmo.NewMissionSpec()
+	my_mission.TimeLimitInSeconds(10)
+	my_mission.RequestVideo(320, 240)
+	my_mission.RewardForReachingPosition(19.5, 0.0, 19.5, 100.0, 1.1)
+
+	my_mission_record := malmo.NewMissionRecordSpecTarget("./saved_data.tgz")
+	my_mission_record.RecordCommands()
+	my_mission_record.RecordMP4(20, 400000)
+	my_mission_record.RecordRewards()
+	my_mission_record.RecordObservations()
 }

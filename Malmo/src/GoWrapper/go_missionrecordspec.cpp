@@ -29,6 +29,11 @@ ptMissionRecordSpec new_mission_record_spec() {
     return (void*)pt;
 }
 
+ptMissionRecordSpec new_mission_record_spec_target(const char* destination) {
+    MissionRecordSpec * pt = new MissionRecordSpec(destination);
+    return (void*)pt;
+}
+
 void free_mission_record_spec(ptMissionRecordSpec mission_record_spec) {
     if (mission_record_spec != NULL) {
         MissionRecordSpec * pt = (MissionRecordSpec*)mission_record_spec;

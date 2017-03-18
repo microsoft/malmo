@@ -21,8 +21,12 @@ package malmo
 
 /*
 #include "go_missionrecordspec.h"
+
+#include "stdlib.h"
 */
 import "C"
+
+import "unsafe"
 
 // MissionRecordSpec specifies the type of data that should be recorded from the mission.
 type MissionRecordSpec struct {
@@ -40,8 +44,12 @@ func NewMissionRecordSpec() (o *MissionRecordSpec) {
 // By default, nothing is recorded. Use the other functions to specify what channels should be recorded.
 // WARNING: You cannot re-use the instance of MissionRecordSpec - make a new one per call to AgentHost.startMission.
 // destination -- Filename to save to.
-func NewMissionRecordSpecTarget(destination string) {
-	panic("TODO")
+func NewMissionRecordSpecTarget(destination string) (o *MissionRecordSpec) {
+	o = new(MissionRecordSpec)
+	cdest := C.CString(destination)
+	defer C.free(unsafe.Pointer(cdest))
+	o.mission_record_spec = C.new_mission_record_spec_target(cdest)
+	return
 }
 
 // Free deallocates MissionRecordSpec object
