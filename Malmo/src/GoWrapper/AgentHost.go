@@ -22,19 +22,25 @@ package malmo
 /*
 #cgo CXXFLAGS: -I. -I.. -I../../../Schemas -std=c++11 -Wno-deprecated-declarations
 #cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
-#include "connectmalmo.h"
+
+#include "go_messages.h"
+#include "go_agenthost.h"
+
 #include "stdlib.h"
-static inline char** make_argv(int argc) {
-	return (char**)malloc(sizeof(char*) * argc);
-}
-static inline void set_arg(char** argv, int i, char* str) {
-	argv[i] = str;
-}
+
 #ifdef WIN32
 #define LONG long long
 #else
 #define LONG long
 #endif
+
+static inline char** make_argv(int argc) {
+	return (char**)malloc(sizeof(char*) * argc);
+}
+
+static inline void set_arg(char** argv, int i, char* str) {
+	argv[i] = str;
+}
 */
 import "C"
 
@@ -42,31 +48,6 @@ import (
 	"errors"
 	"unsafe"
 )
-
-// MissionSpec --------------------------------------------------------------------------------------
-
-// MissionSpec specifies a mission to be run.
-type MissionSpec struct {
-	mission_spec C.ptMissionSpec // pointer to C.MissionSpec
-}
-
-func NewMissionSpec() (o *MissionSpec) {
-	o = new(MissionSpec)
-	o.mission_spec = C.new_mission_spec()
-	return
-}
-
-func (o *MissionSpec) Free() {
-	if o.mission_spec != nil {
-		C.free_mission_spec(o.mission_spec)
-	}
-}
-
-func (o *MissionSpec) TimeLimitInSeconds(s float32) {
-	C.mission_spec_time_limit_in_seconds(o.mission_spec, C.float(s))
-}
-
-// AgentHost ----------------------------------------------------------------------------------------
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
