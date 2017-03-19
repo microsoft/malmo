@@ -102,5 +102,6 @@ func Test_mission01(tst *testing.T) {
 	// second mission variable
 	validate := true
 	my_mission2 := NewMissionSpecXML(xml, validate)
+	defer my_mission2.Free()
 	fmt.Printf("%+v\n", my_mission2)
 }
