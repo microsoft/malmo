@@ -82,8 +82,9 @@ func init() {
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
-	pt  C.ptAgentHost // pointer to C.AgentHost
-	err *C.char       // buffer to hold error messages from C++
+	pt    C.ptAgentHost // pointer to C.AgentHost
+	err   *C.char       // buffer to hold error messages from C++
+	usage *C.char       // buffer to hold usage message from C++
 }
 
 func NewAgentHost() (o *AgentHost) {
@@ -93,6 +94,7 @@ func NewAgentHost() (o *AgentHost) {
 		panic("ERROR: Cannot create new NewAgentHost")
 	}
 	o.err = C.make_buffer(C.AH_ERROR_MESSAGE_SIZE)
+	o.usage = C.make_buffer(C.AH_USAGE_MESSAGE_SIZE)
 	return
 }
 
@@ -100,6 +102,7 @@ func (o *AgentHost) Free() {
 	if o.pt != nil {
 		C.free_agent_host(o.pt)
 		C.free_buffer(o.err)
+		C.free_buffer(o.usage)
 	}
 }
 
@@ -149,12 +152,12 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 }
 
 func (o *AgentHost) GetUsage() string {
-	status := C.agent_host_get_usage(o.pt, o.err)
+	status := C.agent_host_get_usage(o.pt, o.err, o.usage)
 	if status != 0 {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	usage := C.GoString(&C.AH_USAGE_MESSAGE[0])
+	usage := C.GoString(o.usage)
 	return usage
 }
 

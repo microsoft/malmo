@@ -85,9 +85,9 @@ int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, in
     )
 }
 
-int agent_host_get_usage(ptAgentHost pt, char* err) {
+int agent_host_get_usage(ptAgentHost pt, char* err, char* usage) {
     AH_CALL(
-        string usage = agent_host->getUsage();
-        strncpy(AH_USAGE_MESSAGE, usage.c_str(), AH_USAGE_MESSAGE_SIZE);
+        string str_usage = agent_host->getUsage();
+        strncpy(usage, str_usage.c_str(), AH_USAGE_MESSAGE_SIZE);
     )
 }

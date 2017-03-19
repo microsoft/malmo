@@ -28,8 +28,7 @@ extern "C" {
 #define AH_ERROR_MESSAGE_SIZE 1024
 
 // global variable to communicate usage messages from C++ to Go
-#define AH_USAGE_MESSAGE_SIZE 512
-char AH_USAGE_MESSAGE[AH_USAGE_MESSAGE_SIZE];
+#define AH_USAGE_MESSAGE_SIZE 1024
 
 // macro to help with calling AgentHost methods and handling exception errors
 // this macro assumes that the following variables are defined:
@@ -77,7 +76,7 @@ void agent_host_initialise_enums(
 // methods:
 int agent_host_parse             (ptAgentHost pt, char* err, int argc, const char** argv);
 int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, int* response);
-int agent_host_get_usage         (ptAgentHost pt, char* err);
+int agent_host_get_usage         (ptAgentHost pt, char* err, char* usage);
 
 #ifdef __cplusplus
 } /* extern "C" */
