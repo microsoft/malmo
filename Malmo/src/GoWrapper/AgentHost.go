@@ -23,9 +23,7 @@ package malmo
 #cgo CXXFLAGS: -I. -I.. -I../../../Schemas -std=c++11 -Wno-deprecated-declarations
 #cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
-#include "go_messages.h"
 #include "go_agenthost.h"
-
 #include "stdlib.h"
 
 static inline char** make_argv(int argc) {
@@ -107,7 +105,7 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	// call C command
 	status := C.agent_host_parse(o.agent_host, argc, argv)
 	if status != 0 {
-		message := C.GoString(&C.ERROR_MESSAGE[0])
+		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		return errors.New(message)
 	}
 	return
@@ -124,7 +122,7 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	// call C command
 	status := C.agent_host_received_argument(o.agent_host, cname, cresponse)
 	if status != 0 {
-		message := C.GoString(&C.ERROR_MESSAGE[0])
+		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
 	}
 
@@ -138,10 +136,10 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 func (o *AgentHost) GetUsage() string {
 	status := C.agent_host_get_usage(o.agent_host)
 	if status != 0 {
-		message := C.GoString(&C.ERROR_MESSAGE[0])
+		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
 	}
-	usage := C.GoString(&C.USAGE_MESSAGE[0])
+	usage := C.GoString(&C.AH_USAGE_MESSAGE[0])
 	return usage
 }
 

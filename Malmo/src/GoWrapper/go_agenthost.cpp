@@ -23,12 +23,11 @@ using namespace malmo;
 
 // STL:
 #include <cstddef>
-#include <cstring>
+#include <string>
 #include <exception>
 using namespace std;
 
 // Local:
-#include "go_messages.h"
 #include "go_agenthost.h"
 
 ptAgentHost new_agent_host() {
@@ -68,27 +67,17 @@ void agent_host_initialise_enums(
 void make_error_message(const AgentHost* agent_host, const exception& e) {
     string message = string("ERROR: ") + e.what();
     message += "\n\n" + agent_host->getUsage();
-    strncpy(ERROR_MESSAGE, message.c_str(), ERROR_MESSAGE_SIZE);
+    strncpy(AH_ERROR_MESSAGE, message.c_str(), AH_ERROR_MESSAGE_SIZE);
 }
 
-#define AGENT_HOST_CALL(command)              \
-    AgentHost * agent_host = (AgentHost*)pt;  \
-    try {                                     \
-        command                               \
-    } catch (const exception& e) {            \
-        MAKE_ERROR_MESSAGE_AH(e, agent_host)  \
-        return 1;                             \
-    }                                         \
-    return 0;
-
 int agent_host_parse(ptAgentHost pt, int argc, const char** argv) {
-    AGENT_HOST_CALL(
+    AH_CALL(
         agent_host->parseArgs(argc, argv);
     )
 }
 
 int agent_host_received_argument(ptAgentHost pt, const char* name, int* response) {
-    AGENT_HOST_CALL(
+    AH_CALL(
         if (agent_host->receivedArgument(name)) {
             *response = 1;
         } else {
@@ -98,8 +87,8 @@ int agent_host_received_argument(ptAgentHost pt, const char* name, int* response
 }
 
 int agent_host_get_usage(ptAgentHost pt) {
-    AGENT_HOST_CALL(
+    AH_CALL(
         string usage = agent_host->getUsage();
-        strncpy(USAGE_MESSAGE, usage.c_str(), USAGE_MESSAGE_SIZE);
+        strncpy(AH_USAGE_MESSAGE, usage.c_str(), AH_USAGE_MESSAGE_SIZE);
     )
 }

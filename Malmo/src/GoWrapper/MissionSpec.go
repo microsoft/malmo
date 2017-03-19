@@ -21,18 +21,20 @@ package malmo
 
 /*
 #include "go_missionspec.h"
+#include "stdlib.h"
 */
 import "C"
+import "unsafe"
 
 // MissionSpec specifies a mission to be run.
 type MissionSpec struct {
-	mission_spec C.ptMissionSpec // pointer to C.MissionSpec
+	pt C.ptMissionSpec // pointer to C.MissionSpec
 }
 
 // NewMissionSpec constructs a mission with default parameters: a flat world with a 10 seconds time limit and continuous movement.
 func NewMissionSpec() (o *MissionSpec) {
 	o = new(MissionSpec)
-	o.mission_spec = C.new_mission_spec()
+	o.pt = C.new_mission_spec()
 	return
 }
 
@@ -45,8 +47,8 @@ func NewMissionSpecXML(xml string, validate bool) {
 
 // Free deallocates MissionSpec object
 func (o *MissionSpec) Free() {
-	if o.mission_spec != nil {
-		C.free_mission_spec(o.mission_spec)
+	if o.pt != nil {
+		C.free_mission_spec(o.pt)
 	}
 }
 
@@ -62,31 +64,35 @@ func (o MissionSpec) GetAsXML(prettyPrint bool) string {
 // SetSummary Sets the summary description of the mission.
 // summary -- The string describing the mission. Shorter strings display best.
 func (o *MissionSpec) SetSummary(summary string) {
-	panic("TODO")
+	csummary := C.CString(summary)
+	defer C.free(unsafe.Pointer(csummary))
+	C.mission_spec_set_summary(o.pt, csummary)
 }
 
 // TimeLimitInSeconds Sets the time limit for the mission.
 // s -- The time limit in seconds.
 func (o *MissionSpec) TimeLimitInSeconds(s float32) {
-	C.mission_spec_time_limit_in_seconds(o.mission_spec, C.float(s))
+	C.mission_spec_time_limit_in_seconds(o.pt, C.float(s))
 }
 
 // CreateDefaultTerrain makes a world using Minecraft's terrain generator, instead of the default flat world.
 // Calling this will reset the world seed and forceReset flag - see setWorldSeed() and forceWorldReset().
 func (o *MissionSpec) CreateDefaultTerrain() {
-	panic("TODO")
+	C.mission_spec_create_default_terrain(o.pt)
 }
 
 // SetWorldSeed sets the seed used for Minecraft's terrain generation.
 // Call this after the world generator has been set (eg after calling createDefaultTerrain() ).
 func (o *MissionSpec) SetWorldSeed(seed string) {
-	panic("TODO")
+	cseed := C.CString(seed)
+	defer C.free(unsafe.Pointer(cseed))
+	C.mission_spec_set_world_seed(o.pt, cseed)
 }
 
 // ForceWorldReset forces Minecraft to reload the world rather than use the current one (if appropriate).
 // Call this after the world generator has been set (eg after calling createDefaultTerrain() ).
 func (o *MissionSpec) ForceWorldReset() {
-	panic("TODO")
+	C.mission_spec_force_world_reset(o.pt)
 }
 
 // SetTimeOfDay sets the time of day for the start of the mission.
@@ -94,7 +100,13 @@ func (o *MissionSpec) ForceWorldReset() {
 // eg. 0 = Dawn, 6000 = Noon, 12000 = Sunset, 18000 = Midnight.
 // \param allowTimeToPass If false then the sun does not move.
 func (o *MissionSpec) SetTimeOfDay(t int, allowTimeToPass bool) {
-	panic("TODO")
+	var callowTimeToPass C.int
+	if allowTimeToPass {
+		callowTimeToPass = 1
+	} else {
+		callowTimeToPass = 0
+	}
+	C.mission_spec_set_time_of_day(o.pt, C.int(t), callowTimeToPass)
 }
 
 // DrawBlock draws a Minecraft block in the world.
@@ -103,7 +115,9 @@ func (o *MissionSpec) SetTimeOfDay(t int, allowTimeToPass bool) {
 // z -- The north-south location.
 // blockType -- A string corresponding to one of the Minecraft block types.
 func (o *MissionSpec) DrawBlock(x, y, z int, blockType string) {
-	panic("TODO")
+	cblockType := C.CString(blockType)
+	defer C.free(unsafe.Pointer(cblockType))
+	C.mission_spec_draw_block(o.pt, C.int(x), C.int(y), C.int(z), cblockType)
 }
 
 // DrawCuboid draws a solid cuboid in the world.
@@ -115,7 +129,9 @@ func (o *MissionSpec) DrawBlock(x, y, z int, blockType string) {
 // z2 -- The south-most location.
 // blockType -- A string corresponding to one of the Minecraft block types.
 func (o *MissionSpec) DrawCuboid(x1, y1, z1, x2, y2, z2 int, blockType string) {
-	panic("TODO")
+	cblockType := C.CString(blockType)
+	defer C.free(unsafe.Pointer(cblockType))
+	C.mission_spec_draw_cuboid(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
 }
 
 // DrawItem draws a Minecraft item in the world.
@@ -124,7 +140,9 @@ func (o *MissionSpec) DrawCuboid(x1, y1, z1, x2, y2, z2 int, blockType string) {
 // z -- The north-south location.
 // itemType -- A string corresponding to one of the Minecraft item types.
 func (o *MissionSpec) DrawItem(x, y, z int, itemType string) {
-	panic("TODO")
+	citemType := C.CString(itemType)
+	defer C.free(unsafe.Pointer(citemType))
+	C.mission_spec_draw_item(o.pt, C.int(x), C.int(y), C.int(z), citemType)
 }
 
 // DrawSphere draws a solid sphere of blocks in the world.
@@ -134,7 +152,9 @@ func (o *MissionSpec) DrawItem(x, y, z int, itemType string) {
 // radius -- The radius of the sphere.
 // blockType -- A string corresponding to one of the Minecraft block types.
 func (o *MissionSpec) DrawSphere(x, y, z, radius int, blockType string) {
-	panic("TODO")
+	cblockType := C.CString(blockType)
+	defer C.free(unsafe.Pointer(cblockType))
+	C.mission_spec_draw_sphere(o.pt, C.int(x), C.int(y), C.int(z), C.int(radius), cblockType)
 }
 
 // DrawLine draws a line of blocks in the world.
@@ -146,7 +166,9 @@ func (o *MissionSpec) DrawSphere(x, y, z, radius int, blockType string) {
 // z2 -- The north-south location of the second end.
 // blockType -- A string corresponding to one of the Minecraft block types.
 func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2 int, blockType string) {
-	panic("TODO")
+	cblockType := C.CString(blockType)
+	defer C.free(unsafe.Pointer(cblockType))
+	C.mission_spec_draw_line(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
 }
 
 // -------------------- settings for the agents -------------------------
@@ -157,7 +179,7 @@ func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2 int, blockType string) {
 // y -- The up-down location.
 // z -- The north-south location.
 func (o *MissionSpec) StartAt(x, y, z float32) {
-	panic("TODO")
+	C.mission_spec_start_at(o.pt, C.float(x), C.float(y), C.float(z))
 }
 
 // Sets the start location and angles for the agent. Only supports single agent missions.
@@ -168,7 +190,7 @@ func (o *MissionSpec) StartAt(x, y, z float32) {
 // yaw -- The yaw in degrees (180 = north, 270 = east, 0 = south, 90 = west)
 // pitch -- The pitch in degrees (-90 = straight up, 90 = straight down, 0 = horizontal)
 func (o *MissionSpec) StartAtWithPitchAndYaw(x, y, z, pitch, yaw float32) {
-	panic("TODO")
+	C.mission_spec_start_at_with_pitch_and_yaw(o.pt, C.float(x), C.float(y), C.float(z), C.float(pitch), C.float(yaw))
 }
 
 // Sets the end location for the agent. Only supports single agent missions.
@@ -179,17 +201,17 @@ func (o *MissionSpec) StartAtWithPitchAndYaw(x, y, z, pitch, yaw float32) {
 // z -- The north-south location.
 // tolerance -- The radius that the agent must be within. Euclidean distance.
 func (o *MissionSpec) EndAt(x, y, z, tolerance float32) {
-	panic("TODO")
+	C.mission_spec_end_at(o.pt, C.float(x), C.float(y), C.float(z), C.float(tolerance))
 }
 
 // Sets the player mode for the agent to creative, allowing them to fly and to not sustain damage. Only supports single agent missions.
 func (o *MissionSpec) SetModeToCreative() {
-	panic("TODO")
+	C.mission_spec_set_mode_to_creative(o.pt)
 }
 
 // Sets the player mode for the agent to spectator, allowing them to fly and pass through objects. Only supports single agent missions.
 func (o *MissionSpec) SetModeToSpectator() {
-	panic("TODO")
+	C.mission_spec_set_mode_to_spectator(o.pt)
 }
 
 // Asks for image data to be sent from Minecraft for the agent. Only supports single agent missions.
@@ -198,7 +220,7 @@ func (o *MissionSpec) SetModeToSpectator() {
 // width -- The width of the image in pixels. Ensure this is divisible by 4.
 // height -- The height of the image in pixels. Ensure this is divisible by 2.
 func (o *MissionSpec) RequestVideo(width, height int) {
-	panic("TODO")
+	C.mission_spec_request_video(o.pt, C.int(width), C.int(height))
 }
 
 // Asks for image data and depth data to be sent from Minecraft for the agent. Only supports single agent missions.
@@ -207,13 +229,13 @@ func (o *MissionSpec) RequestVideo(width, height int) {
 // width -- The width of the image in pixels. Ensure this is divisible by 4.
 // height -- The height of the image in pixels. Ensure this is divisible by 2.
 func (o *MissionSpec) RequestVideoWithDepth(width, height int) {
-	panic("TODO")
+	C.mission_spec_request_video_with_depth(o.pt, C.int(width), C.int(height))
 }
 
 // Sets the camera position. Modifies the existing video request, so call this after requestVideo or requestVideoWithDepth.
 // \param viewpoint The camera position to use. 0 = first person, 1 = behind, 2 = facing.
 func (o *MissionSpec) SetViewpoint(viewpoint int) {
-	panic("TODO")
+	C.mission_spec_set_viewpoint(o.pt, C.int(viewpoint))
 }
 
 // Asks for a reward to be sent to the agent when it reaches a certain position. Only supports single agent missions.
@@ -224,28 +246,28 @@ func (o *MissionSpec) SetViewpoint(viewpoint int) {
 // amount -- The reward value to send.
 // tolerance -- The radius that the agent must be within to receive the reward. Euclidean distance.
 func (o *MissionSpec) RewardForReachingPosition(x, y, z, amount, tolerance float32) {
-	panic("TODO")
+	C.mission_spec_reward_for_reaching_position(o.pt, C.float(x), C.float(y), C.float(z), C.float(amount), C.float(tolerance))
 }
 
 // Asks for the list of commands acted upon since the last timestep to be returned in the observations. Only supports single agent missions.
 // The commands are returned in a JSON entry called 'CommandsSinceLastObservation'.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromRecentCommands">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveRecentCommands() {
-	panic("TODO")
+	C.mission_spec_observe_recent_commands(o.pt)
 }
 
 // Asks for the contents of the player's hot-bar to be included in the observations. Only supports single agent missions.
 // The commands are returned in JSON entries 'Hotbar_0_size', 'Hotbar_0_item', etc.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromHotBar">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveHotBar() {
-	panic("TODO")
+	C.mission_spec_observe_hot_bar(o.pt)
 }
 
 // Asks for the full item inventory of the player to be included in the observations. Only supports single agent missions.
 // The commands are returned in JSON entries 'Inventory_0_size', 'Inventory_0_item', etc.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromFullInventory">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveFullInventory() {
-	panic("TODO")
+	C.mission_spec_observe_full_inventory(o.pt)
 }
 
 // Asks for observations of the block types within a cuboid relative to the agent's position. Only supports single agent missions.
@@ -259,7 +281,9 @@ func (o *MissionSpec) ObserveFullInventory() {
 // z2 -- The south-most location.
 // name -- An name to identify the JSON array that will be returned.
 func (o *MissionSpec) ObserveGrid(x1, y1, z1, x2, y2, z2 int, name string) {
-	panic("TODO")
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	C.mission_spec_observe_grid(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cname)
 }
 
 // Asks for the Euclidean distance to a location to be included in the observations. Only supports single agent missions.
@@ -271,12 +295,14 @@ func (o *MissionSpec) ObserveGrid(x1, y1, z1, x2, y2, z2 int, name string) {
 // z -- The north-south location.
 // name -- A label for this observation. The observation will be called "distanceFrom<name>".
 func (o *MissionSpec) ObserveDistance(x, y, z float32, name string) {
-	panic("TODO")
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	C.mission_spec_observe_distance(o.pt, C.float(x), C.float(y), C.float(z), cname)
 }
 
 // Asks for chat messages to be included in the observations.
 func (o *MissionSpec) ObserveChat() {
-	panic("TODO")
+	C.mission_spec_observe_chat(o.pt)
 }
 
 // -------------------- settings for the agents : command handlers -------------------------
@@ -284,13 +310,13 @@ func (o *MissionSpec) ObserveChat() {
 // Remove any existing command handlers from the mission specification. Use with other functions to add exactly the command handlers you want.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) RemoveAllCommandHandlers() {
-	panic("TODO")
+	C.mission_spec_remove_all_command_handlers(o.pt)
 }
 
 // Adds a continuous movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllContinuousMovementCommands() {
-	panic("TODO")
+	C.mission_spec_allow_all_continuous_movement_commands(o.pt)
 }
 
 // Adds an allow-list to the continuous movement command handler if none present. Adds the specified verb to the allow-list.
@@ -299,13 +325,15 @@ func (o *MissionSpec) AllowAllContinuousMovementCommands() {
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 // verb -- The command verb, e.g. "move".
 func (o *MissionSpec) AllowContinuousMovementCommand(verb string) {
-	panic("TODO")
+	cverb := C.CString(verb)
+	defer C.free(unsafe.Pointer(cverb))
+	C.mission_spec_allow_continuous_movement_command(o.pt, cverb)
 }
 
 // Adds a discrete movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllDiscreteMovementCommands() {
-	panic("TODO")
+	C.mission_spec_allow_all_discrete_movement_commands(o.pt)
 }
 
 // Adds an allow-list to the discrete movement command handler if none present. Adds the specified verb to the allow-list.
@@ -314,13 +342,15 @@ func (o *MissionSpec) AllowAllDiscreteMovementCommands() {
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 // verb -- The command verb, e.g. "movenorth".
 func (o *MissionSpec) AllowDiscreteMovementCommand(verb string) {
-	panic("TODO")
+	cverb := C.CString(verb)
+	defer C.free(unsafe.Pointer(cverb))
+	C.mission_spec_allow_discrete_movement_command(o.pt, cverb)
 }
 
 // Adds an absolute movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllAbsoluteMovementCommands() {
-	panic("TODO")
+	C.mission_spec_allow_all_absolute_movement_commands(o.pt)
 }
 
 // Adds an allow-list to the absolute movement command handler if none present. Adds the specified verb to the allow-list.
@@ -329,13 +359,15 @@ func (o *MissionSpec) AllowAllAbsoluteMovementCommands() {
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 // verb -- The command verb, e.g. "tpx".
 func (o *MissionSpec) AllowAbsoluteMovementCommand(verb string) {
-	panic("TODO")
+	cverb := C.CString(verb)
+	defer C.free(unsafe.Pointer(cverb))
+	C.mission_spec_allow_absolute_movement_command(o.pt, cverb)
 }
 
 // Adds an inventory command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllInventoryCommands() {
-	panic("TODO")
+	C.mission_spec_allow_all_inventory_commands(o.pt)
 }
 
 // Adds an allow-list to the inventory command handler if none present. Adds the specified verb to the allow-list.
@@ -344,13 +376,15 @@ func (o *MissionSpec) AllowAllInventoryCommands() {
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 // verb -- The command verb, e.g. "selectInventoryItem".
 func (o *MissionSpec) AllowInventoryCommand(verb string) {
-	panic("TODO")
+	cverb := C.CString(verb)
+	defer C.free(unsafe.Pointer(cverb))
+	C.mission_spec_allow_inventory_command(o.pt, cverb)
 }
 
 // Adds a chat command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllChatCommands() {
-	panic("TODO")
+	C.mission_spec_allow_all_chat_commands(o.pt)
 }
 
 // ------------------------- information --------------------------------------
