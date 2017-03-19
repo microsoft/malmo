@@ -46,7 +46,7 @@ void free_agent_host(ptAgentHost agent_host) {
 void make_error_message(const AgentHost* agent_host, const exception& e) {
     string message = string("ERROR: ") + e.what();
     message += "\n\n" + agent_host->getUsage();
-    strncpy(ERRORMESSAGE, message.c_str(), ERRMSIZE);
+    strncpy(ERROR_MESSAGE, message.c_str(), ERROR_MESSAGE_SIZE);
 }
 
 long agent_host_parse(ptAgentHost agent_host_in, int argc, const char** argv) {
@@ -79,7 +79,7 @@ long agent_host_get_usage(ptAgentHost agent_host_in) {
     AgentHost * agent_host = (AgentHost*)agent_host_in;
     try {
         string usage = agent_host->getUsage();
-        strncpy(USAGEMESSAGE, usage.c_str(), USGMSIZE);
+        strncpy(USAGE_MESSAGE, usage.c_str(), USAGE_MESSAGE_SIZE);
     } catch(const exception& e) {
         make_error_message(agent_host, e);
         return 1;

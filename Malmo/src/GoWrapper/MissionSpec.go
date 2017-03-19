@@ -145,7 +145,7 @@ func (o *MissionSpec) DrawSphere(x, y, z, radius int, blockType string) {
 // y2 -- The up-down location of the second end.
 // z2 -- The north-south location of the second end.
 // blockType -- A string corresponding to one of the Minecraft block types.
-func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2, blockType string) {
+func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2 int, blockType string) {
 	panic("TODO")
 }
 

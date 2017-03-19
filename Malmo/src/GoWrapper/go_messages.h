@@ -24,13 +24,24 @@
 extern "C" {
 #endif
 
-// ERRORMESSAGE is a global variable to communicate exception errors from C++ to Go
-#define ERRMSIZE 1024
-char ERRORMESSAGE[ERRMSIZE];
+// global variable to communicate exception errors from C++ to Go
+#define ERROR_MESSAGE_SIZE 1024
+char ERROR_MESSAGE[ERROR_MESSAGE_SIZE];
 
-// USAGEMESSAGE is a global variable to communicate usage message from C++ to Go
-#define USGMSIZE 512
-char USAGEMESSAGE[USGMSIZE];
+// global variable to communicate usage messages from C++ to Go
+#define USAGE_MESSAGE_SIZE 512
+char USAGE_MESSAGE[USAGE_MESSAGE_SIZE];
+
+// global variable to communicate summary messages from C++ to Go
+#define SUMMARY_MESSAGE_SIZE 2048
+char SUMMARY_MESSAGE[SUMMARY_MESSAGE_SIZE];
+
+#define MAX_COMMAND_HANDLERS 100
+#define COMMAND_HANDLER_SIZE 128
+char COMMAND_HANDLERS[MAX_COMMAND_HANDLERS][COMMAND_HANDLER_SIZE];
+
+#define MAX_ACTIVE_COMMAND_HANDLERS 1000
+char ACTIVE_COMMAND_HANDLERS[MAX_ACTIVE_COMMAND_HANDLERS][COMMAND_HANDLER_SIZE];
 
 #ifdef __cplusplus
 } /* extern "C" */

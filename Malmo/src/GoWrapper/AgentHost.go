@@ -92,7 +92,7 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	}
 	status := C.agent_host_parse(o.agent_host, argc, argv)
 	if status != 0 {
-		message := C.GoString(&C.ERRORMESSAGE[0])
+		message := C.GoString(&C.ERROR_MESSAGE[0])
 		return errors.New(message)
 	}
 	return
@@ -105,7 +105,7 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	cyes_no := (*C.LONG)(unsafe.Pointer(&yes_no[0]))
 	status := C.agent_host_received_argument(o.agent_host, cname, cyes_no)
 	if status != 0 {
-		message := C.GoString(&C.ERRORMESSAGE[0])
+		message := C.GoString(&C.ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
 	}
 	if yes_no[0] == 1 {
@@ -117,10 +117,10 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 func (o *AgentHost) GetUsage() string {
 	status := C.agent_host_get_usage(o.agent_host)
 	if status != 0 {
-		message := C.GoString(&C.ERRORMESSAGE[0])
+		message := C.GoString(&C.ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
 	}
-	usage := C.GoString(&C.USAGEMESSAGE[0])
+	usage := C.GoString(&C.USAGE_MESSAGE[0])
 	return usage
 }
 
