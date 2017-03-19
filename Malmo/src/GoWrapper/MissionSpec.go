@@ -41,8 +41,18 @@ func NewMissionSpec() (o *MissionSpec) {
 // NewMissionSpecXML Constructs a mission from the supplied XML as specified here: <a href="../Schemas/Mission.html">Schemas/Mission.html</a>
 // xml -- The full XML of the mission.
 // validate -- If true, then throws an xml_schema::exception if the XML is not compliant with the schema.
-func NewMissionSpecXML(xml string, validate bool) {
-	panic("TODO")
+func NewMissionSpecXML(xml string, validate bool) (o *MissionSpec) {
+	cxml := C.CString(xml)
+	defer C.free(unsafe.Pointer(cxml))
+	var cvalidate C.int
+	if validate {
+		cvalidate = 1
+	} else {
+		cvalidate = 0
+	}
+	o = new(MissionSpec)
+	o.pt = C.new_mission_spec_xml(cxml, cvalidate)
+	return
 }
 
 // Free deallocates MissionSpec object
@@ -56,7 +66,19 @@ func (o *MissionSpec) Free() {
 // prettyPrint -- If true, add indentation and newlines to the XML to make it more readable.
 // returns The mission specification as an XML string.
 func (o MissionSpec) GetAsXML(prettyPrint bool) string {
-	panic("TODO")
+	var cprettyPrint C.int
+	if prettyPrint {
+		cprettyPrint = 1
+	} else {
+		cprettyPrint = 0
+	}
+	status := C.mission_spec_get_as_xml(o.pt, cprettyPrint)
+	if status != 0 {
+		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	xml := C.GoString(&C.MS_XML[0])
+	return xml
 }
 
 // -------------------- settings for the server -------------------------

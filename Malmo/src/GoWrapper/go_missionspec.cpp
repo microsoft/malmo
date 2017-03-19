@@ -24,7 +24,6 @@ using namespace malmo;
 // STL:
 #include <vector>
 #include <string>
-#include <iostream>
 #include <exception>
 using namespace std;
 
@@ -36,11 +35,35 @@ ptMissionSpec new_mission_spec() {
     return (void*)pt;
 }
 
+ptMissionSpec new_mission_spec_xml(const char* xml, int validate) {
+    bool dovalidate = false;
+    if (validate == 1) {
+        dovalidate = true;
+    }
+    MissionSpec * pt = new MissionSpec(xml, dovalidate);
+    return (void*)pt;
+}
+
 void free_mission_spec(ptMissionSpec mission_spec) {
     if (mission_spec != NULL) {
         MissionSpec * pt = (MissionSpec*)mission_spec;
         delete pt;
     }
+}
+
+int mission_spec_get_as_xml(ptMissionSpec pt, int prettyPrint) {
+    MS_CALL(
+        bool pprint = false;
+        if (prettyPrint == 1) {
+            pprint = true;
+        }
+        string xml = mission_spec->getAsXML(pprint);
+        if (xml.size() > MS_XML_SIZE) {
+            strncpy(MS_ERROR_MESSAGE, "Size of XML exceeds capacity", MS_ERROR_MESSAGE_SIZE);
+            return 1;
+        }
+        strncpy(MS_XML, xml.c_str(), MS_XML_SIZE);
+    )
 }
 
 // -------------------- settings for the server -------------------------

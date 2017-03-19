@@ -19,7 +19,10 @@
 
 package malmo
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func wrong_list(trial, correct []string) bool {
 	if len(trial) != len(correct) {
@@ -91,4 +94,13 @@ func Test_mission01(tst *testing.T) {
 		tst.Errorf("Unexpected commands for Inventory.\n")
 		return
 	}
+
+	// check that the XML we produce validates
+	pretty_print := false
+	xml := my_mission.GetAsXML(pretty_print)
+
+	// second mission variable
+	validate := true
+	my_mission2 := NewMissionSpecXML(xml, validate)
+	fmt.Printf("%+v\n", my_mission2)
 }

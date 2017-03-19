@@ -43,6 +43,10 @@ int MS_COMMAND_HANDLERS_NUMBER;
 char MS_ACTIVE_COMMAND_HANDLERS[MS_MAX_ACTIVE_COMMAND_HANDLERS][MS_COMMAND_HANDLER_SIZE];
 int MS_ACTIVE_COMMAND_HANDLERS_NUMBER;
 
+// global variable to hold XML message
+#define MS_XML_SIZE 1000000
+char MS_XML[MS_XML_SIZE];
+
 // macro to help with handling exception errors
 #define MS_MAKE_ERROR_MESSAGE(the_exception)                              \
     std::string message = std::string("ERROR: ") + the_exception.what();  \
@@ -65,15 +69,17 @@ typedef void* ptMissionSpec;
 // constructor
 ptMissionSpec new_mission_spec();
 
+// alternative constructor
+ptMissionSpec new_mission_spec_xml(const char* xml, int validate);
+
 // destructor
 void free_mission_spec(ptMissionSpec mission_spec);
-
-// methods
-//void mission_spec_time_limit_in_seconds(ptMissionSpec mission_spec, float s);
 
 // All functions return:
 //  0 = OK
 //  1 = failed; e.g. exception happend => see ERROR_MESSAGE
+
+int mission_spec_get_as_xml(ptMissionSpec pt, int prettyPrint);
 
 // -------------------- settings for the server -------------------------
 
