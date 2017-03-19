@@ -22,7 +22,6 @@ package malmo
 /*
 #include "go_missionspec.h"
 #include "stdlib.h"
-#include "stdio.h"
 
 static inline char* make_buffer(int size) {
 	return (char*)malloc(size * sizeof(char));
