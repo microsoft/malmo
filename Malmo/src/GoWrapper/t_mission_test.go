@@ -21,6 +21,18 @@ package malmo
 
 import "testing"
 
+func wrong_list(trial, correct []string) bool {
+	if len(trial) != len(correct) {
+		return true
+	}
+	for i, x := range correct {
+		if trial[i] != x {
+			return true
+		}
+	}
+	return false
+}
+
 func Test_mission01(tst *testing.T) {
 
 	my_mission := NewMissionSpec()
@@ -50,4 +62,33 @@ func Test_mission01(tst *testing.T) {
 	my_mission.AllowContinuousMovementCommand("strafe")
 	my_mission.AllowDiscreteMovementCommand("movenorth")
 	my_mission.AllowInventoryCommand("swapInventoryItems")
+
+	if my_mission.GetSummary() != "example mission" {
+		tst.Errorf("Unexpected summary\n")
+		return
+	}
+
+	handlers := my_mission.GetListOfCommandHandlers(0)
+	if wrong_list(handlers, []string{"ContinuousMovement", "DiscreteMovement", "Inventory"}) {
+		tst.Errorf("Unexpected command handlers.\n")
+		return
+	}
+
+	commands := my_mission.GetAllowedCommands(0, "ContinuousMovement")
+	if wrong_list(commands, []string{"move", "strafe"}) {
+		tst.Errorf("Unexpected commands for ContinuousMovement.\n")
+		return
+	}
+
+	commands = my_mission.GetAllowedCommands(0, "DiscreteMovement")
+	if wrong_list(commands, []string{"movenorth"}) {
+		tst.Errorf("Unexpected commands for DiscreteMovement.\n")
+		return
+	}
+
+	commands = my_mission.GetAllowedCommands(0, "Inventory")
+	if wrong_list(commands, []string{"swapInventoryItems"}) {
+		tst.Errorf("Unexpected commands for Inventory.\n")
+		return
+	}
 }

@@ -392,22 +392,34 @@ func (o *MissionSpec) AllowAllChatCommands() {
 // Returns the short description of the mission.
 // returns A string containing the summary.
 func (o MissionSpec) GetSummary() string {
-	panic("TODO")
-	return ""
+	status := C.mission_spec_get_summary(o.pt)
+	if status != 0 {
+		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	summary := C.GoString(&C.MS_SUMMARY_MESSAGE[0])
+	return summary
 }
 
 // Returns the number of agents involved in this mission.
 // returns The number of agents.
 func (o MissionSpec) GetNumberOfAgents() int {
-	panic("TODO")
-	return 0
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	C.mission_spec_get_number_of_agents(o.pt, cresponse)
+	return response
 }
 
 // Gets whether video has been requested for one of the agents involved in this mission.
 // role -- The agent index. Zero based.
 // returns True if video was requested.
 func (o MissionSpec) IsVideoRequested(role int) bool {
-	panic("TODO")
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	C.mission_spec_is_video_requested(o.pt, C.int(role), cresponse)
+	if response == 1 {
+		return true
+	}
 	return false
 }
 
@@ -415,32 +427,47 @@ func (o MissionSpec) IsVideoRequested(role int) bool {
 // role -- The agent index. Zero based.
 // returns The width of the video in pixels.
 func (o MissionSpec) GetVideoWidth(role int) int {
-	panic("TODO")
-	return 0
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	C.mission_spec_get_video_width(o.pt, C.int(role), cresponse)
+	return response
 }
 
 // Returns the height of the requested video for one of the agents involved in this mission.
 // role -- The agent index. Zero based.
 // returns The height of the video in pixels.
 func (o MissionSpec) GetVideoHeight(role int) int {
-	panic("TODO")
-	return 0
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	C.mission_spec_get_video_height(o.pt, C.int(role), cresponse)
+	return response
 }
 
 // Returns the number of channels in the requested video for one of the agents involved in this mission.
 // role -- The agent index. Zero based.
 // \returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
 func (o MissionSpec) GetVideoChannels(role int) int {
-	panic("TODO")
-	return 0
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	C.mission_spec_get_video_channels(o.pt, C.int(role), cresponse)
+	return response
 }
 
 // Returns a list of the names of the active command handlers for one of the agents involved in this mission.
 // role -- The agent index. Zero based.
 // returns The list of command handler names: 'ContinuousMovement', 'DiscreteMovement', 'Chat', 'Inventory' etc.
 func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
-	panic("TODO")
-	return nil
+	status := C.mission_spec_get_list_of_command_handlers(o.pt, C.int(role))
+	if status != 0 {
+		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	size := int(C.MS_COMMAND_HANDLERS_NUMBER)
+	response := make([]string, size)
+	for i := 0; i < size; i++ {
+		response[i] = C.GoString(&C.MS_COMMAND_HANDLERS[i][0])
+	}
+	return response
 }
 
 // Returns a list of the names of the allowed commands for one of the agents involved in this mission.
@@ -448,6 +475,17 @@ func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
 // command_handler -- The name of the command handler, as returned by getListOfCommandHandlers().
 // returns The list of allowed commands: 'move', 'turn', 'attack' etc.
 func (o MissionSpec) GetAllowedCommands(role int, command_handler string) []string {
-	panic("TODO")
-	return nil
+	ccommand_handler := C.CString(command_handler)
+	defer C.free(unsafe.Pointer(ccommand_handler))
+	status := C.mission_spec_get_allowed_commands(o.pt, C.int(role), ccommand_handler)
+	if status != 0 {
+		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		panic("ERROR:\n" + message)
+	}
+	size := int(C.MS_ACTIVE_COMMAND_HANDLERS_NUMBER)
+	response := make([]string, size)
+	for i := 0; i < size; i++ {
+		response[i] = C.GoString(&C.MS_ACTIVE_COMMAND_HANDLERS[i][0])
+	}
+	return response
 }

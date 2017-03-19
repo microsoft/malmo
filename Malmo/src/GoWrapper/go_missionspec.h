@@ -32,6 +32,17 @@ char MS_ERROR_MESSAGE[MS_ERROR_MESSAGE_SIZE];
 #define MS_SUMMARY_MESSAGE_SIZE 1024
 char MS_SUMMARY_MESSAGE[MS_SUMMARY_MESSAGE_SIZE];
 
+// global variable to hold the results of commandhandler
+#define MS_MAX_COMMAND_HANDLERS 100
+#define MS_COMMAND_HANDLER_SIZE 128
+char MS_COMMAND_HANDLERS[MS_MAX_COMMAND_HANDLERS][MS_COMMAND_HANDLER_SIZE];
+int MS_COMMAND_HANDLERS_NUMBER;
+
+// global variable to hold the results of commandhandler
+#define MS_MAX_ACTIVE_COMMAND_HANDLERS 1000
+char MS_ACTIVE_COMMAND_HANDLERS[MS_MAX_ACTIVE_COMMAND_HANDLERS][MS_COMMAND_HANDLER_SIZE];
+int MS_ACTIVE_COMMAND_HANDLERS_NUMBER;
+
 // macro to help with handling exception errors
 #define MS_MAKE_ERROR_MESSAGE(the_exception)                              \
     std::string message = std::string("ERROR: ") + the_exception.what();  \

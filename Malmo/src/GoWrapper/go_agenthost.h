@@ -32,19 +32,6 @@ char AH_ERROR_MESSAGE[AH_ERROR_MESSAGE_SIZE];
 #define AH_USAGE_MESSAGE_SIZE 512
 char AH_USAGE_MESSAGE[AH_USAGE_MESSAGE_SIZE];
 
-// global variable to communicate summary messages from C++ to Go
-#define AH_SUMMARY_MESSAGE_SIZE 2048
-char AH_SUMMARY_MESSAGE[AH_SUMMARY_MESSAGE_SIZE];
-
-// global variable to hold the results of commandhandler
-#define AH_MAX_COMMAND_HANDLERS 100
-#define AH_COMMAND_HANDLER_SIZE 128
-char AH_COMMAND_HANDLERS[AH_MAX_COMMAND_HANDLERS][AH_COMMAND_HANDLER_SIZE];
-
-// global variable to hold the results of commandhandler
-#define AH_MAX_ACTIVE_COMMAND_HANDLERS 1000
-char AH_ACTIVE_COMMAND_HANDLERS[AH_MAX_ACTIVE_COMMAND_HANDLERS][AH_COMMAND_HANDLER_SIZE];
-
 // macro to help with handling exception errors
 #define AH_MAKE_ERROR_MESSAGE(the_exception, agent_host)                  \
     std::string message = std::string("ERROR: ") + the_exception.what();  \

@@ -24,6 +24,7 @@ using namespace malmo;
 // STL:
 #include <vector>
 #include <string>
+#include <iostream>
 #include <exception>
 using namespace std;
 
@@ -133,11 +134,27 @@ int mission_spec_get_video_channels(ptMissionSpec pt, int role, int *response) {
 int mission_spec_get_list_of_command_handlers(ptMissionSpec pt, int role) {
     MS_CALL(
         vector<string> list = mission_spec->getListOfCommandHandlers(role);
+        if (list.size() > MS_MAX_COMMAND_HANDLERS) {
+            strncpy(MS_ERROR_MESSAGE, "Number of command handlers exceeds capacity", MS_ERROR_MESSAGE_SIZE);
+            return 1;
+        }
+        MS_COMMAND_HANDLERS_NUMBER = list.size();
+        for (int i=0; i < list.size(); ++i) {
+            strncpy(MS_COMMAND_HANDLERS[i], list[i].c_str(), MS_COMMAND_HANDLER_SIZE);
+        }
     )
 }
 
 int mission_spec_get_allowed_commands(ptMissionSpec pt, int role, const char* command_handler) {
     MS_CALL(
         vector<string> list = mission_spec->getAllowedCommands(role, command_handler);
+        if (list.size() > MS_MAX_ACTIVE_COMMAND_HANDLERS) {
+            strncpy(MS_ERROR_MESSAGE, "Number of allowed command handlers exceeds capacity", MS_ERROR_MESSAGE_SIZE);
+            return 1;
+        }
+        MS_ACTIVE_COMMAND_HANDLERS_NUMBER = list.size();
+        for (int i=0; i < list.size(); ++i) {
+            strncpy(MS_ACTIVE_COMMAND_HANDLERS[i], list[i].c_str(), MS_COMMAND_HANDLER_SIZE);
+        }
     )
 }
