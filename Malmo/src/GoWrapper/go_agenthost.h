@@ -32,6 +32,19 @@ ptAgentHost new_agent_host();
 // destructor
 void free_agent_host(ptAgentHost agent_host);
 
+// initialise enums
+void agent_host_initialise_enums(
+	int *latest_frame_only,
+	int *keep_all_frames,
+
+	int *latest_reward_only,
+	int *sum_rewards,
+	int *keep_all_rewards,
+
+	int *latest_observation_only,
+	int *keep_all_observations
+);
+
 // methods: all return status: 0=OK, 1=Failed(check ERRORMESSAGE out)
 long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv);
 long agent_host_received_argument(ptAgentHost agent_host, const char* name, long* yes_no);

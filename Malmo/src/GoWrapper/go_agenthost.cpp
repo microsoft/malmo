@@ -43,6 +43,28 @@ void free_agent_host(ptAgentHost agent_host) {
     }
 }
 
+void agent_host_initialise_enums(
+	int *latest_frame_only,
+	int *keep_all_frames,
+
+	int *latest_reward_only,
+	int *sum_rewards,
+	int *keep_all_rewards,
+
+	int *latest_observation_only,
+	int *keep_all_observations
+) {
+	*latest_frame_only       = AgentHost::LATEST_FRAME_ONLY;
+	*keep_all_frames         = AgentHost::KEEP_ALL_FRAMES;
+                                                                  
+	*latest_reward_only      = AgentHost::LATEST_REWARD_ONLY;
+	*sum_rewards             = AgentHost::SUM_REWARDS;
+	*keep_all_rewards        = AgentHost::KEEP_ALL_REWARDS;
+                                                                  
+	*latest_observation_only = AgentHost::LATEST_OBSERVATION_ONLY;
+	*keep_all_observations   = AgentHost::KEEP_ALL_OBSERVATIONS;
+}
+
 void make_error_message(const AgentHost* agent_host, const exception& e) {
     string message = string("ERROR: ") + e.what();
     message += "\n\n" + agent_host->getUsage();
