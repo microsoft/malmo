@@ -33,6 +33,14 @@ static inline char** make_argv(int argc) {
 static inline void set_arg(char** argv, int i, char* str) {
 	argv[i] = str;
 }
+
+static inline char* make_buffer(int size) {
+	return (char*)malloc(size * sizeof(char));
+}
+
+static inline void free_buffer(char* buf) {
+	free(buf);
+}
 */
 import "C"
 
@@ -41,6 +49,7 @@ import (
 	"unsafe"
 )
 
+// enums
 var (
 	// VideoPolicy: specifies what to do when there are more video frames being received than can be processed.
 	LATEST_FRAME_ONLY int // Discard all but the most recent frame. This is the default.
@@ -73,7 +82,8 @@ func init() {
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
-	pt C.ptAgentHost // pointer to C.AgentHost
+	pt  C.ptAgentHost // pointer to C.AgentHost
+	err *C.char       // buffer to hold error messages from C++
 }
 
 func NewAgentHost() (o *AgentHost) {
@@ -82,12 +92,14 @@ func NewAgentHost() (o *AgentHost) {
 	if o.pt == nil {
 		panic("ERROR: Cannot create new NewAgentHost")
 	}
+	o.err = C.make_buffer(C.AH_ERROR_MESSAGE_SIZE)
 	return
 }
 
 func (o *AgentHost) Free() {
 	if o.pt != nil {
 		C.free_agent_host(o.pt)
+		C.free_buffer(o.err)
 	}
 }
 
@@ -106,9 +118,9 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	}
 
 	// call C command
-	status := C.agent_host_parse(o.pt, argc, argv)
+	status := C.agent_host_parse(o.pt, o.err, argc, argv)
 	if status != 0 {
-		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		return errors.New(message)
 	}
 	return
@@ -123,9 +135,9 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	cresponse := (*C.int)(unsafe.Pointer(&response))
 
 	// call C command
-	status := C.agent_host_received_argument(o.pt, cname, cresponse)
+	status := C.agent_host_received_argument(o.pt, o.err, cname, cresponse)
 	if status != 0 {
-		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 
@@ -137,9 +149,9 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 }
 
 func (o *AgentHost) GetUsage() string {
-	status := C.agent_host_get_usage(o.pt)
+	status := C.agent_host_get_usage(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	usage := C.GoString(&C.AH_USAGE_MESSAGE[0])

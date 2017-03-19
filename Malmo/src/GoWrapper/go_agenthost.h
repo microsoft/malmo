@@ -24,29 +24,28 @@
 extern "C" {
 #endif
 
-// global variable to communicate exception errors from C++ to Go
+// max number of characters in error message when communicating exception errors from C++ to Go
 #define AH_ERROR_MESSAGE_SIZE 1024
-char AH_ERROR_MESSAGE[AH_ERROR_MESSAGE_SIZE];
 
 // global variable to communicate usage messages from C++ to Go
 #define AH_USAGE_MESSAGE_SIZE 512
 char AH_USAGE_MESSAGE[AH_USAGE_MESSAGE_SIZE];
 
-// macro to help with handling exception errors
-#define AH_MAKE_ERROR_MESSAGE(the_exception, agent_host)                  \
-    std::string message = std::string("ERROR: ") + the_exception.what();  \
-    message += "\n\n" + agent_host->getUsage();                           \
-    strncpy(AH_ERROR_MESSAGE, message.c_str(), AH_ERROR_MESSAGE_SIZE);
-
 // macro to help with calling AgentHost methods and handling exception errors
-#define AH_CALL(command)                      \
-    AgentHost * agent_host = (AgentHost*)pt;  \
-    try {                                     \
-        command                               \
-    } catch (const exception& e) {            \
-        AH_MAKE_ERROR_MESSAGE(e, agent_host)  \
-        return 1;                             \
-    }                                         \
+// this macro assumes that the following variables are defined:
+//   pt    -- pointer to AgentHost
+//   err   -- error message buffer
+//   errsz -- size of error message buffer
+#define AH_CALL(command)                                          \
+    AgentHost * agent_host = (AgentHost*)pt;                      \
+    try {                                                         \
+        command                                                   \
+    } catch (const exception& e) {                                \
+        std::string message = std::string("ERROR: ") + e.what();  \
+        message += "\n\n" + agent_host->getUsage();               \
+        strncpy(err, message.c_str(), AH_ERROR_MESSAGE_SIZE);     \
+        return 1;                                                 \
+    }                                                             \
     return 0;
 
 // pointer to AgentHost type
@@ -76,9 +75,9 @@ void agent_host_initialise_enums(
 //  1 = failed; e.g. exception happend => see ERROR_MESSAGE
 
 // methods:
-int agent_host_parse             (ptAgentHost pt, int argc, const char** argv);
-int agent_host_received_argument (ptAgentHost pt, const char* name, int* response);
-int agent_host_get_usage         (ptAgentHost pt);
+int agent_host_parse             (ptAgentHost pt, char* err, int argc, const char** argv);
+int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, int* response);
+int agent_host_get_usage         (ptAgentHost pt, char* err);
 
 #ifdef __cplusplus
 } /* extern "C" */

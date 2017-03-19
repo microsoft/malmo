@@ -69,19 +69,13 @@ void agent_host_initialise_enums(
 	*keep_all_observations   = AgentHost::KEEP_ALL_OBSERVATIONS;
 }
 
-void make_error_message(const AgentHost* agent_host, const exception& e) {
-    string message = string("ERROR: ") + e.what();
-    message += "\n\n" + agent_host->getUsage();
-    strncpy(AH_ERROR_MESSAGE, message.c_str(), AH_ERROR_MESSAGE_SIZE);
-}
-
-int agent_host_parse(ptAgentHost pt, int argc, const char** argv) {
+int agent_host_parse(ptAgentHost pt, char* err, int argc, const char** argv) {
     AH_CALL(
         agent_host->parseArgs(argc, argv);
     )
 }
 
-int agent_host_received_argument(ptAgentHost pt, const char* name, int* response) {
+int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, int* response) {
     AH_CALL(
         if (agent_host->receivedArgument(name)) {
             *response = 1;
@@ -91,7 +85,7 @@ int agent_host_received_argument(ptAgentHost pt, const char* name, int* response
     )
 }
 
-int agent_host_get_usage(ptAgentHost pt) {
+int agent_host_get_usage(ptAgentHost pt, char* err) {
     AH_CALL(
         string usage = agent_host->getUsage();
         strncpy(AH_USAGE_MESSAGE, usage.c_str(), AH_USAGE_MESSAGE_SIZE);
