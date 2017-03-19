@@ -73,18 +73,18 @@ func init() {
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
-	agent_host C.ptAgentHost // pointer to C.AgentHost
+	pt C.ptAgentHost // pointer to C.AgentHost
 }
 
 func NewAgentHost() (o *AgentHost) {
 	o = new(AgentHost)
-	o.agent_host = C.new_agent_host()
+	o.pt = C.new_agent_host()
 	return
 }
 
 func (o *AgentHost) Free() {
-	if o.agent_host != nil {
-		C.free_agent_host(o.agent_host)
+	if o.pt != nil {
+		C.free_agent_host(o.pt)
 	}
 }
 
@@ -103,7 +103,7 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	}
 
 	// call C command
-	status := C.agent_host_parse(o.agent_host, argc, argv)
+	status := C.agent_host_parse(o.pt, argc, argv)
 	if status != 0 {
 		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		return errors.New(message)
@@ -120,7 +120,7 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	cresponse := (*C.int)(unsafe.Pointer(&response))
 
 	// call C command
-	status := C.agent_host_received_argument(o.agent_host, cname, cresponse)
+	status := C.agent_host_received_argument(o.pt, cname, cresponse)
 	if status != 0 {
 		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
@@ -134,7 +134,7 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 }
 
 func (o *AgentHost) GetUsage() string {
-	status := C.agent_host_get_usage(o.agent_host)
+	status := C.agent_host_get_usage(o.pt)
 	if status != 0 {
 		message := C.GoString(&C.AH_ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
