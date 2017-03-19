@@ -88,6 +88,10 @@ int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, in
 int agent_host_get_usage(ptAgentHost pt, char* err, char* usage) {
     AH_CALL(
         string str_usage = agent_host->getUsage();
+        if (str_usage.size() > AH_USAGE_MESSAGE_SIZE) {
+            strncpy(err, "Size of usage string exceeds capacity", AH_ERROR_MESSAGE_SIZE);
+            return 1;
+        }
         strncpy(usage, str_usage.c_str(), AH_USAGE_MESSAGE_SIZE);
     )
 }
