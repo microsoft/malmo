@@ -43,6 +43,15 @@ char COMMAND_HANDLERS[MAX_COMMAND_HANDLERS][COMMAND_HANDLER_SIZE];
 #define MAX_ACTIVE_COMMAND_HANDLERS 1000
 char ACTIVE_COMMAND_HANDLERS[MAX_ACTIVE_COMMAND_HANDLERS][COMMAND_HANDLER_SIZE];
 
+#define MAKE_ERROR_MESSAGE(the_exception)                                 \
+    std::string message = std::string("ERROR: ") + the_exception.what();  \
+    strncpy(ERROR_MESSAGE, message.c_str(), ERROR_MESSAGE_SIZE);
+
+#define MAKE_ERROR_MESSAGE_AH(the_exception, agent_host)                  \
+    std::string message = std::string("ERROR: ") + the_exception.what();  \
+    message += "\n\n" + agent_host->getUsage();                           \
+    strncpy(ERROR_MESSAGE, message.c_str(), ERROR_MESSAGE_SIZE);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

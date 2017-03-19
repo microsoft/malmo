@@ -49,40 +49,35 @@ void make_error_message(const AgentHost* agent_host, const exception& e) {
     strncpy(ERROR_MESSAGE, message.c_str(), ERROR_MESSAGE_SIZE);
 }
 
-long agent_host_parse(ptAgentHost agent_host_in, int argc, const char** argv) {
-    AgentHost * agent_host = (AgentHost*)agent_host_in;
-    try {
-        agent_host->parseArgs(argc, argv);
-    } catch(const exception& e) {
-        make_error_message(agent_host, e);
-        return 1;
-    }
+#define AGENT_HOST_CALL(command)              \
+    AgentHost * agent_host = (AgentHost*)pt;  \
+    try {                                     \
+        command                               \
+    } catch (const exception& e) {            \
+        MAKE_ERROR_MESSAGE_AH(e, agent_host)  \
+        return 1;                             \
+    }                                         \
     return 0;
+
+long agent_host_parse(ptAgentHost pt, int argc, const char** argv) {
+    AGENT_HOST_CALL(
+        agent_host->parseArgs(argc, argv);
+    )
 }
 
-long agent_host_received_argument(ptAgentHost agent_host_in, const char* name, long* yes_no) {
-    AgentHost * agent_host = (AgentHost*)agent_host_in;
-    try {
+long agent_host_received_argument(ptAgentHost pt, const char* name, long* yes_no) {
+    AGENT_HOST_CALL(
         if (agent_host->receivedArgument(name)) {
             yes_no[0] = 1;
         } else {
             yes_no[0] = 0;
         }
-    } catch(const exception& e) {
-        make_error_message(agent_host, e);
-        return 1;
-    }
-    return 0;
+    )
 }
 
-long agent_host_get_usage(ptAgentHost agent_host_in) {
-    AgentHost * agent_host = (AgentHost*)agent_host_in;
-    try {
+long agent_host_get_usage(ptAgentHost pt) {
+    AGENT_HOST_CALL(
         string usage = agent_host->getUsage();
         strncpy(USAGE_MESSAGE, usage.c_str(), USAGE_MESSAGE_SIZE);
-    } catch(const exception& e) {
-        make_error_message(agent_host, e);
-        return 1;
-    }
-    return 0;
+    )
 }
