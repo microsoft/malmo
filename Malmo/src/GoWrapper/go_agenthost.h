@@ -45,10 +45,14 @@ void agent_host_initialise_enums(
 	int *keep_all_observations
 );
 
-// methods: all return status: 0=OK, 1=Failed(check ERRORMESSAGE out)
-long agent_host_parse(ptAgentHost agent_host, int argc, const char** argv);
-long agent_host_received_argument(ptAgentHost agent_host, const char* name, long* yes_no);
-long agent_host_get_usage(ptAgentHost agent_host);
+// All functions return:
+//  0 = OK
+//  1 = failed; e.g. exception happend => see ERROR_MESSAGE
+
+// methods:
+int agent_host_parse             (ptAgentHost pt, int argc, const char** argv);
+int agent_host_received_argument (ptAgentHost pt, const char* name, int* response);
+int agent_host_get_usage         (ptAgentHost pt);
 
 #ifdef __cplusplus
 } /* extern "C" */

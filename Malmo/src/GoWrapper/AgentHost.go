@@ -97,14 +97,20 @@ func (o *AgentHost) Free() {
 }
 
 func (o *AgentHost) Parse(args []string) (err error) {
+
+	// allocate C variables
 	argc := C.int(len(args))
 	argv := C.make_argv(argc)
 	defer C.free(unsafe.Pointer(argv))
+
+	// allocate and set ARGV array
 	for i, arg := range args {
 		carg := C.CString(arg)
 		C.set_arg(argv, C.int(i), carg)
 		defer C.free(unsafe.Pointer(carg))
 	}
+
+	// call C command
 	status := C.agent_host_parse(o.agent_host, argc, argv)
 	if status != 0 {
 		message := C.GoString(&C.ERROR_MESSAGE[0])
@@ -114,16 +120,22 @@ func (o *AgentHost) Parse(args []string) (err error) {
 }
 
 func (o *AgentHost) ReceivedArgument(name string) bool {
+
+	// allocate C variables
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	yes_no := []int{0}
-	cyes_no := (*C.LONG)(unsafe.Pointer(&yes_no[0]))
-	status := C.agent_host_received_argument(o.agent_host, cname, cyes_no)
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+
+	// call C command
+	status := C.agent_host_received_argument(o.agent_host, cname, cresponse)
 	if status != 0 {
 		message := C.GoString(&C.ERROR_MESSAGE[0])
 		panic("ERROR:\n" + message)
 	}
-	if yes_no[0] == 1 {
+
+	// handle return value
+	if response == 1 {
 		return true
 	}
 	return false

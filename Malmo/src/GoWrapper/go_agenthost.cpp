@@ -81,23 +81,23 @@ void make_error_message(const AgentHost* agent_host, const exception& e) {
     }                                         \
     return 0;
 
-long agent_host_parse(ptAgentHost pt, int argc, const char** argv) {
+int agent_host_parse(ptAgentHost pt, int argc, const char** argv) {
     AGENT_HOST_CALL(
         agent_host->parseArgs(argc, argv);
     )
 }
 
-long agent_host_received_argument(ptAgentHost pt, const char* name, long* yes_no) {
+int agent_host_received_argument(ptAgentHost pt, const char* name, int* response) {
     AGENT_HOST_CALL(
         if (agent_host->receivedArgument(name)) {
-            yes_no[0] = 1;
+            *response = 1;
         } else {
-            yes_no[0] = 0;
+            *response = 0;
         }
     )
 }
 
-long agent_host_get_usage(ptAgentHost pt) {
+int agent_host_get_usage(ptAgentHost pt) {
     AGENT_HOST_CALL(
         string usage = agent_host->getUsage();
         strncpy(USAGE_MESSAGE, usage.c_str(), USAGE_MESSAGE_SIZE);

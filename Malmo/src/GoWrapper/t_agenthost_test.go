@@ -35,21 +35,24 @@ func Test_agenthost01(tst *testing.T) {
 }
 
 func Test_agenthost02(tst *testing.T) {
+
 	agent_host := NewAgentHost()
 	defer agent_host.Free()
 
 	err := agent_host.Parse([]string{"filename", "--help"})
 	if err != nil {
-		tst.Errorf("ParseArgs failed:\n%v\n", err)
+		tst.Errorf("Parse failed:\n%v\n", err)
 		return
 	}
 
-	if !agent_host.ReceivedArgument("help") {
+	response := agent_host.ReceivedArgument("help")
+	if !response {
 		tst.Errorf("ReceivedArgument failed: '--help' argument should be in there")
 	}
 }
 
 func Test_agenthost03(tst *testing.T) {
+
 	agent_host := NewAgentHost()
 	defer agent_host.Free()
 
