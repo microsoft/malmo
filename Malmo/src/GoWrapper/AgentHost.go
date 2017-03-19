@@ -93,8 +93,8 @@ func NewAgentHost() (o *AgentHost) {
 	if o.pt == nil {
 		panic("ERROR: Cannot create new NewAgentHost")
 	}
-	o.err = C.make_buffer(C.AH_ERROR_MESSAGE_SIZE)
-	o.usage = C.make_buffer(C.AH_USAGE_MESSAGE_SIZE)
+	o.err = C.make_buffer(C.AH_ERROR_BUFFER_SIZE)
+	o.usage = C.make_buffer(C.AH_USAGE_BUFFER_SIZE)
 	return
 }
 
@@ -157,8 +157,7 @@ func (o *AgentHost) GetUsage() string {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	usage := C.GoString(o.usage)
-	return usage
+	return C.GoString(o.usage)
 }
 
 // Starts a mission running. Throws an exception if something goes wrong.

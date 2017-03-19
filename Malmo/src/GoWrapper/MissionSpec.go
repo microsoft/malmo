@@ -22,13 +22,24 @@ package malmo
 /*
 #include "go_missionspec.h"
 #include "stdlib.h"
+
+static inline char* make_buffer(int size) {
+	return (char*)malloc(size * sizeof(char));
+}
+
+static inline void free_buffer(char* buf) {
+	free(buf);
+}
 */
 import "C"
 import "unsafe"
 
 // MissionSpec specifies a mission to be run.
 type MissionSpec struct {
-	pt C.ptMissionSpec // pointer to C.MissionSpec
+	pt  C.ptMissionSpec // pointer to C.MissionSpec
+	err *C.char         // buffer to hold error messages from C++
+	sum *C.char         // buffer to hold summary text from C++
+	xml *C.char         // buffer to hold XML text from C++
 }
 
 // NewMissionSpec constructs a mission with default parameters: a flat world with a 10 seconds time limit and continuous movement.
@@ -38,6 +49,9 @@ func NewMissionSpec() (o *MissionSpec) {
 	if o.pt == nil {
 		panic("ERROR: Cannot create new MissionSpec")
 	}
+	o.err = C.make_buffer(C.MS_ERROR_BUFFER_SIZE)
+	o.sum = C.make_buffer(C.MS_SUMMARY_BUFFER_SIZE)
+	o.xml = C.make_buffer(C.MS_XML_BUFFER_SIZE)
 	return
 }
 
@@ -58,6 +72,9 @@ func NewMissionSpecXML(xml string, validate bool) (o *MissionSpec) {
 	if o.pt == nil {
 		panic("ERROR: Cannot create new MissionSpec with given XML")
 	}
+	o.err = C.make_buffer(C.MS_ERROR_BUFFER_SIZE)
+	o.sum = C.make_buffer(C.MS_SUMMARY_BUFFER_SIZE)
+	o.xml = C.make_buffer(C.MS_XML_BUFFER_SIZE)
 	return
 }
 
@@ -65,6 +82,9 @@ func NewMissionSpecXML(xml string, validate bool) (o *MissionSpec) {
 func (o *MissionSpec) Free() {
 	if o.pt != nil {
 		C.free_mission_spec(o.pt)
+		C.free_buffer(o.err)
+		C.free_buffer(o.sum)
+		C.free_buffer(o.xml)
 	}
 }
 
@@ -78,13 +98,12 @@ func (o MissionSpec) GetAsXML(prettyPrint bool) string {
 	} else {
 		cprettyPrint = 0
 	}
-	status := C.mission_spec_get_as_xml(o.pt, cprettyPrint)
+	status := C.mission_spec_get_as_xml(o.pt, o.err, cprettyPrint, o.xml)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	xml := C.GoString(&C.MS_XML[0])
-	return xml
+	return C.GoString(o.xml)
 }
 
 // -------------------- settings for the server -------------------------
@@ -94,9 +113,9 @@ func (o MissionSpec) GetAsXML(prettyPrint bool) string {
 func (o *MissionSpec) SetSummary(summary string) {
 	csummary := C.CString(summary)
 	defer C.free(unsafe.Pointer(csummary))
-	status := C.mission_spec_set_summary(o.pt, csummary)
+	status := C.mission_spec_set_summary(o.pt, o.err, csummary)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -104,9 +123,9 @@ func (o *MissionSpec) SetSummary(summary string) {
 // TimeLimitInSeconds Sets the time limit for the mission.
 // s -- The time limit in seconds.
 func (o *MissionSpec) TimeLimitInSeconds(s float32) {
-	status := C.mission_spec_time_limit_in_seconds(o.pt, C.float(s))
+	status := C.mission_spec_time_limit_in_seconds(o.pt, o.err, C.float(s))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -114,9 +133,9 @@ func (o *MissionSpec) TimeLimitInSeconds(s float32) {
 // CreateDefaultTerrain makes a world using Minecraft's terrain generator, instead of the default flat world.
 // Calling this will reset the world seed and forceReset flag - see setWorldSeed() and forceWorldReset().
 func (o *MissionSpec) CreateDefaultTerrain() {
-	status := C.mission_spec_create_default_terrain(o.pt)
+	status := C.mission_spec_create_default_terrain(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -126,9 +145,9 @@ func (o *MissionSpec) CreateDefaultTerrain() {
 func (o *MissionSpec) SetWorldSeed(seed string) {
 	cseed := C.CString(seed)
 	defer C.free(unsafe.Pointer(cseed))
-	status := C.mission_spec_set_world_seed(o.pt, cseed)
+	status := C.mission_spec_set_world_seed(o.pt, o.err, cseed)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -136,9 +155,9 @@ func (o *MissionSpec) SetWorldSeed(seed string) {
 // ForceWorldReset forces Minecraft to reload the world rather than use the current one (if appropriate).
 // Call this after the world generator has been set (eg after calling createDefaultTerrain() ).
 func (o *MissionSpec) ForceWorldReset() {
-	status := C.mission_spec_force_world_reset(o.pt)
+	status := C.mission_spec_force_world_reset(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -154,9 +173,9 @@ func (o *MissionSpec) SetTimeOfDay(t int, allowTimeToPass bool) {
 	} else {
 		callowTimeToPass = 0
 	}
-	status := C.mission_spec_set_time_of_day(o.pt, C.int(t), callowTimeToPass)
+	status := C.mission_spec_set_time_of_day(o.pt, o.err, C.int(t), callowTimeToPass)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -169,9 +188,9 @@ func (o *MissionSpec) SetTimeOfDay(t int, allowTimeToPass bool) {
 func (o *MissionSpec) DrawBlock(x, y, z int, blockType string) {
 	cblockType := C.CString(blockType)
 	defer C.free(unsafe.Pointer(cblockType))
-	status := C.mission_spec_draw_block(o.pt, C.int(x), C.int(y), C.int(z), cblockType)
+	status := C.mission_spec_draw_block(o.pt, o.err, C.int(x), C.int(y), C.int(z), cblockType)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -187,9 +206,9 @@ func (o *MissionSpec) DrawBlock(x, y, z int, blockType string) {
 func (o *MissionSpec) DrawCuboid(x1, y1, z1, x2, y2, z2 int, blockType string) {
 	cblockType := C.CString(blockType)
 	defer C.free(unsafe.Pointer(cblockType))
-	status := C.mission_spec_draw_cuboid(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
+	status := C.mission_spec_draw_cuboid(o.pt, o.err, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -202,9 +221,9 @@ func (o *MissionSpec) DrawCuboid(x1, y1, z1, x2, y2, z2 int, blockType string) {
 func (o *MissionSpec) DrawItem(x, y, z int, itemType string) {
 	citemType := C.CString(itemType)
 	defer C.free(unsafe.Pointer(citemType))
-	status := C.mission_spec_draw_item(o.pt, C.int(x), C.int(y), C.int(z), citemType)
+	status := C.mission_spec_draw_item(o.pt, o.err, C.int(x), C.int(y), C.int(z), citemType)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -218,9 +237,9 @@ func (o *MissionSpec) DrawItem(x, y, z int, itemType string) {
 func (o *MissionSpec) DrawSphere(x, y, z, radius int, blockType string) {
 	cblockType := C.CString(blockType)
 	defer C.free(unsafe.Pointer(cblockType))
-	status := C.mission_spec_draw_sphere(o.pt, C.int(x), C.int(y), C.int(z), C.int(radius), cblockType)
+	status := C.mission_spec_draw_sphere(o.pt, o.err, C.int(x), C.int(y), C.int(z), C.int(radius), cblockType)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -236,9 +255,9 @@ func (o *MissionSpec) DrawSphere(x, y, z, radius int, blockType string) {
 func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2 int, blockType string) {
 	cblockType := C.CString(blockType)
 	defer C.free(unsafe.Pointer(cblockType))
-	status := C.mission_spec_draw_line(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
+	status := C.mission_spec_draw_line(o.pt, o.err, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cblockType)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -251,9 +270,9 @@ func (o *MissionSpec) DrawLine(x1, y1, z1, x2, y2, z2 int, blockType string) {
 // y -- The up-down location.
 // z -- The north-south location.
 func (o *MissionSpec) StartAt(x, y, z float32) {
-	status := C.mission_spec_start_at(o.pt, C.float(x), C.float(y), C.float(z))
+	status := C.mission_spec_start_at(o.pt, o.err, C.float(x), C.float(y), C.float(z))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -266,9 +285,9 @@ func (o *MissionSpec) StartAt(x, y, z float32) {
 // yaw -- The yaw in degrees (180 = north, 270 = east, 0 = south, 90 = west)
 // pitch -- The pitch in degrees (-90 = straight up, 90 = straight down, 0 = horizontal)
 func (o *MissionSpec) StartAtWithPitchAndYaw(x, y, z, pitch, yaw float32) {
-	status := C.mission_spec_start_at_with_pitch_and_yaw(o.pt, C.float(x), C.float(y), C.float(z), C.float(pitch), C.float(yaw))
+	status := C.mission_spec_start_at_with_pitch_and_yaw(o.pt, o.err, C.float(x), C.float(y), C.float(z), C.float(pitch), C.float(yaw))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -281,27 +300,27 @@ func (o *MissionSpec) StartAtWithPitchAndYaw(x, y, z, pitch, yaw float32) {
 // z -- The north-south location.
 // tolerance -- The radius that the agent must be within. Euclidean distance.
 func (o *MissionSpec) EndAt(x, y, z, tolerance float32) {
-	status := C.mission_spec_end_at(o.pt, C.float(x), C.float(y), C.float(z), C.float(tolerance))
+	status := C.mission_spec_end_at(o.pt, o.err, C.float(x), C.float(y), C.float(z), C.float(tolerance))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
 
 // Sets the player mode for the agent to creative, allowing them to fly and to not sustain damage. Only supports single agent missions.
 func (o *MissionSpec) SetModeToCreative() {
-	status := C.mission_spec_set_mode_to_creative(o.pt)
+	status := C.mission_spec_set_mode_to_creative(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
 
 // Sets the player mode for the agent to spectator, allowing them to fly and pass through objects. Only supports single agent missions.
 func (o *MissionSpec) SetModeToSpectator() {
-	status := C.mission_spec_set_mode_to_spectator(o.pt)
+	status := C.mission_spec_set_mode_to_spectator(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -312,9 +331,9 @@ func (o *MissionSpec) SetModeToSpectator() {
 // width -- The width of the image in pixels. Ensure this is divisible by 4.
 // height -- The height of the image in pixels. Ensure this is divisible by 2.
 func (o *MissionSpec) RequestVideo(width, height int) {
-	status := C.mission_spec_request_video(o.pt, C.int(width), C.int(height))
+	status := C.mission_spec_request_video(o.pt, o.err, C.int(width), C.int(height))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -325,9 +344,9 @@ func (o *MissionSpec) RequestVideo(width, height int) {
 // width -- The width of the image in pixels. Ensure this is divisible by 4.
 // height -- The height of the image in pixels. Ensure this is divisible by 2.
 func (o *MissionSpec) RequestVideoWithDepth(width, height int) {
-	status := C.mission_spec_request_video_with_depth(o.pt, C.int(width), C.int(height))
+	status := C.mission_spec_request_video_with_depth(o.pt, o.err, C.int(width), C.int(height))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -335,9 +354,9 @@ func (o *MissionSpec) RequestVideoWithDepth(width, height int) {
 // Sets the camera position. Modifies the existing video request, so call this after requestVideo or requestVideoWithDepth.
 // \param viewpoint The camera position to use. 0 = first person, 1 = behind, 2 = facing.
 func (o *MissionSpec) SetViewpoint(viewpoint int) {
-	status := C.mission_spec_set_viewpoint(o.pt, C.int(viewpoint))
+	status := C.mission_spec_set_viewpoint(o.pt, o.err, C.int(viewpoint))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -350,9 +369,9 @@ func (o *MissionSpec) SetViewpoint(viewpoint int) {
 // amount -- The reward value to send.
 // tolerance -- The radius that the agent must be within to receive the reward. Euclidean distance.
 func (o *MissionSpec) RewardForReachingPosition(x, y, z, amount, tolerance float32) {
-	status := C.mission_spec_reward_for_reaching_position(o.pt, C.float(x), C.float(y), C.float(z), C.float(amount), C.float(tolerance))
+	status := C.mission_spec_reward_for_reaching_position(o.pt, o.err, C.float(x), C.float(y), C.float(z), C.float(amount), C.float(tolerance))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -361,9 +380,9 @@ func (o *MissionSpec) RewardForReachingPosition(x, y, z, amount, tolerance float
 // The commands are returned in a JSON entry called 'CommandsSinceLastObservation'.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromRecentCommands">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveRecentCommands() {
-	status := C.mission_spec_observe_recent_commands(o.pt)
+	status := C.mission_spec_observe_recent_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -372,9 +391,9 @@ func (o *MissionSpec) ObserveRecentCommands() {
 // The commands are returned in JSON entries 'Hotbar_0_size', 'Hotbar_0_item', etc.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromHotBar">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveHotBar() {
-	status := C.mission_spec_observe_hot_bar(o.pt)
+	status := C.mission_spec_observe_hot_bar(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -383,9 +402,9 @@ func (o *MissionSpec) ObserveHotBar() {
 // The commands are returned in JSON entries 'Inventory_0_size', 'Inventory_0_item', etc.
 // Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromFullInventory">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveFullInventory() {
-	status := C.mission_spec_observe_full_inventory(o.pt)
+	status := C.mission_spec_observe_full_inventory(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -403,9 +422,9 @@ func (o *MissionSpec) ObserveFullInventory() {
 func (o *MissionSpec) ObserveGrid(x1, y1, z1, x2, y2, z2 int, name string) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	status := C.mission_spec_observe_grid(o.pt, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cname)
+	status := C.mission_spec_observe_grid(o.pt, o.err, C.int(x1), C.int(y1), C.int(z1), C.int(x2), C.int(y2), C.int(z2), cname)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -421,18 +440,18 @@ func (o *MissionSpec) ObserveGrid(x1, y1, z1, x2, y2, z2 int, name string) {
 func (o *MissionSpec) ObserveDistance(x, y, z float32, name string) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
-	status := C.mission_spec_observe_distance(o.pt, C.float(x), C.float(y), C.float(z), cname)
+	status := C.mission_spec_observe_distance(o.pt, o.err, C.float(x), C.float(y), C.float(z), cname)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
 
 // Asks for chat messages to be included in the observations.
 func (o *MissionSpec) ObserveChat() {
-	status := C.mission_spec_observe_chat(o.pt)
+	status := C.mission_spec_observe_chat(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -442,9 +461,9 @@ func (o *MissionSpec) ObserveChat() {
 // Remove any existing command handlers from the mission specification. Use with other functions to add exactly the command handlers you want.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) RemoveAllCommandHandlers() {
-	status := C.mission_spec_remove_all_command_handlers(o.pt)
+	status := C.mission_spec_remove_all_command_handlers(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -452,9 +471,9 @@ func (o *MissionSpec) RemoveAllCommandHandlers() {
 // Adds a continuous movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllContinuousMovementCommands() {
-	status := C.mission_spec_allow_all_continuous_movement_commands(o.pt)
+	status := C.mission_spec_allow_all_continuous_movement_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -467,9 +486,9 @@ func (o *MissionSpec) AllowAllContinuousMovementCommands() {
 func (o *MissionSpec) AllowContinuousMovementCommand(verb string) {
 	cverb := C.CString(verb)
 	defer C.free(unsafe.Pointer(cverb))
-	status := C.mission_spec_allow_continuous_movement_command(o.pt, cverb)
+	status := C.mission_spec_allow_continuous_movement_command(o.pt, o.err, cverb)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -477,9 +496,9 @@ func (o *MissionSpec) AllowContinuousMovementCommand(verb string) {
 // Adds a discrete movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllDiscreteMovementCommands() {
-	status := C.mission_spec_allow_all_discrete_movement_commands(o.pt)
+	status := C.mission_spec_allow_all_discrete_movement_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -492,9 +511,9 @@ func (o *MissionSpec) AllowAllDiscreteMovementCommands() {
 func (o *MissionSpec) AllowDiscreteMovementCommand(verb string) {
 	cverb := C.CString(verb)
 	defer C.free(unsafe.Pointer(cverb))
-	status := C.mission_spec_allow_discrete_movement_command(o.pt, cverb)
+	status := C.mission_spec_allow_discrete_movement_command(o.pt, o.err, cverb)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -502,9 +521,9 @@ func (o *MissionSpec) AllowDiscreteMovementCommand(verb string) {
 // Adds an absolute movement command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllAbsoluteMovementCommands() {
-	status := C.mission_spec_allow_all_absolute_movement_commands(o.pt)
+	status := C.mission_spec_allow_all_absolute_movement_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -517,9 +536,9 @@ func (o *MissionSpec) AllowAllAbsoluteMovementCommands() {
 func (o *MissionSpec) AllowAbsoluteMovementCommand(verb string) {
 	cverb := C.CString(verb)
 	defer C.free(unsafe.Pointer(cverb))
-	status := C.mission_spec_allow_absolute_movement_command(o.pt, cverb)
+	status := C.mission_spec_allow_absolute_movement_command(o.pt, o.err, cverb)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -527,9 +546,9 @@ func (o *MissionSpec) AllowAbsoluteMovementCommand(verb string) {
 // Adds an inventory command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllInventoryCommands() {
-	status := C.mission_spec_allow_all_inventory_commands(o.pt)
+	status := C.mission_spec_allow_all_inventory_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -542,9 +561,9 @@ func (o *MissionSpec) AllowAllInventoryCommands() {
 func (o *MissionSpec) AllowInventoryCommand(verb string) {
 	cverb := C.CString(verb)
 	defer C.free(unsafe.Pointer(cverb))
-	status := C.mission_spec_allow_inventory_command(o.pt, cverb)
+	status := C.mission_spec_allow_inventory_command(o.pt, o.err, cverb)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -552,9 +571,9 @@ func (o *MissionSpec) AllowInventoryCommand(verb string) {
 // Adds a chat command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
 // Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
 func (o *MissionSpec) AllowAllChatCommands() {
-	status := C.mission_spec_allow_all_chat_commands(o.pt)
+	status := C.mission_spec_allow_all_chat_commands(o.pt, o.err)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 }
@@ -564,13 +583,12 @@ func (o *MissionSpec) AllowAllChatCommands() {
 // Returns the short description of the mission.
 // returns A string containing the summary.
 func (o MissionSpec) GetSummary() string {
-	status := C.mission_spec_get_summary(o.pt)
+	status := C.mission_spec_get_summary(o.pt, o.err, o.sum)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	summary := C.GoString(&C.MS_SUMMARY_MESSAGE[0])
-	return summary
+	return C.GoString(o.sum)
 }
 
 // Returns the number of agents involved in this mission.
@@ -578,9 +596,9 @@ func (o MissionSpec) GetSummary() string {
 func (o MissionSpec) GetNumberOfAgents() int {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
-	status := C.mission_spec_get_number_of_agents(o.pt, cresponse)
+	status := C.mission_spec_get_number_of_agents(o.pt, o.err, cresponse)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	return response
@@ -592,9 +610,9 @@ func (o MissionSpec) GetNumberOfAgents() int {
 func (o MissionSpec) IsVideoRequested(role int) bool {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
-	status := C.mission_spec_is_video_requested(o.pt, C.int(role), cresponse)
+	status := C.mission_spec_is_video_requested(o.pt, o.err, C.int(role), cresponse)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	if response == 1 {
@@ -609,9 +627,9 @@ func (o MissionSpec) IsVideoRequested(role int) bool {
 func (o MissionSpec) GetVideoWidth(role int) int {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
-	status := C.mission_spec_get_video_width(o.pt, C.int(role), cresponse)
+	status := C.mission_spec_get_video_width(o.pt, o.err, C.int(role), cresponse)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	return response
@@ -623,9 +641,9 @@ func (o MissionSpec) GetVideoWidth(role int) int {
 func (o MissionSpec) GetVideoHeight(role int) int {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
-	status := C.mission_spec_get_video_height(o.pt, C.int(role), cresponse)
+	status := C.mission_spec_get_video_height(o.pt, o.err, C.int(role), cresponse)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	return response
@@ -637,9 +655,9 @@ func (o MissionSpec) GetVideoHeight(role int) int {
 func (o MissionSpec) GetVideoChannels(role int) int {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
-	status := C.mission_spec_get_video_channels(o.pt, C.int(role), cresponse)
+	status := C.mission_spec_get_video_channels(o.pt, o.err, C.int(role), cresponse)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	return response
@@ -649,9 +667,9 @@ func (o MissionSpec) GetVideoChannels(role int) int {
 // role -- The agent index. Zero based.
 // returns The list of command handler names: 'ContinuousMovement', 'DiscreteMovement', 'Chat', 'Inventory' etc.
 func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
-	status := C.mission_spec_get_list_of_command_handlers(o.pt, C.int(role))
+	status := C.mission_spec_get_list_of_command_handlers(o.pt, o.err, C.int(role))
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	size := int(C.MS_COMMAND_HANDLERS_NUMBER)
@@ -669,9 +687,9 @@ func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
 func (o MissionSpec) GetAllowedCommands(role int, command_handler string) []string {
 	ccommand_handler := C.CString(command_handler)
 	defer C.free(unsafe.Pointer(ccommand_handler))
-	status := C.mission_spec_get_allowed_commands(o.pt, C.int(role), ccommand_handler)
+	status := C.mission_spec_get_allowed_commands(o.pt, o.err, C.int(role), ccommand_handler)
 	if status != 0 {
-		message := C.GoString(&C.MS_ERROR_MESSAGE[0])
+		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
 	size := int(C.MS_ACTIVE_COMMAND_HANDLERS_NUMBER)

@@ -24,17 +24,16 @@
 extern "C" {
 #endif
 
-// max number of characters in error message when communicating exception errors from C++ to Go
-#define AH_ERROR_MESSAGE_SIZE 1024
+// max number of characters for error message from C++ to Go
+#define AH_ERROR_BUFFER_SIZE 1024
 
-// global variable to communicate usage messages from C++ to Go
-#define AH_USAGE_MESSAGE_SIZE 1024
+// max number of characters for usage text from C++ to Go
+#define AH_USAGE_BUFFER_SIZE 1024
 
 // macro to help with calling AgentHost methods and handling exception errors
 // this macro assumes that the following variables are defined:
-//   pt    -- pointer to AgentHost
-//   err   -- error message buffer
-//   errsz -- size of error message buffer
+//   pt  -- pointer to AgentHost
+//   err -- error message buffer
 #define AH_CALL(command)                                          \
     AgentHost * agent_host = (AgentHost*)pt;                      \
     try {                                                         \
@@ -42,7 +41,7 @@ extern "C" {
     } catch (const exception& e) {                                \
         std::string message = std::string("ERROR: ") + e.what();  \
         message += "\n\n" + agent_host->getUsage();               \
-        strncpy(err, message.c_str(), AH_ERROR_MESSAGE_SIZE);     \
+        strncpy(err, message.c_str(), AH_ERROR_BUFFER_SIZE);      \
         return 1;                                                 \
     }                                                             \
     return 0;
