@@ -28,12 +28,6 @@ package malmo
 
 #include "stdlib.h"
 
-#ifdef WIN32
-#define LONG long long
-#else
-#define LONG long
-#endif
-
 static inline char** make_argv(int argc) {
 	return (char**)malloc(sizeof(char*) * argc);
 }
