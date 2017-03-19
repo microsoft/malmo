@@ -31,8 +31,13 @@ using namespace std;
 #include "go_agenthost.h"
 
 ptAgentHost new_agent_host() {
-    AgentHost * pt = new AgentHost;
-    return (void*)pt;
+    try {
+        AgentHost * pt = new AgentHost;
+        return (void*)pt;
+    } catch (const exception& e) {
+        // returning NULL pointer
+    }
+    return NULL;
 }
 
 void free_agent_host(ptAgentHost agent_host) {

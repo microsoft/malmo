@@ -79,6 +79,9 @@ type AgentHost struct {
 func NewAgentHost() (o *AgentHost) {
 	o = new(AgentHost)
 	o.pt = C.new_agent_host()
+	if o.pt == nil {
+		panic("ERROR: Cannot create new NewAgentHost")
+	}
 	return
 }
 
