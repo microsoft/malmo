@@ -87,6 +87,7 @@ type AgentHost struct {
 	usage *C.char       // buffer to hold usage message from C++
 }
 
+// NewAgentHost creates new AgentHost
 func NewAgentHost() (o *AgentHost) {
 	o = new(AgentHost)
 	o.pt = C.new_agent_host()
@@ -98,6 +99,7 @@ func NewAgentHost() (o *AgentHost) {
 	return
 }
 
+// Free clears allocated memory
 func (o *AgentHost) Free() {
 	if o.pt != nil {
 		C.free_agent_host(o.pt)
@@ -106,6 +108,8 @@ func (o *AgentHost) Free() {
 	}
 }
 
+// Parse parses a list of strings given in the C style. Throws exception if parsing fails.
+// param args The arguments to parse.
 func (o *AgentHost) Parse(args []string) (err error) {
 
 	// allocate C variables
@@ -129,6 +133,20 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	return
 }
 
+// GetUsage gets a string that describes the current set of options we expect.
+// returns The usage string, for displaying.
+func (o *AgentHost) GetUsage() string {
+	status := C.agent_host_get_usage(o.pt, o.err, o.usage)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
+	return C.GoString(o.usage)
+}
+
+// ReceivedArgument gets whether a named argument was parsed on the command-line arguments.
+// name -- The name of the argument.
+// returns True if the named argument was received.
 func (o *AgentHost) ReceivedArgument(name string) bool {
 
 	// allocate C variables
@@ -149,15 +167,6 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 		return true
 	}
 	return false
-}
-
-func (o *AgentHost) GetUsage() string {
-	status := C.agent_host_get_usage(o.pt, o.err, o.usage)
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
-	return C.GoString(o.usage)
 }
 
 // Starts a mission running. Throws an exception if something goes wrong.

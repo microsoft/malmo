@@ -35,7 +35,7 @@ extern "C" {
 //   pt  -- pointer to AgentHost
 //   err -- error message buffer
 #define AH_CALL(command)                                          \
-    AgentHost * agent_host = (AgentHost*)pt;                      \
+    AgentHost* agent_host = (AgentHost*)pt;                      \
     try {                                                         \
         command                                                   \
     } catch (const exception& e) {                                \
@@ -45,6 +45,12 @@ extern "C" {
         return 1;                                                 \
     }                                                             \
     return 0;
+
+// external structures
+typedef void* ptMissionSpec;
+typedef void* ptMissionRecordSpec;
+typedef void* ptClientPool;
+typedef void* ptWorldState;
 
 // pointer to AgentHost type
 typedef void* ptAgentHost;
@@ -72,10 +78,23 @@ void agent_host_initialise_enums(
 //  0 = OK
 //  1 = failed; e.g. exception happend => see ERROR_MESSAGE
 
-// methods:
+// methods from ArgumentParser:
 int agent_host_parse             (ptAgentHost pt, char* err, int argc, const char** argv);
-int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, int* response);
 int agent_host_get_usage         (ptAgentHost pt, char* err, char* usage);
+int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, int* response);
+
+// methods from AgentHost:
+int agent_host_start_mission                     (ptAgentHost pt, char* err, ptMissionSpec mission, ptClientPool client_pool, ptMissionRecordSpec mission_record, int role, const char* unique_experiment_id);
+int agent_host_start_mission_simple              (ptAgentHost pt, char* err, ptMissionSpec mission, ptMissionRecordSpec mission_record);
+int agent_host_peek_world_state                  (ptAgentHost pt, char* err, ptWorldState world_state);
+int agent_host_get_world_state                   (ptAgentHost pt, char* err, ptWorldState world_state);
+int agent_host_get_recording_temporary_directory (ptAgentHost pt, char* err, char* response);
+int agent_host_set_debug_output                  (ptAgentHost pt, char* err, int debug);
+int agent_host_set_video_policy                  (ptAgentHost pt, char* err, int videoPolicy);
+int agent_host_set_rewards_policy                (ptAgentHost pt, char* err, int rewardsPolicy);
+int agent_host_set_observations_policy           (ptAgentHost pt, char* err, int observationsPolicy);
+int agent_host_send_command                      (ptAgentHost pt, char* err, const char* command);
+int agent_host_send_command_turnbased            (ptAgentHost pt, char* err, const char* command, const char* key);
 
 #ifdef __cplusplus
 } /* extern "C" */

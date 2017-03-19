@@ -125,6 +125,7 @@ func Test_mission01(tst *testing.T) {
 </AgentHandlers></AgentSection></Mission>`
 
 	my_mission3 := NewMissionSpecXML(xml3, validate)
+	defer my_mission3.Free()
 
 	if my_mission3.GetSummary() != "Run the maze!" {
 		tst.Errorf("Unexpected summary\n")

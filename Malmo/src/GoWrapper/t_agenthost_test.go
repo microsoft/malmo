@@ -61,3 +61,15 @@ func Test_agenthost03(tst *testing.T) {
 		tst.Errorf("GetUsage failed")
 	}
 }
+
+func Test_agenthost04(tst *testing.T) {
+
+	agent_host := NewAgentHost()
+	defer agent_host.Free()
+
+	/*
+		agent_host.SetVideoPolicy(LATEST_FRAME_ONLY)
+		agent_host.SetRewardsPolicy(SUM_REWARDS)
+		agent_host.SetObservationsPolicy(LATEST_OBSERVATION_ONLY)
+	*/
+}

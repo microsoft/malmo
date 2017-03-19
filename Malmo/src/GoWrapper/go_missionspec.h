@@ -42,7 +42,7 @@ extern "C" {
 //   pt  -- pointer to MissionSpec
 //   err -- error message buffer
 #define MS_CALL(command)                                          \
-    MissionSpec * mission_spec = (MissionSpec*)pt;                \
+    MissionSpec* mission_spec = (MissionSpec*)pt;                 \
     try {                                                         \
         command                                                   \
     } catch (const exception& e) {                                \

@@ -19,6 +19,9 @@
 
 // Malmo:
 #include <AgentHost.h>
+#include <MissionSpec.h>
+#include <MissionRecordSpec.h>
+#include <ClientPool.h>
 using namespace malmo;
 
 // STL:
@@ -75,6 +78,17 @@ int agent_host_parse(ptAgentHost pt, char* err, int argc, const char** argv) {
     )
 }
 
+int agent_host_get_usage(ptAgentHost pt, char* err, char* usage) {
+    AH_CALL(
+        string str_usage = agent_host->getUsage();
+        if (str_usage.size() > AH_USAGE_BUFFER_SIZE) {
+            strncpy(err, "Size of usage string exceeds capacity", AH_ERROR_BUFFER_SIZE);
+            return 1;
+        }
+        strncpy(usage, str_usage.c_str(), AH_USAGE_BUFFER_SIZE);
+    )
+}
+
 int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, int* response) {
     AH_CALL(
         if (agent_host->receivedArgument(name)) {
@@ -85,13 +99,61 @@ int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, in
     )
 }
 
-int agent_host_get_usage(ptAgentHost pt, char* err, char* usage) {
+int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, ptClientPool ptclient_pool, ptMissionRecordSpec ptmission_record, int role, const char* unique_experiment_id) {
     AH_CALL(
-        string str_usage = agent_host->getUsage();
-        if (str_usage.size() > AH_USAGE_BUFFER_SIZE) {
-            strncpy(err, "Size of usage string exceeds capacity", AH_ERROR_BUFFER_SIZE);
-            return 1;
-        }
-        strncpy(usage, str_usage.c_str(), AH_USAGE_BUFFER_SIZE);
+        MissionSpec* mission = (MissionSpec*)ptmission;
+        ClientPool* client_pool = (ClientPool*)ptclient_pool;
+        MissionRecordSpec* mission_record = (MissionRecordSpec*)ptmission_record;
+        agent_host->startMission(*mission, *client_pool, *mission_record, role, unique_experiment_id);
+    )
+}
+
+int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec mission, ptMissionRecordSpec mission_record) {
+    AH_CALL(
+    )
+}
+
+int agent_host_peek_world_state(ptAgentHost pt, char* err, ptWorldState world_state) {
+    AH_CALL(
+    )
+}
+
+int agent_host_get_world_state(ptAgentHost pt, char* err, ptWorldState world_state) {
+    AH_CALL(
+    )
+}
+
+int agent_host_get_recording_temporary_directory(ptAgentHost pt, char* err, char* response) {
+    AH_CALL(
+    )
+}
+
+int agent_host_set_debug_output(ptAgentHost pt, char* err, int debug) {
+    AH_CALL(
+    )
+}
+
+int agent_host_set_video_policy(ptAgentHost pt, char* err, int videoPolicy) {
+    AH_CALL(
+    )
+}
+
+int agent_host_set_rewards_policy(ptAgentHost pt, char* err, int rewardsPolicy) {
+    AH_CALL(
+    )
+}
+
+int agent_host_set_observations_policy(ptAgentHost pt, char* err, int observationsPolicy) {
+    AH_CALL(
+    )
+}
+
+int agent_host_send_command(ptAgentHost pt, char* err, const char* command) {
+    AH_CALL(
+    )
+}
+
+int agent_host_send_command_turnbased(ptAgentHost pt, char* err, const char* command, const char* key) {
+    AH_CALL(
     )
 }
