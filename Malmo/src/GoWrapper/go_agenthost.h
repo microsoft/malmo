@@ -35,7 +35,7 @@ extern "C" {
 //   pt  -- pointer to AgentHost
 //   err -- error message buffer
 #define AH_CALL(command)                                          \
-    AgentHost* agent_host = (AgentHost*)pt;                      \
+    AgentHost* agent_host = (AgentHost*)pt;                       \
     try {                                                         \
         command                                                   \
     } catch (const exception& e) {                                \
