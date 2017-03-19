@@ -107,4 +107,40 @@ func Test_mission01(tst *testing.T) {
 		tst.Errorf("Mismatch between first generation XML and the second:\n\n%v\n%v\n", xml, xml2)
 		return
 	}
+
+	// check that known-good XML validates
+	xml3 := `<?xml version="1.0" encoding="UTF-8" ?><Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<About><Summary>Run the maze!</Summary></About>
+<ServerSection><ServerInitialConditions><AllowSpawning>true</AllowSpawning><Time><StartTime>1000</StartTime><AllowPassageOfTime>true</AllowPassageOfTime></Time><Weather>clear</Weather></ServerInitialConditions>
+<ServerHandlers>
+<FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
+<ServerQuitFromTimeUp timeLimitMs="20000" />
+<ServerQuitWhenAnyAgentFinishes />
+</ServerHandlers></ServerSection>
+<AgentSection><Name>Jason Bourne</Name><AgentStart><Placement x="-204" y="81" z="217"/></AgentStart><AgentHandlers>
+<VideoProducer want_depth="true"><Width>320</Width><Height>240</Height></VideoProducer>
+<RewardForReachingPosition><Marker reward="100" tolerance="1.1" x="-104" y="81" z="217"/></RewardForReachingPosition>
+<ContinuousMovementCommands><ModifierList type="deny-list"><command>attack</command><command>crouch</command></ModifierList></ContinuousMovementCommands>
+<AgentQuitFromReachingPosition><Marker x="-104" y="81" z="217"/></AgentQuitFromReachingPosition>
+</AgentHandlers></AgentSection></Mission>`
+
+	my_mission3 := NewMissionSpecXML(xml3, validate)
+
+	if my_mission3.GetSummary() != "Run the maze!" {
+		tst.Errorf("Unexpected summary\n")
+		return
+	}
+
+	//const vector< string > expected_command_handlers = ;
+	commands = my_mission3.GetListOfCommandHandlers(0)
+	if wrong_list(commands, []string{"ContinuousMovement"}) {
+		tst.Errorf("Unexpected command handlers in xml3.\n")
+		return
+	}
+
+	commands = my_mission3.GetAllowedCommands(0, "ContinuousMovement")
+	if wrong_list(commands, []string{"jump", "move", "pitch", "strafe", "turn", "use"}) {
+		tst.Errorf("Unexpected commands for ContinuousMovement in xml3.\n")
+		return
+	}
 }
