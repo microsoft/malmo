@@ -22,6 +22,7 @@ package malmo
 /*
 #include "go_missionspec.h"
 #include "stdlib.h"
+#include "stdio.h"
 
 static inline char* make_buffer(int size) {
 	return (char*)malloc(size * sizeof(char));
@@ -30,16 +31,39 @@ static inline char* make_buffer(int size) {
 static inline void free_buffer(char* buf) {
 	free(buf);
 }
+
+static inline char** make_array_char(int nitems, int nchars) {
+	char** A = (char**)malloc(nitems * sizeof(char*));
+	int i = 0;
+	for (i = 0; i < nitems; i++) {
+		A[i] = make_buffer(nchars);
+	}
+	return A;
+}
+
+static inline void free_array_char(char** A, int nitems) {
+	int i = 0;
+	for (i = 0; i < nitems; i++) {
+		free(A[i]);
+	}
+	free(A);
+}
+
+static inline char* array_item(char** A, int i) {
+	return A[i];
+}
 */
 import "C"
 import "unsafe"
 
 // MissionSpec specifies a mission to be run.
 type MissionSpec struct {
-	pt  C.ptMissionSpec // pointer to C.MissionSpec
-	err *C.char         // buffer to hold error messages from C++
-	sum *C.char         // buffer to hold summary text from C++
-	xml *C.char         // buffer to hold XML text from C++
+	pt       C.ptMissionSpec // pointer to C.MissionSpec
+	err      *C.char         // buffer to hold error messages from C++
+	sum      *C.char         // buffer to hold summary text from C++
+	xml      *C.char         // buffer to hold XML text from C++
+	cmds     **C.char        // buffer to hold command handlers
+	cmds_act **C.char        // buffer to hold active command handlers
 }
 
 // NewMissionSpec constructs a mission with default parameters: a flat world with a 10 seconds time limit and continuous movement.
@@ -52,6 +76,8 @@ func NewMissionSpec() (o *MissionSpec) {
 	o.err = C.make_buffer(C.MS_ERROR_BUFFER_SIZE)
 	o.sum = C.make_buffer(C.MS_SUMMARY_BUFFER_SIZE)
 	o.xml = C.make_buffer(C.MS_XML_BUFFER_SIZE)
+	o.cmds = C.make_array_char(C.MS_MAX_COMMAND_HANDLERS, C.MS_COMMAND_HANDLER_NCHARS)
+	o.cmds_act = C.make_array_char(C.MS_MAX_ACTIVE_COMMAND_HANDLERS, C.MS_COMMAND_HANDLER_NCHARS)
 	return
 }
 
@@ -75,6 +101,8 @@ func NewMissionSpecXML(xml string, validate bool) (o *MissionSpec) {
 	o.err = C.make_buffer(C.MS_ERROR_BUFFER_SIZE)
 	o.sum = C.make_buffer(C.MS_SUMMARY_BUFFER_SIZE)
 	o.xml = C.make_buffer(C.MS_XML_BUFFER_SIZE)
+	o.cmds = C.make_array_char(C.MS_MAX_COMMAND_HANDLERS, C.MS_COMMAND_HANDLER_NCHARS)
+	o.cmds_act = C.make_array_char(C.MS_MAX_ACTIVE_COMMAND_HANDLERS, C.MS_COMMAND_HANDLER_NCHARS)
 	return
 }
 
@@ -85,6 +113,8 @@ func (o *MissionSpec) Free() {
 		C.free_buffer(o.err)
 		C.free_buffer(o.sum)
 		C.free_buffer(o.xml)
+		C.free_array_char(o.cmds, C.MS_MAX_COMMAND_HANDLERS)
+		C.free_array_char(o.cmds_act, C.MS_MAX_ACTIVE_COMMAND_HANDLERS)
 	}
 }
 
@@ -667,15 +697,16 @@ func (o MissionSpec) GetVideoChannels(role int) int {
 // role -- The agent index. Zero based.
 // returns The list of command handler names: 'ContinuousMovement', 'DiscreteMovement', 'Chat', 'Inventory' etc.
 func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
-	status := C.mission_spec_get_list_of_command_handlers(o.pt, o.err, C.int(role))
+	var size int
+	csize := (*C.int)(unsafe.Pointer(&size))
+	status := C.mission_spec_get_list_of_command_handlers(o.pt, o.err, C.int(role), csize, o.cmds)
 	if status != 0 {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	size := int(C.MS_COMMAND_HANDLERS_NUMBER)
 	response := make([]string, size)
 	for i := 0; i < size; i++ {
-		response[i] = C.GoString(&C.MS_COMMAND_HANDLERS[i][0])
+		response[i] = C.GoString(C.array_item(o.cmds, C.int(i)))
 	}
 	return response
 }
@@ -687,15 +718,16 @@ func (o MissionSpec) GetListOfCommandHandlers(role int) []string {
 func (o MissionSpec) GetAllowedCommands(role int, command_handler string) []string {
 	ccommand_handler := C.CString(command_handler)
 	defer C.free(unsafe.Pointer(ccommand_handler))
-	status := C.mission_spec_get_allowed_commands(o.pt, o.err, C.int(role), ccommand_handler)
+	var size int
+	csize := (*C.int)(unsafe.Pointer(&size))
+	status := C.mission_spec_get_allowed_commands(o.pt, o.err, C.int(role), ccommand_handler, csize, o.cmds_act)
 	if status != 0 {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
 	}
-	size := int(C.MS_ACTIVE_COMMAND_HANDLERS_NUMBER)
 	response := make([]string, size)
 	for i := 0; i < size; i++ {
-		response[i] = C.GoString(&C.MS_ACTIVE_COMMAND_HANDLERS[i][0])
+		response[i] = C.GoString(C.array_item(o.cmds_act, C.int(i)))
 	}
 	return response
 }

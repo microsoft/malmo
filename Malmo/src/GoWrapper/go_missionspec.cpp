@@ -168,30 +168,30 @@ int mission_spec_get_video_channels(ptMissionSpec pt, char* err, int role, int *
     )
 }
 
-int mission_spec_get_list_of_command_handlers(ptMissionSpec pt, char* err, int role) {
+int mission_spec_get_list_of_command_handlers(ptMissionSpec pt, char* err, int role, int* size, char** list) {
     MS_CALL(
-        vector<string> list = mission_spec->getListOfCommandHandlers(role);
-        if (list.size() > MS_MAX_COMMAND_HANDLERS) {
+        vector<string> vec_list = mission_spec->getListOfCommandHandlers(role);
+        if (vec_list.size() > MS_MAX_COMMAND_HANDLERS) {
             strncpy(err, "Number of command handlers exceeds capacity", MS_ERROR_BUFFER_SIZE);
             return 1;
         }
-        MS_COMMAND_HANDLERS_NUMBER = list.size();
-        for (int i=0; i < list.size(); ++i) {
-            strncpy(MS_COMMAND_HANDLERS[i], list[i].c_str(), MS_COMMAND_HANDLER_SIZE);
+        *size = vec_list.size();
+        for (int i=0; i < vec_list.size(); ++i) {
+            strncpy(list[i], vec_list[i].c_str(), MS_COMMAND_HANDLER_NCHARS);
         }
     )
 }
 
-int mission_spec_get_allowed_commands(ptMissionSpec pt, char* err, int role, const char* command_handler) {
+int mission_spec_get_allowed_commands(ptMissionSpec pt, char* err, int role, const char* command_handler, int* size, char** list) {
     MS_CALL(
-        vector<string> list = mission_spec->getAllowedCommands(role, command_handler);
-        if (list.size() > MS_MAX_ACTIVE_COMMAND_HANDLERS) {
+        vector<string> vec_list = mission_spec->getAllowedCommands(role, command_handler);
+        if (vec_list.size() > MS_MAX_ACTIVE_COMMAND_HANDLERS) {
             strncpy(err, "Number of allowed command handlers exceeds capacity", MS_ERROR_BUFFER_SIZE);
             return 1;
         }
-        MS_ACTIVE_COMMAND_HANDLERS_NUMBER = list.size();
-        for (int i=0; i < list.size(); ++i) {
-            strncpy(MS_ACTIVE_COMMAND_HANDLERS[i], list[i].c_str(), MS_COMMAND_HANDLER_SIZE);
+        *size = vec_list.size();
+        for (int i=0; i < vec_list.size(); ++i) {
+            strncpy(list[i], vec_list[i].c_str(), MS_COMMAND_HANDLER_NCHARS);
         }
     )
 }

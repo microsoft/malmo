@@ -33,16 +33,10 @@ extern "C" {
 // max number of characters for xml text from C++ to Go
 #define MS_XML_BUFFER_SIZE 1000000
 
-// global variable to hold the results of commandhandler
+// max number of items and characters for command handlers
 #define MS_MAX_COMMAND_HANDLERS 100
-#define MS_COMMAND_HANDLER_SIZE 128
-char MS_COMMAND_HANDLERS[MS_MAX_COMMAND_HANDLERS][MS_COMMAND_HANDLER_SIZE];
-int MS_COMMAND_HANDLERS_NUMBER;
-
-// global variable to hold the results of commandhandler
 #define MS_MAX_ACTIVE_COMMAND_HANDLERS 1000
-char MS_ACTIVE_COMMAND_HANDLERS[MS_MAX_ACTIVE_COMMAND_HANDLERS][MS_COMMAND_HANDLER_SIZE];
-int MS_ACTIVE_COMMAND_HANDLERS_NUMBER;
+#define MS_COMMAND_HANDLER_NCHARS 128
 
 // macro to help with calling MissionSpec methods and handling exception errors
 //   pt  -- pointer to MissionSpec
@@ -129,8 +123,8 @@ int mission_spec_is_video_requested           (ptMissionSpec pt, char* err, int 
 int mission_spec_get_video_width              (ptMissionSpec pt, char* err, int role, int *response);
 int mission_spec_get_video_height             (ptMissionSpec pt, char* err, int role, int *response);
 int mission_spec_get_video_channels           (ptMissionSpec pt, char* err, int role, int *response);
-int mission_spec_get_list_of_command_handlers (ptMissionSpec pt, char* err, int role);
-int mission_spec_get_allowed_commands         (ptMissionSpec pt, char* err, int role, const char* command_handler);
+int mission_spec_get_list_of_command_handlers (ptMissionSpec pt, char* err, int role, int *size, char** list);
+int mission_spec_get_allowed_commands         (ptMissionSpec pt, char* err, int role, const char* command_handler, int *size, char** list);
 
 #ifdef __cplusplus
 } /* extern "C" */
