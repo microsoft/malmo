@@ -35,6 +35,9 @@ type MissionSpec struct {
 func NewMissionSpec() (o *MissionSpec) {
 	o = new(MissionSpec)
 	o.pt = C.new_mission_spec()
+	if o.pt == nil {
+		panic("ERROR: Cannot create new MissionSpec")
+	}
 	return
 }
 
@@ -52,6 +55,9 @@ func NewMissionSpecXML(xml string, validate bool) (o *MissionSpec) {
 	}
 	o = new(MissionSpec)
 	o.pt = C.new_mission_spec_xml(cxml, cvalidate)
+	if o.pt == nil {
+		panic("ERROR: Cannot create new MissionSpec with given XML")
+	}
 	return
 }
 

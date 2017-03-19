@@ -19,10 +19,7 @@
 
 package malmo
 
-import (
-	"fmt"
-	"testing"
-)
+import "testing"
 
 func wrong_list(trial, correct []string) bool {
 	if len(trial) != len(correct) {
@@ -103,5 +100,11 @@ func Test_mission01(tst *testing.T) {
 	validate := true
 	my_mission2 := NewMissionSpecXML(xml, validate)
 	defer my_mission2.Free()
-	fmt.Printf("%+v\n", my_mission2)
+
+	// check that we get the same XML if we go round again
+	xml2 := my_mission2.GetAsXML(pretty_print)
+	if xml2 != xml {
+		tst.Errorf("Mismatch between first generation XML and the second:\n\n%v\n%v\n", xml, xml2)
+		return
+	}
 }

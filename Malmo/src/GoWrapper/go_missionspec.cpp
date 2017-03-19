@@ -31,8 +31,13 @@ using namespace std;
 #include "go_missionspec.h"
 
 ptMissionSpec new_mission_spec() {
-    MissionSpec * pt = new MissionSpec;
-    return (void*)pt;
+    try {
+        MissionSpec * pt = new MissionSpec;
+        return (void*)pt;
+    } catch (const exception& e) {
+        // returning NULL pointer
+    }
+    return NULL;
 }
 
 ptMissionSpec new_mission_spec_xml(const char* xml, int validate) {
@@ -40,8 +45,13 @@ ptMissionSpec new_mission_spec_xml(const char* xml, int validate) {
     if (validate == 1) {
         dovalidate = true;
     }
-    MissionSpec * pt = new MissionSpec(xml, dovalidate);
-    return (void*)pt;
+    try {
+        MissionSpec * pt = new MissionSpec(xml, dovalidate);
+        return (void*)pt;
+    } catch (const exception& e) {
+        // returning NULL pointer
+    }
+    return NULL;
 }
 
 void free_mission_spec(ptMissionSpec mission_spec) {
