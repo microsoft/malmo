@@ -23,32 +23,31 @@ import "testing"
 
 func Test_worldstate01(tst *testing.T) {
 
-	world_state := NewWorldState()
-	defer world_state.Free()
+	var world_state WorldState
 
 	world_state.Clear()
 
-	if world_state.HasMissionBegun() {
+	if world_state.HasMissionBegun {
 		tst.Errorf("HasMissionBegun should be false")
 		return
 	}
 
-	if world_state.IsMissionRunning() {
+	if world_state.IsMissionRunning {
 		tst.Errorf("IsMissionRunning should be false")
 		return
 	}
 
-	if world_state.NumberOfVideoFramesSinceLastState() != 0 {
+	if world_state.NumberOfVideoFramesSinceLastState != 0 {
 		tst.Errorf("NumberOfVideoFramesSinceLastState should be 0")
 		return
 	}
 
-	if world_state.NumberOfRewardsSinceLastState() != 0 {
+	if world_state.NumberOfRewardsSinceLastState != 0 {
 		tst.Errorf("NumberOfRewardsSinceLastState should be 0")
 		return
 	}
 
-	if world_state.NumberOfObservationsSinceLastState() != 0 {
+	if world_state.NumberOfObservationsSinceLastState != 0 {
 		tst.Errorf("NumberOfObservationsSinceLastState should be 0")
 		return
 	}
