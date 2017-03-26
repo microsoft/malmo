@@ -209,19 +209,31 @@ func (o *AgentHost) SetDebugOutput(debug bool) {
 // Specifies how you want to deal with multiple video frames.
 // videoPolicy -- How you want to deal with multiple video frames coming in asynchronously.
 func (o *AgentHost) SetVideoPolicy(videoPolicy int) {
-	panic("TODO")
+	status := C.agent_host_set_video_policy(o.pt, o.err, (C.int)(videoPolicy))
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Specifies how you want to deal with multiple rewards.
 // rewardsPolicy -- How you want to deal with multiple rewards coming in asynchronously.
 func (o *AgentHost) SetRewardsPolicy(rewardsPolicy int) {
-	panic("TODO")
+	status := C.agent_host_set_rewards_policy(o.pt, o.err, (C.int)(rewardsPolicy))
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Specifies how you want to deal with multiple observations.
 // observationsPolicy -- How you want to deal with multiple observations coming in asynchronously.
 func (o *AgentHost) SetObservationsPolicy(observationsPolicy int) {
-	panic("TODO")
+	status := C.agent_host_set_observations_policy(o.pt, o.err, (C.int)(observationsPolicy))
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Sends a command to the game client.

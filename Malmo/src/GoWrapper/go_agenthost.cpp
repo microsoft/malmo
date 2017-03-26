@@ -135,16 +135,19 @@ int agent_host_set_debug_output(ptAgentHost pt, char* err, int debug) {
 
 int agent_host_set_video_policy(ptAgentHost pt, char* err, int videoPolicy) {
     AH_CALL(
+        agent_host->setVideoPolicy((AgentHost::VideoPolicy)videoPolicy);
     )
 }
 
 int agent_host_set_rewards_policy(ptAgentHost pt, char* err, int rewardsPolicy) {
     AH_CALL(
+        agent_host->setRewardsPolicy((AgentHost::RewardsPolicy)rewardsPolicy);
     )
 }
 
 int agent_host_set_observations_policy(ptAgentHost pt, char* err, int observationsPolicy) {
     AH_CALL(
+        agent_host->setObservationsPolicy((AgentHost::ObservationsPolicy)observationsPolicy);
     )
 }
 
