@@ -24,7 +24,7 @@ Files named with `t_*.go` are unit tests.
 
 `AgentHost` is the _main_ file in the sense that it contais the CXXFLAGS and the LDFLAGS
 definitions. The file named `auxiliary.h` contains other functions to deal with allocation of
-`chars` in a _pure_ C style.
+chars in a _pure_ C style.
 
 `Go` used to have problems with passing `bool` values from/to C. Therefore, this wrapper converts
-all logic flags (`bools`) to int.
+all logic flags (`bools`) to `int`.
