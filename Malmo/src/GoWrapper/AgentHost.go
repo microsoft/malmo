@@ -167,7 +167,11 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 // \param mission The mission specification.
 // \param mission_record The specification of the mission recording to make.
 func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) {
-	panic("TODO")
+	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, mission_record.pt)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Gets the latest world state received from the game.

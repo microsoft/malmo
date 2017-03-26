@@ -110,8 +110,11 @@ int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission,
     )
 }
 
-int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec mission, ptMissionRecordSpec mission_record) {
+int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptmission, ptMissionRecordSpec ptmission_record) {
     AH_CALL(
+        MissionSpec* mission = (MissionSpec*)ptmission;
+        MissionRecordSpec* mission_record = (MissionRecordSpec*)ptmission_record;
+        agent_host->startMission(*mission, *mission_record);
     )
 }
 

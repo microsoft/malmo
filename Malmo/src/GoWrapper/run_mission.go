@@ -52,4 +52,6 @@ func main() {
 	my_mission_record.RecordMP4(20, 400000)
 	my_mission_record.RecordRewards()
 	my_mission_record.RecordObservations()
+
+	agent_host.StartMissionSimple(my_mission, my_mission_record)
 }
