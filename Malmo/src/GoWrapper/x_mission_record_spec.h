@@ -24,6 +24,24 @@
 extern "C" {
 #endif
 
+// max number of characters for error message text from C++ to Go
+#define MRS_ERROR_BUFFER_SIZE 1024
+
+// macro to help with calling MissionRecordSpec methods and handling exception errors
+//   pt  -- pointer to MissionSpec
+//   err -- error message buffer
+#define MRS_CALL(command)                                         \
+    MissionRecordSpec* mr_spec = (MissionRecordSpec*)pt;          \
+    try {                                                         \
+        command                                                   \
+    } catch (const exception& e) {                                \
+        std::string message = std::string("ERROR: ") + e.what();  \
+        strncpy(err, message.c_str(), MRS_ERROR_BUFFER_SIZE);     \
+        return 1;                                                 \
+    }                                                             \
+    return 0;
+
+// pointer to MissionRecordSpec
 typedef void* ptMissionRecordSpec;
 
 // constructor
@@ -33,7 +51,18 @@ ptMissionRecordSpec new_mission_record_spec();
 ptMissionRecordSpec new_mission_record_spec_target(const char* destination);
 
 // destructor
-void free_mission_record_spec(ptMissionRecordSpec mission_record_spec);
+void free_mission_record_spec(ptMissionRecordSpec pt);
+
+// All functions return:
+//  0 = OK
+//  1 = failed; e.g. exception happend => see ERROR_MESSAGE
+
+int mission_record_spec_set_destination     (ptMissionRecordSpec pt, char* err, const char* destination);
+int mission_record_spec_record_mp4          (ptMissionRecordSpec pt, char* err, int frames_per_second, int bit_rate);
+int mission_record_spec_record_observations (ptMissionRecordSpec pt, char* err);
+int mission_record_spec_record_rewards      (ptMissionRecordSpec pt, char* err);
+int mission_record_spec_record_commands     (ptMissionRecordSpec pt, char* err);
+int mission_record_spec_is_recording        (ptMissionRecordSpec pt, char* err, int* response);
 
 #ifdef __cplusplus
 } /* extern "C" */

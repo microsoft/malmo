@@ -21,6 +21,10 @@
 #include <MissionRecordSpec.h>
 using namespace malmo;
 
+// STL:
+#include <exception>
+using namespace std;
+
 // Local:
 #include "x_mission_record_spec.h"
 
@@ -34,9 +38,26 @@ ptMissionRecordSpec new_mission_record_spec_target(const char* destination) {
     return (void*)pt;
 }
 
-void free_mission_record_spec(ptMissionRecordSpec mission_record_spec) {
-    if (mission_record_spec != NULL) {
-        MissionRecordSpec * pt = (MissionRecordSpec*)mission_record_spec;
+void free_mission_record_spec(ptMissionRecordSpec pt) {
+    if (pt != NULL) {
+        MissionRecordSpec * pt = (MissionRecordSpec*)pt;
         delete pt;
     }
+}
+
+int mission_record_spec_set_destination    (ptMissionRecordSpec pt, char* err, const char* destination)             { MRS_CALL(mr_spec->setDestination    (destination);) }
+int mission_record_spec_record_mp4         (ptMissionRecordSpec pt, char* err, int frames_per_second, int bit_rate) { MRS_CALL(mr_spec->recordMP4         (frames_per_second, bit_rate);) }
+int mission_record_spec_record_observations(ptMissionRecordSpec pt, char* err)                                      { MRS_CALL(mr_spec->recordObservations();) }
+int mission_record_spec_record_rewards     (ptMissionRecordSpec pt, char* err)                                      { MRS_CALL(mr_spec->recordRewards     ();) }
+int mission_record_spec_record_commands    (ptMissionRecordSpec pt, char* err)                                      { MRS_CALL(mr_spec->recordCommands    ();) }
+
+int mission_record_spec_is_recording(ptMissionRecordSpec pt, char* err, int* response) {
+    MRS_CALL(
+        mr_spec->isRecording();
+        if (mr_spec->isRecording()) {
+            *response = 1;
+        } else {
+            *response = 0;
+        }
+    )
 }

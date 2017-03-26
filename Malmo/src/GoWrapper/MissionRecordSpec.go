@@ -21,8 +21,7 @@ package malmo
 
 /*
 #include "x_mission_record_spec.h"
-
-#include "stdlib.h"
+#include "auxiliary.h"
 */
 import "C"
 
@@ -30,13 +29,15 @@ import "unsafe"
 
 // MissionRecordSpec specifies the type of data that should be recorded from the mission.
 type MissionRecordSpec struct {
-	mission_record_spec C.ptMissionRecordSpec // pointer to C.MissionRecordSpec
+	pt  C.ptMissionRecordSpec // pointer to C.MissionRecordSpec
+	err *C.char               // buffer to hold error messages from C++
 }
 
 // NewMissionRecordSpec constructs an empty mission record specification, saying that nothing should be recorded.
 func NewMissionRecordSpec() (o *MissionRecordSpec) {
 	o = new(MissionRecordSpec)
-	o.mission_record_spec = C.new_mission_record_spec()
+	o.pt = C.new_mission_record_spec()
+	o.err = C.make_buffer(C.MRS_ERROR_BUFFER_SIZE)
 	return
 }
 
@@ -46,22 +47,30 @@ func NewMissionRecordSpec() (o *MissionRecordSpec) {
 // destination -- Filename to save to.
 func NewMissionRecordSpecTarget(destination string) (o *MissionRecordSpec) {
 	o = new(MissionRecordSpec)
-	cdest := C.CString(destination)
-	defer C.free(unsafe.Pointer(cdest))
-	o.mission_record_spec = C.new_mission_record_spec_target(cdest)
+	cdestination := C.CString(destination)
+	defer C.free(unsafe.Pointer(cdestination))
+	o.pt = C.new_mission_record_spec_target(cdestination)
+	o.err = C.make_buffer(C.MRS_ERROR_BUFFER_SIZE)
 	return
 }
 
 // Free deallocates MissionRecordSpec object
 func (o *MissionRecordSpec) Free() {
-	if o.mission_record_spec != nil {
-		C.free_mission_record_spec(o.mission_record_spec)
+	if o.pt != nil {
+		C.free_mission_record_spec(o.pt)
+		C.free_buffer(o.err)
 	}
 }
 
 // Specifies the destination for the recording.
 func (o *MissionRecordSpec) SetDestination(destination string) {
-	panic("TODO")
+	cdestination := C.CString(destination)
+	defer C.free(unsafe.Pointer(cdestination))
+	status := C.mission_record_spec_set_destination(o.pt, o.err, cdestination)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Requests that video be recorded, at the specified quality.
@@ -69,26 +78,51 @@ func (o *MissionRecordSpec) SetDestination(destination string) {
 // \param frames_per_second The number of frames to record per second. e.g. 20.
 // \param bit_rate The bit rate to record at. e.g. 400000 for 400kbps.
 func (o *MissionRecordSpec) RecordMP4(frames_per_second, bit_rate int) {
-	panic("TODO")
+	status := C.mission_record_spec_record_mp4(o.pt, o.err, C.int(frames_per_second), C.int(bit_rate))
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Requests that observations be recorded.
 func (o *MissionRecordSpec) RecordObservations() {
-	panic("TODO")
+	status := C.mission_record_spec_record_observations(o.pt, o.err)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Requests that rewards be recorded.
 func (o *MissionRecordSpec) RecordRewards() {
-	panic("TODO")
+	status := C.mission_record_spec_record_rewards(o.pt, o.err)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Requests that commands be recorded.
 func (o *MissionRecordSpec) RecordCommands() {
-	panic("TODO")
+	status := C.mission_record_spec_record_commands(o.pt, o.err)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 //! Are we recording anything?
 func (o MissionRecordSpec) IsRecording() bool {
-	panic("TODO")
+	var response int
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	status := C.mission_record_spec_is_recording(o.pt, o.err, cresponse)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
+	if response == 1 {
+		return true
+	}
 	return false
 }
