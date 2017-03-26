@@ -31,7 +31,7 @@ using namespace malmo;
 using namespace std;
 
 // Local:
-#include "go_agenthost.h"
+#include "x_agent_host.h"
 
 ptAgentHost new_agent_host() {
     try {

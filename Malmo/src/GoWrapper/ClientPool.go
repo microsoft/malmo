@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "go_clientpool.h"
+#include "x_client_pool.h"
 */
 import "C"
 

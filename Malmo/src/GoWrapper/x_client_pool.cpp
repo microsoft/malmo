@@ -18,20 +18,20 @@
 // --------------------------------------------------------------------------------------------------
 
 // Malmo:
-#include <ClientInfo.h>
+#include <ClientPool.h>
 using namespace malmo;
 
 // Local:
-#include "go_clientinfo.h"
+#include "x_client_pool.h"
 
-ptClientInfo new_client_info() {
-    ClientInfo * pt = new ClientInfo;
+ptClientPool new_client_pool() {
+    ClientPool * pt = new ClientPool;
     return (void*)pt;
 }
 
-void free_client_info(ptClientInfo client_info) {
-    if (client_info != NULL) {
-        ClientInfo * pt = (ClientInfo*)client_info;
+void free_client_pool(ptClientPool client_pool) {
+    if (client_pool != NULL) {
+        ClientPool * pt = (ClientPool*)client_pool;
         delete pt;
     }
 }

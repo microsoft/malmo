@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "go_clientinfo.h"
+#include "x_client_info.h"
 */
 import "C"
 

@@ -22,7 +22,7 @@
 using namespace malmo;
 
 // Local:
-#include "go_missionrecordspec.h"
+#include "x_mission_record_spec.h"
 
 ptMissionRecordSpec new_mission_record_spec() {
     MissionRecordSpec * pt = new MissionRecordSpec;

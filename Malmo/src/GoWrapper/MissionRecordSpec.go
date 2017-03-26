@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "go_missionrecordspec.h"
+#include "x_mission_record_spec.h"
 
 #include "stdlib.h"
 */

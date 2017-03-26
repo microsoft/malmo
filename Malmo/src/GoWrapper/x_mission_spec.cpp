@@ -28,7 +28,7 @@ using namespace malmo;
 using namespace std;
 
 // Local:
-#include "go_missionspec.h"
+#include "x_mission_spec.h"
 
 ptMissionSpec new_mission_spec() {
     try {

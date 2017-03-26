@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "go_missionspec.h"
+#include "x_mission_spec.h"
 #include "auxiliary.h"
 */
 import "C"

@@ -26,7 +26,7 @@ using namespace malmo;
 using namespace std;
 
 // Local:
-#include "go_worldstate.h"
+#include "x_world_state.h"
 
 ptWorldState new_world_state() {
     try {

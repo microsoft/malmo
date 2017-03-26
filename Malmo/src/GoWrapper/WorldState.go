@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "go_worldstate.h"
+#include "x_world_state.h"
 #include "auxiliary.h"
 */
 import "C"
