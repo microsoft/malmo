@@ -19,32 +19,13 @@
 
 package malmo
 
-/*
-#include "x_client_pool.h"
-*/
-import "C"
-
 // ClientPool defines a pool of expected network locations of Mod clients.
 type ClientPool struct {
-	client_pool C.ptClientPool // pointer to C.ClientPool
-}
-
-// NewClientPool ceates a ClientPool
-func NewClientPool() (o *ClientPool) {
-	o = new(ClientPool)
-	o.client_pool = C.new_client_pool()
-	return
-}
-
-// Free deallocates ClientPool object
-func (o *ClientPool) Free() {
-	if o.client_pool != nil {
-		C.free_client_pool(o.client_pool)
-	}
+	Clients []*ClientInfo // The list of clients.
 }
 
 // Add adds a client to the pool.
 // client_info -- The client information.
 func (o *ClientPool) Add(client_info *ClientInfo) {
-	panic("TODO")
+	o.Clients = append(o.Clients, client_info)
 }

@@ -34,13 +34,13 @@ func NewClientInfo() *ClientInfo {
 	return &ClientInfo{}
 }
 
-// NewClientInfoAddress Constructs a ClientInfo at the specified address listening on the default port.
+// NewClientInfoAddress constructs a ClientInfo at the specified address listening on the default port.
 // ip_address -- The IP address of the client
 func NewClientInfoAddress(ip_address string) *ClientInfo {
 	return &ClientInfo{IpAddress: ip_address, Port: DefaultClientMissionControlPort}
 }
 
-// NewClientInfoAddressAndPort Constructs a ClientInfo at the specified address listening on the specified port.
+// NewClientInfoAddressAndPort constructs a ClientInfo at the specified address listening on the specified port.
 // ip_address -- The IP address of the client.
 // port -- The number of the client port.
 func NewClientInfoAddressAndPort(ip_address string, port int) *ClientInfo {
