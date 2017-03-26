@@ -22,12 +22,14 @@
 #include <MissionSpec.h>
 #include <MissionRecordSpec.h>
 #include <ClientPool.h>
+#include <WorldState.h>
 using namespace malmo;
 
 // STL:
 #include <cstddef>
 #include <string>
 #include <exception>
+#include <iostream>
 using namespace std;
 
 // Local:
@@ -113,13 +115,35 @@ int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec mis
     )
 }
 
-int agent_host_peek_world_state(ptAgentHost pt, char* err, ptWorldState world_state) {
+int agent_host_peek_world_state(ptAgentHost pt, char* err,
+        int* has_mission_begun,
+        int* is_mission_running,
+        int* number_of_video_frames_since_last_state,
+        int* number_of_rewards_since_last_state,
+        int* number_of_observations_since_last_state) {
     AH_CALL(
+        WorldState ws = agent_host->peekWorldState();
+        *has_mission_begun  = ws.has_mission_begun  ? 1 : 0;
+        *is_mission_running = ws.is_mission_running ? 1 : 0;
+        *number_of_video_frames_since_last_state   = ws.number_of_video_frames_since_last_state;
+        *number_of_rewards_since_last_state        = ws.number_of_rewards_since_last_state;
+        *number_of_observations_since_last_state   = ws.number_of_observations_since_last_state;
     )
 }
 
-int agent_host_get_world_state(ptAgentHost pt, char* err, ptWorldState world_state) {
+int agent_host_get_world_state(ptAgentHost pt, char* err,
+        int* has_mission_begun,
+        int* is_mission_running,
+        int* number_of_video_frames_since_last_state,
+        int* number_of_rewards_since_last_state,
+        int* number_of_observations_since_last_state) {
     AH_CALL(
+        WorldState ws = agent_host->getWorldState();
+        *has_mission_begun  = ws.has_mission_begun  ? 1 : 0;
+        *is_mission_running = ws.is_mission_running ? 1 : 0;
+        *number_of_video_frames_since_last_state   = ws.number_of_video_frames_since_last_state;
+        *number_of_rewards_since_last_state        = ws.number_of_rewards_since_last_state;
+        *number_of_observations_since_last_state   = ws.number_of_observations_since_last_state;
     )
 }
 

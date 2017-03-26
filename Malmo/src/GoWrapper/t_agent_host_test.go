@@ -70,4 +70,31 @@ func Test_agenthost04(tst *testing.T) {
 	agent_host.SetVideoPolicy(LATEST_FRAME_ONLY)
 	agent_host.SetRewardsPolicy(SUM_REWARDS)
 	agent_host.SetObservationsPolicy(LATEST_OBSERVATION_ONLY)
+
+	world_state := agent_host.GetWorldState()
+
+	if world_state.HasMissionBegun {
+		tst.Errorf("HasMissionBegun should be false")
+		return
+	}
+
+	if world_state.IsMissionRunning {
+		tst.Errorf("IsMissionRunning should be false")
+		return
+	}
+
+	if world_state.NumberOfVideoFramesSinceLastState != 0 {
+		tst.Errorf("NumberOfVideoFramesSinceLastState should be 0")
+		return
+	}
+
+	if world_state.NumberOfRewardsSinceLastState != 0 {
+		tst.Errorf("NumberOfRewardsSinceLastState should be 0")
+		return
+	}
+
+	if world_state.NumberOfObservationsSinceLastState != 0 {
+		tst.Errorf("NumberOfObservationsSinceLastState should be 0")
+		return
+	}
 }

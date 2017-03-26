@@ -172,11 +172,51 @@ func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *Mis
 
 // Gets the latest world state received from the game.
 // returns The world state.
-//WorldState peekWorldState() const;
+func (o AgentHost) PeekWorldState() (ws WorldState) {
+	var has_mission_begun, is_mission_running int
+	status := C.agent_host_peek_world_state(o.pt, o.err,
+		(*C.int)(unsafe.Pointer(&has_mission_begun)),
+		(*C.int)(unsafe.Pointer(&is_mission_running)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfVideoFramesSinceLastState)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfRewardsSinceLastState)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfObservationsSinceLastState)),
+	)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
+	if has_mission_begun == 1 {
+		ws.HasMissionBegun = true
+	}
+	if is_mission_running == 1 {
+		ws.IsMissionRunning = true
+	}
+	return
+}
 
 // Gets the latest world state received from the game and resets it to empty.
 // returns The world state.
-//WorldState getWorldState();
+func (o AgentHost) GetWorldState() (ws WorldState) {
+	var has_mission_begun, is_mission_running int
+	status := C.agent_host_get_world_state(o.pt, o.err,
+		(*C.int)(unsafe.Pointer(&has_mission_begun)),
+		(*C.int)(unsafe.Pointer(&is_mission_running)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfVideoFramesSinceLastState)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfRewardsSinceLastState)),
+		(*C.int)(unsafe.Pointer(&ws.NumberOfObservationsSinceLastState)),
+	)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
+	if has_mission_begun == 1 {
+		ws.HasMissionBegun = true
+	}
+	if is_mission_running == 1 {
+		ws.IsMissionRunning = true
+	}
+	return
+}
 
 // Gets the temporary directory being used for the mission record, if recording is taking place.
 // returns The temporary directory for the mission record, or an empty string if no recording is going on.
