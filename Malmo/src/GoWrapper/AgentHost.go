@@ -24,23 +24,7 @@ package malmo
 #cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
 #include "go_agenthost.h"
-#include "stdlib.h"
-
-static inline char** make_argv(int argc) {
-	return (char**)malloc(sizeof(char*) * argc);
-}
-
-static inline void set_arg(char** argv, int i, char* str) {
-	argv[i] = str;
-}
-
-static inline char* make_buffer(int size) {
-	return (char*)malloc(size * sizeof(char));
-}
-
-static inline void free_buffer(char* buf) {
-	free(buf);
-}
+#include "auxiliary.h"
 */
 import "C"
 

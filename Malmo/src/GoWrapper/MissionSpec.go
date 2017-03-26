@@ -21,36 +21,7 @@ package malmo
 
 /*
 #include "go_missionspec.h"
-#include "stdlib.h"
-
-static inline char* make_buffer(int size) {
-	return (char*)malloc(size * sizeof(char));
-}
-
-static inline void free_buffer(char* buf) {
-	free(buf);
-}
-
-static inline char** make_array_char(int nitems, int nchars) {
-	char** A = (char**)malloc(nitems * sizeof(char*));
-	int i = 0;
-	for (i = 0; i < nitems; i++) {
-		A[i] = make_buffer(nchars);
-	}
-	return A;
-}
-
-static inline void free_array_char(char** A, int nitems) {
-	int i = 0;
-	for (i = 0; i < nitems; i++) {
-		free(A[i]);
-	}
-	free(A);
-}
-
-static inline char* array_item(char** A, int i) {
-	return A[i];
-}
+#include "auxiliary.h"
 */
 import "C"
 import "unsafe"
