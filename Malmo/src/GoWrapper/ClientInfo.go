@@ -19,39 +19,30 @@
 
 package malmo
 
-/*
-#include "x_client_info.h"
-*/
-import "C"
+const (
+	DefaultClientMissionControlPort = 10000 // The default client mission control port
+)
 
 // ClientInfo contains information about a simulation client's address and port
 type ClientInfo struct {
-	client_info C.ptClientInfo // pointer to C.ClientInfo
+	IpAddress string // The IP address of the client.
+	Port      int    // The port of the client.
 }
 
 // NewClientInfo ceates a ClientInfo
-func NewClientInfo() (o *ClientInfo) {
-	o = new(ClientInfo)
-	o.client_info = C.new_client_info()
-	return
+func NewClientInfo() *ClientInfo {
+	return &ClientInfo{}
 }
 
 // NewClientInfoAddress Constructs a ClientInfo at the specified address listening on the default port.
 // ip_address -- The IP address of the client
-func NewClientInfoAddress(ip_address string) {
-	panic("TODO")
+func NewClientInfoAddress(ip_address string) *ClientInfo {
+	return &ClientInfo{IpAddress: ip_address, Port: DefaultClientMissionControlPort}
 }
 
 // NewClientInfoAddressAndPort Constructs a ClientInfo at the specified address listening on the specified port.
 // ip_address -- The IP address of the client.
 // port -- The number of the client port.
-func NewClientInfoAddressAndPort(ip_address string, port int) {
-	panic("TODO")
-}
-
-// Free deallocates ClientInfo object
-func (o *ClientInfo) Free() {
-	if o.client_info != nil {
-		C.free_client_info(o.client_info)
-	}
+func NewClientInfoAddressAndPort(ip_address string, port int) *ClientInfo {
+	return &ClientInfo{IpAddress: ip_address, Port: port}
 }
