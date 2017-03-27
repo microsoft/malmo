@@ -28,3 +28,7 @@ chars in a _pure_ C style.
 
 `Go` used to have problems with passing `bool` values from/to C. Therefore, this wrapper converts
 all logic flags (`bools`) to `int`.
+
+## Development notes
+
+Check output of CGO with `go build -x -work`
