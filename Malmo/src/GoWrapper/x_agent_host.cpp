@@ -164,6 +164,11 @@ int agent_host_get_recording_temporary_directory(ptAgentHost pt, char* err, char
 
 int agent_host_set_debug_output(ptAgentHost pt, char* err, int debug) {
     AH_CALL(
+        bool flag = false;
+        if (debug == 1) {
+            flag = true;
+        }
+        agent_host->setDebugOutput(flag);
     )
 }
 
@@ -187,10 +192,12 @@ int agent_host_set_observations_policy(ptAgentHost pt, char* err, int observatio
 
 int agent_host_send_command(ptAgentHost pt, char* err, const char* command) {
     AH_CALL(
+        agent_host->sendCommand(command);
     )
 }
 
 int agent_host_send_command_turnbased(ptAgentHost pt, char* err, const char* command, const char* key) {
     AH_CALL(
+        agent_host->sendCommand(command, key);
     )
 }

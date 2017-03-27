@@ -244,7 +244,17 @@ func (o *AgentHost) GetRecordingTemporaryDirectory() string {
 
 // Switches on/off debug print statements. (Currently just client-pool / agenthost connection messages.)
 func (o *AgentHost) SetDebugOutput(debug bool) {
-	panic("TODO")
+	var cdebug C.int
+	if debug {
+		cdebug = 1
+	} else {
+		cdebug = 0
+	}
+	status := C.agent_host_set_debug_output(o.pt, o.err, cdebug)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Specifies how you want to deal with multiple video frames.
@@ -281,13 +291,27 @@ func (o *AgentHost) SetObservationsPolicy(observationsPolicy int) {
 // See the mission handlers documentation for the permitted commands for your chosen command handler.
 // command -- The command to send as a string. e.g. "move 1"
 func (o *AgentHost) SendCommand(command string) {
-	panic("TODO")
+	ccommand := C.CString(command)
+	defer C.free(unsafe.Pointer(ccommand))
+	status := C.agent_host_send_command(o.pt, o.err, ccommand)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Sends a turn-based command to the game client.
 // See the mission handlers documentation for the permitted commands for your chosen command handler.
 // command -- The command to send as a string. e.g. "move 1"
 // key -- The command-key (provided via observations) which must match in order for the command to be processed.
-func (o *AgentHost) SendCommandTurn(command, key string) {
-	panic("TODO")
+func (o *AgentHost) SendCommandTurnBased(command, key string) {
+	ccommand := C.CString(command)
+	defer C.free(unsafe.Pointer(ccommand))
+	ckey := C.CString(key)
+	defer C.free(unsafe.Pointer(ckey))
+	status := C.agent_host_send_command_turnbased(o.pt, o.err, ccommand, ckey)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
