@@ -32,3 +32,7 @@ all logic flags (`bools`) to `int`.
 ## Development notes
 
 Check output of CGO with `go build -x -work`
+
+## TODOs
+
+1. Avoid copying pixels twice in world_state_append_videoframe
