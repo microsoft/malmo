@@ -141,6 +141,16 @@ static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
         ws.number_of_observations_since_last_state
     );
 
+    for (boost::shared_ptr<TimestampedString> observation : ws.observations) {
+        timestamp_t ts = timestamp_from_ptime(observation->timestamp);
+        _callfromcpp_world_state_append_observation(goptws, &ts, const_cast<char*>(observation->text.c_str()), observation->text.size());
+    }
+
+    for (boost::shared_ptr<TimestampedString> controlmessage : ws.mission_control_messages) {
+        timestamp_t ts = timestamp_from_ptime(controlmessage->timestamp);
+        _callfromcpp_world_state_append_controlmessage(goptws, &ts, const_cast<char*>(controlmessage->text.c_str()), controlmessage->text.size());
+    }
+
     for (boost::shared_ptr<TimestampedString> error : ws.errors) {
         timestamp_t ts = timestamp_from_ptime(error->timestamp);
         _callfromcpp_world_state_append_error(goptws, &ts, const_cast<char*>(error->text.c_str()), error->text.size());

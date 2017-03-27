@@ -75,6 +75,20 @@ func _callfromcpp_world_state_set_values(gopt C.goptWorldState,
 	ws.NumberOfObservationsSinceLastState = int(cNumberOfObservationsSinceLastState)
 }
 
+// _callfromcpp_world_state_append_observation appends new timestamped observation message to Errors
+//export _callfromcpp_world_state_append_observation
+func _callfromcpp_world_state_append_observation(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
+	ws := (*WorldState)(gopt)
+	ws.Observations = append(ws.Errors, newTimestampedStringFromCpp(ts, text, text_size))
+}
+
+// _callfromcpp_world_state_append_controlmessage appends new timestamped missioncontrolmessage message to Errors
+//export _callfromcpp_world_state_append_controlmessage
+func _callfromcpp_world_state_append_controlmessage(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
+	ws := (*WorldState)(gopt)
+	ws.MissionControlMessages = append(ws.Errors, newTimestampedStringFromCpp(ts, text, text_size))
+}
+
 // _callfromcpp_world_state_append_error appends new timestamped error message to Errors
 //export _callfromcpp_world_state_append_error
 func _callfromcpp_world_state_append_error(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
