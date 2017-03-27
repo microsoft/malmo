@@ -20,49 +20,31 @@
 package malmo
 
 /*
-#include "x_client_info.h"
-#include "x_auxiliary.h"
+#include "x_timestamp.h"
 */
 import "C"
 
-import "unsafe"
+import "time"
 
-// ClientInfo contains information about a simulation client's address and port
-type ClientInfo struct {
-	pt C.ptClientInfo // pointer to C.ClientInfo
+// TimestampedString implements a string with an attached timestamp saying when it was collected.
+type TimestampedString struct {
+	Timestamp time.Time // The timestamp
+	Text      string    // The string
 }
 
-// NewClientInfo ceates a ClientInfo
-func NewClientInfo() (o *ClientInfo) {
-	o = new(ClientInfo)
-	o.pt = C.new_client_info()
+// newTimestampedStringFromCpp creates new TimestampedString from C++ data
+func newTimestampedStringFromCpp(ts *C.timestamp_t, text *C.char, text_size C.int) (o *TimestampedString) {
+	o = new(TimestampedString)
+	o.Timestamp = time.Date(
+		int(ts.year),
+		time.Month(ts.month),
+		int(ts.day),
+		int(ts.hours),
+		int(ts.minutes),
+		int(ts.seconds),
+		int(ts.nanoseconds),
+		time.Now().Location(),
+	)
+	o.Text = C.GoStringN(text, text_size)
 	return
-}
-
-// NewClientInfoAddress Constructs a ClientInfo at the specified address listening on the default port.
-// ip_address -- The IP address of the client
-func NewClientInfoAddress(ip_address string) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address(cip_address)
-	return
-}
-
-// NewClientInfoAddressAndPort Constructs a ClientInfo at the specified address listening on the specified port.
-// ip_address -- The IP address of the client.
-// port -- The number of the client port.
-func NewClientInfoAddressAndPort(ip_address string, port int) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address_and_port(cip_address, C.int(port))
-	return
-}
-
-// Free deallocates ClientInfo object
-func (o *ClientInfo) Free() {
-	if o.pt != nil {
-		C.free_client_info(o.pt)
-	}
 }

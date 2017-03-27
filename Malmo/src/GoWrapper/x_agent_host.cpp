@@ -26,6 +26,7 @@
 using namespace malmo;
 
 // STL:
+#include "stdlib.h"
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -35,6 +36,10 @@ using namespace std;
 
 // Local:
 #include "x_agent_host.h"
+#include "x_timestamp.hpp"
+
+// Cgo:
+#include "_cgo_export.h"
 
 ptAgentHost new_agent_host() {
     try {
@@ -119,35 +124,40 @@ int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptm
     )
 }
 
-int agent_host_peek_world_state(ptAgentHost pt, char* err,
-        int* has_mission_begun,
-        int* is_mission_running,
-        int* number_of_video_frames_since_last_state,
-        int* number_of_rewards_since_last_state,
-        int* number_of_observations_since_last_state) {
+//#include <boost/make_shared.hpp>
+
+static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
+
+    // TODO: remove this debugging lines
+    //boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
+    //TimestampedString tss = TimestampedString(ts, "hello error thing");
+    //ws.errors.push_back(boost::make_shared<TimestampedString>(tss));
+
+    _callfromcpp_world_state_set_values(goptws,
+        ws.has_mission_begun  ? 1 : 0,
+        ws.is_mission_running ? 1 : 0,
+        ws.number_of_video_frames_since_last_state,
+        ws.number_of_rewards_since_last_state,
+        ws.number_of_observations_since_last_state
+    );
+
+    for (boost::shared_ptr<TimestampedString> error : ws.errors) {
+        timestamp_t ts = timestamp_from_ptime(error->timestamp);
+        _callfromcpp_world_state_append_error(goptws, &ts, const_cast<char*>(error->text.c_str()), error->text.size());
+    }
+}
+
+int agent_host_peek_world_state(ptAgentHost pt, char* err, goptWorldState goptws) {
     AH_CALL(
         WorldState ws = agent_host->peekWorldState();
-        *has_mission_begun  = ws.has_mission_begun  ? 1 : 0;
-        *is_mission_running = ws.is_mission_running ? 1 : 0;
-        *number_of_video_frames_since_last_state   = ws.number_of_video_frames_since_last_state;
-        *number_of_rewards_since_last_state        = ws.number_of_rewards_since_last_state;
-        *number_of_observations_since_last_state   = ws.number_of_observations_since_last_state;
+        set_world_state(ws, goptws);
     )
 }
 
-int agent_host_get_world_state(ptAgentHost pt, char* err,
-        int* has_mission_begun,
-        int* is_mission_running,
-        int* number_of_video_frames_since_last_state,
-        int* number_of_rewards_since_last_state,
-        int* number_of_observations_since_last_state) {
+int agent_host_get_world_state(ptAgentHost pt, char* err, goptWorldState goptws) {
     AH_CALL(
         WorldState ws = agent_host->getWorldState();
-        *has_mission_begun  = ws.has_mission_begun  ? 1 : 0;
-        *is_mission_running = ws.is_mission_running ? 1 : 0;
-        *number_of_video_frames_since_last_state   = ws.number_of_video_frames_since_last_state;
-        *number_of_rewards_since_last_state        = ws.number_of_rewards_since_last_state;
-        *number_of_observations_since_last_state   = ws.number_of_observations_since_last_state;
+        set_world_state(ws, goptws);
     )
 }
 

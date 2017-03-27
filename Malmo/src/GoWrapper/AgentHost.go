@@ -24,7 +24,7 @@ package malmo
 #cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
 #include "x_agent_host.h"
-#include "auxiliary.h"
+#include "x_auxiliary.h"
 */
 import "C"
 
@@ -185,23 +185,10 @@ func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *Mis
 // Gets the latest world state received from the game.
 // returns The world state.
 func (o AgentHost) PeekWorldState() (ws WorldState) {
-	var has_mission_begun, is_mission_running int
-	status := C.agent_host_peek_world_state(o.pt, o.err,
-		(*C.int)(unsafe.Pointer(&has_mission_begun)),
-		(*C.int)(unsafe.Pointer(&is_mission_running)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfVideoFramesSinceLastState)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfRewardsSinceLastState)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfObservationsSinceLastState)),
-	)
+	status := C.agent_host_peek_world_state(o.pt, o.err, (C.goptWorldState)(unsafe.Pointer(&ws)))
 	if status != 0 {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
-	}
-	if has_mission_begun == 1 {
-		ws.HasMissionBegun = true
-	}
-	if is_mission_running == 1 {
-		ws.IsMissionRunning = true
 	}
 	return
 }
@@ -209,23 +196,10 @@ func (o AgentHost) PeekWorldState() (ws WorldState) {
 // Gets the latest world state received from the game and resets it to empty.
 // returns The world state.
 func (o AgentHost) GetWorldState() (ws WorldState) {
-	var has_mission_begun, is_mission_running int
-	status := C.agent_host_get_world_state(o.pt, o.err,
-		(*C.int)(unsafe.Pointer(&has_mission_begun)),
-		(*C.int)(unsafe.Pointer(&is_mission_running)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfVideoFramesSinceLastState)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfRewardsSinceLastState)),
-		(*C.int)(unsafe.Pointer(&ws.NumberOfObservationsSinceLastState)),
-	)
+	status := C.agent_host_get_world_state(o.pt, o.err, (C.goptWorldState)(unsafe.Pointer(&ws)))
 	if status != 0 {
 		message := C.GoString(o.err)
 		panic("ERROR:\n" + message)
-	}
-	if has_mission_begun == 1 {
-		ws.HasMissionBegun = true
-	}
-	if is_mission_running == 1 {
-		ws.IsMissionRunning = true
 	}
 	return
 }

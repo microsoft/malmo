@@ -19,6 +19,12 @@
 
 package malmo
 
+/*
+typedef void* goptWorldState; // go-pointer
+#include "x_timestamp.h"
+*/
+import "C"
+
 // WorldState represents the state of the game world at a moment in time.
 type WorldState struct {
 	HasMissionBegun                    bool // Specifies whether the mission had begun when this world state was taken (whether or not it has since finished).
@@ -26,13 +32,52 @@ type WorldState struct {
 	NumberOfVideoFramesSinceLastState  int  // Contains the number of video frames that have been received since the last time the world state was taken. May differ from the number of video frames that are stored, depending on the video frames policy that was used.
 	NumberOfRewardsSinceLastState      int  // Contains the number of rewards that have been received since the last time the world state was taken. May differ from the number of rewards that are stored, depending on the rewards policy that was used.
 	NumberOfObservationsSinceLastState int  // Contains the number of observations that have been received since the last time the world state was taken. May differ from the number of observations that are stored, depending on the observations policy that was used.
+
+	VideoFrames            []*TimestampedVideoFrame // Contains the timestamped video frames that are stored in this world state. May differ from the number of video frames that were received, depending on the video policy that was used.
+	Rewards                []*TimestampedReward     // Contains the timestamped rewards that are stored in this world state. May differ from the number of rewards that were received, depending on the rewards policy that was used.
+	Observations           []*TimestampedString     // Contains the timestamped observations that are stored in this world state. May differ from the number of observations that were received, depending on the observations policy that was used.
+	MissionControlMessages []*TimestampedString     // Contains the timestamped mission control messages that are stored in this world state.
+	Errors                 []*TimestampedString     // If there are errors in receiving the messages then we log them here.
 }
 
 // Clear resets the world state to be empty, with no mission running.
 func (o *WorldState) Clear() {
+
+	// clear values
 	o.HasMissionBegun = false
 	o.IsMissionRunning = false
 	o.NumberOfVideoFramesSinceLastState = 0
 	o.NumberOfRewardsSinceLastState = 0
 	o.NumberOfObservationsSinceLastState = 0
+
+	// clear arrays
+	o.VideoFrames = []*TimestampedVideoFrame{}
+	o.Rewards = []*TimestampedReward{}
+	o.Observations = []*TimestampedString{}
+	o.MissionControlMessages = []*TimestampedString{}
+	o.Errors = []*TimestampedString{}
+}
+
+// _callfromcpp_world_state_set_values sets WorldState with data from Cpp code
+//export _callfromcpp_world_state_set_values
+func _callfromcpp_world_state_set_values(gopt C.goptWorldState,
+	cHasMissionBegun,
+	cIsMissionRunning,
+	cNumberOfVideoFramesSinceLastState,
+	cNumberOfRewardsSinceLastState,
+	cNumberOfObservationsSinceLastState C.int) {
+
+	ws := (*WorldState)(gopt)
+	ws.HasMissionBegun = CI2B(cHasMissionBegun)
+	ws.IsMissionRunning = CI2B(cIsMissionRunning)
+	ws.NumberOfVideoFramesSinceLastState = int(cNumberOfVideoFramesSinceLastState)
+	ws.NumberOfRewardsSinceLastState = int(cNumberOfRewardsSinceLastState)
+	ws.NumberOfObservationsSinceLastState = int(cNumberOfObservationsSinceLastState)
+}
+
+// _callfromcpp_world_state_append_error appends new timestamped error message to Errors
+//export _callfromcpp_world_state_append_error
+func _callfromcpp_world_state_append_error(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
+	ws := (*WorldState)(gopt)
+	ws.Errors = append(ws.Errors, newTimestampedStringFromCpp(ts, text, text_size))
 }

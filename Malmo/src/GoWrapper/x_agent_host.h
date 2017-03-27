@@ -54,6 +54,7 @@ typedef void* ptMissionSpec;
 typedef void* ptMissionRecordSpec;
 typedef void* ptClientPool;
 typedef void* ptWorldState;
+typedef void* goptWorldState;
 
 // pointer to AgentHost type
 typedef void* ptAgentHost;
@@ -89,8 +90,8 @@ int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, i
 // methods from AgentHost:
 int agent_host_start_mission                     (ptAgentHost pt, char* err, ptMissionSpec mission, ptClientPool client_pool, ptMissionRecordSpec mission_record, int role, const char* unique_experiment_id);
 int agent_host_start_mission_simple              (ptAgentHost pt, char* err, ptMissionSpec mission, ptMissionRecordSpec mission_record);
-int agent_host_peek_world_state                  (ptAgentHost pt, char* err, int* has_mission_begun, int* is_mission_running, int* number_of_video_frames_since_last_state, int* number_of_rewards_since_last_state, int* number_of_observations_since_last_state);
-int agent_host_get_world_state                   (ptAgentHost pt, char* err, int* has_mission_begun, int* is_mission_running, int* number_of_video_frames_since_last_state, int* number_of_rewards_since_last_state, int* number_of_observations_since_last_state);
+int agent_host_peek_world_state                  (ptAgentHost pt, char* err, goptWorldState goptws);
+int agent_host_get_world_state                   (ptAgentHost pt, char* err, goptWorldState goptws);
 int agent_host_get_recording_temporary_directory (ptAgentHost pt, char* err, char* response);
 int agent_host_set_debug_output                  (ptAgentHost pt, char* err, int debug);
 int agent_host_set_video_policy                  (ptAgentHost pt, char* err, int videoPolicy);

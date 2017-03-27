@@ -19,50 +19,5 @@
 
 package malmo
 
-/*
-#include "x_client_info.h"
-#include "x_auxiliary.h"
-*/
-import "C"
-
-import "unsafe"
-
-// ClientInfo contains information about a simulation client's address and port
-type ClientInfo struct {
-	pt C.ptClientInfo // pointer to C.ClientInfo
-}
-
-// NewClientInfo ceates a ClientInfo
-func NewClientInfo() (o *ClientInfo) {
-	o = new(ClientInfo)
-	o.pt = C.new_client_info()
-	return
-}
-
-// NewClientInfoAddress Constructs a ClientInfo at the specified address listening on the default port.
-// ip_address -- The IP address of the client
-func NewClientInfoAddress(ip_address string) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address(cip_address)
-	return
-}
-
-// NewClientInfoAddressAndPort Constructs a ClientInfo at the specified address listening on the specified port.
-// ip_address -- The IP address of the client.
-// port -- The number of the client port.
-func NewClientInfoAddressAndPort(ip_address string, port int) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address_and_port(cip_address, C.int(port))
-	return
-}
-
-// Free deallocates ClientInfo object
-func (o *ClientInfo) Free() {
-	if o.pt != nil {
-		C.free_client_info(o.pt)
-	}
+type TimestampedReward struct {
 }

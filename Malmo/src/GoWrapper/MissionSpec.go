@@ -21,7 +21,7 @@ package malmo
 
 /*
 #include "x_mission_spec.h"
-#include "auxiliary.h"
+#include "x_auxiliary.h"
 */
 import "C"
 import "unsafe"

@@ -19,50 +19,17 @@
 
 package malmo
 
-/*
-#include "x_client_info.h"
-#include "x_auxiliary.h"
-*/
-import "C"
+import "time"
 
-import "unsafe"
-
-// ClientInfo contains information about a simulation client's address and port
-type ClientInfo struct {
-	pt C.ptClientInfo // pointer to C.ClientInfo
-}
-
-// NewClientInfo ceates a ClientInfo
-func NewClientInfo() (o *ClientInfo) {
-	o = new(ClientInfo)
-	o.pt = C.new_client_info()
-	return
-}
-
-// NewClientInfoAddress Constructs a ClientInfo at the specified address listening on the default port.
-// ip_address -- The IP address of the client
-func NewClientInfoAddress(ip_address string) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address(cip_address)
-	return
-}
-
-// NewClientInfoAddressAndPort Constructs a ClientInfo at the specified address listening on the specified port.
-// ip_address -- The IP address of the client.
-// port -- The number of the client port.
-func NewClientInfoAddressAndPort(ip_address string, port int) (o *ClientInfo) {
-	cip_address := C.CString(ip_address)
-	defer C.free(unsafe.Pointer(cip_address))
-	o = new(ClientInfo)
-	o.pt = C.new_client_info_address_and_port(cip_address, C.int(port))
-	return
-}
-
-// Free deallocates ClientInfo object
-func (o *ClientInfo) Free() {
-	if o.pt != nil {
-		C.free_client_info(o.pt)
-	}
+type TimestampedVideoFrame struct {
+	Timestamp time.Time // The timestamp.
+	Width     int16     // The width of the image in pixels.
+	Height    int16     // The height of the image in pixels.
+	Channels  int16     // The number of channels. e.g. 3 for RGB data, 4 for RGBD
+	Pitch     float32   // The pitch of the player at render time
+	Yaw       float32   // The yaw of the player at render time
+	Xpos      float32   // The x pos of the player at render time
+	Ypos      float32   // The y pos of the player at render time
+	Zpos      float32   // The z pos of the player at render time
+	Pixels    []uint8   // The pixels, stored as channels then columns then rows. Length should be width*height*channels.
 }
