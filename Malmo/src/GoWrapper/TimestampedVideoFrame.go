@@ -19,7 +19,15 @@
 
 package malmo
 
-import "time"
+/*
+#include "x_definitions.h"
+*/
+import "C"
+
+import (
+	"time"
+	"unsafe"
+)
 
 type TimestampedVideoFrame struct {
 	Timestamp time.Time // The timestamp.
@@ -32,4 +40,36 @@ type TimestampedVideoFrame struct {
 	Ypos      float32   // The y pos of the player at render time
 	Zpos      float32   // The z pos of the player at render time
 	Pixels    []uint8   // The pixels, stored as channels then columns then rows. Length should be width*height*channels.
+}
+
+// newTimestampedVideoFrameFromCpp creates new TimestampedVideoFrame from C++ data
+func newTimestampedVideoFrameFromCpp(ts *C.timestamp_t, vf *C.videoframe_t, cnpixels C.int, ptPixels *C.uchar) (o *TimestampedVideoFrame) {
+	o = new(TimestampedVideoFrame)
+	o.Timestamp = time.Date(
+		int(ts.year),
+		time.Month(ts.month),
+		int(ts.day),
+		int(ts.hours),
+		int(ts.minutes),
+		int(ts.seconds),
+		int(ts.nanoseconds),
+		time.Now().Location(),
+	)
+
+	o.Width = int16(vf.width)
+	o.Height = int16(vf.height)
+	o.Channels = int16(vf.channels)
+	o.Pitch = float32(vf.pitch)
+	o.Yaw = float32(vf.yaw)
+	o.Xpos = float32(vf.xPos)
+	o.Ypos = float32(vf.yPos)
+	o.Zpos = float32(vf.zPos)
+
+	npixels := int(cnpixels)
+	pixels := (*[1 << 30]C.uchar)(unsafe.Pointer(ptPixels))
+	o.Pixels = make([]uint8, npixels)
+	for i := 0; i < npixels; i++ {
+		o.Pixels[i] = uint8(pixels[i])
+	}
+	return
 }

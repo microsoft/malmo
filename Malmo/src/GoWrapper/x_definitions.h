@@ -35,6 +35,18 @@ typedef struct {
     long nanoseconds;
 } timestamp_t;
 
+// type to hold videoframe data
+typedef struct {
+    short width;
+    short height;
+    short channels;
+    float pitch;
+    float yaw;
+    float xPos;
+    float yPos;
+    float zPos;
+} videoframe_t;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

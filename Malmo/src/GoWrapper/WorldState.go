@@ -21,7 +21,7 @@ package malmo
 
 /*
 typedef void* goptWorldState; // go-pointer
-#include "x_timestamp.h"
+#include "x_definitions.h"
 */
 import "C"
 
@@ -75,21 +75,28 @@ func _callfromcpp_world_state_set_values(gopt C.goptWorldState,
 	ws.NumberOfObservationsSinceLastState = int(cNumberOfObservationsSinceLastState)
 }
 
-// _callfromcpp_world_state_append_reward appends new timestamped reward message to Errors
+// _callfromcpp_world_state_append_videoframe appends new timestamped videoframe message to VideoFrames
+//export _callfromcpp_world_state_append_videoframe
+func _callfromcpp_world_state_append_videoframe(gopt C.goptWorldState, ts *C.timestamp_t, vf *C.videoframe_t, npixels C.int, ptPixels *C.uchar) {
+	ws := (*WorldState)(gopt)
+	ws.VideoFrames = append(ws.VideoFrames, newTimestampedVideoFrameFromCpp(ts, vf, npixels, ptPixels))
+}
+
+// _callfromcpp_world_state_append_reward appends new timestamped reward message to Rewards
 //export _callfromcpp_world_state_append_reward
 func _callfromcpp_world_state_append_reward(gopt C.goptWorldState, ts *C.timestamp_t, ndim C.int, values *C.double) {
 	ws := (*WorldState)(gopt)
 	ws.Rewards = append(ws.Rewards, newTimestampedRewardFromCpp(ts, ndim, values))
 }
 
-// _callfromcpp_world_state_append_observation appends new timestamped observation message to Errors
+// _callfromcpp_world_state_append_observation appends new timestamped observation message to Observations
 //export _callfromcpp_world_state_append_observation
 func _callfromcpp_world_state_append_observation(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
 	ws := (*WorldState)(gopt)
 	ws.Observations = append(ws.Observations, newTimestampedStringFromCpp(ts, text, text_size))
 }
 
-// _callfromcpp_world_state_append_controlmessage appends new timestamped missioncontrolmessage message to Errors
+// _callfromcpp_world_state_append_controlmessage appends new timestamped missioncontrolmessage message to MissionControlMessages
 //export _callfromcpp_world_state_append_controlmessage
 func _callfromcpp_world_state_append_controlmessage(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
 	ws := (*WorldState)(gopt)

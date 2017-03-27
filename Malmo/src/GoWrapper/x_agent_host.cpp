@@ -124,7 +124,7 @@ int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptm
     )
 }
 
-#include <boost/make_shared.hpp>
+//#include <boost/make_shared.hpp>
 
 const int REWARDS_MAX_NUMBER_DIMENSIONS = 4; // '4' allows for, e.g., 1,2,3 as 3D indices or 0,1,2
 
@@ -139,6 +139,26 @@ static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
     ws.errors.push_back (boost::make_shared<TimestampedString>(tss));
     ws.rewards.push_back(boost::make_shared<TimestampedReward>(tsr));
     */
+
+    for (boost::shared_ptr<TimestampedVideoFrame> video_frame : ws.video_frames) {
+        timestamp_t ts = timestamp_from_ptime(video_frame->timestamp);
+        videoframe_t vf;
+        vf.width    = video_frame->width;
+        vf.height   = video_frame->height;
+        vf.channels = video_frame->channels;
+        vf.pitch    = video_frame->pitch;
+        vf.yaw      = video_frame->yaw;
+        vf.xPos     = video_frame->xPos;
+        vf.yPos     = video_frame->yPos;
+        vf.zPos     = video_frame->zPos;
+        int npixels = video_frame->pixels.size();
+	    unsigned char* pixels = (unsigned char*)malloc(npixels * sizeof(unsigned char));
+        for (int i=0; i < npixels; i++) {
+            pixels[i] = video_frame->pixels[i];
+        }
+        _callfromcpp_world_state_append_videoframe(goptws, &ts, &vf, npixels, pixels);
+        free(pixels);
+    }
 
     _callfromcpp_world_state_set_values(goptws,
         ws.has_mission_begun  ? 1 : 0,

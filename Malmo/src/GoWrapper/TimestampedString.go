@@ -20,7 +20,7 @@
 package malmo
 
 /*
-#include "x_timestamp.h"
+#include "x_definitions.h"
 */
 import "C"
 

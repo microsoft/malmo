@@ -24,7 +24,7 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 // Local:
-#include "x_timestamp.h"
+#include "x_definitions.h"
 
 // converts ptime to TimestampData
 static inline timestamp_t timestamp_from_ptime(boost::posix_time::ptime const& pt) {
