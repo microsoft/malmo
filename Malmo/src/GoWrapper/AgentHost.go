@@ -97,7 +97,7 @@ func (o *AgentHost) Free() {
 
 // Parse parses a list of strings given in the C style. Throws exception if parsing fails.
 // param args The arguments to parse.
-func (o *AgentHost) Parse(args []string) (err error) {
+func (o *AgentHost) Parse(args []string) error {
 
 	// allocate C variables
 	argc := C.int(len(args))
@@ -114,10 +114,9 @@ func (o *AgentHost) Parse(args []string) (err error) {
 	// call C command
 	status := C.agent_host_parse(o.pt, o.err, argc, argv)
 	if status != 0 {
-		message := C.GoString(o.err)
-		return errors.New(message)
+		return errors.New(C.GoString(o.err))
 	}
-	return
+	return nil
 }
 
 // GetUsage gets a string that describes the current set of options we expect.
@@ -162,25 +161,25 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 // mission_record -- The specification of the mission recording to make.
 // role -- Index of the agent that this agent host is to manage. Zero-based index. Use zero if there is only one agent in this mission.
 // unique_experiment_id -- An arbitrary identifier that is used to disambiguate our mission from other runs.
-func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, mission_record *MissionRecordSpec, role int, unique_experiment_id string) {
+func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, mission_record *MissionRecordSpec, role int, unique_experiment_id string) error {
 	cid := C.CString(unique_experiment_id)
 	defer C.free(unsafe.Pointer(cid))
 	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, client_pool.pt, mission_record.pt, C.int(role), cid)
 	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
+		return errors.New(C.GoString(o.err))
 	}
+	return nil
 }
 
 // Starts a mission running, in the simple case where there is only one agent running on the local machine. Throws an exception if something goes wrong.
 // \param mission The mission specification.
 // \param mission_record The specification of the mission recording to make.
-func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) {
+func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) error {
 	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, mission_record.pt)
 	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
+		return errors.New(C.GoString(o.err))
 	}
+	return nil
 }
 
 // Gets the latest world state received from the game.
