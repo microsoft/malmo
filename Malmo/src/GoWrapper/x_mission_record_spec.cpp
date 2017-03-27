@@ -22,6 +22,10 @@
 using namespace malmo;
 
 // STL:
+#include <cstddef>
+#include <cstring>
+#include <string>
+#include <vector>
 #include <exception>
 using namespace std;
 

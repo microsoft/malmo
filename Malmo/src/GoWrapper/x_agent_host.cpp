@@ -27,6 +27,7 @@ using namespace malmo;
 
 // STL:
 #include <cstddef>
+#include <cstring>
 #include <string>
 #include <exception>
 #include <iostream>
