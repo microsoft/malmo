@@ -124,14 +124,21 @@ int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptm
     )
 }
 
-//#include <boost/make_shared.hpp>
+#include <boost/make_shared.hpp>
+
+const int REWARDS_MAX_NUMBER_DIMENSIONS = 4; // '4' allows for, e.g., 1,2,3 as 3D indices or 0,1,2
 
 static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
 
     // TODO: remove this debugging lines
-    //boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
-    //TimestampedString tss = TimestampedString(ts, "hello error thing");
-    //ws.errors.push_back(boost::make_shared<TimestampedString>(tss));
+    /*
+    boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
+    TimestampedString tss = TimestampedString(ts, "hello error thing");
+    TimestampedReward tsr;
+    tsr.createFromSimpleString(ts, "0:123,1:456,2:789,3:321");
+    ws.errors.push_back (boost::make_shared<TimestampedString>(tss));
+    ws.rewards.push_back(boost::make_shared<TimestampedReward>(tsr));
+    */
 
     _callfromcpp_world_state_set_values(goptws,
         ws.has_mission_begun  ? 1 : 0,
@@ -140,6 +147,27 @@ static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
         ws.number_of_rewards_since_last_state,
         ws.number_of_observations_since_last_state
     );
+
+    for (boost::shared_ptr<TimestampedReward> reward : ws.rewards) {
+        timestamp_t ts = timestamp_from_ptime(reward->timestamp);
+        int dim_max = -1;
+        for (int i=0; i < REWARDS_MAX_NUMBER_DIMENSIONS; i++) {
+            if (reward->hasValueOnDimension(i)) {
+                dim_max = i > dim_max ? i : dim_max;
+            }
+        }
+        int ndim = dim_max + 1;
+	    double* values = (double*)malloc(ndim * sizeof(double));
+        for (int i=0; i < ndim; i++) {
+            if (reward->hasValueOnDimension(i)) {
+                values[i] = reward->getValueOnDimension(i);
+            } else {
+                values[i] = 0;
+            }
+        }
+        _callfromcpp_world_state_append_reward(goptws, &ts, ndim, values);
+        free(values);
+    }
 
     for (boost::shared_ptr<TimestampedString> observation : ws.observations) {
         timestamp_t ts = timestamp_from_ptime(observation->timestamp);
