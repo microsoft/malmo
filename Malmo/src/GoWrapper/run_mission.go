@@ -24,7 +24,9 @@ package main
 import (
 	"fmt"
 	"malmo"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func main() {
@@ -58,7 +60,57 @@ func main() {
 	//os.MkdirAll(destination, 0777)
 	//my_mission_record.SetDestination(destination)
 
-	agent_host.StartMissionSimple(my_mission, my_mission_record)
+	err = agent_host.StartMissionSimple(my_mission, my_mission_record)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	fmt.Printf("recording directory = %q\n", agent_host.GetRecordingTemporaryDirectory())
+	//fmt.Printf("recording directory = %q\n", agent_host.GetRecordingTemporaryDirectory())
+
+	fmt.Println("Waiting for the mission to start")
+	for {
+		fmt.Print(".")
+		time.Sleep(100 * time.Millisecond)
+		world_state := agent_host.GetWorldState()
+		for _, e := range world_state.Errors {
+			fmt.Printf("Error: %v\n", e.Text)
+		}
+		if world_state.HasMissionBegun {
+			break
+		}
+	}
+	fmt.Println()
+
+	// main loop:
+	for {
+		agent_host.SendCommand("move 1")
+		agent_host.SendCommand(fmt.Sprintf("turn %d", rand.Int()*2-1))
+
+		time.Sleep(500 * time.Millisecond)
+		world_state := agent_host.GetWorldState()
+
+		fmt.Printf("num_video=%d, num_observations=%d, num_rewards=%d\n",
+			world_state.NumberOfVideoFramesSinceLastState,
+			world_state.NumberOfObservationsSinceLastState,
+			world_state.NumberOfRewardsSinceLastState)
+
+		for _, reward := range world_state.Rewards {
+			fmt.Printf("  Summed reward: %g\n", reward.GetValue())
+		}
+
+		for _, the_error := range world_state.Errors {
+			fmt.Printf("  Error: %s\n", the_error.Text)
+		}
+
+		for _, frame := range world_state.VideoFrames {
+			fmt.Printf("  Frame: %v x %v : %v channels\n", frame.Width, frame.Height, frame.Channels)
+		}
+
+		if !world_state.IsMissionRunning {
+			break
+		}
+	}
+
+	fmt.Println("Mission has stopped.")
 }
