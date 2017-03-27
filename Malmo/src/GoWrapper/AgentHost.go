@@ -160,7 +160,13 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 // role -- Index of the agent that this agent host is to manage. Zero-based index. Use zero if there is only one agent in this mission.
 // unique_experiment_id -- An arbitrary identifier that is used to disambiguate our mission from other runs.
 func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, mission_record *MissionRecordSpec, role int, unique_experiment_id string) {
-	panic("TODO")
+	cid := C.CString(unique_experiment_id)
+	defer C.free(unsafe.Pointer(cid))
+	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, client_pool.pt, mission_record.pt, C.int(role), cid)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
 }
 
 // Starts a mission running, in the simple case where there is only one agent running on the local machine. Throws an exception if something goes wrong.
