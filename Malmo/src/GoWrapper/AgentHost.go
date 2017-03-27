@@ -66,9 +66,10 @@ func init() {
 
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
-	pt    C.ptAgentHost // pointer to C.AgentHost
-	err   *C.char       // buffer to hold error messages from C++
-	usage *C.char       // buffer to hold usage message from C++
+	pt     C.ptAgentHost // pointer to C.AgentHost
+	err    *C.char       // buffer to hold error messages from C++
+	usage  *C.char       // buffer to hold usage message from C++
+	recdir *C.char       // buffer to hold recording_directory message from C++
 }
 
 // NewAgentHost creates new AgentHost
@@ -80,6 +81,7 @@ func NewAgentHost() (o *AgentHost) {
 	}
 	o.err = C.make_buffer(C.AH_ERROR_BUFFER_SIZE)
 	o.usage = C.make_buffer(C.AH_USAGE_BUFFER_SIZE)
+	o.recdir = C.make_buffer(C.AH_RECDIR_BUFFER_SIZE)
 	return
 }
 
@@ -89,6 +91,7 @@ func (o *AgentHost) Free() {
 		C.free_agent_host(o.pt)
 		C.free_buffer(o.err)
 		C.free_buffer(o.usage)
+		C.free_buffer(o.recdir)
 	}
 }
 
@@ -231,8 +234,12 @@ func (o AgentHost) GetWorldState() (ws WorldState) {
 // Gets the temporary directory being used for the mission record, if recording is taking place.
 // returns The temporary directory for the mission record, or an empty string if no recording is going on.
 func (o *AgentHost) GetRecordingTemporaryDirectory() string {
-	return ""
-	panic("TODO")
+	status := C.agent_host_get_recording_temporary_directory(o.pt, o.err, o.recdir)
+	if status != 0 {
+		message := C.GoString(o.err)
+		panic("ERROR:\n" + message)
+	}
+	return C.GoString(o.recdir)
 }
 
 // Switches on/off debug print statements. (Currently just client-pool / agenthost connection messages.)

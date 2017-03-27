@@ -153,6 +153,12 @@ int agent_host_get_world_state(ptAgentHost pt, char* err,
 
 int agent_host_get_recording_temporary_directory(ptAgentHost pt, char* err, char* response) {
     AH_CALL(
+        string str = agent_host->getRecordingTemporaryDirectory();
+        if (str.size() > AH_RECDIR_BUFFER_SIZE) {
+            strncpy(err, "Size of recording_directory string exceeds capacity", AH_ERROR_BUFFER_SIZE);
+            return 1;
+        }
+        strncpy(response, str.c_str(), AH_RECDIR_BUFFER_SIZE);
     )
 }
 

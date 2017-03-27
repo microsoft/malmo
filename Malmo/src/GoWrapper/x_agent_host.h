@@ -30,6 +30,9 @@ extern "C" {
 // max number of characters for usage text from C++ to Go
 #define AH_USAGE_BUFFER_SIZE 1024
 
+// max number of characters for recording_directory text from C++ to Go
+#define AH_RECDIR_BUFFER_SIZE 252
+
 // macro to help with calling AgentHost methods and handling exception errors
 // this macro assumes that the following variables are defined:
 //   pt  -- pointer to AgentHost

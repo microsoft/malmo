@@ -53,5 +53,7 @@ func main() {
 	my_mission_record.RecordRewards()
 	my_mission_record.RecordObservations()
 
+	fmt.Printf("recording directory = %q\n", agent_host.GetRecordingTemporaryDirectory())
+
 	agent_host.StartMissionSimple(my_mission, my_mission_record)
 }
