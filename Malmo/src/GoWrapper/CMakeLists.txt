@@ -48,8 +48,14 @@ add_custom_target(CopyMalmoGoFiles ALL
 ########################
 add_custom_target(MalmoGo ALL DEPENDS Malmo
     COMMAND go install malmo
-    COMMENT "building and installing Go malmo"
+    COMMENT "building and installing Go malmo lib"
+    COMMENT ${GOMALMO_SAMPLES}
 )
 
 # make sure that all files are copied to GOPATH before calling 'go install'
 add_dependencies(MalmoGo CopyMalmoGoFiles)
+
+### Install MalmoGo
+###################
+file(GLOB GOMALMO_SAMPLES "${CMAKE_SOURCE_DIR}/Malmo/samples/Go_examples/*.go")
+install(FILES ${GOMALMO_SAMPLES} DESTINATION Go_Examples)
