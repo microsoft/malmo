@@ -263,28 +263,28 @@ func (o *AgentHost) SetObservationsPolicy(observationsPolicy int) {
 // Sends a command to the game client.
 // See the mission handlers documentation for the permitted commands for your chosen command handler.
 // command -- The command to send as a string. e.g. "move 1"
-func (o *AgentHost) SendCommand(command string) {
+func (o *AgentHost) SendCommand(command string) error {
 	ccommand := C.CString(command)
 	defer C.free(unsafe.Pointer(ccommand))
 	status := C.agent_host_send_command(o.pt, o.err, ccommand)
 	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
+		return errors.New(C.GoString(o.err))
 	}
+	return nil
 }
 
 // Sends a turn-based command to the game client.
 // See the mission handlers documentation for the permitted commands for your chosen command handler.
 // command -- The command to send as a string. e.g. "move 1"
 // key -- The command-key (provided via observations) which must match in order for the command to be processed.
-func (o *AgentHost) SendCommandTurnBased(command, key string) {
+func (o *AgentHost) SendCommandTurnBased(command, key string) error {
 	ccommand := C.CString(command)
 	defer C.free(unsafe.Pointer(ccommand))
 	ckey := C.CString(key)
 	defer C.free(unsafe.Pointer(ckey))
 	status := C.agent_host_send_command_turnbased(o.pt, o.err, ccommand, ckey)
 	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
+		return errors.New(C.GoString(o.err))
 	}
+	return nil
 }
