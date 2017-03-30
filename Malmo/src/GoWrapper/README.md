@@ -2,7 +2,7 @@
 
 ## Steps
 
-See instructions [Minimal/Ubuntu/GoWrapper](doc/build_ubuntu_minimal_python_and_golang.md) to build from source for Ubuntu.
+See instructions [Minimal/Ubuntu/GoWrapper](../../../doc/build_ubuntu_minimal_python_and_golang.md) to build from source for Ubuntu.
 
 ## TODOs
 
