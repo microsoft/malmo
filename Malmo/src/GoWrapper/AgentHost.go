@@ -20,8 +20,8 @@
 package malmo
 
 /*
-#cgo CXXFLAGS: -I. -I.. -I../../../Schemas -std=c++11 -Wno-deprecated-declarations
-#cgo LDFLAGS: -L../../../build/install/Cpp_Examples/lib -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
+#cgo CXXFLAGS: -std=c++11 -Wno-deprecated-declarations
+#cgo LDFLAGS: -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
 #include "x_agent_host.h"
 #include "x_auxiliary.h"
