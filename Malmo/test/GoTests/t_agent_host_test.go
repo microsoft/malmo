@@ -17,13 +17,16 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-package malmo
+package main
 
-import "testing"
+import (
+	"malmo"
+	"testing"
+)
 
 func Test_agenthost01(tst *testing.T) {
 
-	agent_host := NewAgentHost()
+	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
 	args := []string{"filename", "--run", "3", "--remote"} // we expect this to give an error
@@ -36,7 +39,7 @@ func Test_agenthost01(tst *testing.T) {
 
 func Test_agenthost02(tst *testing.T) {
 
-	agent_host := NewAgentHost()
+	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
 	err := agent_host.Parse([]string{"filename", "--help"})
@@ -53,7 +56,7 @@ func Test_agenthost02(tst *testing.T) {
 
 func Test_agenthost03(tst *testing.T) {
 
-	agent_host := NewAgentHost()
+	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
 	usage := agent_host.GetUsage()
@@ -64,12 +67,12 @@ func Test_agenthost03(tst *testing.T) {
 
 func Test_agenthost04(tst *testing.T) {
 
-	agent_host := NewAgentHost()
+	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
-	agent_host.SetVideoPolicy(LATEST_FRAME_ONLY)
-	agent_host.SetRewardsPolicy(SUM_REWARDS)
-	agent_host.SetObservationsPolicy(LATEST_OBSERVATION_ONLY)
+	agent_host.SetVideoPolicy(malmo.LATEST_FRAME_ONLY)
+	agent_host.SetRewardsPolicy(malmo.SUM_REWARDS)
+	agent_host.SetObservationsPolicy(malmo.LATEST_OBSERVATION_ONLY)
 
 	world_state := agent_host.GetWorldState()
 

@@ -17,9 +17,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-package malmo
+package main
 
-import "testing"
+import (
+	"malmo"
+	"testing"
+)
 
 func wrong_list(trial, correct []string) bool {
 	if len(trial) != len(correct) {
@@ -35,7 +38,7 @@ func wrong_list(trial, correct []string) bool {
 
 func Test_mission01(tst *testing.T) {
 
-	my_mission := NewMissionSpec()
+	my_mission := malmo.NewMissionSpec()
 	defer my_mission.Free()
 
 	my_mission.SetSummary("example mission")
@@ -98,7 +101,7 @@ func Test_mission01(tst *testing.T) {
 
 	// second mission variable
 	validate := true
-	my_mission2 := NewMissionSpecXML(xml, validate)
+	my_mission2 := malmo.NewMissionSpecXML(xml, validate)
 	defer my_mission2.Free()
 
 	// check that we get the same XML if we go round again
@@ -124,7 +127,7 @@ func Test_mission01(tst *testing.T) {
 <AgentQuitFromReachingPosition><Marker x="-104" y="81" z="217"/></AgentQuitFromReachingPosition>
 </AgentHandlers></AgentSection></Mission>`
 
-	my_mission3 := NewMissionSpecXML(xml3, validate)
+	my_mission3 := malmo.NewMissionSpecXML(xml3, validate)
 	defer my_mission3.Free()
 
 	if my_mission3.GetSummary() != "Run the maze!" {

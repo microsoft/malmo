@@ -17,13 +17,16 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-package malmo
+package main
 
-import "testing"
+import (
+	"malmo"
+	"testing"
+)
 
 func Test_worldstate01(tst *testing.T) {
 
-	var world_state WorldState
+	var world_state malmo.WorldState
 
 	world_state.Clear()
 
