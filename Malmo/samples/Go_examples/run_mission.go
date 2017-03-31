@@ -45,11 +45,13 @@ func main() {
 	}
 
 	my_mission := malmo.NewMissionSpec()
+	defer my_mission.Free()
 	my_mission.TimeLimitInSeconds(10)
 	my_mission.RequestVideo(320, 240)
 	my_mission.RewardForReachingPosition(19.5, 0.0, 19.5, 100.0, 1.1)
 
 	my_mission_record := malmo.NewMissionRecordSpecTarget("/tmp/saved_data.tgz")
+	defer my_mission_record.Free()
 	my_mission_record.RecordCommands()
 	my_mission_record.RecordMP4(20, 400000)
 	my_mission_record.RecordRewards()

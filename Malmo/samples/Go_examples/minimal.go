@@ -20,7 +20,10 @@ func main() {
 	}
 
 	my_mission := malmo.NewMissionSpec()
+	defer my_mission.Free()
+
 	my_mission_record := malmo.NewMissionRecordSpecTarget("/tmp/saved_data.tgz")
+	defer my_mission_record.Free()
 
 	err = agent_host.StartMissionSimple(my_mission, my_mission_record)
 	if err != nil {
