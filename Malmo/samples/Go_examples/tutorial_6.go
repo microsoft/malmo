@@ -25,10 +25,6 @@
 // Reinforcement Learning, An Introduction
 // MIT Press, 1998
 
-// For drawing:
-// sudo apt-get install libsdl2{,-mixer,-image,-ttf}-dev
-// go get -v github.com/veandco/go-sdl2/sdl{,_mixer,_image,_ttf}
-
 package main
 
 import (
