@@ -10,7 +10,6 @@ import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.TurnBasedCommands;
-import com.microsoft.Malmo.Utils.ScreenHelper;
 
 public class TurnBasedCommandsImplementation extends CommandGroup implements IMalmoMessageListener
 {
@@ -36,7 +35,12 @@ public class TurnBasedCommandsImplementation extends CommandGroup implements IMa
             {
                 MissionBehaviour subHandlers = new MissionBehaviour();
                 subHandlers.addExtraHandlers(handlers);
-                this.addCommandHandler(subHandlers.commandHandler);
+                if (subHandlers.commandHandler != null)
+                {
+                    if (subHandlers.commandHandler instanceof HandlerBase)
+                        ((HandlerBase)subHandlers.commandHandler).setParentBehaviour(this.parentBehaviour());
+                    this.addCommandHandler(subHandlers.commandHandler);
+                }
             }
         }
         return true;
@@ -45,6 +49,7 @@ public class TurnBasedCommandsImplementation extends CommandGroup implements IMa
     @Override
     public void install(MissionInit missionInit)
     {
+        super.install(missionInit);
         this.parentBehaviour().addObservationProducer(this.observationProducer);
         this.agentName = missionInit.getMission().getAgentSection().get(missionInit.getClientRole()).getName();
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_YOUR_TURN);
@@ -53,18 +58,20 @@ public class TurnBasedCommandsImplementation extends CommandGroup implements IMa
     @Override
     public void deinstall(MissionInit missionInit)
     {
+        super.deinstall(missionInit);
         MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_YOUR_TURN);
     }
 
     @Override
     public boolean isOverriding()
     {
-        return true;
+        return super.isOverriding();
     }
 
     @Override
     public void setOverriding(boolean b)
     {
+        super.setOverriding(b);
     }
 
     @Override
@@ -123,6 +130,7 @@ public class TurnBasedCommandsImplementation extends CommandGroup implements IMa
     @Override
     public void appendExtraServerInformation(HashMap<String, String> map)
     {
+        super.appendExtraServerInformation(map);
         // Tell the server that we want to be part of the turn schedule.
         map.put("turnPosition", String.valueOf(this.requestedPosition));
     }
