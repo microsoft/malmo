@@ -95,6 +95,8 @@ func (o *AgentHost) Free() {
 	}
 }
 
+// methods from ArgumentParser ---------------------------------------------------------------------
+
 // Parse parses a list of strings given in the C style. Throws exception if parsing fails.
 // param args The arguments to parse.
 func (o *AgentHost) Parse(args []string) error {
@@ -117,6 +119,67 @@ func (o *AgentHost) Parse(args []string) error {
 		return errors.New(C.GoString(o.err))
 	}
 	return nil
+}
+
+// AddOptionalIntArgument specifies an integer argument that can be given on the command line.
+// name -- The name of the argument. To be given as "--name <value>"
+// description -- The explanation of the argument that can be printed out.
+// defaultValue -- The value that this argument should have if not given on the command line.
+func (o *AgentHost) AddOptionalIntArgument(name, description string, defaultValue int) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cdescription := C.CString(description)
+	defer C.free(unsafe.Pointer(cdescription))
+	status := C.agent_host_add_optional_int_argument(o.pt, o.err, cname, cdescription, C.int(defaultValue))
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+}
+
+// AddOptionalFloatArgument specifies a floating-point argument that can be given on the command line.
+// name -- The name of the argument. To be given as "--name <value>"
+// description -- The explanation of the argument that can be printed out.
+// defaultValue--  The value that this argument should have if not given on the command line.
+func (o *AgentHost) AddOptionalFloatArgument(name, description string, defaultValue float64) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cdescription := C.CString(description)
+	defer C.free(unsafe.Pointer(cdescription))
+	status := C.agent_host_add_optional_float_argument(o.pt, o.err, cname, cdescription, C.double(defaultValue))
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+}
+
+// AddOptionalStringArgument specifies a string argument that can be given on the command line.
+// name -- The name of the argument. To be given as "--name <value>"
+// description -- The explanation of the argument that can be printed out.
+// defaultValue -- The value that this argument should have if not given on the command line.
+func (o *AgentHost) AddOptionalStringArgument(name, description, defaultValue string) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cdescription := C.CString(description)
+	defer C.free(unsafe.Pointer(cdescription))
+	cdefaultValue := C.CString(defaultValue)
+	defer C.free(unsafe.Pointer(cdefaultValue))
+	status := C.agent_host_add_optional_string_argument(o.pt, o.err, cname, cdescription, cdefaultValue)
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+}
+
+// AddOptionalFlag specifies a boolean flag that can be given on the command line.
+// name -- The name of the flag. To be given as "--name"
+// description -- The explanation of the flag that can be printed out.
+func (o *AgentHost) AddOptionalFlag(name, description string) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cdescription := C.CString(description)
+	defer C.free(unsafe.Pointer(cdescription))
+	status := C.agent_host_add_optional_flag(o.pt, o.err, cname, cdescription)
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
 }
 
 // GetUsage gets a string that describes the current set of options we expect.
@@ -154,6 +217,8 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 	}
 	return false
 }
+
+// methods from AgentHost --------------------------------------------------------------------------
 
 // Starts a mission running. Throws an exception if something goes wrong.
 // mission -- The mission specification.

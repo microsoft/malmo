@@ -86,6 +86,11 @@ int agent_host_parse(ptAgentHost pt, char* err, int argc, const char** argv) {
     )
 }
 
+int agent_host_add_optional_int_argument    (ptAgentHost pt, char* err, const char* name, const char* description, int defaultValue)         { AH_CALL(agent_host->addOptionalIntArgument   (name, description, defaultValue);) }
+int agent_host_add_optional_float_argument  (ptAgentHost pt, char* err, const char* name, const char* description, double defaultValue)      { AH_CALL(agent_host->addOptionalFloatArgument (name, description, defaultValue);) }
+int agent_host_add_optional_string_argument (ptAgentHost pt, char* err, const char* name, const char* description, const char* defaultValue) { AH_CALL(agent_host->addOptionalStringArgument(name, description, defaultValue);) }
+int agent_host_add_optional_flag            (ptAgentHost pt, char* err, const char* name, const char* description)                           { AH_CALL(agent_host->addOptionalFlag          (name, description);) }
+
 int agent_host_get_usage(ptAgentHost pt, char* err, char* usage) {
     AH_CALL(
         string str_usage = agent_host->getUsage();

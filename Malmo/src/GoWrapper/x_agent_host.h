@@ -83,9 +83,13 @@ void agent_host_initialise_enums(
 //  1 = failed; e.g. exception happend => see ERROR_MESSAGE
 
 // methods from ArgumentParser:
-int agent_host_parse             (ptAgentHost pt, char* err, int argc, const char** argv);
-int agent_host_get_usage         (ptAgentHost pt, char* err, char* usage);
-int agent_host_received_argument (ptAgentHost pt, char* err, const char* name, int* response);
+int agent_host_parse                        (ptAgentHost pt, char* err, int argc, const char** argv);
+int agent_host_add_optional_int_argument    (ptAgentHost pt, char* err, const char* name, const char* description, int defaultValue);
+int agent_host_add_optional_float_argument  (ptAgentHost pt, char* err, const char* name, const char* description, double defaultValue);
+int agent_host_add_optional_string_argument (ptAgentHost pt, char* err, const char* name, const char* description, const char* defaultValue);
+int agent_host_add_optional_flag            (ptAgentHost pt, char* err, const char* name, const char* description);
+int agent_host_get_usage                    (ptAgentHost pt, char* err, char* usage);
+int agent_host_received_argument            (ptAgentHost pt, char* err, const char* name, int* response);
 
 // methods from AgentHost:
 int agent_host_start_mission                     (ptAgentHost pt, char* err, ptMissionSpec mission, ptClientPool client_pool, ptMissionRecordSpec mission_record, int role, const char* unique_experiment_id);
