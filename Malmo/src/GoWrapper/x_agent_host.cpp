@@ -112,6 +112,29 @@ int agent_host_received_argument(ptAgentHost pt, char* err, const char* name, in
     )
 }
 
+int agent_host_get_int_argument(ptAgentHost pt, char* err, const char* name, int* response) {
+    AH_CALL(
+        *response = agent_host->getIntArgument(name);
+    )
+}
+
+int agent_host_get_float_argument(ptAgentHost pt, char* err, const char* name, double* response) {
+    AH_CALL(
+        *response = agent_host->getFloatArgument(name);
+    )
+}
+
+int agent_host_get_string_argument(ptAgentHost pt, char* err, const char* name, char* response) {
+    AH_CALL(
+        string str_arg = agent_host->getStringArgument(name);
+        if (str_arg.size() > AH_STRING_ARG_SIZE) {
+            strncpy(err, "Size of string argument exceeds capacity", AH_ERROR_BUFFER_SIZE);
+            return 1;
+        }
+        strncpy(response, str_arg.c_str(), AH_STRING_ARG_SIZE);
+    )
+}
+
 int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, ptClientPool ptclient_pool, ptMissionRecordSpec ptmission_record, int role, const char* unique_experiment_id) {
     AH_CALL(
         MissionSpec* mission = (MissionSpec*)ptmission;

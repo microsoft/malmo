@@ -70,6 +70,7 @@ type AgentHost struct {
 	err    *C.char       // buffer to hold error messages from C++
 	usage  *C.char       // buffer to hold usage message from C++
 	recdir *C.char       // buffer to hold recording_directory message from C++
+	strarg *C.char       // buffer to hold string argument response from C++
 }
 
 // NewAgentHost creates new AgentHost
@@ -82,6 +83,7 @@ func NewAgentHost() (o *AgentHost) {
 	o.err = C.make_buffer(C.AH_ERROR_BUFFER_SIZE)
 	o.usage = C.make_buffer(C.AH_USAGE_BUFFER_SIZE)
 	o.recdir = C.make_buffer(C.AH_RECDIR_BUFFER_SIZE)
+	o.strarg = C.make_buffer(C.AH_STRING_ARG_SIZE)
 	return
 }
 
@@ -92,6 +94,7 @@ func (o *AgentHost) Free() {
 		C.free_buffer(o.err)
 		C.free_buffer(o.usage)
 		C.free_buffer(o.recdir)
+		C.free_buffer(o.strarg)
 	}
 }
 
@@ -216,6 +219,47 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 		return true
 	}
 	return false
+}
+
+// GetIntArgument retrieves the value of a named integer argument.
+// name -- The name of the argument.
+// returns The value of the named argument.
+func (o *AgentHost) GetIntArgument(name string) (response int) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cresponse := (*C.int)(unsafe.Pointer(&response))
+	status := C.agent_host_get_int_argument(o.pt, o.err, cname, cresponse)
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+	return
+}
+
+// GetFloatArgument retrieves the value of a named floating-point argument.
+// name -- The name of the argument.
+// returns The value of the named argument.
+func (o *AgentHost) GetFloatArgument(name string) (response float64) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	cresponse := (*C.double)(unsafe.Pointer(&response))
+	status := C.agent_host_get_float_argument(o.pt, o.err, cname, cresponse)
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+	return
+}
+
+// GetStringArgument retrieves the value of a named string argument.
+// name -- The name of the argument.
+// returns The value of the named argument.
+func (o *AgentHost) GetStringArgument(name string) string {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+	status := C.agent_host_get_string_argument(o.pt, o.err, cname, o.strarg)
+	if status != 0 {
+		panic("ERROR:\n" + C.GoString(o.err))
+	}
+	return C.GoString(o.strarg)
 }
 
 // methods from AgentHost --------------------------------------------------------------------------

@@ -30,6 +30,9 @@ extern "C" {
 // max number of characters for usage text from C++ to Go
 #define AH_USAGE_BUFFER_SIZE 1024
 
+// max number of characters for usage text from C++ to Go
+#define AH_STRING_ARG_SIZE 252
+
 // max number of characters for recording_directory text from C++ to Go
 #define AH_RECDIR_BUFFER_SIZE 252
 
@@ -90,6 +93,9 @@ int agent_host_add_optional_string_argument (ptAgentHost pt, char* err, const ch
 int agent_host_add_optional_flag            (ptAgentHost pt, char* err, const char* name, const char* description);
 int agent_host_get_usage                    (ptAgentHost pt, char* err, char* usage);
 int agent_host_received_argument            (ptAgentHost pt, char* err, const char* name, int* response);
+int agent_host_get_int_argument             (ptAgentHost pt, char* err, const char* name, int* response);
+int agent_host_get_float_argument           (ptAgentHost pt, char* err, const char* name, double* response);
+int agent_host_get_string_argument          (ptAgentHost pt, char* err, const char* name, char* response);
 
 // methods from AgentHost:
 int agent_host_start_mission                     (ptAgentHost pt, char* err, ptMissionSpec mission, ptClientPool client_pool, ptMissionRecordSpec mission_record, int role, const char* unique_experiment_id);
