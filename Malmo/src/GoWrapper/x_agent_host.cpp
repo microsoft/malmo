@@ -208,7 +208,7 @@ const int REWARDS_MAX_NUMBER_DIMENSIONS = 4; // '4' allows for, e.g., 1,2,3 as 3
 
 static inline void set_world_state(WorldState& ws, goptWorldState goptws) {
 
-    // TODO: remove this debugging lines
+    // TODO: remove these debugging lines
     /*
     boost::posix_time::ptime ts = boost::posix_time::microsec_clock::universal_time();
     TimestampedString tss = TimestampedString(ts, "hello error thing");
