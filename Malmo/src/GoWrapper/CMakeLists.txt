@@ -50,7 +50,6 @@ add_custom_target(CopyMalmoGoFiles ALL
 add_custom_target(MalmoGo ALL DEPENDS Malmo
     COMMAND go install malmo
     COMMENT "building and installing Go malmo lib"
-    COMMENT ${GOMALMO_SAMPLES}
 )
 
 # make sure that all files are copied to GOPATH before calling 'go install'

@@ -20,16 +20,38 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"malmo"
 	"math"
 	"testing"
-	"time"
 )
 
 func Test_startmission01(tst *testing.T) {
 
+	// allocate AgentHost
+	agent_host := malmo.NewAgentHost()
+	defer agent_host.Free()
+
+	// allocate mission specification
+	my_mission := malmo.NewMissionSpec()
+	defer my_mission.Free()
+
+	// allocate mission record specification
+	my_mission_record := &malmo.MissionRecordSpec{}
+
+	// start mission
+	retries := 3
+	verbose := false
+	err := malmo.StartMissionSimple(retries, agent_host, my_mission, my_mission_record, verbose)
+	if err != nil {
+		tst.Errorf("%v\n", err)
+		return
+	}
+}
+
+func Test_startmission02(tst *testing.T) {
+
+	// allocate agents
 	num_agents := 3
 	agent_hosts := make([]*malmo.AgentHost, num_agents)
 	for i := 0; i < num_agents; i++ {
@@ -37,10 +59,12 @@ func Test_startmission01(tst *testing.T) {
 		defer agent_hosts[i].Free()
 	}
 
+	// create mission specification
 	xml := createMissionXML(num_agents, 860, 480, true)
 	my_mission := malmo.NewMissionSpecXML(xml, true)
 	defer my_mission.Free()
 
+	// allocate mission record specification
 	my_mission_record := &malmo.MissionRecordSpec{
 		RecordMp4:          false,
 		RecordObservations: true,
@@ -51,69 +75,23 @@ func Test_startmission01(tst *testing.T) {
 		Destination:        "data.tgz",
 	}
 
+	// set pool of clients
 	client_pool := &malmo.ClientPool{}
 	for i := 0; i < num_agents; i++ {
 		client_pool.Add("127.0.0.1", 10000+i)
 	}
 
+	// set experiment unique ID
 	experimentID := "Test_startmission01"
 
-	for i := 0; i < num_agents; i++ {
-		err := startMission(agent_hosts[i], my_mission, client_pool, my_mission_record, i, experimentID)
-		if err != nil {
-			tst.Errorf("%v\n", err)
-			return
-		}
-	}
-
-	fmt.Printf("Waiting for the mission to start ")
-	hasBegun := false
-	hadErrors := false
-	for !hasBegun && !hadErrors {
-		fmt.Printf(".")
-		time.Sleep(200 * time.Millisecond)
-		hasBegun = true
-		for i, ah := range agent_hosts {
-			world_state := ah.GetWorldState()
-			if !world_state.HasMissionBegun {
-				hasBegun = false
-			}
-			if len(world_state.Errors) > 0 {
-				hadErrors = true
-				fmt.Printf("Errors from agent # %d\n", i)
-				for _, e := range world_state.Errors {
-					fmt.Printf("Error: %v\n", e.Text)
-				}
-			}
-		}
-	}
-	fmt.Println()
-
-	if !hasBegun {
-		tst.Errorf("mission failed to begin")
+	// start mission
+	retries := 10
+	verbose := false
+	err := malmo.StartMission(retries, agent_hosts, my_mission, client_pool, my_mission_record, experimentID, verbose)
+	if err != nil {
+		tst.Errorf("%v\n", err)
 		return
 	}
-
-	if hadErrors {
-		tst.Errorf("hadErrors flag should be false at this point")
-		return
-	}
-}
-
-func startMission(ah *malmo.AgentHost, m *malmo.MissionSpec, cp *malmo.ClientPool, mr *malmo.MissionRecordSpec, role int, id string) (err error) {
-	max_retries := 10
-	for retry := 0; retry < max_retries; retry++ {
-		e := ah.StartMission(m, cp, mr, role, id)
-		if e == nil {
-			break
-		}
-		if retry == max_retries-1 {
-			err = errors.New(fmt.Sprintf("Error starting mission:\n%v\nIs the game running?\n", e))
-			return
-		}
-		time.Sleep(1000 * time.Millisecond)
-	}
-	return
 }
 
 func getPlacementString(i, num_agents int) string {

@@ -71,7 +71,7 @@ timestamp_t timestamp_from_ptime(boost::posix_time::ptime const& pt) {
 
 // converts "pure" struct to MissionRecordSpec
 MissionRecordSpec mrs_from_struct(mission_record_spec_t mrs) {
-    MissionRecordSpec spec(mrs.destination);
+    MissionRecordSpec spec;
     if (mrs.record_mp4 == 1 && mrs.mp4_fps > 0 && mrs.mp4_bit_rate > 0) {
         spec.recordMP4(mrs.mp4_fps, mrs.mp4_bit_rate);
     }
@@ -83,6 +83,10 @@ MissionRecordSpec mrs_from_struct(mission_record_spec_t mrs) {
     }
     if (mrs.record_commands == 1) {
         spec.recordCommands();
+    }
+    string dest(mrs.destination);
+    if (dest.size() > 0) {
+        spec.setDestination(dest);
     }
     return spec;
 }
