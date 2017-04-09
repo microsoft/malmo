@@ -28,10 +28,7 @@ package malmo
 */
 import "C"
 
-import (
-	"errors"
-	"unsafe"
-)
+import "unsafe"
 
 // enums
 var (
@@ -106,10 +103,7 @@ func (o *AgentHost) Parse(args []string) error {
 	argc, argv, free := makeArrayChar(args)
 	defer free()
 	status := C.agent_host_parse(o.pt, o.err, argc, argv)
-	if status != 0 {
-		return errors.New(C.GoString(o.err))
-	}
-	return nil
+	return check(status, o.err)
 }
 
 // AddOptionalIntArgument specifies an integer argument that can be given on the command line.
@@ -120,9 +114,7 @@ func (o *AgentHost) AddOptionalIntArgument(name, description string, defaultValu
 	cname, cdesc, cvalue, free := make2stringsInt(name, description, defaultValue)
 	defer free()
 	status := C.agent_host_add_optional_int_argument(o.pt, o.err, cname, cdesc, cvalue)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 }
 
 // AddOptionalFloatArgument specifies a floating-point argument that can be given on the command line.
@@ -133,9 +125,7 @@ func (o *AgentHost) AddOptionalFloatArgument(name, description string, defaultVa
 	cname, cdesc, cvalue, free := make2stringsFloat(name, description, defaultValue)
 	defer free()
 	status := C.agent_host_add_optional_float_argument(o.pt, o.err, cname, cdesc, cvalue)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 }
 
 // AddOptionalStringArgument specifies a string argument that can be given on the command line.
@@ -146,9 +136,7 @@ func (o *AgentHost) AddOptionalStringArgument(name, description, defaultValue st
 	cname, cdesc, cvalue, free := make3strings(name, description, defaultValue)
 	defer free()
 	status := C.agent_host_add_optional_string_argument(o.pt, o.err, cname, cdesc, cvalue)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 }
 
 // AddOptionalFlag specifies a boolean flag that can be given on the command line.
@@ -158,19 +146,14 @@ func (o *AgentHost) AddOptionalFlag(name, description string) {
 	cname, cdesc, free := make2strings(name, description)
 	defer free()
 	status := C.agent_host_add_optional_flag(o.pt, o.err, cname, cdesc)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 }
 
 // GetUsage gets a string that describes the current set of options we expect.
 // returns The usage string, for displaying.
 func (o *AgentHost) GetUsage() string {
 	status := C.agent_host_get_usage(o.pt, o.err, o.usage)
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 	return C.GoString(o.usage)
 }
 
@@ -187,10 +170,7 @@ func (o *AgentHost) ReceivedArgument(name string) bool {
 
 	// call C command
 	status := C.agent_host_received_argument(o.pt, o.err, cname, cresponse)
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 
 	// handle return value
 	if response == 1 {
@@ -207,9 +187,7 @@ func (o *AgentHost) GetIntArgument(name string) (response int) {
 	defer C.free(unsafe.Pointer(cname))
 	cresponse := (*C.int)(unsafe.Pointer(&response))
 	status := C.agent_host_get_int_argument(o.pt, o.err, cname, cresponse)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 	return
 }
 
@@ -221,9 +199,7 @@ func (o *AgentHost) GetFloatArgument(name string) (response float64) {
 	defer C.free(unsafe.Pointer(cname))
 	cresponse := (*C.double)(unsafe.Pointer(&response))
 	status := C.agent_host_get_float_argument(o.pt, o.err, cname, cresponse)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 	return
 }
 
@@ -234,9 +210,7 @@ func (o *AgentHost) GetStringArgument(name string) string {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	status := C.agent_host_get_string_argument(o.pt, o.err, cname, o.strarg)
-	if status != 0 {
-		panic("ERROR:\n" + C.GoString(o.err))
-	}
+	checkWithPanic(status, o.err)
 	return C.GoString(o.strarg)
 }
 
@@ -267,37 +241,24 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 
 	// call C++ code
 	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, cp, mrs, C.int(role), cid)
-	if status != 0 {
-		return errors.New(C.GoString(o.err))
-	}
-	return nil
+	return check(status, o.err)
 }
 
 // Starts a mission running, in the simple case where there is only one agent running on the local machine. Throws an exception if something goes wrong.
 // mission -- The mission specification.
 // mission_record -- The specification of the mission recording to make.
 func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) error {
-
-	// MissionRecordSpec: allocate C variables
 	mrs, freeMRS := mission_record.toC()
 	defer freeMRS()
-
-	// call C++ code
 	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, mrs)
-	if status != 0 {
-		return errors.New(C.GoString(o.err))
-	}
-	return nil
+	return check(status, o.err)
 }
 
 // Gets the latest world state received from the game.
 // returns The world state.
 func (o AgentHost) PeekWorldState() (ws WorldState) {
 	status := C.agent_host_peek_world_state(o.pt, o.err, (C.goptWorldState)(unsafe.Pointer(&ws)))
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 	return
 }
 
@@ -305,10 +266,7 @@ func (o AgentHost) PeekWorldState() (ws WorldState) {
 // returns The world state.
 func (o AgentHost) GetWorldState() (ws WorldState) {
 	status := C.agent_host_get_world_state(o.pt, o.err, (C.goptWorldState)(unsafe.Pointer(&ws)))
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 	return
 }
 
@@ -316,10 +274,7 @@ func (o AgentHost) GetWorldState() (ws WorldState) {
 // returns The temporary directory for the mission record, or an empty string if no recording is going on.
 func (o *AgentHost) GetRecordingTemporaryDirectory() string {
 	status := C.agent_host_get_recording_temporary_directory(o.pt, o.err, o.recdir)
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 	return C.GoString(o.recdir)
 }
 
@@ -332,40 +287,28 @@ func (o *AgentHost) SetDebugOutput(debug bool) {
 		cdebug = 0
 	}
 	status := C.agent_host_set_debug_output(o.pt, o.err, cdebug)
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 }
 
 // Specifies how you want to deal with multiple video frames.
 // videoPolicy -- How you want to deal with multiple video frames coming in asynchronously.
 func (o *AgentHost) SetVideoPolicy(videoPolicy int) {
 	status := C.agent_host_set_video_policy(o.pt, o.err, (C.int)(videoPolicy))
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 }
 
 // Specifies how you want to deal with multiple rewards.
 // rewardsPolicy -- How you want to deal with multiple rewards coming in asynchronously.
 func (o *AgentHost) SetRewardsPolicy(rewardsPolicy int) {
 	status := C.agent_host_set_rewards_policy(o.pt, o.err, (C.int)(rewardsPolicy))
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 }
 
 // Specifies how you want to deal with multiple observations.
 // observationsPolicy -- How you want to deal with multiple observations coming in asynchronously.
 func (o *AgentHost) SetObservationsPolicy(observationsPolicy int) {
 	status := C.agent_host_set_observations_policy(o.pt, o.err, (C.int)(observationsPolicy))
-	if status != 0 {
-		message := C.GoString(o.err)
-		panic("ERROR:\n" + message)
-	}
+	checkWithPanic(status, o.err)
 }
 
 // Sends a command to the game client.
@@ -375,10 +318,7 @@ func (o *AgentHost) SendCommand(command string) error {
 	ccommand := C.CString(command)
 	defer C.free(unsafe.Pointer(ccommand))
 	status := C.agent_host_send_command(o.pt, o.err, ccommand)
-	if status != 0 {
-		return errors.New(C.GoString(o.err))
-	}
-	return nil
+	return check(status, o.err)
 }
 
 // Sends a turn-based command to the game client.
@@ -386,13 +326,8 @@ func (o *AgentHost) SendCommand(command string) error {
 // command -- The command to send as a string. e.g. "move 1"
 // key -- The command-key (provided via observations) which must match in order for the command to be processed.
 func (o *AgentHost) SendCommandTurnBased(command, key string) error {
-	ccommand := C.CString(command)
-	defer C.free(unsafe.Pointer(ccommand))
-	ckey := C.CString(key)
-	defer C.free(unsafe.Pointer(ckey))
+	ccommand, ckey, free := make2strings(command, key)
+	defer free()
 	status := C.agent_host_send_command_turnbased(o.pt, o.err, ccommand, ckey)
-	if status != 0 {
-		return errors.New(C.GoString(o.err))
-	}
-	return nil
+	return check(status, o.err)
 }

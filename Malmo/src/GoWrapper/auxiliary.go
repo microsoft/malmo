@@ -24,7 +24,10 @@ package malmo
 */
 import "C"
 
-import "unsafe"
+import (
+	"errors"
+	"unsafe"
+)
 
 // makeArrayChar allocates C array of chars
 // Note: make sure to call free() to deallocate memory
@@ -91,4 +94,17 @@ func make2stringsFloat(str1, str2 string, val float64) (cstr1, cstr2 *C.char, cv
 		C.free(unsafe.Pointer(cstr2))
 	}
 	return
+}
+
+func check(status C.int, cerror *C.char) error {
+	if int(status) != 0 {
+		return errors.New(C.GoString(cerror))
+	}
+	return nil
+}
+
+func checkWithPanic(status C.int, cerror *C.char) {
+	if int(status) != 0 {
+		panic(C.GoString(cerror))
+	}
 }
