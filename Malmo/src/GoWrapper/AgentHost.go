@@ -128,7 +128,7 @@ func (o *AgentHost) AddOptionalIntArgument(name, description string, defaultValu
 // AddOptionalFloatArgument specifies a floating-point argument that can be given on the command line.
 // name -- The name of the argument. To be given as "--name <value>"
 // description -- The explanation of the argument that can be printed out.
-// defaultValue--  The value that this argument should have if not given on the command line.
+// defaultValue -- The value that this argument should have if not given on the command line.
 func (o *AgentHost) AddOptionalFloatArgument(name, description string, defaultValue float64) {
 	cname, cdesc, cvalue, free := make2stringsFloat(name, description, defaultValue)
 	defer free()
@@ -274,8 +274,8 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 }
 
 // Starts a mission running, in the simple case where there is only one agent running on the local machine. Throws an exception if something goes wrong.
-// \param mission The mission specification.
-// \param mission_record The specification of the mission recording to make.
+// mission -- The mission specification.
+// mission_record -- The specification of the mission recording to make.
 func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) error {
 
 	// MissionRecordSpec: allocate C variables

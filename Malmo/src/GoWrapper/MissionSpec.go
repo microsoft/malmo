@@ -166,7 +166,7 @@ func (o *MissionSpec) ForceWorldReset() {
 // SetTimeOfDay sets the time of day for the start of the mission.
 // t -- The time of day, in Minecraft ticks (thousandths of an hour since dawn).
 // eg. 0 = Dawn, 6000 = Noon, 12000 = Sunset, 18000 = Midnight.
-// \param allowTimeToPass If false then the sun does not move.
+// allowTimeToPass -- If false then the sun does not move.
 func (o *MissionSpec) SetTimeOfDay(t int, allowTimeToPass bool) {
 	var callowTimeToPass C.int
 	if allowTimeToPass {
@@ -353,7 +353,7 @@ func (o *MissionSpec) RequestVideoWithDepth(width, height int) {
 }
 
 // Sets the camera position. Modifies the existing video request, so call this after requestVideo or requestVideoWithDepth.
-// \param viewpoint The camera position to use. 0 = first person, 1 = behind, 2 = facing.
+// viewpoint -- The camera position to use. 0 = first person, 1 = behind, 2 = facing.
 func (o *MissionSpec) SetViewpoint(viewpoint int) {
 	status := C.mission_spec_set_viewpoint(o.pt, o.err, C.int(viewpoint))
 	if status != 0 {
@@ -379,7 +379,6 @@ func (o *MissionSpec) RewardForReachingPosition(x, y, z, amount, tolerance float
 
 // Asks for the list of commands acted upon since the last timestep to be returned in the observations. Only supports single agent missions.
 // The commands are returned in a JSON entry called 'CommandsSinceLastObservation'.
-// Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromRecentCommands">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveRecentCommands() {
 	status := C.mission_spec_observe_recent_commands(o.pt, o.err)
 	if status != 0 {
@@ -390,7 +389,6 @@ func (o *MissionSpec) ObserveRecentCommands() {
 
 // Asks for the contents of the player's hot-bar to be included in the observations. Only supports single agent missions.
 // The commands are returned in JSON entries 'Hotbar_0_size', 'Hotbar_0_item', etc.
-// Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromHotBar">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveHotBar() {
 	status := C.mission_spec_observe_hot_bar(o.pt, o.err)
 	if status != 0 {
@@ -401,7 +399,6 @@ func (o *MissionSpec) ObserveHotBar() {
 
 // Asks for the full item inventory of the player to be included in the observations. Only supports single agent missions.
 // The commands are returned in JSON entries 'Inventory_0_size', 'Inventory_0_item', etc.
-// Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromFullInventory">Schemas/MissionHandlers.html</a>
 func (o *MissionSpec) ObserveFullInventory() {
 	status := C.mission_spec_observe_full_inventory(o.pt, o.err)
 	if status != 0 {
@@ -433,7 +430,6 @@ func (o *MissionSpec) ObserveGrid(x1, y1, z1, x2, y2, z2 int, name string) {
 // Asks for the Euclidean distance to a location to be included in the observations. Only supports single agent missions.
 // Integer coordinates are at the corners of blocks, so for distances from the center of a block, use e.g. 4.5 instead of 4.0.
 // The commands are returned in a JSON element 'distanceFromNAME', where NAME is replaced with the name of the point.
-// Documentation link: <a href="../Schemas/MissionHandlers.html#element_ObservationFromDistance">Schemas/MissionHandlers.html</a>
 // x -- The east-west location.
 // y -- The up-down location.
 // z -- The north-south location.
@@ -652,7 +648,7 @@ func (o MissionSpec) GetVideoHeight(role int) int {
 
 // Returns the number of channels in the requested video for one of the agents involved in this mission.
 // role -- The agent index. Zero based.
-// \returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
+// returns The number of channels in the requested video: 3 for RGB, 4 for RGBD.
 func (o MissionSpec) GetVideoChannels(role int) int {
 	var response int
 	cresponse := (*C.int)(unsafe.Pointer(&response))
