@@ -104,20 +104,8 @@ func (o *AgentHost) Free() {
 // Parse parses a list of strings given in the C style. Throws exception if parsing fails.
 // param args The arguments to parse.
 func (o *AgentHost) Parse(args []string) error {
-
-	// allocate C variables
-	argc := C.int(len(args))
-	argv := C.make_argv(argc)
-	defer C.free(unsafe.Pointer(argv))
-
-	// allocate and set ARGV array
-	for i, arg := range args {
-		carg := C.CString(arg)
-		C.set_arg(argv, C.int(i), carg)
-		defer C.free(unsafe.Pointer(carg))
-	}
-
-	// call C command
+	argc, argv, free := makeArrayChar(args)
+	defer free()
 	status := C.agent_host_parse(o.pt, o.err, argc, argv)
 	if status != 0 {
 		return errors.New(C.GoString(o.err))
