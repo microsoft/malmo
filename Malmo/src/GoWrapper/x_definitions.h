@@ -17,12 +17,14 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef TIMESTAMP_H
-#define TIMESTAMP_H
+#ifndef DEFINITIONS_H
+#define DEFINITIONS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "stdlib.h"
 
 // type to hold timestamp data
 typedef struct {
@@ -69,4 +71,4 @@ typedef struct {
 } /* extern "C" */
 #endif
 
-#endif // TIMESTAMP_H
+#endif // DEFINITIONS_H

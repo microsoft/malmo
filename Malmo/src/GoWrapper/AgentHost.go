@@ -23,9 +23,8 @@ package malmo
 #cgo CXXFLAGS: -std=c++11 -Wno-deprecated-declarations
 #cgo LDFLAGS: -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
-#include "x_definitions.h"
-#include "x_agent_host.h"
 #include "x_auxiliary.h"
+#include "x_agent_host.h"
 */
 import "C"
 
@@ -252,15 +251,15 @@ func (o *AgentHost) GetStringArgument(name string) string {
 func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, mission_record *MissionRecordSpec, role int, unique_experiment_id string) error {
 
 	// ClientPool: allocate C variables
-	cp, err, free := client_pool.toC()
+	cp, err, freeCP := client_pool.toC()
 	if err != nil {
 		return err
 	}
-	defer free()
+	defer freeCP()
 
 	// MissionRecordSpec: allocate C variables
-	mrs := mission_record.toC()
-	defer C.free(unsafe.Pointer(mrs.destination))
+	mrs, freeMRS := mission_record.toC()
+	defer freeMRS()
 
 	// Id: allocate C variable
 	cid := C.CString(unique_experiment_id)

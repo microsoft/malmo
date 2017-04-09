@@ -26,7 +26,6 @@
 using namespace malmo;
 
 // STL:
-#include "stdlib.h"
 #include <cstddef>
 #include <cstring>
 #include <string>
@@ -161,7 +160,7 @@ int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission,
     )
 }
 
-int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptmission, ptMissionRecordSpec ptmission_record) {
+int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptmission, void* ptmission_record) {
     AH_CALL(
         MissionSpec* mission = (MissionSpec*)ptmission;
         MissionRecordSpec* mission_record = (MissionRecordSpec*)ptmission_record;

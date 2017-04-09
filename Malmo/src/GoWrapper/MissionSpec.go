@@ -20,10 +20,11 @@
 package malmo
 
 /*
-#include "x_mission_spec.h"
 #include "x_auxiliary.h"
+#include "x_mission_spec.h"
 */
 import "C"
+
 import "unsafe"
 
 // MissionSpec specifies a mission to be run.

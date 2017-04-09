@@ -20,9 +20,12 @@
 package malmo
 
 /*
+#include "x_auxiliary.h"
 #include "x_definitions.h"
 */
 import "C"
+
+import "unsafe"
 
 // MissionRecordSpec specifies the type of data that should be recorded from the mission.
 type MissionRecordSpec struct {
@@ -36,7 +39,7 @@ type MissionRecordSpec struct {
 }
 
 // toC converts Go data to C data
-func (o MissionRecordSpec) toC() (mrs C.mission_record_spec_t) {
+func (o MissionRecordSpec) toC() (mrs C.mission_record_spec_t, free func()) {
 	mrs.record_mp4 = 0
 	mrs.record_observations = 0
 	mrs.record_rewards = 0
@@ -56,5 +59,8 @@ func (o MissionRecordSpec) toC() (mrs C.mission_record_spec_t) {
 	mrs.mp4_bit_rate = C.long(o.Mp4BitRate)
 	mrs.mp4_fps = C.int(o.Mp4Fps)
 	mrs.destination = C.CString(o.Destination)
+	free = func() {
+		C.free(unsafe.Pointer(mrs.destination))
+	}
 	return
 }
