@@ -24,6 +24,7 @@ import (
 	"malmo"
 	"math"
 	"testing"
+	"time"
 )
 
 func Test_startmission01(tst *testing.T) {
@@ -43,51 +44,6 @@ func Test_startmission01(tst *testing.T) {
 	retries := 3
 	verbose := false
 	err := malmo.StartMissionSimple(retries, agent_host, my_mission, my_mission_record, verbose)
-	if err != nil {
-		tst.Errorf("%v\n", err)
-		return
-	}
-}
-
-func Test_startmission02(tst *testing.T) {
-
-	// allocate agents
-	num_agents := 3
-	agent_hosts := make([]*malmo.AgentHost, num_agents)
-	for i := 0; i < num_agents; i++ {
-		agent_hosts[i] = malmo.NewAgentHost()
-		defer agent_hosts[i].Free()
-	}
-
-	// create mission specification
-	xml := createMissionXML(num_agents, 860, 480, true)
-	my_mission := malmo.NewMissionSpecXML(xml, true)
-	defer my_mission.Free()
-
-	// allocate mission record specification
-	my_mission_record := &malmo.MissionRecordSpec{
-		RecordMp4:          false,
-		RecordObservations: true,
-		RecordRewards:      true,
-		RecordCommands:     true,
-		Mp4BitRate:         400000,
-		Mp4Fps:             20,
-		Destination:        "data.tgz",
-	}
-
-	// set pool of clients
-	client_pool := &malmo.ClientPool{}
-	for i := 0; i < num_agents; i++ {
-		client_pool.Add("127.0.0.1", 10000+i)
-	}
-
-	// set experiment unique ID
-	experimentID := "Test_startmission01"
-
-	// start mission
-	retries := 10
-	verbose := false
-	err := malmo.StartMission(retries, agent_hosts, my_mission, client_pool, my_mission_record, experimentID, verbose)
 	if err != nil {
 		tst.Errorf("%v\n", err)
 		return
@@ -153,4 +109,115 @@ func createMissionXML(num_agents, width, height int, reset bool) (xml string) {
 
 	xml += "</Mission>"
 	return
+}
+
+func Test_startmission02(tst *testing.T) {
+
+	// allocate agents
+	num_agents := 3
+	agent_hosts := make([]*malmo.AgentHost, num_agents)
+	for i := 0; i < num_agents; i++ {
+		agent_hosts[i] = malmo.NewAgentHost()
+		defer agent_hosts[i].Free()
+	}
+
+	// create mission specification
+	xml := createMissionXML(num_agents, 860, 480, true)
+	my_mission := malmo.NewMissionSpecXML(xml, true)
+	defer my_mission.Free()
+
+	// allocate mission record specification
+	my_mission_record := &malmo.MissionRecordSpec{
+		RecordMp4:          false,
+		RecordObservations: true,
+		RecordRewards:      true,
+		RecordCommands:     true,
+		Mp4BitRate:         400000,
+		Mp4Fps:             20,
+		Destination:        "data.tgz",
+	}
+
+	// set pool of clients
+	client_pool := &malmo.ClientPool{}
+	for i := 0; i < num_agents; i++ {
+		client_pool.Add("127.0.0.1", 10000+i)
+	}
+
+	// set experiment unique ID
+	experimentID := "Test_startmission01"
+
+	// start mission
+	retries := 10
+	verbose := false
+	err := malmo.StartMission(retries, agent_hosts, my_mission, client_pool, my_mission_record, experimentID, verbose)
+	if err != nil {
+		tst.Errorf("%v\n", err)
+		return
+	}
+}
+
+func Test_startmission03(tst *testing.T) {
+
+	width, height := 860, 480
+	missionXML := `<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+	<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	  <About>
+		<Summary>Hello world!</Summary>
+	  </About>
+	  <ServerSection>
+		<ServerHandlers>
+		  <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
+		  <ServerQuitFromTimeUp timeLimitMs="2000"/>
+		  <ServerQuitWhenAnyAgentFinishes/>
+		</ServerHandlers>
+	  </ServerSection>
+	  <AgentSection mode="Survival">
+		<Name>MalmoTutorialBot</Name>
+		<AgentStart/>
+		<AgentHandlers>
+          <VideoProducer>
+            <Width>` + fmt.Sprintf("%d", width) + `</Width>
+            <Height>` + fmt.Sprintf("%d", height) + `</Height>
+          </VideoProducer>
+		</AgentHandlers>
+	  </AgentSection>
+	</Mission>`
+
+	// allocate AgentHost
+	agent_host := malmo.NewAgentHost()
+	defer agent_host.Free()
+
+	// allocate mission specification
+	my_mission := malmo.NewMissionSpecXML(missionXML, true)
+	defer my_mission.Free()
+
+	// allocate mission record specification
+	my_mission_record := &malmo.MissionRecordSpec{}
+
+	// start mission
+	retries := 3
+	verbose := false
+	err := malmo.StartMissionSimple(retries, agent_host, my_mission, my_mission_record, verbose)
+	if err != nil {
+		tst.Errorf("%v\n", err)
+		return
+	}
+
+	// Main Loop:
+	for {
+		time.Sleep(500 * time.Millisecond)
+		ws := agent_host.GetWorldState()
+		if !ws.IsMissionRunning {
+			break
+		}
+		if ws.NumberOfVideoFramesSinceLastState > 0 {
+			size := len(ws.VideoFrames)
+			frame := ws.VideoFrames[size-1]
+			err = frame.WritePng(fmt.Sprintf("tmp_startmission03_%d.png", size-1))
+			if err != nil {
+				tst.Errorf("%v\n", err)
+				return
+			}
+		}
+	}
 }
