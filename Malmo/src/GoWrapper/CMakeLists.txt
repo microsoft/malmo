@@ -40,6 +40,7 @@ configure_file(x_set_cgo_flags.go.in x_set_cgo_flags.go)
 ### Copy go files
 #################
 add_custom_target(CopyMalmoGoFiles ALL
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${GOMALMO_OUT}
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${GOMALMO_IN} ${GOMALMO_OUT}
     COMMAND ${CMAKE_COMMAND} -E copy x_set_cgo_flags.go ${GOMALMO_OUT}
 )

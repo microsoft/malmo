@@ -68,8 +68,8 @@ func _callfromcpp_world_state_set_values(gopt C.goptWorldState,
 	cNumberOfObservationsSinceLastState C.int) {
 
 	ws := (*WorldState)(gopt)
-	ws.HasMissionBegun = CI2B(cHasMissionBegun)
-	ws.IsMissionRunning = CI2B(cIsMissionRunning)
+	ws.HasMissionBegun = ci2b(cHasMissionBegun)
+	ws.IsMissionRunning = ci2b(cIsMissionRunning)
 	ws.NumberOfVideoFramesSinceLastState = int(cNumberOfVideoFramesSinceLastState)
 	ws.NumberOfRewardsSinceLastState = int(cNumberOfRewardsSinceLastState)
 	ws.NumberOfObservationsSinceLastState = int(cNumberOfObservationsSinceLastState)
@@ -108,4 +108,12 @@ func _callfromcpp_world_state_append_controlmessage(gopt C.goptWorldState, ts *C
 func _callfromcpp_world_state_append_error(gopt C.goptWorldState, ts *C.timestamp_t, text *C.char, text_size C.int) {
 	ws := (*WorldState)(gopt)
 	ws.Errors = append(ws.Errors, newTimestampedStringFromCpp(ts, text, text_size))
+}
+
+// ci2b converts C.int to bool
+func ci2b(input C.int) (output bool) {
+	if input == 1 {
+		return true
+	}
+	return false
 }
