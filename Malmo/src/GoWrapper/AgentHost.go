@@ -23,6 +23,7 @@ package malmo
 #cgo CXXFLAGS: -std=c++11 -Wno-deprecated-declarations
 #cgo LDFLAGS: -lMalmo -lboost_system -lboost_filesystem -lboost_thread -lboost_iostreams -lboost_program_options -lboost_date_time -lboost_regex -lxerces-c
 
+#include "x_definitions.h"
 #include "x_agent_host.h"
 #include "x_auxiliary.h"
 */
@@ -290,12 +291,16 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 		defer C.free(unsafe.Pointer(caddress))
 	}
 
+	// MissionRecordSpec: allocate C variables
+	mrs := mission_record.toC()
+	defer C.free(unsafe.Pointer(mrs.destination))
+
 	// Id: allocate C variable
 	cid := C.CString(unique_experiment_id)
 	defer C.free(unsafe.Pointer(cid))
 
 	// call C++ code
-	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, poolSize, addresses, cports, mission_record.pt, C.int(role), cid)
+	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, poolSize, addresses, cports, mrs, C.int(role), cid)
 	if status != 0 {
 		return errors.New(C.GoString(o.err))
 	}
@@ -306,7 +311,7 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 // \param mission The mission specification.
 // \param mission_record The specification of the mission recording to make.
 func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) error {
-	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, mission_record.pt)
+	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, nil)
 	if status != 0 {
 		return errors.New(C.GoString(o.err))
 	}

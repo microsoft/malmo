@@ -35,6 +35,7 @@ using namespace malmo;
 using namespace std;
 
 // Local:
+#include "x_definitions.h"
 #include "x_agent_host.h"
 #include "x_timestamp.hpp"
 
@@ -135,7 +136,7 @@ int agent_host_get_string_argument(ptAgentHost pt, char* err, const char* name, 
     )
 }
 
-int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, int poolSize, const char** addresses, long* ports, ptMissionRecordSpec ptmission_record, int role, const char* unique_experiment_id) {
+int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, int poolSize, const char** addresses, long* ports, mission_record_spec_t mrs, int role, const char* unique_experiment_id) {
     AH_CALL(
         MissionSpec* mission = (MissionSpec*)ptmission;
         ClientPool client_pool;
@@ -143,8 +144,20 @@ int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission,
             ClientInfo info(addresses[i], ports[i]);
             client_pool.add(info);
         }
-        MissionRecordSpec* mission_record = (MissionRecordSpec*)ptmission_record;
-        agent_host->startMission(*mission, client_pool, *mission_record, role, unique_experiment_id);
+        MissionRecordSpec spec(mrs.destination);
+        if (mrs.record_mp4 == 1 && mrs.mp4_fps > 0 && mrs.mp4_bit_rate > 0) {
+            spec.recordMP4(mrs.mp4_fps, mrs.mp4_bit_rate);
+        }
+        if (mrs.record_observations == 1) {
+            spec.recordObservations();
+        }
+        if (mrs.record_rewards == 1) {
+            spec.recordRewards();
+        }
+        if (mrs.record_commands == 1) {
+            spec.recordCommands();
+        }
+        agent_host->startMission(*mission, client_pool, spec, role, unique_experiment_id);
     )
 }
 

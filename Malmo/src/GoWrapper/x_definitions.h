@@ -47,6 +47,17 @@ typedef struct {
     float zPos;
 } videoframe_t;
 
+// type to hold mission record spec data
+typedef struct {
+    int record_mp4;
+    int record_observations;
+    int record_rewards;
+    int record_commands;
+    long mp4_bit_rate;
+    int mp4_fps;
+    const char* destination;
+} mission_record_spec_t;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
