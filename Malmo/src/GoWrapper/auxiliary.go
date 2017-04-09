@@ -26,14 +26,6 @@ import "C"
 
 import "unsafe"
 
-/*
-func makeChars(size int) (chars *C.char, free func()) {
-	chars = C.make_buffer(C.int(size))
-	free = func() { C.free_buffer(chars) }
-	return
-}
-*/
-
 // makeArrayChar allocates C array of chars
 // Note: make sure to call free() to deallocate memory
 func makeArrayChar(array []string) (csize C.int, carray **C.char, free func()) {
