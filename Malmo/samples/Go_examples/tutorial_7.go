@@ -101,8 +101,7 @@ func main() {
 		my_mission := malmo.NewMissionSpecXML(GetMissionXML("random", float32(i)/10.0), true)
 		defer my_mission.Free()
 
-		my_mission_record := malmo.NewMissionRecordSpec()
-		defer my_mission_record.Free()
+		my_mission_record := &malmo.MissionRecordSpec{}
 
 		// Attempt to start a mission:
 		max_retries := 3

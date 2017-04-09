@@ -10,39 +10,35 @@ import (
 
 func main() {
 
+	// allocate AgentHost
 	agent_host := malmo.NewAgentHost()
 	defer agent_host.Free()
 
+	// parse input arguments
 	err := agent_host.Parse(os.Args)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
+	// allocate mission specification
 	my_mission := malmo.NewMissionSpec()
 	defer my_mission.Free()
 
-	my_mission_record := malmo.NewMissionRecordSpecTarget("/tmp/saved_data.tgz")
-	defer my_mission_record.Free()
+	// allocate mission record specification
+	my_mission_record := &malmo.MissionRecordSpec{}
 
-	err = agent_host.StartMissionSimple(my_mission, my_mission_record)
+	// start mission
+	retries := 3
+	verbose := true
+	err = malmo.StartMissionSimple(retries, agent_host, my_mission, my_mission_record, verbose)
 	if err != nil {
 		fmt.Println(err)
 		return
 
 	}
 
-	fmt.Println("Waiting for the mission to start")
-	for {
-		fmt.Print(".")
-		time.Sleep(100 * time.Millisecond)
-		world_state := agent_host.GetWorldState()
-		if world_state.HasMissionBegun {
-			break
-		}
-	}
-	fmt.Println()
-
+	// loop until mission ends
 	for {
 		agent_host.SendCommand("move 1")
 		agent_host.SendCommand(fmt.Sprintf("turn %d", rand.Int()*2-1))
@@ -52,5 +48,6 @@ func main() {
 			break
 		}
 	}
+	fmt.Println()
 	fmt.Println("Mission has stopped.")
 }

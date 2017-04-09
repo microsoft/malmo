@@ -50,17 +50,7 @@ func main() {
 	my_mission.RequestVideo(320, 240)
 	my_mission.RewardForReachingPosition(19.5, 0.0, 19.5, 100.0, 1.1)
 
-	my_mission_record := malmo.NewMissionRecordSpecTarget("/tmp/saved_data.tgz")
-	defer my_mission_record.Free()
-	my_mission_record.RecordCommands()
-	my_mission_record.RecordMP4(20, 400000)
-	my_mission_record.RecordRewards()
-	my_mission_record.RecordObservations()
-
-	// TODO: fix this: error with "permission to write there"
-	//destination := "/tmp/test_malmo"
-	//os.MkdirAll(destination, 0777)
-	//my_mission_record.SetDestination(destination)
+	my_mission_record := &malmo.MissionRecordSpec{}
 
 	err = agent_host.StartMissionSimple(my_mission, my_mission_record)
 	if err != nil {

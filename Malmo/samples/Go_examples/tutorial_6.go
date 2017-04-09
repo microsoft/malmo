@@ -270,8 +270,7 @@ func main() {
 		fmt.Println()
 		fmt.Printf("Repeat %d of %d\n", i+1, num_repeats)
 
-		my_mission_record := malmo.NewMissionRecordSpec()
-		defer my_mission_record.Free()
+		my_mission_record := &malmo.MissionRecordSpec{}
 
 		for retry := 0; retry < max_retries; retry++ {
 			err = agent_host.StartMissionSimple(my_mission, my_mission_record)

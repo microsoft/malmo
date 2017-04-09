@@ -122,8 +122,7 @@ func main() {
 	defer my_mission.Free()
 
 	// Create Mission Record specification
-	my_mission_record := malmo.NewMissionRecordSpec()
-	defer my_mission_record.Free()
+	my_mission_record := &malmo.MissionRecordSpec{}
 
 	// Attempt to start a mission:
 	err = agent_host.StartMissionSimple(my_mission, my_mission_record)
