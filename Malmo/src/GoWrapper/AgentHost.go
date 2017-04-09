@@ -271,9 +271,31 @@ func (o *AgentHost) GetStringArgument(name string) string {
 // role -- Index of the agent that this agent host is to manage. Zero-based index. Use zero if there is only one agent in this mission.
 // unique_experiment_id -- An arbitrary identifier that is used to disambiguate our mission from other runs.
 func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, mission_record *MissionRecordSpec, role int, unique_experiment_id string) error {
+
+	// ClientPool: check
+	if len(client_pool.Ports) != len(client_pool.Addresses) {
+		return errors.New("The size of Ports and Addresses in ClientPool must be the same")
+	}
+
+	// ClientPool: allocate C variables
+	cports := (*C.long)(unsafe.Pointer(&client_pool.Ports[0]))
+	poolSize := C.int(len(client_pool.Addresses))
+	addresses := C.make_argv(poolSize)
+	defer C.free(unsafe.Pointer(addresses))
+
+	// ClientPool: allocate and set addresses
+	for i, address := range client_pool.Addresses {
+		caddress := C.CString(address)
+		C.set_arg(addresses, C.int(i), caddress)
+		defer C.free(unsafe.Pointer(caddress))
+	}
+
+	// Id: allocate C variable
 	cid := C.CString(unique_experiment_id)
 	defer C.free(unsafe.Pointer(cid))
-	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, client_pool.pt, mission_record.pt, C.int(role), cid)
+
+	// call C++ code
+	status := C.agent_host_start_mission(o.pt, o.err, mission.pt, poolSize, addresses, cports, mission_record.pt, C.int(role), cid)
 	if status != 0 {
 		return errors.New(C.GoString(o.err))
 	}
