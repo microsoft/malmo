@@ -69,6 +69,24 @@ timestamp_t timestamp_from_ptime(boost::posix_time::ptime const& pt) {
     return ts;
 }
 
+// converts "pure" struct to MissionRecordSpec
+MissionRecordSpec mrs_from_struct(mission_record_spec_t mrs) {
+    MissionRecordSpec spec(mrs.destination);
+    if (mrs.record_mp4 == 1 && mrs.mp4_fps > 0 && mrs.mp4_bit_rate > 0) {
+        spec.recordMP4(mrs.mp4_fps, mrs.mp4_bit_rate);
+    }
+    if (mrs.record_observations == 1) {
+        spec.recordObservations();
+    }
+    if (mrs.record_rewards == 1) {
+        spec.recordRewards();
+    }
+    if (mrs.record_commands == 1) {
+        spec.recordCommands();
+    }
+    return spec;
+}
+
 // constructor, destructor and enums ---------------------------------------------------------------
 
 ptAgentHost new_agent_host() {
@@ -177,28 +195,16 @@ int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission,
             ClientInfo info(cp.addresses[i], cp.ports[i]);
             client_pool.add(info);
         }
-        MissionRecordSpec spec(mrs.destination);
-        if (mrs.record_mp4 == 1 && mrs.mp4_fps > 0 && mrs.mp4_bit_rate > 0) {
-            spec.recordMP4(mrs.mp4_fps, mrs.mp4_bit_rate);
-        }
-        if (mrs.record_observations == 1) {
-            spec.recordObservations();
-        }
-        if (mrs.record_rewards == 1) {
-            spec.recordRewards();
-        }
-        if (mrs.record_commands == 1) {
-            spec.recordCommands();
-        }
+        MissionRecordSpec spec = mrs_from_struct(mrs);
         agent_host->startMission(*mission, client_pool, spec, role, unique_experiment_id);
     )
 }
 
-int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptmission, void* ptmission_record) {
+int agent_host_start_mission_simple(ptAgentHost pt, char* err, ptMissionSpec ptmission, mission_record_spec_t mrs) {
     AH_CALL(
         MissionSpec* mission = (MissionSpec*)ptmission;
-        MissionRecordSpec* mission_record = (MissionRecordSpec*)ptmission_record;
-        agent_host->startMission(*mission, *mission_record);
+        MissionRecordSpec spec = mrs_from_struct(mrs);
+        agent_host->startMission(*mission, spec);
     )
 }
 

@@ -277,7 +277,13 @@ func (o *AgentHost) StartMission(mission *MissionSpec, client_pool *ClientPool, 
 // \param mission The mission specification.
 // \param mission_record The specification of the mission recording to make.
 func (o *AgentHost) StartMissionSimple(mission *MissionSpec, mission_record *MissionRecordSpec) error {
-	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, nil)
+
+	// MissionRecordSpec: allocate C variables
+	mrs, freeMRS := mission_record.toC()
+	defer freeMRS()
+
+	// call C++ code
+	status := C.agent_host_start_mission_simple(o.pt, o.err, mission.pt, mrs)
 	if status != 0 {
 		return errors.New(C.GoString(o.err))
 	}

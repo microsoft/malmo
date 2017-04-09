@@ -98,7 +98,7 @@ int agent_host_get_string_argument          (ptAgentHost pt, char* err, const ch
 
 // methods from AgentHost:
 int agent_host_start_mission                     (ptAgentHost pt, char* err, ptMissionSpec mission, client_pool_t cp, mission_record_spec_t mrs, int role, const char* unique_experiment_id);
-int agent_host_start_mission_simple              (ptAgentHost pt, char* err, ptMissionSpec mission, void* mission_record);
+int agent_host_start_mission_simple              (ptAgentHost pt, char* err, ptMissionSpec mission, mission_record_spec_t mrs);
 int agent_host_peek_world_state                  (ptAgentHost pt, char* err, goptWorldState goptws);
 int agent_host_get_world_state                   (ptAgentHost pt, char* err, goptWorldState goptws);
 int agent_host_get_recording_temporary_directory (ptAgentHost pt, char* err, char* response);
