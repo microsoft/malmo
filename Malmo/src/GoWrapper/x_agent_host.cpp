@@ -33,13 +33,43 @@ using namespace malmo;
 #include <iostream>
 using namespace std;
 
+// Boost:
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+
 // Local:
 #include "x_definitions.h"
 #include "x_agent_host.h"
-#include "x_timestamp.hpp"
 
 // Cgo:
 #include "_cgo_export.h"
+
+// auxiliary ---------------------------------------------------------------------------------------
+
+// converts ptime to TimestampData
+timestamp_t timestamp_from_ptime(boost::posix_time::ptime const& pt) {
+
+    timestamp_t ts;
+
+    boost::gregorian::date date = pt.date();
+    boost::posix_time::time_duration td = pt.time_of_day();
+
+    ts.year    = (int)date.year();
+    ts.month   = (int)date.month();
+    ts.day     = (int)date.day();
+    ts.hours   = td.hours();
+    ts.minutes = td.minutes();
+    ts.seconds = td.seconds();
+
+    static std::int64_t resolution = boost::posix_time::time_duration::ticks_per_second();
+    std::int64_t fracsecs = td.fractional_seconds();
+    std::int64_t usecs = (resolution > 1000000) ? fracsecs / (resolution / 1000000) : fracsecs * (1000000 / resolution);
+
+    ts.nanoseconds = td.fractional_seconds() * 1000;
+
+    return ts;
+}
+
+// constructor, destructor and enums ---------------------------------------------------------------
 
 ptAgentHost new_agent_host() {
     try {
@@ -79,6 +109,8 @@ void agent_host_initialise_enums(
 	*latest_observation_only = AgentHost::LATEST_OBSERVATION_ONLY;
 	*keep_all_observations   = AgentHost::KEEP_ALL_OBSERVATIONS;
 }
+
+// methods from argument parser --------------------------------------------------------------------
 
 int agent_host_parse(ptAgentHost pt, char* err, int argc, const char** argv) {
     AH_CALL(
@@ -134,6 +166,8 @@ int agent_host_get_string_argument(ptAgentHost pt, char* err, const char* name, 
         strncpy(response, str_arg.c_str(), AH_STRING_ARG_SIZE);
     )
 }
+
+// methods from agent host -------------------------------------------------------------------------
 
 int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, client_pool_t cp, mission_record_spec_t mrs, int role, const char* unique_experiment_id) {
     AH_CALL(
