@@ -92,6 +92,7 @@ func (o *AgentHost) Free() {
 		C.free_buffer(o.usage)
 		C.free_buffer(o.recdir)
 		C.free_buffer(o.strarg)
+		o.pt = nil
 	}
 }
 

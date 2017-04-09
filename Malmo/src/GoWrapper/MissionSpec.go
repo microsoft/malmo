@@ -86,6 +86,7 @@ func (o *MissionSpec) Free() {
 		C.free_buffer(o.xml)
 		C.free_array_char(o.cmds, C.MS_MAX_COMMAND_HANDLERS)
 		C.free_array_char(o.cmds_act, C.MS_MAX_ACTIVE_COMMAND_HANDLERS)
+		o.pt = nil
 	}
 }
 
