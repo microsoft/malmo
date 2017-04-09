@@ -24,11 +24,7 @@ package malmo
 */
 import "C"
 
-import (
-	"unsafe"
-
-	"github.com/cpmech/gosl/io"
-)
+import "unsafe"
 
 // makeArrayChar allocates C array of chars
 // Note: make sure to call free() to deallocate memory
@@ -58,7 +54,6 @@ func make3strings(str1, str2, str3 string) (cstr1, cstr2, cstr3 *C.char, free fu
 	cstr2 = C.CString(str2)
 	cstr3 = C.CString(str3)
 	free = func() {
-		io.Pfyel("clearing = %v %v %v\n", str1, str2, str3)
 		C.free(unsafe.Pointer(cstr1))
 		C.free(unsafe.Pointer(cstr2))
 		C.free(unsafe.Pointer(cstr3))
@@ -70,7 +65,6 @@ func make2strings(str1, str2 string) (cstr1, cstr2 *C.char, free func()) {
 	cstr1 = C.CString(str1)
 	cstr2 = C.CString(str2)
 	free = func() {
-		io.Pforan("clearing = %v %v\n", str1, str2)
 		C.free(unsafe.Pointer(cstr1))
 		C.free(unsafe.Pointer(cstr2))
 	}
@@ -82,7 +76,6 @@ func make2stringsInt(str1, str2 string, val int) (cstr1, cstr2 *C.char, cval C.i
 	cstr2 = C.CString(str2)
 	cval = C.int(val)
 	free = func() {
-		io.PfBlue("clearing = %v %v\n", str1, str2)
 		C.free(unsafe.Pointer(cstr1))
 		C.free(unsafe.Pointer(cstr2))
 	}
@@ -94,7 +87,6 @@ func make2stringsFloat(str1, str2 string, val float64) (cstr1, cstr2 *C.char, cv
 	cstr2 = C.CString(str2)
 	cval = C.double(val)
 	free = func() {
-		io.Pf("clearing = %v %v\n", str1, str2)
 		C.free(unsafe.Pointer(cstr1))
 		C.free(unsafe.Pointer(cstr2))
 	}
