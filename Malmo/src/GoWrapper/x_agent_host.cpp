@@ -136,12 +136,12 @@ int agent_host_get_string_argument(ptAgentHost pt, char* err, const char* name, 
     )
 }
 
-int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, int poolSize, const char** addresses, long* ports, mission_record_spec_t mrs, int role, const char* unique_experiment_id) {
+int agent_host_start_mission(ptAgentHost pt, char* err, ptMissionSpec ptmission, client_pool_t cp, mission_record_spec_t mrs, int role, const char* unique_experiment_id) {
     AH_CALL(
         MissionSpec* mission = (MissionSpec*)ptmission;
         ClientPool client_pool;
-        for (int i=0; i<poolSize; i++) {
-            ClientInfo info(addresses[i], ports[i]);
+        for (int i=0; i<cp.size; i++) {
+            ClientInfo info(cp.addresses[i], cp.ports[i]);
             client_pool.add(info);
         }
         MissionRecordSpec spec(mrs.destination);

@@ -19,6 +19,16 @@
 
 package malmo
 
+/*
+#include "x_definitions.h"
+*/
+import "C"
+
+import (
+	"errors"
+	"unsafe"
+)
+
 // ClientPool defines a pool of expected network locations of Mod clients.
 type ClientPool struct {
 	Addresses []string // The IP addresses of the clients.
@@ -29,4 +39,15 @@ type ClientPool struct {
 func (o *ClientPool) Add(address string, port int) {
 	o.Addresses = append(o.Addresses, address)
 	o.Ports = append(o.Ports, port)
+}
+
+// toC converts Go data to C data
+func (o ClientPool) toC() (cp C.client_pool_t, err error, free func()) {
+	if len(o.Ports) != len(o.Addresses) {
+		err = errors.New("The size of Ports and Addresses in ClientPool must be the same")
+		return
+	}
+	cp.size, cp.addresses, free = makeArrayChar(o.Addresses)
+	cp.ports = (*C.long)(unsafe.Pointer(&o.Ports[0]))
+	return
 }
