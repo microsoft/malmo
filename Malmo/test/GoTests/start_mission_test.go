@@ -41,8 +41,15 @@ func Test_startmission01(tst *testing.T) {
 	my_mission := malmo.NewMissionSpecXML(xml, true)
 	defer my_mission.Free()
 
-	my_mission_record := malmo.NewMissionRecordSpec()
-	defer my_mission_record.Free()
+	my_mission_record := &malmo.MissionRecordSpec{
+		RecordMp4:          false,
+		RecordObservations: true,
+		RecordRewards:      true,
+		RecordCommands:     true,
+		Mp4BitRate:         400000,
+		Mp4Fps:             20,
+		Destination:        "data.tgz",
+	}
 
 	client_pool := &malmo.ClientPool{}
 	for i := 0; i < num_agents; i++ {
