@@ -18,17 +18,14 @@
 // --------------------------------------------------------------------------------------------------
 package com.microsoft.Malmo.MissionHandlers;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.launchwrapper.Launch;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -115,19 +112,11 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                 for (Entity e : entsInRangeList)
                 {
                     JsonObject jsent = new JsonObject();
-                    if (e instanceof EntityOtherPlayerMP)
-                    {
-                        EntityOtherPlayerMP otherplayer = (EntityOtherPlayerMP)e;
-                        addOtherPlayerProperties(otherplayer, jsent);
-                    }
-                    else
-                    {
-                        jsent.addProperty("yaw", e.rotationYaw);
-                        jsent.addProperty("x", e.posX);
-                        jsent.addProperty("y", e.posY);
-                        jsent.addProperty("z", e.posZ);
-                        jsent.addProperty("pitch", e.rotationPitch);
-                    }
+                    jsent.addProperty("yaw", e.rotationYaw);
+                    jsent.addProperty("x", e.posX);
+                    jsent.addProperty("y", e.posY);
+                    jsent.addProperty("z", e.posZ);
+                    jsent.addProperty("pitch", e.rotationPitch);
                     String name = e.getName();
                     if (e instanceof EntityItem)
                     {
@@ -149,65 +138,6 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                 json.add(this.oneparams.getRange().get(index).getName(), arr);
                 index++;
             }
-        }
-    }
-
-    private static void addOtherPlayerProperties(EntityOtherPlayerMP player, JsonObject jsent)
-    {
-        // Are we in the dev environment or deployed?
-        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-        // We need to know, because the member name will either be obfuscated or not.
-        // NOTE: obfuscated names may need updating if Forge changes - check Malmo\Minecraft\build\taskLogs\retromapsources.log
-        try
-        {
-            String xMemberName = devEnv ? "otherPlayerMPX" : "field_71185_c";
-            String yMemberName = devEnv ? "otherPlayerMPY" : "field_71182_d";
-            String zMemberName = devEnv ? "otherPlayerMPZ" : "field_71183_e";
-            String yawMemberName = devEnv ? "otherPlayerMPYaw" : "field_71180_f";
-            String pitchMemberName = devEnv ? "otherPlayerMPPitch" : "field_71181_g";
-            Field x, y, z, yaw, pitch;
-            x = EntityOtherPlayerMP.class.getDeclaredField(xMemberName);
-            x.setAccessible(true);
-            y = EntityOtherPlayerMP.class.getDeclaredField(yMemberName);
-            y.setAccessible(true);
-            z = EntityOtherPlayerMP.class.getDeclaredField(zMemberName);
-            z.setAccessible(true);
-            yaw = EntityOtherPlayerMP.class.getDeclaredField(yawMemberName);
-            yaw.setAccessible(true);
-            pitch = EntityOtherPlayerMP.class.getDeclaredField(pitchMemberName);
-            pitch.setAccessible(true);
-            Double xobj = (Double)x.get(player);
-            Double yobj = (Double)y.get(player);
-            Double zobj = (Double)z.get(player);
-            Double yawobj = (Double)yaw.get(player);
-            Double pitchobj = (Double)pitch.get(player);
-
-            if (xobj != null)
-                jsent.addProperty("x", xobj);
-            if (yobj != null)
-                jsent.addProperty("y", yobj);
-            if (zobj != null)
-                jsent.addProperty("z", zobj);
-            if (yawobj != null)
-                jsent.addProperty("yaw", yawobj);
-            if (pitchobj != null)
-                jsent.addProperty("pitch", pitchobj);
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e)
-        {
-            e.printStackTrace();
-        }
-        catch (NoSuchFieldException e)
-        {
-            e.printStackTrace();
         }
     }
 

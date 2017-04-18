@@ -128,6 +128,8 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                 jsonMop.addProperty("x", entity.posX);
                 jsonMop.addProperty("y", entity.posY);
                 jsonMop.addProperty("z", entity.posZ);
+                jsonMop.addProperty("yaw",  entity.rotationYaw);
+                jsonMop.addProperty("pitch",  entity.rotationPitch);
                 String name = entity.getName();
                 String hitType = "entity";
                 if (entity instanceof EntityItem)
