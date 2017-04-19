@@ -61,7 +61,6 @@ namespace malmo
         , display_client_pool_messages( false )
     {
         initialiser::initXSD();
-        std::call_once(test_schemas_flag, testSchemasCompatible);
 
         this->addOptionalFlag("help,h", "show description of allowed options");
         this->addOptionalFlag("test",   "run this as an integration test");
@@ -137,6 +136,8 @@ namespace malmo
 
     void AgentHost::startMission(const MissionSpec& mission, const ClientPool& client_pool, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id)
     {
+        std::call_once(test_schemas_flag, testSchemasCompatible);
+
         if (role < 0 || role >= mission.getNumberOfAgents())
         {
             if (mission.getNumberOfAgents() == 1)
