@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
@@ -69,7 +70,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }

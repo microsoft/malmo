@@ -92,7 +92,7 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
     }
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }

@@ -908,7 +908,7 @@ public class ServerStateMachine extends StateMachine
             List<Object> extraHandlers = new ArrayList<Object>();
             Map<String, String> data = new HashMap<String, String>();
 
-            if (handlers.worldDecorator != null && handlers.worldDecorator.getExtraAgentHandlers(extraHandlers))
+            if (handlers.worldDecorator != null && handlers.worldDecorator.getExtraAgentHandlersAndData(extraHandlers, data))
             {
                 for (Object handler : extraHandlers)
                 {

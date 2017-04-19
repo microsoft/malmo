@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.init.Blocks;
@@ -72,6 +73,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     private int optimalPathHeight;
     private int subgoalHeight;
     private int gapHeight;
+    private PosAndDirection startPosition = null;
     private AgentQuitFromReachingPosition quitter = null;
     private ObservationFromSubgoalPositionList navigator = null;
 
@@ -629,6 +631,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         p.setX(new BigDecimal(scale * (start.x + 0.5) + this.xOrg));
         p.setY(new BigDecimal(1 + this.yOrg + this.startHeight));
         p.setZ(new BigDecimal(scale * (start.z + 0.5) + this.zOrg));
+        this.startPosition = p;
         // TODO - for the moment, force all players to being at the maze start point - but this needs to be optional.
         for (AgentSection as : missionInit.getMission().getAgentSection())
         {
@@ -769,7 +772,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         boolean added = false;
         if (this.quitter != null)
@@ -782,6 +785,14 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
             handlers.add(this.navigator);
             added = true;
         }
+
+        // Also add our new start data:
+        Float x = this.startPosition.getX().floatValue();
+        Float y = this.startPosition.getY().floatValue();
+        Float z = this.startPosition.getZ().floatValue();
+        String posString = x.toString() + ":" + y.toString() + ":" + z.toString();
+        data.put("startPosition", posString);
+
         return added;
     }
 

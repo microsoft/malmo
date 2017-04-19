@@ -22,6 +22,7 @@ package com.microsoft.Malmo.Client;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,6 +76,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
 import com.microsoft.Malmo.Schemas.AgentSection;
+import com.microsoft.Malmo.Schemas.AgentStart;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
 import com.microsoft.Malmo.Schemas.Mission;
@@ -1018,19 +1020,55 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             List<Object> handlers = new ArrayList<Object>();
             for (Entry<String, String> entry : data.entrySet())
             {
-                String extraHandler = entry.getValue();
-                if (extraHandler != null && extraHandler.length() > 0)
+                if (entry.getKey().equals("startPosition"))
                 {
                     try
                     {
-                        Class<?> handlerClass = Class.forName(entry.getKey());
-                        Object handler = SchemaHelper.deserialiseObject(extraHandler, "MissionInit.xsd", handlerClass);
-                        handlers.add(handler);
+                        String[] parts = entry.getValue().split(":");
+                        Float x = Float.valueOf(parts[0]);
+                        Float y = Float.valueOf(parts[1]);
+                        Float z = Float.valueOf(parts[2]);
+                        // Find the starting position we ought to have:
+                        List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+                        if (agents != null && agents.size() > currentMissionInit().getClientRole())
+                        {
+                            // And write this new position into it:
+                            AgentSection as = agents.get(currentMissionInit().getClientRole());
+                            AgentStart startSection = as.getAgentStart();
+                            if (startSection != null)
+                            {
+                                PosAndDirection pos = startSection.getPlacement();
+                                if (pos == null)
+                                    pos = new PosAndDirection();
+                                pos.setX(new BigDecimal(x));
+                                pos.setY(new BigDecimal(y));
+                                pos.setZ(new BigDecimal(z));
+                                startSection.setPlacement(pos);
+                                as.setAgentStart(startSection);
+                            }
+                        }
                     }
                     catch (Exception e)
                     {
-                        System.out.println("Error trying to create extra handlers: " + e);
-                        // Do something... like episodeHasCompletedWithErrors(nextState, error)?
+                        System.out.println("Couldn't interpret position data");
+                    }
+                }
+                else
+                {
+                    String extraHandler = entry.getValue();
+                    if (extraHandler != null && extraHandler.length() > 0)
+                    {
+                        try
+                        {
+                            Class<?> handlerClass = Class.forName(entry.getKey());
+                            Object handler = SchemaHelper.deserialiseObject(extraHandler, "MissionInit.xsd", handlerClass);
+                            handlers.add(handler);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println("Error trying to create extra handlers: " + e);
+                            // Do something... like episodeHasCompletedWithErrors(nextState, error)?
+                        }
                     }
                 }
             }

@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
@@ -290,7 +291,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     }
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }
