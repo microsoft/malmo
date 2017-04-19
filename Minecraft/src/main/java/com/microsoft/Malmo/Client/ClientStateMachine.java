@@ -42,6 +42,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -1820,6 +1821,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         chunk.removeEntity(removeEnt);
                     }
                     entity.addedToChunk = false;    // Will force it to get re-added to the chunk list.
+                    if (entity instanceof EntityLivingBase)
+                    {
+                        // If we want the entities to be rendered with the correct yaw from the outset,
+                        // we need to set their render offset manually.
+                        // (Set the offset from the outset to avoid the onset of upset.)
+                        ((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
+                        ((EntityLivingBase)entity).prevRenderYawOffset = entity.rotationYaw;
+                    }
                 }
                 this.serverHasFiredStartingPistol = true; // GO GO GO!
             }

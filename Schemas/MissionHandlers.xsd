@@ -1484,7 +1484,7 @@
         When present, the Mod will return a JSON object called "LineOfSight", containing observations about the block or entity which is currently in the centre of the screen:
 
         * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object. {{{distance}}} gives the straight-line distance from the agent.
-        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block.
+        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
         * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
         * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
       </xs:documentation>
