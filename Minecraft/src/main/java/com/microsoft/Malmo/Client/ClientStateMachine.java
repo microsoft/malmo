@@ -749,6 +749,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         private void checkForMissionCommand() throws Exception
         {
+            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoHandleMissionCommands");
             if (ClientStateMachine.this.missionPoller == null)
                 return;
 
@@ -759,7 +760,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (missionMessage == null || missionMessage.length() == 0)
                 return;
 
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoDecodeMissionInit");
             MissionInitResult missionInitResult = decodeMissionInit(missionMessage);
+            Minecraft.getMinecraft().mcProfiler.endSection();
+
             MissionInit missionInit = missionInitResult.missionInit;
             if (missionInit != null)
             {
@@ -1708,14 +1712,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         private void sendData()
         {
+            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoSendData");
             // Create the observation data:
             String data = "";
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
             if (currentMissionBehaviour() != null && currentMissionBehaviour().observationProducer != null)
             {
                 JsonObject json = new JsonObject();
                 currentMissionBehaviour().observationProducer.writeObservationsToJSON(json, currentMissionInit());
                 data = json.toString();
             }
+            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoSendTCPObservations");
 
             ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
 
@@ -1734,6 +1741,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
+            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoGatherRewardSignal");
             // Now create the reward signal:
             if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
             {
@@ -1742,6 +1750,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (!reward.isEmpty())
                 {
                     String strReward = reward.getAsSimpleString();
+                    Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPReward");
                     if (this.rewardSocket.sendTCPString(strReward))
                     {
                         this.failedTCPRewardSendCount = 0; // Reset the count of consecutive TCP failures.
@@ -1756,6 +1765,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     }
                 }
             }
+            Minecraft.getMinecraft().mcProfiler.endSection();
 
             // Check that our messages are getting through:
             int maxFailed = Math.max(this.failedTCPRewardSendCount, this.videoHook.failedTCPSendCount);
@@ -1774,6 +1784,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
          */
         private void checkForControlCommand()
         {
+            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandHandling");
             String command = "";
             boolean quitHandlerFired = false;
             IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
@@ -1782,13 +1793,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             while (command != null && command.length() > 0 && !quitHandlerFired)
             {
                 // Pass the command to our various control overrides:
+                Minecraft.getMinecraft().mcProfiler.startSection("malmoCommandAct");
                 boolean handled = handleCommand(command);
                 // Get the next command:
                 command = ClientStateMachine.this.controlInputPoller.getCommand();
                 // If there *is* another command (commands came in faster than one per client tick),
                 // then we should check our quit producer before deciding whether to execute it.
+                Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandRecheckQuitHandlers");
                 if (command != null && command.length() > 0 && handled)
                     quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
+                Minecraft.getMinecraft().mcProfiler.endSection();
             }
         }
 
