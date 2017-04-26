@@ -356,13 +356,15 @@ public class BlockDrawingHelper
                 positionEntity(entity, e.getX().doubleValue(), e.getY().doubleValue(), e.getZ().doubleValue(), e.getYaw().floatValue(), e.getPitch().floatValue());
                 entity.setVelocity(e.getXVel().doubleValue(), e.getYVel().doubleValue(), e.getZVel().doubleValue());
                 // Set all the yaw values imaginable:
-                ((EntityLivingBase)entity).rotationYaw = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).prevRotationYaw = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).prevRotationYawHead = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).rotationYawHead = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).prevRenderYawOffset = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).renderYawOffset = e.getYaw().floatValue();
-                ((EntityLivingBase)entity).setRevengeTarget((EntityLivingBase)entity);
+                if (entity instanceof EntityLivingBase)
+                {
+                    ((EntityLivingBase)entity).rotationYaw = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRotationYaw = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRotationYawHead = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).rotationYawHead = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRenderYawOffset = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).renderYawOffset = e.getYaw().floatValue();
+                }
                 w.getBlockState(entity.getPosition());  // Force-load the chunk if necessary, to ensure spawnEntity will work.
                 if (!w.spawnEntityInWorld(entity))
                 {
