@@ -1622,12 +1622,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Ping the agent - if serverHasFiredStartingPistol is true, we don't need to abort -
                 // we can simply set the wantsToQuit flag and end the mission cleanly.
                 // If serverHasFiredStartingPistol is false, then the mission isn't yet running, and
-                // setting the quit flag will do nothing - so let the pingAgent method abort for us.
-                if (!pingAgent(!this.serverHasFiredStartingPistol))
+                // setting the quit flag will do nothing - so we need to abort.
+                if (!pingAgent(false))
                 {
-                    System.out.println("Error - agent is not responding to pings.");
-                    this.wantsToQuit = true;
-                    this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
+                    if (!this.serverHasFiredStartingPistol)
+                        onMissionEnded(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+                    else
+                    {
+                        System.out.println("Error - agent is not responding to pings.");
+                        this.wantsToQuit = true;
+                        this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
+                    }
                 }
             }
 
