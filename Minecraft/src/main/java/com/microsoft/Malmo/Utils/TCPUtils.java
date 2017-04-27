@@ -1,6 +1,9 @@
 package com.microsoft.Malmo.Utils;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,7 +35,10 @@ public class TCPUtils
         {
             try
             {
-                filehandler = new FileHandler("TCPLog.txt");
+                Date d = new Date();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+                String filename = "TCP" + dateFormat.format(d) + ".log";
+                filehandler = new FileHandler(filename);
                 filehandler.setFormatter(new SimpleFormatter());
             }
             catch (SecurityException e)
