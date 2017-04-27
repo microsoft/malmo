@@ -63,6 +63,7 @@ import com.microsoft.Malmo.Server.MalmoModServer;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.TCPUtils;
 
 @Mod(modid = MalmoMod.MODID, guiFactory = "com.microsoft.Malmo.MalmoModGuiOptions")
 public class MalmoMod
@@ -90,6 +91,8 @@ public class MalmoMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
+        TCPUtils.initTCPUtils();
+
         if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
             throw new RuntimeException("This mod has been incorrectly built; check schema version numbers.");
 
@@ -111,6 +114,7 @@ public class MalmoMod
 
         AddressHelper.update(this.sessionConfig);
         ScreenHelper.update(this.permanentConfig);
+        TCPUtils.update(this.permanentConfig);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("Malmo");
         network.registerMessage(ObservationFromFullStatsImplementation.FullStatsRequestMessageHandler.class, ObservationFromFullStatsImplementation.FullStatsRequestMessage.class, 1, Side.SERVER);

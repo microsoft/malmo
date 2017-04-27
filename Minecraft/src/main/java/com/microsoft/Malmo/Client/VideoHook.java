@@ -24,11 +24,6 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
@@ -39,10 +34,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.TCPSocketHelper;
+import com.microsoft.Malmo.Utils.TCPSocketChannel;
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -85,7 +85,7 @@ public class VideoHook {
     /**
      * Object which maintains our connection to the agent.
      */
-    private TCPSocketHelper.SocketChannelHelper connection = null;
+    private TCPSocketChannel connection = null;
     
     private int renderWidth;
     
@@ -121,7 +121,7 @@ public class VideoHook {
         String agentIPAddress = cac.getAgentIPAddress();
         int agentPort = cac.getAgentVideoPort();
 
-        this.connection = new TCPSocketHelper.SocketChannelHelper(agentIPAddress, agentPort);
+        this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
         this.failedTCPSendCount = 0;
 
         try
