@@ -73,7 +73,7 @@ public class TCPUtils
 
     public static void update(Configuration config)
     {
-        setLogging(config.getBoolean("generateSocketLogs", MalmoMod.DIAGNOSTIC_CONFIGS, false, "Log all socket activity to aid troubleshooting."));
+        setLogging(config.getBoolean("generateSocketLogs", MalmoMod.DIAGNOSTIC_CONFIGS, true, "Log all socket activity to aid troubleshooting."));
     }
 
     private static void indent()

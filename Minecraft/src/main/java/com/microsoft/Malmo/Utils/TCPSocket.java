@@ -187,7 +187,7 @@ public class TCPSocket
             try
             {
                 TCPUtils.Log(Level.INFO, "    - trying " + port + "...");
-                s = new ServerSocket(port, 5);
+                s = new ServerSocket(port);
                 TCPUtils.Log(Level.INFO, "Succeeded!");
                 return s; // Created okay, so this port is available.
             }

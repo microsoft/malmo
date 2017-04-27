@@ -197,7 +197,7 @@ public class TCPInputPoller extends Thread
             if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1)
                 this.serverSocket = TCPSocket.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
             else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
-                this.serverSocket = new ServerSocket(this.requestedPortNumber, 5);	// Use the specified port number
+                this.serverSocket = new ServerSocket(this.requestedPortNumber);	// Use the specified port number
         }
         catch (Exception e)
         {
