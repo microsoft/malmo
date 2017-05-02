@@ -47,13 +47,11 @@
 #include <sstream>
 #include <regex>
 #include <mutex>
+#include <string>
 
 namespace malmo
 {
     std::once_flag test_schemas_flag;
-    extern Logger malmo_logger;
-
-    #define LOGINFO malmo_logger.print<AgentHost::LoggingSeverityLevel::LOG_INFO>
 
     // set defaults
     AgentHost::AgentHost()
@@ -261,8 +259,7 @@ namespace malmo
         std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":20000:" + this->current_mission_init->getExperimentID() + +"\n";
         for (const ClientInfo& item : client_pool.clients)
         {
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Sending reservation request to " << item.ip_address << " : " << item.port << std::endl;
+            Logger::getLogger().print<LoggingSeverityLevel::LOG_INFO>("Sending reservation request to ", item.ip_address, " : ", item.port);
             try
             {
                 reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
@@ -272,8 +269,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Reserving client, received reply from " << item.ip_address << ": " << reply << std::endl;
+            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Reserving client, received reply from " << item.ip_address << ": " << reply;
 
             const std::string malmo_reservation_prefix = "MALMOOK";
             if (reply.find(malmo_reservation_prefix) == 0)
@@ -291,8 +287,7 @@ namespace malmo
             // No - release the clients we already reserved.
             for (const ClientInfo& item : reservedClients.clients)
             {
-                if (this->display_client_pool_messages)
-                    std::cout << "DEBUG: Cancelling reservation request with " << item.ip_address << " : " << item.port << std::endl;
+                //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Cancelling reservation request with " << item.ip_address << " : " << item.port;
                 try
                 {
                     reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, "MALMO_CANCEL_REQUEST\n", false);
@@ -302,8 +297,7 @@ namespace malmo
                     // This is not expected, and probably means something bad has happened.
                     continue;
                 }
-                if (this->display_client_pool_messages)
-                    std::cout << "DEBUG: Cancelling reservation, received reply from " << item.ip_address << ": " << reply << std::endl;
+                //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Cancelling reservation, received reply from " << item.ip_address << ": " << reply;
             }
             reservedClients.clients.clear();
         }
@@ -314,10 +308,10 @@ namespace malmo
     {
         std::string reply;
         std::string request = std::string("MALMO_FIND_SERVER") + this->current_mission_init->getExperimentID() + +"\n";
+
         for (const ClientInfo& item : client_pool.clients)
         {
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Sending find server request to " << item.ip_address << " : " << item.port << std::endl;
+            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Sending find server request to " << item.ip_address << " : " << item.port;
             try
             {
                 reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
@@ -327,8 +321,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Seeking server, received reply from " << item.ip_address << ": " << reply << std::endl;
+            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Seeking server, received reply from " << item.ip_address << ": " << reply;
 
             const std::string malmo_server_prefix = "MALMOS";
             if (reply.find(malmo_server_prefix) == 0)
@@ -354,6 +347,7 @@ namespace malmo
     void AgentHost::findClient(const ClientPool& client_pool)
     {
         std::string reply;
+
         // As a reasonable optimisation, assume that clients are started in the order of their role, for multi-agent missions.
         // So start looking at position <role> within the client pool.
         // Eg, if the first four agents get clients 1,2,3 and 4 respectively, agent 5 doesn't need to waste time checking
@@ -366,8 +360,7 @@ namespace malmo
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
     
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Sending MissionInit to " << item.ip_address << " : " << item.port << std::endl;
+            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Sending MissionInit to " << item.ip_address << " : " << item.port;
             try 
             {
                 reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
@@ -376,8 +369,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            if (this->display_client_pool_messages)
-                std::cout << "DEBUG: Looking for client, received reply from " << item.ip_address << ": " << reply << std::endl;
+            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Looking for client, received reply from " << item.ip_address << ": " << reply;
             // this is either a) a single agent mission, b) a multi-agent mission but we are role 0, 
             // or c) a multi-agent mission where we have already located the server
             // expected: MALMOBUSY, MALMOOK, MALMOERROR...

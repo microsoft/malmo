@@ -29,53 +29,69 @@
 
 namespace malmo
 {
+    #define LOGINFO Logger::getLogger().print<AgentHost::LoggingSeverityLevel::LOG_INFO>
+
     class Logger
     {
     public:
         Logger() : line_number(0) {}
         ~Logger() {}
 
-        template<AgentHost::LoggingSeverityLevel level, typename...Args>void print(Args&&...args)
+        static Logger& getLogger()
         {
-            if (level > severity_level)
-                return;
-            std::stringstream message_stream;
-            auto now = boost::posix_time::microsec_clock::universal_time();
-            message_stream << line_number << " " << now << " ";
-            switch (level)
-            {
-            case AgentHost::LoggingSeverityLevel::LOG_ALL:
-            case AgentHost::LoggingSeverityLevel::LOG_ERRORS:
-                message_stream << "ERROR   ";
-                break;
-            case AgentHost::LoggingSeverityLevel::LOG_WARNINGS:
-                message_stream << "WARNING ";
-                break;
-            case AgentHost::LoggingSeverityLevel::LOG_INFO:
-                message_stream << "INFO    ";
-                break;
-            case AgentHost::LoggingSeverityLevel::LOG_FINE:
-            case AgentHost::LoggingSeverityLevel::LOG_OFF:
-                message_stream << "FINE    ";
-                break;
-            }
-            print_impl(std::forward<std::stringstream>(message_stream), std::move(args)...);
-            this->line_number++;
+            static Logger the_logger;
+            return the_logger;
         }
+
+        template<AgentHost::LoggingSeverityLevel level, typename...Args>
+        void print(Args&&...args);
 
     private:
+        template<typename First, typename... Others>
+        void print_impl(std::stringstream&&, First&& param1, Others&&... params);
+        void print_impl(std::stringstream&& message_stream);
+
         AgentHost::LoggingSeverityLevel severity_level;
         int line_number;
-
-        void print_impl(std::stringstream&& message_stream)
-        {
-            // do something.
-            std::cout << message_stream.str() << std::endl;
-        }
-        template<typename First, typename... Others> void print_impl(std::stringstream&& message_stream, First&& param1, Others&&... params)
-        {
-            message_stream << param1;
-            print_impl(std::forward<std::stringstream>(message_stream), std::move(params)...);
-        }
     };
+
+    template<AgentHost::LoggingSeverityLevel level, typename...Args>void Logger::print(Args&&...args)
+    {
+        if (level > severity_level)
+            return;
+        std::stringstream message_stream;
+        auto now = boost::posix_time::microsec_clock::universal_time();
+        message_stream << line_number << " " << now << " ";
+        switch (level)
+        {
+        case AgentHost::LoggingSeverityLevel::LOG_ALL:
+        case AgentHost::LoggingSeverityLevel::LOG_ERRORS:
+            message_stream << "ERROR   ";
+            break;
+        case AgentHost::LoggingSeverityLevel::LOG_WARNINGS:
+            message_stream << "WARNING ";
+            break;
+        case AgentHost::LoggingSeverityLevel::LOG_INFO:
+            message_stream << "INFO    ";
+            break;
+        case AgentHost::LoggingSeverityLevel::LOG_FINE:
+        case AgentHost::LoggingSeverityLevel::LOG_OFF:
+            message_stream << "FINE    ";
+            break;
+        }
+        print_impl(std::forward<std::stringstream>(message_stream), std::move(args)...);
+        this->line_number++;
+    }
+
+    template<typename First, typename... Others> void Logger::print_impl(std::stringstream&& message_stream, First&& param1, Others&&... params)
+    {
+        message_stream << param1;
+        print_impl(std::forward<std::stringstream>(message_stream), std::move(params)...);
+    }
+
+    void Logger::print_impl(std::stringstream&& message_stream)
+    {
+        // do something.
+        std::cout << message_stream.str() << std::endl;
+    }
 }
