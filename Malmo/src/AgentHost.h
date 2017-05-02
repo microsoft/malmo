@@ -63,6 +63,16 @@ namespace malmo
                 , KEEP_ALL_OBSERVATIONS      //!< Attempt to store all the observations.
             };
 
+            //! Specifies the detail that will be logged, if logging is enabled.
+            enum LoggingSeverityLevel {
+                  LOG_OFF
+                , LOG_ERRORS
+                , LOG_WARNINGS
+                , LOG_INFO
+                , LOG_FINE
+                , LOG_ALL
+            };
+
             //! Creates an agent host with default settings.
             AgentHost();
 
@@ -96,6 +106,12 @@ namespace malmo
 
             //! Switches on/off debug print statements. (Currently just client-pool / agenthost connection messages.)
             void setDebugOutput(bool debug);
+
+            //! Sets logging options for debugging.
+            //! \param filename A filename to output log messages to. Will use the console if this is empty.
+            //! \param debug_sockets Output socket-log messages to aid tracking down connectivity issues.
+            //! \param severity_level Output socket-log messages to aid tracking down connectivity issues.
+            void setLogging(const std::string& filename, bool debug_sockets, LoggingSeverityLevel severity_level);
 
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
@@ -176,7 +192,6 @@ namespace malmo
             boost::shared_ptr<MissionInitSpec> current_mission_init;
             boost::shared_ptr<MissionRecord> current_mission_record;
             int current_role;
-            bool display_client_pool_messages;
     };
 
 }

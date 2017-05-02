@@ -25,6 +25,7 @@
 #include "TCPClient.h"
 #include "WorldState.h"
 #include "Init.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -50,6 +51,9 @@
 namespace malmo
 {
     std::once_flag test_schemas_flag;
+    extern Logger malmo_logger;
+
+    #define LOGINFO malmo_logger.print<AgentHost::LoggingSeverityLevel::LOG_INFO>
 
     // set defaults
     AgentHost::AgentHost()
@@ -58,7 +62,6 @@ namespace malmo
         , rewards_policy(SUM_REWARDS)
         , observations_policy(LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
-        , display_client_pool_messages( false )
     {
         initialiser::initXSD();
 
@@ -412,7 +415,32 @@ namespace malmo
 
     void AgentHost::setDebugOutput(bool debug)
     {
-        this->display_client_pool_messages = debug;
+        setLogging("", false, LOG_INFO);
+    }
+
+    void AgentHost::setLogging(const std::string& filename, bool debug_sockets, LoggingSeverityLevel severity_level)
+    {
+        if (!filename.empty())
+        {
+        }
+        else
+        {
+        }
+        switch (severity_level)
+        {
+        case LOG_ERRORS:
+            break;
+        case LOG_WARNINGS:
+            break;
+        case LOG_INFO:
+            break;
+        case LOG_FINE:
+            break;
+        case LOG_ALL:
+            break;
+        case LOG_OFF:
+            break;
+        }
     }
 
     void AgentHost::setVideoPolicy(VideoPolicy videoPolicy)
@@ -436,8 +464,7 @@ namespace malmo
         {
             return; // can re-use existing server
         }
-        
-        this->mission_control_server = boost::make_shared<StringServer>( this->io_service, port, boost::bind( &AgentHost::onMissionControlMessage, this, _1 ) );
+        this->mission_control_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onMissionControlMessage, this, _1));
         this->mission_control_server->start();
     }
     
