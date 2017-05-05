@@ -75,10 +75,12 @@ namespace malmo
 
     AgentHost::~AgentHost()
     {
+        LOGSIMPLE(LOG_FINE, "Destroying AgentHost - waiting for io_service to stop...");
         this->work = boost::none;
         this->io_service.stop();
         for( auto& t : this->background_threads )
             t->join();
+        LOGSIMPLE(LOG_FINE, "Destroying AgentHost - io_service stopped.");
         this->close();
     }
 
@@ -198,6 +200,7 @@ namespace malmo
     
     void AgentHost::initializeOurServers(const MissionSpec& mission, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id)
     {
+        LOGSECTION(LOG_FINE, "Initialising servers...");
         // make a MissionInit structure with default settings
         this->current_mission_init = boost::make_shared<MissionInitSpec>( mission, unique_experiment_id, role );
         
@@ -253,13 +256,14 @@ namespace malmo
 
     ClientPool AgentHost::reserveClients(const ClientPool& client_pool, int clients_required)
     {
+        LOGSECTION(LOG_FINE, "Reserving clients...");
         ClientPool reservedClients;
         std::string reply;
         // TODO - currently reserved for 20 seconds (the 20000 below) - make this configurable.
         std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":20000:" + this->current_mission_init->getExperimentID() + +"\n";
         for (const ClientInfo& item : client_pool.clients)
         {
-            Logger::getLogger().print<LoggingSeverityLevel::LOG_INFO>("Sending reservation request to ", item.ip_address, " : ", item.port);
+            LOGINFO(LT("Sending reservation request to "), item.ip_address, LT(":"), item.port);
             try
             {
                 reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
@@ -269,7 +273,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Reserving client, received reply from " << item.ip_address << ": " << reply;
+            LOGINFO(LT("Reserving client, received reply from "), item.ip_address, LT(": "), reply);
 
             const std::string malmo_reservation_prefix = "MALMOOK";
             if (reply.find(malmo_reservation_prefix) == 0)
@@ -287,7 +291,7 @@ namespace malmo
             // No - release the clients we already reserved.
             for (const ClientInfo& item : reservedClients.clients)
             {
-                //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Cancelling reservation request with " << item.ip_address << " : " << item.port;
+                LOGINFO(LT("Cancelling reservation request with "), item.ip_address, LT(":"), item.port);
                 try
                 {
                     reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, "MALMO_CANCEL_REQUEST\n", false);
@@ -297,7 +301,7 @@ namespace malmo
                     // This is not expected, and probably means something bad has happened.
                     continue;
                 }
-                //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Cancelling reservation, received reply from " << item.ip_address << ": " << reply;
+                LOGINFO(LT("Cancelling reservation, received reply from "), item.ip_address, LT(": "), reply);
             }
             reservedClients.clients.clear();
         }
@@ -306,12 +310,13 @@ namespace malmo
 
     bool AgentHost::findServer(const ClientPool& client_pool)
     {
+        LOGSECTION(LOG_FINE, "Looking for server...");
         std::string reply;
         std::string request = std::string("MALMO_FIND_SERVER") + this->current_mission_init->getExperimentID() + +"\n";
 
         for (const ClientInfo& item : client_pool.clients)
         {
-            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Sending find server request to " << item.ip_address << " : " << item.port;
+            LOGINFO(LT("Sending find server request to "), item.ip_address, LT(":"), item.port);
             try
             {
                 reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
@@ -321,7 +326,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Seeking server, received reply from " << item.ip_address << ": " << reply;
+            LOGINFO(LT("Seeking server, received reply from "), item.ip_address, LT(": "), reply);
 
             const std::string malmo_server_prefix = "MALMOS";
             if (reply.find(malmo_server_prefix) == 0)
@@ -346,13 +351,14 @@ namespace malmo
 
     void AgentHost::findClient(const ClientPool& client_pool)
     {
+        LOGSECTION(LOG_FINE, "Looking for client...");
         std::string reply;
 
         // As a reasonable optimisation, assume that clients are started in the order of their role, for multi-agent missions.
         // So start looking at position <role> within the client pool.
         // Eg, if the first four agents get clients 1,2,3 and 4 respectively, agent 5 doesn't need to waste time checking
         // the first four clients.
-        int num_clients = client_pool.clients.size();
+        int num_clients = (int)client_pool.clients.size();
         for (int i = 0; i < num_clients; i++)
         {
             const ClientInfo& item = client_pool.clients[(i + this->current_role) % num_clients];
@@ -360,7 +366,7 @@ namespace malmo
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
     
-            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Sending MissionInit to " << item.ip_address << " : " << item.port;
+            LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.port);
             try 
             {
                 reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
@@ -369,7 +375,7 @@ namespace malmo
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            //BOOST_LOG_SEV(lg, logging::trivial::severity_level::info) << "DEBUG: Looking for client, received reply from " << item.ip_address << ": " << reply;
+            LOGINFO(LT("Looking for client, received reply from "), item.ip_address, LT(": "), reply);
             // this is either a) a single agent mission, b) a multi-agent mission but we are role 0, 
             // or c) a multi-agent mission where we have already located the server
             // expected: MALMOBUSY, MALMOOK, MALMOERROR...
@@ -407,32 +413,7 @@ namespace malmo
 
     void AgentHost::setDebugOutput(bool debug)
     {
-        setLogging("", false, LOG_INFO);
-    }
-
-    void AgentHost::setLogging(const std::string& filename, bool debug_sockets, LoggingSeverityLevel severity_level)
-    {
-        if (!filename.empty())
-        {
-        }
-        else
-        {
-        }
-        switch (severity_level)
-        {
-        case LOG_ERRORS:
-            break;
-        case LOG_WARNINGS:
-            break;
-        case LOG_INFO:
-            break;
-        case LOG_FINE:
-            break;
-        case LOG_ALL:
-            break;
-        case LOG_OFF:
-            break;
-        }
+        Logger::getLogger().setLogging("", Logger::LOG_INFO);
     }
 
     void AgentHost::setVideoPolicy(VideoPolicy videoPolicy)
@@ -456,7 +437,7 @@ namespace malmo
         {
             return; // can re-use existing server
         }
-        this->mission_control_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onMissionControlMessage, this, _1));
+        this->mission_control_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onMissionControlMessage, this, _1), "mcp");
         this->mission_control_server->start();
     }
     
@@ -491,7 +472,7 @@ namespace malmo
     {
         if( !this->rewards_server || ( port != 0 && this->rewards_server->getPort() != port ) )
         {
-            this->rewards_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onReward, this, _1));
+            this->rewards_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onReward, this, _1), "rew");
             this->rewards_server->start();
         }
             
@@ -504,7 +485,7 @@ namespace malmo
     {
         if( !this->observations_server || ( port != 0 && this->observations_server->getPort() != port ) ) 
         {
-            this->observations_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onObservation, this, _1));
+            this->observations_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onObservation, this, _1), "obs");
             this->observations_server->start();
         }
 

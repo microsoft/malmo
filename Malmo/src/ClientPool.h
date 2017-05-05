@@ -22,6 +22,7 @@
 
 // Local:
 #include "ClientInfo.h"
+#include "Logger.h"
 
 // STL:
 #include <vector>
@@ -31,6 +32,8 @@ namespace malmo
     //! A pool of expected network locations of Mod clients.
     struct ClientPool 
     {
+        MALMO_LOGGABLE_OBJECT(ClientPool)
+
         //! Adds a client to the pool.
         //! \param client_info The client information.
         void add(const ClientInfo& client_info);

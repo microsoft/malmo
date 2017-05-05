@@ -149,12 +149,12 @@ int runAgentHost(std::string filename)
   
     boost::asio::io_service io_service;
     
-    StringServer clientMissionControlServer(io_service, client_info.port, handleControlMessages);
+    StringServer clientMissionControlServer(io_service, client_info.port, handleControlMessages, "test_mission_control");
     clientMissionControlServer.confirmWithFixedReply( "MALMOOK" );
     clientMissionControlServer.expectSizeHeader(false);
     clientMissionControlServer.start();
     
-    StringServer clientCommandsServer( io_service, commands_port, handleCommandMessages);
+    StringServer clientCommandsServer( io_service, commands_port, handleCommandMessages, "test_commands");
     clientCommandsServer.expectSizeHeader(false);
     clientCommandsServer.start();
 

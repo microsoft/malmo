@@ -29,11 +29,15 @@
 #include <string>
 #include <vector>
 
+// Local:
+#include "Logger.h"
+
 namespace malmo
 {
     //! Specifies the type of data that should be recorded from the mission.
     struct MissionRecordSpec
     {
+        MALMO_LOGGABLE_OBJECT(MissionRecordSpec)
         friend class MissionRecord;
         
     public:

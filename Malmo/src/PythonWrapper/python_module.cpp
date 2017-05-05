@@ -26,6 +26,7 @@
 
 // Malmo:
 #include <AgentHost.h>
+#include <Logger.h>
 #ifdef WRAP_ALE
     #include <ALEAgentHost.h>
 #endif
@@ -108,6 +109,18 @@ BOOST_PYTHON_MODULE(MalmoPython)
     PyDateTime_IMPORT;
     to_python_converter<boost::posix_time::ptime, ptime_to_python_datetime>();
     to_python_converter<std::vector<unsigned char>, unsigned_char_vec_to_python_array>();
+
+    enum_< Logger::LoggingSeverityLevel >("LoggingSeverityLevel")
+        .value("LOG_OFF", Logger::LOG_OFF)
+        .value("LOG_ERRORS", Logger::LOG_ERRORS)
+        .value("LOG_WARNINGS", Logger::LOG_WARNINGS)
+        .value("LOG_INFO", Logger::LOG_INFO)
+        .value("LOG_FINE", Logger::LOG_FINE)
+        .value("LOG_TRACE", Logger::LOG_TRACE)
+        .value("LOG_ALL", Logger::LOG_ALL)
+        ;
+
+    def("setLogging", &Logger::setLogging);
 
     class_< ArgumentParser, boost::noncopyable >("ArgumentParser", init< const std::string& >())
         .def( "parse",                     &parsePythonList )

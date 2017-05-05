@@ -30,11 +30,15 @@
 #include <string>
 #include <vector>
 
+// Local:
+#include "Logger.h"
+
 namespace malmo
 {
     //! Specifies a mission to be run.
     class MissionSpec
     {
+        MALMO_LOGGABLE_OBJECT(MissionSpec)
         public:
 
             //! Constructs a mission with default parameters: a flat world with a 10 seconds time limit and continuous movement.

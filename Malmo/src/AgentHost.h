@@ -30,6 +30,7 @@
 #include "StringServer.h"
 #include "VideoServer.h"
 #include "WorldState.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/thread.hpp>
@@ -42,6 +43,7 @@ namespace malmo
     //! An agent host mediates between the researcher's code (the agent) and the Mod (the target environment).
     class AgentHost : public ArgumentParser
     {
+        MALMO_LOGGABLE_OBJECT(AgentHost)
         public:
 
             //! Specifies what to do when there are more video frames being received than can be processed.
@@ -61,16 +63,6 @@ namespace malmo
             enum ObservationsPolicy { 
                   LATEST_OBSERVATION_ONLY    //!< Discard all but the most recent observation. This is the default.
                 , KEEP_ALL_OBSERVATIONS      //!< Attempt to store all the observations.
-            };
-
-            //! Specifies the detail that will be logged, if logging is enabled.
-            enum LoggingSeverityLevel {
-                  LOG_OFF
-                , LOG_ERRORS
-                , LOG_WARNINGS
-                , LOG_INFO
-                , LOG_FINE
-                , LOG_ALL
             };
 
             //! Creates an agent host with default settings.
@@ -104,14 +96,8 @@ namespace malmo
             //! \returns The temporary directory for the mission record, or an empty string if no recording is going on.
             std::string getRecordingTemporaryDirectory() const;
 
-            //! Switches on/off debug print statements. (Currently just client-pool / agenthost connection messages.)
+            //! Switches on/off debug print statements. DEPRECATED - use Logger::setLogging instead.
             void setDebugOutput(bool debug);
-
-            //! Sets logging options for debugging.
-            //! \param filename A filename to output log messages to. Will use the console if this is empty.
-            //! \param debug_sockets Output socket-log messages to aid tracking down connectivity issues.
-            //! \param severity_level Output socket-log messages to aid tracking down connectivity issues.
-            void setLogging(const std::string& filename, bool debug_sockets, LoggingSeverityLevel severity_level);
 
             //! Specifies how you want to deal with multiple video frames.
             //! \param videoPolicy How you want to deal with multiple video frames coming in asynchronously.
