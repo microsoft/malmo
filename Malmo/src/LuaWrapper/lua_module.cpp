@@ -131,6 +131,20 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
     open(L);
     module(L)
     [
+        class_< Logger >("Logger")
+        .enum_("LoggingSeverityLevel")
+        [
+            value("LOG_OFF", Logger::LOG_OFF),
+            value("LOG_ERRORS", Logger::LOG_ERRORS),
+            value("LOG_WARNINGS", Logger::LOG_WARNINGS),
+            value("LOG_INFO", Logger::LOG_INFO),
+            value("LOG_FINE", Logger::LOG_FINE),
+            value("LOG_TRACE", Logger::LOG_TRACE),
+            value("LOG_ALL", Logger::LOG_ALL)
+        ]
+
+        def("setLogging", &Logger::setLogging);
+
         class_< ArgumentParser >("ArgumentParser")
             .def(constructor< const std::string& >())
             .def("parse", &parseLuaTable)

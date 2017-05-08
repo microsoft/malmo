@@ -24,6 +24,7 @@
   #include <ClientPool.h>
   #include <MissionSpec.h>
   #include <ParameterSet.h>
+  #include <Logger.h>
   using namespace malmo;
   
   // Boost:
@@ -79,6 +80,23 @@ namespace boost::posix_time
         return global::System.DateTime.Parse(MalmoNETNative.to_simple_string(tempDate));
       } %}
 }
+
+class Logger
+{
+public:
+  enum LoggingSeverityLevel { 
+    LOG_OFF
+    , LOG_ERRORS
+    , LOG_WARNINGS
+    , LOG_INFO
+    , LOG_FINE
+    , LOG_TRACE
+    , LOG_ALL
+  };
+
+    static void setLogging(std::string destination, Logger::LoggingSeverityLevel level);
+};
+
 
 class MissionRecordSpec
 {

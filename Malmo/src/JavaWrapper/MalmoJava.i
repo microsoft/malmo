@@ -24,6 +24,7 @@
   #include <ClientPool.h>
   #include <MissionSpec.h>
   #include <ParameterSet.h>
+  #include <Logger.h>
   using namespace malmo;
   
   // Boost:
@@ -58,6 +59,22 @@
 %template(ByteVector)                  std::vector<unsigned char>;
 
 %rename("%(camelcase)s", %$isvariable) "";   // send all exposed variables to CamelCase to match Java standards
+
+class Logger
+{
+public:
+  enum LoggingSeverityLevel { 
+    LOG_OFF
+    , LOG_ERRORS
+    , LOG_WARNINGS
+    , LOG_INFO
+    , LOG_FINE
+    , LOG_TRACE
+    , LOG_ALL
+  };
+    static void setLogging(std::string destination, Logger::LoggingSeverityLevel level);
+};
+
 
 class MissionRecordSpec
 {
