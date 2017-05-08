@@ -106,7 +106,14 @@ namespace malmo
         ~Logger()
         {
             if (this->has_backend)
-                throw std::runtime_error("Logger still has a backend thread working - all threads should be over by now.");
+            {
+                // Ideally, our backend thread would have been joined and deleted by now.
+                // If users have created static objects which outlive the logger this may not be the case.
+                // We need to switch off logging now, so that when they are finally destructed, they
+                // won't cause havoc by attempting to access the logger again.
+                this->severity_level = LOG_OFF;
+                this->is_spooling.clear();
+            }
 
             // Clear whatever is left in our buffer:
             std::lock_guard< std::timed_mutex > lock(write_guard);
