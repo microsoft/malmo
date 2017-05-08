@@ -75,12 +75,12 @@
 
 namespace malmo
 {
-    #define LOGERROR(...) Logger::getLogger().print<Logger::LoggingSeverityLevel::LOG_ERRORS>(__VA_ARGS__)
-    #define LOGINFO(...) Logger::getLogger().print<Logger::LoggingSeverityLevel::LOG_INFO>(__VA_ARGS__)
-    #define LOGFINE(...) Logger::getLogger().print<Logger::LoggingSeverityLevel::LOG_FINE>(__VA_ARGS__)
-    #define LOGTRACE(...) Logger::getLogger().print<Logger::LoggingSeverityLevel::LOG_TRACE>(__VA_ARGS__)
-    #define LOGSIMPLE(level,message) Logger::getLogger().print<Logger::LoggingSeverityLevel::##level>(std::string(message))
-    #define LOGSECTION(level, message) LogSection<Logger::##level> log_section(message);
+    #define LOGERROR(...) Logger::getLogger().print<Logger::LOG_ERRORS>(__VA_ARGS__)
+    #define LOGINFO(...) Logger::getLogger().print<Logger::LOG_INFO>(__VA_ARGS__)
+    #define LOGFINE(...) Logger::getLogger().print<Logger::LOG_FINE>(__VA_ARGS__)
+    #define LOGTRACE(...) Logger::getLogger().print<Logger::LOG_TRACE>(__VA_ARGS__)
+    #define LOGSIMPLE(level, message) Logger::getLogger().print<Logger:: level >(std::string(message))
+    #define LOGSECTION(level, message) LogSection<Logger:: level > log_section(message);
     #define LT(x) std::string(x)
     #define MALMO_LOGGABLE_OBJECT(name) LoggerLifetimeTracker log_tracker{ #name };
 
@@ -124,7 +124,7 @@ namespace malmo
                 this->writer.close();
             }
         }
-        Logger::Logger(const malmo::Logger &) = delete;
+        Logger(const malmo::Logger &) = delete;
 
         static Logger& getLogger()
         {
