@@ -141,9 +141,9 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             value("LOG_FINE", Logger::LOG_FINE),
             value("LOG_TRACE", Logger::LOG_TRACE),
             value("LOG_ALL", Logger::LOG_ALL)
-        ]
+        ],
 
-        def("setLogging", &Logger::setLogging);
+        def("setLogging", &Logger::setLogging),
 
         class_< ArgumentParser >("ArgumentParser")
             .def(constructor< const std::string& >())
