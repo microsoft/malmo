@@ -37,7 +37,7 @@ public class TCPUtils
             {
                 Date d = new Date();
                 String filename = "TCP" + DateFormatUtils.format(d, "yyyy-MM-dd HH-mm-ss") + ".log";
-                filehandler = new FileHandler("Logs" + File.separator + filename);
+                filehandler = new FileHandler("logs" + File.separator + filename);
                 filehandler.setFormatter(new SimpleFormatter());
             }
             catch (SecurityException e)
