@@ -2,17 +2,16 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.minecraftforge.common.config.Configuration;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 
 import com.microsoft.Malmo.MalmoMod;
 
@@ -37,8 +36,7 @@ public class TCPUtils
             try
             {
                 Date d = new Date();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-                String filename = "TCP" + dateFormat.format(d) + ".log";
+                String filename = "TCP" + DateFormatUtils.format(d, "yyyy-MM-dd HH-mm-ss") + ".log";
                 filehandler = new FileHandler("Logs" + File.separator + filename);
                 filehandler.setFormatter(new SimpleFormatter());
             }
