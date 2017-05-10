@@ -78,6 +78,10 @@ echo }
 ) > "run\config\malmomodCLIENT.cfg"
 
 REM finally run Minecraft:
-call gradlew setupDecompWorkspace
-call gradlew build
-call gradlew runClient
+if not exist runMC.bat (
+    call gradlew setupDecompWorkspace
+    call gradlew build
+    call gradlew runClient
+) else (
+    runMC.bat
+)
