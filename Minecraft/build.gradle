@@ -1,3 +1,4 @@
+import org.gradle.internal.os.OperatingSystem;
 /*
 // For those who want the bleeding edge
 buildscript {
@@ -43,6 +44,21 @@ minecraft {
     // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20141130"
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    afterEvaluate {
+        // At this point, we can extract the command line used to run minecraft, and save it into
+        // a bat/sh file for quicker startup on subsequent runs.
+        JavaExec rc = project.getTasks().getByName("runClient");
+        String fname = "runMC.sh"
+        if (OperatingSystem.current().isWindows())
+            fname = "runMC.bat"
+        if (!file(fname).exists()) {
+            def cmdlineFile = file(fname)
+            rc.getCommandLine().each {
+                cmdlineFile << "${it} "
+            }
+        }
+    }
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
@@ -56,6 +72,16 @@ jar {
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient")
 exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
+// ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
+// means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
+// to carry out up-to-date checks for any tasks that depend on runClient.
+// The run folder also contains the logs folder, which, on Windows at least, can contain locked
+// TCP log files, which gradle won't be able to checksum, meaning that the runClient task will fail
+// if there is already a Minecraft running and logging.
+// To prevent this behaviour, we set the outputs to a dummy value:
+exec.getOutputs().files.setFrom(file("dummy_value"))
+// We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
+exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
     // you may put jars on which you depend on in ./libs
