@@ -165,16 +165,19 @@ namespace malmo
         initializeOurServers( mission, mission_record, role, unique_experiment_id );
 
         ClientPool pool = client_pool;
-        if (mission.getNumberOfAgents() > 1 && role == 0)
+        if (role == 0)
         {
-            // this is a multi-agent mission and we are the agent responsible for the integrated server.
-            // our mission should have been started before any of the others are attempted.
+            // We are the agent responsible for the integrated server.
+            // If we are part of a multi-agent mission, our mission should have been started before any of the others are attempted.
             // This means we are in a position to reserve clients in the client pool:
             ClientPool reservedAgents = reserveClients(client_pool, mission.getNumberOfAgents());
             if (reservedAgents.clients.size() != mission.getNumberOfAgents())
             {
                 // Not enough clients available - go no further.
-                throw std::runtime_error("There are not enough clients availble in the ClientPool to start this " + std::to_string(mission.getNumberOfAgents()) + " agent mission.");
+                if (mission.getNumberOfAgents() == 1)
+                    throw MissionException("Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
+                else
+                    throw MissionException("There are not enough clients availble in the ClientPool to start this " + std::to_string(mission.getNumberOfAgents()) + " agent mission.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
             }
             pool = reservedAgents;
         }
