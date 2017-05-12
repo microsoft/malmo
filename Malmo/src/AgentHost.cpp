@@ -316,6 +316,7 @@ namespace malmo
         LOGSECTION(LOG_FINE, "Looking for server...");
         std::string reply;
         std::string request = std::string("MALMO_FIND_SERVER") + this->current_mission_init->getExperimentID() + +"\n";
+        bool serverWarmingUp = false;
 
         for (const ClientInfo& item : client_pool.clients)
         {
@@ -332,6 +333,8 @@ namespace malmo
             LOGINFO(LT("Seeking server, received reply from "), item.ip_address, LT(": "), reply);
 
             const std::string malmo_server_prefix = "MALMOS";
+            const std::string malmo_server_warming_up = "MALMONOSERVERYET";
+            const std::string malmo_no_server = "MALMONOSERVER";
             if (reply.find(malmo_server_prefix) == 0)
             {
                 size_t colon = reply.find_first_of(':');
@@ -346,10 +349,17 @@ namespace malmo
                 this->current_mission_init->setMinecraftServerInformation(minecraft_server_address, minecraft_server_port);
                 return true;
             }
+            else if (reply == malmo_server_warming_up)
+            {
+                serverWarmingUp = true;
+            }
         }
 
         this->close();
-        throw std::runtime_error("Failed to find the server for this mission - you must start the agent that has role 0 first.");
+        if (serverWarmingUp)
+            throw MissionException("Failed to find the server for this mission - you may need to wait.", MissionException::MISSION_SERVER_WARMING_UP);
+        else
+            throw MissionException("Failed to find the server for this mission - you must start the agent that has role 0 first.", MissionException::MISSION_SERVER_NOT_FOUND);
     }
 
     void AgentHost::findClient(const ClientPool& client_pool)
