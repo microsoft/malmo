@@ -65,6 +65,29 @@ void translateXMLSchemaException(xml_schema::exception const& e)
     PyErr_SetString(PyExc_RuntimeError, oss.str().c_str() );
 }
 
+PyObject* missionExceptionType = NULL;
+
+PyObject* createExceptionClass(const char* name, PyObject* baseTypeObj = PyExc_Exception)
+{
+    std::string scopeName = boost::python::extract<std::string>(boost::python::scope().attr("__name__"));
+    std::string qualifiedName0 = scopeName + "." + name;
+    char* qualifiedName1 = const_cast<char*>(qualifiedName0.c_str());
+
+    PyObject* typeObj = PyErr_NewException(qualifiedName1, baseTypeObj, 0);
+    if (!typeObj)
+        boost::python::throw_error_already_set();
+    boost::python::scope().attr(name) = boost::python::handle<>(boost::python::borrowed(typeObj));
+    return typeObj;
+}
+
+void translateMissionException(MissionException const& e)
+{
+    boost::python::object wrapped_exception(e);
+    boost::python::object exc_type(boost::python::handle<>(boost::python::borrowed(missionExceptionType)));
+    exc_type.attr("details") = wrapped_exception;
+    PyErr_SetString(missionExceptionType, e.what());
+}
+
 void (AgentHost::*startMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &AgentHost::startMission;
 void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, const MissionRecordSpec&, int, std::string) = &AgentHost::startMission;
 
@@ -104,11 +127,24 @@ struct unsigned_char_vec_to_python_array
 BOOST_PYTHON_MODULE(MalmoPython)
 {
     using namespace boost::python;
+    missionExceptionType = createExceptionClass("MissionException", PyExc_RuntimeError);
 
     // Bind the converter for posix_time to python DateTime
     PyDateTime_IMPORT;
     to_python_converter<boost::posix_time::ptime, ptime_to_python_datetime>();
     to_python_converter<std::vector<unsigned char>, unsigned_char_vec_to_python_array>();
+
+    enum_< MissionException::MissionErrorCode >("MissionErrorCode")
+        .value("MISSION_BAD_ROLE_REQUEST", MissionException::MISSION_BAD_ROLE_REQUEST)
+        .value("MISSION_BAD_VIDEO_REQUEST", MissionException::MISSION_BAD_VIDEO_REQUEST)
+        .value("MISSION_ALREADY_RUNNING", MissionException::MISSION_ALREADY_RUNNING)
+        .value("MISSION_INSUFFICIENT_CLIENTS_AVAILABLE", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
+        .value("MISSION_TRANSMISSION_ERROR", MissionException::MISSION_TRANSMISSION_ERROR)
+        .value("MISSION_SERVER_WARMING_UP", MissionException::MISSION_SERVER_WARMING_UP)
+        .value("MISSION_SERVER_NOT_FOUND", MissionException::MISSION_SERVER_NOT_FOUND)
+        .value("MISSION_NO_COMMAND_PORT", MissionException::MISSION_NO_COMMAND_PORT)
+        .value("MISSION_BAD_INSTALLATION", MissionException::MISSION_BAD_INSTALLATION)
+        ;
 
     enum_< Logger::LoggingSeverityLevel >("LoggingSeverityLevel")
         .value("LOG_OFF", Logger::LOG_OFF)
@@ -121,6 +157,10 @@ BOOST_PYTHON_MODULE(MalmoPython)
         ;
 
     def("setLogging", &Logger::setLogging);
+
+    class_< MissionException >("MissionExceptionDetails", init< const std::string&, MissionException::MissionErrorCode >())
+        .add_property("errorCode", &MissionException::getMissionErrorCode)
+        .add_property("message", &MissionException::getMessage);
 
     class_< ArgumentParser, boost::noncopyable >("ArgumentParser", init< const std::string& >())
         .def( "parse",                     &parsePythonList )
@@ -311,4 +351,5 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( vector_indexing_suite< std::vector< std::string >, true >() )
     ;
     register_exception_translator<xml_schema::exception>(&translateXMLSchemaException);
+    register_exception_translator<MissionException>(&translateMissionException);
 }

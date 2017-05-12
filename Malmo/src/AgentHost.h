@@ -37,9 +37,37 @@
 
 // STL:
 #include <string>
+#include <exception>
 
 namespace malmo
 {
+    class MissionException : public std::exception
+    {
+    public:
+        enum MissionErrorCode
+        {
+            MISSION_BAD_ROLE_REQUEST,
+            MISSION_BAD_VIDEO_REQUEST,
+            MISSION_ALREADY_RUNNING,
+            MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+            MISSION_TRANSMISSION_ERROR,
+            MISSION_SERVER_WARMING_UP,
+            MISSION_SERVER_NOT_FOUND,
+            MISSION_NO_COMMAND_PORT,
+            MISSION_BAD_INSTALLATION
+        };
+
+        MissionException(const std::string& message, MissionErrorCode code) : message(message), code(code) {}
+        ~MissionException() throw() {}
+        MissionErrorCode getMissionErrorCode() const { return this->code; }
+        std::string getMessage() const { return this->message; }
+        const char* what() const throw() { return this->message.c_str(); }
+
+    private:
+        std::string message;
+        MissionErrorCode code;
+    };
+
     //! An agent host mediates between the researcher's code (the agent) and the Mod (the target environment).
     class AgentHost : public ArgumentParser
     {
