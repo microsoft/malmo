@@ -91,9 +91,7 @@ public class MalmoMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        TCPUtils.initTCPUtils();
-
-        if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
+         if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
             throw new RuntimeException("This mod has been incorrectly built; check schema version numbers.");
 
         if (event.getModMetadata().version.equals("${version}"))

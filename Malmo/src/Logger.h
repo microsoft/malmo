@@ -246,7 +246,7 @@ namespace malmo
             return;
         std::stringstream message_stream;
         auto now = boost::posix_time::microsec_clock::universal_time();
-        message_stream << line_number << " " << now << " ";
+        message_stream << now << " P "; // 'P' for 'Platform' - useful if combining logs with Mod-side.
         switch (level)
         {
         case LoggingSeverityLevel::LOG_ALL:
