@@ -71,24 +71,63 @@ sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immedi
 def agentName(i):
     return "Robot#" + str(i + 1)
 
-def startMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
-    max_retries = 3
-    for retry in range(max_retries):
+def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
+    used_attempts = 0
+    max_attempts = 5
+    print "Calling startMission for role", role
+    while True:
         try:
-            # Attempt to start the mission:
-            agent_host.startMission( my_mission, my_client_pool, my_mission_record, role, expId )
+            # Attempt start:
+            agent_host.startMission(my_mission, my_client_pool, my_mission_record, role, expId)
             break
-        except RuntimeError as e:
-            if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
-                exit(1)
+        except MalmoPython.MissionException as e:
+            errorCode = e.details.errorCode
+            if errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
+                print "Server not quite ready yet - waiting..."
+                time.sleep(2)
+            elif errorCode == MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE:
+                print "Not enough available Minecraft instances running."
+                used_attempts += 1
+                if used_attempts < max_attempts:
+                    print "Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left."
+                    time.sleep(2)
+            elif errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND:
+                print "Server not found - has the mission with role 0 been started yet?"
+                used_attempts += 1
+                if used_attempts < max_attempts:
+                    print "Will wait and retry.", max_attempts - used_attempts, "attempts left."
+                    time.sleep(2)
             else:
-                # In a multi-agent mission, startMission will fail if the integrated server
-                # hasn't yet started - so if none of our clients were available, that may be the
-                # reason. To catch this specifically we could check the results for "MALMONOSERVERYET",
-                # but it should be sufficient to simply wait a bit and try again.
-                time.sleep(5)
+                print "Other error:", e.message
+                print "Waiting will not help here - bailing immediately."
+                exit(1)
+        if used_attempts == max_attempts:
+            print "All chances used up - bailing now."
+            exit(1)
+    print "startMission called okay."
+
+def safeWaitForStart(agent_hosts):
+    print "Waiting for the mission to start",
+    start_flags = [False for a in agent_hosts]
+    start_time = time.time()
+    time_out = 120  # Allow a two minute timeout.
+    while not all(start_flags) and time.time() - start_time < time_out:
+        states = [a.peekWorldState() for a in agent_hosts]
+        start_flags = [w.has_mission_begun for w in states]
+        errors = [e for w in states for e in w.errors]
+        if len(errors) > 0:
+            print "Errors waiting for mission start:"
+            for e in errors:
+                print e.text
+            print "Bailing now."
+            exit(1)
+        time.sleep(0.1)
+        print ".",
+    if time.time() - start_time >= time_out:
+        print "Timed out while waiting for mission to start - bailing."
+        exit(1)
+    print
+    print "Mission has started."
 
 def calcTurnValue(us, them, current_yaw):
     ''' Calc turn speed required to steer "us" towards "them".'''
@@ -276,29 +315,9 @@ for mission_no in xrange(1, num_missions+1):
     experimentID = str(uuid.uuid4())
 
     for i in range(len(agent_hosts)):
-        startMission(agent_hosts[i], my_mission, client_pool, MalmoPython.MissionRecordSpec(), i, experimentID)
+        safeStartMission(agent_hosts[i], my_mission, client_pool, MalmoPython.MissionRecordSpec(), i, experimentID)
 
-    # Wait for mission to start - complicated by having multiple agent hosts, and the potential
-    # for multiple errors to occur in the start-up process.
-    print "Waiting for the mission to start ",
-    hasBegun = False
-    hadErrors = False
-    while not hasBegun and not hadErrors:
-        sys.stdout.write(".")
-        time.sleep(0.1)
-        for ah in agent_hosts:
-            world_state = ah.getWorldState()
-            if world_state.has_mission_begun:
-                hasBegun = True
-            if len(world_state.errors):
-                hadErrors = True
-                print "Errors from agent " + agentName(agent_hosts.index(ah))
-                for error in world_state.errors:
-                    print "Error:",error.text
-
-    if hadErrors:
-        print "ABORTING"
-        exit(1)
+    safeWaitForStart(agent_hosts)
 
     time.sleep(1)
     running = True
