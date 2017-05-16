@@ -141,7 +141,7 @@ def calcTurnValue(us, them, current_yaw):
         difference -= 360;
     difference /= 180.0;
     return difference
-                
+
 def getVelocity(this_agent, entities, current_yaw, current_pos, current_health):
     ''' Calculate a good velocity to head in, according to the entities around us.'''
     # Get all the points of interest (every entity apart from the robots)

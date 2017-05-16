@@ -146,7 +146,9 @@ def waitWhileUpdatingGui(pause):
 def safeWaitForStart(agent_hosts):
     print "Waiting for the mission to start",
     start_flags = [False for a in agent_hosts]
-    while not all(start_flags):
+    start_time = time.time()
+    time_out = 120  # Allow two minutes for mission to begin.
+    while not all(start_flags) and time.time() - start_time < time_out:
         states = [a.peekWorldState() for a in agent_hosts]
         start_flags = [w.has_mission_begun for w in states]
         errors = [e for w in states for e in w.errors]
@@ -160,6 +162,9 @@ def safeWaitForStart(agent_hosts):
         if SHOW_GUI:
             root.update()
         print ".",
+    if time.time() - start_time >= time_out:
+        print "Timed out while waiting for mission to begin running - bailing."
+        exit(1)
     print
     print "Mission has started."
 

@@ -142,7 +142,9 @@ def safeStartMission(agent_host, mission, client_pool, recording, role, experime
 def safeWaitForStart(agent_hosts):
     print "Waiting for the mission to start",
     start_flags = [False for a in agent_hosts]
-    while not all(start_flags):
+    start_time = time.time()
+    time_out = 120  # Allow two minutes for mission to start.
+    while not all(start_flags) and time.time() - start_time < time_out:
         states = [a.peekWorldState() for a in agent_hosts]
         start_flags = [w.has_mission_begun for w in states]
         errors = [e for w in states for e in w.errors]
@@ -155,6 +157,9 @@ def safeWaitForStart(agent_hosts):
         time.sleep(0.1)
         print ".",
     print
+    if time.time() - start_time >= time_out:
+        print "Timed out waiting for mission to begin. Bailing."
+        exit(1)
     print "Mission has started."
 
 safeStartMission(agent_host1, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 0, '' )
