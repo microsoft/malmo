@@ -128,7 +128,7 @@ if agent_host.receivedArgument("test"):
     if role == 0:
         print "For test purposes, launching self with role 1 now."
         import subprocess
-        subprocess.Popen(sys.executable + " " + __file__ + " --test --role 1")
+        subprocess.Popen(sys.executable + " " + __file__ + " --test --role 1", shell=True)
     num_episodes = 5
 else:
     num_episodes = 30000
