@@ -387,6 +387,7 @@ for mission_no in xrange(1,missions_to_run+1):
         safeStartMission(agent_hosts[i], my_mission, client_pool, MalmoPython.MissionRecordSpec(), i, experimentID)
 
     safeWaitForStart(agent_hosts)
+    time.sleep(2)	# Wait a short while for things to stabilise
 
     running = True
     timed_out = False
