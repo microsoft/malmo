@@ -25,6 +25,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 
 import com.google.gson.JsonArray;
@@ -131,6 +132,11 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                                 jsent.addProperty("variation",  di.getVariant().getValue());
                         }
                         jsent.addProperty("quantity", is.stackSize);
+                    }
+                    else if (e instanceof EntityLivingBase)
+                    {
+                        EntityLivingBase el = (EntityLivingBase)e;
+                        jsent.addProperty("life", el.getHealth());
                     }
                     jsent.addProperty("name", name);
                     arr.add(jsent);
