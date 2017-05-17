@@ -76,6 +76,11 @@ void translateXMLSchemaException(lua_State* L, xml_schema::exception const& e)
     lua_pushstring(L, oss.str().c_str());
 }
 
+void translateMissionException(lua_State* L, const MissionException& e)
+{
+    // Do something.
+}
+
 // Turn a posix time into a long:
 template<typename T> long getPosixTimeAsLong(T* obj)
 {
@@ -131,6 +136,24 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
     open(L);
     module(L)
     [
+        class_< MissionException >("MissionException")
+        .enum_("MissionErrorCode")
+        [
+            value("MISSION_BAD_ROLE_REQUEST", MissionException::MISSION_BAD_ROLE_REQUEST),
+            value("MISSION_BAD_VIDEO_REQUEST", MissionException::MISSION_BAD_VIDEO_REQUEST),
+            value("MISSION_ALREADY_RUNNING", MissionException::MISSION_ALREADY_RUNNING),
+            value("MISSION_INSUFFICIENT_CLIENTS_AVAILABLE", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE),
+            value("MISSION_TRANSMISSION_ERROR", MissionException::MISSION_TRANSMISSION_ERROR),
+            value("MISSION_SERVER_WARMING_UP", MissionException::MISSION_SERVER_WARMING_UP),
+            value("MISSION_SERVER_NOT_FOUND", MissionException::MISSION_SERVER_NOT_FOUND),
+            value("MISSION_NO_COMMAND_PORT", MissionException::MISSION_NO_COMMAND_PORT),
+            value("MISSION_BAD_INSTALLATION", MissionException::MISSION_BAD_INSTALLATION)
+        ]
+        .def(constructor< const std::string&, MissionException::MissionErrorCode >())
+        .def("errorCode", &MissionException::getMissionErrorCode)
+        .def("message", &MissionException::getMessage)
+        ,
+
         class_< Logger >("Logger")
         .enum_("LoggingSeverityLevel")
         [
@@ -351,5 +374,6 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
       #endif
     ];
     register_exception_handler<xml_schema::exception>(&translateXMLSchemaException);
+    register_exception_handler<MissionException>(&translateMissionException);
     return 0;
 }
