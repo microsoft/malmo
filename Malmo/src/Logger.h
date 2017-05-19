@@ -99,10 +99,18 @@ namespace malmo
             this->is_spooling.clear();
             // Wait for it to finish (we can't use join() due to
             // the exit lock issue.)
-            while (this->has_backend)
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            // Clear whatever is left in our buffer:
-            std::lock_guard< std::timed_mutex > lock(write_guard);
+            // In some scenarios, ExitProcess has already been called by this point,
+            // and our thread will have been terminated - so we don't want to wait
+            // indefinitely.
+            // It would be nicer to use std::this_thread::sleep_for(...), but it's not safe
+            // to call from within dllmain.
+            auto start = std::chrono::system_clock::now();
+            while (this->has_backend && (std::chrono::system_clock::now() - start).count() < 2.0);
+            // Clear whatever is left in our buffer.
+            // DON'T acquire the write_guard lock at this point - by this point
+            // there should be no danger of anyone else accessing our buffer,
+            // and if we got here because the process is exiting, it might not be
+            // safe to use the mutex.
             clear_backlog();
             // Detach the thread:
             this->logger_backend->detach();
@@ -228,13 +236,7 @@ namespace malmo
         void print_impl(std::stringstream&& message_stream)
         {
             std::lock_guard< std::timed_mutex > lock(this->write_guard);
-            if (this->has_backend)
-                this->log_buffer.push_back(message_stream.str());
-            else
-            {
-                clear_backlog();
-                performWrite(message_stream.str());
-            }
+            this->log_buffer.push_back(message_stream.str());
         }
 
         LoggingSeverityLevel severity_level{ LOG_OFF };
