@@ -31,7 +31,7 @@ import errno
 import math
 import Tkinter as tk
 from collections import namedtuple
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity', 'life')
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
 EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 # Task parameters:
