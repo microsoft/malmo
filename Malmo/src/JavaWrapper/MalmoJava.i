@@ -150,6 +150,62 @@ public:
   const std::vector< boost::shared_ptr< TimestampedString > > errors;
 };
 
+%typemap(javabase) MissionException "java.lang.RuntimeException";
+
+%typemap(throws) const MissionException & %{
+  // Throw a MissionException object. First we need to create it:
+  jclass excep = jenv->FindClass("com/microsoft/msr/malmo/MissionException");
+  if (excep)
+  {
+    jmethodID constructor = jenv->GetMethodID(excep, "<init>", "(Ljava/lang/String;Lcom/microsoft/msr/malmo/MissionException$MissionErrorCode;)V");
+    if (constructor)
+    {
+      // We can call the constructor, but we need to pass it the message string and the code enum, both of which we need to create here.
+      // Create the string:
+      jstring js = jenv->NewStringUTF($1.what());
+      // To create the enum object, use the "swigToEnum" method that swig automatically adds to the MissionException class:
+      // Find the MissionException class:
+      jclass enumclass = jenv->FindClass("com/microsoft/msr/malmo/MissionException$MissionErrorCode");
+      if (!enumclass)
+        return $null;
+      // Find the swigToEnum static method:
+      jmethodID getenum = jenv->GetStaticMethodID(enumclass, "swigToEnum", "(I)Lcom/microsoft/msr/malmo/MissionException$MissionErrorCode;");
+      if (!getenum)
+        return $null;
+      // Call the method:
+      jobject enumval = jenv->CallStaticObjectMethod(enumclass, getenum, (int)$1.getMissionErrorCode());
+      if (!enumval)
+        return $null;
+      // Now we can create the MissionException object:
+      jobject jobj = jenv->NewObject(excep, constructor, js, enumval);
+      // And throw it:
+      jenv->Throw((jthrowable)jobj);
+    }
+  }
+return $null;
+%}
+
+class MissionException : public std::exception
+{
+public:
+    enum MissionErrorCode
+    {
+        MISSION_BAD_ROLE_REQUEST,
+        MISSION_BAD_VIDEO_REQUEST,
+        MISSION_ALREADY_RUNNING,
+        MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+        MISSION_TRANSMISSION_ERROR,
+        MISSION_SERVER_WARMING_UP,
+        MISSION_SERVER_NOT_FOUND,
+        MISSION_NO_COMMAND_PORT,
+        MISSION_BAD_INSTALLATION
+    };
+    MissionException(const std::string& message, MissionErrorCode code);
+    ~MissionException();
+    MissionErrorCode getMissionErrorCode() const;
+    std::string getMessage() const;
+};
+
 class AgentHost : public ArgumentParser {
 public:
   enum VideoPolicy { 
@@ -170,45 +226,18 @@ public:
 
   AgentHost();
 
-  %javaexception("java.lang.Exception") startMission(
-      const MissionSpec& mission
-    , const ClientPool& client_pool
-    , const MissionRecordSpec& mission_record
-    , int role
-    , std::string unique_experiment_id
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, e.what());
-    }
-  %}
-
   void startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
     , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
-  );
-
-  %javaexception("java.lang.Exception") startMission(
-      const MissionSpec& mission
-    , const MissionRecordSpec& mission_record
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, e.what());
-    }
-  %}
+  ) throw (MissionException const &);
 
   void startMission(
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
-  );
+  ) throw (MissionException const &);
 
   WorldState peekWorldState() const;
   
