@@ -97,6 +97,74 @@ public:
     static void setLogging(std::string destination, Logger::LoggingSeverityLevel level);
 };
 
+%typemap(csbase) MissionException "System.ApplicationException";
+
+%insert(runtime) %{
+  // Code to handle throwing of C# CustomApplicationException from C/C++ code.
+  // The equivalent delegate to the callback, CSharpExceptionCallback_t, is CustomExceptionDelegate
+  // and the equivalent customExceptionCallback instance is customDelegate
+  typedef void (SWIGSTDCALL* CSharpExceptionCallback_t)(const char *, int);
+  CSharpExceptionCallback_t customExceptionCallback = NULL;
+
+  extern "C" SWIGEXPORT
+  void SWIGSTDCALL CustomExceptionRegisterCallback(CSharpExceptionCallback_t customCallback) {
+    customExceptionCallback = customCallback;
+  }
+
+  // Note that SWIG detects any method calls named starting with
+  // SWIG_CSharpSetPendingException for warning 845
+  static void SWIG_CSharpSetPendingExceptionCustom(const char *msg, int code) {
+    customExceptionCallback(msg, code);
+  }
+%}
+
+%pragma(csharp) imclasscode=%{
+  class CustomExceptionHelper {
+    // C# delegate for the C/C++ customExceptionCallback
+    public delegate void CustomExceptionDelegate(string message, MissionException.MissionErrorCode code);
+    static CustomExceptionDelegate customDelegate =
+                                   new CustomExceptionDelegate(SetPendingCustomException);
+
+    [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="CustomExceptionRegisterCallback")]
+    public static extern
+           void CustomExceptionRegisterCallback(CustomExceptionDelegate customCallback);
+
+    static void SetPendingCustomException(string message, MissionException.MissionErrorCode code) {
+      SWIGPendingException.Set(new MissionException(message, code));
+    }
+
+    static CustomExceptionHelper() {
+      CustomExceptionRegisterCallback(customDelegate);
+    }
+  }
+  static CustomExceptionHelper exceptionHelper = new CustomExceptionHelper();
+%}
+
+%typemap(throws, canthrow=1) MissionException {
+  SWIG_CSharpSetPendingExceptionCustom($1.what(), $1.getMissionErrorCode());
+  return $null;
+}
+
+class MissionException : public std::exception
+{
+public:
+    enum MissionErrorCode
+    {
+        MISSION_BAD_ROLE_REQUEST,
+        MISSION_BAD_VIDEO_REQUEST,
+        MISSION_ALREADY_RUNNING,
+        MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+        MISSION_TRANSMISSION_ERROR,
+        MISSION_SERVER_WARMING_UP,
+        MISSION_SERVER_NOT_FOUND,
+        MISSION_NO_COMMAND_PORT,
+        MISSION_BAD_INSTALLATION
+    };
+    MissionException(const std::string& message, MissionErrorCode code);
+    ~MissionException();
+    MissionErrorCode getMissionErrorCode() const;
+    std::string getMessage() const;
+};
 
 class MissionRecordSpec
 {
@@ -190,6 +258,7 @@ public:
 
   AgentHost();
 
+  /*
   %exception startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
@@ -202,7 +271,7 @@ public:
     } catch (std::exception& e) {
       SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, e.what());
     }
-  %}
+  %}*/
 
   void startMission(
       const MissionSpec& mission
@@ -210,8 +279,9 @@ public:
     , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
-  );
+  ) throw(MissionException);
 
+  /*
   %exception startMission(
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
@@ -221,12 +291,12 @@ public:
     } catch (std::exception& e) {
       SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, e.what());
     }
-  %}
+  %}*/
 
   void startMission(
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
-  );
+  ) throw(MissionException);
 
   WorldState peekWorldState() const;
   
