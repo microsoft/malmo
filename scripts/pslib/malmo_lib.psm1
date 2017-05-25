@@ -154,9 +154,9 @@ function Install-Java
         if ($?)
         {
             # Add environment variables:
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Machine")
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Process")
-            Append-Path "C:\Program Files\Java\jdk1.8.0_111\bin"
+            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Machine")
+            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Process")
+            Append-Path "C:\Program Files\Java\jdk1.8.0_131\bin"
             return $True
         }
         Write-Host "FAILED TO INSTALL JAVA"
