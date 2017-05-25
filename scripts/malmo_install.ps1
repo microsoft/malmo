@@ -39,7 +39,7 @@ try {
 
     # catch the case that java was installed in a separate process
     if (!$env:JAVA_HOME) {
-        [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Process")
+        [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Process")
     }
 
     # update pythonpath
