@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Random;
 import java.util.logging.Level;
 
@@ -59,6 +60,11 @@ public class TCPSocket
         TCPUtils.Log(level, "<-" + this.logname + " (" + this.address + ":" + this.port + "): " + message);
     }
 
+    public boolean isValid()
+    {
+        return this.socket != null;
+    }
+
     public void close()
     {
         if (this.socket != null)
@@ -91,21 +97,6 @@ public class TCPSocket
         {
             SysLog(Level.SEVERE, "Failed to create socket: " + e);
         }
-        /*
-        InetAddress address = sockaddr.getAddress();
-        if (address.isLoopbackAddress() && address instanceof Inet6Address)
-        {
-            System.out.println("Trying again with IPv4 loopback address:");
-            try
-            {
-                this.socket.connect(new InetSocketAddress("127.0.0.1", this.port));
-                return;
-            }
-            catch (IOException e)
-            {
-                System.out.println("WARNING: Giving up after failed second attempt to create socket: " + e);
-            }
-        }*/
         this.socket = null;
     }
 
@@ -119,7 +110,21 @@ public class TCPSocket
     {
         Log(Level.FINE, "About to send: " + message);
         byte[] bytes = message.getBytes();
-        return sendTCPBytes(bytes);
+        return sendTCPBytes(bytes, 0);
+    }
+
+    /**
+     * Send string over TCP to the specified address via the specified port, including a header.
+     * 
+     * @param message   string to be sent over TCP
+     * @param retries   number of times to retry in event of failure
+     * @return true if message was successfully sent
+     */
+    public boolean sendTCPString(String message, int retries)
+    {
+        Log(Level.FINE, "About to send: " + message);
+        byte[] bytes = message.getBytes();
+        return sendTCPBytes(bytes, retries);
     }
 
     /**
@@ -129,6 +134,18 @@ public class TCPSocket
      * @return true if the message was sent successfully
      */
     public boolean sendTCPBytes(byte[] buffer)
+    {
+        return sendTCPBytes(buffer, 0);
+    }
+
+    /**
+     * Send byte buffer over TCP, including a length header.
+     * 
+     * @param buffer    the bytes to send
+     * @param retries   number of times to retry in event of failure
+     * @return true if the message was sent successfully
+     */
+    public boolean sendTCPBytes(byte[] buffer, int retries)
     {
         if (this.socket == null)
         {
@@ -160,6 +177,25 @@ public class TCPSocket
         catch (IOException e)
         {
             SysLog(Level.SEVERE, "Failed to send TCP bytes: " + e);
+            if (e instanceof SocketException)
+            {
+                // Could have been caused by the peer resetting the connection.
+                // We might simply need to recreate our socket.
+                if (retries > 0)
+                {
+                    SysLog(Level.INFO, "Responding to failure by recreating socket and trying again.");
+                    try
+                    {
+                        this.socket.close();
+                    }
+                    catch (IOException e1)
+                    {
+                        Log(Level.SEVERE, "Failed to close socket.");
+                    }
+                    createSocket();
+                    return sendTCPBytes(buffer, retries - 1);
+                }
+            }
         }
         return success;
     }

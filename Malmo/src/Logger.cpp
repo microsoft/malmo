@@ -22,5 +22,4 @@
 namespace malmo
 {
     std::atomic<int> LoggerLifetimeTracker::object_count{ 0 };
-    std::thread *LoggerLifetimeTracker::logger_backend{ 0 };
 }

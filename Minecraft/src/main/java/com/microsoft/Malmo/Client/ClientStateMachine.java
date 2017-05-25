@@ -188,6 +188,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         if (this.missionControlSocket == null ||
             this.missionControlSocket.port != cac.getAgentMissionControlPort() ||
             this.missionControlSocket.address == null ||
+            !this.missionControlSocket.isValid() ||
             !this.missionControlSocket.address.equals(cac.getAgentIPAddress()))
         {
             if (this.missionControlSocket != null)
@@ -592,7 +593,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected boolean pingAgent(boolean abortIfFailed)
         {
-            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>", 1);
             if (!sentOkay)
             {
                 // It's not available - bail.
@@ -1100,7 +1101,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 xml = SchemaHelper.serialiseObject(currentMissionInit(), MissionInit.class);
-                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml);
+                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml, 1);
             }
             catch (JAXBException e)
             {

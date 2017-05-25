@@ -33,21 +33,8 @@
 // logger is a static singleton, which will be destroyed after main() has exited, which, with VS2013 at least,
 // will cause a deadlock our thread hasn't already joined() - 
 // see https://connect.microsoft.com/VisualStudio/feedback/details/747145 for example.
+// See comments below in log_spooler() for details.
 
-// To get around this, we use the small LoggerLifetimeTracker class, and tie the creation/destruction of the worker
-// thread to this. When the first LoggerLiftetimeTracker class is created, it will create the worker thread;
-// when the last one is deleted, it will join() the thread and delete it. Each user-instantiable class (eg AgentHost,
-// MissionRecordSpec etc) contains an instance of a LoggerLifetimeTracker, so, roughly speaking, the thread will get
-// created when the user creates any Malmo objects, and will get deleted when they are no longer needed - eg when
-// the python script exits, or they all go out of scope. After this has happened, the next Malmo object to get
-// created will simply generate a new thread - the Logger should be able to cope with threads coming and going
-// in this way.
-
-// Of course, this can give rise to pathalogical cases where, for example, a user creates Python code that repeatedly
-// creates and destroys Malmo objects, leading to repeated creation/destruction of worker threads.
-// In practice this case should be rare, and shouldn't create any major performance problems
-// since the time-critical part of the code is during the running of missions, where there should always
-// be at least one AgentHost object persisting throughout.
 
 // This logger partly owes its genesis to this Dr Dobbs article:
 // http://www.drdobbs.com/parallel/more-memory-for-dos-exec/parallel/a-lightweight-logger-for-c/240147505
@@ -102,27 +89,34 @@ namespace malmo
         {
             this->has_backend = false;
             this->is_spooling.clear();
+            this->logger_backend = new std::thread{ Logger::log_spooler, this };
         }
         ~Logger()
         {
-            if (this->has_backend)
-            {
-                // Ideally, our backend thread would have been joined and deleted by now.
-                // If users have created static objects which outlive the logger this may not be the case.
-                // We need to switch off logging now, so that when they are finally destructed, they
-                // won't cause havoc by attempting to access the logger again.
-                this->severity_level = LOG_OFF;
-                this->is_spooling.clear();
-            }
-
-            // Clear whatever is left in our buffer:
-            std::lock_guard< std::timed_mutex > lock(write_guard);
+            // Switch off logging now, to avoid complications:
+            this->severity_level = LOG_OFF;
+            // Let our spooling thread know that we want it to stop:
+            this->is_spooling.clear();
+            // Wait for it to finish (we can't use join() due to
+            // the exit lock issue.)
+            // In some scenarios, ExitProcess has already been called by this point,
+            // and our thread will have been terminated - so we don't want to wait
+            // indefinitely.
+            // It would be nicer to use std::this_thread::sleep_for(...), but it's not safe
+            // to call from within dllmain.
+            auto start = std::chrono::system_clock::now();
+            while (this->has_backend && (std::chrono::system_clock::now() - start).count() < 2.0);
+            // Clear whatever is left in our buffer.
+            // DON'T acquire the write_guard lock at this point - by this point
+            // there should be no danger of anyone else accessing our buffer,
+            // and if we got here because the process is exiting, it might not be
+            // safe to use the mutex.
             clear_backlog();
+            // Detach the thread:
+            this->logger_backend->detach();
             // And close our file, if we have one:
             if (this->writer.is_open())
-            {
                 this->writer.close();
-            }
         }
         Logger(const malmo::Logger &) = delete;
 
@@ -165,16 +159,13 @@ namespace malmo
             std::lock_guard< std::timed_mutex > lock(write_guard);
             indentation--;
         }
-        void releaseBackend()
-        {
-            this->is_spooling.clear();
-        }
 
         static void log_spooler(Logger* logger)
         {
             logger->has_backend = true;
             logger->is_spooling.test_and_set();
             std::unique_lock<std::timed_mutex> writing_lock{ logger->write_guard, std::defer_lock };
+            // Loop until the logger clears the is_spooling flag - this happens when the logger is destructed.
             do
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds{ 100 });
@@ -185,7 +176,33 @@ namespace malmo
                     writing_lock.unlock();
                 }
             } while (logger->is_spooling.test_and_set());
+            // The logger will be waiting for us to finish spooling - let it know it can continue:
             logger->has_backend = false;
+            // ON WINDOWS, VS2013:
+            // If we let this function end now, we will get a nasty race condition with the CRT.
+            // When the thread finishes running its main method (this function), it will enter 
+            // _Cnd_do_broadcast_at_thread_exit(), and attempt to signal the news of the thread's demise
+            // to anyone waiting for it. Doing this involves creating an "at_thread_exit_mutex", and adding
+            // a destruction method for it ("destroy_at_thread_exit_mutex") to the DLL's atexit/_onexit list.
+            // (This is a list of functions which will get called when the DLL is signalled to exit by ExitProcess.)
+
+            // BUT:
+
+            // Because logger is a static singleton, its destruction takes place AFTER main() exits, at
+            // which point the CRT has imposed an EXIT LOCK. All exit code needs to own the exit lock before it can
+            // execute. At the point when ~Logger() is called, the main thread owns this exit lock, and it won't
+            // relinquish it until right before it calls ExitProcess, after going through its own atexit/_onexit list.
+            // The worker thread needs to aquire this lock before it can create the at_thread_exit_mutex, so it
+            // is forced to wait while everything else is destructed and cleaned before it can carry on.
+
+            // THe end result is that the worker thread has just enough time to create and lock the mutex before
+            // the main thread calls ExitProcess, which calls the DLL cleanup code, which deletes the mutex,
+            // resulting in an abort() with a "mutex destroyed while busy" error.
+
+            // To get around this, we simply go to sleep for a bit, to give the main thread a chance to exit
+            // before we even have a chance to leave this function.
+            std::this_thread::sleep_for(std::chrono::milliseconds(100000));
+            // It'll all be over before we even wake up.
         }
 
         void clear_backlog()
@@ -219,13 +236,7 @@ namespace malmo
         void print_impl(std::stringstream&& message_stream)
         {
             std::lock_guard< std::timed_mutex > lock(this->write_guard);
-            if (this->has_backend)
-                this->log_buffer.push_back(message_stream.str());
-            else
-            {
-                clear_backlog();
-                performWrite(message_stream.str());
-            }
+            this->log_buffer.push_back(message_stream.str());
         }
 
         LoggingSeverityLevel severity_level{ LOG_OFF };
@@ -238,6 +249,7 @@ namespace malmo
         std::atomic_flag is_spooling;
         bool terminated;
         std::ofstream writer;
+        std::thread *logger_backend;
     };
 
     template<Logger::LoggingSeverityLevel level, typename...Args>void Logger::print(Args&&...args)
@@ -246,7 +258,7 @@ namespace malmo
             return;
         std::stringstream message_stream;
         auto now = boost::posix_time::microsec_clock::universal_time();
-        message_stream << line_number << " " << now << " ";
+        message_stream << now << " P "; // 'P' for 'Platform' - useful if combining logs with Mod-side.
         switch (level)
         {
         case LoggingSeverityLevel::LOG_ALL:
@@ -306,14 +318,6 @@ namespace malmo
         {
             int prev_val = object_count.fetch_add(-1);
             LOGFINE(LT("Destructing "), this->name, LT(" (object count now "), prev_val - 1, LT(")"));
-            if (prev_val == 1)
-            {
-                LOGFINE(LT("Losing backend for logger"));
-                Logger::getLogger().releaseBackend();
-                logger_backend->join();
-                delete logger_backend;
-                logger_backend = 0;
-            }
         }
 
     private:
@@ -321,14 +325,8 @@ namespace malmo
         {
             int prev_val = object_count.fetch_add(1);
             LOGFINE(LT("Constructing "), this->name, LT(" (object count now "), prev_val + 1, LT(")"));
-            if (prev_val == 0)
-            {
-                LOGFINE(LT("Creating new backend for logger"));
-                logger_backend = new std::thread{ Logger::log_spooler, &(Logger::getLogger()) };
-            }
         }
         static std::atomic<int> object_count;
-        static std::thread *logger_backend;
         std::string name;
     };
 }

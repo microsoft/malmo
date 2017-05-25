@@ -48,7 +48,16 @@ for port in ports:
     if os.name == 'nt':
         subprocess.Popen([minecraft_path + '/launchClient.bat', '-port', str(port)], creationflags=subprocess.CREATE_NEW_CONSOLE, close_fds=True)
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', '-a', 'Terminal.app ' + minecraft_path + '/launchClient.sh', '-port', str(port)])
+        # Can't pass parameters to launchClient via Terminal.app, so create a small launch
+        # script instead.
+        # (Launching a process to run the terminal app to run a small launch script to run
+        # the launchClient script to run Minecraft... is it possible that this is not the most
+        # straightforward way to go about things?)
+        tmp_file = open("/tmp/launcher.sh", "w")
+        tmp_file.write(minecraft_path + '/launchClient.sh -port ' + str(port))
+        tmp_file.close()
+        os.chmod("/tmp/launcher.sh", 0o777)
+        subprocess.Popen(['open', '-a', 'Terminal.app', '/tmp/launcher.sh'])
     elif platform.linux_distribution()[0] == 'Fedora':
         subprocess.Popen( minecraft_path + "/launchClient.sh -port " + str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
     else:

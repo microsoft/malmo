@@ -93,7 +93,7 @@ namespace malmo
         std::vector<std::string> parts;
         boost::split(parts, targetVersion, [](char c){ return c == '.'; });
         if (parts.size() != 3)
-            throw std::runtime_error("Malformed version number - check root CMakeLists.txt. MALMO_VERSION should be in form MAJOR.MINOR.PATCH - instead we got " + targetVersion + ".");
+            throw MissionException("Malformed version number - check root CMakeLists.txt. MALMO_VERSION should be in form MAJOR.MINOR.PATCH - instead we got " + targetVersion + ".", MissionException::MISSION_BAD_INSTALLATION);
         targetVersion = parts[0] + "." + parts[1];
 
         std::vector<std::string> schemas = { "Mission.xsd", "MissionInit.xsd", "MissionEnded.xsd", "MissionHandlers.xsd", "Types.xsd" };
@@ -101,7 +101,7 @@ namespace malmo
         {
             std::string xsdVersion = extractVersionNumber(it);
             if (xsdVersion != targetVersion)
-                throw std::runtime_error("Schema " + it + " has the wrong version number - should be " + targetVersion + " but we got " + xsdVersion + ". Check that MALMO_XSD_PATH is correct.");
+                throw MissionException("Schema " + it + " has the wrong version number - should be " + targetVersion + " but we got " + xsdVersion + ". Check that MALMO_XSD_PATH is correct.", MissionException::MISSION_BAD_INSTALLATION);
         }
     }
 
@@ -144,37 +144,40 @@ namespace malmo
         if (role < 0 || role >= mission.getNumberOfAgents())
         {
             if (mission.getNumberOfAgents() == 1)
-                throw std::runtime_error("Role " + std::to_string(role) + " is invalid for this single-agent mission - must be 0.");
+                throw MissionException("Role " + std::to_string(role) + " is invalid for this single-agent mission - must be 0.", MissionException::MISSION_BAD_ROLE_REQUEST);
             else
-                throw std::runtime_error("Role " + std::to_string(role) + " is invalid for this multi-agent mission - must be in range 0-" + std::to_string(mission.getNumberOfAgents() - 1) + ".");
+                throw MissionException("Role " + std::to_string(role) + " is invalid for this multi-agent mission - must be in range 0-" + std::to_string(mission.getNumberOfAgents() - 1) + ".", MissionException::MISSION_BAD_ROLE_REQUEST);
         }
         if( mission.isVideoRequested( role ) ) 
         {
             if( mission.getVideoWidth( role ) % 4 )
-                throw std::runtime_error("Video width must be divisible by 4.");
+                throw MissionException("Video width must be divisible by 4.", MissionException::MISSION_BAD_VIDEO_REQUEST);
             if( mission.getVideoHeight( role ) % 2 )
-                throw std::runtime_error("Video height must be divisible by 2.");
+                throw MissionException("Video height must be divisible by 2.", MissionException::MISSION_BAD_VIDEO_REQUEST);
         }
         
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
         if (this->world_state.is_mission_running) {
-            throw std::runtime_error("A mission is already running.");
+            throw MissionException("A mission is already running.", MissionException::MISSION_ALREADY_RUNNING);
         }
 
         initializeOurServers( mission, mission_record, role, unique_experiment_id );
 
         ClientPool pool = client_pool;
-        if (mission.getNumberOfAgents() > 1 && role == 0)
+        if (role == 0)
         {
-            // this is a multi-agent mission and we are the agent responsible for the integrated server.
-            // our mission should have been started before any of the others are attempted.
+            // We are the agent responsible for the integrated server.
+            // If we are part of a multi-agent mission, our mission should have been started before any of the others are attempted.
             // This means we are in a position to reserve clients in the client pool:
             ClientPool reservedAgents = reserveClients(client_pool, mission.getNumberOfAgents());
             if (reservedAgents.clients.size() != mission.getNumberOfAgents())
             {
                 // Not enough clients available - go no further.
-                throw std::runtime_error("There are not enough clients availble in the ClientPool to start this " + std::to_string(mission.getNumberOfAgents()) + " agent mission.");
+                if (mission.getNumberOfAgents() == 1)
+                    throw MissionException("Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
+                else
+                    throw MissionException("There are not enough clients available in the ClientPool to start this " + std::to_string(mission.getNumberOfAgents()) + " agent mission.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
             }
             pool = reservedAgents;
         }
@@ -313,6 +316,7 @@ namespace malmo
         LOGSECTION(LOG_FINE, "Looking for server...");
         std::string reply;
         std::string request = std::string("MALMO_FIND_SERVER") + this->current_mission_init->getExperimentID() + +"\n";
+        bool serverWarmingUp = false;
 
         for (const ClientInfo& item : client_pool.clients)
         {
@@ -329,24 +333,33 @@ namespace malmo
             LOGINFO(LT("Seeking server, received reply from "), item.ip_address, LT(": "), reply);
 
             const std::string malmo_server_prefix = "MALMOS";
+            const std::string malmo_server_warming_up = "MALMONOSERVERYET";
+            const std::string malmo_no_server = "MALMONOSERVER";
             if (reply.find(malmo_server_prefix) == 0)
             {
                 size_t colon = reply.find_first_of(':');
                 if (colon == std::string::npos)
-                    throw std::runtime_error("Received malformed reply: " + reply);
+                    throw MissionException("Received malformed reply: " + reply, MissionException::MISSION_TRANSMISSION_ERROR);
                 std::string minecraft_server_address = reply.substr(malmo_server_prefix.length(), colon - malmo_server_prefix.length());
                 std::string minecraft_server_port_as_string = reply.substr(colon + 1, std::string::npos);
                 int minecraft_server_port;
                 int n = sscanf(minecraft_server_port_as_string.c_str(), "%d", &minecraft_server_port);
                 if (n != 1)
-                    throw std::runtime_error("Received malformed reply: " + reply);
+                    throw MissionException("Received malformed reply: " + reply, MissionException::MISSION_TRANSMISSION_ERROR);
                 this->current_mission_init->setMinecraftServerInformation(minecraft_server_address, minecraft_server_port);
                 return true;
+            }
+            else if (reply == malmo_server_warming_up)
+            {
+                serverWarmingUp = true;
             }
         }
 
         this->close();
-        throw std::runtime_error("Failed to find the server for this mission - you must start the agent that has role 0 first.");
+        if (serverWarmingUp)
+            throw MissionException("Failed to find the server for this mission - you may need to wait.", MissionException::MISSION_SERVER_WARMING_UP);
+        else
+            throw MissionException("Failed to find the server for this mission - you must start the agent that has role 0 first.", MissionException::MISSION_SERVER_NOT_FOUND);
     }
 
     void AgentHost::findClient(const ClientPool& client_pool)
@@ -385,7 +398,7 @@ namespace malmo
         }
 
         this->close();
-        throw std::runtime_error( "Failed to find an available client for this mission - tried all the clients in the supplied client pool." );
+        throw MissionException( "Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE );
     }
 
     WorldState AgentHost::peekWorldState() const
@@ -603,7 +616,7 @@ namespace malmo
     {
         int mod_commands_port = this->current_mission_init->getClientCommandsPort();
         if( mod_commands_port == 0 ) {
-            throw std::runtime_error( "AgentHost::openCommandsConnection : client commands port is unknown! Has the mission started?" );
+            throw MissionException( "AgentHost::openCommandsConnection : client commands port is unknown! Has the mission started?", MissionException::MISSION_NO_COMMAND_PORT );
         }
 
         std::string mod_address = this->current_mission_init->getClientAddress();

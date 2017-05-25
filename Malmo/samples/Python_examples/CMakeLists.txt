@@ -33,7 +33,6 @@ set( SOURCES
   manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
-  MultiMaze.py
   mob_fun.py
   moving_target_test.py
   overclock_test.py
@@ -72,6 +71,7 @@ set( MULTI_AGENT_TESTS
     multi_agent_test.py
     agent_visibility_test.py
     turn_based_test.py
+    MultiMaze.py
 )
 
 set( OTHER_FILES
