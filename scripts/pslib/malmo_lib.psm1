@@ -135,7 +135,7 @@ function Install-Java
     if (Should-Install "Java SE Development")
     {
         Display-Heading "Installing java"
-        $source = "http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-windows-x64.exe"
+        $source = "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-windows-x64.exe"
         $destination = ($env:HOMEPATH + "\temp\jdkinstaller.exe")
         $client = new-object System.Net.WebClient 
         # Need to do some cookie business to sign the oracle licence agreement:
