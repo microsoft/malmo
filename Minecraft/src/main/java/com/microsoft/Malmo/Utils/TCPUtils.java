@@ -10,9 +10,6 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
-import net.minecraftforge.common.config.Configuration;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -20,18 +17,40 @@ import org.apache.commons.lang3.time.FastDateFormat;
 
 import com.microsoft.Malmo.MalmoMod;
 
+import net.minecraftforge.common.config.Configuration;
+
 public class TCPUtils
 {
+    public enum SeverityLevel
+    {
+        LOG_NONE("Logging off", Level.OFF),             // Default - log nothing
+        LOG_SEVERE("Log errors only", Level.SEVERE),    // Only log errors
+        LOG_WARNINGS("Log warnings", Level.WARNING),    // Log warnings and above
+        LOG_INFO("Log basic info", Level.INFO),         // Also log basic info
+        LOG_DETAILED("Detailed logging", Level.FINE),   // Log detailed info
+        LOG_ALL("Log everything", Level.ALL);
+
+        private final String displayName;
+        private final Level level;
+        SeverityLevel(String displayName, Level level) { this.displayName = displayName; this.level = level; }
+        public final String getDisplayName() { return this.displayName; }
+        public final Level getLevel() { return this.level; }
+    }
+
     static class UTCFormatter extends Formatter
     {
-        private static final FastDateFormat DATE_FORMATTER = FastDateFormat.getInstance("yyyy-MMM-dd HH:mm:ss.S", TimeZone.getTimeZone("UTC"));
+    	private static final String dateformat = "yyyy-MMM-dd HH:mm:ss.S";
+        private static final FastDateFormat DATE_FORMATTER = FastDateFormat.getInstance(dateformat, TimeZone.getTimeZone("UTC"));
+        private static final String padding = dateformat + "00000"; // to pad the milliseconds up to 6 spaces - see below.
 
         @Override
         public String format(LogRecord record)
         {
             StringBuilder builder = new StringBuilder(1000);
+            String timestamp = DATE_FORMATTER.format(new Date(record.getMillis()));
             // "000" padding is to match the greater precision available from the C++ side, if combining logs.
-            builder.append(DATE_FORMATTER.format(new Date(record.getMillis()))).append("000 M ")   // 'M' for 'Mod' - useful if combining logs with platform-side.
+            timestamp += padding.substring(timestamp.length());
+            builder.append(timestamp).append(" M ")   // 'M' for 'Mod' - useful if combining logs with platform-side.
                 .append(String.format("%1$-7s", record.getLevel()))
                 .append(formatMessage(record))
                 .append("\n");
@@ -54,11 +73,12 @@ public class TCPUtils
     private static FileHandler filehandler = null;
     private static boolean logging = false;
     private static int currentIndentation = 0;
+    private static SeverityLevel loggingSeverityLevel = SeverityLevel.LOG_NONE;
 
-    public static void setLogging(boolean log)
+    public static void setLogging(SeverityLevel slevel)
     {
-        logging = log;
-        if (log == true && filehandler == null)
+        logging = slevel != SeverityLevel.LOG_NONE;
+        if (logging == true && filehandler == null)
         {
             try
             {
@@ -78,9 +98,10 @@ public class TCPUtils
                 e.printStackTrace();
             }
             logger.setUseParentHandlers(false); // Don't flood the parent log.
-            logger.setLevel(Level.FINE);
             logger.addHandler(filehandler);
         }
+        logger.setLevel(slevel.getLevel());
+        loggingSeverityLevel = slevel;
     }
 
     public static boolean isLogging() { return logging; }
@@ -105,7 +126,13 @@ public class TCPUtils
 
     public static void update(Configuration config)
     {
-        setLogging(config.getBoolean("generateSocketLogs", MalmoMod.DIAGNOSTIC_CONFIGS, true, "Log all socket activity to aid troubleshooting."));
+        String[] values = new String[SeverityLevel.values().length];
+        for (SeverityLevel level : SeverityLevel.values())
+            values[level.ordinal()] = level.getDisplayName();
+        String severityLevel = config.getString("loggingSeverityLevel", MalmoMod.DIAGNOSTIC_CONFIGS, TCPUtils.loggingSeverityLevel.getDisplayName(), "Set the level of socket debugging information to be logged.", values);
+        for (SeverityLevel level : SeverityLevel.values())
+            if (level.getDisplayName().equals(severityLevel))
+                setLogging(level);
     }
 
     private static void indent()
