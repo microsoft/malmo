@@ -46,10 +46,6 @@ malmoports {
 " > run/config/malmomodCLIENT.cfg
 
 # Finally we can launch the Mod, which will load the config file
-if [ ! -f "runMC.sh" ]; then
-    ./gradlew setupDecompWorkspace
-    ./gradlew build
-    ./gradlew runClient
-else
-    ./runMC.sh
-fi
+./gradlew setupDecompWorkspace
+./gradlew build
+./gradlew runClient
