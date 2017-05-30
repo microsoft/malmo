@@ -1,6 +1,10 @@
-0.?
+0.22.0
 -------------------
 New: ObservationFromRay now returns distance.
+New: Added socket logging code to Mod, available in Mod UI.
+New: Added logging code to platform, available through Malmo API.
+New: startMission now provides more error details in exceptions; multi-agent samples hardened by using this.
+New: ObservationFromNearbyEntities now returns entity life.
 
 0.21.0
 -------------------
