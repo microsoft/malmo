@@ -24,6 +24,7 @@
   #include <ClientPool.h>
   #include <MissionSpec.h>
   #include <ParameterSet.h>
+  #include <Logger.h>
   using namespace malmo;
   
   // Boost:
@@ -79,6 +80,114 @@ namespace boost::posix_time
         return global::System.DateTime.Parse(MalmoNETNative.to_simple_string(tempDate));
       } %}
 }
+
+class Logger
+{
+public:
+  enum LoggingSeverityLevel { 
+    LOG_OFF
+    , LOG_ERRORS
+    , LOG_WARNINGS
+    , LOG_INFO
+    , LOG_FINE
+    , LOG_TRACE
+    , LOG_ALL
+  };
+
+    static void setLogging(const std::string& destination, Logger::LoggingSeverityLevel level);
+    static void appendToLog(Logger::LoggingSeverityLevel level, const std::string& message);
+};
+
+// We want to throw custom MissionException objects which are derived from System.ApplicationException:
+%typemap(csbase) MissionException "System.ApplicationException";
+
+// There's a fair amount of hoop-jumping in order to make the custom exceptions work...
+%insert(runtime) %{
+  // Code to handle throwing of C# CustomApplicationException from C/C++ code.
+  // The equivalent delegate to the callback, CSharpExceptionCallback_t, is CustomExceptionDelegate
+  // and the equivalent customExceptionCallback instance is customDelegate
+  typedef void (SWIGSTDCALL* CSharpExceptionCallback_t)(const char *, int);
+  CSharpExceptionCallback_t customExceptionCallback = NULL;
+
+  extern "C" SWIGEXPORT
+  void SWIGSTDCALL CustomExceptionRegisterCallback(CSharpExceptionCallback_t customCallback) {
+    customExceptionCallback = customCallback;
+  }
+
+  // Note that SWIG detects any method calls named starting with
+  // SWIG_CSharpSetPendingException for warning 845
+  static void SWIG_CSharpSetPendingExceptionCustom(const char *msg, int code) {
+    customExceptionCallback(msg, code);
+  }
+%}
+
+%pragma(csharp) imclasscode=%{
+  class CustomExceptionHelper {
+    // C# delegate for the C/C++ customExceptionCallback
+    public delegate void CustomExceptionDelegate(string message, MissionException.MissionErrorCode code);
+    static CustomExceptionDelegate customDelegate = new CustomExceptionDelegate(SetPendingCustomException);
+
+    [global::System.Runtime.InteropServices.DllImport("$dllimport", EntryPoint="CustomExceptionRegisterCallback")]
+    public static extern void CustomExceptionRegisterCallback(CustomExceptionDelegate customCallback);
+
+    static void SetPendingCustomException(string message, MissionException.MissionErrorCode code) {
+      SWIGPendingException.Set(new MissionException(message, code, false)); // Third parameter unused - only provided to force use of correct constructor - see comments below.
+    }
+
+    static CustomExceptionHelper() {
+      CustomExceptionRegisterCallback(customDelegate);
+    }
+  }
+  static CustomExceptionHelper exceptionHelper = new CustomExceptionHelper();
+%}
+
+%typemap(throws, canthrow=1) MissionException {
+  SWIG_CSharpSetPendingExceptionCustom($1.what(), $1.getMissionErrorCode());
+  return $null;
+}
+
+// If we leave things as is, we'll get a nice custom MissionException object being thrown, which wraps our C++ MissionException object,
+// but the C# base-class (System.ApplicationException) won't get explicitly called with the messsage parameter.
+// This isn't the end of the world, but it means that a default "something went wrong with the application" message will be used instead,
+// and the user will have to call MissionException.getMessage() to get the actual error message. Any existing usercode which just
+// uses "catch(Exception)" rather than "catch(MissionException)" will lose the information they were previously getting.
+// In order to make this work properly, we use the cscode typemap to add a new pair of MissionException constructors which will pass the message parameter to the base-class.
+// The complication with this approach is that we also need to SWIG the normal constructor, otherwise SWIG won't generate the CSharp_new_MissionException(char*, int)
+// which we need to construct the C# MissionException object at all. I couldn't find a way to pursuade SWIG to generate just the IM code and not the C# method.
+// So to disambiguate between the two sets of constructors, we add a dummy parameter to our own constructor, and make sure our SetPendingCustomException method
+// calls the correct one.
+
+%typemap(cscode) MissionException %{
+  internal MissionException(global::System.IntPtr cPtr, bool cMemoryOwn, string message) : base(message) {
+    swigCMemOwn = cMemoryOwn;
+    swigCPtr = new global::System.Runtime.InteropServices.HandleRef(this, cPtr);
+  }
+
+  public MissionException(string message, MissionException.MissionErrorCode code, bool dummyParameter) : this(MalmoNETNativePINVOKE.new_MissionException(message, (int)code), true, message) {
+    if (MalmoNETNativePINVOKE.SWIGPendingException.Pending) throw MalmoNETNativePINVOKE.SWIGPendingException.Retrieve();
+  }
+%}
+
+class MissionException : public std::exception
+{
+public:
+    enum MissionErrorCode
+    {
+        MISSION_BAD_ROLE_REQUEST,
+        MISSION_BAD_VIDEO_REQUEST,
+        MISSION_ALREADY_RUNNING,
+        MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+        MISSION_TRANSMISSION_ERROR,
+        MISSION_SERVER_WARMING_UP,
+        MISSION_SERVER_NOT_FOUND,
+        MISSION_NO_COMMAND_PORT,
+        MISSION_BAD_INSTALLATION
+    };
+    MissionException(const std::string& message, MissionErrorCode code);    // Need this to get the underlying new_MissionException code from SWIG.
+    ~MissionException();
+    MissionErrorCode getMissionErrorCode() const;
+    std::string getMessage() const;
+};
 
 class MissionRecordSpec
 {
@@ -172,43 +281,18 @@ public:
 
   AgentHost();
 
-  %exception startMission(
-      const MissionSpec& mission
-    , const ClientPool& client_pool
-    , const MissionRecordSpec& mission_record
-    , int role
-    , std::string unique_experiment_id
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, e.what());
-    }
-  %}
-
   void startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
     , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
-  );
-
-  %exception startMission(
-      const MissionSpec& mission
-    , const MissionRecordSpec& mission_record
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      SWIG_CSharpSetPendingException(SWIG_CSharpApplicationException, e.what());
-    }
-  %}
+  ) throw(MissionException);
 
   void startMission(
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
-  );
+  ) throw(MissionException);
 
   WorldState peekWorldState() const;
   

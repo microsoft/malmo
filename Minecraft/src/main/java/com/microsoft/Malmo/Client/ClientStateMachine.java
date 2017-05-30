@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -89,10 +90,11 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
-import com.microsoft.Malmo.Utils.TCPSocketHelper;
+import com.microsoft.Malmo.Utils.TCPSocket;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 /**
@@ -122,7 +124,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     protected int integratedServerPort;
     String reservationID = "";   // empty if we are not reserved, otherwise "RESERVED" + the experiment ID we are reserved for.
     long reservationExpirationTime = 0;
-    private TCPSocketHelper missionControlSocket;
+    private TCPSocket missionControlSocket;
 
     private void reserveClient(String id)
     {
@@ -176,20 +178,24 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }            
     }
 
-    protected TCPSocketHelper getMissionControlSocket() { return this.missionControlSocket; }
+    protected TCPSocket getMissionControlSocket() { return this.missionControlSocket; }
     
     protected void createMissionControlSocket()
     {
+        TCPUtils.LogSection ls = new TCPUtils.LogSection("Creating MissionControlSocket");
         // Set up a TCP connection to the agent:
         ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
         if (this.missionControlSocket == null ||
             this.missionControlSocket.port != cac.getAgentMissionControlPort() ||
-            this.missionControlSocket.address != cac.getAgentIPAddress())
+            this.missionControlSocket.address == null ||
+            !this.missionControlSocket.isValid() ||
+            !this.missionControlSocket.address.equals(cac.getAgentIPAddress()))
         {
             if (this.missionControlSocket != null)
                 this.missionControlSocket.close();
-            this.missionControlSocket = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentMissionControlPort());
+            this.missionControlSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentMissionControlPort(), "mcp");
         }
+        ls.close();
     }
 
     public ClientStateMachine(ClientState initialState, MalmoModClient inputController)
@@ -410,7 +416,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.missionPoller.stopServer();
         }
 
-        this.missionPoller = new TCPInputPoller(AddressHelper.getMissionControlPortOverride(), AddressHelper.MIN_MISSION_CONTROL_PORT, AddressHelper.MAX_FREE_PORT)
+        this.missionPoller = new TCPInputPoller(AddressHelper.getMissionControlPortOverride(), AddressHelper.MIN_MISSION_CONTROL_PORT, AddressHelper.MAX_FREE_PORT, "mcp")
         {
             @Override
             public void onError(String error, DataOutputStream dos)
@@ -587,7 +593,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected boolean pingAgent(boolean abortIfFailed)
         {
-            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>");
+            boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>", 1);
             if (!sentOkay)
             {
                 // It's not available - bail.
@@ -685,6 +691,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     e.printStackTrace();
                 }
                 ScreenHelper.update(MalmoMod.instance.getModPermanentConfigFile());
+                TCPUtils.update(MalmoMod.instance.getModPermanentConfigFile());
             }
         }
     }
@@ -810,6 +817,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             // Set up our command input poller. This is only checked during the MissionRunning episode, but
             // it needs to be started now, so we can report the port it's using back to the agent.
+            TCPUtils.LogSection ls = new TCPUtils.LogSection("Initialise Command Input Poller");
             ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
             int requestedPort = cac.getClientCommandsPort();
             // If the requested port is 0, we dynamically allocate our own port, and feed that back to the agent.
@@ -824,13 +832,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (ClientStateMachine.this.controlInputPoller == null)
             {
                 if (requestedPort == 0)
-                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(AddressHelper.MIN_FREE_PORT, AddressHelper.MAX_FREE_PORT, true);
+                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(AddressHelper.MIN_FREE_PORT, AddressHelper.MAX_FREE_PORT, true, "com");
                 else
-                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(requestedPort);
+                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(requestedPort, "com");
                 ClientStateMachine.this.controlInputPoller.start();
             }
             // Make sure the cac is up-to-date:
             cac.setClientCommandsPort(ClientStateMachine.this.controlInputPoller.getPortBlocking());
+            ls.close();
 
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
@@ -1092,7 +1101,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 xml = SchemaHelper.serialiseObject(currentMissionInit(), MissionInit.class);
-                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml);
+                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml, 1);
             }
             catch (JAXBException e)
             {
@@ -1515,8 +1524,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private boolean wantsToQuit = false; // We have decided our mission is at an end
         private VideoHook videoHook = new VideoHook();
         private String quitCode = "";
-        private TCPSocketHelper observationSocket = null;
-        private TCPSocketHelper rewardSocket = null;
+        private TCPSocket observationSocket = null;
+        private TCPSocket rewardSocket = null;
         private long lastPingSent = 0;
         private long pingFrequencyMs = 1000;
 
@@ -1705,8 +1714,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void openSockets()
         {
             ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
-            this.observationSocket = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentObservationsPort());
-            this.rewardSocket = new TCPSocketHelper(cac.getAgentIPAddress(), cac.getAgentRewardsPort());
+            this.observationSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentObservationsPort(), "obs");
+            this.rewardSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentRewardsPort(), "rew");
         }
 
         private void closeSockets()
@@ -1717,6 +1726,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         private void sendData()
         {
+            TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
             Minecraft.getMinecraft().mcProfiler.endStartSection("malmoSendData");
             // Create the observation data:
             String data = "";
@@ -1742,6 +1752,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     // Failed to send observation message.
                     this.failedTCPObservationSendCount++;
+                    TCPUtils.Log(Level.WARNING, "Observation signal delivery failure count at " + this.failedTCPObservationSendCount);
                     ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed observation signal", TextCategory.TXT_CLIENT_WARNING, 5000);
                 }
             }
@@ -1766,22 +1777,26 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         // (This happens a lot when developing a Python agent - the developer has no easy way to quit
                         // the agent cleanly, so tends to kill the process.)
                         this.failedTCPRewardSendCount++;
+                        TCPUtils.Log(Level.WARNING, "Reward signal delivery failure count at " + this.failedTCPRewardSendCount);
                         ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed reward signal", TextCategory.TXT_CLIENT_WARNING, 5000);
                     }
                 }
             }
             Minecraft.getMinecraft().mcProfiler.endSection();
 
+            if (this.videoHook.failedTCPSendCount > 0)
+                TCPUtils.Log(Level.WARNING, "Video signal failure count at " + this.videoHook.failedTCPSendCount);
             // Check that our messages are getting through:
             int maxFailed = Math.max(this.failedTCPRewardSendCount, this.videoHook.failedTCPSendCount);
             maxFailed = Math.max(maxFailed, this.failedTCPObservationSendCount);
             if (maxFailed > FailedTCPSendCountTolerance)
             {
                 // They're not - and we've exceeded the count of allowed TCP failures.
-                System.out.println("ERROR: TCP video frames are not getting through - quitting mission.");
+                System.out.println("ERROR: TCP messages are not getting through - quitting mission.");
                 this.wantsToQuit = true;
                 this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
             }
+            ls.close();
         }
 
         /**
@@ -1977,7 +1992,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             boolean sentOkay = false;
             if (missionEndedString != null)
             {
-                TCPSocketHelper sender = ClientStateMachine.this.getMissionControlSocket();
+                TCPSocket sender = ClientStateMachine.this.getMissionControlSocket();
                 System.out.println(String.format("Sending mission ended message to %s:%d.", sender.address, sender.port));
                 sentOkay = sender.sendTCPString(missionEndedString);
             }

@@ -53,7 +53,7 @@ bool testStringServer( bool withReply )
     
     std::cout << "Starting server.." << std::endl;
     boost::asio::io_service io_service;
-    StringServer server( io_service, 0, onMessageReceived );
+    StringServer server( io_service, 0, onMessageReceived, "test" );
     if( withReply )
         server.confirmWithFixedReply( expected_reply );
     server.start();

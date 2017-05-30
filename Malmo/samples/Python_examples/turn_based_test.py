@@ -159,34 +159,62 @@ class ThreadedAgent(threading.Thread):
         self.client_pool = clientPool
         self.mission_xml = missionXML
         self.agent_host = MalmoPython.AgentHost()
-        self.agent_host.setDebugOutput(False)
+        #self.agent_host.setDebugOutput(False)
         self.mission = MalmoPython.MissionSpec(missionXML, True)
         self.mission_record = MalmoPython.MissionRecordSpec()
         self.reward = 0
         self.mission_end_message = ""
+        self.error = None
 
     def setWords(self, words):
         self.words = words
 
     def run(self):
         max_retries = 10
-        for retry in range(max_retries):
+        attempt = 0
+        while True:
             try:
-                # Attempt to start the mission:
+                # Attempt to start the mission. This can throw with a number of different errors - see the MissionErrorCodes.
                 self.agent_host.startMission(self.mission, self.client_pool, self.mission_record, self.role, "TurnBasedTest")
                 break
-            except RuntimeError as e:
-                if retry == max_retries - 1:
-                    print "Error starting mission",e
-                    print "Is the game running?"
-                    exit(1)
-                else:
+            except MalmoPython.MissionException as e:
+                # The only error codes we want to handle are those relating to availability of resources.
+                if e.details.errorCode in [MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+                                           MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND]:
+                    # 1: Insufficient_clients means that not enough Minecraft instances are running;
+                    # 2: Server_not_found means that the agent responsible for creating the server (ie role 0) hasn't yet called startMission.
+                    # We respond to both of these cases by waiting and retrying - but not indefinitely, since there is
+                    # no guarantee that either of these problems will be remedied (eg the user might never launch another Minecraft instance.)
+                    attempt += 1
+                    if attempt == max_retries:
+                        self.error = "Failed to start mission after " + str(max_retries) + " attempts."
+                        exit(1)
                     time.sleep(1)
+                elif e.details.errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
+                    # 3: Server_warming_up means that role 0 has called startMission, but the integrated server hasn't yet
+                    # come online. We wait for this indefinitely, since (unless something goes wrong) it should only be a matter
+                    # of letting Minecraft get itself ready.
+                    time.sleep(1)
+                else:
+                    # Any other errors - eg garbled mission requests - can not be solved by simply waiting, so bail now.
+                    self.error = "Fatal error with mission:", e
+                    exit(1)
 
         world_state = self.agent_host.getWorldState()
-        while not world_state.has_mission_begun:
+        max_seconds_to_wait = 20
+        while not world_state.has_mission_begun and len(world_state.errors) == 0:
             time.sleep(0.1)
+            max_seconds_to_wait -= 0.1
+            if max_seconds_to_wait <= 0:
+                self.error = "Timed out waiting for other agents."
+                exit(1)
             world_state = self.agent_host.getWorldState()
+
+        if len(world_state.errors) > 0:
+            self.error = "Mission failed to start while waiting for other agents: "
+            for e in world_state.errors:
+                self.error += e.text
+            exit(1)
 
         self.runMissionLoop()
 
@@ -268,8 +296,15 @@ for mission_no in xrange(iterations):
         agent.join()
 
     print
+    num_errors = 0
     for agent in agents:
         print agent.role, agent.reward, agent.mission_end_message
+        if agent.error:
+            print "ERROR FROM AGENT", agent.role, ":", agent.error
+            num_errors += 1
+    if TESTING and num_errors:
+        exit(1)
+
     reconstructed_text = reconstructed_text.strip() # Deal with trailing space.
     if full_text != reconstructed_text:
         print "ERROR!"

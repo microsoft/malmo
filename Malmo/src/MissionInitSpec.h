@@ -23,6 +23,7 @@
 // Local:
 #include "ClientInfo.h"
 #include "MissionSpec.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/shared_ptr.hpp>
@@ -35,6 +36,8 @@ namespace malmo
     //! Specifies a mission to be run together with the IP addresses and ports of the agents and Mod instances to run it on.
     class MissionInitSpec
     {
+        MALMO_LOGGABLE_OBJECT(MissionInitSpec)
+
         public:
 
             //! Constructs a mission init specification with default settings from the supplied mission specification.

@@ -25,9 +25,9 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace malmo {
-    StringServer::StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string)
+    StringServer::StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string, const std::string& log_name)
         : handle_string(handle_string)
-        , server(io_service, port, boost::bind(&StringServer::handleMessage, this, _1))
+        , server(io_service, port, boost::bind(&StringServer::handleMessage, this, _1), log_name)
     {
     }
 

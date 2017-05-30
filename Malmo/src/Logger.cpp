@@ -17,30 +17,9 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef _CLIENTPOOL_H_
-#define _CLIENTPOOL_H_
-
-// Local:
-#include "ClientInfo.h"
 #include "Logger.h"
 
-// STL:
-#include <vector>
-
-namespace malmo 
+namespace malmo
 {
-    //! A pool of expected network locations of Mod clients.
-    struct ClientPool 
-    {
-        MALMO_LOGGABLE_OBJECT(ClientPool)
-
-        //! Adds a client to the pool.
-        //! \param client_info The client information.
-        void add(const ClientInfo& client_info);
-
-        std::vector< ClientInfo > clients; //!< The list of clients.
-        friend std::ostream& operator<<(std::ostream& os, const ClientPool& cp);
-    };
+    std::atomic<int> LoggerLifetimeTracker::object_count{ 0 };
 }
-
-#endif

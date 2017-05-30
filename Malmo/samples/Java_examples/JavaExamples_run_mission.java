@@ -70,8 +70,15 @@ public class JavaExamples_run_mission
         try {
             agent_host.startMission( my_mission, my_mission_record );
         }
-        catch (Exception e) {
+        catch (MissionException e) {
             System.err.println( "Error starting mission: " + e.getMessage() );
+            System.err.println( "Error code: " + e.getMissionErrorCode() );
+            // We can use the code to do specific error handling, eg:
+            if (e.getMissionErrorCode() == MissionException.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
+            {
+                // Caused by lack of available Minecraft clients.
+                System.err.println( "Is there a Minecraft client running?");
+            }
             System.exit(1);
         }
 

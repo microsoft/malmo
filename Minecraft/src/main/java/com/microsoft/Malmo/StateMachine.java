@@ -20,6 +20,9 @@
 package com.microsoft.Malmo;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+
+import com.microsoft.Malmo.Utils.TCPUtils;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -99,6 +102,7 @@ abstract public class StateMachine
             if (this.state != toState)
             {
                 System.out.println(getName() + " enter state: " + toState);
+                TCPUtils.Log(Level.INFO, "======== " + getName() + " enter state: " + toState + " ========");
                 this.state = toState;
                 onPreStateChange(toState);
                 onStateChange();
@@ -141,6 +145,7 @@ abstract public class StateMachine
             }
             this.stateQueue.add(state);
             System.out.println(getName() + " request state: " + state);
+            TCPUtils.Log(Level.INFO, "-------- " + getName() + " request state: " + state + " --------");
         }
     }
 
