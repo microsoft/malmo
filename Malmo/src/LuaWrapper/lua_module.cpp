@@ -262,7 +262,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             value("MISSION_NO_COMMAND_PORT", MissionException::MISSION_NO_COMMAND_PORT),
             value("MISSION_BAD_INSTALLATION", MissionException::MISSION_BAD_INSTALLATION)
         ]
-        ,
+    ,
 
         class_< Logger >("Logger")
         .enum_("LoggingSeverityLevel")
@@ -277,6 +277,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
         ],
 
         def("setLogging", &Logger::setLogging),
+        def("appendToLog", &Logger::appendToLog),
 
         class_< ArgumentParser >("ArgumentParser")
             .def(constructor< const std::string& >())

@@ -94,7 +94,8 @@ public:
     , LOG_ALL
   };
 
-    static void setLogging(std::string destination, Logger::LoggingSeverityLevel level);
+    static void setLogging(const std::string& destination, Logger::LoggingSeverityLevel level);
+    static void appendToLog(Logger::LoggingSeverityLevel level, const std::string& message);
 };
 
 // We want to throw custom MissionException objects which are derived from System.ApplicationException:

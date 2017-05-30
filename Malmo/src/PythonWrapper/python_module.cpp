@@ -157,6 +157,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         ;
 
     def("setLogging", &Logger::setLogging);
+    def("appendToLog", &Logger::appendToLog);
 
     class_< MissionException >("MissionExceptionDetails", init< const std::string&, MissionException::MissionErrorCode >())
         .add_property("errorCode", &MissionException::getMissionErrorCode)

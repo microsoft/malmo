@@ -144,6 +144,30 @@ namespace malmo
             Logger::getLogger().setFilename(filename);
             Logger::getLogger().setSeverityLevel(severity_level);
         }
+        //! Add a single line to the log.
+        //! Provided for external use - swigged/bound to allow user code
+        //! to add to the log, to assist in debugging.
+        //! Internal (Malmo) code should use the macros instead.
+        //! \param severity_level The level for this log line.
+        //! \message The message to add to the log file.
+        static void appendToLog(LoggingSeverityLevel severity_level, const std::string& message)
+        {
+            switch (severity_level)
+            {
+            case LOG_ERRORS:
+                Logger::getLogger().print<LOG_ERRORS>(message); break;
+            case LOG_WARNINGS:
+                Logger::getLogger().print<LOG_WARNINGS>(message); break;
+            case LOG_INFO:
+                Logger::getLogger().print<LOG_INFO>(message); break;
+            case LOG_FINE:
+                Logger::getLogger().print<LOG_FINE>(message); break;
+            case LOG_TRACE:
+                Logger::getLogger().print<LOG_TRACE>(message); break;
+            case LOG_ALL:
+                Logger::getLogger().print<LOG_ALL>(message); break;
+            }
+        }
 
     protected:
         template<LoggingSeverityLevel level> friend class LogSection;

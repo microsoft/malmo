@@ -72,7 +72,8 @@ public:
     , LOG_TRACE
     , LOG_ALL
   };
-    static void setLogging(std::string destination, Logger::LoggingSeverityLevel level);
+    static void setLogging(const std::string& destination, Logger::LoggingSeverityLevel level);
+    static void appendToLog(Logger::LoggingSeverityLevel level, const std::string& message);
 };
 
 
