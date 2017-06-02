@@ -29,6 +29,7 @@ set( SOURCES
   discrete_3d_test.py
   drawing_test.py
   file_test.py
+  hit_test.py
   human_action.py
   manual_input_test.py
   MazeRunner.py
