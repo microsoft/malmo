@@ -5,6 +5,7 @@ New: Added socket logging code to Mod, available in Mod UI.
 New: Added logging code to platform, available through Malmo API.
 New: startMission now provides more error details in exceptions; multi-agent samples hardened by using this.
 New: ObservationFromNearbyEntities now returns entity life.
+New: RewardForDamagingEntity plus sample. (#537)
 
 0.21.0
 -------------------

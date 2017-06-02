@@ -110,6 +110,7 @@ public class JSONWorldDataHelper
         json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.mobKillsStat));
         json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.playerKillsStat));
         json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.damageTakenStat));
+        json.addProperty("DamageDealt", sfw.readStat((StatBase)StatList.damageDealtStat));
 
         /* Other potential reinforcement signals that may be worth researching:
         json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);

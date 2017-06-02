@@ -22,7 +22,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
