@@ -71,6 +71,7 @@ set( MULTI_AGENT_TESTS
     team_reward_test.py
     multi_agent_test.py
     agent_visibility_test.py
+    tsp_race.py
     turn_based_test.py
     MultiMaze.py
 )
