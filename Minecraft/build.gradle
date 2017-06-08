@@ -45,6 +45,7 @@ minecraft {
     mappings = "snapshot_20141130"
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
+    /*
     afterEvaluate {
         // At this point, we can extract the command line used to run minecraft, and save it into
         // a bat/sh file for quicker startup on subsequent runs.
@@ -59,6 +60,7 @@ minecraft {
             }
         }
     }
+    */
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
