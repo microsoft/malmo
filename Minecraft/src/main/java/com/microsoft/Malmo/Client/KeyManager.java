@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -47,7 +46,6 @@ public class KeyManager
         if (additionalKeys != null)
         {
             fixAdditionalKeyBindings(settings);
-            FMLCommonHandler.instance().bus().register(this);
         }
     }
 

@@ -26,7 +26,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -141,11 +141,11 @@ public class RewardForTouchingBlockTypeImplementation extends RewardBase impleme
     {
         // Determine what blocks we are touching.
         // This code is largely cribbed from Entity, where it is used to fire the Block.onEntityCollidedWithBlock methods.
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
 
         List<BlockPos> touchingBlocks = PositionHelper.getTouchingBlocks(player);
         for (BlockPos pos : touchingBlocks) {
-            IBlockState iblockstate = player.worldObj.getBlockState(pos);
+            IBlockState iblockstate = player.world.getBlockState(pos);
             for (BlockMatcher bm : this.matchers) {
                 if (bm.applies(pos) && bm.matches(pos, iblockstate))
                 {

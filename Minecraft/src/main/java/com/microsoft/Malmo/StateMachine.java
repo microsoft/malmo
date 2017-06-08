@@ -22,10 +22,9 @@ package com.microsoft.Malmo;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
-import com.microsoft.Malmo.Utils.TCPUtils;
-
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+
+import com.microsoft.Malmo.Utils.TCPUtils;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -84,7 +83,6 @@ abstract public class StateMachine
         this.homeThread = Thread.currentThread();
         
         // Register the EventWrapper on the event busses:
-        FMLCommonHandler.instance().bus().register(this.eventWrapper);
         MinecraftForge.EVENT_BUS.register(this.eventWrapper);
     }
     

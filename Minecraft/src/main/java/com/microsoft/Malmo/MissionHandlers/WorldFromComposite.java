@@ -40,11 +40,11 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
         for (IWorldDecorator builder : this.builders)
         {
-            builder.buildOnWorld(missionInit);
+            builder.buildOnWorld(missionInit, world);
         }
     }
 

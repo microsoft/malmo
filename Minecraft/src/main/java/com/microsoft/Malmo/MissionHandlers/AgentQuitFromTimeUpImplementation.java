@@ -20,9 +20,9 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 
 import com.microsoft.Malmo.Schemas.AgentQuitFromTimeUp;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -50,19 +50,19 @@ public class AgentQuitFromTimeUpImplementation extends QuitFromTimeUpBase
 	@Override
 	protected long getWorldTime()
 	{
-		return Minecraft.getMinecraft().theWorld.getTotalWorldTime();
+		return Minecraft.getMinecraft().world.getTotalWorldTime();
 	}
 
 	@Override
 	protected void drawCountDown(int secondsRemaining)
 	{
-        ChatComponentText text = new ChatComponentText("" + secondsRemaining + "...");
-        ChatStyle style = new ChatStyle();
+        TextComponentString text = new TextComponentString("" + secondsRemaining + "...");
+        Style style = new Style();
         style.setBold(true);
         if (secondsRemaining <= 5)
-            style.setColor(EnumChatFormatting.RED);
+            style.setColor(TextFormatting.RED);
 
-        text.setChatStyle(style);
+        text.setStyle(style);
         Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
 	}
 	

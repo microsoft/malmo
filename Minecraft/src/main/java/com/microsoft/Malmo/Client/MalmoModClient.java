@@ -27,7 +27,6 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.GuiIngameModOptions;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -91,7 +90,6 @@ public class MalmoModClient
 	public void init(FMLInitializationEvent event)
 	{
         // Register for various events:
-        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
 
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
@@ -169,13 +167,14 @@ public class MalmoModClient
         this.keyManager = new KeyManager(settings, extraKeys);
     }
     
+    /*
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onEvent(GuiOpenEvent event)
     {
-        if (event.gui instanceof GuiIngameModOptions)
+        if (event.getGui() instanceof GuiIngameModOptions)
         {
-            event.gui = new MalmoModGuiOptions.MalmoModGuiScreen(null);        
+            event.setGui(new MalmoModGuiOptions.MalmoModGuiScreen(null));
         }
-    }
+    }*/
 }

@@ -43,7 +43,7 @@ public interface IWorldDecorator
     /** Get the world into the required state for the start of the mission.
      * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the observation requirements.
      */
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException;
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException;
 
     /** Gives the decorator a chance to add any client-side mission handlers that might be required - eg end-points for the maze generator, etc -
      * and to communicate (via the map) any data back to the client-side.

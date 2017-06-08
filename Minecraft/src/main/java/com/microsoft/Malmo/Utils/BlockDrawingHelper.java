@@ -36,8 +36,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.entity.EntityLivingBase;
 
@@ -366,7 +367,7 @@ public class BlockDrawingHelper
                     ((EntityLivingBase)entity).renderYawOffset = e.getYaw().floatValue();
                 }
                 w.getBlockState(entity.getPosition());  // Force-load the chunk if necessary, to ensure spawnEntity will work.
-                if (!w.spawnEntityInWorld(entity))
+                if (!w.spawnEntity(entity))
                 {
                     System.out.println("WARNING: Failed to spawn entity! Chunk not loaded?");
                 }
@@ -397,7 +398,7 @@ public class BlockDrawingHelper
         entityitem.motionY = 0;
         entityitem.motionZ = 0;
         entityitem.setDefaultPickupDelay();
-        world.spawnEntityInWorld(entityitem);
+        world.spawnEntity(entityitem);
     }
 
     protected EntityItem createItem(ItemStack stack, double x, double y, double z, World w, boolean centreItem)
@@ -485,7 +486,8 @@ public class BlockDrawingHelper
                 try
                 {
                     EntityTypes entvar = EntityTypes.fromValue(state.variant.getValue());
-                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
+                    //((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
+                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityId(new ResourceLocation(entvar.value()));
                 }
                 catch (Exception e)
                 {

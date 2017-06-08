@@ -19,8 +19,6 @@
 
 package com.microsoft.Malmo.Utils;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.WorldInfo;
 
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -29,7 +27,7 @@ import com.microsoft.Malmo.Schemas.ServerSection;
 
 public class EnvironmentHelper
 {
-    public static void setMissionWeather(MissionInit minit)
+    public static void setMissionWeather(MissionInit minit, WorldInfo worldinfo)
     {
         ServerSection ss = minit.getMission().getServerSection();
         ServerInitialConditions sic = (ss != null) ? ss.getServerInitialConditions() : null;
@@ -39,9 +37,6 @@ public class EnvironmentHelper
             int cleartime = (sic.getWeather().equalsIgnoreCase("clear")) ? maxtime : 0;
             int raintime = (sic.getWeather().equalsIgnoreCase("rain")) ? maxtime : 0;
             int thundertime = (sic.getWeather().equalsIgnoreCase("thunder")) ? maxtime : 0;
-
-            WorldServer worldserver = MinecraftServer.getServer().worldServers[0];
-            WorldInfo worldinfo = worldserver.getWorldInfo();
 
             worldinfo.setCleanWeatherTime(cleartime);
             worldinfo.setRainTime(raintime);

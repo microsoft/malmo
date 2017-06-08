@@ -49,7 +49,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit)
+    public void buildOnWorld(MissionInit missionInit, World world)
     {
         Mission mission = missionInit.getMission();
         if (mission != null)
@@ -57,7 +57,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
             try
             {
                 BlockDrawingHelper drawContext = new BlockDrawingHelper();
-                drawContext.Draw(this.drawing, MinecraftServer.getServer().getEntityWorld());
+                drawContext.Draw(this.drawing, world);
             }
             catch (Exception e)
             {
