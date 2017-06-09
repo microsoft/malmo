@@ -426,7 +426,8 @@ namespace malmo
 
     void AgentHost::setDebugOutput(bool debug)
     {
-        Logger::getLogger().setLogging("", Logger::LOG_INFO);
+        // Deprecated - use Logger.setLogging instead.
+        Logger::getLogger().setLogging("", debug ? Logger::LOG_INFO : Logger::LOG_OFF);
     }
 
     void AgentHost::setVideoPolicy(VideoPolicy videoPolicy)
