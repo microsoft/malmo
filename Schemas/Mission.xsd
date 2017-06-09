@@ -157,7 +157,7 @@
                 <xs:element name="AllowedMobs" minOccurs="0" maxOccurs="1">
                   <xs:annotation>
                     <xs:documentation>
-                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings do not effect mob_spawner blocks.
+                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings *do* effect mob_spawner blocks.
                     </xs:documentation>
                   </xs:annotation>
                     <xs:simpleType>
