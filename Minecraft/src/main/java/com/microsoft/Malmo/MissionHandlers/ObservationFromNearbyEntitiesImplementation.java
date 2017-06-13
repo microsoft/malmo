@@ -24,7 +24,9 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 
@@ -118,7 +120,7 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                     jsent.addProperty("y", e.posY);
                     jsent.addProperty("z", e.posZ);
                     jsent.addProperty("pitch", e.rotationPitch);
-                    String name = e.getName();
+                    String name = MinecraftTypeHelper.getUnlocalisedEntityName(e);
                     if (e instanceof EntityItem)
                     {
                         ItemStack is = ((EntityItem)e).getEntityItem();

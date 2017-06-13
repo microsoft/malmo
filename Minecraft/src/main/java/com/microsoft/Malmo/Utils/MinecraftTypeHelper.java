@@ -29,6 +29,9 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -578,30 +581,57 @@ public class MinecraftTypeHelper
 	 * @param facing The new direction (N/S/E/W/U/D)
 	 * @return A new blockstate with the facing attribute edited
 	 */
-	static IBlockState applyFacing(IBlockState state, Facing facing)
-	{
-	    for (IProperty prop : state.getProperties().keySet())
-	    {
-	        if (prop.getName().equals("facing"))
-	        {
-	        	if(prop.getValueClass() == EnumFacing.class)
-	        	{
-	        		EnumFacing current = (EnumFacing)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
-	                }
-	        	}
-	        	else if(prop.getValueClass() == EnumOrientation.class)
-	        	{
-	        		EnumOrientation current = (EnumOrientation)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
-	                }
-	        	}
-	        }
-	    }
-	    return state;
-	}
+    static IBlockState applyFacing(IBlockState state, Facing facing)
+    {
+        for (IProperty prop : state.getProperties().keySet())
+        {
+            if (prop.getName().equals("facing"))
+            {
+                if (prop.getValueClass() == EnumFacing.class)
+                {
+                    EnumFacing current = (EnumFacing) state.getValue(prop);
+                    if (!current.getName().equalsIgnoreCase(facing.name()))
+                    {
+                        return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
+                    }
+                }
+                else if (prop.getValueClass() == EnumOrientation.class)
+                {
+                    EnumOrientation current = (EnumOrientation) state.getValue(prop);
+                    if (!current.getName().equalsIgnoreCase(facing.name()))
+                    {
+                        return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
+                    }
+                }
+            }
+        }
+        return state;
+    }
+
+    /** Does essentially the same as entity.getName(), but without pushing the result
+     * through the translation layer. This ensures the result matches what we use in Types.XSD,
+     * and prevents things like "entity.ShulkerBullet.name" being returned, where there is no
+     * translation provided in the .lang file.
+     * @param ent The entity
+     * @return The entity's name.
+     */
+    public static String getUnlocalisedEntityName(Entity e)
+    {
+        String name;
+        if (e.hasCustomName())
+        {
+            name = e.getCustomNameTag();
+        }
+        else if (e instanceof EntityPlayer)
+        {
+            name = e.getName(); // Just returns the user name
+        }
+        else
+        {
+            name = EntityList.getEntityString(e);
+            if (name == null)
+                name = "unknown";
+        }
+        return name;
+    }
 }

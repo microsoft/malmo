@@ -130,7 +130,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                 jsonMop.addProperty("z", entity.posZ);
                 jsonMop.addProperty("yaw",  entity.rotationYaw);
                 jsonMop.addProperty("pitch",  entity.rotationPitch);
-                String name = entity.getName();
+                String name = MinecraftTypeHelper.getUnlocalisedEntityName(entity);
                 String hitType = "entity";
                 if (entity instanceof EntityItem)
                 {
