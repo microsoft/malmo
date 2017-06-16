@@ -41,6 +41,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
@@ -345,9 +346,22 @@ public class BlockDrawingHelper
      */
     private void DrawPrimitive( DrawEntity e, World w ) throws Exception
     {
-        String entityName = e.getType().getValue();
+        String oldEntityName = e.getType().getValue();
+        String id = null;
+        for (EntityEntry ent : net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES)
+        {
+           if (ent.getName().equals(oldEntityName))
+           {
+               id = ent.getRegistryName().toString();
+               break;
+           }
+        }
+        if (id == null)
+            return;
+
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("id", entityName);
+        nbttagcompound.setString("id", id);
+        nbttagcompound.setBoolean("PersistenceRequired", true); // Don't let this entity despawn
         Entity entity;
         try
         {

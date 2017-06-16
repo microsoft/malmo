@@ -297,10 +297,10 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                     ''' + drawHilbert(4,16,34,16) + '''
                     
                     <!-- Give the player a Minecart -->
-                    <DrawEntity x="18.5" y="56" z="20.5" type="Minecart"/>
+                    <DrawEntity x="18.5" y="56" z="20.5" type="MinecartRideable"/>
                     
                     <!-- And something amusing to follow -->
-                    <DrawEntity x="20.5" y="56" z="16.5" xVel="0" yVel="0" zVel="-1" type="Minecart"/>
+                    <DrawEntity x="20.5" y="56" z="16.5" xVel="0" yVel="0" zVel="-1" type="MinecartRideable"/>
                     <DrawEntity x="20.5" y="56" z="16.5" type="''' + MOB_TYPE + '''"/>
                 </DrawingDecorator>''' + timeoutCondition + '''
                 <ServerQuitWhenAnyAgentFinishes />

@@ -206,6 +206,8 @@ public class ScreenHelper
         purgeExpiredFragments(null);
         if (Minecraft.getMinecraft().currentScreen != null && !(Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu))
             return;
+        if (Minecraft.getMinecraft().gameSettings.showDebugInfo)    // Don't obscure MC debug info with our debug info
+            return;
 
         ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
         int width = res.getScaledWidth();
