@@ -249,6 +249,7 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindings[i];
                     this.keyHook = create(this.originalBinding);
+                    createdHook = true;
                 }
                 settings.keyBindings[i] = this.keyHook;
             }
@@ -263,6 +264,7 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindsHotbar[i];
                     this.keyHook = create(this.originalBinding);
+                    createdHook = true;
                 }
                 settings.keyBindsHotbar[i] = this.keyHook;
             }
