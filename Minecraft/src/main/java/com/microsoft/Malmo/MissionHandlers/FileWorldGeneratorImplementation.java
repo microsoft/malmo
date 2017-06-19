@@ -100,19 +100,19 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
         WorldSummary newWorld = null;
         for (WorldSummary ws : worldlist)
         {
-        	if (ws.getFileName().equals(mapCopy.getAbsolutePath()))
-        		newWorld = ws;
+            if (ws.getFileName().equals(mapCopy.getName()))
+                newWorld = ws;
         }
         if (newWorld == null)
         {
-        	this.errorDetails = "Minecraft could not find the copied world.";
-        	return false;
+            this.errorDetails = "Minecraft could not find the copied world.";
+            return false;
         }
 
         net.minecraftforge.fml.client.FMLClientHandler.instance().tryLoadExistingWorld(null, newWorld);
         IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
         String worldName = (server != null) ? server.getWorldName() : null;
-        if (worldName == null || !worldName.equals(mapSource.getName()))
+        if (worldName == null || !worldName.equals(newWorld.getDisplayName()))
         {
             this.errorDetails = "Minecraft could not load " + this.mapFilename + " - is it a valid saved world?";
             return false;
