@@ -1898,6 +1898,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         chunk.removeEntity(removeEnt);
                     }
                     entity.addedToChunk = false;    // Will force it to get re-added to the chunk list.
+                    entity.setInvisible(false);
                     if (entity instanceof EntityLivingBase)
                     {
                         // If we want the entities to be rendered with the correct yaw from the outset,
