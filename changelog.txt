@@ -4,6 +4,7 @@ New: UPGRADED TO LATEST MC/FORGE
 Breaking: AllowSpawning/AllowedMobs now affects mob_spawners
 Breaking: "Minecart" entity renamed to "MinecartRideable"
 New: Now includes all mobs up to Minecraft 1.11, and "mob_zoo.py" sample
+New: Added new blocktypes and items up to Minecraft 1.11
 
 0.22.0
 -------------------
