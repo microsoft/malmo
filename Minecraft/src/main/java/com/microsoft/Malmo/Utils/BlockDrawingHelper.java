@@ -55,6 +55,7 @@ import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.NoteTypes;
 import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 
@@ -514,7 +515,19 @@ public class BlockDrawingHelper
             TileEntity te = w.getTileEntity(pos);
             if (te != null && te instanceof TileEntityNote)
             {
-                ((TileEntityNote)te).note = (byte)((pos.getX() + pos.getY() + pos.getZ()) % 25);
+                try
+                {
+                    NoteTypes note = NoteTypes.fromValue(state.variant.getValue());
+                    if (note != null)
+                    {
+                        // User has requested a particular note.
+                        ((TileEntityNote)te).note = (byte)note.ordinal();
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // Wasn't a note variation. Ignore.
+                }
             }
         }
     }

@@ -741,6 +741,41 @@
     </xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="NoteTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Note values for creating tuned noteblocks
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="F_sharp_3" />
+        <xs:enumeration value="G3" />
+        <xs:enumeration value="G_sharp_3" />
+        <xs:enumeration value="A3" />
+        <xs:enumeration value="A_sharp_3" />
+        <xs:enumeration value="B3" />
+        <xs:enumeration value="C4" />
+        <xs:enumeration value="C_sharp_4" />
+        <xs:enumeration value="D4" />
+        <xs:enumeration value="D_sharp_4" />
+        <xs:enumeration value="E4" />
+        <xs:enumeration value="F4" />
+        <xs:enumeration value="F_sharp_4" />
+        <xs:enumeration value="G4" />
+        <xs:enumeration value="G_sharp_4" />
+        <xs:enumeration value="A4" />
+        <xs:enumeration value="A_sharp_4" />
+        <xs:enumeration value="B4" />
+        <xs:enumeration value="C5" />
+        <xs:enumeration value="C_sharp_5" />
+        <xs:enumeration value="D5" />
+        <xs:enumeration value="D_sharp_5" />
+        <xs:enumeration value="E5" />
+        <xs:enumeration value="F5" />
+        <xs:enumeration value="F_sharp_5" />
+    </xs:restriction>
+</xs:simpleType>
+
 <xs:simpleType name="SpawnableTypes">
     <xs:annotation>
         <xs:documentation>
@@ -762,7 +797,7 @@
         <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
-    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes HalfTypes"/>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes HalfTypes NoteTypes"/>
 </xs:simpleType>
 
 </xs:schema>
