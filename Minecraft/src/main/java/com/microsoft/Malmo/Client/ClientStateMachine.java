@@ -1906,7 +1906,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         ((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
                         ((EntityLivingBase)entity).prevRenderYawOffset = entity.rotationYaw;
                     }
-                    if (entity instanceof EntityPlayer)
+                    if (entity instanceof EntityPlayerSP)
                     {
                         // Although the following call takes place on the server, and should have taken effect already,
                         // there is some discontinuity which is causing the effects to get lost, so we call it here too:
