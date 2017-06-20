@@ -1898,7 +1898,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         chunk.removeEntity(removeEnt);
                     }
                     entity.addedToChunk = false;    // Will force it to get re-added to the chunk list.
-                    entity.setInvisible(false);
                     if (entity instanceof EntityLivingBase)
                     {
                         // If we want the entities to be rendered with the correct yaw from the outset,
@@ -1906,6 +1905,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         // (Set the offset from the outset to avoid the onset of upset.)
                         ((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
                         ((EntityLivingBase)entity).prevRenderYawOffset = entity.rotationYaw;
+                    }
+                    if (entity instanceof EntityPlayer)
+                    {
+                        // Although the following call takes place on the server, and should have taken effect already,
+                        // there is some discontinuity which is causing the effects to get lost, so we call it here too:
+                        entity.setInvisible(false);
                     }
                 }
                 this.serverHasFiredStartingPistol = true; // GO GO GO!
