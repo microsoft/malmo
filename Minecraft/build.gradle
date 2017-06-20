@@ -35,7 +35,7 @@ minecraft {
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20161220"
-    //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
