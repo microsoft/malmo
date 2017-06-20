@@ -19,7 +19,6 @@
 
 package com.microsoft.Malmo;
 
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 import org.objectweb.asm.ClassReader;

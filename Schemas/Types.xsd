@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.22">
+           version="0.30">
 
 <xs:simpleType name="Colour">
     <xs:annotation>
@@ -58,30 +58,7 @@
 <xs:simpleType name="ItemType">
     <xs:annotation>
       <xs:documentation>
-        The 188 types of item allowed in the Minecraft world: {{{iron_shovel}}}, {{{iron_pickaxe}}}, {{{iron_axe}}}, {{{flint_and_steel}}}, {{{apple}}}, {{{bow}}},
-        {{{arrow}}}, {{{coal}}}, {{{diamond}}}, {{{iron_ingot}}}, {{{gold_ingot}}}, {{{iron_sword}}}, {{{wooden_sword}}}, {{{wooden_shovel}}},
-        {{{wooden_pickaxe}}}, {{{wooden_axe}}}, {{{stone_sword}}}, {{{stone_shovel}}}, {{{stone_pickaxe}}}, {{{stone_axe}}}, {{{diamond_sword}}},
-        {{{diamond_shovel}}}, {{{diamond_pickaxe}}}, {{{diamond_axe}}}, {{{stick}}}, {{{bowl}}}, {{{mushroom_stew}}}, {{{golden_sword}}}, {{{golden_shovel}}},
-        {{{golden_pickaxe}}}, {{{golden_axe}}}, {{{string}}}, {{{feather}}}, {{{gunpowder}}}, {{{wooden_hoe}}}, {{{stone_hoe}}}, {{{iron_hoe}}}, {{{diamond_hoe}}},
-        {{{golden_hoe}}}, {{{wheat_seeds}}}, {{{wheat}}}, {{{bread}}}, {{{leather_helmet}}}, {{{leather_chestplate}}}, {{{leather_leggings}}}, {{{leather_boots}}},
-        {{{chainmail_helmet}}}, {{{chainmail_chestplate}}}, {{{chainmail_leggings}}}, {{{chainmail_boots}}}, {{{iron_helmet}}}, {{{iron_chestplate}}},
-        {{{iron_leggings}}}, {{{iron_boots}}}, {{{diamond_helmet}}}, {{{diamond_chestplate}}}, {{{diamond_leggings}}}, {{{diamond_boots}}}, {{{golden_helmet}}},
-        {{{golden_chestplate}}}, {{{golden_leggings}}}, {{{golden_boots}}}, {{{flint}}}, {{{porkchop}}}, {{{cooked_porkchop}}}, {{{painting}}}, {{{golden_apple}}},
-        {{{sign}}}, {{{wooden_door}}}, {{{bucket}}}, {{{bucket}}}, {{{water_bucket}}}, {{{lava_bucket}}}, {{{minecart}}}, {{{saddle}}}, {{{iron_door}}},
-        {{{redstone}}}, {{{snowball}}}, {{{boat}}}, {{{leather}}}, {{{milk_bucket}}}, {{{brick}}}, {{{clay_ball}}}, {{{reeds}}}, {{{paper}}}, {{{book}}},
-        {{{slime_ball}}}, {{{chest_minecart}}}, {{{furnace_minecart}}}, {{{egg}}}, {{{compass}}}, {{{fishing_rod}}}, {{{clock}}}, {{{glowstone_dust}}}, {{{fish}}},
-        {{{cooked_fish}}}, {{{dye}}}, {{{bone}}}, {{{sugar}}}, {{{cake}}}, {{{bed}}}, {{{repeater}}}, {{{cookie}}}, {{{filled_map}}}, {{{shears}}}, {{{melon}}},
-        {{{pumpkin_seeds}}}, {{{melon_seeds}}}, {{{beef}}}, {{{cooked_beef}}}, {{{chicken}}}, {{{cooked_chicken}}}, {{{rotten_flesh}}}, {{{ender_pearl}}},
-        {{{blaze_rod}}}, {{{ghast_tear}}}, {{{gold_nugget}}}, {{{nether_wart}}}, {{{potion}}}, {{{glass_bottle}}}, {{{spider_eye}}}, {{{fermented_spider_eye}}},
-        {{{blaze_powder}}}, {{{magma_cream}}}, {{{brewing_stand}}}, {{{cauldron}}}, {{{ender_eye}}}, {{{speckled_melon}}}, {{{spawn_egg}}}, {{{experience_bottle}}},
-        {{{fire_charge}}}, {{{writable_book}}}, {{{written_book}}}, {{{emerald}}}, {{{item_frame}}}, {{{flower_pot}}}, {{{carrot}}}, {{{potato}}},
-        {{{baked_potato}}}, {{{poisonous_potato}}}, {{{map}}}, {{{golden_carrot}}}, {{{skull}}}, {{{carrot_on_a_stick}}}, {{{nether_star}}}, {{{pumpkin_pie}}},
-        {{{fireworks}}}, {{{firework_charge}}}, {{{enchanted_book}}}, {{{comparator}}}, {{{netherbrick}}}, {{{quartz}}}, {{{tnt_minecart}}}, {{{hopper_minecart}}},
-        {{{prismarine_shard}}}, {{{prismarine_crystals}}}, {{{rabbit}}}, {{{cooked_rabbit}}}, {{{rabbit_stew}}}, {{{rabbit_foot}}}, {{{rabbit_hide}}},
-        {{{armor_stand}}}, {{{iron_horse_armor}}}, {{{golden_horse_armor}}}, {{{diamond_horse_armor}}}, {{{lead}}}, {{{name_tag}}}, {{{command_block_minecart}}},
-        {{{mutton}}}, {{{cooked_mutton}}}, {{{banner}}}, {{{spruce_door}}}, {{{birch_door}}}, {{{jungle_door}}}, {{{acacia_door}}}, {{{dark_oak_door}}},
-        {{{record_13}}}, {{{record_cat}}}, {{{record_blocks}}}, {{{record_chirp}}}, {{{record_far}}}, {{{record_mall}}}, {{{record_mellohi}}}, {{{record_stal}}},
-        {{{record_strad}}}, {{{record_ward}}}, {{{record_11}}}, {{{record_wait}}}.
+        The types of item allowed in the Minecraft world.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -261,6 +238,26 @@
         <xs:enumeration value="jungle_door" />
         <xs:enumeration value="acacia_door" />
         <xs:enumeration value="dark_oak_door" />
+        <xs:enumeration value="chorus_fruit" />
+        <xs:enumeration value="chorus_fruit_popped" />
+        <xs:enumeration value="beetroot" />
+        <xs:enumeration value="beetroot_seeds" />
+        <xs:enumeration value="beetroot_soup" />
+        <xs:enumeration value="dragon_breath" />
+        <xs:enumeration value="splash_potion" />
+        <xs:enumeration value="spectral_arrow" />
+        <xs:enumeration value="tipped_arrow" />
+        <xs:enumeration value="lingering_potion" />
+        <xs:enumeration value="shield" />
+        <xs:enumeration value="elytra" />
+        <xs:enumeration value="spruce_boat" />
+        <xs:enumeration value="birch_boat" />
+        <xs:enumeration value="jungle_boat" />
+        <xs:enumeration value="acacia_boat" />
+        <xs:enumeration value="dark_oak_boat" />
+        <xs:enumeration value="totem_of_undying" />
+        <xs:enumeration value="shulker_shell" />
+        <xs:enumeration value="iron_nugget" />
         <xs:enumeration value="record_13" />
         <xs:enumeration value="record_cat" />
         <xs:enumeration value="record_blocks" />
@@ -279,31 +276,7 @@
 <xs:simpleType name="BlockType">
     <xs:annotation>
       <xs:documentation>
-        The 198 block types allowed in the Minecraft world: {{{air}}}, {{{stone}}}, {{{grass}}}, {{{dirt}}}, {{{cobblestone}}}, {{{planks}}}, {{{sapling}}}, {{{bedrock}}},
-        {{{flowing_water}}}, {{{water}}}, {{{flowing_lava}}}, {{{lava}}}, {{{sand}}}, {{{gravel}}}, {{{gold_ore}}}, {{{iron_ore}}}, {{{coal_ore}}}, {{{log}}}, {{{leaves}}},
-        {{{sponge}}}, {{{glass}}}, {{{lapis_ore}}}, {{{lapis_block}}}, {{{dispenser}}}, {{{sandstone}}}, {{{noteblock}}}, {{{bed}}}, {{{golden_rail}}}, {{{detector_rail}}},
-        {{{sticky_piston}}}, {{{web}}}, {{{tallgrass}}}, {{{deadbush}}}, {{{piston}}}, {{{piston_head}}}, {{{wool}}}, {{{piston_extension}}}, {{{yellow_flower}}},
-        {{{red_flower}}}, {{{brown_mushroom}}}, {{{red_mushroom}}}, {{{gold_block}}}, {{{iron_block}}}, {{{double_stone_slab}}}, {{{stone_slab}}}, {{{brick_block}}},
-        {{{tnt}}}, {{{bookshelf}}}, {{{mossy_cobblestone}}}, {{{obsidian}}}, {{{torch}}}, {{{fire}}}, {{{mob_spawner}}}, {{{oak_stairs}}}, {{{chest}}}, {{{redstone_wire}}},
-        {{{diamond_ore}}}, {{{diamond_block}}}, {{{crafting_table}}}, {{{wheat}}}, {{{farmland}}}, {{{furnace}}}, {{{lit_furnace}}}, {{{standing_sign}}}, {{{wooden_door}}},
-        {{{ladder}}}, {{{rail}}}, {{{stone_stairs}}}, {{{wall_sign}}}, {{{lever}}}, {{{stone_pressure_plate}}}, {{{iron_door}}}, {{{wooden_pressure_plate}}},
-        {{{redstone_ore}}}, {{{lit_redstone_ore}}}, {{{unlit_redstone_torch}}}, {{{redstone_torch}}}, {{{stone_button}}}, {{{snow_layer}}}, {{{ice}}}, {{{snow}}},
-        {{{cactus}}}, {{{clay}}}, {{{reeds}}}, {{{jukebox}}}, {{{fence}}}, {{{pumpkin}}}, {{{netherrack}}}, {{{soul_sand}}}, {{{glowstone}}}, {{{portal}}},
-        {{{lit_pumpkin}}}, {{{cake}}}, {{{unpowered_repeater}}}, {{{powered_repeater}}}, {{{stained_glass}}}, {{{trapdoor}}}, {{{monster_egg}}}, {{{stonebrick}}},
-        {{{brown_mushroom_block}}}, {{{red_mushroom_block}}}, {{{iron_bars}}}, {{{glass_pane}}}, {{{melon_block}}}, {{{pumpkin_stem}}}, {{{melon_stem}}}, {{{vine}}},
-        {{{fence_gate}}}, {{{brick_stairs}}}, {{{stone_brick_stairs}}}, {{{mycelium}}}, {{{waterlily}}}, {{{nether_brick}}}, {{{nether_brick_fence}}},
-        {{{nether_brick_stairs}}}, {{{nether_wart}}}, {{{enchanting_table}}}, {{{brewing_stand}}}, {{{cauldron}}}, {{{end_portal}}}, {{{end_portal_frame}}},
-        {{{end_stone}}}, {{{dragon_egg}}}, {{{redstone_lamp}}}, {{{lit_redstone_lamp}}}, {{{double_wooden_slab}}}, {{{wooden_slab}}}, {{{cocoa}}}, {{{sandstone_stairs}}},
-        {{{emerald_ore}}}, {{{ender_chest}}}, {{{tripwire_hook}}}, {{{tripwire}}}, {{{emerald_block}}}, {{{spruce_stairs}}}, {{{birch_stairs}}}, {{{jungle_stairs}}},
-        {{{command_block}}}, {{{beacon}}}, {{{cobblestone_wall}}}, {{{flower_pot}}}, {{{carrots}}}, {{{potatoes}}}, {{{wooden_button}}}, {{{skull}}}, {{{anvil}}},
-        {{{trapped_chest}}}, {{{light_weighted_pressure_plate}}}, {{{heavy_weighted_pressure_plate}}}, {{{unpowered_comparator}}}, {{{powered_comparator}}},
-        {{{daylight_detector}}}, {{{redstone_block}}}, {{{quartz_ore}}}, {{{hopper}}}, {{{quartz_block}}}, {{{quartz_stairs}}}, {{{activator_rail}}}, {{{dropper}}},
-        {{{stained_hardened_clay}}}, {{{stained_glass_pane}}}, {{{leaves2}}}, {{{log2}}}, {{{acacia_stairs}}}, {{{dark_oak_stairs}}}, {{{slime}}}, {{{barrier}}},
-        {{{iron_trapdoor}}}, {{{prismarine}}}, {{{sea_lantern}}}, {{{hay_block}}}, {{{carpet}}}, {{{hardened_clay}}}, {{{coal_block}}}, {{{packed_ice}}},
-        {{{double_plant}}}, {{{standing_banner}}}, {{{wall_banner}}}, {{{daylight_detector_inverted}}}, {{{red_sandstone}}}, {{{red_sandstone_stairs}}},
-        {{{double_stone_slab2}}}, {{{stone_slab2}}}, {{{spruce_fence_gate}}}, {{{birch_fence_gate}}}, {{{jungle_fence_gate}}}, {{{dark_oak_fence_gate}}},
-        {{{acacia_fence_gate}}}, {{{spruce_fence}}}, {{{birch_fence}}}, {{{jungle_fence}}}, {{{dark_oak_fence}}}, {{{acacia_fence}}}, {{{spruce_door}}}, {{{birch_door}}},
-        {{{jungle_door}}}, {{{acacia_door}}}, {{{dark_oak_door}}}.
+        The block types allowed in the Minecraft world.
        </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -505,6 +478,44 @@
         <xs:enumeration value="jungle_door" />
         <xs:enumeration value="acacia_door" />
         <xs:enumeration value="dark_oak_door" />
+        <xs:enumeration value="end_rod" />
+        <xs:enumeration value="chorus_plant" />
+        <xs:enumeration value="chorus_flower" />
+        <xs:enumeration value="purpur_block" />
+        <xs:enumeration value="purpur_pillar" />
+        <xs:enumeration value="purpur_stairs" />
+        <xs:enumeration value="purpur_double_slab" />
+        <xs:enumeration value="purpur_slab" />
+        <xs:enumeration value="end_bricks" />
+        <xs:enumeration value="beetroots" />
+        <xs:enumeration value="grass_path" />
+        <xs:enumeration value="end_gateway" />
+        <xs:enumeration value="repeating_command_block" />
+        <xs:enumeration value="chain_command_block" />
+        <xs:enumeration value="frosted_ice" />
+        <xs:enumeration value="magma" />
+        <xs:enumeration value="nether_wart_block" />
+        <xs:enumeration value="red_nether_brick" />
+        <xs:enumeration value="bone_block" />
+        <xs:enumeration value="structure_void" />
+        <xs:enumeration value="observer" />
+        <xs:enumeration value="white_shulker_box" />
+        <xs:enumeration value="orange_shulker_box" />
+        <xs:enumeration value="magenta_shulker_box" />
+        <xs:enumeration value="light_blue_shulker_box" />
+        <xs:enumeration value="yellow_shulker_box" />
+        <xs:enumeration value="lime_shulker_box" />
+        <xs:enumeration value="pink_shulker_box" />
+        <xs:enumeration value="gray_shulker_box" />
+        <xs:enumeration value="silver_shulker_box" />
+        <xs:enumeration value="cyan_shulker_box" />
+        <xs:enumeration value="purple_shulker_box" />
+        <xs:enumeration value="blue_shulker_box" />
+        <xs:enumeration value="brown_shulker_box" />
+        <xs:enumeration value="green_shulker_box" />
+        <xs:enumeration value="red_shulker_box" />
+        <xs:enumeration value="black_shulker_box" />
+        <xs:enumeration value="structure_block" />
     </xs:restriction>
 </xs:simpleType>
 
@@ -622,13 +633,20 @@
 <xs:simpleType name="EntityTypes">
     <xs:annotation>
       <xs:documentation>
-        Types of entity for eggs, spawners etc: {{{Creeper}}}, {{{Skeleton}}}, {{{Spider}}}, {{{Giant}}}, {{{Zombie}}}, {{{Slime}}}, {{{Ghast}}}, {{{PigZombie}}},
-        {{{Enderman}}}, {{{CaveSpider}}}, {{{Silverfish}}}, {{{Blaze}}}, {{{LavaSlime}}}, {{{EnderDragon}}}, {{{WitherBoss}}}, {{{Bat}}}, {{{Witch}}},
-        {{{Endermite}}}, {{{Guardian}}}, {{{Pig}}}, {{{Sheep}}}, {{{Cow}}}, {{{Chicken}}}, {{{Squid}}}, {{{Wolf}}}, {{{MushroomCow}}}, {{{SnowMan}}},
-        {{{Ozelot}}}, {{{VillagerGolem}}}, {{{EntityHorse}}}, {{{Rabbit}}}, {{{Villager}}}, {{{EnderCrystal}}}.
+        Types of entity for eggs, spawners etc.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
+        <xs:enumeration value="ElderGuardian" />
+        <xs:enumeration value="WitherSkeleton" />
+        <xs:enumeration value="Stray" />
+        <xs:enumeration value="Husk" />
+        <xs:enumeration value="ZombieVillager" />
+        <xs:enumeration value="SkeletonHorse" />
+        <xs:enumeration value="ZombieHorse" />
+        <xs:enumeration value="EvocationIllager" />
+        <xs:enumeration value="VindicationIllager" />
+        <xs:enumeration value="Vex" />
         <xs:enumeration value="Creeper" />
         <xs:enumeration value="Skeleton" />
         <xs:enumeration value="Spider" />
@@ -648,6 +666,9 @@
         <xs:enumeration value="Witch" />
         <xs:enumeration value="Endermite" />
         <xs:enumeration value="Guardian" />
+        <xs:enumeration value="Shulker" />
+        <xs:enumeration value="Donkey" />
+        <xs:enumeration value="Mule" />
         <xs:enumeration value="Pig" />
         <xs:enumeration value="Sheep" />
         <xs:enumeration value="Cow" />
@@ -658,10 +679,11 @@
         <xs:enumeration value="SnowMan" />
         <xs:enumeration value="Ozelot" />
         <xs:enumeration value="VillagerGolem" />
-        <xs:enumeration value="EntityHorse" />
+        <xs:enumeration value="Horse" />
         <xs:enumeration value="Rabbit" />
+        <xs:enumeration value="PolarBear" />
+        <xs:enumeration value="Llama" />
         <xs:enumeration value="Villager" />
-        <xs:enumeration value="EnderCrystal" />
     </xs:restriction>
 </xs:simpleType>
 
@@ -672,10 +694,85 @@
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-        <xs:enumeration value="Minecart" />
+        <xs:enumeration value="MinecartRideable" />
+        <xs:enumeration value="MinecartChest" />
+        <xs:enumeration value="MinecartFurnace" />
+        <xs:enumeration value="MinecartTNT" />
+        <xs:enumeration value="MinecartSpawner" />
+        <xs:enumeration value="MinecartHopper" />
+        <xs:enumeration value="MinecartCommandBlock" />
         <xs:enumeration value="Boat" />
         <xs:enumeration value="ArmorStand" />
         <xs:enumeration value="ItemFrame" />
+        <xs:enumeration value="EnderCrystal" />
+        <xs:enumeration value="LeashKnot" />
+        <xs:enumeration value="Painting" />
+        <xs:enumeration value="PrimedTnt" />
+        <xs:enumeration value="FallingSand" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="ProjectileEntityTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Non-living entities which tend to represent projectiles thrown by other mobs, etc.
+        Doesn't make much sense to spawn/draw these, but the agent could encounter them in the wild.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="XPOrb" />
+        <xs:enumeration value="AreaEffectCloud" />
+        <xs:enumeration value="ThrownEgg" />
+        <xs:enumeration value="Arrow" />
+        <xs:enumeration value="Snowball" />
+        <xs:enumeration value="Fireball" />
+        <xs:enumeration value="SmallFireball" />
+        <xs:enumeration value="ThrownEnderpearl" />
+        <xs:enumeration value="EyeOfEnderSignal" />
+        <xs:enumeration value="ThrownPotion" />
+        <xs:enumeration value="ThrownExpBottle" />
+        <xs:enumeration value="WitherSkull" />
+        <xs:enumeration value="FireworksRocketEntity" />
+        <xs:enumeration value="SpectralArrow" />
+        <xs:enumeration value="ShulkerBullet" />
+        <xs:enumeration value="DragonFireball" />
+        <xs:enumeration value="EvocationFangs" />
+        <xs:enumeration value="LlamaSpit" />
+    </xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="NoteTypes">
+    <xs:annotation>
+      <xs:documentation>
+        Note values for creating tuned noteblocks
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="F_sharp_3" />
+        <xs:enumeration value="G3" />
+        <xs:enumeration value="G_sharp_3" />
+        <xs:enumeration value="A3" />
+        <xs:enumeration value="A_sharp_3" />
+        <xs:enumeration value="B3" />
+        <xs:enumeration value="C4" />
+        <xs:enumeration value="C_sharp_4" />
+        <xs:enumeration value="D4" />
+        <xs:enumeration value="D_sharp_4" />
+        <xs:enumeration value="E4" />
+        <xs:enumeration value="F4" />
+        <xs:enumeration value="F_sharp_4" />
+        <xs:enumeration value="G4" />
+        <xs:enumeration value="G_sharp_4" />
+        <xs:enumeration value="A4" />
+        <xs:enumeration value="A_sharp_4" />
+        <xs:enumeration value="B4" />
+        <xs:enumeration value="C5" />
+        <xs:enumeration value="C_sharp_5" />
+        <xs:enumeration value="D5" />
+        <xs:enumeration value="D_sharp_5" />
+        <xs:enumeration value="E5" />
+        <xs:enumeration value="F5" />
+        <xs:enumeration value="F_sharp_5" />
     </xs:restriction>
 </xs:simpleType>
 
@@ -700,7 +797,7 @@
         <jaxb:class name="Variation"/>   <!-- needed or jaxb just binds BlockVariant to a String -->
       </xs:appinfo>
     </xs:annotation>
-    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes HalfTypes"/>
+    <xs:union memberTypes="StoneTypes WoodTypes FlowerTypes EntityTypes ShapeTypes MonsterEggTypes HalfTypes NoteTypes"/>
 </xs:simpleType>
 
 </xs:schema>

@@ -61,7 +61,6 @@ public class MalmoModGuiOptions implements IModGuiFactory
             return list;
         }
 
-        @SuppressWarnings("unchecked")	// Needed for the buttonList.add call - Minecraft code declares buttonList as unparameterised.
         @Override
         public void initGui()
         {

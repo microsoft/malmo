@@ -138,7 +138,7 @@ public class EpisodeEventWrapper {
     @SubscribeEvent
     public void onConfigChanged(OnConfigChangedEvent ev)
     {
-    	if (ev.modID == MalmoMod.MODID)	// Check we are responding to the correct Mod's event!
+    	if (ev.getModID() == MalmoMod.MODID)	// Check we are responding to the correct Mod's event!
     	{
     		this.stateEpisodeLock.readLock().lock();
     		if (this.stateEpisode != null && this.stateEpisode.isLive())

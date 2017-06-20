@@ -36,20 +36,20 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
     @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         getInventoryJSON(json, "InventorySlot_", player.inventory.getSizeInventory());
     }
 
     public static void getInventoryJSON(JsonObject json, String prefix, int maxSlot)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         int nSlots = Math.min(player.inventory.getSizeInventory(), maxSlot);
         for (int i = 0; i < nSlots; i++)
         {
             ItemStack is = player.inventory.getStackInSlot(i);
             if (is != null)
             {
-                json.addProperty(prefix + i + "_size", is.stackSize);
+                json.addProperty(prefix + i + "_size", is.getCount());
                 DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
                 String name = di.getType();
                 if (di.getColour() != null)

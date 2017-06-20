@@ -27,7 +27,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -81,11 +81,11 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 	    if (this.wantToQuit)
 	        return true;
 	    
-		EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
         List<BlockPos> touchingBlocks = PositionHelper.getTouchingBlocks(player);
         for (BlockPos pos : touchingBlocks)
         {
-        	IBlockState bs = player.worldObj.getBlockState(pos);
+        	IBlockState bs = player.world.getBlockState(pos);
         	// Does this block match our trigger specs?
         	String blockname = bs.getBlock().getUnlocalizedName().toLowerCase();
         	if (!this.blockTypeNames.contains(blockname))
@@ -148,7 +148,7 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 
     	// Next, check for a colour match:
 		net.minecraft.item.EnumDyeColor blockColour = null;
-		for (IProperty prop : (java.util.Set<IProperty>)blockstate.getProperties().keySet())
+		for (IProperty prop : blockstate.getProperties().keySet())
 		{
 			if (prop.getName().equals("color") && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class)
 			{
@@ -160,7 +160,7 @@ public class AgentQuitFromTouchingBlockTypeImplementation extends HandlerBase im
 
 		// Now check for the variant match:
 		Object blockVariant = null;
-        for (IProperty prop : (java.util.Set<IProperty>)blockstate.getProperties().keySet())
+        for (IProperty prop : blockstate.getProperties().keySet())
         {
             if (prop.getName().equals("variant") && prop.getValueClass().isEnum())
             {

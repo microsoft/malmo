@@ -28,7 +28,7 @@ import java.util.Random;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
@@ -495,7 +495,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                     int cellindex = cellx + cellz * width;
                     if (cellindex < 0 || cellindex >= grid.length || grid[cellindex] == null)
                         walkable = false;
-                    if (walkable && gapHeight > optimalPathHeight && !gapBlock.equals(Blocks.air.getDefaultState()))
+                    if (walkable && gapHeight > optimalPathHeight && !gapBlock.equals(Blocks.AIR.getDefaultState()))
                     {
                         // The "gaps" are in fact walls, so we need to be a bit more conservative with our path, since the
                         // player has a width of 0.4 cells. We do this in a very unsophisticated, brute-force manor by testing
@@ -594,11 +594,11 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                         bs = this.waypointBlock;
                         h = this.pathHeight;
                     }
-                    else
+                    else if (this.waypointItem != null)
                     {
                         // Place a waypoint item here:
                         int offset = 0;//(scale % 2 == 0) ? 1 : 0;
-                        drawContext.placeItem(ItemStack.copyItemStack(this.waypointItem), new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
+                        drawContext.placeItem(this.waypointItem.copy(), new BlockPos(x + this.xOrg + offset, this.yOrg + h + 1, z + this.zOrg + offset), world, (scale % 2 == 1));
                     }
                 }
                 if (c != null && c == start)
@@ -659,7 +659,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit)
+    public void buildOnWorld(MissionInit missionInit, World world)
     {
         // Set up various parameters according to the XML specs:
         initRNGs();
@@ -696,7 +696,6 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
         findSubgoals(grid, start, end);
 
         // Now build the actual Minecraft world:
-        World world = MinecraftServer.getServer().getEntityWorld();
         placeBlocks(world, grid, start, end);
 
         // Finally, write the start and goal points into the MissionInit data structure for the other MissionHandlers to use:

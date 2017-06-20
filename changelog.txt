@@ -1,3 +1,12 @@
+0.30.0
+-------------------
+New: UPGRADED TO LATEST MC/FORGE
+Breaking: AllowSpawning/AllowedMobs now affects mob_spawners
+Breaking: "Minecart" entity renamed to "MinecartRideable"
+New: Now includes all mobs up to Minecraft 1.11, and "mob_zoo.py" sample
+New: Added new blocktypes and items up to Minecraft 1.11
+New: Added support for drawing tuned note blocks and "note_block_test.py" sample
+
 0.22.0
 -------------------
 New: ObservationFromRay now returns distance.

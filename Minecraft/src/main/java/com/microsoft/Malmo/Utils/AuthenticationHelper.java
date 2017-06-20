@@ -33,7 +33,7 @@ public class AuthenticationHelper
             return true;
 
         // Create new session object:
-        Session newSession = new Session(newPlayerName, currentSession.getPlayerID(), currentSession.getToken(), currentSession.getSessionType().toString());
+        Session newSession = new Session(newPlayerName, currentSession.getPlayerID(), currentSession.getToken(), "mojang"/*currentSession.getSessionType().toString()*/);
         return setSession(newSession);
     }
 

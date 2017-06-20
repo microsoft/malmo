@@ -99,20 +99,20 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onTossItem(ItemTossEvent event)
     {
-        if (event.entityItem != null && event.player instanceof EntityPlayerMP)
+        if (event.getEntityItem() != null && event.getPlayer() instanceof EntityPlayerMP)
         {
-            ItemStack stack = event.entityItem.getEntityItem();
-            sendItemStackToClient((EntityPlayerMP)event.player, MalmoMessageType.SERVER_DISCARDITEM, stack);
+            ItemStack stack = event.getEntityItem().getEntityItem();
+            sendItemStackToClient((EntityPlayerMP)event.getPlayer(), MalmoMessageType.SERVER_DISCARDITEM, stack);
         }
     }
 
     @SubscribeEvent
     public void onPlaceBlock(BlockEvent.PlaceEvent event)
     {
-        if (event.itemInHand != null && event.player instanceof EntityPlayerMP )
+        if (event.getPlayer().getHeldItem(event.getHand()) != null && event.getPlayer() instanceof EntityPlayerMP )
         {
             // This event is received on the server side, so we need to pass it to the client.
-            sendItemStackToClient((EntityPlayerMP)event.player, MalmoMessageType.SERVER_DISCARDITEM, event.itemInHand);
+            sendItemStackToClient((EntityPlayerMP)event.getPlayer(), MalmoMessageType.SERVER_DISCARDITEM, event.getPlayer().getHeldItem(event.getHand()));
         }
     }
 

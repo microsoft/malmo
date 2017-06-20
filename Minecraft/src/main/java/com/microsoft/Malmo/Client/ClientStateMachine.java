@@ -47,10 +47,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.MathHelper;
-import net.minecraft.world.WorldSettings.GameType;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.GameType;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
@@ -90,11 +92,11 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
-import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
 import com.microsoft.Malmo.Utils.TCPSocket;
+import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 /**
@@ -204,7 +206,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         this.inputController = inputController;
 
         // Register ourself on the event busses, so we can harness the client tick:
-        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_TEXT);
     }
@@ -235,7 +236,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             String chat = data.get("chat");
             if (chat != null)
-                Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new ChatComponentText(chat), 1);
+                Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(new TextComponentString(chat), 1);
             else
             {
                 String text = data.get("text");
@@ -678,7 +679,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         public void onConfigChanged(OnConfigChangedEvent ev)
         {
-            if (ev.configID.equals(MalmoMod.SOCKET_CONFIGS))
+            if (ev.getConfigID().equals(MalmoMod.SOCKET_CONFIGS))
             {
                 AddressHelper.update(MalmoMod.instance.getModSessionConfigFile());
                 try
@@ -893,11 +894,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (as.getAgentStart() != null && as.getAgentStart().getPlacement() != null)
             {
                 PosAndDirection pos = as.getAgentStart().getPlacement();
-                int x = MathHelper.floor_double(pos.getX().doubleValue()) >> 4;
-                int z = MathHelper.floor_double(pos.getZ().doubleValue()) >> 4;
+                int x = MathHelper.floor(pos.getX().doubleValue()) >> 4;
+                int z = MathHelper.floor(pos.getZ().doubleValue()) >> 4;
                 // Now get the chunk we should be starting in:
-                IChunkProvider chunkprov = Minecraft.getMinecraft().theWorld.getChunkProvider();
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                IChunkProvider chunkprov = Minecraft.getMinecraft().world.getChunkProvider();
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
                 if (player.addedToChunk)
                 {
                     // Our player is already added to a chunk - is it the right one?
@@ -930,11 +931,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Tell the server what our agent name is.
                 // We do this repeatedly, because the server might not yet be listening.
-                if (Minecraft.getMinecraft().thePlayer != null && !this.waitingForChunk)
+                if (Minecraft.getMinecraft().player != null && !this.waitingForChunk)
                 {
                     HashMap<String, String> map = new HashMap<String, String>();
                     map.put("agentname", agentName);
-                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    map.put("username", Minecraft.getMinecraft().player.getName());
                     currentMissionBehaviour().appendExtraServerInformation(map);
                     System.out.println("***Telling server we are ready - " + agentName);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTREADY, 0, map));
@@ -1006,13 +1007,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
                 System.out.println("We should be joining " + targetIP);
-                EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-                boolean namesMatch = (player == null) || Minecraft.getMinecraft().thePlayer.getName().equals(this.agentName);
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+                boolean namesMatch = (player == null) || Minecraft.getMinecraft().player.getName().equals(this.agentName);
                 if (!namesMatch)
                 {
                     // The name of our agent no longer matches the agent in our game profile -
                     // safest way to update is to log out and back in again.
-                    Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+                    Minecraft.getMinecraft().world.sendQuittingDisconnectingPacket();
                     Minecraft.getMinecraft().loadWorld((WorldClient)null);
                 }
                 if (Minecraft.getMinecraft().getCurrentServerData() == null || !Minecraft.getMinecraft().getCurrentServerData().serverIP.equals(targetIP))
@@ -1205,8 +1206,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 episodeHasCompletedWithErrors(ClientState.ERROR_DUFF_HANDLERS, "Could not create server mission handlers: " + e.getMessage());
             }
 
-            boolean needsNewWorld = serverHandlers != null && serverHandlers.worldGenerator != null && serverHandlers.worldGenerator.shouldCreateWorld(currentMissionInit());
-            boolean worldCurrentlyExists = Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().theWorld != null;
+            World world = null;
+        	if (Minecraft.getMinecraft().getIntegratedServer() != null)
+        		world = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld();
+
+            boolean needsNewWorld = serverHandlers != null && serverHandlers.worldGenerator != null && serverHandlers.worldGenerator.shouldCreateWorld(currentMissionInit(), world);
+            boolean worldCurrentlyExists = Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().world != null;
             if (worldCurrentlyExists)
             {
                 // If a world already exists, we need to check that our requested agent name matches the name
@@ -1214,9 +1219,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Get our name from the Mission:
                 List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
                 String agentName = agents.get(currentMissionInit().getClientRole()).getName();
-                if (Minecraft.getMinecraft().thePlayer != null)
+                if (Minecraft.getMinecraft().player != null)
                 {
-                    if (!Minecraft.getMinecraft().thePlayer.getName().equals(agentName))
+                    if (!Minecraft.getMinecraft().player.getName().equals(agentName))
                         needsNewWorld = true;
                 }
             }
@@ -1282,7 +1287,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute()
         {
-            if (Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().theWorld != null)
+            if (Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().world != null)
             {
                 // If the integrated server has been opened to the LAN, we won't be able to pause it.
                 // To get around this, we need to make it think it's not open, by modifying its isPublic flag.
@@ -1386,11 +1391,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute()
         {
-            if (Minecraft.getMinecraft().theWorld != null)
+            if (Minecraft.getMinecraft().world != null)
             {
                 // If the Minecraft server isn't paused at this point,
                 // then the following line will cause the server thread to exit...
-                Minecraft.getMinecraft().theWorld.sendQuittingDisconnectingPacket();
+                Minecraft.getMinecraft().world.sendQuittingDisconnectingPacket();
                 // ...in which case the next line will hang.
                 Minecraft.getMinecraft().loadWorld((WorldClient) null);
                 // Must display the GUI or Minecraft will attempt to access a non-existent player in the client tick.
@@ -1536,7 +1541,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             // Tell the server we have started:
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+            map.put("username", Minecraft.getMinecraft().player.getName());
             MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTRUNNING, 0, map));
 
             // Set up our mission handlers:
@@ -1617,7 +1622,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
 
             // Check to see whether we've been kicked from the server.
-            NetworkManager netman = Minecraft.getMinecraft().getNetHandler().getNetworkManager();
+            NetworkManager netman = Minecraft.getMinecraft().getConnection().getNetworkManager();
             if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
             {
                 // Connection has been lost.
@@ -1646,7 +1651,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
 
             // Check here to see whether the player has died or not:
-            if (!this.playerDied && Minecraft.getMinecraft().thePlayer.isDead)
+            if (!this.playerDied && Minecraft.getMinecraft().player.isDead)
             {
                 this.playerDied = true;
                 this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
@@ -1696,7 +1701,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     String agentName = agents.get(currentMissionInit().getClientRole()).getName();
                     HashMap<String, String> map = new HashMap<String, String>();
                     map.put("agentname", agentName);
-                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                    map.put("username", Minecraft.getMinecraft().player.getName());
                     map.put("quitcode", this.quitCode);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
                     onMissionEnded(ClientState.IDLING, null);
@@ -1870,11 +1875,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // First, force all entities to get re-added to their chunks, clearing out any old entities in the process.
                 // We need to do this because the process of teleporting all agents to their start positions, combined
                 // with setting them to/from spectator mode, leaves the client chunk entity lists etc in a parlous state.
-                List lel = Minecraft.getMinecraft().theWorld.loadedEntityList;
+                List lel = Minecraft.getMinecraft().world.loadedEntityList;
                 for (int i = 0; i < lel.size(); i++)
                 {
                     Entity entity = (Entity)lel.get(i);
-                    Chunk chunk = Minecraft.getMinecraft().theWorld.getChunkFromChunkCoords(entity.chunkCoordX, entity.chunkCoordZ);
+                    Chunk chunk = Minecraft.getMinecraft().world.getChunkFromChunkCoords(entity.chunkCoordX, entity.chunkCoordZ);
                     List<Entity> entitiesToRemove = new ArrayList<Entity>();
                     for (int k = 0; k < chunk.getEntityLists().length; k++)
                     {
@@ -1900,6 +1905,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         // (Set the offset from the outset to avoid the onset of upset.)
                         ((EntityLivingBase)entity).renderYawOffset = entity.rotationYaw;
                         ((EntityLivingBase)entity).prevRenderYawOffset = entity.rotationYaw;
+                    }
+                    if (entity instanceof EntityPlayerSP)
+                    {
+                        // Although the following call takes place on the server, and should have taken effect already,
+                        // there is some discontinuity which is causing the effects to get lost, so we call it here too:
+                        entity.setInvisible(false);
                     }
                 }
                 this.serverHasFiredStartingPistol = true; // GO GO GO!
@@ -1949,8 +1960,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Inform the server of what has happened.
                 HashMap<String, String> map = new HashMap<String, String>();
-                if (Minecraft.getMinecraft().thePlayer != null) // Might not be a player yet.
-                    map.put("username", Minecraft.getMinecraft().thePlayer.getName());
+                if (Minecraft.getMinecraft().player != null) // Might not be a player yet.
+                    map.put("username", Minecraft.getMinecraft().player.getName());
                 map.put("error", ClientStateMachine.this.getErrorDetails());
                 MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_BAILED, 0, map));
             }

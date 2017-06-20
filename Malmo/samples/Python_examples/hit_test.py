@@ -70,6 +70,8 @@ def getMissionXML(summary):
                     <StartTime>1000</StartTime>
                     <AllowPassageOfTime>true</AllowPassageOfTime>
                 </Time>
+                <AllowSpawning>true</AllowSpawning>
+                <AllowedMobs>Pig Sheep</AllowedMobs>
             </ServerInitialConditions>
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,202*1,5*3,2;3;,biome_1" />

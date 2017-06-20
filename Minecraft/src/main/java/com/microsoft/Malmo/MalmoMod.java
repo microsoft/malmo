@@ -37,6 +37,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IThreadListener;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -64,6 +65,7 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
+import net.minecraft.world.WorldServer;
 
 @Mod(modid = MalmoMod.MODID, guiFactory = "com.microsoft.Malmo.MalmoModGuiOptions")
 public class MalmoMod
@@ -133,7 +135,9 @@ public class MalmoMod
     {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
             return clientProperties;
-        if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isCallingFromMinecraftThread())
+        
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server != null && server.isCallingFromMinecraftThread())
             return serverProperties;
         else throw new Exception("Request for properties made from unrecognised thread.");
     }
@@ -385,7 +389,7 @@ public class MalmoMod
                 if (ctx.side == Side.CLIENT)
                     mainThread = Minecraft.getMinecraft();
                 else
-                    mainThread = MinecraftServer.getServer();
+                    mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
                 mainThread.addScheduledTask(new Runnable()
                 {
                     @Override
@@ -408,8 +412,8 @@ public class MalmoMod
     public static void safeSendToAll(MalmoMessageType malmoMessage)
     {
         // network.sendToAll() is buggy - race conditions result in the message getting trashed if there is more than one client.
-        MinecraftServer server = MinecraftServer.getServer();
-        for (Object player : server.getConfigurationManager().playerEntityList)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        for (Object player : server.getPlayerList().getPlayers())
         {
             if (player != null && player instanceof EntityPlayerMP)
             {
@@ -427,8 +431,8 @@ public class MalmoMod
             safeSendToAll(malmoMessage);
             return;
         }
-        MinecraftServer server = MinecraftServer.getServer();
-        for (Object player : server.getConfigurationManager().playerEntityList)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        for (Object player : server.getPlayerList().getPlayers())
         {
             if (player != null && player instanceof EntityPlayerMP)
             {

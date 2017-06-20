@@ -66,6 +66,6 @@ public class ObservationFromChatImplementation extends HandlerBase implements IO
     @SubscribeEvent
     public void onEvent(ClientChatReceivedEvent event)
     {
-        this.chatMessagesReceived.add(event.message.getUnformattedText());
+        this.chatMessagesReceived.add(event.getMessage().getUnformattedText());
     }
 }

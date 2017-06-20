@@ -27,7 +27,7 @@ import java.util.Map;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -37,8 +37,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -67,7 +67,7 @@ public abstract class ObservationFromServer extends HandlerBase implements IMalm
 	ObservationFromServer()
 	{
 		// Register for client ticks so we can keep requesting stats.
-		FMLCommonHandler.instance().bus().register(this);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
@@ -205,7 +205,7 @@ public abstract class ObservationFromServer extends HandlerBase implements IMalm
 		/** IMPORTANT: Call this from the onMessage method in the subclass. */
 		public IMessage processMessage(final ObservationRequestMessage message, final MessageContext ctx)
 		{
-			IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.worldObj;
+			IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
 			mainThread.addScheduledTask(new Runnable() {
 				@Override
 				public void run() {

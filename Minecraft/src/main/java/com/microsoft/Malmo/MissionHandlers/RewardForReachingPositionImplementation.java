@@ -58,7 +58,7 @@ public class RewardForReachingPositionImplementation extends RewardBase implemen
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
         super.getReward(missionInit, reward);
-        if (missionInit == null || Minecraft.getMinecraft().thePlayer == null)
+        if (missionInit == null || Minecraft.getMinecraft().player == null)
             return;
 
         if (this.rewardPoints != null) {
@@ -69,7 +69,7 @@ public class RewardForReachingPositionImplementation extends RewardBase implemen
                 float reward_value = goal.getReward().floatValue();
                 float tolerance = goal.getTolerance().floatValue();
 
-                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer, goal);
+                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().player, goal);
                 if (distance <= tolerance)
                 {
                     float adjusted_reward = adjustAndDistributeReward(reward_value, this.params.getDimension(), goal.getDistribution());

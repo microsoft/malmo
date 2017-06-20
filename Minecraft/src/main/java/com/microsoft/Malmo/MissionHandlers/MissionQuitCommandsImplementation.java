@@ -38,7 +38,7 @@ public class MissionQuitCommandsImplementation extends CommandBase implements IC
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player == null)
         {
             return false;

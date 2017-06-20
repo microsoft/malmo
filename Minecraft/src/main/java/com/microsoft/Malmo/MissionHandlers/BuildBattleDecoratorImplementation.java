@@ -10,16 +10,14 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3i;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MalmoMod;
@@ -47,6 +45,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private List<IBlockState> dest;
     private int currentScore = 0;
     private boolean valid = true;
+    private boolean initialised = false;
 
     /**
      * Attempt to parse the given object as a set of parameters for this handler.
@@ -82,7 +81,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
         // Does nothing at the moment, though we could add an option to draw the bounds of the arenas here,
         // if it seems to be something people want.
@@ -97,7 +96,12 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     @Override
     public void update(World world)
     {
-        if (!this.valid)
+    	if (!this.initialised)
+    	{
+			this.initialised = true;
+			updateAndScorePlayerVolume(world, false);
+    	}
+    	else if (!this.valid)
             updateAndScorePlayerVolume(world, true);
     }
 
@@ -254,20 +258,20 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     @SubscribeEvent
     public void onBreakBlock(BreakEvent event)
     {
-        if (blockInBounds(event.pos, this.destBounds))
+        if (blockInBounds(event.getPos(), this.destBounds))
         {
             this.valid  = false;
-            this.dest.set(blockPosToIndex(event.pos, this.destBounds), Blocks.air.getDefaultState());
+            this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), Blocks.AIR.getDefaultState());
         }
     }
 
     @SubscribeEvent
     public void onPlaceBlock(PlaceEvent event)
     {
-        if (blockInBounds(event.pos,this.destBounds))
+        if (blockInBounds(event.getPos() ,this.destBounds))
         {
             this.valid = false;
-            this.dest.set(blockPosToIndex(event.pos, this.destBounds), event.state);
+            this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), event.getState());
         }
     }
 
@@ -275,25 +279,25 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     public void onPlayerInteract(PlayerInteractEvent event)
     {
         // Disallow creating or destroying events in the player structure:
-        if (event.action == PlayerInteractEvent.Action.LEFT_CLICK_BLOCK && event.pos != null)
+        if (event instanceof PlayerInteractEvent.LeftClickBlock)
         {
             // Destroy block
-            if (blockInBounds(event.pos, this.sourceBounds))
+            if (blockInBounds(event.getPos(), this.sourceBounds))
                 event.setCanceled(true);
         }
-        else if (event.action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK && event.pos != null)
+        else if (event instanceof PlayerInteractEvent.RightClickBlock)
         {
             // Place block - need to work out *where* the block would be placed.
             // This code was cribbed from ItemBlock.onItemUse()
-            IBlockState iblockstate = event.world.getBlockState(event.pos);
+            IBlockState iblockstate = event.getWorld().getBlockState(event.getPos());
             Block block = iblockstate.getBlock();
-            EnumFacing side = event.face;
-            BlockPos pos = event.pos;
-            if (block == Blocks.snow_layer && ((Integer)iblockstate.getValue(BlockSnow.LAYERS)).intValue() < 1)
+            EnumFacing side = event.getFace();
+            BlockPos pos = event.getPos();
+            if (block == Blocks.SNOW_LAYER && ((Integer)iblockstate.getValue(BlockSnow.LAYERS)).intValue() < 1)
             {
                 side = EnumFacing.UP;
             }
-            else if (!block.isReplaceable(event.world, pos))
+            else if (!block.isReplaceable(event.getWorld(), pos))
             {
                 pos = pos.offset(side);
             }
@@ -306,15 +310,12 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     public void prepare(MissionInit missionInit)
     {
         MinecraftForge.EVENT_BUS.register(this);
-        FMLCommonHandler.instance().bus().register(this);
-        updateAndScorePlayerVolume(MinecraftServer.getServer().getEntityWorld(), false);
     }
 
     @Override
     public void cleanup()
     {
         MinecraftForge.EVENT_BUS.unregister(this);
-        FMLCommonHandler.instance().bus().unregister(this);
     }
 
     @Override

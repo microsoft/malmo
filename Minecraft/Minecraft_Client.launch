@@ -8,5 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="GradleStart"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Minecraft"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DFORGE_FORCE_FRAME_RECALC=true -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin"/>
 </launchConfiguration>

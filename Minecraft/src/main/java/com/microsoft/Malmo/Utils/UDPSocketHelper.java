@@ -25,7 +25,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -154,7 +154,7 @@ public class UDPSocketHelper
         public UDPClientHeartBeat(InetAddress address, int port, int intervalMs)
         {
             super(address, port, intervalMs);
-            FMLCommonHandler.instance().bus().register(this);
+            MinecraftForge.EVENT_BUS.register(this);
         }
         
         /** Tick event called on the Client.<br>
@@ -184,7 +184,7 @@ public class UDPSocketHelper
         public UDPServerHeartBeat(InetAddress address, int port, int intervalMs)
         {
             super(address, port, intervalMs);
-            FMLCommonHandler.instance().bus().register(this);
+            MinecraftForge.EVENT_BUS.register(this);
         }
         
         /** Tick event called on the Server.<br>

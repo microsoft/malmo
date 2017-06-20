@@ -30,16 +30,19 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.tileentity.TileEntityNote;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
@@ -52,6 +55,7 @@ import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.NoteTypes;
 import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 
@@ -344,9 +348,22 @@ public class BlockDrawingHelper
      */
     private void DrawPrimitive( DrawEntity e, World w ) throws Exception
     {
-        String entityName = e.getType().getValue();
+        String oldEntityName = e.getType().getValue();
+        String id = null;
+        for (EntityEntry ent : net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES)
+        {
+           if (ent.getName().equals(oldEntityName))
+           {
+               id = ent.getRegistryName().toString();
+               break;
+           }
+        }
+        if (id == null)
+            return;
+
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("id", entityName);
+        nbttagcompound.setString("id", id);
+        nbttagcompound.setBoolean("PersistenceRequired", true); // Don't let this entity despawn
         Entity entity;
         try
         {
@@ -366,7 +383,7 @@ public class BlockDrawingHelper
                     ((EntityLivingBase)entity).renderYawOffset = e.getYaw().floatValue();
                 }
                 w.getBlockState(entity.getPosition());  // Force-load the chunk if necessary, to ensure spawnEntity will work.
-                if (!w.spawnEntityInWorld(entity))
+                if (!w.spawnEntity(entity))
                 {
                     System.out.println("WARNING: Failed to spawn entity! Chunk not loaded?");
                 }
@@ -397,7 +414,7 @@ public class BlockDrawingHelper
         entityitem.motionY = 0;
         entityitem.motionZ = 0;
         entityitem.setDefaultPickupDelay();
-        world.spawnEntityInWorld(entityitem);
+        world.spawnEntity(entityitem);
     }
 
     protected EntityItem createItem(ItemStack stack, double x, double y, double z, World w, boolean centreItem)
@@ -485,11 +502,31 @@ public class BlockDrawingHelper
                 try
                 {
                     EntityTypes entvar = EntityTypes.fromValue(state.variant.getValue());
-                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
+                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityId(new ResourceLocation(entvar.value()));
                 }
                 catch (Exception e)
                 {
                     // Do nothing - user has requested a non-entity variant.
+                }
+            }
+        }
+        if (state.type == BlockType.NOTEBLOCK)
+        {
+            TileEntity te = w.getTileEntity(pos);
+            if (te != null && te instanceof TileEntityNote)
+            {
+                try
+                {
+                    NoteTypes note = NoteTypes.fromValue(state.variant.getValue());
+                    if (note != null)
+                    {
+                        // User has requested a particular note.
+                        ((TileEntityNote)te).note = (byte)note.ordinal();
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // Wasn't a note variation. Ignore.
                 }
             }
         }

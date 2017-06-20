@@ -129,24 +129,24 @@ public class InventoryCommandsImplementation extends CommandGroup
 
         // Check we can combine. This logic comes from InventoryPlayer.storeItemStack():
         boolean itemsMatch = dstStack.getItem() == addStack.getItem();
-        boolean dstCanStack = dstStack.isStackable() && dstStack.stackSize < dstStack.getMaxStackSize() && dstStack.stackSize < inv.getInventoryStackLimit();
+        boolean dstCanStack = dstStack.isStackable() && dstStack.getCount() < dstStack.getMaxStackSize() && dstStack.getCount() < inv.getInventoryStackLimit();
         boolean subTypesMatch = !dstStack.getHasSubtypes() || dstStack.getMetadata() == addStack.getMetadata();
         boolean tagsMatch = ItemStack.areItemStackTagsEqual(dstStack, addStack);
         if (itemsMatch && dstCanStack && subTypesMatch && tagsMatch)
         {
             // We can combine, so figure out how much we have room for:
             int limit = Math.min(dstStack.getMaxStackSize(), inv.getInventoryStackLimit());
-            int room = limit - dstStack.stackSize;
-            if (addStack.stackSize > room)
+            int room = limit - dstStack.getCount();
+            if (addStack.getCount() > room)
             {
                 // Not room for all of it, so shift across as much as possible.
-                addStack.stackSize -= room;
-                dstStack.stackSize += room;
+                addStack.setCount(addStack.getCount() - room);
+                dstStack.setCount(dstStack.getCount() + room);
             }
             else
             {
                 // Room for the whole lot, so empty out the add slot.
-                dstStack.stackSize += addStack.stackSize;
+                dstStack.setCount(dstStack.getCount() + addStack.getCount());
                 inv.setInventorySlotContents(add, null);
             }
         }
@@ -197,7 +197,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         else if (verb.equalsIgnoreCase(InventoryCommand.DISCARD_CURRENT_ITEM.value()))
         {
             // This we can do on the client side:
-            Minecraft.getMinecraft().thePlayer.dropOneItem(false);  // false means just drop one item - true means drop everything in the current stack.
+            Minecraft.getMinecraft().player.dropItem(false);  // false means just drop one item - true means drop everything in the current stack.
             return true;
         }
         return super.onExecute(verb, parameter, missionInit);
@@ -227,7 +227,7 @@ public class InventoryCommandsImplementation extends CommandGroup
             System.out.println("Malformed parameter string (" + parameter + ")");
             return false;   // Error - incorrect parameters.
         }
-        InventoryPlayer inv = Minecraft.getMinecraft().thePlayer.inventory;
+        InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
         if (lhs < 0 || lhs >= inv.getSizeInventory() || rhs < 0 || rhs >= inv.getSizeInventory())
         {
             System.out.println("Inventory swap parameters out of bounds - must be between 0 and " + (inv.getSizeInventory() - 1));

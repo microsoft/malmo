@@ -23,9 +23,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.StatBase;
-import net.minecraft.stats.StatFileWriter;
 import net.minecraft.stats.StatList;
-import net.minecraft.util.BlockPos;
+import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
 import com.google.gson.JsonArray;
@@ -99,18 +99,18 @@ public class JSONWorldDataHelper
      */
     public static void buildAchievementStats(JsonObject json, EntityPlayerMP player)
     {
-        StatFileWriter sfw = player.getStatFile();
+        StatisticsManagerServer sfw = player.getStatFile();
         json.addProperty("DistanceTravelled", 
-                sfw.readStat((StatBase)StatList.distanceWalkedStat) 
-                + sfw.readStat((StatBase)StatList.distanceSwumStat) 
-                + sfw.readStat((StatBase)StatList.distanceDoveStat) 
-                + sfw.readStat((StatBase)StatList.distanceFallenStat) 
+                sfw.readStat((StatBase)StatList.WALK_ONE_CM) 
+                + sfw.readStat((StatBase)StatList.SWIM_ONE_CM)
+                + sfw.readStat((StatBase)StatList.DIVE_ONE_CM) 
+                + sfw.readStat((StatBase)StatList.FALL_ONE_CM)
                 ); // TODO: there are many other ways of moving!
-        json.addProperty("TimeAlive", sfw.readStat((StatBase)StatList.timeSinceDeathStat));
-        json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.mobKillsStat));
-        json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.playerKillsStat));
-        json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.damageTakenStat));
-        json.addProperty("DamageDealt", sfw.readStat((StatBase)StatList.damageDealtStat));
+        json.addProperty("TimeAlive", sfw.readStat((StatBase)StatList.TIME_SINCE_DEATH));
+        json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.MOB_KILLS));
+        json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.PLAYER_KILLS));
+        json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.DAMAGE_TAKEN));
+        json.addProperty("DamageDealt", sfw.readStat((StatBase)StatList.DAMAGE_DEALT));
 
         /* Other potential reinforcement signals that may be worth researching:
         json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);
@@ -146,8 +146,8 @@ public class JSONWorldDataHelper
 
     public static void buildEnvironmentStats(JsonObject json, EntityPlayerMP player)
     {
-        json.addProperty("WorldTime", player.worldObj.getWorldTime());  // Current time in ticks
-        json.addProperty("TotalTime", player.worldObj.getTotalWorldTime());  // Total time world has been running
+        json.addProperty("WorldTime", player.world.getWorldTime());  // Current time in ticks
+        json.addProperty("TotalTime", player.world.getTotalWorldTime());  // Total time world has been running
     }
     /**
      * Build a signal for the cubic block grid centred on the player.<br>
@@ -178,8 +178,8 @@ public class JSONWorldDataHelper
                     else
                         p = pos.add(x, y, z);
                     String name = "";
-                    IBlockState state = player.worldObj.getBlockState(p);
-                    Object blockName = Block.blockRegistry.getNameForObject(state.getBlock());
+                    IBlockState state = player.world.getBlockState(p);
+                    Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
                     if (blockName instanceof ResourceLocation)
                     {
                         name = ((ResourceLocation)blockName).getResourcePath();

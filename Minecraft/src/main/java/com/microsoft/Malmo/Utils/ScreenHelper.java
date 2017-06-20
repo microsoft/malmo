@@ -31,7 +31,6 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -104,7 +103,6 @@ public class ScreenHelper
 
     public ScreenHelper()
     {
-        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
 
         this.attributes.put(TextCategory.TXT_INFO, new TextCategoryAttributes(800, 850, 0x4488ff, true, false, DebugOutputLevel.OUTPUT_INFO));
@@ -208,10 +206,10 @@ public class ScreenHelper
         purgeExpiredFragments(null);
         if (Minecraft.getMinecraft().currentScreen != null && !(Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu))
             return;
+        if (Minecraft.getMinecraft().gameSettings.showDebugInfo)    // Don't obscure MC debug info with our debug info
+            return;
 
-        int displayWidth = Minecraft.getMinecraft().displayWidth;
-        int displayHeight = Minecraft.getMinecraft().displayHeight;
-        ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft(), displayWidth, displayHeight);
+        ScaledResolution res = new ScaledResolution(Minecraft.getMinecraft());
         int width = res.getScaledWidth();
         int height = res.getScaledHeight();
         float rx = (float) width / 1000f;
