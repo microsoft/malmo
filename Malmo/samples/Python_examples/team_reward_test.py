@@ -162,6 +162,9 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       <RewardForTouchingBlockType>
         <Block reward="10000" type="redstone_block" distribution="FredDibnah:1"/>
       </RewardForTouchingBlockType>
+      <AgentQuitFromTouchingBlockType>
+        <Block type="redstone_block"/>
+      </AgentQuitFromTouchingBlockType>
     </AgentHandlers>
   </AgentSection>
 
