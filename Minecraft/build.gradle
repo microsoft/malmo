@@ -1,5 +1,3 @@
-import org.gradle.internal.os.OperatingSystem;
-
 // For those who want the bleeding edge
 buildscript {
     repositories {
@@ -38,22 +36,6 @@ minecraft {
     // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20161220"
     //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-
-    /*
-    afterEvaluate {
-        // At this point, we can extract the command line used to run minecraft, and save it into
-        // a bat/sh file for quicker startup on subsequent runs.
-        JavaExec rc = project.getTasks().getByName("runClient");
-        String fname = "runMC.sh"
-        if (OperatingSystem.current().isWindows())
-            fname = "runMC.bat"
-        if (!file(fname).exists()) {
-            def cmdlineFile = file(fname)
-            rc.getCommandLine().each {
-                cmdlineFile << "${it} "
-            }
-        }
-    }*/
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
