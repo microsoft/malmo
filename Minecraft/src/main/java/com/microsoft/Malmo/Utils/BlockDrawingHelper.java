@@ -30,17 +30,18 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityMobSpawner;
+import net.minecraft.tileentity.TileEntityNote;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import com.microsoft.Malmo.Schemas.BlockType;
@@ -500,13 +501,20 @@ public class BlockDrawingHelper
                 try
                 {
                     EntityTypes entvar = EntityTypes.fromValue(state.variant.getValue());
-                    //((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
                     ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityId(new ResourceLocation(entvar.value()));
                 }
                 catch (Exception e)
                 {
                     // Do nothing - user has requested a non-entity variant.
                 }
+            }
+        }
+        if (state.type == BlockType.NOTEBLOCK)
+        {
+            TileEntity te = w.getTileEntity(pos);
+            if (te != null && te instanceof TileEntityNote)
+            {
+                ((TileEntityNote)te).note = (byte)((pos.getX() + pos.getY() + pos.getZ()) % 25);
             }
         }
     }
