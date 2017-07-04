@@ -36,6 +36,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -43,6 +44,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -50,6 +53,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 import com.microsoft.Malmo.Client.MalmoModClient;
@@ -65,7 +69,6 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
-import net.minecraft.world.WorldServer;
 
 @Mod(modid = MalmoMod.MODID, guiFactory = "com.microsoft.Malmo.MalmoModGuiOptions")
 public class MalmoMod
@@ -126,6 +129,20 @@ public class MalmoMod
         network.registerMessage(InventoryCommandsImplementation.InventoryMessageHandler.class, InventoryCommandsImplementation.InventoryMessage.class, 7, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.UseActionMessageHandler.class, DiscreteMovementCommandsImplementation.UseActionMessage.class, 8, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.AttackActionMessageHandler.class, DiscreteMovementCommandsImplementation.AttackActionMessage.class, 9, Side.SERVER);
+    }
+
+    @EventHandler
+    public void onMissingMappingsEvent(FMLMissingMappingsEvent event)
+    {
+        // The lit_furnace item was removed in Minecraft 1.9, so pre-1.9 files will produce a warning when
+        // loaded. This is harmless for a human user, but it breaks Malmo's FileWorldGenerator handler, since
+        // it will bring up a GUI and wait for the user to click a button before continuing.
+        // To avoid this, we specifically ignore lit_furnace item mapping.
+        for (MissingMapping mapping : event.getAll())
+        {
+            if (mapping.type == GameRegistry.Type.ITEM && mapping.name.equals("minecraft:lit_furnace"))
+                mapping.ignore();
+        }
     }
 
     public Configuration getModSessionConfigFile() { return this.sessionConfig; }

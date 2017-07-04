@@ -24,9 +24,6 @@ import java.util.List;
 
 import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiErrorScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.ISaveFormat;
@@ -39,21 +36,21 @@ import com.microsoft.Malmo.Utils.MapFileHelper;
 
 public class FileWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
-	String mapFilename;
-	FileWorldGenerator fwparams;
-	String errorDetails;
-	
-	@Override
-	public boolean parseParameters(Object params)
-	{
-		if (params == null || !(params instanceof FileWorldGenerator))
-			return false;
-		
-		this.fwparams = (FileWorldGenerator)params;
-		this.mapFilename = fwparams.getSrc();
-		return true;
-	}
-	
+    String mapFilename;
+    FileWorldGenerator fwparams;
+    String errorDetails;
+
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof FileWorldGenerator))
+            return false;
+
+        this.fwparams = (FileWorldGenerator) params;
+        this.mapFilename = fwparams.getSrc();
+        return true;
+    }
+
     @Override
     public boolean createWorld(MissionInit missionInit)
     {
