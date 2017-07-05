@@ -7,14 +7,11 @@
     <ProjectGuid>{9AB26871-E3ED-4BA3-9C5C-0D97755FF243}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RunMission</RootNamespace>
-    <AssemblyName>CSharpExamples_RunMission</AssemblyName>
+    <RootNamespace>${CMAKE_SAMPLE_NAME}</RootNamespace>
+    <AssemblyName>CSharpExamples_${CMAKE_SAMPLE_NAME}</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
-    <CSharpWrapperFolder>${CMAKE_BINARY_DIR}\Malmo\src\CSharpWrapper</CSharpWrapperFolder>
-    <CSharpWrapperFolder Condition="Exists('${CMAKE_BINARY_DIR}\Malmo\src\CSharpWrapper\$(Configuration)')">${CMAKE_BINARY_DIR}\Malmo\src\CSharpWrapper\$(Configuration)</CSharpWrapperFolder>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -60,23 +57,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MalmoNET">
-      <HintPath>$(CSharpWrapperFolder)\MalmoNET.dll</HintPath>
+      <HintPath>.\MalmoNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="${CMAKE_SAMPLE_NAME}.cs" />
+    <Compile Include="Properties\${CMAKE_SAMPLE_NAME}_AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="App.config" />
   </ItemGroup>
   <Choose>
-    <When Condition="Exists('$(CSharpWrapperFolder)\MalmoNETNative.dll')">
+    <When Condition="Exists('.\MalmoNETNative.dll')">
       <ItemGroup>
-        <None Include="$(CSharpWrapperFolder)\MalmoNETNative.dll">
+        <None Include=".\MalmoNETNative.dll">
 	      <Link>MalmoNETNative.dll</Link>
 	      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
@@ -84,7 +79,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <None Include="$(CSharpWrapperFolder)\libMalmoNETNative.so">
+        <None Include=".\libMalmoNETNative.so">
           <Link>libMalmoNETNative.so</Link>
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None> 
@@ -95,10 +90,8 @@
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
-    
   </Target>
-
   <Target Name="AfterBuild">
   </Target>
-  -->  
+  -->
 </Project>
