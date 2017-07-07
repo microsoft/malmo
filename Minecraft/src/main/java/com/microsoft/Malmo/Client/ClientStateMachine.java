@@ -98,6 +98,7 @@ import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
 import com.microsoft.Malmo.Utils.TCPSocket;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
+import com.mojang.authlib.properties.Property;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -850,7 +851,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
             String agentName = agents.get(currentMissionInit().getClientRole()).getName();
             AuthenticationHelper.setPlayerName(Minecraft.getMinecraft().getSession(), agentName);
-
+            // If the player's profile properties are empty, MC will keep pinging the Minecraft session service
+            // to fill them, resulting in multiple http requests and grumpy responses from the server
+            // (see https://github.com/Microsoft/malmo/issues/568).
+            // To prevent this, we add a dummy property.
+            Minecraft.getMinecraft().getProfileProperties().put("dummy", new Property("dummy", "property"));
             // Handlers and poller created successfully; proceed to next stage of loading.
             // We will either need to connect to an existing server, or to start
             // a new integrated server ourselves, depending on our role.
