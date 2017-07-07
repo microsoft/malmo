@@ -1383,7 +1383,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // This locking means that if the client - which needs to wait on the lock -
             // tries to add an event to the queue in response to an event on the queue being executed,
             // the newly added event will have to happen in a subsequent tick.
-            if (Minecraft.getMinecraft().isGamePaused() && ev != null && ev.phase == Phase.END && this.clientTickCount == this.serverTickCount && this.clientTickCount <= 2)
+            if ((Minecraft.getMinecraft().isGamePaused() || Minecraft.getMinecraft().player == null) && ev != null && ev.phase == Phase.END && this.clientTickCount == this.serverTickCount && this.clientTickCount <= 2)
             {
                 this.clientTickCount++; // Increment our count, and wait for the server to catch up.
                 Minecraft.getMinecraft().getIntegratedServer().addScheduledTask(new Runnable()
