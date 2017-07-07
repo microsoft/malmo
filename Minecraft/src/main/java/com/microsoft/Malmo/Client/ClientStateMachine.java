@@ -47,7 +47,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
@@ -57,7 +56,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -98,6 +96,7 @@ import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
 import com.microsoft.Malmo.Utils.TCPSocket;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
+import com.mojang.authlib.properties.Property;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -850,7 +849,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
             String agentName = agents.get(currentMissionInit().getClientRole()).getName();
             AuthenticationHelper.setPlayerName(Minecraft.getMinecraft().getSession(), agentName);
-
+            // If the player's profile properties are empty, MC will keep pinging the Minecraft session service
+            // to fill them, resulting in multiple http requests and grumpy responses from the server
+            // (see https://github.com/Microsoft/malmo/issues/568).
+            // To prevent this, we add a dummy property.
+            Minecraft.getMinecraft().getProfileProperties().put("dummy", new Property("dummy", "property"));
             // Handlers and poller created successfully; proceed to next stage of loading.
             // We will either need to connect to an existing server, or to start
             // a new integrated server ourselves, depending on our role.
@@ -877,6 +880,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         String agentName;
         int ticksUntilNextPing = 0;
         boolean waitingForChunk = false;
+        boolean waitingForPlayer = true;
 
         protected WaitingForServerEpisode(ClientStateMachine machine)
         {
@@ -927,6 +931,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
+            if (this.waitingForPlayer)
+            {
+                if (Minecraft.getMinecraft().player != null)
+                {
+                    this.waitingForPlayer = false;
+                    handleLan();
+                }
+                else
+                    return;
+            }
             if (ticksUntilNextPing == 0)
             {
                 // Tell the server what our agent name is.
@@ -978,28 +992,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void execute() throws Exception
         {
             Minecraft.getMinecraft().displayGuiScreen(null); // Clear any menu screen that might confuse things.
-
             // Get our name from the Mission:
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
-            if (agents == null || agents.size() <= currentMissionInit().getClientRole())
-                throw new Exception("No agent section for us!"); // TODO
+            //if (agents == null || agents.size() <= currentMissionInit().getClientRole())
+            //    throw new Exception("No agent section for us!"); // TODO
             this.agentName = agents.get(currentMissionInit().getClientRole()).getName();
 
-            if (agents.size() > 1 && currentMissionInit().getClientRole() == 0) // Multi-agent mission - make sure the server is open to the LAN:
-            {
-                MinecraftServerConnection msc = new MinecraftServerConnection();
-                String address = currentMissionInit().getClientAgentConnection().getClientIPAddress();
-                // Do we need to open to LAN?
-                if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
-                {
-                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
-                    ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
-                }
-                msc.setPort(ClientStateMachine.this.integratedServerPort);
-                msc.setAddress(address);
-                currentMissionInit().setMinecraftServerConnection(msc);
-            }
-            else if (agents.size() > 1)
+            if (agents.size() > 1 && currentMissionInit().getClientRole() != 0)
             {
                 // Multi-agent mission, we should be joining a server.
                 // (Unless we are already on the correct server.)
@@ -1020,6 +1019,31 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
                 }
+                this.waitingForPlayer = false;
+            }
+        }
+        
+        protected void handleLan()
+        {
+            // Get our name from the Mission:
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            //if (agents == null || agents.size() <= currentMissionInit().getClientRole())
+            //    throw new Exception("No agent section for us!"); // TODO
+            this.agentName = agents.get(currentMissionInit().getClientRole()).getName();
+
+            if (agents.size() > 1 && currentMissionInit().getClientRole() == 0) // Multi-agent mission - make sure the server is open to the LAN:
+            {
+                MinecraftServerConnection msc = new MinecraftServerConnection();
+                String address = currentMissionInit().getClientAgentConnection().getClientIPAddress();
+                // Do we need to open to LAN?
+                if (Minecraft.getMinecraft().isSingleplayer() && !Minecraft.getMinecraft().getIntegratedServer().getPublic())
+                {
+                    String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
+                    ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
+                }
+                msc.setPort(ClientStateMachine.this.integratedServerPort);
+                msc.setAddress(address);
+                currentMissionInit().setMinecraftServerConnection(msc);
             }
         }
 
@@ -1207,11 +1231,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
 
             World world = null;
-        	if (Minecraft.getMinecraft().getIntegratedServer() != null)
-        		world = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld();
+            if (Minecraft.getMinecraft().getIntegratedServer() != null)
+                world = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld();
 
             boolean needsNewWorld = serverHandlers != null && serverHandlers.worldGenerator != null && serverHandlers.worldGenerator.shouldCreateWorld(currentMissionInit(), world);
-            boolean worldCurrentlyExists = Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().world != null;
+            boolean worldCurrentlyExists = world != null;
             if (worldCurrentlyExists)
             {
                 // If a world already exists, we need to check that our requested agent name matches the name
@@ -1359,7 +1383,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // This locking means that if the client - which needs to wait on the lock -
             // tries to add an event to the queue in response to an event on the queue being executed,
             // the newly added event will have to happen in a subsequent tick.
-            if (Minecraft.getMinecraft().isGamePaused() && ev != null && ev.phase == Phase.END && this.clientTickCount == this.serverTickCount && this.clientTickCount <= 2)
+            if ((Minecraft.getMinecraft().isGamePaused() || Minecraft.getMinecraft().player == null) && ev != null && ev.phase == Phase.END && this.clientTickCount == this.serverTickCount && this.clientTickCount <= 2)
             {
                 this.clientTickCount++; // Increment our count, and wait for the server to catch up.
                 Minecraft.getMinecraft().getIntegratedServer().addScheduledTask(new Runnable()

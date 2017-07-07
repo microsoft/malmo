@@ -34,6 +34,7 @@ public class AuthenticationHelper
 
         // Create new session object:
         Session newSession = new Session(newPlayerName, currentSession.getPlayerID(), currentSession.getToken(), "mojang"/*currentSession.getSessionType().toString()*/);
+        newSession.setProperties(new com.mojang.authlib.properties.PropertyMap());  // Prevents calls to the session service to get profile properties
         return setSession(newSession);
     }
 
