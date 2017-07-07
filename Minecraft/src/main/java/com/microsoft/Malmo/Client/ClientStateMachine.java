@@ -1231,11 +1231,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
 
             World world = null;
-        	if (Minecraft.getMinecraft().getIntegratedServer() != null)
-        		world = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld();
+            if (Minecraft.getMinecraft().getIntegratedServer() != null)
+                world = Minecraft.getMinecraft().getIntegratedServer().getEntityWorld();
 
             boolean needsNewWorld = serverHandlers != null && serverHandlers.worldGenerator != null && serverHandlers.worldGenerator.shouldCreateWorld(currentMissionInit(), world);
-            boolean worldCurrentlyExists = Minecraft.getMinecraft().getIntegratedServer() != null && Minecraft.getMinecraft().world != null;
+            boolean worldCurrentlyExists = world != null;
             if (worldCurrentlyExists)
             {
                 // If a world already exists, we need to check that our requested agent name matches the name
