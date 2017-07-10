@@ -444,6 +444,8 @@ public class CraftingHelper
                     continue;
                 String s = is.getCount() + "x" + is.getUnlocalizedName() + " = ";
                 List<ItemStack> ingredients = getIngredients((IRecipe)obj);
+                if (ingredients == null)
+                    continue;
                 boolean first = true;
                 for (ItemStack isIngredient : ingredients)
                 {
