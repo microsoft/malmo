@@ -19,34 +19,165 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityLockableLoot;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ObservationFromFullInventory;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 /** Simple IObservationProducer class that returns a list of the full inventory, including the armour.
  */
-public class ObservationFromFullInventoryImplementation extends HandlerBase implements IObservationProducer
+public class ObservationFromFullInventoryImplementation extends ObservationFromServer
 {
-    @Override
-    public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
+    public static class InventoryRequestMessage extends ObservationFromServer.ObservationRequestMessage
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
-        getInventoryJSON(json, "InventorySlot_", player.inventory.getSizeInventory());
+        private boolean flat;
+        private BlockPos pos;
+
+        public InventoryRequestMessage()
+        {
+            this.flat = true;
+            this.pos = null;
+        }
+
+        InventoryRequestMessage(boolean flat, BlockPos pos)
+        {
+            this.flat = flat;
+            this.pos = pos;
+        }
+
+        @Override
+        void restoreState(ByteBuf buf)
+        {
+            this.flat = buf.readBoolean();
+            boolean readPos = buf.readBoolean();
+            if (readPos)
+                this.pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
+            else
+                this.pos = null;
+        }
+
+        @Override
+        void persistState(ByteBuf buf)
+        {
+            buf.writeBoolean(this.flat);
+            buf.writeBoolean(this.pos != null);
+            if (this.pos != null)
+            {
+                buf.writeInt(pos.getX());
+                buf.writeInt(pos.getY());
+                buf.writeInt(pos.getZ());
+            }
+        }
+
+        public boolean isFlat() { return this.flat; }
+        public BlockPos pos() { return this.pos; }
     }
 
-    public static void getInventoryJSON(JsonObject json, String prefix, int maxSlot)
+    public static class InventoryRequestMessageHandler extends ObservationFromServer.ObservationRequestMessageHandler implements IMessageHandler<InventoryRequestMessage, IMessage>
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
-        int nSlots = Math.min(player.inventory.getSizeInventory(), maxSlot);
+        @Override
+        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message, MessageContext ctx)
+        {
+            // We want to output the inventory from:
+            // a) the player
+            // b) any chest-type objects the player is looking at.
+            InventoryRequestMessage irm = (InventoryRequestMessage)message;
+            TileEntityLockableLoot tell = null;
+            if (irm.pos() != null)
+            {
+                TileEntity te = player.world.getTileEntity(irm.pos());
+                if (te instanceof TileEntityLockableLoot)
+                    tell = (TileEntityLockableLoot)te;
+            }
+
+            if (irm.isFlat())
+            {
+                // Write out the player's inventory in a flattened style.
+                // (This is only included for backwards compatibility.)
+                getInventoryJSON(json, "InventorySlot_", player.inventory, player.inventory.getSizeInventory());
+                if (tell != null)
+                    getInventoryJSON(json, tell.getName() + "Slot_", tell, tell.getSizeInventory());
+            }
+            else
+            {
+                // Newer approach - an array of objects.
+                JsonArray arr = new JsonArray();
+                getInventoryJSON(arr, player.inventory);
+                if (tell != null)
+                    getInventoryJSON(arr, tell);
+                json.add("inventory", arr);
+            }
+        }
+
+        @Override
+        public IMessage onMessage(InventoryRequestMessage message, MessageContext ctx)
+        {
+            return processMessage(message, ctx);
+        }
+    }
+
+    private boolean flat;
+
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof ObservationFromFullInventory))
+            return false;
+        
+        this.flat = ((ObservationFromFullInventory)params).isFlat();
+        return true;
+    }
+
+    public static void getInventoryJSON(JsonArray arr, IInventory inventory)
+    {
+        String invName = inventory.getName();
+        String prefix = "container.";
+        if (invName.startsWith(prefix))
+            invName = invName.substring(prefix.length());
+        for (int i = 0; i < inventory.getSizeInventory(); i++)
+        {
+            ItemStack is = inventory.getStackInSlot(i);
+            if (is != null && !is.isEmpty())
+            {
+                JsonObject jobj = new JsonObject();
+                DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
+                String name = di.getType();
+                if (di.getColour() != null)
+                    jobj.addProperty("colour", di.getColour().value());
+                if (di.getVariant() != null)
+                    jobj.addProperty("variant", di.getVariant().getValue());
+                jobj.addProperty("type", name);
+                jobj.addProperty("index", i);
+                jobj.addProperty("quantity", is.getCount());
+                jobj.addProperty("inventory",  invName);
+                arr.add(jobj);
+            }
+        }
+    }
+
+    public static void getInventoryJSON(JsonObject json, String prefix, IInventory inventory, int maxSlot)
+    {
+        int nSlots = Math.min(inventory.getSizeInventory(), maxSlot);
         for (int i = 0; i < nSlots; i++)
         {
-            ItemStack is = player.inventory.getStackInSlot(i);
+            ItemStack is = inventory.getStackInSlot(i);
             if (is != null)
             {
                 json.addProperty(prefix + i + "_size", is.getCount());
@@ -58,12 +189,30 @@ public class ObservationFromFullInventoryImplementation extends HandlerBase impl
                     json.addProperty(prefix + i + "_variant", di.getVariant().getValue());
                 json.addProperty(prefix + i + "_item", name);
             }
-        }        
+        }
     }
 
     @Override
-    public void prepare(MissionInit missionInit) {}
-    
+    public void prepare(MissionInit missionInit)
+    {
+        super.prepare(missionInit);
+    }
+
     @Override
-    public void cleanup() {}
+    public void cleanup()
+    {
+        super.cleanup();
+    }
+
+    @Override
+    public ObservationRequestMessage createObservationRequestMessage()
+    {
+        RayTraceResult rtr = Minecraft.getMinecraft().objectMouseOver;
+        BlockPos pos = null;
+        if (rtr != null && rtr.typeOfHit == RayTraceResult.Type.BLOCK)
+        {
+            pos = rtr.getBlockPos();
+        }
+        return new InventoryRequestMessage(this.flat, pos);
+    }
 }

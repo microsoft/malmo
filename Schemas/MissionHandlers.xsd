@@ -1501,7 +1501,9 @@
         type of the item(s) in the slot, respectively, and {{{Inventory_0_colour}}} and {{{Inventory_0_variant}}} if the item has a colour/variation. Inventory slots are numbered 0 to 39 inclusive.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attribute name="flat" type="xs:boolean" use="optional" default="true" />
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="ObservationFromDiscreteCell">

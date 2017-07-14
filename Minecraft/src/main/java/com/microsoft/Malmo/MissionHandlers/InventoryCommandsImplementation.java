@@ -28,6 +28,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -46,6 +47,8 @@ public class InventoryCommandsImplementation extends CommandGroup
 {
     public static class InventoryMessage implements IMessage
     {
+        String invA;
+        String invB;
         int slotA;
         int slotB;
         boolean combine;
@@ -54,9 +57,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
         }
 
-        public InventoryMessage(int a, int b, boolean combine)
+        public InventoryMessage(String inva, int a, String invb, int b, boolean combine)
         {
+            this.invA = inva;
             this.slotA = a;
+            this.invB = invb;
             this.slotB = b;
             this.combine = combine;
         }
@@ -64,7 +69,9 @@ public class InventoryCommandsImplementation extends CommandGroup
         @Override
         public void fromBytes(ByteBuf buf)
         {
+            this.invA = ByteBufUtils.readUTF8String(buf);
             this.slotA = buf.readInt();
+            this.invB = ByteBufUtils.readUTF8String(buf);
             this.slotB = buf.readInt();
             this.combine = buf.readBoolean();
         }
@@ -72,7 +79,9 @@ public class InventoryCommandsImplementation extends CommandGroup
         @Override
         public void toBytes(ByteBuf buf)
         {
+            ByteBufUtils.writeUTF8String(buf, this.invA);
             buf.writeInt(this.slotA);
+            ByteBufUtils.writeUTF8String(buf, this.invB);
             buf.writeInt(this.slotB);
             buf.writeBoolean(this.combine);
         }
@@ -85,9 +94,9 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (message.combine)
-                combineSlots(player, message.slotA, message.slotB);
+                combineSlots(player, message.invA, message.slotA, message.invB, message.slotB);
             else
-                swapSlots(player, message.slotA, message.slotB);
+                swapSlots(player, message.invA, message.slotA, message.invB, message.slotB);
             return null;
         }
     }
@@ -111,7 +120,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         return true;
     }
 
-    static void combineSlots(EntityPlayerMP player, int dst, int add)
+    static void combineSlots(EntityPlayerMP player, String invDst, int dst, String invAdd, int add)
     {
         InventoryPlayer inv = player.inventory;
         ItemStack dstStack = inv.getStackInSlot(dst);
@@ -152,7 +161,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         }
     }
 
-    static void swapSlots(EntityPlayerMP player, int lhs, int rhs)
+    static void swapSlots(EntityPlayerMP player, String lhsInv, int lhs, String rhsInv, int rhs)
     {
         InventoryPlayer inv = player.inventory;
         ItemStack srcStack = inv.getStackInSlot(lhs);
@@ -168,11 +177,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             if (parameter != null && parameter.length() != 0)
             {
-                List<Integer> params = new ArrayList<Integer>();
+                List<String> params = new ArrayList<String>();
                 if (getParameters(parameter, params))
                 {
                     // All okay, so create a swap message for the server:
-                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), params.get(1), false));
+                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), Integer.valueOf(params.get(1)), params.get(2), Integer.valueOf(params.get(3)), false));
                     return true;
                 }
                 else
@@ -183,11 +192,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             if (parameter != null && parameter.length() != 0)
             {
-                List<Integer> params = new ArrayList<Integer>();
+                List<String> params = new ArrayList<String>();
                 if (getParameters(parameter, params))
                 {
                     // All okay, so create a combine message for the server:
-                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), params.get(1), true));
+                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), Integer.valueOf(params.get(1)), params.get(2), Integer.valueOf(params.get(3)), true));
                     return true;
                 }
                 else
@@ -203,7 +212,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         return super.onExecute(verb, parameter, missionInit);
     }
 
-    private boolean getParameters(String parameter, List<Integer> parsedParams)
+    private boolean getParameters(String parameter, List<String> parsedParams)
     {
         String[] params = parameter.split(" ");
         if (params.length != 2)
@@ -211,30 +220,61 @@ public class InventoryCommandsImplementation extends CommandGroup
             System.out.println("Malformed parameter string (" + parameter + ") - expected <x> <y>");
             return false;   // Error - incorrect number of parameters.
         }
-        Integer lhs, rhs;
+        String[] lhsParams = params[0].split(":");
+        String[] rhsParams = params[1].split(":");
+        Integer lhsIndex, rhsIndex;
+        String lhsName, rhsName, lhsStrIndex, rhsStrIndex;
+        if (lhsParams.length == 2)
+        {
+            lhsName = lhsParams[0];
+            lhsStrIndex = lhsParams[1];
+        }
+        else if (lhsParams.length == 1)
+        {
+            lhsName = "inventory";
+            lhsStrIndex = lhsParams[0];
+        }
+        else
+        {
+            System.out.println("Malformed parameter string (" + params[0] + ")");
+            return false;
+        }
+        if (rhsParams.length == 2)
+        {
+            rhsName = rhsParams[0];
+            rhsStrIndex = rhsParams[1];
+        }
+        else if (rhsParams.length == 1)
+        {
+            rhsName = "inventory";
+            rhsStrIndex = rhsParams[0];
+        }
+        else
+        {
+            System.out.println("Malformed parameter string (" + params[1] + ")");
+            return false;
+        }
+
         try
         {
-            lhs = Integer.valueOf(params[0]);
-            rhs = Integer.valueOf(params[1]);
+            lhsIndex = Integer.valueOf(lhsStrIndex);
+            rhsIndex = Integer.valueOf(rhsStrIndex);
         }
         catch (NumberFormatException e)
         {
             System.out.println("Malformed parameter string (" + parameter + ") - " + e.getMessage());
             return false;
         }
-        if (lhs == null || rhs == null)
+        if (lhsIndex == null || rhsIndex == null)
         {
             System.out.println("Malformed parameter string (" + parameter + ")");
             return false;   // Error - incorrect parameters.
         }
-        InventoryPlayer inv = Minecraft.getMinecraft().player.inventory;
-        if (lhs < 0 || lhs >= inv.getSizeInventory() || rhs < 0 || rhs >= inv.getSizeInventory())
-        {
-            System.out.println("Inventory swap parameters out of bounds - must be between 0 and " + (inv.getSizeInventory() - 1));
-            return false;   // Out of bounds.
-        }
-        parsedParams.add(lhs);
-        parsedParams.add(rhs);
+
+        parsedParams.add(lhsName);
+        parsedParams.add(lhsStrIndex);
+        parsedParams.add(rhsName);
+        parsedParams.add(rhsStrIndex);
         return true;
     }
 

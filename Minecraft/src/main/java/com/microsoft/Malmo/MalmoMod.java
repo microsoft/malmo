@@ -60,6 +60,7 @@ import com.microsoft.Malmo.Client.MalmoModClient;
 import com.microsoft.Malmo.MissionHandlers.AbsoluteMovementCommandsImplementation;
 import com.microsoft.Malmo.MissionHandlers.DiscreteMovementCommandsImplementation;
 import com.microsoft.Malmo.MissionHandlers.InventoryCommandsImplementation;
+import com.microsoft.Malmo.MissionHandlers.ObservationFromFullInventoryImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromFullStatsImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromGridImplementation;
 import com.microsoft.Malmo.MissionHandlers.SimpleCraftCommandsImplementation;
@@ -129,6 +130,7 @@ public class MalmoMod
         network.registerMessage(InventoryCommandsImplementation.InventoryMessageHandler.class, InventoryCommandsImplementation.InventoryMessage.class, 7, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.UseActionMessageHandler.class, DiscreteMovementCommandsImplementation.UseActionMessage.class, 8, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.AttackActionMessageHandler.class, DiscreteMovementCommandsImplementation.AttackActionMessage.class, 9, Side.SERVER);
+        network.registerMessage(ObservationFromFullInventoryImplementation.InventoryRequestMessageHandler.class, ObservationFromFullInventoryImplementation.InventoryRequestMessage.class, 10, Side.SERVER);
     }
 
     @EventHandler
