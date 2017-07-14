@@ -548,7 +548,7 @@ public class BlockDrawingHelper
         if (state.type == BlockType.NOTEBLOCK)
         {
             TileEntity te = w.getTileEntity(pos);
-            if (te != null && te instanceof TileEntityNote)
+            if (te != null && te instanceof TileEntityNote && state.variant != null)
             {
                 try
                 {
