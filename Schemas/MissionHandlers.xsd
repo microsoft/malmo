@@ -540,6 +540,35 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="ContainedObjectType">
+    <xs:attribute name="type" use="required" type="BlockOrItem"/>
+    <xs:attribute name="variant" use="optional" type="Variation" />
+    <xs:attribute name="colour" use="optional" type="Colour" />
+    <xs:attribute name="quantity" type="xs:int" use="optional" default="1" />
+  </xs:complexType>
+
+  <xs:complexType name="DrawContainer">
+    <xs:annotation>
+      <xs:documentation>
+        Specify a container item by location and type and contents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="DrawObjectType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+          <xs:element name="object" type="ContainedObjectType"/>
+        </xs:choice>
+        <xs:attribute name="x" type="xs:int" use="required" />
+        <xs:attribute name="y" type="xs:int" use="required" />
+        <xs:attribute name="z" type="xs:int" use="required" />
+        <xs:attribute name="type" type="ContainerType" use="required" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
+      </xs:extension>
+   </xs:complexContent>
+  </xs:complexType>
   
   <xs:complexType name="DrawEntity">
     <xs:annotation>
@@ -622,6 +651,7 @@
   <xs:element name="DrawSphere" type="DrawSphere" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawBlock" type="DrawBlock" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawCuboid" type="DrawCuboid" substitutionGroup="DrawObjectType"/>
+  <xs:element name="DrawContainer" type="DrawContainer" substitutionGroup="DrawObjectType"/>
 
   <xs:element name="ClassroomDecorator">
     <xs:annotation>
