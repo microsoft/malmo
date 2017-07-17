@@ -532,7 +532,6 @@
   <xs:restriction base="xs:string">
     <xs:enumeration value="dispenser" />
     <xs:enumeration value="chest" />
-    <xs:enumeration value="ender_chest" />
     <xs:enumeration value="trapped_chest" />
     <xs:enumeration value="hopper" />
     <xs:enumeration value="dropper" />
