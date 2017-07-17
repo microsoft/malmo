@@ -143,12 +143,18 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
         return true;
     }
 
-    public static void getInventoryJSON(JsonArray arr, IInventory inventory)
+    public static String getInventoryName(IInventory inv)
     {
-        String invName = inventory.getName();
+        String invName = inv.getName();
         String prefix = "container.";
         if (invName.startsWith(prefix))
             invName = invName.substring(prefix.length());
+        return invName;
+    }
+
+    public static void getInventoryJSON(JsonArray arr, IInventory inventory)
+    {
+        String invName = getInventoryName(inventory);
         for (int i = 0; i < inventory.getSizeInventory(); i++)
         {
             ItemStack is = inventory.getStackInSlot(i);

@@ -202,10 +202,7 @@ public class InventoryCommandsImplementation extends CommandGroup
             if (te != null && te instanceof TileEntityLockableLoot)
             {
                 TileEntityLockableLoot tell = (TileEntityLockableLoot) te;
-                containerName = tell.getName();
-                String prefix = "container.";
-                if (containerName.startsWith(prefix))
-                    containerName = containerName.substring(prefix.length());
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName(tell);
                 container = tell;
             }
         }
@@ -334,10 +331,7 @@ public class InventoryCommandsImplementation extends CommandGroup
                 TileEntity te = Minecraft.getMinecraft().world.getTileEntity(containerPos);
                 if (te instanceof TileEntityLockableLoot)
                 {
-                    containerName = ((TileEntityLockableLoot) te).getName();
-                    String prefix = "container.";
-                    if (containerName.startsWith(prefix))
-                        containerName = containerName.substring(prefix.length());
+                    containerName = ObservationFromFullInventoryImplementation.getInventoryName((TileEntityLockableLoot)te);
                 }
             }
             boolean containerMatches = (lhsName.equals("inventory") || lhsName.equals(containerName)) && (rhsName.equals("inventory") || rhsName.equals(containerName));

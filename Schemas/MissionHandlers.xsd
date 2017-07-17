@@ -557,7 +557,7 @@
     <xs:complexContent>
       <xs:extension base="DrawObjectType">
         <xs:choice minOccurs="1" maxOccurs="unbounded">
-          <xs:element name="object" type="ContainedObjectType"/>
+          <xs:element name="Object" type="ContainedObjectType"/>
         </xs:choice>
         <xs:attribute name="x" type="xs:int" use="required" />
         <xs:attribute name="y" type="xs:int" use="required" />
