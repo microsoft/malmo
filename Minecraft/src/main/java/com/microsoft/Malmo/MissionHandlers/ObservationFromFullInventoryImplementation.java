@@ -19,10 +19,15 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ObservationFromFullInventory;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -33,13 +38,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.microsoft.Malmo.Schemas.DrawItem;
-import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.ObservationFromFullInventory;
-import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 /** Simple IObservationProducer class that returns a list of the full inventory, including the armour.
  */
