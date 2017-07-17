@@ -30,6 +30,7 @@ set( SOURCES
   file_test.py
   hit_test.py
   human_action.py
+  inventory_test.py
   manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
