@@ -133,6 +133,13 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="EnderBoxInventory" minOccurs="0" maxOccurs="1" >
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
+                            <xs:element ref="InventoryObject" />
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
