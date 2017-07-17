@@ -416,6 +416,8 @@ public class BlockDrawingHelper
         TileEntity tileentity = w.getTileEntity(pos);
         if (tileentity instanceof TileEntityLockableLoot)
         {
+            // First clear out any leftovers:
+            ((TileEntityLockableLoot)tileentity).clear();
             int index = 0;
             for (ContainedObjectType cot : c.getObject())
             {
