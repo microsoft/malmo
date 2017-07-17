@@ -122,6 +122,20 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                     getInventoryJSON(arr, tell);
                 json.add("inventory", arr);
             }
+            // Also add an entry for each type of inventory available.
+            JsonArray arrInvs = new JsonArray();
+            JsonObject jobjPlayer = new JsonObject();
+            jobjPlayer.addProperty("name", getInventoryName(player.inventory));
+            jobjPlayer.addProperty("size", player.inventory.getSizeInventory());
+            arrInvs.add(jobjPlayer);
+            if (tell != null)
+            {
+                JsonObject jobjTell = new JsonObject();
+                jobjTell.addProperty("name", getInventoryName(tell));
+                jobjTell.addProperty("size", tell.getSizeInventory());
+                arrInvs.add(jobjTell);
+            }
+            json.add("inventoriesAvailable", arrInvs);
         }
 
         @Override
