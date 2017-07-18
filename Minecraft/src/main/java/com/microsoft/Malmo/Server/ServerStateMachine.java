@@ -61,6 +61,7 @@ import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator.DecoratorException;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.Schemas.AgentSection;
+import com.microsoft.Malmo.Schemas.AgentStart.EnderBoxInventory;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
@@ -831,6 +832,9 @@ public class ServerStateMachine extends StateMachine
                 // Set their inventory:
                 if (as.getAgentStart().getInventory() != null)
                     initialiseInventory(player, as.getAgentStart().getInventory());
+                // And their Ender inventory:
+                if (as.getAgentStart().getEnderBoxInventory() != null)
+                    initialiseEnderInventory(player, as.getAgentStart().getEnderBoxInventory());
 
                 // Set their game mode to spectator for now, to protect them while we wait for the rest of the cast to assemble:
                 player.setGameType(GameType.SPECTATOR);
@@ -965,6 +969,20 @@ public class ServerStateMachine extends StateMachine
                 onError(null);  // We've lost a connection - abort the mission.
         }
 
+        private ItemStack itemStackFromInventoryObject(InventoryObjectType obj)
+        {
+            DrawItem di = new DrawItem();
+            di.setColour(obj.getColour());
+            di.setVariant(obj.getVariant());
+            di.setType(obj.getType());
+            ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+            if( item != null )
+            {
+                item.setCount(obj.getQuantity());
+            }
+            return item;
+        }
+
         private void initialiseInventory(EntityPlayerMP player, Inventory inventory)
         {
             // Clear inventory:
@@ -977,15 +995,24 @@ public class ServerStateMachine extends StateMachine
             for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
                 InventoryObjectType obj = el.getValue();
-                DrawItem di = new DrawItem();
-                di.setColour(obj.getColour());
-                di.setVariant(obj.getVariant());
-                di.setType(obj.getType());
-                ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+                ItemStack item = itemStackFromInventoryObject(obj);
                 if( item != null )
                 {
-                    item.setCount(obj.getQuantity());
                     player.inventory.setInventorySlotContents(obj.getSlot(), item);
+                }
+            }
+        }
+
+        private void initialiseEnderInventory(EntityPlayerMP player, EnderBoxInventory inventory)
+        {
+            player.getInventoryEnderChest().clear();
+            for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
+            {
+                InventoryObjectType obj = el.getValue();
+                ItemStack item = itemStackFromInventoryObject(obj);
+                if( item != null )
+                {
+                    player.getInventoryEnderChest().setInventorySlotContents(obj.getSlot(), item);
                 }
             }
         }
