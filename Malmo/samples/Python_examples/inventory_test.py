@@ -93,7 +93,7 @@ def getContainerXML():
 missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
-            <Summary>Chests and Stuff</Summary>
+            <Summary>Colourful Sorting</Summary>
         </About>
 
         <ServerSection>
@@ -107,7 +107,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
         </ServerSection>
 
         <AgentSection mode="Survival">
-            <Name>Lovejoy</Name>
+            <Name>Mondrian</Name>
             <AgentStart>
                 <Placement x="0.5" y="56.0" z="0.5" pitch="18"/>
                 <Inventory/>
