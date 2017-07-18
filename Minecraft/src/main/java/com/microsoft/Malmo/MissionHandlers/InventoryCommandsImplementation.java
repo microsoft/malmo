@@ -230,6 +230,23 @@ public class InventoryCommandsImplementation extends CommandGroup
         ItemStack dstStack = rhsInventory.getStackInSlot(rhs);
         lhsInventory.setInventorySlotContents(lhs, dstStack);
         rhsInventory.setInventorySlotContents(rhs, srcStack);
+        if (lhsInventory != rhsInventory)
+        {
+            // Items have moved between our inventory and the foreign inventory - may need to trigger
+            // rewards for collecting / discarding.
+            ItemStack stackBeingLost = (lhsInventory == player.inventory) ? srcStack : dstStack;
+            ItemStack stackBeingGained = (lhsInventory == player.inventory) ? dstStack : srcStack;
+            if (stackBeingLost != null)
+            {
+                RewardForDiscardingItemImplementation.LoseItemEvent lose_event = new RewardForDiscardingItemImplementation.LoseItemEvent(stackBeingLost.copy());
+                MinecraftForge.EVENT_BUS.post(lose_event);
+            }
+            if (stackBeingGained != null)
+            {
+                RewardForCollectingItemImplementation.GainItemEvent gain_event = new RewardForCollectingItemImplementation.GainItemEvent(stackBeingGained.copy());
+                MinecraftForge.EVENT_BUS.post(gain_event);
+            }
+        }
     }
 
     @Override
