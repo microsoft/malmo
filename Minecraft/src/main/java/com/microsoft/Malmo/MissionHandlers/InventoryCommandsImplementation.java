@@ -210,6 +210,10 @@ public class InventoryCommandsImplementation extends CommandGroup
         IInventory rhsInventory = rhsInv.equals("inventory") ? player.inventory : (rhsInv.equals(containerName) ? container : null);
         if (lhsInventory == null || rhsInventory == null)
             return; // Source or dest container not available.
+        if (rhs < 0 || lhs < 0)
+            return; // Out of bounds.
+        if (lhs >= lhsInventory.getSizeInventory() || rhs >= rhsInventory.getSizeInventory())
+            return; // Out of bounds.
 
         ItemStack srcStack = lhsInventory.getStackInSlot(lhs);
         ItemStack dstStack = rhsInventory.getStackInSlot(rhs);
