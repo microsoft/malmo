@@ -526,7 +526,7 @@
 <xs:simpleType name="ContainerType">
   <xs:annotation>
     <xs:documentation>
-      Subset of the block types which act as containers
+      Subset of the block types which act as containers, for use in DrawContainer object
     </xs:documentation>
   </xs:annotation>
   <xs:restriction base="xs:string">

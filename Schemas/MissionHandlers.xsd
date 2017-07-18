@@ -1150,6 +1150,22 @@
         
         Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use commands 
         - e.g. if the agent does 'use' while holding a block item it will place the block into the world.
+        
+        If the agent is currently pointed at a container item - eg a chest, shulker box, dispenser etc - then the swap and combine commands
+        can be extended to allow access to the container's inventory. To do this, simply prefix the slot number with the name of the foreign
+        inventory (which will be provided by the {{{ObservationFromFullInventory}}} observations).
+        
+        So to move an item out of the hotbar and into slot 0 of a chest, say:
+        
+        "{{{swapInventoryItems 3 Chest:0}}}"
+        
+        Note that this is the same as writing 
+
+        "{{{swapInventoryItems Inventory:3 Chest:0}}}"
+
+        "Inventory" is the name of the player's inventory.
+        
+        See inventory_test.py for a working example of this.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -1525,10 +1541,35 @@
   <xs:element name="ObservationFromFullInventory">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return observations that say what is in the player's inventory.
+        When present, the Mod will return observations that describe the contents of the player's inventory.
+        There are two modes - "flat" (the default) is provided for backwards compatibility, and behaves like this:
 
-        Up to four values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively, and {{{Inventory_0_colour}}} and {{{Inventory_0_variant}}} if the item has a colour/variation. Inventory slots are numbered 0 to 39 inclusive.
+        The inventory contents are returned in a flat format in the root of the json observations.
+        Up to four values are returned for each slot, if not empty: e.g. {{{InventorySlot_0_size}}} and {{{InventorySlot_0_item}}} containing the number and
+        type of the item(s) in the slot, respectively, and {{{InventorySlot_0_colour}}} and {{{InventorySlot_0_variant}}} if the item has a colour/variation.
+        Inventory slots are numbered 0 to 39 inclusive.
+        If there is a container item available (eg the player is pointed at a chest), this will be returned in the same way, but "InventorySlot"
+        will be replaced by "ContainerNameSlot" - eg {{{ShulkerBoxSlot_0_item}}} etc.
+        
+        If {{{flat}}} is false (recommended), the data is returned as an array of objects, one for each item in the inventory/inventories.
+        The JSON array is called "inventory", and each item in the array will contain:
+        * {{{type}}} - the type of the object in that ItemStack
+        * {{{colour}}} - the colour, if relevant
+        * {{{variant}}} - the variant, if relevant
+        * {{{quantity}}} - the number of objects in the ItemStack
+        * {{{index}}} - the slot number
+        * {{{inventory}}} - the name of the inventory - will be "Inventory" for the player, or, for example, "ShulkerBox", "Chest" etc, if a container is available.
+        This index and inventory information can be used to specify the item in the {{{InventoryCommands}}} - items are specified as inventory:index -
+        eg "ShulkerBox:12"
+        
+        In addition to this information, whether {{{flat}}} is true or false, an array called "inventoriesAvailable" will also be returned.
+        This will contain a list of all the inventories available (usually just the player's, but if the player is pointed at a container, this
+        will also be available.)
+        For each inventory, an object will be returned that specifies:
+        * {{{name}}} - the inventory name (same as will be returned in the {{{inventory}}} field for any items in that inventory)
+        * {{{size}}} - the number of slots the inventory provides.
+        
+        For a working example please see inventory_test.py in the Python samples folder.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>

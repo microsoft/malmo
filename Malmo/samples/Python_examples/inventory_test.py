@@ -244,6 +244,13 @@ while world_state.is_mission_running:
                     if i.colour != box_colour and wrongColouredItem == None:
                         wrongColouredItem = i
 
+            # The swap command takes two inventory locations as parameters, and swaps the ItemStacks
+            # in those locations. These locations are of the form [inventory_name]:slot_index.
+            # If inventory_name is unspecified, the player's inventory (called "inventory") is assumed.
+            # Eg:
+            # swapInventoryItems 0 4                        // swap the items in slots 0 and 4 of the player's inventory
+            # swapInventoryItems inventory:0 inventory:4    // same thing
+            # swapInventoryItems shulkerBox:0 4             // swap player's item 4 with the item in slot 0 of the box
             ourFirstSlot = min(ourUsedSlots)
             theirFirstSlot = min(theirUsedSlots)
             source = str(rightColouredItem.index) if rightColouredItem else str(ourFirstSlot)
