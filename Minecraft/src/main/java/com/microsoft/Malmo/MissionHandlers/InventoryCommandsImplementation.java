@@ -33,9 +33,11 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -144,9 +146,13 @@ public class InventoryCommandsImplementation extends CommandGroup
             TileEntity te = player.world.getTileEntity(containerPos);
             if (te != null && te instanceof TileEntityLockableLoot)
             {
-                TileEntityLockableLoot tell = (TileEntityLockableLoot) te;
-                containerName = tell.getName();
-                container = tell;
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                container = (IInventory)te;
+            }
+            else if (te != null && te instanceof TileEntityEnderChest)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName(player.getInventoryEnderChest());
+                container = player.getInventoryEnderChest();
             }
         }
         IInventory dstInv = invDst.equals("inventory") ? player.inventory : (invDst.equals(containerName) ? container : null);
@@ -201,10 +207,15 @@ public class InventoryCommandsImplementation extends CommandGroup
             TileEntity te = player.world.getTileEntity(containerPos);
             if (te != null && te instanceof TileEntityLockableLoot)
             {
-                TileEntityLockableLoot tell = (TileEntityLockableLoot) te;
-                containerName = ObservationFromFullInventoryImplementation.getInventoryName(tell);
-                container = tell;
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                container = (IInventory)te;
             }
+            else if (te != null && te instanceof TileEntityEnderChest)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName(player.getInventoryEnderChest());
+                container = player.getInventoryEnderChest();
+            }
+
         }
         IInventory lhsInventory = lhsInv.equals("inventory") ? player.inventory : (lhsInv.equals(containerName) ? container : null);
         IInventory rhsInventory = rhsInv.equals("inventory") ? player.inventory : (rhsInv.equals(containerName) ? container : null);
@@ -334,9 +345,9 @@ public class InventoryCommandsImplementation extends CommandGroup
                 containerPos = rtr.getBlockPos();
                 TileEntity te = Minecraft.getMinecraft().world.getTileEntity(containerPos);
                 if (te instanceof TileEntityLockableLoot)
-                {
-                    containerName = ObservationFromFullInventoryImplementation.getInventoryName((TileEntityLockableLoot)te);
-                }
+                    containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                else if (te instanceof TileEntityEnderChest)
+                    containerName = ObservationFromFullInventoryImplementation.getInventoryName(Minecraft.getMinecraft().player.getInventoryEnderChest());
             }
             boolean containerMatches = (lhsName.equals("inventory") || lhsName.equals(containerName)) && (rhsName.equals("inventory") || rhsName.equals(containerName));
             if (!containerMatches)

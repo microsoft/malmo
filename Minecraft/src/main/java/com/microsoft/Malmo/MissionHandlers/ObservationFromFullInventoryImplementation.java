@@ -32,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -97,12 +98,14 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
             // a) the player
             // b) any chest-type objects the player is looking at.
             InventoryRequestMessage irm = (InventoryRequestMessage)message;
-            TileEntityLockableLoot tell = null;
+            IInventory foreignInv = null;
             if (irm.pos() != null)
             {
                 TileEntity te = player.world.getTileEntity(irm.pos());
                 if (te instanceof TileEntityLockableLoot)
-                    tell = (TileEntityLockableLoot)te;
+                    foreignInv = (TileEntityLockableLoot)te;
+                else if (te instanceof TileEntityEnderChest)
+                    foreignInv = player.getInventoryEnderChest();
             }
 
             if (irm.isFlat())
@@ -110,16 +113,16 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                 // Write out the player's inventory in a flattened style.
                 // (This is only included for backwards compatibility.)
                 getInventoryJSON(json, "InventorySlot_", player.inventory, player.inventory.getSizeInventory());
-                if (tell != null)
-                    getInventoryJSON(json, tell.getName() + "Slot_", tell, tell.getSizeInventory());
+                if (foreignInv != null)
+                    getInventoryJSON(json, foreignInv.getName() + "Slot_", foreignInv, foreignInv.getSizeInventory());
             }
             else
             {
                 // Newer approach - an array of objects.
                 JsonArray arr = new JsonArray();
                 getInventoryJSON(arr, player.inventory);
-                if (tell != null)
-                    getInventoryJSON(arr, tell);
+                if (foreignInv != null)
+                    getInventoryJSON(arr, foreignInv);
                 json.add("inventory", arr);
             }
             // Also add an entry for each type of inventory available.
@@ -128,11 +131,11 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
             jobjPlayer.addProperty("name", getInventoryName(player.inventory));
             jobjPlayer.addProperty("size", player.inventory.getSizeInventory());
             arrInvs.add(jobjPlayer);
-            if (tell != null)
+            if (foreignInv != null)
             {
                 JsonObject jobjTell = new JsonObject();
-                jobjTell.addProperty("name", getInventoryName(tell));
-                jobjTell.addProperty("size", tell.getSizeInventory());
+                jobjTell.addProperty("name", getInventoryName(foreignInv));
+                jobjTell.addProperty("size", foreignInv.getSizeInventory());
                 arrInvs.add(jobjTell);
             }
             json.add("inventoriesAvailable", arrInvs);
