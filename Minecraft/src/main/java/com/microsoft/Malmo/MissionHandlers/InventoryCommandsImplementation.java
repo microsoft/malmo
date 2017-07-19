@@ -19,15 +19,11 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.Schemas.InventoryCommand;
-import com.microsoft.Malmo.Schemas.InventoryCommands;
-import com.microsoft.Malmo.Schemas.MissionInit;
-
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -43,6 +39,11 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.Schemas.InventoryCommand;
+import com.microsoft.Malmo.Schemas.InventoryCommands;
+import com.microsoft.Malmo.Schemas.MissionInit;
+
 /** Very basic control over inventory. Two commands are required: select and drop - each takes a slot.<br>
  * The effect is to swap the item stacks over - eg "select 10" followed by "drop 0" will swap the stacks
  * in slots 0 and 10.<br>
@@ -50,6 +51,42 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class InventoryCommandsImplementation extends CommandGroup
 {
+    public static class InventoryChangeMessage implements IMessage
+    {
+        public ItemStack itemsGained = null;
+        public ItemStack itemsLost = null;
+
+        public InventoryChangeMessage()
+        {
+        }
+        public InventoryChangeMessage(ItemStack itemsGained, ItemStack itemsLost)
+        {
+            this.itemsGained = itemsGained;
+            this.itemsLost = itemsLost;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            boolean gainedItems = buf.readBoolean();
+            if (gainedItems)
+                this.itemsGained = ByteBufUtils.readItemStack(buf);
+            boolean lostItems = buf.readBoolean();
+            if (lostItems)
+                this.itemsLost = ByteBufUtils.readItemStack(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            buf.writeBoolean(this.itemsGained != null);
+            if (this.itemsGained != null)
+                ByteBufUtils.writeItemStack(buf, this.itemsGained);
+            buf.writeBoolean(this.itemsLost != null);
+                ByteBufUtils.writeItemStack(buf, this.itemsLost);
+        }
+    }
+ 
     public static class InventoryMessage implements IMessage
     {
         String invA;
@@ -110,10 +147,33 @@ public class InventoryCommandsImplementation extends CommandGroup
         public IMessage onMessage(InventoryMessage message, MessageContext ctx)
         {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            ItemStack[] changes = null;
             if (message.combine)
                 combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
             else
-                swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                changes = swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+            if (changes == null)
+                return null;
+            else
+                return new InventoryChangeMessage(changes[0], changes[1]);
+        }
+    }
+
+    public static class InventoryChangeMessageHandler implements IMessageHandler<InventoryChangeMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(InventoryChangeMessage message, MessageContext ctx)
+        {
+            if (message.itemsGained != null)
+            {
+                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(message.itemsGained);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
+            if (message.itemsLost != null)
+            {
+                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(message.itemsLost);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
             return null;
         }
     }
@@ -198,7 +258,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         }
     }
 
-    static void swapSlots(EntityPlayerMP player, String lhsInv, int lhs, String rhsInv, int rhs, BlockPos containerPos)
+    static ItemStack[] swapSlots(EntityPlayerMP player, String lhsInv, int lhs, String rhsInv, int rhs, BlockPos containerPos)
     {
         IInventory container = null;
         String containerName = "";
@@ -220,11 +280,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         IInventory lhsInventory = lhsInv.equals("inventory") ? player.inventory : (lhsInv.equals(containerName) ? container : null);
         IInventory rhsInventory = rhsInv.equals("inventory") ? player.inventory : (rhsInv.equals(containerName) ? container : null);
         if (lhsInventory == null || rhsInventory == null)
-            return; // Source or dest container not available.
+            return null; // Source or dest container not available.
         if (rhs < 0 || lhs < 0)
-            return; // Out of bounds.
+            return null; // Out of bounds.
         if (lhs >= lhsInventory.getSizeInventory() || rhs >= rhsInventory.getSizeInventory())
-            return; // Out of bounds.
+            return null; // Out of bounds.
 
         ItemStack srcStack = lhsInventory.getStackInSlot(lhs);
         ItemStack dstStack = rhsInventory.getStackInSlot(rhs);
@@ -234,19 +294,16 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             // Items have moved between our inventory and the foreign inventory - may need to trigger
             // rewards for collecting / discarding.
+            ItemStack[] returnStacks = new ItemStack[2];
             ItemStack stackBeingLost = (lhsInventory == player.inventory) ? srcStack : dstStack;
             ItemStack stackBeingGained = (lhsInventory == player.inventory) ? dstStack : srcStack;
-            if (stackBeingLost != null)
-            {
-                RewardForDiscardingItemImplementation.LoseItemEvent lose_event = new RewardForDiscardingItemImplementation.LoseItemEvent(stackBeingLost.copy());
-                MinecraftForge.EVENT_BUS.post(lose_event);
-            }
             if (stackBeingGained != null)
-            {
-                RewardForCollectingItemImplementation.GainItemEvent gain_event = new RewardForCollectingItemImplementation.GainItemEvent(stackBeingGained.copy());
-                MinecraftForge.EVENT_BUS.post(gain_event);
-            }
+                returnStacks[0] = stackBeingGained.copy();
+            if (stackBeingLost != null)
+                returnStacks[1] = stackBeingLost.copy();
+            return returnStacks;
         }
+        return null;
     }
 
     @Override
