@@ -118,6 +118,12 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <InventoryCommands/>
                 <ContinuousMovementCommands />
                 <MissionQuitCommands />
+                <RewardForCollectingItem>
+                    <Item reward="-1" type="stained_glass"/>
+                </RewardForCollectingItem>
+                <RewardForDiscardingItem>
+                    <Item reward="1" type="stained_glass"/>
+                </RewardForDiscardingItem>
             </AgentHandlers>
         </AgentSection>
 
@@ -166,8 +172,11 @@ num_swaps = 0
 # Track which boxes have been sorted:
 completed_boxes = { col:False for col in colours }
 
+total_reward = 0
 while world_state.is_mission_running:
     world_state = agent_host.getWorldState()
+    if world_state.number_of_rewards_since_last_state > 0:
+        total_reward += world_state.rewards[-1].getValue()
     if world_state.number_of_observations_since_last_state > 0:
         obs = json.loads(world_state.observations[-1].text)
 
@@ -203,7 +212,7 @@ while world_state.is_mission_running:
         # the swap command, and the observation generation, take place on the Minecraft server. This adds
         # some lag, meaning that we won't instantly see the result of the swap - and so the code which looks
         # for useful swaps will keep generating the same swap command (thus undoing itself).
-        if last_inventory != obs[u'inventory']:
+        if u'inventory' in obs and last_inventory != obs[u'inventory']:
             # The inventory has changed, so proceed.
             last_inventory = obs[u'inventory']           
 
@@ -217,8 +226,9 @@ while world_state.is_mission_running:
                     print "Completed " + box_colour + " box."
                     if not False in completed_boxes.values():
                         print "ALL BOXES COMPLETED!"
+                        agent_host.sendCommand("turn 0")
+                        time.sleep(1)   # Short pause to allow final rewards to get processed
                         agent_host.sendCommand("quit")
-                        time.sleep(1)
 
             # We want to track empty slots in both inventories. To do this, we create a list with a
             # numbered entry for each slot, and whenever we encounter an item we mark its slot as used
@@ -258,15 +268,27 @@ while world_state.is_mission_running:
             sourceCol = rightColouredItem.colour if rightColouredItem else "empty"
             destCol = wrongColouredItem.colour if wrongColouredItem else "empty"
             if rightColouredItem or wrongColouredItem:
-                print "Swapping " + source + "(" + sourceCol + ") and " + dest + "(" + destCol + ")"
+                print " " * int(-total_reward), "Swapping " + source + "(" + sourceCol + ") and " + dest + "(" + destCol + ")"
                 num_swaps += 1
                 agent_host.sendCommand("swapInventoryItems " + source + " " + dest)
 
-# mission has ended.
+# Mission has ended.
+# Get final reward:
+if world_state.number_of_rewards_since_last_state > 0:
+    total_reward += world_state.rewards[-1].getValue()
+
+test_passed = True
 if False in completed_boxes.values():
+    test_passed = False
     print "FAILED TO SORT BOXES: "
     print [k for k in completed_boxes if not completed_boxes[k]]
-    if agent_host.receivedArgument("test"):
-        exit(1)
 else:
     print "Mission over - sorted boxes with " + str(num_swaps) + " swap commands (" + str(float(boxes_traversed)/16.0) + " laps)."
+    print "Final reward: ", total_reward
+    if total_reward != 0:
+        print "Final reward should have been zero."
+        test_passed = False
+
+if not test_passed and agent_host.receivedArgument("test"):
+    print "TEST FAILED"
+    exit(1)
