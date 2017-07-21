@@ -83,6 +83,7 @@ public class InventoryCommandsImplementation extends CommandGroup
             if (this.itemsGained != null)
                 ByteBufUtils.writeItemStack(buf, this.itemsGained);
             buf.writeBoolean(this.itemsLost != null);
+            if (this.itemsLost != null)
                 ByteBufUtils.writeItemStack(buf, this.itemsLost);
         }
     }
@@ -149,7 +150,7 @@ public class InventoryCommandsImplementation extends CommandGroup
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             ItemStack[] changes = null;
             if (message.combine)
-                combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                changes = combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
             else
                 changes = swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
             if (changes == null)
@@ -197,7 +198,7 @@ public class InventoryCommandsImplementation extends CommandGroup
         return true;
     }
 
-    static void combineSlots(EntityPlayerMP player, String invDst, int dst, String invAdd, int add, BlockPos containerPos)
+    static ItemStack[] combineSlots(EntityPlayerMP player, String invDst, int dst, String invAdd, int add, BlockPos containerPos)
     {
         IInventory container = null;
         String containerName = "";
@@ -218,19 +219,33 @@ public class InventoryCommandsImplementation extends CommandGroup
         IInventory dstInv = invDst.equals("inventory") ? player.inventory : (invDst.equals(containerName) ? container : null);
         IInventory addInv = invAdd.equals("inventory") ? player.inventory : (invAdd.equals(containerName) ? container : null);
         if (dstInv == null || addInv == null)
-            return; // Source or dest container not available.
+            return null; // Source or dest container not available.
 
         ItemStack dstStack = dstInv.getStackInSlot(dst);
         ItemStack addStack = addInv.getStackInSlot(add);
 
         if (addStack == null)
-            return; // Combination is a no-op.
+            return null; // Combination is a no-op.
+
+        ItemStack[] returnStacks = null;
 
         if (dstStack == null) // Do a straight move - nothing to combine with.
         {
+            if (dstInv != addInv)
+            {
+                // Items are moving between our inventory and the foreign inventory - may need to trigger
+                // rewards for collecting / discarding.
+                returnStacks = new ItemStack[2];
+                ItemStack stackBeingLost = (addInv == player.inventory) ? addStack : null;
+                ItemStack stackBeingGained = (dstInv == player.inventory) ? addStack : null;
+                if (stackBeingGained != null)
+                    returnStacks[0] = stackBeingGained.copy();
+                if (stackBeingLost != null)
+                    returnStacks[1] = stackBeingLost.copy();
+            }
             dstInv.setInventorySlotContents(dst, addStack);
             addInv.setInventorySlotContents(add, null);
-            return;
+            return returnStacks;
         }
 
         // Check we can combine. This logic comes from InventoryPlayer.storeItemStack():
@@ -243,19 +258,33 @@ public class InventoryCommandsImplementation extends CommandGroup
             // We can combine, so figure out how much we have room for:
             int limit = Math.min(dstStack.getMaxStackSize(), dstInv.getInventoryStackLimit());
             int room = limit - dstStack.getCount();
+            ItemStack itemsTransferred = dstStack.copy();
             if (addStack.getCount() > room)
             {
                 // Not room for all of it, so shift across as much as possible.
-                addStack.setCount(addStack.getCount() - room);
-                dstStack.setCount(dstStack.getCount() + room);
+                addStack.shrink(room);
+                dstStack.grow(room);
+                itemsTransferred.setCount(room);
             }
             else
             {
                 // Room for the whole lot, so empty out the add slot.
-                dstStack.setCount(dstStack.getCount() + addStack.getCount());
-                addInv.setInventorySlotContents(add, null);
+                dstStack.grow(addStack.getCount());
+                itemsTransferred.setCount(addStack.getCount());
+                addInv.removeStackFromSlot(add);//setInventorySlotContents(add, null);
+            }
+            if (dstInv != addInv)
+            {
+                // Items are moving between our inventory and the foreign inventory - may need to trigger
+                // rewards for collecting / discarding.
+                returnStacks = new ItemStack[2];
+                if (dstInv == player.inventory)
+                    returnStacks[0] = itemsTransferred; // We're gaining them
+                else
+                    returnStacks[1] = itemsTransferred; // We're losing them
             }
         }
+        return returnStacks;
     }
 
     static ItemStack[] swapSlots(EntityPlayerMP player, String lhsInv, int lhs, String rhsInv, int rhs, BlockPos containerPos)

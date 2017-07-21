@@ -515,7 +515,6 @@ public class MinecraftTypeHelper
                             return is;
                         }
                     }
-                    System.out.println(parts);
                 }
             }
             itemStack = new ItemStack(item);
