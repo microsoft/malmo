@@ -31,8 +31,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityEnderChest;
 import net.minecraft.tileentity.TileEntityLockableLoot;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -40,6 +42,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.InventoryCommand;
 import com.microsoft.Malmo.Schemas.InventoryCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -145,18 +148,25 @@ public class InventoryCommandsImplementation extends CommandGroup
     public static class InventoryMessageHandler implements IMessageHandler<InventoryMessage, IMessage>
     {
         @Override
-        public IMessage onMessage(InventoryMessage message, MessageContext ctx)
+        public InventoryChangeMessage onMessage(final InventoryMessage message, MessageContext ctx)
         {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            ItemStack[] changes = null;
-            if (message.combine)
-                changes = combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
-            else
-                changes = swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
-            if (changes == null)
-                return null;
-            else
-                return new InventoryChangeMessage(changes[0], changes[1]);
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
+            mainThread.addScheduledTask(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ItemStack[] changes = null;
+                    if (message.combine)
+                        changes = combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                    else
+                        changes = swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                    if (changes != null)
+                        MalmoMod.network.sendTo(new InventoryChangeMessage(changes[0], changes[1]), player);
+                }
+            });
+            return null;
         }
     }
 

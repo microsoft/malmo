@@ -92,7 +92,7 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
     public static class InventoryRequestMessageHandler extends ObservationFromServer.ObservationRequestMessageHandler implements IMessageHandler<InventoryRequestMessage, IMessage>
     {
         @Override
-        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message, MessageContext ctx)
+        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message)
         {
             // We want to output the inventory from:
             // a) the player
