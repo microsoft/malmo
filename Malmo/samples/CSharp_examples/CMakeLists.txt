@@ -24,6 +24,16 @@ set( CSHARP_SAMPLES
     RunMission
     tutorial_1
     tutorial_2
+    tutorial_3
+    tutorial_4
+    tutorial_4_solved
+    tutorial_5
+    #tutorial_5_solved
+    tutorial_7
+    tutorial_8
+    animation_test
+    default_world_test
+    hit_test
 )
 
 foreach ( CMAKE_SAMPLE_NAME IN LISTS CSHARP_SAMPLES )
@@ -41,7 +51,7 @@ if( WIN32 )
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/$(Configuration)/CSharpExamples_${CMAKE_SAMPLE_NAME}.exe
         COMMAND ${CSHARP_BUILD}
         ARGS ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SAMPLE_NAME}.csproj /p:Configuration=$<CONFIG> /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CURRENT_BUILD_DIR} /t:Clean,Build
-        DEPENDS Malmo MalmoNET App.config ${CMAKE_SAMPLE_NAME}.cs
+        DEPENDS Malmo MalmoNET Newtonsoft.Json App.config ${CMAKE_SAMPLE_NAME}.cs
       )
       add_custom_target( 
         CSharpExamples_${CMAKE_SAMPLE_NAME} ALL 
@@ -58,7 +68,7 @@ else()
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_${CMAKE_SAMPLE_NAME}.exe
         COMMAND ${CSHARP_BUILD}
         ARGS ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_SAMPLE_NAME}.csproj /p:Platform=${CSHARP_PLATFORM} /p:OutputPath=${CMAKE_CURRENT_BINARY_DIR} /t:clean /t:build /p:TargetFrameworkVersion=v4.5
-        DEPENDS Malmo MalmoNET App.config ${CMAKE_SAMPLE_NAME}
+        DEPENDS Malmo MalmoNET Newtonsoft.Json App.config ${CMAKE_SAMPLE_NAME}
       )
       add_custom_target(
         CSharpExamples_${CMAKE_SAMPLE_NAME} ALL 
