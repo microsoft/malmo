@@ -647,6 +647,7 @@ namespace malmo
         if( this->commands_connection ) {
             this->commands_connection.reset();
         }
+        this->current_mission_record.reset();
     }
 
     void AgentHost::onVideo(TimestampedVideoFrame message)
