@@ -51,7 +51,7 @@ public class ObservationFromFullStatsImplementation extends ObservationFromServe
     public static class FullStatsRequestMessageHandler extends ObservationFromServer.ObservationRequestMessageHandler implements IMessageHandler<FullStatsRequestMessage, IMessage>
     {
         @Override
-        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message, MessageContext ctx)
+        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message)
         {
             JSONWorldDataHelper.buildAchievementStats(json, player);
             JSONWorldDataHelper.buildLifeStats(json, player);

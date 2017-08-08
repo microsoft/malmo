@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.30">
+           version="0.31">
 
 <xs:simpleType name="Colour">
     <xs:annotation>
@@ -521,6 +521,37 @@
 
 <xs:simpleType name="BlockOrItem">
   <xs:union memberTypes="BlockType ItemType"/>
+</xs:simpleType>
+
+<xs:simpleType name="ContainerType">
+  <xs:annotation>
+    <xs:documentation>
+      Subset of the block types which act as containers, for use in DrawContainer object
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="dispenser" />
+    <xs:enumeration value="chest" />
+    <xs:enumeration value="trapped_chest" />
+    <xs:enumeration value="hopper" />
+    <xs:enumeration value="dropper" />
+    <xs:enumeration value="white_shulker_box" />
+    <xs:enumeration value="orange_shulker_box" />
+    <xs:enumeration value="magenta_shulker_box" />
+    <xs:enumeration value="light_blue_shulker_box" />
+    <xs:enumeration value="yellow_shulker_box" />
+    <xs:enumeration value="lime_shulker_box" />
+    <xs:enumeration value="pink_shulker_box" />
+    <xs:enumeration value="gray_shulker_box" />
+    <xs:enumeration value="silver_shulker_box" />
+    <xs:enumeration value="cyan_shulker_box" />
+    <xs:enumeration value="purple_shulker_box" />
+    <xs:enumeration value="blue_shulker_box" />
+    <xs:enumeration value="brown_shulker_box" />
+    <xs:enumeration value="green_shulker_box" />
+    <xs:enumeration value="red_shulker_box" />
+    <xs:enumeration value="black_shulker_box" />
+  </xs:restriction>
 </xs:simpleType>
 
 <xs:simpleType name="StoneTypes">

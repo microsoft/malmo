@@ -19,6 +19,8 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import net.minecraft.client.Minecraft;
+
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -36,6 +38,6 @@ public class ObservationFromHotBarImplementation extends HandlerBase implements 
 	@Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        ObservationFromFullInventoryImplementation.getInventoryJSON(json, "Hotbar_", 9);
+        ObservationFromFullInventoryImplementation.getInventoryJSON(json, "Hotbar_", Minecraft.getMinecraft().player.inventory, 9);
     }
 }

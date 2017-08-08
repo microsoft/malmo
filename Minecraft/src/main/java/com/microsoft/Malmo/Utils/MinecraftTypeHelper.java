@@ -149,16 +149,14 @@ public class MinecraftTypeHelper
      */
     public static Colour attemptToGetAsColour(String part)
     {
-        Colour col = null;
-        try
+        String target = part.toUpperCase();
+        for (int i = 0; i < Colour.values().length; i++)
         {
-            col = Colour.valueOf(part.toUpperCase());
+            String col = Colour.values()[i].name().replace("_",  "");
+            if (col.equals(target))
+                return Colour.values()[i];
         }
-        catch (Exception e)
-        {
-            // Does nothing.
-        }
-        return col;
+        return null;
     }
     
     public static Facing attemptToGetAsFacing(String part)
@@ -517,7 +515,6 @@ public class MinecraftTypeHelper
                             return is;
                         }
                     }
-                    System.out.println(parts);
                 }
             }
             itemStack = new ItemStack(item);

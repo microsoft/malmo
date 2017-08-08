@@ -36,6 +36,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.tileentity.TileEntityNote;
 import net.minecraft.util.ResourceLocation;
@@ -46,7 +48,9 @@ import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.ContainedObjectType;
 import com.microsoft.Malmo.Schemas.DrawBlock;
+import com.microsoft.Malmo.Schemas.DrawContainer;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
 import com.microsoft.Malmo.Schemas.DrawEntity;
 import com.microsoft.Malmo.Schemas.DrawItem;
@@ -191,6 +195,8 @@ public class BlockDrawingHelper
                 DrawPrimitive( (DrawLine)obj, world );
             else if (obj instanceof DrawEntity)
                 DrawPrimitive( (DrawEntity)obj, world );
+            else if (obj instanceof DrawContainer)
+                DrawPrimitive( (DrawContainer)obj, world );
             else
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
@@ -396,6 +402,37 @@ public class BlockDrawingHelper
         }
     }
 
+    protected void DrawPrimitive( DrawContainer c, World w ) throws Exception
+    {
+        // First, draw the container block:
+        String cType = c.getType().value();
+        BlockType bType = BlockType.fromValue(cType); // Safe - ContainerType is a subset of BlockType
+        XMLBlockState blockType = new XMLBlockState(bType, c.getColour(), c.getFace(), c.getVariant());
+        if (!blockType.isValid())
+            throw new Exception("Unrecogised item type: " + c.getType().value());
+        BlockPos pos = new BlockPos( c.getX(), c.getY(), c.getZ() );
+        setBlockState(w, pos, blockType );
+        // Now fill the container:
+        TileEntity tileentity = w.getTileEntity(pos);
+        if (tileentity instanceof TileEntityLockableLoot)
+        {
+            // First clear out any leftovers:
+            ((TileEntityLockableLoot)tileentity).clear();
+            int index = 0;
+            for (ContainedObjectType cot : c.getObject())
+            {
+                DrawItem di  = new DrawItem();
+                di.setColour(cot.getColour());
+                di.setType(cot.getType());
+                di.setVariant(cot.getVariant());
+                ItemStack stack = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+                stack.setCount(cot.getQuantity());
+                ((TileEntityLockableLoot)tileentity).setInventorySlotContents(index, stack);
+                index++;
+            }
+        }
+    }
+
     protected void positionEntity( Entity entity, double x, double y, double z, float yaw, float pitch )
     {
         entity.setLocationAndAngles(x, y, z, yaw, pitch);
@@ -513,7 +550,7 @@ public class BlockDrawingHelper
         if (state.type == BlockType.NOTEBLOCK)
         {
             TileEntity te = w.getTileEntity(pos);
-            if (te != null && te instanceof TileEntityNote)
+            if (te != null && te instanceof TileEntityNote && state.variant != null)
             {
                 try
                 {

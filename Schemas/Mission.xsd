@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.30">
+           version="0.31">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -127,6 +127,13 @@
                   </xs:annotation>
                 </xs:element>
                 <xs:element name="Inventory" minOccurs="0" maxOccurs="1" >
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
+                            <xs:element ref="InventoryObject" />
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="EnderBoxInventory" minOccurs="0" maxOccurs="1" >
                     <xs:complexType>
                         <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
                             <xs:element ref="InventoryObject" />
