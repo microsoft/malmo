@@ -216,6 +216,7 @@ public class BlockDrawingHelper
         if (!blockType.isValid())
             throw new Exception("Unrecogised item type: " + b.getType().value());
         BlockPos pos = new BlockPos( b.getX(), b.getY(), b.getZ() );
+        clearEntities(w, b.getX(), b.getY(), b.getZ(), b.getX() + 1, b.getY() + 1, b.getZ() + 1);
         setBlockState(w, pos, blockType );
     }
 
@@ -257,7 +258,7 @@ public class BlockDrawingHelper
                     {
                         BlockPos pos = new BlockPos( x, y, z );
                         setBlockState( w, pos, blockType );
-                        AxisAlignedBB aabb = new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5);
+                        AxisAlignedBB aabb = new AxisAlignedBB(pos, new BlockPos(x+1, y+1, z+1));
                         clearEntities(w, aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
                     }
                 }
@@ -308,14 +309,14 @@ public class BlockDrawingHelper
             int y = Math.round(l.getY1() + (float)i * dy);
             int z = Math.round(l.getZ1() + (float)i * dz);
             BlockPos pos = new BlockPos(x, y, z);
-            clearEntities(w, x-0.5,y-0.5,z-0.5,x+0.5,y+0.5,z+0.5);
+            clearEntities(w, x, y, z, x + 1, y + 1, z + 1);
             setBlockState(w, pos, y == prevY ? blockType : stepType);
 
             // Ensure 4-connected:
             if (x != prevX && z != prevZ)
             {
                 pos = new BlockPos(x, y, prevZ);
-                clearEntities(w, x-0.5,y-0.5,prevZ-0.5,x+0.5,y+0.5,prevZ+0.5);
+                clearEntities(w, x, y, prevZ, x + 1, y + 1, prevZ + 1);
                 setBlockState(w, pos, y == prevY ? blockType : stepType);
             }
             prevY = y;
@@ -476,14 +477,15 @@ public class BlockDrawingHelper
         if (!blockType.isValid())
             throw new Exception("Unrecogised item type: "+c.getType().value());
 
-        clearEntities(w, c.getX1(), c.getY1(), c.getZ1(), c.getX2(), c.getY2(), c.getZ2());
-
         int x1 = Math.min(c.getX1(), c.getX2());
         int x2 = Math.max(c.getX1(), c.getX2());
         int y1 = Math.min(c.getY1(), c.getY2());
         int y2 = Math.max(c.getY1(), c.getY2());
         int z1 = Math.min(c.getZ1(), c.getZ2());
         int z2 = Math.max(c.getZ1(), c.getZ2());
+
+        clearEntities(w, x1, y1, z1, x2 + 1, y2 + 1, z2 + 1);
+
         for( int x = x1; x <= x2; x++ ) {
             for( int y = y1; y <= y2; y++ ) {
                 for( int z = z1; z <= z2; z++ ) {
