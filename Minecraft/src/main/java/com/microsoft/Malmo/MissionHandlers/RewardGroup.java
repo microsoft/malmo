@@ -20,11 +20,12 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
-public class RewardGroup extends HandlerBase implements IRewardProducer {
+public class RewardGroup extends RewardBase implements IRewardProducer {
     private ArrayList<IRewardProducer> producers;
 
     /**
@@ -62,5 +63,20 @@ public class RewardGroup extends HandlerBase implements IRewardProducer {
             for (IRewardProducer rp : this.producers)
                 rp.cleanup();
         }
+    }
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (IRewardProducer rp : this.producers)
+        {
+            if (rp instanceof HandlerBase)
+                ((HandlerBase)rp).appendExtraServerInformation(map);
+        }
+    }
+
+    public boolean isFixed()
+    {
+        return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.
     }
 }

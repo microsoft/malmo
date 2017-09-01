@@ -10,7 +10,7 @@
     3. Add `C:\ffmpeg\bin` to your `PATH` ([How To](https://support.microsoft.com/en-us/kb/310519))
     4. Check that typing `ffmpeg` at a command prompt works.
 
-3. Install git and Visual Studio and Python 2.7 (64-bit) and the JDK (64-bit). Hints:
+3. Install git and Visual Studio and [Python 2.7 (64-bit)](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi) and the JDK (64-bit). Hints:
     1. Get the latest Windows git from https://git-scm.com/downloads
     2. Check that git and msbuild and python are on your path.  
        N.B. MSBuild lives in an odd place: e.g. `C:\Program Files (x86)\MSBuild\12.0\Bin`
@@ -51,7 +51,7 @@
     2. Install to the default location. You don't need to set up the VS search paths.
     
 9. Install xsltproc:
-    1. Visit ftp://ftp.zlatkovic.com/libxml/ and download libxslt, libxml2, zlib and iconv:
+    1. Visit ftp://ftp.zlatkovic.com/libxml/ and download libxslt, libxml2, zlib and iconv: _(NOTE: the zlatkovic site has been down for a while - you can also get the binaries from http://xmlsoft.org/sources/win32/)_
         1. Download e.g. `libxslt-1.1.26.win32.zip` and extract to `C:\XSLT`
         2. Download e.g. `libxml2-2.7.8.win32.zip` and extract to `C:\XSLT`
         3. Download e.g. `zlib-1.2.5.win32.zip` and extract to `C:\XSLT`

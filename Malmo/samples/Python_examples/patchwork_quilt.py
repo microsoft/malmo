@@ -128,6 +128,11 @@ if agent_host.receivedArgument("test"):
 else:
     num_reps = 30000
 
+# Set up a recording
+my_mission_record = MalmoPython.MissionRecordSpec()
+my_mission_record.recordCommands()
+my_mission_record.recordMP4(24,400000)
+
 for iRepeat in range(num_reps):
     # Find the point at which to create the maze:
     xorg = (iRepeat % 64) * 16
@@ -139,10 +144,8 @@ for iRepeat in range(num_reps):
     # Create a mission:
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), validate)
     
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
-    my_mission_record.recordCommands()
-    my_mission_record.recordMP4(24,400000)
+    # Give the recording a destination filename:
+    my_mission_record.setDestination(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -158,7 +161,7 @@ for iRepeat in range(num_reps):
 
     print "Waiting for the mission to start",
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()

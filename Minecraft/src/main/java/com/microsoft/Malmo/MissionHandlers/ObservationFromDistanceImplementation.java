@@ -51,7 +51,7 @@ public class ObservationFromDistanceImplementation extends HandlerBase implement
 	{
 		for (NamedPoint marker : odparams.getMarker())
 		{
-			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			json.addProperty("distanceFrom" + makeSafe(marker.getName()), PositionHelper.calcDistanceFromPlayerToPosition(player, marker));
     	}
 	}

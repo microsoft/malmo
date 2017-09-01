@@ -23,8 +23,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
@@ -55,9 +56,8 @@ public class ServerQuitFromTimeUpImplementation extends QuitFromTimeUpBase
 	protected long getWorldTime()
 	{
 	   	World world = null;
-	   	MinecraftServer server = MinecraftServer.getServer();
-    	if (server.worldServers != null && server.worldServers.length != 0)
-    		world = server.getEntityWorld();
+	   	MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		world = server.getEntityWorld();
 		return (world != null) ? world.getTotalWorldTime() : 0;
 	}
 	
@@ -66,9 +66,9 @@ public class ServerQuitFromTimeUpImplementation extends QuitFromTimeUpBase
 	{
 		Map<String, String> data = new HashMap<String, String>();
 		
-        String text = EnumChatFormatting.BOLD + "" + secondsRemaining + "...";
+        String text = TextFormatting.BOLD + "" + secondsRemaining + "...";
         if (secondsRemaining <= 5)
-            text = EnumChatFormatting.RED + text;
+            text = TextFormatting.RED + text;
 
 		data.put("chat", text);
 		MalmoMod.safeSendToAll(MalmoMessageType.SERVER_TEXT, data);

@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -139,7 +138,7 @@ public class EpisodeEventWrapper {
     @SubscribeEvent
     public void onConfigChanged(OnConfigChangedEvent ev)
     {
-    	if (ev.modID == MalmoMod.MODID)	// Check we are responding to the correct Mod's event!
+    	if (ev.getModID() == MalmoMod.MODID)	// Check we are responding to the correct Mod's event!
     	{
     		this.stateEpisodeLock.readLock().lock();
     		if (this.stateEpisode != null && this.stateEpisode.isLive())
@@ -161,18 +160,6 @@ public class EpisodeEventWrapper {
     	if (this.stateEpisode != null && this.stateEpisode.isLive())
     	{
     		this.stateEpisode.onPlayerJoinedServer(ev);
-    	}
-    	this.stateEpisodeLock.readLock().unlock();
-    }
-    
-    /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
-    @SubscribeEvent
-    public void onGetPotentialSpawns(PotentialSpawns ps)
-    {
-    	this.stateEpisodeLock.readLock().lock();
-    	if (this.stateEpisode != null && this.stateEpisode.isLive())
-    	{
-    		this.stateEpisode.onGetPotentialSpawns(ps);
     	}
     	this.stateEpisodeLock.readLock().unlock();
     }

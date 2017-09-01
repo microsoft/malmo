@@ -24,6 +24,8 @@ set( SOURCES
    ClientInfo.cpp
    ClientPool.cpp
    FindSchemaFile.cpp
+   Init.cpp
+   Logger.cpp
    MissionInitSpec.cpp
    MissionRecord.cpp
    MissionRecordSpec.cpp
@@ -53,6 +55,8 @@ set( HEADERS
    ClientInfo.h
    ClientPool.h
    FindSchemaFile.h
+   Init.h
+   Logger.h
    MissionInitSpec.h
    MissionRecord.h
    MissionRecordSpec.h
@@ -118,6 +122,7 @@ set( MALMO_INCLUDE_FOLDERS
     ${Boost_INCLUDE_DIR} 
     ${XSD_INCLUDE_DIRS} 
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${ZLIB_INCLUDE_DIRS}
 )
 if ( INCLUDE_ALE )
   set( MALMO_INCLUDE_FOLDERS ${MALMO_INCLUDE_FOLDERS} ${ALE_INCLUDE_DIRS} )
@@ -130,6 +135,7 @@ add_library( Malmo STATIC ${SOURCES} ${HEADERS} )
 set( MALMO_LINK_LIBRARIES 
   ${Boost_LIBRARIES} 
   ${XSD_LIBRARIES}
+  ${ZLIB_LIBRARIES}
 )
 if( INCLUDE_ALE )
   set( MALMO_LINK_LIBRARIES ${MALMO_LINK_LIBRARIES} ${ALE_LIBRARIES} )

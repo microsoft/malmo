@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import com.microsoft.Malmo.Schemas.Pos;
 
@@ -52,7 +52,7 @@ public class PositionHelper
 	    BlockPos blockposmax = new BlockPos(player.getEntityBoundingBox().maxX + 0.001D, player.getEntityBoundingBox().maxY + 0.001D, player.getEntityBoundingBox().maxZ + 0.001D);
 	    List<BlockPos> blocks = new ArrayList<BlockPos>();
 	    
-	    if (player.worldObj.isAreaLoaded(blockposmin, blockposmax))
+	    if (player.world.isAreaLoaded(blockposmin, blockposmax))
 	    {
 	        for (int i = blockposmin.getX(); i <= blockposmax.getX(); ++i)
 	        {

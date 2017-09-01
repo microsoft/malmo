@@ -24,6 +24,7 @@
   #include <ClientPool.h>
   #include <MissionSpec.h>
   #include <ParameterSet.h>
+  #include <Logger.h>
   using namespace malmo;
   
   // Boost:
@@ -59,6 +60,23 @@
 
 %rename("%(camelcase)s", %$isvariable) "";   // send all exposed variables to CamelCase to match Java standards
 
+class Logger
+{
+public:
+  enum LoggingSeverityLevel { 
+    LOG_OFF
+    , LOG_ERRORS
+    , LOG_WARNINGS
+    , LOG_INFO
+    , LOG_FINE
+    , LOG_TRACE
+    , LOG_ALL
+  };
+    static void setLogging(const std::string& destination, Logger::LoggingSeverityLevel level);
+    static void appendToLog(Logger::LoggingSeverityLevel level, const std::string& message);
+};
+
+
 class MissionRecordSpec
 {
 public:
@@ -67,8 +85,8 @@ public:
     void recordMP4(int frames_per_second, int64_t bit_rate);
     void recordObservations();
     void recordRewards();
-    void recordCommands();        
-    std::string getTemporaryDirectory();
+    void recordCommands();
+    void setDestination(const std::string& destination);
 };
 
 class ArgumentParser
@@ -114,6 +132,8 @@ class WorldState
 public:
   const bool is_mission_running;
 
+  const bool has_mission_begun;
+
   const int number_of_video_frames_since_last_state;
 
   const int number_of_rewards_since_last_state;
@@ -129,6 +149,62 @@ public:
   const std::vector< boost::shared_ptr< TimestampedString > > mission_control_messages;
   
   const std::vector< boost::shared_ptr< TimestampedString > > errors;
+};
+
+%typemap(javabase) MissionException "java.lang.RuntimeException";
+
+%typemap(throws) const MissionException & %{
+  // Throw a MissionException object. First we need to create it:
+  jclass excep = jenv->FindClass("com/microsoft/msr/malmo/MissionException");
+  if (excep)
+  {
+    jmethodID constructor = jenv->GetMethodID(excep, "<init>", "(Ljava/lang/String;Lcom/microsoft/msr/malmo/MissionException$MissionErrorCode;)V");
+    if (constructor)
+    {
+      // We can call the constructor, but we need to pass it the message string and the code enum, both of which we need to create here.
+      // Create the string:
+      jstring js = jenv->NewStringUTF($1.what());
+      // To create the enum object, use the "swigToEnum" method that swig automatically adds to the MissionException class:
+      // Find the MissionException class:
+      jclass enumclass = jenv->FindClass("com/microsoft/msr/malmo/MissionException$MissionErrorCode");
+      if (!enumclass)
+        return $null;
+      // Find the swigToEnum static method:
+      jmethodID getenum = jenv->GetStaticMethodID(enumclass, "swigToEnum", "(I)Lcom/microsoft/msr/malmo/MissionException$MissionErrorCode;");
+      if (!getenum)
+        return $null;
+      // Call the method:
+      jobject enumval = jenv->CallStaticObjectMethod(enumclass, getenum, (int)$1.getMissionErrorCode());
+      if (!enumval)
+        return $null;
+      // Now we can create the MissionException object:
+      jobject jobj = jenv->NewObject(excep, constructor, js, enumval);
+      // And throw it:
+      jenv->Throw((jthrowable)jobj);
+    }
+  }
+return $null;
+%}
+
+class MissionException : public std::exception
+{
+public:
+    enum MissionErrorCode
+    {
+        MISSION_BAD_ROLE_REQUEST,
+        MISSION_BAD_VIDEO_REQUEST,
+        MISSION_ALREADY_RUNNING,
+        MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
+        MISSION_TRANSMISSION_ERROR,
+        MISSION_SERVER_WARMING_UP,
+        MISSION_SERVER_NOT_FOUND,
+        MISSION_NO_COMMAND_PORT,
+        MISSION_BAD_INSTALLATION
+    };
+    MissionException(const std::string& message, MissionErrorCode code);
+    ~MissionException();
+    MissionErrorCode getMissionErrorCode() const;
+    std::string getMessage() const;
 };
 
 class AgentHost : public ArgumentParser {
@@ -151,45 +227,18 @@ public:
 
   AgentHost();
 
-  %javaexception("java.lang.Exception") startMission(
-      const MissionSpec& mission
-    , const ClientPool& client_pool
-    , const MissionRecordSpec& mission_record
-    , int role
-    , std::string unique_experiment_id
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, e.what());
-    }
-  %}
-
   void startMission(
       const MissionSpec& mission
     , const ClientPool& client_pool
     , const MissionRecordSpec& mission_record
     , int role
     , std::string unique_experiment_id
-  );
-
-  %javaexception("java.lang.Exception") startMission(
-      const MissionSpec& mission
-    , const MissionRecordSpec& mission_record
-  ) %{
-    try {
-      $action
-    } catch (std::exception& e) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, e.what());
-    }
-  %}
+  ) throw (MissionException const &);
 
   void startMission(
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
-  );
+  ) throw (MissionException const &);
 
   WorldState peekWorldState() const;
   
@@ -202,6 +251,12 @@ public:
   void setObservationsPolicy(ObservationsPolicy observationsPolicy);
 
   void sendCommand(std::string command);
+
+  void sendCommand(std::string command, std::string key);
+
+  std::string getRecordingTemporaryDirectory();
+
+  void setDebugOutput(bool debug);
 };
 
 #ifdef WRAP_ALE
@@ -261,6 +316,10 @@ public:
   void setObservationsPolicy(AgentHost::ObservationsPolicy observationsPolicy);
 
   void sendCommand(std::string command);
+
+  std::string getRecordingTemporaryDirectory();
+
+  void setSeed(int seed);
 };
 #endif
 
@@ -274,6 +333,11 @@ public:
     } catch (const xml_schema::exception& e) {
       std::ostringstream oss;
       oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, oss.str().c_str());
+    } catch (const std::runtime_error& e) {
+      std::ostringstream oss;
+      oss << "Caught std::runtime_error: " << e.what();
       jclass clazz = jenv->FindClass("java/lang/Exception");
       jenv->ThrowNew(clazz, oss.str().c_str());
     }
@@ -307,8 +371,10 @@ public:
   
   void startAt(float x, float y, float z);
 
+  void startAtWithPitchAndYaw(float x, float y, float z, float pitch, float yaw);
+
   void endAt(float x, float y, float z, float tolerance);
-  
+
   void setModeToCreative();
   
   void setModeToSpectator();

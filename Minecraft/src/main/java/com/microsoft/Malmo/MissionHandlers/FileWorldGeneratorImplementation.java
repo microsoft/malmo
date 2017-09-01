@@ -20,11 +20,14 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.io.File;
+import java.util.List;
 
+import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.ISaveFormat;
+import net.minecraft.world.storage.WorldSummary;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.FileWorldGenerator;
@@ -33,21 +36,21 @@ import com.microsoft.Malmo.Utils.MapFileHelper;
 
 public class FileWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
-	String mapFilename;
-	FileWorldGenerator fwparams;
-	String errorDetails;
-	
-	@Override
-	public boolean parseParameters(Object params)
-	{
-		if (params == null || !(params instanceof FileWorldGenerator))
-			return false;
-		
-		this.fwparams = (FileWorldGenerator)params;
-		this.mapFilename = fwparams.getSrc();
-		return true;
-	}
-	
+    String mapFilename;
+    FileWorldGenerator fwparams;
+    String errorDetails;
+
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof FileWorldGenerator))
+            return false;
+
+        this.fwparams = (FileWorldGenerator) params;
+        this.mapFilename = fwparams.getSrc();
+        return true;
+    }
+
     @Override
     public boolean createWorld(MissionInit missionInit)
     {
@@ -67,7 +70,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
             this.errorDetails = "Basemap location " + this.mapFilename + " needs to be a folder. Check the path in your Mission XML.";
             return false;
         }
-        File mapCopy = MapFileHelper.copyMapFiles(mapSource, true);
+        File mapCopy = MapFileHelper.copyMapFiles(mapSource, this.fwparams.isDestroyAfterUse());
         if (mapCopy == null)
         {
             this.errorDetails = "Unable to copy " + this.mapFilename + " - is the hard drive full?";
@@ -79,27 +82,47 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
             return false;
         }
 
-        net.minecraftforge.fml.client.FMLClientHandler.instance().tryLoadExistingWorld(null, mapCopy.getName(), mapSource.getName());
+        ISaveFormat isaveformat = Minecraft.getMinecraft().getSaveLoader();
+        List<WorldSummary> worldlist;
+        try
+        {
+            worldlist = isaveformat.getSaveList();
+        }
+        catch (AnvilConverterException anvilconverterexception)
+        {
+        	this.errorDetails = "Minecraft couldn't rebuild saved world list.";
+            return false;
+        }
+
+        WorldSummary newWorld = null;
+        for (WorldSummary ws : worldlist)
+        {
+            if (ws.getFileName().equals(mapCopy.getName()))
+                newWorld = ws;
+        }
+        if (newWorld == null)
+        {
+            this.errorDetails = "Minecraft could not find the copied world.";
+            return false;
+        }
+
+        net.minecraftforge.fml.client.FMLClientHandler.instance().tryLoadExistingWorld(null, newWorld);
         IntegratedServer server = Minecraft.getMinecraft().getIntegratedServer();
         String worldName = (server != null) ? server.getWorldName() : null;
-        if (worldName == null || !worldName.equals(mapCopy.getName()))
+        if (worldName == null || !worldName.equals(newWorld.getDisplayName()))
         {
             this.errorDetails = "Minecraft could not load " + this.mapFilename + " - is it a valid saved world?";
             return false;
         }
+        MapFileHelper.cleanupTemporaryWorlds(mapCopy.getName());    // Now we are safely running a new file, we can attempt to clean up old ones.
         return true;
     }
     
     @Override
-    public boolean shouldCreateWorld(MissionInit missionInit)
+    public boolean shouldCreateWorld(MissionInit missionInit, World world)
     {
         if (this.fwparams != null && this.fwparams.isForceReset())
             return true;
-
-        World world = null;
-        MinecraftServer server = MinecraftServer.getServer();
-        if (server.worldServers != null && server.worldServers.length != 0)
-            world = server.getEntityWorld();
 
         if (world == null)
             return true;   // There is no world, so we definitely need to create one.
@@ -108,7 +131,7 @@ public class FileWorldGeneratorImplementation extends HandlerBase implements IWo
         // Extract the name from the path (need to cope with backslashes or forward slashes.)
         String mapfile = (this.mapFilename == null) ? "" : this.mapFilename;    // Makes no sense to have an empty filename, but createWorld will deal with it graciously.
         String[] parts = mapfile.split("[\\\\/]");
-        if (name.length() > 0 && parts[parts.length - 1].equalsIgnoreCase(name) && Minecraft.getMinecraft().theWorld != null)
+        if (name.length() > 0 && parts[parts.length - 1].equalsIgnoreCase(name) && Minecraft.getMinecraft().world != null)
             return false;	// We don't check whether the game modes match - it's up to the server state machine to sort that out.
 
         return true;	// There's no world, or the world is different to the basemap file, so create.

@@ -38,6 +38,9 @@ namespace malmo
         //! Resets the world state to be empty, with no mission running.
         void clear();
 
+        //! Specifies whether the mission had begun when this world state was taken (whether or not it has since finished).
+        bool has_mission_begun;
+
         //! Specifies whether the mission was still running at the moment this world state was taken.
         bool is_mission_running;
 

@@ -31,6 +31,7 @@
 // STL:
 #include <fstream>
 #include <memory>
+#include <string>
 
 namespace malmo
 {
@@ -40,7 +41,7 @@ namespace malmo
         public:
 
             //! Constructs a string server on a specified port.
-            StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string);
+            StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string, const std::string& log_name);
             
             StringServer& record(std::string path);
             

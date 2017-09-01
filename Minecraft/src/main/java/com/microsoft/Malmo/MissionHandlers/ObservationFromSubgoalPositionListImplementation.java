@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromSubgoalPositionList;
+import com.microsoft.Malmo.Schemas.PointWithToleranceAndDescription;
 
 public class ObservationFromSubgoalPositionListImplementation extends HandlerBase implements IObservationProducer
 {
@@ -49,7 +50,7 @@ public class ObservationFromSubgoalPositionListImplementation extends HandlerBas
         boolean foundNextPoint = false;
         double targetx = 0;
         double targetz = 0;
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player == null)
             return; // Nothing we can do.
 
@@ -85,6 +86,13 @@ public class ObservationFromSubgoalPositionListImplementation extends HandlerBas
         // Normalise:
         difference /= 180.0;
         json.addProperty("yawDelta",  difference);
+        PointWithToleranceAndDescription point = this.positions.getPoint().get(this.subgoalIndex);
+        JsonObject pointElement = new JsonObject();
+        pointElement.addProperty("XPos", point.getX().doubleValue());
+        pointElement.addProperty("YPos", point.getY().doubleValue());
+        pointElement.addProperty("ZPos",  point.getZ().doubleValue());
+        pointElement.addProperty("description", point.getDescription());
+        json.add("nextSubgoal", pointElement);
     }
 
     @Override

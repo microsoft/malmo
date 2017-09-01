@@ -74,7 +74,9 @@
 
 7. On Debian 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD:
     1. `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`
+     - Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine
     2. `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
+     - Run `sudo dpkg -i --force-all xsd_4.0.0-1_i386.deb` on a 32 bit machine
     3. `sudo apt-get install -f`  
        This step is needed because we require xsd version 4.0.  
        (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
@@ -92,8 +94,12 @@
     6. `make`
     7. Test: `ctest`  
        (A few of the tests fail currently but this doesn't seem to affect us.)
+       
+9. Install Lua dependencies:
+    1. `sudo apt-get install luarocks`
+    2. `sudo luarocks install luasocket`
 
-9. Install ALE: (optional - skip this if you don't want to provide ALE support)
+10. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
        `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora, `sudo pacman -S sdl zlib` on Arch Linux)
@@ -108,7 +114,7 @@
        
     **Note:** To include ALE in your malmo build, add `-DINCLUDE_ALE=ON` to your cmake command in step 10. If you stored your ALE directory somewhere other than ~/ALE, also add `-DROOT_ALE_DIR=/path/to/your/ALE`
 
-10. Build Malmo:
+11. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
@@ -126,12 +132,12 @@
     9. `make install`
     10. You can then run the samples from e.g. `install/Python_Examples`
 
-10. Test Malmo:
+12. Test Malmo:
     1. `ctest`
     2. `ctest -E Integration` to exclude the integration tests.
     3. `ctest -VV` to get verbose output.
 
-11. Make a distributable:
+13. Make a distributable:
     1. Run all the tests.
     2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
     3. `cmake -DCMAKE_BUILD_TYPE=Release ..`

@@ -46,8 +46,8 @@ public class JavaExamples_run_mission
         }
         catch( Exception e )
         {
-            System.out.println( "ERROR: " + e.getMessage() );
-            System.out.println( agent_host.getUsage() );
+            System.err.println( "ERROR: " + e.getMessage() );
+            System.err.println( agent_host.getUsage() );
             System.exit(1);
         }
         if( agent_host.receivedArgument("help") )
@@ -70,8 +70,15 @@ public class JavaExamples_run_mission
         try {
             agent_host.startMission( my_mission, my_mission_record );
         }
-        catch (Exception e) {
-            System.out.println( "Error starting mission: " + e.getMessage() );
+        catch (MissionException e) {
+            System.err.println( "Error starting mission: " + e.getMessage() );
+            System.err.println( "Error code: " + e.getMissionErrorCode() );
+            // We can use the code to do specific error handling, eg:
+            if (e.getMissionErrorCode() == MissionException.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
+            {
+                // Caused by lack of available Minecraft clients.
+                System.err.println( "Is there a Minecraft client running?");
+            }
             System.exit(1);
         }
 
@@ -83,12 +90,12 @@ public class JavaExamples_run_mission
             try {
                 Thread.sleep(100);
             } catch(InterruptedException ex) {
-                System.out.println( "User interrupted while waiting for mission to start." );
+                System.err.println( "User interrupted while waiting for mission to start." );
                 return;
             }
             world_state = agent_host.getWorldState();
             for( int i = 0; i < world_state.getErrors().size(); i++ )
-                System.out.println( "Error: " + world_state.getErrors().get(i).getText() );
+                System.err.println( "Error: " + world_state.getErrors().get(i).getText() );
         } while( !world_state.getIsMissionRunning() );
         System.out.println( "" );
 
@@ -99,7 +106,7 @@ public class JavaExamples_run_mission
             try {
                 Thread.sleep(500);
             } catch(InterruptedException ex) {
-                System.out.println( "User interrupted while mission was running." );
+                System.err.println( "User interrupted while mission was running." );
                 return;
             }
             world_state = agent_host.getWorldState();
@@ -113,7 +120,7 @@ public class JavaExamples_run_mission
             }
             for( int i = 0; i < world_state.getErrors().size(); i++ ) {
                 TimestampedString error = world_state.getErrors().get(i);
-                System.out.println( "Error: " + error.getText() );
+                System.err.println( "Error: " + error.getText() );
             }
         } while( world_state.getIsMissionRunning() );
 

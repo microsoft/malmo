@@ -20,6 +20,7 @@
 // Local:
 #include "FindSchemaFile.h"
 #include "MissionSpec.h"
+#include "Init.h"
 
 // Boost:
 #include <boost/make_shared.hpp>
@@ -39,6 +40,8 @@ namespace malmo
 
     MissionSpec::MissionSpec()
     {
+        initialiser::initXSD();
+
         // construct a default mission
         About about("");
         FlatWorldGenerator flat_world_gen;
@@ -64,17 +67,19 @@ namespace malmo
 
     MissionSpec::MissionSpec(const std::string& xml, bool validate)
     {
+        initialiser::initXSD();
+
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("Mission.xsd"));
         
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !validate )
             flags = flags | xml_schema::flags::dont_validate;
 
         istringstream iss(xml);
         this->mission = Mission_(iss, flags, props);
     }
-    
+
     std::string MissionSpec::getAsXML( bool prettyPrint ) const
     {
         ostringstream oss;
@@ -83,7 +88,7 @@ namespace malmo
         map[""].name = xml_namespace;
         map[""].schema = "Mission.xsd";
 
-        xml_schema::flags flags = 0;
+        xml_schema::flags flags = xml_schema::flags::dont_initialize;
         if( !prettyPrint )
             flags = flags | xml_schema::flags::dont_pretty_print;
 
@@ -224,10 +229,18 @@ namespace malmo
     }
     
     // ------------------ settings for the agents --------------------------------
-    
+
     void MissionSpec::startAt(float x, float y, float z)
     {
         this->mission->AgentSection().front().AgentStart().Placement() = PosAndDirection(x,y,z);
+    }
+
+    void MissionSpec::startAtWithPitchAndYaw(float x, float y, float z, float pitch, float yaw)
+    {
+        PosAndDirection pos(x, y, z);
+        pos.pitch(pitch);
+        pos.yaw(yaw);
+        this->mission->AgentSection().front().AgentStart().Placement() = pos;
     }
 
     void MissionSpec::endAt(float x, float y, float z, float tolerance)
@@ -362,6 +375,7 @@ namespace malmo
         this->mission->AgentSection().front().AgentHandlers().AbsoluteMovementCommands().reset();
         this->mission->AgentSection().front().AgentHandlers().InventoryCommands().reset();
         this->mission->AgentSection().front().AgentHandlers().ChatCommands().reset();
+        this->mission->AgentSection().front().AgentHandlers().MissionQuitCommands().reset();
     }
 
     void MissionSpec::allowAllContinuousMovementCommands()
@@ -495,6 +509,8 @@ namespace malmo
             command_handlers.push_back( "Chat" );
         if( ah.SimpleCraftCommands().present() )
             command_handlers.push_back( "SimpleCraft" );
+        if( ah.MissionQuitCommands().present() )
+            command_handlers.push_back( "MissionQuit" );
         return command_handlers;
     }
     
@@ -540,6 +556,13 @@ namespace malmo
             vector<string> commands( begin(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_), end(SimpleCraftCommand::_xsd_SimpleCraftCommand_literals_) );
             if( ah.SimpleCraftCommands()->ModifierList().present() )
                 return getModifiedCommandList( commands, *ah.SimpleCraftCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "MissionQuit" && ah.MissionQuitCommands().present() ) {
+            vector<string> commands( begin(MissionQuitCommand::_xsd_MissionQuitCommand_literals_), end(MissionQuitCommand::_xsd_MissionQuitCommand_literals_) );
+            if( ah.MissionQuitCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.MissionQuitCommands()->ModifierList() );
             else
                 return commands;
         }

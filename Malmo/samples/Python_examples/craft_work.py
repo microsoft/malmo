@@ -225,8 +225,7 @@ else:
 
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Crafty #" + str(iRepeat)),validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = MalmoPython.MissionRecordSpec() # Records nothing by default
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -242,7 +241,7 @@ for iRepeat in range(num_reps):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
 

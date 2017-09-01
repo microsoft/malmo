@@ -21,24 +21,28 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
-import com.microsoft.Malmo.Schemas.PaletteEnum;
 import com.microsoft.Malmo.Schemas.ClassroomDecorator;
+import com.microsoft.Malmo.Schemas.Colour;
 import com.microsoft.Malmo.Schemas.Facing;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
+import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
+import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
 import com.microsoft.Malmo.Utils.Discrete;
 
 /**
@@ -92,9 +96,11 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
     private int[] pathIndices = new int[]{0, 1, 2, 3, 4, 5};
     
     private Palette palette;
-    
+    private BlockDrawingHelper drawContext;
+
     @Override
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException {
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
+        this.drawContext = new BlockDrawingHelper();
         if(this.buildingWidth == 0){
             // We are using complexity so these need to be sampled from the Gaussian
             this.buildingWidth = Math.max((int)(rand.nextGaussian()*2 + this.buildingComplexity*MAX_BUILDING_SIZE + MIN_ROOM_SIZE), MIN_ROOM_SIZE);
@@ -175,9 +181,9 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
                 throw new DecoratorException("Unable to join orphan room to goal path");
             }
         }
-        
+
         // carve out the building
-        World world = MinecraftServer.getServer().getEntityWorld();
+        this.drawContext.beginDrawing(world);
         for(int x=START_X; x<START_X + this.buildingWidth; x++){
             for(int y=START_Y; y<START_Y + this.buildingHeight; y++){
                 for(int z=START_Z; z<START_Z + this.buildingLength; z++){
@@ -187,7 +193,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         }
         
         // this should clear all of the torches and levers left over from last time.  It doesn't.
-        BlockDrawingHelper.clearEntities(world, START_X - 1, START_Y - 1, START_Z - 1, START_X + this.buildingWidth, START_Y + this.buildingHeight, START_Z + this.buildingLength);
+        drawContext.clearEntities(world, START_X - 1, START_Y - 1, START_Z - 1, START_X + this.buildingWidth, START_Y + this.buildingHeight, START_Z + this.buildingLength);
         
         // draw the rooms
         for(Room room : rooms){
@@ -195,8 +201,8 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         }
         
         // place goal
-        world.setBlockState(new BlockPos(goalRoom.x+this.rand.nextInt(goalRoom.width-4) + 2, goalRoom.y, goalRoom.z + goalRoom.length - 2), this.palette.goal);
-        
+        setBlockState(world, new BlockPos(goalRoom.x+this.rand.nextInt(goalRoom.width-4) + 2, goalRoom.y, goalRoom.z + goalRoom.length - 2), this.palette.goal);
+        this.drawContext.endDrawing(world);
         // set the agent positions
         PosAndDirection p2 = new PosAndDirection();
         p2.setX(new BigDecimal(startRoom.x + this.rand.nextInt(goalRoom.width-2) + 0.5));
@@ -285,7 +291,17 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
     @Override
     public void update(World world) {
     }
-    
+
+    private void setBlockState(World world, BlockPos pos, IBlockState state)
+    {
+        drawContext.setBlockState(world,  pos, new XMLBlockState(state));
+    }
+
+    private void setBlockState(World world, BlockPos pos, IBlockState state, Colour c, Facing f, Variation v)
+    {
+        drawContext.setBlockState(world,  pos,  new XMLBlockState(state, c, f, v));
+    }
+
     private ArrayList<Room> createRooms() throws DecoratorException
     {
         // we will set up the different building dimensions and then split them up sequentially
@@ -635,15 +651,15 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             this.isDrawn = true;
             
             for(int z=this.front; z<this.back; z++){
-                world.setBlockState(new BlockPos(this.x, this.bottom - 1, z), palette.wall);
-                world.setBlockState(new BlockPos(this.x, this.top, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x, this.bottom - 1, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x, this.top, z), palette.wall);
             }
-            
+
             for(int y=this.bottom; y<this.top; y++){
-                world.setBlockState(new BlockPos(this.x, y, this.front-1), palette.wall);
-                world.setBlockState(new BlockPos(this.x, y, this.back), palette.wall);
+                setBlockState(world, new BlockPos(this.x, y, this.front-1), palette.wall);
+                setBlockState(world, new BlockPos(this.x, y, this.back), palette.wall);
             }
-            
+
             if(this.isObstacle){
                 switch(this.obstacle){
                     case Gap:
@@ -674,12 +690,12 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
                 IBlockState block = this.east == null || this.west == null ? palette.exterior : palette.wall;
                 for(int z=this.front; z<this.back; z++){               	                	
                     for(int y=this.bottom; y<this.top; y++){
-                        world.setBlockState(new BlockPos(this.x,y,z), block);
+                        setBlockState(world, new BlockPos(this.x,y,z), block);
                     }
                     
                     if((z - this.front - 1) % 2 == 0 && z < this.back - 1){
-                        world.setBlockState(new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
-                        world.setBlockState(new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));                		
+                        setBlockState(world, new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
+                        setBlockState(world, new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);                		
                     }
                 }
             }
@@ -692,24 +708,24 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             for(int z = this.front; z < this.back; z++){
                 if(z < gapStart || z >= gapEnd){
                     for(int y=this.bottom - 1; y<this.top; y++){
-                        world.setBlockState(new BlockPos(this.x,y,z), palette.wall);
+                        setBlockState(world, new BlockPos(this.x,y,z), palette.wall);
                     }
                     
                     if((z - this.front - 1) % 2 == 0 && z < this.back - 1){
-                        world.setBlockState(new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
-                        world.setBlockState(new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));                		
+                        setBlockState(world, new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
+                        setBlockState(world, new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);                		
                     }
                 }else{
                 	IBlockState block = this.hint ? palette.hint : palette.wall;
-                    world.setBlockState(new BlockPos(this.x, bottom-1, z), block);
+                    setBlockState(world, new BlockPos(this.x, bottom-1, z), block);
                     for(int y=this.bottom; y<this.top; y++){
                         world.setBlockToAir(new BlockPos(this.x,y,z));
                     }
                 }
             }
             
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, gapStart), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, gapEnd - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));        	
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, gapStart), palette.light, null, Facing.SOUTH, null);
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, gapEnd - 1), palette.light, null, Facing.NORTH, null);        	
         }
         
         private void drawBridge(World world, Random rand, Palette palette)
@@ -717,22 +733,22 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             int bridgeStart = this.front + rand.nextInt(this.back - this.front - 4) + 1;
             int bridgeEnd = bridgeStart + 2;
             for(int z=this.front; z<this.back; z++){
-                world.setBlockState(new BlockPos(this.x - 1, this.bottom - 1, z), palette.moatContainer);
-                world.setBlockState(new BlockPos(this.x, this.bottom - 2, z), palette.moatContainer);
-                world.setBlockState(new BlockPos(this.x + 1, this.bottom - 1, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x - 1, this.bottom - 1, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x, this.bottom - 2, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x + 1, this.bottom - 1, z), palette.moatContainer);
                 if(z < bridgeStart || z >= bridgeEnd){            		
-                    world.setBlockState(new BlockPos(this.x,this.bottom - 1,z), palette.moat);
+                    setBlockState(world, new BlockPos(this.x,this.bottom - 1,z), palette.moat);
                 }else{
                 	IBlockState block = this.hint ? palette.hint : palette.moatContainer;
-                    world.setBlockState(new BlockPos(this.x,this.bottom - 1,z), block);
+                    setBlockState(world, new BlockPos(this.x,this.bottom - 1,z), block);
                 }
             }
             
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.front), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.back - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));        	
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.front), palette.light, null, Facing.SOUTH, null);
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.back - 1), palette.light, null, Facing.NORTH, null);        	
             
-            world.setBlockState(new BlockPos(this.x, this.bottom - 1, this.front - 1), palette.moatContainer);
-            world.setBlockState(new BlockPos(this.x, this.bottom - 1, this.back), palette.moatContainer);
+            setBlockState(world, new BlockPos(this.x, this.bottom - 1, this.front - 1), palette.moatContainer);
+            setBlockState(world, new BlockPos(this.x, this.bottom - 1, this.back), palette.moatContainer);
         }
         
         private void drawDoor(World world, Random rand, Palette palette)
@@ -741,22 +757,22 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             
             for(int z=this.front; z<this.back; z++){
                 for(int y=this.bottom; y<this.top; y++){
-                    world.setBlockState(new BlockPos(this.x,y,z), palette.wall);
+                    setBlockState(world, new BlockPos(this.x,y,z), palette.wall);
                 }    
                 
                 if((z - this.front - 1) % 2 == 0 && z < this.back - 1){            		
-                    world.setBlockState(new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
-                    world.setBlockState(new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));                		
+                    setBlockState(world, new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
+                    setBlockState(world, new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);                		
                 }
             }
             
             Facing facing = this.getIn() == this.west ? Facing.WEST : Facing.EAST;
             
-            world.setBlockState(new BlockPos(this.x, this.bottom, doorLocation), BlockDrawingHelper.applyModifications(palette.doorLower, null, facing, null));
-            world.setBlockState(new BlockPos(this.x, this.bottom + 1, doorLocation), BlockDrawingHelper.applyModifications(palette.doorUpper, null, facing, null));
+            setBlockState(world, new BlockPos(this.x, this.bottom, doorLocation), palette.doorLower, null, facing, null);
+            setBlockState(world, new BlockPos(this.x, this.bottom + 1, doorLocation), palette.doorUpper, null, facing, null);
             if(this.hint){
-            	world.setBlockState(new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
-            	world.setBlockState(new BlockPos(this.x + 1, this.bottom - 1, doorLocation), palette.hint);
+            	setBlockState(world, new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
+            	setBlockState(world, new BlockPos(this.x + 1, this.bottom - 1, doorLocation), palette.hint);
             }
         }
         
@@ -766,22 +782,22 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             
             for(int z=this.front; z<this.back; z++){
                 for(int y=this.bottom; y<this.top; y++){
-                    world.setBlockState(new BlockPos(this.x,y,z), palette.wall);
+                    setBlockState(world, new BlockPos(this.x,y,z), palette.wall);
                 }    
                 
                 if((z - this.front - 1) % 2 == 0 && z < this.back - 1){            		
-                    world.setBlockState(new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
-                    world.setBlockState(new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));                		
+                    setBlockState(world, new BlockPos(this.x - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
+                    setBlockState(world, new BlockPos(this.x + 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);                		
                 }
             }        	
             
             Facing facing = this.getIn() == this.west ? Facing.WEST : Facing.EAST;
             
-            world.setBlockState(new BlockPos(this.x, this.bottom, doorLocation), BlockDrawingHelper.applyModifications(palette.puzzleDoorLower, null, facing, null));
-            world.setBlockState(new BlockPos(this.x, this.bottom + 1, doorLocation), BlockDrawingHelper.applyModifications(palette.puzzleDoorUpper, null, facing, null));
+            setBlockState(world, new BlockPos(this.x, this.bottom, doorLocation), palette.puzzleDoorLower, null, facing, null);
+            setBlockState(world, new BlockPos(this.x, this.bottom + 1, doorLocation), palette.puzzleDoorUpper, null, facing, null);
             if(this.hint){
-            	world.setBlockState(new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
-            	world.setBlockState(new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
+            	setBlockState(world, new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
+            	setBlockState(world, new BlockPos(this.x, this.bottom - 1, doorLocation), palette.hint);
             }
             
             Room room = getIn();
@@ -793,9 +809,9 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             }
             
             if(room == this.west){
-                world.setBlockState(new BlockPos(this.x - 1, this.bottom + 1, triggerZ), BlockDrawingHelper.applyModifications(palette.trigger, null, Facing.WEST, null));
+                setBlockState(world, new BlockPos(this.x - 1, this.bottom + 1, triggerZ), palette.trigger, null, Facing.WEST, null);
             }else{
-                world.setBlockState(new BlockPos(this.x + 1, this.bottom + 1, triggerZ), BlockDrawingHelper.applyModifications(palette.trigger, null, Facing.EAST, null));
+                setBlockState(world, new BlockPos(this.x + 1, this.bottom + 1, triggerZ), palette.trigger, null, Facing.EAST, null);
             } 
         }
         
@@ -805,23 +821,23 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             int exit = rand.nextInt(this.back - this.front - 3);
             
             for(int z=this.front; z<this.back; z++){
-                world.setBlockState(new BlockPos(this.x - 1, this.bottom - 1, z), palette.moatContainer);
-                world.setBlockState(new BlockPos(this.x - 1, this.bottom, z), palette.wall);
-                world.setBlockState(new BlockPos(this.x - 1, this.bottom + 1, z), palette.wall);
-                world.setBlockState(new BlockPos(this.x, this.bottom - 2, z), palette.moatContainer);
-                world.setBlockState(new BlockPos(this.x + 1, this.bottom - 1, z), palette.moatContainer);
-                world.setBlockState(new BlockPos(this.x + 1, this.bottom, z), palette.wall);
-                world.setBlockState(new BlockPos(this.x + 1, this.bottom + 1, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x - 1, this.bottom - 1, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x - 1, this.bottom, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x - 1, this.bottom + 1, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x, this.bottom - 2, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x + 1, this.bottom - 1, z), palette.moatContainer);
+                setBlockState(world, new BlockPos(this.x + 1, this.bottom, z), palette.wall);
+                setBlockState(world, new BlockPos(this.x + 1, this.bottom + 1, z), palette.wall);
                 
                 if(z % 2 == 0){
-                    world.setBlockState(new BlockPos(this.x, this.bottom - 1, z), palette.moatContainer);
+                    setBlockState(world, new BlockPos(this.x, this.bottom - 1, z), palette.moatContainer);
                 }else{        		
-                    world.setBlockState(new BlockPos(this.x, this.bottom - 1, z), palette.moat);
+                    setBlockState(world, new BlockPos(this.x, this.bottom - 1, z), palette.moat);
                 }
             }
             
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.front), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
-            world.setBlockState(new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.back - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));        	
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.front), palette.light, null, Facing.SOUTH, null);
+            setBlockState(world, new BlockPos(this.x, this.bottom + ROOM_HEIGHT - 1, this.back - 1), palette.light, null, Facing.NORTH, null);        	
             
             for(int i=0; i<3; i++){
                 world.setBlockToAir(new BlockPos(this.x - 1, this.bottom + 1, this.front + entrance + i));
@@ -829,8 +845,8 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             }
             
             if(this.hint){
-            	world.setBlockState(new BlockPos(this.x - 1, this.bottom, this.front + entrance + 1), palette.hint);
-            	world.setBlockState(new BlockPos(this.x + 1, this.bottom, this.front + exit + 1), palette.hint);
+            	setBlockState(world, new BlockPos(this.x - 1, this.bottom, this.front + entrance + 1), palette.hint);
+            	setBlockState(world, new BlockPos(this.x + 1, this.bottom, this.front + exit + 1), palette.hint);
             }
         }
     }
@@ -914,13 +930,13 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             this.isDrawn = true;
             
             for(int x=this.left; x<this.right; x++){
-                world.setBlockState(new BlockPos(x, this.bottom - 1, this.z), palette.wall);
-                world.setBlockState(new BlockPos(x, this.top, this.z), palette.wall);
+                setBlockState(world, new BlockPos(x, this.bottom - 1, this.z), palette.wall);
+                setBlockState(world, new BlockPos(x, this.top, this.z), palette.wall);
             }
             
             for(int y=this.bottom; y < this.top; y++){
-                world.setBlockState(new BlockPos(this.left-1, y, this.z), palette.wall);
-                world.setBlockState(new BlockPos(this.right, y, this.z), palette.wall);
+                setBlockState(world, new BlockPos(this.left-1, y, this.z), palette.wall);
+                setBlockState(world, new BlockPos(this.right, y, this.z), palette.wall);
             }
             
             if(this.isObstacle){
@@ -953,12 +969,12 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
                 IBlockState block = this.north == null || this.south == null ? palette.exterior : palette.wall;
                 for(int x=this.left; x<this.right; x++){
                     for(int y=this.bottom; y<this.top; y++){
-                        world.setBlockState(new BlockPos(x, y, this.z), block);
+                        setBlockState(world, new BlockPos(x, y, this.z), block);
                     }
                     
                     if((x - this.left - 1) % 2 == 0 && x < this.right - 1){
-                        world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-                        world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));                		
+                        setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), palette.light, null, Facing.NORTH, null);
+                        setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), palette.light, null, Facing.SOUTH, null);                		
                     }
                 }
             }
@@ -971,24 +987,24 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             for(int x=this.left; x<this.right; x++){
                 if(x < gapStart || x >= gapEnd){
                     for(int y=this.bottom; y<this.top; y++){    	                	
-                        world.setBlockState(new BlockPos(x, y, this.z), palette.wall);
+                        setBlockState(world, new BlockPos(x, y, this.z), palette.wall);
                     }
                     
                     if((x - this.left - 1) % 2 == 0 && x < this.right - 1){
-                        world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-                        world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));                		
+                        setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), palette.light, null, Facing.NORTH, null);
+                        setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), palette.light, null, Facing.SOUTH, null);                		
                     }
                 }else{
                 	IBlockState block = this.hint ? palette.hint : palette.wall;
-                    world.setBlockState(new BlockPos(x, bottom-1, this.z), block);
+                    setBlockState(world, new BlockPos(x, bottom-1, this.z), block);
                     for(int y=this.bottom; y<this.top; y++){
                         world.setBlockToAir(new BlockPos(x,y,this.z));
                     }
                 }
             }
             
-            world.setBlockState(new BlockPos(gapStart, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));
-            world.setBlockState(new BlockPos(gapEnd - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
+            setBlockState(world, new BlockPos(gapStart, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);
+            setBlockState(world, new BlockPos(gapEnd - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
         }
         
         private void drawBridge(World world, Random rand, Palette palette)
@@ -996,23 +1012,23 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             int bridgeStart = this.left + rand.nextInt(this.right - this.left - 4) + 1;
             int bridgeEnd = bridgeStart + 2;
             for(int x=this.left; x<this.right; x++){
-                world.setBlockState(new BlockPos(x, this.bottom - 1, this.z-1), palette.moatContainer);
-                world.setBlockState(new BlockPos(x, this.bottom - 2, this.z), palette.moatContainer);
-                world.setBlockState(new BlockPos(x, this.bottom - 1, this.z+1), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom - 1, this.z-1), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom - 2, this.z), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom - 1, this.z+1), palette.moatContainer);
                 if(x < bridgeStart || x >= bridgeEnd){            		
-                    world.setBlockState(new BlockPos(x,this.bottom - 1,this.z), palette.moat);
+                    setBlockState(world, new BlockPos(x,this.bottom - 1,this.z), palette.moat);
                 }else{
                 	IBlockState block = this.hint ? palette.hint : palette.moatContainer;
-                    world.setBlockState(new BlockPos(x,this.bottom - 1,this.z), block);
+                    setBlockState(world, new BlockPos(x,this.bottom - 1,this.z), block);
                 }
             }
             
-            world.setBlockState(new BlockPos(this.left, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));
-            world.setBlockState(new BlockPos(this.right - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
+            setBlockState(world, new BlockPos(this.left, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);
+            setBlockState(world, new BlockPos(this.right - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
 
             
-            world.setBlockState(new BlockPos(this.left - 1, this.bottom - 1, this.z), palette.moatContainer);
-            world.setBlockState(new BlockPos(this.right, this.bottom - 1, this.z), palette.moatContainer);
+            setBlockState(world, new BlockPos(this.left - 1, this.bottom - 1, this.z), palette.moatContainer);
+            setBlockState(world, new BlockPos(this.right, this.bottom - 1, this.z), palette.moatContainer);
         }
         
         private void drawDoor(World world, Random rand, Palette palette)
@@ -1021,20 +1037,20 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             
             for(int x=this.left; x<this.right; x++){
                 for(int y=this.bottom; y<this.top; y++){
-                    world.setBlockState(new BlockPos(x,y,this.z), palette.wall);
+                    setBlockState(world, new BlockPos(x,y,this.z), palette.wall);
                 }    
                 
                 if((x - this.left - 1) % 2 == 0 && x < this.right - 1){            		
-                    world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-                    world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));                		
+                    setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), palette.light, null, Facing.NORTH, null);
+                    setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), palette.light, null, Facing.SOUTH, null);                		
                 }
             }
             
             Facing facing = this.getIn() == this.north ? Facing.NORTH : Facing.SOUTH;
-            world.setBlockState(new BlockPos(doorLocation, this.bottom, this.z), BlockDrawingHelper.applyModifications(palette.doorLower, null, facing, null));
-            world.setBlockState(new BlockPos(doorLocation, this.bottom + 1, this.z), BlockDrawingHelper.applyModifications(palette.doorUpper, null, facing, null));
+            setBlockState(world, new BlockPos(doorLocation, this.bottom, this.z), palette.doorLower, null, facing, null);
+            setBlockState(world, new BlockPos(doorLocation, this.bottom + 1, this.z), palette.doorUpper, null, facing, null);
             if(this.hint){
-            	world.setBlockState(new BlockPos(doorLocation, this.bottom - 1, this.z), palette.hint);
+            	setBlockState(world, new BlockPos(doorLocation, this.bottom - 1, this.z), palette.hint);
             }
         }     
         
@@ -1044,21 +1060,21 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             
             for(int x=this.left; x<this.right; x++){
                 for(int y=this.bottom; y<this.top; y++){
-                    world.setBlockState(new BlockPos(x,y,this.z), palette.wall);
+                    setBlockState(world, new BlockPos(x,y,this.z), palette.wall);
                 }    
                 
                 if((x - this.left - 1) % 2 == 0 && x < this.right - 1){            		
-                    world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-                    world.setBlockState(new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));                		
+                    setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z - 1), palette.light, null, Facing.NORTH, null);
+                    setBlockState(world, new BlockPos(x, this.bottom + ROOM_HEIGHT - 1, this.z + 1), palette.light, null, Facing.SOUTH, null);                		
                 }
             }
             
             Facing facing = this.getIn() == this.north ? Facing.NORTH : Facing.SOUTH;
 
-            world.setBlockState(new BlockPos(doorLocation, this.bottom, this.z), BlockDrawingHelper.applyModifications(palette.puzzleDoorLower, null, facing, null));
-            world.setBlockState(new BlockPos(doorLocation, this.bottom + 1, this.z), BlockDrawingHelper.applyModifications(palette.puzzleDoorUpper, null, facing, null));
+            setBlockState(world, new BlockPos(doorLocation, this.bottom, this.z), palette.puzzleDoorLower, null, facing, null);
+            setBlockState(world, new BlockPos(doorLocation, this.bottom + 1, this.z), palette.puzzleDoorUpper, null, facing, null);
             if(this.hint){
-            	world.setBlockState(new BlockPos(doorLocation, this.bottom - 1, this.z), palette.hint);
+            	setBlockState(world, new BlockPos(doorLocation, this.bottom - 1, this.z), palette.hint);
             }
             
             Room room = getIn();
@@ -1070,9 +1086,9 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             }
             
             if(room == this.north){
-                world.setBlockState(new BlockPos(triggerX, this.bottom + 1, this.z - 1), BlockDrawingHelper.applyModifications(palette.trigger, null, Facing.NORTH, null));
+                setBlockState(world, new BlockPos(triggerX, this.bottom + 1, this.z - 1), palette.trigger, null, Facing.NORTH, null);
             }else{
-                world.setBlockState(new BlockPos(triggerX, this.bottom + 1, this.z + 1), BlockDrawingHelper.applyModifications(palette.trigger, null, Facing.SOUTH, null));
+                setBlockState(world, new BlockPos(triggerX, this.bottom + 1, this.z + 1), palette.trigger, null, Facing.SOUTH, null);
             }
         } 
         
@@ -1082,23 +1098,23 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             int exit = rand.nextInt(this.right - this.left - 3);
             
             for(int x=this.left; x<this.right; x++){
-                world.setBlockState(new BlockPos(x, this.bottom - 1, this.z-1), palette.moatContainer);
-                world.setBlockState(new BlockPos(x, this.bottom, this.z-1), palette.wall);
-                world.setBlockState(new BlockPos(x, this.bottom + 1, this.z-1), palette.wall);
-                world.setBlockState(new BlockPos(x, this.bottom - 2, this.z), palette.moatContainer);
-                world.setBlockState(new BlockPos(x, this.bottom - 1, this.z + 1), palette.moatContainer);
-                world.setBlockState(new BlockPos(x, this.bottom, this.z + 1), palette.wall);
-                world.setBlockState(new BlockPos(x, this.bottom + 1, this.z + 1), palette.wall);
+                setBlockState(world, new BlockPos(x, this.bottom - 1, this.z-1), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom, this.z-1), palette.wall);
+                setBlockState(world, new BlockPos(x, this.bottom + 1, this.z-1), palette.wall);
+                setBlockState(world, new BlockPos(x, this.bottom - 2, this.z), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom - 1, this.z + 1), palette.moatContainer);
+                setBlockState(world, new BlockPos(x, this.bottom, this.z + 1), palette.wall);
+                setBlockState(world, new BlockPos(x, this.bottom + 1, this.z + 1), palette.wall);
                 
                 if(x % 2 == 0){
-                    world.setBlockState(new BlockPos(x, this.bottom - 1, this.z), palette.moatContainer);
+                    setBlockState(world, new BlockPos(x, this.bottom - 1, this.z), palette.moatContainer);
                 }else{        		
-                    world.setBlockState(new BlockPos(x, this.bottom - 1, this.z), palette.moat);
+                    setBlockState(world, new BlockPos(x, this.bottom - 1, this.z), palette.moat);
                 }
             }
             
-            world.setBlockState(new BlockPos(this.left, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));
-            world.setBlockState(new BlockPos(this.right - 1, this.bottom + ROOM_HEIGHT - 1, z), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
+            setBlockState(world, new BlockPos(this.left, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.EAST, null);
+            setBlockState(world, new BlockPos(this.right - 1, this.bottom + ROOM_HEIGHT - 1, z), palette.light, null, Facing.WEST, null);
             
             for(int i=0; i<3; i++){
                 world.setBlockToAir(new BlockPos(this.left + entrance + i, this.bottom + 1, this.z - 1));
@@ -1106,8 +1122,8 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             }
             
             if(this.hint){
-            	world.setBlockState(new BlockPos(this.left + entrance + 1, this.bottom, this.z - 1), palette.hint);
-            	world.setBlockState(new BlockPos(this.left + exit + 1, this.bottom, this.z + 1), palette.hint);
+            	setBlockState(world, new BlockPos(this.left + entrance + 1, this.bottom, this.z - 1), palette.hint);
+            	setBlockState(world, new BlockPos(this.left + exit + 1, this.bottom, this.z + 1), palette.hint);
             }
         }
     }
@@ -1195,7 +1211,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             for(int x=left; x<right; x++){
                 for(int y=bottom; y<top; y++){
                     for(int z=front; z<back; z++){
-                        world.setBlockState(new BlockPos(x,y,z), block);
+                        setBlockState(world, new BlockPos(x,y,z), block);
                     }
                 }
             }
@@ -1222,7 +1238,7 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         }
         
         private void drawStairs(World world, Palette palette)
-        {	
+        {
             int stairsLeft = (this.left + this.right)/2 - 1;
             int stairsFront = (this.front + this.back)/2 - 1;
             int stairsBottom = this.below.y;
@@ -1230,35 +1246,35 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             // only works for a room height of 4 and floor height of 2
             
             if(this.hint){
-            	world.setBlockState(new BlockPos(stairsLeft, stairsBottom - 1, stairsFront - 1), palette.hint);
-            	world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront - 1), palette.hint);
+            	setBlockState(world, new BlockPos(stairsLeft, stairsBottom - 1, stairsFront - 1), palette.hint);
+            	setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront - 1), palette.hint);
             }
-            
-            world.setBlockState(new BlockPos(stairsLeft, stairsBottom, stairsFront), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.SOUTH, null));
-            world.setBlockState(new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 1), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.SOUTH, null));        	
-            world.setBlockState(new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 2), palette.stairsPlatform);
+
+            setBlockState(world, new BlockPos(stairsLeft, stairsBottom, stairsFront), palette.stairs, null, Facing.SOUTH, null);
+            setBlockState(world, new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 1), palette.stairs, null, Facing.SOUTH, null);        	
+            setBlockState(world, new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 2), palette.stairsPlatform);
             world.setBlockToAir(new BlockPos(stairsLeft, stairsBottom + 4, stairsFront + 2));
-            world.setBlockState(new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 3), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
-            world.setBlockState(new BlockPos(stairsLeft - 1, stairsBottom + 1, stairsFront + 2), BlockDrawingHelper.applyModifications(palette.light, null, Facing.WEST, null));
-            world.setBlockState(new BlockPos(stairsLeft + 1, stairsBottom + 1, stairsFront + 2), BlockDrawingHelper.applyModifications(palette.light, null, Facing.EAST, null));
+            setBlockState(world, new BlockPos(stairsLeft, stairsBottom + 1, stairsFront + 3), palette.light, null, Facing.SOUTH, null);
+            setBlockState(world, new BlockPos(stairsLeft - 1, stairsBottom + 1, stairsFront + 2), palette.light, null, Facing.WEST, null);
+            setBlockState(world, new BlockPos(stairsLeft + 1, stairsBottom + 1, stairsFront + 2), palette.light, null, Facing.EAST, null);
             
-            world.setBlockState(new BlockPos(stairsLeft + 1, stairsBottom + 2, stairsFront + 2), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.EAST, null));
+            setBlockState(world, new BlockPos(stairsLeft + 1, stairsBottom + 2, stairsFront + 2), palette.stairs, null, Facing.EAST, null);
             world.setBlockToAir(new BlockPos(stairsLeft + 1, stairsBottom + 4, stairsFront + 2));
             world.setBlockToAir(new BlockPos(stairsLeft + 1, stairsBottom + 5, stairsFront + 2));
-            world.setBlockState(new BlockPos(stairsLeft + 2, stairsBottom + 3, stairsFront + 2), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.EAST, null));        	
+            setBlockState(world, new BlockPos(stairsLeft + 2, stairsBottom + 3, stairsFront + 2), palette.stairs, null, Facing.EAST, null);        	
             world.setBlockToAir(new BlockPos(stairsLeft + 2, stairsBottom + 4, stairsFront + 2));
             world.setBlockToAir(new BlockPos(stairsLeft + 2, stairsBottom + 5, stairsFront + 2));
-            world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 2), palette.stairsPlatform);
+            setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 2), palette.stairsPlatform);
             world.setBlockToAir(new BlockPos(stairsLeft + 3, stairsBottom + 4, stairsFront + 2));
             world.setBlockToAir(new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront + 2));
-            world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-            world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 3), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
+            setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 1), palette.light, null, Facing.NORTH, null);
+            setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 3, stairsFront + 3), palette.light, null, Facing.SOUTH, null);
             
-            world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 4, stairsFront + 1), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.NORTH, null));
+            setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 4, stairsFront + 1), palette.stairs, null, Facing.NORTH, null);
             world.setBlockToAir(new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront + 1));
-            world.setBlockState(new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront), BlockDrawingHelper.applyModifications(palette.stairs, null, Facing.NORTH, null));
+            setBlockState(world, new BlockPos(stairsLeft + 3, stairsBottom + 5, stairsFront), palette.stairs, null, Facing.NORTH, null);
             
-            world.setBlockState(new BlockPos(stairsLeft + 1, stairsBottom + 6, stairsFront + 1), palette.light);
+            setBlockState(world, new BlockPos(stairsLeft + 1, stairsBottom + 6, stairsFront + 1), palette.light);
         }
         
         private void drawLadder(World world, Random rand, Palette palette)
@@ -1268,20 +1284,20 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             int ladderBottom = this.below.y;
             
             for(int y=ladderBottom; y < this.top; y++){
-                world.setBlockState(new BlockPos(ladderX, y, ladderZ), palette.wall);
-                world.setBlockState(new BlockPos(ladderX, y, ladderZ), palette.wall);
+                setBlockState(world, new BlockPos(ladderX, y, ladderZ), palette.wall);
+                setBlockState(world, new BlockPos(ladderX, y, ladderZ), palette.wall);
                                 
-                world.setBlockState(new BlockPos(ladderX, y, ladderZ + 1), BlockDrawingHelper.applyModifications(palette.ladder, null, Facing.SOUTH, null));        				
+                setBlockState(world, new BlockPos(ladderX, y, ladderZ + 1), palette.ladder, null, Facing.SOUTH, null);        				
                 world.setBlockToAir(new BlockPos(ladderX, y, ladderZ + 2));
             }
             
-            world.setBlockState(new BlockPos(ladderX, this.bottom - 1, ladderZ - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
+            setBlockState(world, new BlockPos(ladderX, this.bottom - 1, ladderZ - 1), palette.light, null, Facing.NORTH, null);
             if(this.hint){
-            	world.setBlockState(new BlockPos(ladderX, ladderBottom - 1, ladderZ + 1), palette.hint);
-            	world.setBlockState(new BlockPos(ladderX, this.bottom + 1, ladderZ), palette.hint);
+            	setBlockState(world, new BlockPos(ladderX, ladderBottom - 1, ladderZ + 1), palette.hint);
+            	setBlockState(world, new BlockPos(ladderX, this.bottom + 1, ladderZ), palette.hint);
             }
             
-            world.setBlockState(new BlockPos(ladderX, this.top, ladderZ), palette.light);
+            setBlockState(world, new BlockPos(ladderX, this.top, ladderZ), palette.light);
         }
         
         private void drawJump(World world, Palette palette)
@@ -1293,28 +1309,28 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
             // only works for a room height of 4 and floor height of 2
             
             if(this.hint){
-            	world.setBlockState(new BlockPos(platformLeft, platformBottom - 1, platformFront - 1), palette.hint);
-            	world.setBlockState(new BlockPos(platformLeft, platformBottom + 5, platformFront), palette.hint);
+            	setBlockState(world, new BlockPos(platformLeft, platformBottom - 1, platformFront - 1), palette.hint);
+            	setBlockState(world, new BlockPos(platformLeft, platformBottom + 5, platformFront), palette.hint);
             }
             
-            world.setBlockState(new BlockPos(platformLeft, platformBottom, platformFront), palette.platform);
+            setBlockState(world, new BlockPos(platformLeft, platformBottom, platformFront), palette.platform);
             
-            world.setBlockState(new BlockPos(platformLeft, platformBottom, platformFront + 1), palette.light);
+            setBlockState(world, new BlockPos(platformLeft, platformBottom, platformFront + 1), palette.light);
             
-            world.setBlockState(new BlockPos(platformLeft, platformBottom, platformFront + 2), palette.platform);
-            world.setBlockState(new BlockPos(platformLeft, platformBottom + 1, platformFront + 2), palette.platform);
+            setBlockState(world, new BlockPos(platformLeft, platformBottom, platformFront + 2), palette.platform);
+            setBlockState(world, new BlockPos(platformLeft, platformBottom + 1, platformFront + 2), palette.platform);
             
-            world.setBlockState(new BlockPos(platformLeft + 2, platformBottom + 2, platformFront + 2), palette.platform);
-            world.setBlockState(new BlockPos(platformLeft + 3, platformBottom + 2, platformFront + 2), palette.floor);
-            world.setBlockState(new BlockPos(platformLeft + 3, platformBottom + 3, platformFront + 2), palette.floor);
-            world.setBlockState(new BlockPos(platformLeft + 3, platformBottom + 3, platformFront + 3), BlockDrawingHelper.applyModifications(palette.light, null, Facing.SOUTH, null));
+            setBlockState(world, new BlockPos(platformLeft + 2, platformBottom + 2, platformFront + 2), palette.platform);
+            setBlockState(world, new BlockPos(platformLeft + 3, platformBottom + 2, platformFront + 2), palette.floor);
+            setBlockState(world, new BlockPos(platformLeft + 3, platformBottom + 3, platformFront + 2), palette.floor);
+            setBlockState(world, new BlockPos(platformLeft + 3, platformBottom + 3, platformFront + 3), palette.light, null, Facing.SOUTH, null);
             
-            world.setBlockState(new BlockPos(platformLeft + 3, platformBottom + 3, platformFront), palette.floor);
-            world.setBlockState(new BlockPos(platformLeft + 3, platformBottom + 3, platformFront - 1), BlockDrawingHelper.applyModifications(palette.light, null, Facing.NORTH, null));
-            world.setBlockState(new BlockPos(platformLeft + 2, platformBottom + 3, platformFront), palette.platform);
+            setBlockState(world, new BlockPos(platformLeft + 3, platformBottom + 3, platformFront), palette.floor);
+            setBlockState(world, new BlockPos(platformLeft + 3, platformBottom + 3, platformFront - 1), palette.light, null, Facing.NORTH, null);
+            setBlockState(world, new BlockPos(platformLeft + 2, platformBottom + 3, platformFront), palette.platform);
             
             world.setBlockToAir(new BlockPos(platformLeft + 1, platformBottom + 5, platformFront));
-            world.setBlockState(new BlockPos(platformLeft + 1, platformBottom + 6, platformFront + 1), palette.light);
+            setBlockState(world, new BlockPos(platformLeft + 1, platformBottom + 6, platformFront + 1), palette.light);
             
             for(int i = 0; i<3; i++){
                 world.setBlockToAir(new BlockPos(platformLeft + i, platformBottom + 4, platformFront + 2));
@@ -1436,71 +1452,93 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         
         private void setDungeon()
         {
-            this.floor = Blocks.planks.getDefaultState();
-            this.exterior = Blocks.cobblestone.getDefaultState();
-            this.wall = Blocks.cobblestone.getDefaultState();
-            this.light = Blocks.torch.getDefaultState();
-            this.goal = Blocks.gold_block.getDefaultState();
-            this.moat = Blocks.lava.getDefaultState();
-            this.moatContainer = Blocks.cobblestone.getDefaultState();
-            this.doorUpper = Blocks.oak_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.doorLower = Blocks.oak_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.stairs = Blocks.stone_stairs.getDefaultState();
-            this.stairsPlatform = Blocks.cobblestone.getDefaultState();
-            this.ladder = Blocks.ladder.getDefaultState();
-            this.puzzleDoorUpper = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.puzzleDoorLower = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.trigger = Blocks.lever.getDefaultState();
-            this.platform = Blocks.bookshelf.getDefaultState();
-            this.hint = Blocks.gold_ore.getDefaultState();
+            this.floor = Blocks.PLANKS.getDefaultState();
+            this.exterior = Blocks.COBBLESTONE.getDefaultState();
+            this.wall = Blocks.COBBLESTONE.getDefaultState();
+            this.light = Blocks.TORCH.getDefaultState();
+            this.goal = Blocks.GOLD_BLOCK.getDefaultState();
+            this.moat = Blocks.LAVA.getDefaultState();
+            this.moatContainer = Blocks.COBBLESTONE.getDefaultState();
+            this.doorUpper = Blocks.OAK_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.doorLower = Blocks.OAK_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.stairs = Blocks.STONE_STAIRS.getDefaultState();
+            this.stairsPlatform = Blocks.COBBLESTONE.getDefaultState();
+            this.ladder = Blocks.LADDER.getDefaultState();
+            this.puzzleDoorUpper = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.puzzleDoorLower = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.trigger = Blocks.LEVER.getDefaultState();
+            this.platform = Blocks.BOOKSHELF.getDefaultState();
+            this.hint = Blocks.GOLD_ORE.getDefaultState();
         }
                
         private void setPyramid()
         {
-            this.floor = Blocks.red_sandstone.getDefaultState();
-            this.exterior = Blocks.sandstone.getDefaultState();
-            this.wall = Blocks.sandstone.getDefaultState();
-            this.light = Blocks.torch.getDefaultState();
-            this.goal = Blocks.diamond_block.getDefaultState();
-            this.moat = Blocks.lava.getDefaultState();
-            this.moatContainer = Blocks.sandstone.getDefaultState();
-            this.doorUpper = Blocks.acacia_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.doorLower = Blocks.acacia_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.stairs = Blocks.sandstone_stairs.getDefaultState();
-            this.stairsPlatform = Blocks.sandstone.getDefaultState();
-            this.ladder = Blocks.ladder.getDefaultState();
-            this.puzzleDoorUpper = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.puzzleDoorLower = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.trigger = Blocks.lever.getDefaultState();
-            this.platform = Blocks.red_sandstone.getDefaultState();
-            this.hint = Blocks.diamond_ore.getDefaultState();
+            this.floor = Blocks.RED_SANDSTONE.getDefaultState();
+            this.exterior = Blocks.SANDSTONE.getDefaultState();
+            this.wall = Blocks.SANDSTONE.getDefaultState();
+            this.light = Blocks.TORCH.getDefaultState();
+            this.goal = Blocks.DIAMOND_BLOCK.getDefaultState();
+            this.moat = Blocks.LAVA.getDefaultState();
+            this.moatContainer = Blocks.SANDSTONE.getDefaultState();
+            this.doorUpper = Blocks.ACACIA_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.doorLower = Blocks.ACACIA_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.stairs = Blocks.SANDSTONE_STAIRS.getDefaultState();
+            this.stairsPlatform = Blocks.SANDSTONE.getDefaultState();
+            this.ladder = Blocks.LADDER.getDefaultState();
+            this.puzzleDoorUpper = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.puzzleDoorLower = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.trigger = Blocks.LEVER.getDefaultState();
+            this.platform = Blocks.RED_SANDSTONE.getDefaultState();
+            this.hint = Blocks.DIAMOND_ORE.getDefaultState();
         }
         
         private void setIgloo()
         {
-            this.floor = Blocks.snow.getDefaultState();
-            this.exterior = Blocks.snow.getDefaultState();
-            this.wall = Blocks.packed_ice.getDefaultState();
-            this.light = Blocks.torch.getDefaultState();
-            this.goal = Blocks.redstone_block.getDefaultState();
-            this.moat = Blocks.water.getDefaultState();
-            this.moatContainer = Blocks.glowstone.getDefaultState();
-            this.doorUpper = Blocks.spruce_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.doorLower = Blocks.spruce_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.stairs = Blocks.spruce_stairs.getDefaultState();
-            this.stairsPlatform = Blocks.packed_ice.getDefaultState();
-            this.ladder = Blocks.ladder.getDefaultState();
-            this.puzzleDoorUpper = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
-            this.puzzleDoorLower = Blocks.iron_door.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
-            this.trigger = Blocks.lever.getDefaultState();
-            this.platform = Blocks.snow.getDefaultState();
-            this.hint = Blocks.redstone_ore.getDefaultState();
+            this.floor = Blocks.SNOW.getDefaultState();
+            this.exterior = Blocks.SNOW.getDefaultState();
+            this.wall = Blocks.PACKED_ICE.getDefaultState();
+            this.light = Blocks.TORCH.getDefaultState();
+            this.goal = Blocks.REDSTONE_BLOCK.getDefaultState();
+            this.moat = Blocks.WATER.getDefaultState();
+            this.moatContainer = Blocks.GLOWSTONE.getDefaultState();
+            this.doorUpper = Blocks.SPRUCE_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.doorLower = Blocks.SPRUCE_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.stairs = Blocks.SPRUCE_STAIRS.getDefaultState();
+            this.stairsPlatform = Blocks.PACKED_ICE.getDefaultState();
+            this.ladder = Blocks.LADDER.getDefaultState();
+            this.puzzleDoorUpper = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER);
+            this.puzzleDoorLower = Blocks.IRON_DOOR.getDefaultState().withProperty(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER);
+            this.trigger = Blocks.LEVER.getDefaultState();
+            this.platform = Blocks.SNOW.getDefaultState();
+            this.hint = Blocks.REDSTONE_ORE.getDefaultState();
         }
     }
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
     }
 }

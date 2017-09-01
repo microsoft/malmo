@@ -23,6 +23,7 @@
 // Local:
 #include "ClientInfo.h"
 #include "MissionSpec.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/shared_ptr.hpp>
@@ -35,11 +36,13 @@ namespace malmo
     //! Specifies a mission to be run together with the IP addresses and ports of the agents and Mod instances to run it on.
     class MissionInitSpec
     {
+        MALMO_LOGGABLE_OBJECT(MissionInitSpec)
+
         public:
 
             //! Constructs a mission init specification with default settings from the supplied mission specification.
             //! \param mission_spec The specification of the mission to run.
-            //! \param unique_experiment_id An arbitrary identifier that is used to disambiguate our mission from 
+            //! \param unique_experiment_id An arbitrary identifier that is used to disambiguate our mission from others using the same ClientPool.
             //! \param role Index of the agent that this agent host is to manage. Zero-based index. Use zero if there is only one agent in this mission.
             MissionInitSpec( const MissionSpec& mission_spec, std::string unique_experiment_id, int role );
 
@@ -52,6 +55,10 @@ namespace malmo
             //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
             //! \returns The mission init specification as an XML string.
             std::string getAsXML( bool prettyPrint ) const;
+
+            //! Gets the unique experiment ID.
+            //! \returns The experiment ID.
+            std::string getExperimentID() const;
 
             //! Gets the IP address of the client.
             //! \returns The IP address as a string.

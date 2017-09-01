@@ -1,30 +1,32 @@
-/*
 // For those who want the bleeding edge
 buildscript {
     repositories {
         jcenter()
         maven {
-            name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-*/
 
-// for people who want stable
-plugins {
-    id "net.minecraftforge.gradle.forge" version "2.0.1"
+
+// Read the version number from the Mod's version properties file.
+if (!file('src/main/resources/version.properties').exists()) {
+    ant.fail("version.properties file is missing - this is created automatically by CMake. If you are building from source, make sure you have built the full source tree, not just the Minecraft folder.")
 }
+def propFile = file('src/main/resources/version.properties')
+def versionProp = new Properties()
+versionProp.load(propFile.newReader())
+version = versionProp['malmomod.version']
 
 group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MalmoMod"
 
 minecraft {
-    version = "1.8-11.14.3.1543"
+    version = "1.11.2-13.20.0.2228"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
@@ -32,7 +34,7 @@ minecraft {
     // stable_#            stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not allways work.
     // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20141130"
+    mappings = "snapshot_20161220"
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
@@ -47,6 +49,16 @@ jar {
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient")
 exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
+// ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
+// means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
+// to carry out up-to-date checks for any tasks that depend on runClient.
+// The run folder also contains the logs folder, which, on Windows at least, can contain locked
+// TCP log files, which gradle won't be able to checksum, meaning that the runClient task will fail
+// if there is already a Minecraft running and logging.
+// To prevent this behaviour, we set the outputs to a dummy value:
+exec.getOutputs().files.setFrom(file("dummy_value"))
+// We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
+exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
     // you may put jars on which you depend on in ./libs
@@ -122,9 +134,24 @@ dependencies {
     jaxb group: 'com.sun.xml.bind', name: 'jaxb-xjc', version: '2.2.4-1'
 }
 
+task copySchemas(type: Copy) {
+    from '../Schemas/'
+    into 'src/main/resources/'
+    include ('*.xsd')
+}
+
 task jaxb() {
     description 'Generate source files for our XML schemas using JAXB'
-    
+
+    // Create an index file listing all the schemas:
+    def schemaIndexFile = new File('src/main/resources/schemas.index')
+    def contents = ""
+    def tree = copySchemas.source
+    tree.visit { fileDetails ->
+        contents += "${fileDetails.relativePath}" + "\n"
+    }
+    schemaIndexFile.write contents
+
     inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
     outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
     
@@ -146,12 +173,6 @@ task deleteSchemas() {
         // first clear the old .xsd files out of the folder in case some are no longer current
         delete fileTree(dir: 'src/main/resources', include: '*.xsd')
     }
-}
-
-task copySchemas(type: Copy) {
-    from '../Schemas/'
-    into 'src/main/resources/'
-    include ('*.xsd')
 }
 
 // -------------- Task 'copyMds' copied the .md files into the javadoc folder --------------------

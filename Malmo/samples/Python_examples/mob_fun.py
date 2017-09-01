@@ -31,8 +31,8 @@ import errno
 import math
 import Tkinter as tk
 from collections import namedtuple
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, colour, variation, quantity')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, "", "", "", 1)
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 # Task parameters:
 NUM_GOALS = 20
@@ -92,6 +92,8 @@ def getMissionXML(summary):
                     <StartTime>13000</StartTime>
                     <AllowPassageOfTime>false</AllowPassageOfTime>
                 </Time>
+                <AllowSpawning>true</AllowSpawning>
+                <AllowedMobs>''' + MOB_TYPE + '''</AllowedMobs>
             </ServerInitialConditions>
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
@@ -267,7 +269,7 @@ for iRepeat in range(num_reps):
     max_retries = 3
     for retry in range(max_retries):
         try:
-            # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+            # Set up a recording
             my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
             my_mission_record.recordRewards()
             # Attempt to start the mission:
@@ -282,7 +284,7 @@ for iRepeat in range(num_reps):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
 

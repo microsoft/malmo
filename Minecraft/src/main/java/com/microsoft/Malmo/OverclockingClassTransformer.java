@@ -33,16 +33,20 @@ import org.objectweb.asm.tree.MethodNode;
 
 public class OverclockingClassTransformer implements IClassTransformer
 {
-    enum transformType { SERVER, RENDERER }
+    enum transformType { SERVER, RENDERER, OTHERPLAYER }
     
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
+        if (transformedName.startsWith("net.minecraft.client.entity"))
+            System.out.println(transformedName);
         boolean isObfuscated = !name.equals(transformedName);
         if (transformedName.equals("net.minecraft.server.MinecraftServer"))
             return transform(basicClass, isObfuscated, transformType.SERVER);
         else if (transformedName.equals("net.minecraft.client.Minecraft"))
             return transform(basicClass, isObfuscated, transformType.RENDERER);
+        else if (transformedName.equals("net.minecraft.client.entity.EntityOtherPlayerMP"))
+            return transform(basicClass, isObfuscated, transformType.OTHERPLAYER);
         else
             return basicClass;
     }
@@ -64,6 +68,8 @@ public class OverclockingClassTransformer implements IClassTransformer
             case RENDERER:
                 overclockRenderer(cnode, isObfuscated);
                 break;
+            case OTHERPLAYER:
+                removeInterpolation(cnode, isObfuscated);
             }
             
             ClassWriter cwriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -132,7 +138,36 @@ public class OverclockingClassTransformer implements IClassTransformer
             }
         }
     }
-    
+
+    private static void removeInterpolation(ClassNode node, boolean isObfuscated)
+    {
+        // We're attempting to turn this line from EntityOtherPlayerMP.func_180426_a:
+        //              this.otherPlayerMPPosRotationIncrements = p_180426_9_;
+        // into this:
+        //              this.otherPlayerMPPosRotationIncrements = 1;
+        final String methodName = "func_180426_a";
+        final String methodDescriptor = "(DDDFFIZ)V"; // double x/y/z, float yaw/pitch, int increments, bool (unused), returns void.
+
+        System.out.println("MALMO: Found EntityOtherPlayerMP, attempting to transform it");
+        for (MethodNode method : node.methods)
+        {
+            if (method.name.equals(methodName) && method.desc.equals(methodDescriptor))
+            {
+                System.out.println("MALMO: Found EntityOtherPlayerMP.func_180426_a() method, attempting to transform it");
+                for (AbstractInsnNode instruction : method.instructions.toArray())
+                {
+                    if (instruction.getOpcode() == Opcodes.ILOAD)
+                    {
+                        LdcInsnNode newNode = new LdcInsnNode(new Integer(1));
+                        method.instructions.insert(instruction, newNode);
+                        method.instructions.remove(instruction);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     private static void overclockRenderer(ClassNode node, boolean isObfuscated)
     {
         // We're attempting to turn this line from Minecraft.runGameLoop:

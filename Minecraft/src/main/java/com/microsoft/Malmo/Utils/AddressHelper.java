@@ -19,7 +19,7 @@
 
 package com.microsoft.Malmo.Utils;
 
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModMetadata;
@@ -69,12 +69,12 @@ public class AddressHelper
 			// Also update our metadata, for displaying to the user:
 			ModMetadata md = Loader.instance().activeModContainer().getMetadata();
 			if (port != -1)
-				md.description = "Talk to this Mod using port " + EnumChatFormatting.GREEN + port;
+				md.description = "Talk to this Mod using port " + TextFormatting.GREEN + port;
 			else
-				md.description = EnumChatFormatting.RED + "ERROR: No mission control port - check configuration";
+				md.description = TextFormatting.RED + "ERROR: No mission control port - check configuration";
 
 			// See if changing the port should lead to changing the login details:
-			AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
+			//AuthenticationHelper.update(MalmoMod.instance.getModPermanentConfigFile());
 		}
 	}
 }

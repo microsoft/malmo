@@ -8,9 +8,8 @@ set -o pipefail
 # install dependencies:
 
 brew update
-brew install boost --with-python
-brew install ffmpeg swig boost-python xerces-c doxygen
-sudo brew cask install java
+brew install boost-python ffmpeg swig xerces-c doxygen
+brew cask install java
 
 # mono and CodeSynthesis XSD both contain 'xsd' executables and we want the CodeSynthesis
 # one, so we force it:
@@ -27,6 +26,6 @@ export MALMO_XSD_PATH=$TRAVIS_BUILD_DIR/Schemas
 cd $TRAVIS_BUILD_DIR
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DPYTHON_EXECUTABLE="/usr/bin/python" -DCMAKE_BUILD_TYPE=Release ..
 make
 ctest -E Integration -VV

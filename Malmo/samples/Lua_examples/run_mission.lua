@@ -50,12 +50,17 @@ my_mission_record:recordObservations()
 status, err = pcall( function() agent_host:startMission( my_mission, my_mission_record ) end )
 if not status then
     print( "Error starting mission: "..err )
+    -- err is actually a MissionException object, containing a message and a code.
+    -- we can use the code to do more systematic error handling. For example:
+    if err:code() == MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE then
+        print( "Need to make sure a Minecraft client is running." )
+    end
     os.exit(1)
 end
 
 io.write( "Waiting for the mission to start" )
 world_state = agent_host:getWorldState()
-while not world_state.is_mission_running do
+while not world_state.has_mission_begun do
     io.write( "." )
     io.flush()
     sleep(0.1)

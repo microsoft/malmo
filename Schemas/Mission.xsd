@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.16">
+           version="0.31">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -133,6 +133,13 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="EnderBoxInventory" minOccurs="0" maxOccurs="1" >
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
+                            <xs:element ref="InventoryObject" />
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -157,7 +164,7 @@
                 <xs:element name="AllowedMobs" minOccurs="0" maxOccurs="1">
                   <xs:annotation>
                     <xs:documentation>
-                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings do not effect mob_spawner blocks.
+                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings *do* effect mob_spawner blocks.
                     </xs:documentation>
                   </xs:annotation>
                     <xs:simpleType>
@@ -204,7 +211,7 @@
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:int">
-          <xs:minInclusive value="1" />
+          <xs:minInclusive value="0" />
           <xs:maxInclusive value="23999" />
         </xs:restriction>
       </xs:simpleType>
@@ -332,6 +339,7 @@
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
+            <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
 
@@ -342,6 +350,10 @@
             <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
             <xs:element ref="RewardForReachingPosition" minOccurs="0"/>
             <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
+            <xs:element ref="RewardForStructureCopying" minOccurs="0"/>
+            <xs:element ref="RewardForTimeTaken" minOccurs="0"/>
+            <xs:element ref="RewardForCatchingMob" minOccurs="0"/>
+            <xs:element ref="RewardForDamagingEntity" minOccurs="0"/>
 
             <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
             <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
@@ -349,13 +361,35 @@
             <xs:element ref="InventoryCommands" minOccurs="0"/>
             <xs:element ref="ChatCommands" minOccurs="0"/>
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
-            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands -->
+            <xs:element ref="MissionQuitCommands" minOccurs="0"/>
+            <xs:element ref="TurnBasedCommands" minOccurs="0"/>
+            <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands, and add to TurnBasedApplicableCommandHandlers (below) if appropriate --> 
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCatchingMob" minOccurs="0" />
+        </xs:all>
+    </xs:group>
+
+    <xs:group name="TurnBasedApplicableCommandHandlers">
+        <xs:annotation>
+            <xs:documentation>
+              Lists the command handlers which are applicable to a turn-based scenario.
+            </xs:documentation>
+            <xs:appinfo>
+                <jaxb:property name="TurnBasedApplicableCommandHandlers"/>
+            </xs:appinfo>
+        </xs:annotation>
+        <xs:all>
+            <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>
+            <xs:element ref="DiscreteMovementCommands" minOccurs="0"/>
+            <xs:element ref="InventoryCommands" minOccurs="0"/>
+            <xs:element ref="ChatCommands" minOccurs="0"/>
+            <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
+            <xs:element ref="MissionQuitCommands" minOccurs="0"/>
         </xs:all>
     </xs:group>
     
@@ -395,9 +429,12 @@
                         </xs:appinfo>
                     </xs:annotation>
                     <xs:element ref="DrawingDecorator" />
+                    <xs:element ref="AnimationDecorator" />
                     <xs:element ref="MazeDecorator"  />
                     <xs:element ref="ClassroomDecorator" />
                     <xs:element ref="SnakeDecorator"  />
+                    <xs:element ref="MovingTargetDecorator" />
+                    <xs:element ref="BuildBattleDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>

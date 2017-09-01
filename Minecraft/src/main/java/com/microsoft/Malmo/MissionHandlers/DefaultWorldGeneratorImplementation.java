@@ -19,20 +19,19 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldSettings.GameType;
+import net.minecraft.world.GameType;
 import net.minecraft.world.WorldType;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.DefaultWorldGenerator;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.MapFileHelper;
 
 public class DefaultWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
@@ -72,29 +71,21 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
     public boolean createWorld(MissionInit missionInit)
     {
         long seed = getWorldSeedFromString(this.dwparams.getSeed());
-        WorldType.worldTypes[0].onGUICreateWorldPress();
-        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, WorldType.worldTypes[0]);
-        worldsettings.setWorldName("");
+        WorldType.WORLD_TYPES[0].onGUICreateWorldPress();
+        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, WorldType.WORLD_TYPES[0]);
         worldsettings.enableCommands();
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
-        String s = SimpleDateFormat.getDateTimeInstance().format(new Date()).replace(":", "_");
-        Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
-        return true;
+        return MapFileHelper.createAndLaunchWorld(worldsettings, this.dwparams.isDestroyAfterUse());
     }
 
     @Override
-    public boolean shouldCreateWorld(MissionInit missionInit)
+    public boolean shouldCreateWorld(MissionInit missionInit, World world)
     {
         if (this.dwparams != null && this.dwparams.isForceReset())
             return true;
         
-    	World world = null;
-    	MinecraftServer server = MinecraftServer.getServer();
-    	if (server.worldServers != null && server.worldServers.length != 0)
-    		world = server.getEntityWorld();
-
-    	if (Minecraft.getMinecraft().theWorld == null || world == null)
+    	if (Minecraft.getMinecraft().world == null || world == null)
             return true;    // Definitely need to create a world if there isn't one in existence!
 
         String genOptions = world.getWorldInfo().getGeneratorOptions();
@@ -109,4 +100,5 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
     {
         return "";  // Don't currently have any error exit points.
     }
+
 }

@@ -36,7 +36,7 @@ namespace malmo
             //! Constructs a TCP server but doesn't start it.
             //! \param port The number of the port to connect to.
             //! \param callback The function to call when a message arrives.
-            TCPServer(boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback);
+            TCPServer(boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback, const std::string& log_name);
             
             void confirmWithFixedReply(std::string reply);
             void expectSizeHeader(bool expect_size_header);
@@ -67,6 +67,7 @@ namespace malmo
             bool confirm_with_fixed_reply;
             std::string fixed_reply;
             bool expect_size_header;
+            std::string log_name;
     };
 }
 

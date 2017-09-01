@@ -1,58 +1,128 @@
-0.16.2
+0.30.0
 -------------------
+New: UPGRADED TO LATEST MC/FORGE
+Breaking: AllowSpawning/AllowedMobs now affects mob_spawners
+Breaking: "Minecart" entity renamed to "MinecartRideable"
+New: Now includes all mobs up to Minecraft 1.11, and "mob_zoo.py" sample
+New: Added new blocktypes and items up to Minecraft 1.11
+New: Added support for drawing tuned note blocks and "note_block_test.py" sample
+
+0.22.0
+-------------------
+New: ObservationFromRay now returns distance.
+New: Added socket logging code to Mod, available in Mod UI.
+New: Added logging code to platform, available through Malmo API.
+New: startMission now provides more error details in exceptions; multi-agent samples hardened by using this.
+New: ObservationFromNearbyEntities now returns entity life.
+New: RewardForDamagingEntity plus sample. (#537)
+
+0.21.0
+-------------------
+New: yaw and pitch added to nearby entity observations.
+New: reward handler and quit producer for mob catching. (#440)
+
+0.20.0
+-------------------
+New: Moving target decorator. (#458)
+New: Multi-agent turn-based scheduler. (#441)
+
+0.19.0
+-------------------
+New: Multi-agent scenario reworked.
+New: Version checking - schemas, mod and platform must all have the same version number. (#334)
+New: Time-based rewards. (#126)
+New: Discrete jumpuse action (great for nerd poling). (#400)
+New: Team rewards. (#279)
+New: Discrete strafe and jump actions, autojump and autofall. (#352, #321)
+New: Simple animation decorator. (#389)
+
+0.18.0
+-------------------
+New: Added RewardForStructureCopying and BuildBattleDecorator. (#337)
+Fix: [BREAKING CHANGE] The centre of the grid observation was being rounded to the nearest int in the y-axis. (#370)
+Fix: [BREAKING CHANGE] temp folder and "mission_recordings" now removed from path of files in recordings. (#298)
+Fix: Three second grace period on spawning removed. (#88)
+New: WorldTime and TotalTime added to ObservationFromFullStats. (#262)
+Fix: AbsoluteMovementCommands can now teleport outside the current chunk. (#353)
+New: [BREAKING CHANGE] AbsoluteMovementCommands tpx, tpy, tpz now applied immediately.
+Fix: [BREAKING CHANGE] Extra block properties returned by ObservationFromRay are now prefixed with "prop_" to prevent collisions. (#355)
+New: Agent can now quit by using MissionQuitCommands. (#170)
+Fix: FileWorldGenerator load issue + file_test.py to test fix. (#342)
+New: Python sample to test initial chunk loading. (#338)
+New: Added startAtWithPitchAndYaw to API. (#295)
+New: Greater control over drawing of rails and stairs. (#323)
+New: Entities can now be placed by DrawingDecorator. (#322)
+Fix: Weather is periodically reset to mission requirements. (#264)
+New: [BREAKING CHANGE] Mission worlds are now deleted after use unless destroyAfterUse is false. (#76)
+Fix: ContinuousMovementCommands now allow the setting of yaw/pitch by Discrete or Absolute movement commands. (#255)
+Fix: Continuous-mode use/attack weren't correctly triggering rewards for discarding/collecting items. (#303)
+Fix: Discrete-mode use/attack weren't correctly triggering rewards for discarding/collecting items. (#297)
+New: ObservationFromGrid has new optional attribute 'absoluteCoords' for fixed-location grids. (#293)
+
+0.17.0 (2016-08-16)
+-------------------
+Fix: Discrete use and attack now affect the inventory. (#247)
+Fix: Rewards would occasionally get doubled. (#275)
+Fix: Stopped mobs spawing illegally. (#280)
+New: Added has_mission_begun flag to world state, to solve problems with short missions. (#118, #236)
+Fix: [BREAKING CHANGE] Rewards now sent as simple strings rather than XML, for speed - changes recorded rewards format. (#261)
+New: ALEAgentHost.setSeed allows ALE experiments to be seeded. (#254)
+Fix: No longer need a fresh MissionRecordSpec for each call to startMission. (#256)
+New: [BREAKING CHANGE] MissionRecordSpec.getTemporaryDirectory() now moved to AgentHost.getRecordingTemporaryDirectory().
+New: MALMO_TEMP_PATH environment variable now used to determine where temp recording files are created. (#21)
 New: TimestampedFrame now includes xPos,yPos,zPos,yaw and pitch information. (#257, #250, #231)
 
 0.16.1 (2016-08-03)
 -------------------
 New: Simple "craft" command now works with smelting recipes - eg "craft cooked_rabbit" to cook raw rabbit meat. (#177)
-Fix: [BREAKING CHANGE] Malmo java bindings now use pacakge com.microsoft.msr.malmo (#232)
+Fix: [BREAKING CHANGE] Malmo java bindings now use pacakge com.microsoft.msr.malmo. (#232)
 
 0.16.0 (2016-07-29)
 -------------------
 New: DiscreteCommandHandler now supports AgentQuitFromTouchingBlockType and RewardForTouchingBlockType. (#241)
 New: MissionSpec has get/setSummary, getListOfCommandHandlers, getAllowedCommands. (#217)
 New: DiscreteCommandHandler now supports attack and use commands. (#219)
-New: Bonus - added AllowedMobs to ServerInitialConditions to control which mobs are allowed to spawn (does not affect mob_spawners)
+New: Bonus - added AllowedMobs to ServerInitialConditions to control which mobs are allowed to spawn (does not affect mob_spawners).
 New: Bonus - can now draw mob_spawner blocks and specify the entity they spawn as a variant.
 New: ObservationFromRay returns info about nearest block/item/entity in the agent's direct line of sight. (#184)
 Fix: RewardForDiscardingItem/RewardForCollectingItem now work with variations, colours etc.
-Fix: Inventory and Entity observations now return information in the same format we use to specify things (eg Type, Variation, Colour)
-New: More types supported in BlockDrawing, Inventory initialisation etc - see FlowerTypes, EntityTypes, MonsterEggTypes
-New: AgentQuitFromCollectingItem (#171)
-New: ObservationsFromFullStats now additionally returns Air (#214)
-New: Cross-platform Human Action Component
+Fix: Inventory and Entity observations now return information in the same format we use to specify things (eg Type, Variation, Colour).
+New: More types supported in BlockDrawing, Inventory initialisation etc - see FlowerTypes, EntityTypes, MonsterEggTypes.
+New: AgentQuitFromCollectingItem. (#171)
+New: ObservationsFromFullStats now additionally returns Air. (#214)
+New: Cross-platform Human Action Component.
 
 0.15.0 (2016-07-18)
 -------------------
 New: Added ObservationFromNearbyEntities (#89) and updated reward_for_items_test.py to demonstrate it.
-New: Simplified inventory movement with swapInventoryItems command (#148).
-New: Can combine inventory slots using new combineInventoryItems command (#189).
+New: Simplified inventory movement with swapInventoryItems command. (#148)
+New: Can combine inventory slots using new combineInventoryItems command. (#189)
 New: Free-floating blocks can now be placed using DrawItem, and used in RewardForDiscardingItem/RewardForCollectingItem.
 New: Crafting now triggers RewardForDiscardingItem/RewardForCollectingItem.
 New: Python bindings changed for videoframe pixels - now returns a native python array, for faster use in numpy/PIL etc. (#187)
 
 0.14.0 (2016-07-07)
 -------------------
-New: Basic, first stage crafting support added (issue #11).
-New: ObservationsFromMazeOptimalPath has been turned into general purpose ObservationFromSubgoalPositionList
-New: Maze generator can now take care of quitting mission when agent reaches goal (issue #103)
-New: AgentQuitFromReachingCommandQuota (issue #109).
-Rewards are now only sent when triggered (issue #120).
+New: Basic, first stage crafting support added. (#11)
+New: ObservationsFromMazeOptimalPath has been turned into general purpose ObservationFromSubgoalPositionList.
+New: Maze generator can now take care of quitting mission when agent reaches goal. (#103)
+New: AgentQuitFromReachingCommandQuota. (#109)
+Rewards are now only sent when triggered. (#120)
 Multi-dimensional rewards are now possible, using a 'dimension' parameter on each RewardProducer.
 Pitch command had positive as up, which was inconsistent with Minecraft and Placement section.
 
 0.13.0 (2016-07-01)
 -------------------
-New: tp x y z command (issue #112).
+New: tp x y z command. (#112)
 Fix: Hotbar commands moved from ContinuousMovementCommands to InventoryCommands.
 Fix: Client quit producers are now queried between executing commands, in cases where commands get clustered.
 New: Test for AgentQuitFromReachingPosition.
-Some MissionSpec calls now take float coordinates to match XML (issue #107). If you want to start in the middle of a block,
+Some MissionSpec calls now take float coordinates to match XML (#107). If you want to start in the middle of a block,
   make sure that the x and z coordinates end in 0.5.
 MissionSpec::endAt now takes tolerance parameter.
-peekWorldState and getWorldState now return WorldState instances rather than smart pointers (issue #124).
+peekWorldState and getWorldState now return WorldState instances rather than smart pointers. (#124)
 New: API call MissionSpec::setViewpoint to change the camera viewpoint.
-Fix: ALE_HAC.py was broken (issue #114).
+Fix: ALE_HAC.py was broken. (#114)
 
 0.12.0 (2016-06-24)
 -------------------

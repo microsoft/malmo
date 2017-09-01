@@ -53,7 +53,7 @@ public class AgentQuitFromReachingPositionImplementation extends HandlerBase imp
 		if (missionInit == null || this.qrpparams == null)
 			return false;
 
-		EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		for (PointWithToleranceAndDescription goal : this.qrpparams.getMarker())
 		{
 			float distance = PositionHelper.calcDistanceFromPlayerToPosition(player, goal);

@@ -30,8 +30,9 @@ import json
 import random
 import errno
 from collections import namedtuple
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, quantity')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, "", 1)
+
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
+EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 def GetMissionXML(summary, itemDrawingXML):
     ''' Build an XML mission string that uses the RewardForCollectingItem mission handler.'''
@@ -139,7 +140,7 @@ else:
 
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Nom nom nom run #" + str(iRepeat), itemdrawingxml),validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
     my_mission_record.recordRewards()
     my_mission_record.recordMP4(24,400000)
@@ -158,7 +159,7 @@ for iRepeat in range(num_reps):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
 

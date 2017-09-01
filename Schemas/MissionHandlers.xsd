@@ -6,9 +6,10 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.16">
+           version="0.31">
 
   <xs:include schemaLocation="Types.xsd" />
+  <xs:include schemaLocation="Mission.xsd" /> 
 
   <xs:complexType name="Pos">
     <xs:annotation>
@@ -37,7 +38,7 @@
           </xs:annotation>
           <xs:simpleType>
             <xs:restriction base="xs:decimal">
-              <xs:minInclusive value="0"/>
+              <xs:minInclusive value="-360"/>
               <xs:maxInclusive value="360"/>
             </xs:restriction>
           </xs:simpleType>
@@ -94,6 +95,14 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -116,6 +125,14 @@
           <xs:documentation>
             Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
             Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -145,6 +162,14 @@
           <xs:documentation>
             Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename).
             Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+       <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>
+            Set this to true to force the world data files to be deleted after the mission is done.
+            Enabling this setting prevents the disk being filled with old worlds.
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
@@ -196,6 +221,64 @@
     <xs:attribute name="lifetime" use="optional" type="xs:int" default="1" />
     <xs:attribute name="lifetimeVariance" use="optional" type="xs:int" default="0" />
   </xs:complexType>
+
+  <xs:element name="MovingTargetDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Creates a moving two-block target which takes random moves within a specified arena. Can be linked to the turn scheduler.
+        This can be made more general in the future, but is currently tailored specifically for the Malmo collaborative challenge.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ArenaBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the arena within which the target can move.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StartPos" type="Pos"/>
+        <xs:element name="Seed">
+          <xs:annotation>
+            <xs:documentation>
+              The master seed for the random number generator used to move the target.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "random".
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="random|[0-9]+"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="UpdateSpeed">
+          <xs:annotation>
+            <xs:documentation>
+              The length, in ticks, between each update, or the string "turnbased" to use the turn scheduler.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+                Either an integer number, or the string "turnbased".
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="turnbased|[0-9]+"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="PermeableBlocks" type="BlockSpec"/>
+        <xs:element name="BlockType" type="DrawBlockBasedObjectType"/>
+      </xs:all>
+      <xs:attribute name="requiresAirAbove" type="xs:boolean" default="true"/>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="SnakeDecorator">
     <xs:annotation>
@@ -458,6 +541,56 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="ContainedObjectType">
+    <xs:attribute name="type" use="required" type="BlockOrItem"/>
+    <xs:attribute name="variant" use="optional" type="Variation" />
+    <xs:attribute name="colour" use="optional" type="Colour" />
+    <xs:attribute name="quantity" type="xs:int" use="optional" default="1" />
+  </xs:complexType>
+
+  <xs:complexType name="DrawContainer">
+    <xs:annotation>
+      <xs:documentation>
+        Specify a container item by location and type and contents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="DrawObjectType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+          <xs:element name="Object" type="ContainedObjectType"/>
+        </xs:choice>
+        <xs:attribute name="x" type="xs:int" use="required" />
+        <xs:attribute name="y" type="xs:int" use="required" />
+        <xs:attribute name="z" type="xs:int" use="required" />
+        <xs:attribute name="type" type="ContainerType" use="required" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
+      </xs:extension>
+   </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:complexType name="DrawEntity">
+    <xs:annotation>
+        <xs:documentation>
+            Specify an entity by location and type.
+        </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+        <xs:extension base="DrawObjectType">
+            <xs:attribute name="x" type="xs:decimal" use="required" />
+            <xs:attribute name="y" type="xs:decimal" use="required" />
+            <xs:attribute name="z" type="xs:decimal" use="required" />
+            <xs:attribute name="type" type="SpawnableTypes" use="required" />
+            <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0" />
+            <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0" />
+        </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="DrawCuboid">
     <xs:annotation>
       <xs:documentation>
@@ -512,11 +645,13 @@
   </xs:complexType>
 
   <xs:element name="DrawObjectType" type="DrawObjectType"/>
+  <xs:element name="DrawEntity" type="DrawEntity" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawItem" type="DrawItem" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawLine" type="DrawLine" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawSphere" type="DrawSphere" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawBlock" type="DrawBlock" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawCuboid" type="DrawCuboid" substitutionGroup="DrawObjectType"/>
+  <xs:element name="DrawContainer" type="DrawContainer" substitutionGroup="DrawObjectType"/>
 
   <xs:element name="ClassroomDecorator">
     <xs:annotation>
@@ -612,6 +747,152 @@
       <xs:minInclusive value="0" />
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:element name="AnimationDecorator">
+    <xs:annotation>
+      <xs:documentation>
+          Basic animation created by repeatedly applying a DrawingDecorator at different positions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element name="Parametric">
+            <xs:annotation>
+              <xs:documentation>
+                Create an animation where the (x,y,z) position are determined by parametric equations. Recognised tokens are:
+
+                * basic arithmetic operations: +, -, /, *, % (modulo), ^ (to the power of)
+                * basic trig: sin, cos, tan, asin, acos, atan
+                * abs (absolute value)
+                * rand - replaces with a random float between 0 and 1
+                * t - the integer time variable, incremented with each time interval
+
+                For example, to create a structure which orbits in the x-z plane about the point (100,100,100) at a radius of 20, use:
+                "100+20*cos(t)" and "100+20*sin(t)" for the x and z strings.
+
+                The parser is not robust to mismatched brackets, typos, unrecognised tokens etc, and will fail silently.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:all>
+                <xs:element name="x" type="xs:string"/>
+                <xs:element name="y" type="xs:string"/>
+                <xs:element name="z" type="xs:string"/>
+              </xs:all>
+              <xs:attribute name="seed">
+                <xs:annotation>
+                  <xs:documentation>
+                    The master seed for the random number generator used for any stochastic elements.
+                  </xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                  <xs:annotation>
+                    <xs:documentation>
+                      Either an integer number, or the string "random".
+                    </xs:documentation>
+                  </xs:annotation>
+                  <xs:restriction base="xs:string">
+                    <xs:pattern value="random|[0-9]+"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Linear">
+            <xs:annotation>
+              <xs:documentation>
+                Create an animation where the (x,y,z) position is determined by the starting position, a constant velocity, and a bounding box.
+
+                Each time step, the position is updated by adding the velocity values. If the object goes outside of the bounding box in one dimension, that dimension's velocity will be flipped to reverse the direction.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:all>
+                <xs:element name="CanvasBounds" type="UnnamedGridDefinition">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the bounds of the canvas within which to move the object.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="InitialPos" type="Pos">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the starting position of the drawing's origin.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="InitialVelocity" type="Pos">
+                  <xs:annotation>
+                    <xs:documentation>
+                        Define the initial velocity of the drawing's origin.
+                    </xs:documentation>
+                  </xs:annotation>
+                </xs:element>
+              </xs:all>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+        <xs:element ref="DrawingDecorator">
+          <xs:annotation>
+            <xs:documentation>
+                Define the drawing, relative to (0,0,0), which will be drawn for each frame of the animation.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="ticksPerUpdate" type="xs:int" default="1">
+        <xs:annotation>
+          <xs:documentation>
+            The number of server ticks between each update of the animation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="BuildBattleDecorator">
+    <xs:annotation>
+      <xs:documentation>
+        Sets up a build battle area, with a source structure that can't be edited, and a goal structure, with optional recolouring of blocks to indicate correct/incorrect placement.
+        
+        NOTE: Make sure to add a {{{RewardForStructureCopying}}} handler to the AgentHandlers if you want your agent to be rewarded for contributing to the build.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="GoalStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds of the structure to be copied. Anything in this volume when the mission starts will be used as the blueprint - eg anything drawn here using the {{{DrawingDecorator}}}, etc.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="PlayerStructureBounds" type="UnnamedGridDefinition">
+          <xs:annotation>
+            <xs:documentation>
+              Define the bounds in which the agent should build their copy.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnCorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, correctly placed blocks (in the source and the copy) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="BlockTypeOnIncorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If present, incorrectly placed blocks (in the copy only) will be changed to this block type.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
 
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
@@ -779,7 +1060,13 @@
         Commands for moving and turning in discrete increments. Some examples:
       
         "{{{move 1}}}" - move the agent one block forwards (1 = forwards, -1 = backwards).
+
+        "{{{jumpmove 1}}}" - move the agent one block up and forwards (1 = forwards, -1 = backwards).
+
+        "{{{strafe 1}}}" - move the agent one block sideways (1 = right, -1 = left).
         
+        "{{{jumpstrafe 1}}}" - move the agent one block up and sideways (1 = right, -1 = left).
+
         "{{{turn 1}}}" - rotate the agent 90 degrees right (1 = right, -1 = left).
         
         "{{{movenorth 1}}}" - move the agent one block north.
@@ -790,6 +1077,14 @@
         
         "{{{movewest 1}}}" - move the agent one block west.
         
+        "{{{jumpnorth 1}}}" - move the agent one block up and north.
+        
+        "{{{jumpeast 1}}}" - move the agent one block up and east.
+        
+        "{{{jumpsouth 1}}}" - move the agent one block up and south.
+        
+        "{{{jumpwest 1}}}" - move the agent one block up and west.
+
         "{{{jump 1}}}" - move the agent one block up.
         
         "{{{look 1}}}" - look down by 45 degrees (-ve = up, +ve = down).
@@ -797,19 +1092,29 @@
         "{{{attack 1}}}" - destroy the block that has focus.
         
         "{{{use 1}}}" - place the held block item on the block face that has focus.
+        
+        "{{{jumpuse}}}" - simultaneously jump and place the held block on the block face that has focus.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="move" />
+      <xs:enumeration value="jumpmove" />
+      <xs:enumeration value="strafe" />
+      <xs:enumeration value="jumpstrafe" />
       <xs:enumeration value="turn" />
       <xs:enumeration value="movenorth" />
       <xs:enumeration value="moveeast" />
       <xs:enumeration value="movesouth" />
       <xs:enumeration value="movewest" />
+      <xs:enumeration value="jumpnorth" />
+      <xs:enumeration value="jumpeast" />
+      <xs:enumeration value="jumpsouth" />
+      <xs:enumeration value="jumpwest" />
       <xs:enumeration value="jump" />
       <xs:enumeration value="look" />
       <xs:enumeration value="attack" />
       <xs:enumeration value="use" />
+      <xs:enumeration value="jumpuse" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -845,6 +1150,22 @@
         
         Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use commands 
         - e.g. if the agent does 'use' while holding a block item it will place the block into the world.
+        
+        If the agent is currently pointed at a container item - eg a chest, shulker box, dispenser etc - then the swap and combine commands
+        can be extended to allow access to the container's inventory. To do this, simply prefix the slot number with the name of the foreign
+        inventory (which will be provided by the {{{ObservationFromFullInventory}}} observations).
+        
+        So to move an item out of the hotbar and into slot 0 of a chest, say:
+        
+        "{{{swapInventoryItems 3 Chest:0}}}"
+        
+        Note that this is the same as writing 
+
+        "{{{swapInventoryItems Inventory:3 Chest:0}}}"
+
+        "Inventory" is the name of the player's inventory.
+        
+        See inventory_test.py for a working example of this.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -901,8 +1222,21 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="MissionQuitCommand">
+    <xs:annotation>
+      <xs:documentation>
+        A command for ending the mission, example:
+
+        "{{{quit}}}" - terminates the current mission.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="quit" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="Command">
-    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand"/>
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand"/>
   </xs:simpleType>
 
   <xs:simpleType name="CommandList">
@@ -1011,6 +1345,8 @@
           </xs:complexType>
         </xs:element>
       </xs:all>
+      <xs:attribute name="autoFall" type="xs:boolean" use="optional" default="false" />
+      <xs:attribute name="autoJump" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
   </xs:element>
 
@@ -1083,6 +1419,48 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="MissionQuitCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept a command that quits the mission.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="MissionQuitCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attribute name="quitDescription" type="xs:string" use="optional" default="" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TurnBasedCommands">
+    <xs:annotation>
+      <xs:documentation>
+        Allows a user to specify that certain commands must be sent on a turn-by-turn basis - ie, in a multi-agent mission, placing the {{{DiscreteMovementCommand}}} handler inside the TurnBasedCommands section will mean that each agent must take it in turns to send a discrete movement command. See turn_based_test.py in the Python Samples for a demonstration/explanation of this.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:group ref="TurnBasedApplicableCommandHandlers" />
+      <xs:attribute name="requestedPosition">
+        <xs:simpleType>
+          <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
   <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
   <xs:element name="ObservationFromRecentCommands">
@@ -1092,6 +1470,15 @@
 
         Note that the commands returned might not yet have taken effect, depending on the command and the way in which Minecraft responds to it -
         but they will have been processed by the command handling chain.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromTurnScheduler">
+    <xs:annotation>
+      <xs:documentation>
+        Automatically addd by Malmo when the user specifies the {{{TurnBasedCommands}}} handler. This provides vital observations back to the agent to allow them to make use of the turn scheduler. When it is the agent's turn, the JSON will contain {{{turn_number}}} - an integer which tracks the number of turns the agent has taken, and {{{turn_key}}} - a one-shot key which must be passed back to Malmo as a parameter in {{{sendCommand}}} in order for the command to be accepted.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1128,9 +1515,10 @@
       <xs:documentation>
         When present, the Mod will return several observations:
 
-        * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{DamageTaken}}}
-        * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}
+        * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{PlayersKilled}}}, {{{DamageTaken}}}, {{{DamageDealt}}}
+        * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}, {{{Name}}}
         * Position statistics: {{{XPos}}}, {{{YPos}}}, {{{ZPos}}}, {{{Pitch}}}, {{{Yaw}}}
+        * Environment statistics: {{{WorldTime}}} - current time in ticks, {{{TotalTime}}} - total world time, unaffected by ServerInitialConditions
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1139,12 +1527,12 @@
   <xs:element name="ObservationFromRay">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return observations about the block or entity which is currently in the line of sight:
+        When present, the Mod will return a JSON object called "LineOfSight", containing observations about the block or entity which is currently in the centre of the screen:
 
-        * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object.
-        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block.
+        * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object. {{{distance}}} gives the straight-line distance from the agent.
+        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
         * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
-        * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name (eg, for leaves, "decayable" and "check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
+        * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1153,13 +1541,40 @@
   <xs:element name="ObservationFromFullInventory">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return observations that say what is in the player's inventory.
+        When present, the Mod will return observations that describe the contents of the player's inventory.
+        There are two modes - "flat" (the default) is provided for backwards compatibility, and behaves like this:
 
-        Up to four values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively, and {{{Inventory_0_colour}}} and {{{Inventory_0_variant}}} if the item has a colour/variation. Inventory slots are numbered 0 to 39 inclusive.
+        The inventory contents are returned in a flat format in the root of the json observations.
+        Up to four values are returned for each slot, if not empty: e.g. {{{InventorySlot_0_size}}} and {{{InventorySlot_0_item}}} containing the number and
+        type of the item(s) in the slot, respectively, and {{{InventorySlot_0_colour}}} and {{{InventorySlot_0_variant}}} if the item has a colour/variation.
+        Inventory slots are numbered 0 to 39 inclusive.
+        If there is a container item available (eg the player is pointed at a chest), this will be returned in the same way, but "InventorySlot"
+        will be replaced by "ContainerNameSlot" - eg {{{ShulkerBoxSlot_0_item}}} etc.
+        
+        If {{{flat}}} is false (recommended), the data is returned as an array of objects, one for each item in the inventory/inventories.
+        The JSON array is called "inventory", and each item in the array will contain:
+        * {{{type}}} - the type of the object in that ItemStack
+        * {{{colour}}} - the colour, if relevant
+        * {{{variant}}} - the variant, if relevant
+        * {{{quantity}}} - the number of objects in the ItemStack
+        * {{{index}}} - the slot number
+        * {{{inventory}}} - the name of the inventory - will be "Inventory" for the player, or, for example, "ShulkerBox", "Chest" etc, if a container is available.
+        This index and inventory information can be used to specify the item in the {{{InventoryCommands}}} - items are specified as inventory:index -
+        eg "ShulkerBox:12"
+        
+        In addition to this information, whether {{{flat}}} is true or false, an array called "inventoriesAvailable" will also be returned.
+        This will contain a list of all the inventories available (usually just the player's, but if the player is pointed at a container, this
+        will also be available.)
+        For each inventory, an object will be returned that specifies:
+        * {{{name}}} - the inventory name (same as will be returned in the {{{inventory}}} field for any items in that inventory)
+        * {{{size}}} - the number of slots the inventory provides.
+        
+        For a working example please see inventory_test.py in the Python samples folder.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attribute name="flat" type="xs:boolean" use="optional" default="true" />
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="ObservationFromDiscreteCell">
@@ -1201,11 +1616,22 @@
   </xs:element>
 
   <xs:complexType name="GridDefinition">
+    <xs:annotation>
+      <xs:documentation>
+        {{{name}}} - Each grid has a text label to identify it.
+        
+        {{{absoluteCoords}}} - If true, the min and max coordinates of the grid are interpreted as world coordinates. If false (the default)
+        then the coordinates are relative to the player.
+        
+        {{{min}}}, {{{max}}} - The corners of the grid.
+      </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element name="min" type="Pos" />
       <xs:element name="max" type="Pos" />
     </xs:sequence>
     <xs:attribute name="name" type="xs:Name" use="required" />
+    <xs:attribute name="absoluteCoords" type="xs:boolean" use="optional" default="false" />
   </xs:complexType>
 
   <xs:element name="ObservationFromGrid">
@@ -1213,7 +1639,7 @@
       <xs:documentation>
         When present, the Mod will return observations that say what the nearby blocks are.
 
-        A JSON element {{{Cells}}} will be returned, with a 1D array of block types, in order along the x, then z, then y axes.
+        For each {{{Grid}}} entry, a named JSON element will be returned with a 1D array of block types, in order along the x, then z, then y axes.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
@@ -1305,10 +1731,31 @@
         <xs:attribute name="reward" type="xs:decimal" use="required" />
         <xs:attribute name="tolerance" type="xs:decimal" use="required" />
         <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="MobWithReward">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="reward" type="xs:decimal" use="required" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+  </xs:complexType>
+
+  <xs:element name="RewardForDamagingEntity">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when an entity is damaged.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithReward"/>
+      </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  
   <xs:element name="RewardForReachingPosition">
     <xs:annotation>
       <xs:documentation>
@@ -1339,6 +1786,7 @@
     <xs:complexContent>
       <xs:extension base="BlockSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
         <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock" />
         <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000" />
       </xs:extension>
@@ -1349,6 +1797,7 @@
     <xs:complexContent>
       <xs:extension base="BlockOrItemSpec">
         <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -1384,6 +1833,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
+      <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1391,7 +1841,8 @@
   <xs:complexType name="ChatMatchSpec">
     <xs:attribute name="description" use="required" type="xs:string" />
     <xs:attribute name="reward" use="required" type="xs:decimal" />
-    <xs:attribute name="regex" use="required" type="xs:string" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+   <xs:attribute name="regex" use="required" type="xs:string" />
   </xs:complexType>
 
   <xs:element name="RewardForSendingMatchingChatMessage">
@@ -1410,6 +1861,7 @@
 
   <xs:complexType name="ItemSpec">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="type" use="required" type="BlockOrItemList" />
   </xs:complexType>
 
@@ -1443,6 +1895,7 @@
 
   <xs:complexType name="MissionEndRewardCase">
     <xs:attribute name="reward" use="required" type="xs:decimal" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
     <xs:attribute name="description" use="required" type="xs:string" />
   </xs:complexType>
 
@@ -1457,6 +1910,152 @@
         <xs:element name="Reward" type="MissionEndRewardCase"/>
       </xs:choice>
       <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0" />
+      <xs:attribute name="rewardForDeathDistribution" type="xs:string" use="optional" default="" />
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="RewardDensityForBuildAndBreak">
+    <xs:annotation>
+      <xs:documentation>
+        Reward type for {{{RewardForStructureCopying}}}:
+        
+        - {{{PER_BLOCK}}} - reward will be given whenever a block is placed/destroyed in the goal volume, and will be determined by {{{RewardScale}}}. An additional reward of {{{RewardForCompletion}}} will be added the *first* time the copy is correctly completed.
+        
+        - {{{MISSION_END}}} - no reward will be given until the mission ends. Reward will be scaled from 0-1, where 0 means "no blocks correct" and 1 means "all blocks correct", and then multipled by {{{RewardScale}}}.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PER_BLOCK"/>
+      <xs:enumeration value="MISSION_END"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="UnnamedGridDefinition">
+    <xs:sequence>
+      <xs:element name="min">
+        <xs:complexType>
+          <xs:attribute name="x" type="xs:int" use="required" />
+          <xs:attribute name="y" type="xs:int" use="required" />
+          <xs:attribute name="z" type="xs:int" use="required" />
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="max">
+        <xs:complexType>
+          <xs:attribute name="x" type="xs:int" use="required" />
+          <xs:attribute name="y" type="xs:int" use="required" />
+          <xs:attribute name="z" type="xs:int" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RewardForStructureCopying">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when the agent copies blocks from a given structure.
+        
+        NOTE: This will do nothing unless you have set up a {{{BuildBattleDecorator}}} on the server.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="RewardDensity" type="RewardDensityForBuildAndBreak"/>
+        <xs:element name="AddQuitProducer" minOccurs="0" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+              If present, the mission will end when the copy exactly matches the original. Set {{{description}}} to the quit code you'd like to receive when this happens. (See {{{RewardForMissionEnd}}}.)
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+      <xs:attribute name="rewardScale" type="xs:decimal" use="optional" default="5.0">
+          <xs:annotation>
+            <xs:documentation>
+              This is the reward to be added or deducted for each block event.
+              
+              The rewards are calculated as follows:
+              - For destroying a correct block: -1 * rewardScale
+              - For destroying an incorrect block: +1 * rewardScale
+              - For placing a correct block: +1 * rewardScale
+              - For placing an incorrect block: -1 * rewardScale
+
+              If {{{RewardDensity}}} is set to {{{{PER_BLOCK}}}, this reward will arrive after each block transaction. If it's set to {{{MISSION_END}}}, the individual rewards will not be sent, but will be summed throughout the course of the mission, and the resulting total will be sent as the final reward.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+        <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
+          <xs:annotation>
+            <xs:documentation>
+              This is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="RewardDensityForTimeTaken">
+    <xs:annotation>
+      <xs:documentation>
+        Reward type for {{{RewardForTimeTaken}}}:
+
+        - {{{PER_TICK}}} - only the reward delta will be sent as a reward, at each tick. The initial reward will be ignored.
+
+        - {{{PER_TICK_ACCUMULATED}}} - the initial reward will be adjusted by the delta at each tick, and the current total sent. Eg: if the initial reward is 1000 and the delta is -1, the agent will receive rewards of 1000,999,998,997 for the first four ticks.
+
+        - {{{MISSION_END}}} - the initial reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PER_TICK"/>
+      <xs:enumeration value="PER_TICK_ACCUMULATED"/>
+      <xs:enumeration value="MISSION_END"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="RewardForTimeTaken">
+    <xs:annotation>
+      <xs:documentation>
+        Reward that is dependent on time. Can be received per tick, or just once at the end.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+      <xs:attribute name="initialReward" type="xs:decimal" use="required"/>
+      <xs:attribute name="delta" type="xs:decimal" use="required"/>
+      <xs:attribute name="density" type="RewardDensityForTimeTaken" use="required"/>
+      <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="MobWithDescriptionAndReward">
+    <xs:complexContent>
+      <xs:extension base="MobWithDescription">
+        <xs:attribute name="reward" use="required" type="xs:decimal" />
+        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+        <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RewardForCatchingMob">
+    <xs:annotation>
+      <xs:documentation>
+        Reward for cornering a mob, such that it cannot move from its current square without passing through an agent.
+        If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
+        For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+        If {{{oneshot}}} is true, the reward will only be counted once per entity.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithDescriptionAndReward"/>
+      </xs:choice>
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
@@ -1535,6 +2134,30 @@
     <xs:complexType>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="MobList">
+    <xs:list itemType="EntityTypes"/>
+  </xs:simpleType>
+
+  <xs:complexType name="MobWithDescription">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="description" type="xs:string" use="optional" default=""/>
+    <xs:attribute name="global" type="xs:boolean" use="optional" default="false"/>
+  </xs:complexType>
+ 
+  <xs:element name="AgentQuitFromCatchingMob">
+    <xs:annotation>
+      <xs:documentation>
+        Agent's mission will end when they corner a mob. If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
+        For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithDescription"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>

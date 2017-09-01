@@ -27,15 +27,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.IThreadListener;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.relauncher.Side;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Schemas.AbsoluteMovementCommand;
@@ -60,42 +61,41 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
     public boolean parseParameters(Object params)
     {
         super.parseParameters(params);
-        
-    	if (params == null || !(params instanceof AbsoluteMovementCommands))
-    		return false;
 
-    	AbsoluteMovementCommands amparams = (AbsoluteMovementCommands)params;
-    	setUpAllowAndDenyLists(amparams.getModifierList());
-    	return true;
-    }
-    
-    @SubscribeEvent
-    public void onClientTick(TickEvent.ClientTickEvent ev)
-    {
-    	if (ev.phase == Phase.END)
-    		sendChanges();
+        if (params == null || !(params instanceof AbsoluteMovementCommands))
+            return false;
+
+        AbsoluteMovementCommands amparams = (AbsoluteMovementCommands) params;
+        setUpAllowAndDenyLists(amparams.getModifierList());
+        return true;
     }
 
     private void sendChanges()
     {
-    	EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-    	if (player == null)
-    		return;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player == null)
+            return;
 
-    	double x = this.setX ? this.x : 0;
+        // Send any changes requested over the wire to the server:
+        double x = this.setX ? this.x : 0;
         double y = this.setY ? this.y : 0;
         double z = this.setZ ? this.z : 0;
         float yaw = this.setYaw ? this.rotationYaw : 0;
         float pitch = this.setPitch ? this.rotationPitch : 0;
 
-        // Send any changes requested over the wire to the server:
         if (this.setX || this.setY || this.setZ || this.setYaw || this.setPitch)
         {
-	    	MalmoMod.network.sendToServer(new TeleportMessage(x, y, z, yaw, pitch, this.setX, this.setY, this.setZ, this.setYaw, this.setPitch));
+            MalmoMod.network.sendToServer(new TeleportMessage(x, y, z, yaw, pitch, this.setX, this.setY, this.setZ, this.setYaw, this.setPitch));
+            if (this.setYaw || this.setPitch)
+            {
+                // Send a message that the ContinuousMovementCommands can pick up on:
+                Event event = new CommandForWheeledRobotNavigationImplementation.ResetPitchAndYawEvent(this.setYaw, this.rotationYaw, this.setPitch, this.rotationPitch);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
             this.setX = this.setY = this.setZ = this.setYaw = this.setPitch = false;
         }
     }
-    
+
     public static class TeleportMessage implements IMessage
     {
         private double x = 0;
@@ -103,90 +103,104 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
         private double z = 0;
         private float yaw = 0;
         private float pitch = 0;
-        
+
         private boolean setX = false;
         private boolean setY = false;
         private boolean setZ = false;
         private boolean setYaw = false;
         private boolean setPitch = false;
-        
-    	public TeleportMessage()
-    	{
-    	}
-    	
-    	public TeleportMessage(double x, double y, double z, float yaw, float pitch, boolean setX, boolean setY, boolean setZ, boolean setYaw, boolean setPitch)
-    	{
-    		this.x = x;
-    		this.y = y;
-    		this.z = z;
-    		this.yaw = yaw;
-    		this.pitch = pitch;
 
-    		this.setX = setX;
-    		this.setY = setY;
-    		this.setZ = setZ;
-    		this.setYaw = setYaw;
-    		this.setPitch = setPitch;
-    	}
-    	
-		@Override
-		public void fromBytes(ByteBuf buf)
-		{
-			this.x = buf.readDouble();
-			this.y = buf.readDouble();
-			this.z = buf.readDouble();
-			this.yaw = buf.readFloat();
-			this.pitch = buf.readFloat();
+        public TeleportMessage()
+        {
+        }
 
-			this.setX = buf.readBoolean();
-			this.setY = buf.readBoolean();
-			this.setZ = buf.readBoolean();
-			this.setYaw = buf.readBoolean();
-			this.setPitch = buf.readBoolean();
-		}
+        public TeleportMessage(double x, double y, double z, float yaw, float pitch, boolean setX, boolean setY, boolean setZ, boolean setYaw, boolean setPitch)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.yaw = yaw;
+            this.pitch = pitch;
 
-		@Override
-		public void toBytes(ByteBuf buf)
-		{
-			buf.writeDouble(this.x);
-			buf.writeDouble(this.y);
-			buf.writeDouble(this.z);
-			buf.writeFloat(this.yaw);
-			buf.writeFloat(this.pitch);
-			
-			buf.writeBoolean(this.setX);
-			buf.writeBoolean(this.setY);
-			buf.writeBoolean(this.setZ);
-			buf.writeBoolean(this.setYaw);
-			buf.writeBoolean(this.setPitch);
-		}
+            this.setX = setX;
+            this.setY = setY;
+            this.setZ = setZ;
+            this.setYaw = setYaw;
+            this.setPitch = setPitch;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            this.x = buf.readDouble();
+            this.y = buf.readDouble();
+            this.z = buf.readDouble();
+            this.yaw = buf.readFloat();
+            this.pitch = buf.readFloat();
+
+            this.setX = buf.readBoolean();
+            this.setY = buf.readBoolean();
+            this.setZ = buf.readBoolean();
+            this.setYaw = buf.readBoolean();
+            this.setPitch = buf.readBoolean();
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            buf.writeDouble(this.x);
+            buf.writeDouble(this.y);
+            buf.writeDouble(this.z);
+            buf.writeFloat(this.yaw);
+            buf.writeFloat(this.pitch);
+
+            buf.writeBoolean(this.setX);
+            buf.writeBoolean(this.setY);
+            buf.writeBoolean(this.setZ);
+            buf.writeBoolean(this.setYaw);
+            buf.writeBoolean(this.setPitch);
+        }
     }
-    
+
     public static class TeleportMessageHandler implements IMessageHandler<TeleportMessage, IMessage>
     {
-		@Override
-		public IMessage onMessage(TeleportMessage message, MessageContext ctx)
-		{
-	        EnumSet<S08PacketPlayerPosLook.EnumFlags> enumset = EnumSet.noneOf(S08PacketPlayerPosLook.EnumFlags.class);
-	        if (!message.setX)
-	        	enumset.add(S08PacketPlayerPosLook.EnumFlags.X);
-	        if (!message.setY)
-	        	enumset.add(S08PacketPlayerPosLook.EnumFlags.Y);
-	        if (!message.setZ)
-	        	enumset.add(S08PacketPlayerPosLook.EnumFlags.Z);
-	        if (!message.setYaw)
-	        	enumset.add(S08PacketPlayerPosLook.EnumFlags.Y_ROT);
-	        if (!message.setPitch)
-	        	enumset.add(S08PacketPlayerPosLook.EnumFlags.X_ROT);
+        @Override
+        public IMessage onMessage(final TeleportMessage message, final MessageContext ctx)
+        {
+            // Don't act here - if we cause chunk loading on this thread (netty) then chunks will get
+            // lost from the server.
+            IThreadListener mainThread = null;
+            if (ctx.side == Side.CLIENT)
+                mainThread = Minecraft.getMinecraft();
+            else
+                mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
+            mainThread.addScheduledTask(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    EnumSet<SPacketPlayerPosLook.EnumFlags> enumset = EnumSet.noneOf(SPacketPlayerPosLook.EnumFlags.class);
+                    if (!message.setX)
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.X);
+                    if (!message.setY)
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Y);
+                    if (!message.setZ)
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Z);
+                    if (!message.setYaw)
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Y_ROT);
+                    if (!message.setPitch)
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.X_ROT);
 
-			EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            player.mountEntity((Entity)null);
-            player.playerNetServerHandler.setPlayerLocation(message.x, message.y, message.z, message.yaw, message.pitch, enumset);
-            player.setRotationYawHead(message.yaw);
+                    EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                    player.dismountRidingEntity();
+                    player.connection.setPlayerLocation(message.x, message.y, message.z, message.yaw, message.pitch, enumset);
+                    player.setRotationYawHead(message.yaw);
+                }
+            });
             return null;
-		}
+        }
     }
-    
+
     @Override
     public boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
@@ -194,24 +208,27 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
         {
             return false;
         }
-        
+
         // Now parse the command:
         if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPX.value()))
         {
             this.setX = true;
             this.x = Float.valueOf(parameter);
+            sendChanges();
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPY.value()))
         {
             this.setY = true;
             this.y = Float.valueOf(parameter);
+            sendChanges();
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TPZ.value()))
         {
             this.setZ = true;
             this.z = Float.valueOf(parameter);
+            sendChanges();
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.TP.value()))
@@ -223,18 +240,21 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
             this.x = Float.valueOf(coords[0]);
             this.y = Float.valueOf(coords[1]);
             this.z = Float.valueOf(coords[2]);
+            sendChanges();
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.SET_YAW.value()))
         {
             this.setYaw = true;
             this.rotationYaw = Float.valueOf(parameter);
+            sendChanges();
             return true;
         }
         else if (verb.equalsIgnoreCase(AbsoluteMovementCommand.SET_PITCH.value()))
         {
-        	this.setPitch = true;
+            this.setPitch = true;
             this.rotationPitch = Float.valueOf(parameter);
+            sendChanges();
             return true;
         }
         return false;
@@ -243,15 +263,11 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
     @Override
     public void install(MissionInit missionInit)
     {
-        FMLCommonHandler.instance().bus().register(this);
-        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @Override
     public void deinstall(MissionInit missionInit)
     {
-        FMLCommonHandler.instance().bus().unregister(this);
-        MinecraftForge.EVENT_BUS.unregister(this);
     }
 
     @Override

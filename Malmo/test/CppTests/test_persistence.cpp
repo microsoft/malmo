@@ -96,7 +96,7 @@ void runGameShim( )
         boost::this_thread::sleep(sleep_time / 2);
     }
 
-    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "<Reward xmlns=\"http://ProjectMalmo.microsoft.com\"><Value dimension=\"0\" value=\"123.45\" /></Reward>", true);
+    SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "0:123.45", true);
 
     std::stringstream end_xml;
     end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus></MissionEnded>";
@@ -143,31 +143,18 @@ int runAgentHost(std::string filename)
         MissionRecord deleteTest(mission_record);
     }
 
-    threwError = false;
-    try{
-        std::string temp_dir = mission_record.getTemporaryDirectory();
-    }
-    catch (const exception&){
-        threwError = true;
-    }
-
-    if (!threwError){
-        cout << "Was able to access temporary directory before record creation." << endl;
-        return EXIT_FAILURE;
-    }
-    
     ClientInfo client_info( "127.0.0.1", 10031 );
     ClientPool client_pool;
     client_pool.add( client_info );
   
     boost::asio::io_service io_service;
     
-    StringServer clientMissionControlServer(io_service, client_info.port, handleControlMessages);
+    StringServer clientMissionControlServer(io_service, client_info.port, handleControlMessages, "test_mission_control");
     clientMissionControlServer.confirmWithFixedReply( "MALMOOK" );
     clientMissionControlServer.expectSizeHeader(false);
     clientMissionControlServer.start();
     
-    StringServer clientCommandsServer( io_service, commands_port, handleCommandMessages);
+    StringServer clientCommandsServer( io_service, commands_port, handleCommandMessages, "test_commands");
     clientCommandsServer.expectSizeHeader(false);
     clientCommandsServer.start();
 
@@ -176,6 +163,25 @@ int runAgentHost(std::string filename)
     boost::this_thread::sleep(sleep_time);
 
     AgentHost agent_host;
+
+    threwError = false;
+    std::string temp_dir;
+    try{
+        temp_dir = agent_host.getRecordingTemporaryDirectory();
+    }
+    catch (const exception&){
+        threwError = true;
+    }
+
+    if (threwError){
+        cout << "Get temporary directory before start mission threw an exception." << endl;
+        return EXIT_FAILURE;
+    }
+    if (!temp_dir.empty()){
+        cout << "Get temporary directory before start mission should have returned an empty string." << endl;
+        return EXIT_FAILURE;
+    }
+
     try {
         agent_host.startMission( mission, client_pool, mission_record, 0, "" );
     }
@@ -184,14 +190,19 @@ int runAgentHost(std::string filename)
         return EXIT_FAILURE;
     }
 
+    threwError = false;
     try{
-        std::string temp_dir = mission_record.getTemporaryDirectory();
+        temp_dir = agent_host.getRecordingTemporaryDirectory();
     }
     catch (const exception&){
+        threwError = true;
+    }
+
+    if (threwError || temp_dir.empty()){
         cout << "Unable to access temporary directory after mission start.";
         return EXIT_FAILURE;
     }
-    
+
     mission_init = agent_host.getMissionInit();
 
     boost::thread gameShim(runGameShim);
@@ -205,7 +216,7 @@ int runAgentHost(std::string filename)
         world_state = agent_host.getWorldState();
         for (auto e : world_state.errors)
             cout << "Error: " << e->text << endl;
-    } while (!world_state.is_mission_running);
+    } while (!world_state.has_mission_begun);
     cout << endl;
 
     do {

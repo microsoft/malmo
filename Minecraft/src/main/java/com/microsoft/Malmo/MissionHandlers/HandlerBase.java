@@ -20,16 +20,12 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import org.w3c.dom.Element;
+import java.util.HashMap;
 
 /** Lightweight baseclass for all handlers - provides access to parameters from the XML file.
  */
 public class HandlerBase
 {
-    private List<Element> params = null;
-    
     /** A static list of all classes that implement a handler - used to aid dynamic handler creation.
      */
     static ArrayList<String> handlers;
@@ -57,5 +53,14 @@ public class HandlerBase
     public boolean parseParameters(Object params)
     {
         return true;
+    }
+
+    /** Our chance to add any info the server might need before the mission starts.
+     * @param map Map of data sent to server in the client's ping message.
+     */
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        // Mostly does nothing, but, for example, TurnBasedCommandsImplementation uses this
+        // in order to register with the server.
     }
 }

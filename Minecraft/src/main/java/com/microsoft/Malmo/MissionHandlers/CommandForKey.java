@@ -24,6 +24,7 @@ import java.lang.reflect.Field;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraftforge.client.settings.KeyBindingMap;
 
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -248,6 +249,7 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindings[i];
                     this.keyHook = create(this.originalBinding);
+                    createdHook = true;
                 }
                 settings.keyBindings[i] = this.keyHook;
             }
@@ -262,8 +264,39 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindsHotbar[i];
                     this.keyHook = create(this.originalBinding);
+                    createdHook = true;
                 }
                 settings.keyBindsHotbar[i] = this.keyHook;
+            }
+        }
+        // Newer versions of MC have changed the way they map from key value to KeyBinding, so we
+        // *also* need to fiddle with the static KeyBinding HASH map:
+        Field[] kbfields = KeyBinding.class.getDeclaredFields();
+        for (Field f : kbfields)
+        {
+            if (f.getType() == KeyBindingMap.class)
+            {
+                net.minecraftforge.client.settings.KeyBindingMap kbp;
+                try
+                {
+                    f.setAccessible(true);
+                    kbp = (KeyBindingMap) (f.get(null));
+                    // Our new keybinding should already have been added;
+                    // just need to remove the original one.
+                    while (kbp.lookupAll(this.keyHook.getKeyCode()).size() > 1)
+                        kbp.removeKey(this.originalBinding);
+                    return;
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         }
     }

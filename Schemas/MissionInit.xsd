@@ -4,7 +4,7 @@
            targetNamespace="http://ProjectMalmo.microsoft.com"
            xmlns="http://ProjectMalmo.microsoft.com"
            elementFormDefault="qualified"
-           version="0.16">
+           version="0.31">
            
 <xs:include schemaLocation="Mission.xsd" />
 
@@ -35,6 +35,7 @@
       <xs:element ref="ClientAgentConnection" />
     </xs:sequence>
     <xs:attribute name="SchemaVersion" type="xs:token" />
+    <xs:attribute name="PlatformVersion" type="xs:token" />
   </xs:complexType>
 </xs:element>
 

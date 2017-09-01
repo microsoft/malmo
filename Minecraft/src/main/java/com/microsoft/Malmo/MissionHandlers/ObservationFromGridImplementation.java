@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 import com.microsoft.Malmo.Schemas.GridDefinition;
 import com.microsoft.Malmo.Schemas.ObservationFromGrid;
 import com.microsoft.Malmo.Utils.JSONWorldDataHelper;
-import com.microsoft.Malmo.Utils.JSONWorldDataHelper.ImmediateEnvironmentDimensions;
+import com.microsoft.Malmo.Utils.JSONWorldDataHelper.GridDimensions;
 
 /** IObservationProducer that spits out block types of the cell around the player.<br>
  * The size of the cell can be specified in the MissionInit XML.
@@ -42,135 +42,143 @@ import com.microsoft.Malmo.Utils.JSONWorldDataHelper.ImmediateEnvironmentDimensi
  */
 public class ObservationFromGridImplementation extends ObservationFromServer
 {
-	public static class SimpleGridDef	// Could use the JAXB-generated GridDefinition class, but this is safer/simpler.
-	{
-		int xMin;
-		int yMin;
-		int zMin;
-		int xMax;
-		int yMax;
-		int zMax;
-		String name;
-		SimpleGridDef(int xmin, int ymin, int zmin, int xmax, int ymax, int zmax, String name)
-		{
-			this.xMin = xmin;
-			this.yMin = ymin;
-			this.zMin = zmin;
-			this.xMax = xmax;
-			this.yMax = ymax;
-			this.zMax = zmax;
-			this.name = name;
-		}
-		ImmediateEnvironmentDimensions getEnvirons()
-		{
-	        ImmediateEnvironmentDimensions env = new ImmediateEnvironmentDimensions();
-	        env.xMax = this.xMax;
-			env.yMax = this.yMax;
-			env.zMax = this.zMax;
-			env.xMin = this.xMin;
-			env.yMin = this.yMin;
-			env.zMin = this.zMin;
-			return env;
-		}
-	}
-	
+    public static class SimpleGridDef	// Could use the JAXB-generated GridDefinition class, but this is safer/simpler.
+    {
+        int xMin;
+        int yMin;
+        int zMin;
+        int xMax;
+        int yMax;
+        int zMax;
+        String name;
+        boolean absoluteCoords;
+        SimpleGridDef(int xmin, int ymin, int zmin, int xmax, int ymax, int zmax, String name, boolean absoluteCoords)
+        {
+            this.xMin = xmin;
+            this.yMin = ymin;
+            this.zMin = zmin;
+            this.xMax = xmax;
+            this.yMax = ymax;
+            this.zMax = zmax;
+            this.name = name;
+            this.absoluteCoords = absoluteCoords;
+        }
+        GridDimensions getEnvirons()
+        {
+            GridDimensions env = new GridDimensions();
+            env.xMax = this.xMax;
+            env.yMax = this.yMax;
+            env.zMax = this.zMax;
+            env.xMin = this.xMin;
+            env.yMin = this.yMin;
+            env.zMin = this.zMin;
+            env.absoluteCoords = this.absoluteCoords;
+            return env;
+        }
+    }
+
     private List<SimpleGridDef> environs = null;
 
-	@Override
-	public boolean parseParameters(Object params)
-	{
-		if (params == null || !(params instanceof ObservationFromGrid))
-			return false;
-		
-		ObservationFromGrid ogparams = (ObservationFromGrid)params;
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof ObservationFromGrid))
+            return false;
+
+        ObservationFromGrid ogparams = (ObservationFromGrid)params;
         this.environs = new ArrayList<SimpleGridDef>();
         for (GridDefinition gd : ogparams.getGrid())
         {
-        	SimpleGridDef sgd = new SimpleGridDef(
-       			gd.getMin().getX().intValue(),
-       			gd.getMin().getY().intValue(),
-       			gd.getMin().getZ().intValue(),
-				gd.getMax().getX().intValue(),
-				gd.getMax().getY().intValue(),
-				gd.getMax().getZ().intValue(),
-				gd.getName());
-        	this.environs.add(sgd);
+            SimpleGridDef sgd = new SimpleGridDef(
+                    gd.getMin().getX().intValue(),
+                    gd.getMin().getY().intValue(),
+                    gd.getMin().getZ().intValue(),
+                    gd.getMax().getX().intValue(),
+                    gd.getMax().getY().intValue(),
+                    gd.getMax().getZ().intValue(),
+                    gd.getName(),
+                    gd.isAbsoluteCoords());
+            this.environs.add(sgd);
         }
-		return true;
-	}
+        return true;
+    }
 
     public static class GridRequestMessage extends ObservationFromServer.ObservationRequestMessage
     {
         private List<SimpleGridDef> environs = null;
 
-	    public GridRequestMessage()	// Needed so FML can instantiate our class using reflection.
-	    {
-	    }
+        public GridRequestMessage()	// Needed so FML can instantiate our class using reflection.
+        {
+        }
 
-	    public GridRequestMessage(List<SimpleGridDef> environs)
-	    {
-	    	this.environs = environs;
-	    }
-	    
-	    @Override
-		void restoreState(ByteBuf buf)
-		{
-	    	int numGrids = buf.readInt();
-	        this.environs = new ArrayList<SimpleGridDef>();
-	        for (int i = 0; i < numGrids; i++)
-	        {
-	        	SimpleGridDef sgd = new SimpleGridDef(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), ByteBufUtils.readUTF8String(buf));
-	        	this.environs.add(sgd);
-	        }
-		}
+        public GridRequestMessage(List<SimpleGridDef> environs)
+        {
+            this.environs = environs;
+        }
 
-		@Override
-		void persistState(ByteBuf buf)
-		{
-			buf.writeInt(this.environs.size());
-			for (SimpleGridDef sgd : this.environs)
-			{
-				buf.writeInt(sgd.xMin);
-				buf.writeInt(sgd.yMin);
-				buf.writeInt(sgd.zMin);
-				buf.writeInt(sgd.xMax);
-				buf.writeInt(sgd.yMax);
-				buf.writeInt(sgd.zMax);
-				ByteBufUtils.writeUTF8String(buf, sgd.name);
-			}
-		}
-		
-		List<SimpleGridDef>getEnvirons() { return this.environs; }
+        @Override
+        void restoreState(ByteBuf buf)
+        {
+            int numGrids = buf.readInt();
+            this.environs = new ArrayList<SimpleGridDef>();
+            for (int i = 0; i < numGrids; i++)
+            {
+                SimpleGridDef sgd = new SimpleGridDef(buf.readInt(), buf.readInt(), buf.readInt(),
+                                                      buf.readInt(), buf.readInt(), buf.readInt(), 
+                                                      ByteBufUtils.readUTF8String(buf),
+                                                      buf.readBoolean());
+                this.environs.add(sgd);
+            }
+        }
+
+        @Override
+        void persistState(ByteBuf buf)
+        {
+            buf.writeInt(this.environs.size());
+            for (SimpleGridDef sgd : this.environs)
+            {
+                buf.writeInt(sgd.xMin);
+                buf.writeInt(sgd.yMin);
+                buf.writeInt(sgd.zMin);
+                buf.writeInt(sgd.xMax);
+                buf.writeInt(sgd.yMax);
+                buf.writeInt(sgd.zMax);
+                ByteBufUtils.writeUTF8String(buf, sgd.name);
+                buf.writeBoolean(sgd.absoluteCoords);
+            }
+        }
+
+        List<SimpleGridDef>getEnvirons() { return this.environs; }
     }
-    
+
     public static class GridRequestMessageHandler extends ObservationFromServer.ObservationRequestMessageHandler implements IMessageHandler<GridRequestMessage, IMessage>
-	{
-		@Override
-		void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message, MessageContext ctx)
-		{
-			if (message instanceof GridRequestMessage)
-			{
-			    List<SimpleGridDef> environs = ((GridRequestMessage)message).getEnvirons();
-			    if (environs != null)
-			    {
-			    	for (SimpleGridDef sgd : environs)
-			    	{
-						JSONWorldDataHelper.buildGridData(json, sgd.getEnvirons(), player, sgd.name);
-			    	}
-			    }
-			}
-		}
+    {
+        @Override
+        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message)
+        {
+            if (message instanceof GridRequestMessage)
+            {
+                List<SimpleGridDef> environs = ((GridRequestMessage)message).getEnvirons();
+                if (environs != null)
+                {
+                    for (SimpleGridDef sgd : environs)
+                    {
+                        JSONWorldDataHelper.buildGridData(json, sgd.getEnvirons(), player, sgd.name);
+                    }
+                }
+            }
+        }
 
-		@Override
-		public IMessage onMessage(GridRequestMessage message, MessageContext ctx)
-		{
-			return processMessage(message, ctx);
-		}
+        @Override
+        public IMessage onMessage(GridRequestMessage message, MessageContext ctx)
+        {
+            return processMessage(message, ctx);
+        }
     }
 
-	@Override
-	public ObservationRequestMessage createObservationRequestMessage()
-	{
-		return new GridRequestMessage(this.environs);
-	}
+    @Override
+    public ObservationRequestMessage createObservationRequestMessage()
+    {
+        return new GridRequestMessage(this.environs);
+    }
 }

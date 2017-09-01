@@ -54,7 +54,7 @@ public abstract class CommandBase extends HandlerBase implements ICommandHandler
         // Otherwise, all is good:
         return true;
     }
-    
+
     public boolean execute(String command, MissionInit missionInit)
     {
         if (command == null || command.length() == 0)

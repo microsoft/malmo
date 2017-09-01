@@ -57,9 +57,15 @@ class Program
         {
             agentHost.startMission(mission, missionRecord);
         }
-        catch (Exception ex)
+        catch (MissionException ex)
         {
+            // Using catch(Exception ex) would also work, but specifying MissionException allows
+            // us to access the error code:
             Console.Error.WriteLine("Error starting mission: {0}", ex.Message);
+            Console.Error.WriteLine("Error code: {0}", ex.getMissionErrorCode());
+            // We can do more specific error handling using this code, eg:
+            if (ex.getMissionErrorCode() == MissionException.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
+                Console.Error.WriteLine("Have you started a Minecraft client?");
             Environment.Exit(1);
         }
 
@@ -74,7 +80,7 @@ class Program
 
             foreach (TimestampedString error in worldState.errors) Console.Error.WriteLine("Error: {0}", error.text);
         }
-        while (!worldState.is_mission_running);
+        while (!worldState.has_mission_begun);
         
         Console.WriteLine();
 

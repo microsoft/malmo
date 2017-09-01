@@ -35,7 +35,7 @@ import com.microsoft.Malmo.Utils.PositionHelper;
  * Simple IRewardProducer object that returns a large reward when the player
  * gets to within a certain tolerance of a goal position.<br>
  */
-public class RewardForReachingPositionImplementation extends HandlerBase implements IRewardProducer {
+public class RewardForReachingPositionImplementation extends RewardBase implements IRewardProducer {
     Pos targetPos;
     float reward;
     float tolerance;
@@ -46,6 +46,7 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
 
     @Override
     public boolean parseParameters(Object params) {
+        super.parseParameters(params);
         if (params == null || !(params instanceof RewardForReachingPosition))
             return false;
 
@@ -56,7 +57,8 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
 
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
-        if (missionInit == null || Minecraft.getMinecraft().thePlayer == null)
+        super.getReward(missionInit, reward);
+        if (missionInit == null || Minecraft.getMinecraft().player == null)
             return;
 
         if (this.rewardPoints != null) {
@@ -67,10 +69,11 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
                 float reward_value = goal.getReward().floatValue();
                 float tolerance = goal.getTolerance().floatValue();
 
-                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().thePlayer, goal);
+                float distance = PositionHelper.calcDistanceFromPlayerToPosition(Minecraft.getMinecraft().player, goal);
                 if (distance <= tolerance)
                 {
-                    reward.add(this.params.getDimension(), reward_value);
+                    float adjusted_reward = adjustAndDistributeReward(reward_value, this.params.getDimension(), goal.getDistribution());
+                    reward.add(this.params.getDimension(), adjusted_reward);
                     if (oneShot)
                         goalIterator.remove(); // Safe to do this via an iterator.
                 }
@@ -80,9 +83,11 @@ public class RewardForReachingPositionImplementation extends HandlerBase impleme
 
     @Override
     public void prepare(MissionInit missionInit) {
+        super.prepare(missionInit);
     }
 
     @Override
     public void cleanup() {
+        super.cleanup();
     }
 }

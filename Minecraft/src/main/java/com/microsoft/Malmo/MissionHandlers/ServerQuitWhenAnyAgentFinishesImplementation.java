@@ -55,7 +55,16 @@ public class ServerQuitWhenAnyAgentFinishesImplementation extends HandlerBase im
 	public void onMessage(MalmoMessageType messageType, Map<String, String> data)
 	{
 		if (messageType == MalmoMessageType.CLIENT_AGENTFINISHEDMISSION)
+		{
 			this.wantsToQuit = true;
+			if (data.containsKey("quitcode"))
+			{
+			    if (this.quitCode != null && this.quitCode.length() > 0)
+			        this.quitCode += "; " + data.get("quitcode");
+			    else
+			        this.quitCode = data.get("quitcode");
+			}
+		}
 	}
 	
 	@Override

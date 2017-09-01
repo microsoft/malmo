@@ -145,7 +145,7 @@ else:
     num_reps = 30000
 
 for iRepeat in range(num_reps):
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
     my_mission_record.recordRewards()
     my_mission_record.recordMP4(24,400000)
@@ -164,7 +164,7 @@ for iRepeat in range(num_reps):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
 

@@ -20,6 +20,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -46,7 +47,7 @@ public class CommandGroup extends CommandBase
      */
     protected void setShareParametersWithChildren(boolean share)
     {
-    	this.shareParametersWithChildren = share;
+        this.shareParametersWithChildren = share;
     }
     
     void addCommandHandler(ICommandHandler handler)
@@ -104,25 +105,48 @@ public class CommandGroup extends CommandBase
             han.setOverriding(b);
         }
     }
-    
+
+    @Override
+    public void setParentBehaviour(MissionBehaviour mb)
+    {
+        super.setParentBehaviour(mb);
+        for (ICommandHandler han : this.handlers)
+            ((HandlerBase)han).setParentBehaviour(mb);
+    }
+
+    @Override
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        for (ICommandHandler han : this.handlers)
+        {
+            if (han instanceof HandlerBase)
+                ((HandlerBase)han).appendExtraServerInformation(map);
+        }
+    }
+
     @Override
     public boolean parseParameters(Object params)
     {
-    	// Normal handling:
-    	boolean ok = super.parseParameters(params);
-    	
-    	// Now, pass the params to each child handler, if that was requested:
-    	if (this.shareParametersWithChildren)
-		{
-        	// AND the results, but without short-circuit evaluation.
-        	for (ICommandHandler han : this.handlers)
-        	{
-        		if (han instanceof HandlerBase)
-        		{
-        			ok &= ((HandlerBase)han).parseParameters(params);
-        		}
-        	}
-		}
-    	return ok;
+        // Normal handling:
+        boolean ok = super.parseParameters(params);
+
+        // Now, pass the params to each child handler, if that was requested:
+        if (this.shareParametersWithChildren)
+        {
+            // AND the results, but without short-circuit evaluation.
+            for (ICommandHandler han : this.handlers)
+            {
+                if (han instanceof HandlerBase)
+                {
+                    ok &= ((HandlerBase) han).parseParameters(params);
+                }
+            }
+        }
+        return ok;
+    }
+
+    public boolean isFixed()
+    {
+        return false;   // Return true to stop MissionBehaviour from adding new handlers to this group.
     }
 }

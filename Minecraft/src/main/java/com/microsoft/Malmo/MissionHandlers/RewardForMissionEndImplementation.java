@@ -27,7 +27,7 @@ import com.microsoft.Malmo.Schemas.MissionEndRewardCase;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForMissionEnd;
 
-public class RewardForMissionEndImplementation extends HandlerBase implements IRewardProducer {
+public class RewardForMissionEndImplementation extends RewardBase implements IRewardProducer {
     private RewardForMissionEnd params = null;
 
     @Override
@@ -41,6 +41,7 @@ public class RewardForMissionEndImplementation extends HandlerBase implements IR
 
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
+        super.getReward(missionInit, reward);
         try {
             Hashtable<String, Object> properties = MalmoMod.getPropertiesForCurrentThread();
             if (properties.containsKey("QuitCode")) {
@@ -53,6 +54,7 @@ public class RewardForMissionEndImplementation extends HandlerBase implements IR
 
     @Override
     public void prepare(MissionInit missionInit) {
+        super.prepare(missionInit);
         // Make sure we start with a clean slate:
         try {
             if (MalmoMod.getPropertiesForCurrentThread().containsKey("QuitCode"))
@@ -64,6 +66,7 @@ public class RewardForMissionEndImplementation extends HandlerBase implements IR
 
     @Override
     public void cleanup() {
+        super.cleanup();
     }
 
     private float parseQuitCode(String qc) {
@@ -73,10 +76,18 @@ public class RewardForMissionEndImplementation extends HandlerBase implements IR
             for (String s : codes) {
                 for (MissionEndRewardCase merc : this.params.getReward()) {
                     if (merc.getDescription().equalsIgnoreCase(s))
-                        reward += merc.getReward().floatValue();
+                    {
+                        float this_reward = merc.getReward().floatValue();
+                        float adjusted_reward = adjustAndDistributeReward(this_reward, this.params.getDimension(), merc.getDistribution());
+                        reward += adjusted_reward;
+                    }
                 }
                 if (s.equals(MalmoMod.AGENT_DEAD_QUIT_CODE))
-                    reward += this.params.getRewardForDeath().floatValue();
+                {
+                    float this_reward = this.params.getRewardForDeath().floatValue();
+                    float adjusted_reward = adjustAndDistributeReward(this_reward, this.params.getDimension(), this.params.getRewardForDeathDistribution());
+                    reward += adjusted_reward;
+                }
             }
         }
         return reward;

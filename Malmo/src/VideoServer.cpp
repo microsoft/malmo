@@ -31,7 +31,7 @@ namespace malmo
         , width( width )
         , height( height )
         , channels( channels )
-        , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ) )
+        , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
     {
     }
 

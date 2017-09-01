@@ -20,11 +20,13 @@
 package com.microsoft.Malmo.Utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -42,6 +44,8 @@ import javax.xml.validation.SchemaFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -136,6 +140,75 @@ public class SchemaHelper
             System.out.println("ParserConfiguration exception: " + e);
         }
         return rootNodeName;
+    }
+
+    static public boolean testSchemaVersionNumbers(String modVersion)
+    {
+        // modVersion will be in three parts - eg 0.19.1
+        // We only care about the major and minor release numbers.
+        String[] parts = modVersion.split("\\.");
+        if (parts.length != 3)
+        {
+            System.out.println("Malformed mod version number: " + modVersion + " - should be of form x.y.z. Has CMake been run?");
+            return false;
+        }
+        String requiredVersion = parts[0] + "." + parts[1];
+        System.out.println("Testing schemas against internal version number: " + requiredVersion);
+        InputStream stream = MalmoMod.class.getClassLoader().getResourceAsStream("schemas.index");
+        if (stream == null)
+        {
+            System.out.println("Cannot find index of schema files in resources - try rebuilding.");
+            return false;   // Failed to find index in resources - check that gradle build has happened!
+        }
+        Scanner scanner = new Scanner(stream);
+        while (scanner.hasNextLine())
+        {
+            String xsdFile = scanner.nextLine();
+            String version = getVersionNumber(xsdFile);
+            if (version == null || !version.equals(requiredVersion))
+            {
+                scanner.close();
+                System.out.println("Version error: schema file " + xsdFile + " has the wrong version number - should be " + requiredVersion + ", actually " + version);
+                return false;
+            }
+        }
+        scanner.close();
+        return true;
+    }
+    
+    static private String getVersionNumber(String url)
+    {
+        // Load the XSD file as a string:
+        InputStream stream = MalmoMod.class.getClassLoader().getResourceAsStream(url);
+        Scanner scanner = new Scanner(stream, "UTF-8");
+        scanner.useDelimiter("\\A");
+        String xml = scanner.next();
+        scanner.close();
+
+        // Now try to parse the XSD Document, and find the schema version number:
+        try
+        {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setExpandEntityReferences(false);
+            DocumentBuilder dBuilder = dbf.newDocumentBuilder();
+            InputSource inputSource = new InputSource(new StringReader(xml));
+            Document doc = dBuilder.parse(inputSource);
+            doc.getDocumentElement().normalize();
+            NamedNodeMap atts = doc.getDocumentElement().getAttributes();
+            if (atts != null)
+            {
+                Node node = atts.getNamedItem("version");
+                if (node != null)
+                    return node.getNodeValue();
+            }
+        } catch (SAXException e) {
+            System.out.println("SAX exception: " + e);
+        } catch (IOException e) {
+            System.out.println("IO exception: " + e);
+        } catch (ParserConfigurationException e) {
+            System.out.println("ParserConfiguration exception: " + e);
+        }
+        return null;
     }
 
     /** Return the text value of the first child of the named node, or the specified default if the node can't be found.<br>

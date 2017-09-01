@@ -19,11 +19,14 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
-import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.Mission;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -33,41 +36,64 @@ import com.microsoft.Malmo.Utils.BlockDrawingHelper;
  */
 public class DrawingDecoratorImplementation extends HandlerBase implements IWorldDecorator
 {
-	DrawingDecorator drawing = null;
-	
-	@Override
-	public boolean parseParameters(Object params)
-	{
-		if (params == null || !(params instanceof DrawingDecorator))
-			return false;
-		
-		this.drawing = (DrawingDecorator)params;
-		return true;
-	}
+    DrawingDecorator drawing = null;
 
     @Override
-	public void buildOnWorld(MissionInit missionInit)
-	{
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof DrawingDecorator))
+            return false;
+
+        this.drawing = (DrawingDecorator) params;
+        return true;
+    }
+
+    @Override
+    public void buildOnWorld(MissionInit missionInit, World world)
+    {
         Mission mission = missionInit.getMission();
         if (mission != null)
         {
             try
             {
-                BlockDrawingHelper.Draw(this.drawing, MinecraftServer.getServer().getEntityWorld());
+                BlockDrawingHelper drawContext = new BlockDrawingHelper();
+                drawContext.Draw(this.drawing, world);
             }
             catch (Exception e)
             {
                 System.out.println("Error drawing into the world: " + e.getMessage());
             }
         }
-	}  
+    }
 
     @Override
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlers(AgentHandlers handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit)
+    {
+    }
+
+    @Override
+    public void cleanup()
+    {
+    }
+
+    @Override
+    public boolean targetedUpdate(String nextAgentName)
+    {
+        return false;   // Does nothing.
+    }
+
+    @Override
+    public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots)
+    {
+        // Does nothing.
     }
 }

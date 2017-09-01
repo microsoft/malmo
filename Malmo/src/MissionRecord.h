@@ -104,10 +104,21 @@ namespace malmo
             //! \returns The path as a string
             std::string getMissionInitPath() const;
 
-        private:
+            //! Gets the temporary directory for this mission record.
+            //! \returns The temporary directory for the mission record.
+            std::string getTemporaryDirectory() const;
 
-            bool is_closed;
+        private:
             MissionRecordSpec spec;
+            bool is_closed;
+
+            std::string mp4_path;
+            std::string observations_path;
+            std::string rewards_path;
+            std::string commands_path;
+            std::string mission_init_path;
+            std::string mission_id;
+            boost::filesystem::path temp_dir;
 
             void addFiles(std::vector<boost::filesystem::path> &fileList, boost::filesystem::path directory);
             void addFile(lindenb::io::Tar& archive, boost::filesystem::path path);

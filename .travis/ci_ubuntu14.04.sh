@@ -12,9 +12,14 @@ echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /
 sudo apt-get -qq update
 
 # install dependencies:
+sudo apt-get -y -q install libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev swig libxerces-c-dev doxygen xsltproc libav-tools mono-devel
 
-sudo apt-get -y -q install libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools mono-devel
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
+sudo add-apt-repository ppa:openjdk-r/ppa
+sudo apt-get update
+sudo apt-get install openjdk-8-jdk
+sudo update-alternatives --config java
+sudo update-alternatives --config javac
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 sudo update-ca-certificates -f > /dev/null
 
 # install Torch:

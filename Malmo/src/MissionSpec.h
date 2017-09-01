@@ -30,11 +30,15 @@
 #include <string>
 #include <vector>
 
+// Local:
+#include "Logger.h"
+
 namespace malmo
 {
     //! Specifies a mission to be run.
     class MissionSpec
     {
+        MALMO_LOGGABLE_OBJECT(MissionSpec)
         public:
 
             //! Constructs a mission with default parameters: a flat world with a 10 seconds time limit and continuous movement.
@@ -128,6 +132,15 @@ namespace malmo
             //! \param y The up-down location.
             //! \param z The north-south location.
             void startAt(float x, float y, float z);
+
+            //! Sets the start location and angles for the agent. Only supports single agent missions.
+            //! Integer coordinates are at the corners of blocks, so to start in the center of a block, use e.g. 4.5 instead of 4.0.
+            //! \param x The east-west location.
+            //! \param y The up-down location.
+            //! \param z The north-south location.
+            //! \param yaw The yaw in degrees (180 = north, 270 = east, 0 = south, 90 = west)
+            //! \param pitch The pitch in degrees (-90 = straight up, 90 = straight down, 0 = horizontal)
+            void startAtWithPitchAndYaw(float x, float y, float z, float pitch, float yaw);
 
             //! Sets the end location for the agent. Only supports single agent missions.
             //! Can be called more than once if there are multiple positions that end the mission for this agent.

@@ -29,11 +29,11 @@ import com.microsoft.Malmo.Schemas.RewardForSendingMatchingChatMessage;
 import java.util.*;
 import java.util.regex.*;
 
-public class RewardForSendingMatchingChatMessageImplementation extends HandlerBase implements IRewardProducer {
+public class RewardForSendingMatchingChatMessageImplementation extends RewardBase implements IRewardProducer {
 
     private RewardForSendingMatchingChatMessage params;
     private HashMap<Pattern, Float> patternMap = new HashMap<Pattern, Float>();
-    protected Float summedReward = 0.0f;
+    private HashMap<Pattern, String> distributionMap = new HashMap<Pattern, String>();
 
     /**
      * Attempt to parse the given object as a set of parameters for this handler.
@@ -43,6 +43,7 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
      */
     @Override
     public boolean parseParameters(Object params) {
+        super.parseParameters(params);
         if (params == null || !(params instanceof RewardForSendingMatchingChatMessage))
             return false;
 
@@ -61,6 +62,7 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
         Float reward = c.getReward().floatValue();
         Pattern pattern = Pattern.compile(c.getRegex(), Pattern.CASE_INSENSITIVE);
         patternMap.put(pattern, reward);
+        distributionMap.put(pattern, c.getDistribution());
     }
 
     /**
@@ -72,12 +74,7 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
      */
     @Override
     public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
-        synchronized (RewardForSendingMatchingChatMessageImplementation.this.summedReward) {
-            if( this.summedReward > 0.0f) {
-                reward.add( this.params.getDimension(), this.summedReward );
-                this.summedReward = 0.0f;
-            }
-        }
+        super.getReward(missionInit, reward);
     }
 
     /**
@@ -88,6 +85,7 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
      */
     @Override
     public void prepare(MissionInit missionInit) {
+        super.prepare(missionInit);
         // We need to see chat commands as they come in.
         // Following the example of RewardForSendingCommandImplementation.
         MissionBehaviour mb = parentBehaviour();
@@ -103,7 +101,8 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
                         Map.Entry<Pattern, Float> entry = patternIt.next();
                         Matcher m = entry.getKey().matcher(parameter);
                         if (m.matches()) {
-                            summedReward += entry.getValue();
+                            String distribution = distributionMap.get(entry.getKey());
+                            addAndShareCachedReward(RewardForSendingMatchingChatMessageImplementation.this.params.getDimension(), entry.getValue(), distribution);
                         }
                     }
                 }
@@ -122,5 +121,6 @@ public class RewardForSendingMatchingChatMessageImplementation extends HandlerBa
      */
     @Override
     public void cleanup() {
+        super.cleanup();
     }
 }

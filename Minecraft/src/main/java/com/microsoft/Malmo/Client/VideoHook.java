@@ -24,25 +24,24 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.TCPSocketHelper;
+import com.microsoft.Malmo.Utils.TCPSocketChannel;
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -85,7 +84,7 @@ public class VideoHook {
     /**
      * Object which maintains our connection to the agent.
      */
-    private TCPSocketHelper.SocketChannelHelper connection = null;
+    private TCPSocketChannel connection = null;
     
     private int renderWidth;
     
@@ -121,13 +120,12 @@ public class VideoHook {
         String agentIPAddress = cac.getAgentIPAddress();
         int agentPort = cac.getAgentVideoPort();
 
-        this.connection = new TCPSocketHelper.SocketChannelHelper(agentIPAddress, agentPort);
+        this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
         this.failedTCPSendCount = 0;
 
         try
         {
             MinecraftForge.EVENT_BUS.register(this);
-            FMLCommonHandler.instance().bus().register(this); 
         }
         catch(Exception e)
         {
@@ -173,7 +171,6 @@ public class VideoHook {
         try
         {
             MinecraftForge.EVENT_BUS.unregister(this);
-            FMLCommonHandler.instance().bus().unregister(this); 
         }
         catch(Exception e)
         {
@@ -212,12 +209,12 @@ public class VideoHook {
     @SubscribeEvent
     public void postRender(RenderWorldLastEvent event)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks);
-        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks);
-        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks);
-        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.partialTicks;
-        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.partialTicks;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
+        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());
+        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks());
+        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.getPartialTicks();
+        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.getPartialTicks();
 
         long time_before_ns = System.nanoTime();
 

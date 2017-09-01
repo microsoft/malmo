@@ -29,4 +29,7 @@ public class CommandForHotBarKeysImplementation extends CommandGroup
             addCommandHandler(new CommandForKey("key.hotbar." + i));
         }        
     }
+
+    @Override
+    public boolean isFixed() { return true; }
 }

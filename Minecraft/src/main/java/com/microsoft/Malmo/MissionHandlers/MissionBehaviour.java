@@ -19,6 +19,10 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
@@ -28,6 +32,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
+import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
 
@@ -99,11 +104,17 @@ public class MissionBehaviour
         // Instantiate the various handlers:
         for (Object handler : handlerset.getAgentMissionHandlers())
             createAndAddHandler(handler);
+
+        // If this is a multi-agent mission, need to ensure we have a team reward handler
+        // to receive rewards from other agents.
+        List<AgentSection> agents = missionInit.getMission().getAgentSection();
+        if (agents != null && agents.size() > 1)
+            addHandler(new RewardFromTeamImplementation());
     }
 
-    public boolean addExtraHandlers(AgentHandlers handlers)
+    public boolean addExtraHandlers(List<Object> handlers)
     {
-        for (Object handler : handlers.getAgentMissionHandlers())
+        for (Object handler : handlers)
             createAndAddHandler(handler);
         return true;
     }
@@ -146,7 +157,7 @@ public class MissionBehaviour
         // won't have to be added to often, if at all.
         if (handler == null)
             return;
-        
+
         if (handler instanceof IVideoProducer)
             addVideoProducer((IVideoProducer)handler);
         else if (handler instanceof IAudioProducer)
@@ -158,7 +169,7 @@ public class MissionBehaviour
         else if (handler instanceof IRewardProducer)
             addRewardProducer((IRewardProducer)handler);
         else if (handler instanceof IWorldGenerator)
-        	addWorldGenerator((IWorldGenerator)handler);
+            addWorldGenerator((IWorldGenerator)handler);
         else if (handler instanceof IWorldDecorator)
             addWorldDecorator((IWorldDecorator)handler);
         else if (handler instanceof IWantToQuit)
@@ -191,30 +202,30 @@ public class MissionBehaviour
             this.worldGenerator = handler;
     }
     
-    private void addRewardProducer(IRewardProducer handler)
+    public void addRewardProducer(IRewardProducer handler)
     {
         if (this.rewardProducer == null)
-        	this.rewardProducer = handler;
+            this.rewardProducer = handler;
         else
         {
-        	if (!(this.rewardProducer instanceof RewardGroup))
-        	{
-        		// We have multiple reward handlers - group them.
-        		RewardGroup group = new RewardGroup();
-        		group.addRewardProducer(this.rewardProducer);
-        		this.rewardProducer = group;
-        	}
-        	((RewardGroup)this.rewardProducer).addRewardProducer(handler);
+            if (!(this.rewardProducer instanceof RewardGroup) || ((RewardGroup) this.rewardProducer).isFixed())
+            {
+                // We have multiple reward handlers - group them.
+                RewardGroup group = new RewardGroup();
+                group.addRewardProducer(this.rewardProducer);
+                this.rewardProducer = group;
+            }
+            ((RewardGroup) this.rewardProducer).addRewardProducer(handler);
         }
     }
 
-    private void addCommandHandler(ICommandHandler handler)
+    public void addCommandHandler(ICommandHandler handler)
     {
         if (this.commandHandler == null)
             this.commandHandler = handler;
         else
         {
-            if (!(this.commandHandler instanceof CommandGroup))
+            if (!(this.commandHandler instanceof CommandGroup) || ((CommandGroup)this.commandHandler).isFixed())
             {
                 // We have multiple command handlers - group them.
                 CommandGroup group = new CommandGroup();
@@ -225,13 +236,13 @@ public class MissionBehaviour
         }
     }
     
-    private void addObservationProducer(IObservationProducer handler)
+    public void addObservationProducer(IObservationProducer handler)
     {
         if (this.observationProducer == null)
             this.observationProducer = handler;
         else
         {
-            if (!(this.observationProducer instanceof ObservationFromComposite))
+            if (!(this.observationProducer instanceof ObservationFromComposite) || ((ObservationFromComposite)this.observationProducer).isFixed())
             {
                 ObservationFromComposite group = new ObservationFromComposite();
                 group.addObservationProducer(this.observationProducer);
@@ -241,13 +252,13 @@ public class MissionBehaviour
         }
     }
  
-    private void addWorldDecorator(IWorldDecorator handler)
+    public void addWorldDecorator(IWorldDecorator handler)
     {
         if (this.worldDecorator == null)
             this.worldDecorator = handler;
         else
         {
-            if (!(this.worldDecorator instanceof WorldFromComposite))
+            if (!(this.worldDecorator instanceof WorldFromComposite) || ((WorldFromComposite)this.worldDecorator).isFixed())
             {
                 WorldFromComposite group = new WorldFromComposite();
                 group.addBuilder(this.worldDecorator);
@@ -257,13 +268,13 @@ public class MissionBehaviour
         }
     }
  
-    private void addQuitProducer(IWantToQuit handler)
+    public void addQuitProducer(IWantToQuit handler)
     {
         if (this.quitProducer == null)
             this.quitProducer = handler;
         else
         {
-            if (!(this.quitProducer instanceof QuitFromComposite))
+            if (!(this.quitProducer instanceof QuitFromComposite) || ((QuitFromComposite)this.quitProducer).isFixed())
             {
                 QuitFromComposite group = new QuitFromComposite();
                 group.addQuitter(this.quitProducer);
@@ -312,5 +323,39 @@ public class MissionBehaviour
             this.failedHandlers += "Failed to access " + handlerClass + "\n";
         }
         return handler;
+    }
+
+    /** This method gives our handlers a chance to add any information to the ping message
+     * which the client sends (repeatedly) to the server while the agents are assembling.
+     * This message is guaranteed to get through to the server, so it is a good place to
+     * communicate.
+     * (NOTE this is called BEFORE addExtraHandlers - but that mechanism is provided to allow
+     * the *server* to add extra handlers on the *client* - so the server should already know
+     * whatever the extra handlers might want to tell it!)
+     * @param map the map of data passed to the server
+     */
+    public void appendExtraServerInformation(HashMap<String, String> map)
+    {
+        List<HandlerBase> handlers = getClientHandlerList();
+        for (HandlerBase handler : handlers)
+            handler.appendExtraServerInformation(map);
+    }
+
+    protected List<HandlerBase> getClientHandlerList()
+    {
+        List<HandlerBase> handlers = new ArrayList<HandlerBase>();
+        if (this.videoProducer != null && this.videoProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.videoProducer);
+        if (this.audioProducer != null && this.audioProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.audioProducer);
+        if (this.commandHandler != null && this.commandHandler instanceof HandlerBase)
+            handlers.add((HandlerBase)this.commandHandler);
+        if (this.observationProducer != null && this.observationProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.observationProducer);
+        if (this.rewardProducer != null && this.rewardProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.rewardProducer);
+        if (this.quitProducer != null && this.quitProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.quitProducer);
+        return handlers;
     }
 }

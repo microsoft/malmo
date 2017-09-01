@@ -21,7 +21,14 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 
+import net.minecraft.client.AnvilConverterException;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.storage.ISaveFormat;
+import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.apache.commons.io.FileUtils;
@@ -31,12 +38,14 @@ import org.apache.commons.io.FileUtils;
  */
 public class MapFileHelper
 {
+    static final String tempMark = "TEMP_";
+
     /** Attempt to copy the specified file into the Minecraft saves folder.
      * @param mapFile full path to the map file required
      * @param overwriteOldFiles if false, will rename copy to avoid overwriting any other saved games
      * @return if successful, a File object representing the new copy, which can be fed to Minecraft to load - otherwise null.
      */
-    static public File copyMapFiles(File mapFile, boolean overwriteOldFiles)
+    static public File copyMapFiles(File mapFile, boolean isTemporary)
     {
         System.out.println("Current directory: "+System.getProperty("user.dir"));
         // Look for the basemap file.
@@ -46,24 +55,10 @@ public class MapFileHelper
         File dst = null;
         if (mapFile != null && mapFile.exists())
         {
-            String name = mapFile.getName();
-            dst = new File(savesDir, name);
-            int version = 0;
-            // Avoid name collisions, if we are not allowed to overwrite old files:
-            while (dst.exists() && !overwriteOldFiles)
-            {
-                dst = new File(savesDir, name + "_" + version);
-                version++;
-            }
+            dst = new File(savesDir, getNewSaveFileLocation(isTemporary));
+
             try
             {
-                if (dst.exists() && overwriteOldFiles)
-                {
-                    // Safest to empty out the destination directory, since copyDirectory will just
-                    // copy across the source files, merging them in to the destination. This could result in
-                    // odd behaviour as two Minecraft saved worlds get merged.
-                    FileUtils.deleteDirectory(dst);
-                }
                 FileUtils.copyDirectory(mapFile, dst);
             }
             catch (IOException e)
@@ -74,5 +69,71 @@ public class MapFileHelper
         }
         
         return dst;
+    }
+
+    /** Get a filename to use for creating a new Minecraft save map.<br>
+     * Ensure no duplicates.
+     * @param isTemporary mark the filename such that the file management code knows to delete this later
+     * @return a unique filename (relative to the saves folder)
+     */
+    public static String getNewSaveFileLocation(boolean isTemporary) {
+        File dst;
+        File savesDir = FMLClientHandler.instance().getSavesDir();
+        do {
+            // We used to create filenames based on the current date/time, but this can cause problems when
+            // multiple clients might be writing to the same save location. Instead, use a GUID:
+            String s = UUID.randomUUID().toString();
+
+            // Add our port number, to help with file management:
+            s = AddressHelper.getMissionControlPort() + "_" + s;
+
+            // If this is a temp file, mark it as such:
+            if (isTemporary) {
+                s = tempMark + s;
+            }
+
+            dst = new File(savesDir, s);
+        } while (dst.exists());
+
+        return dst.getName();
+    }
+    /**
+     * Creates and launches a unique world according to the settings. 
+     * @param worldsettings the world's settings
+     * @param isTemporary if true, the world will be deleted whenever newer worlds are created
+     * @return
+     */
+    public static boolean createAndLaunchWorld(WorldSettings worldsettings, boolean isTemporary)
+    {
+        String s = getNewSaveFileLocation(isTemporary);
+        Minecraft.getMinecraft().launchIntegratedServer(s, s, worldsettings);
+        cleanupTemporaryWorlds(s);
+        return true;
+    }
+
+    /**
+     * Attempts to delete all Minecraft Worlds with "TEMP_" in front of the name
+     * @param currentWorld excludes this world from deletion, can be null
+     */
+    public static void cleanupTemporaryWorlds(String currentWorld){
+        List<WorldSummary> saveList;
+        ISaveFormat isaveformat = Minecraft.getMinecraft().getSaveLoader();
+        isaveformat.flushCache();
+
+        try{
+            saveList = isaveformat.getSaveList();
+        } catch (AnvilConverterException e){
+            e.printStackTrace();
+            return;
+        }
+
+        String searchString = tempMark + AddressHelper.getMissionControlPort() + "_";
+
+        for (WorldSummary s: saveList){
+            String folderName = s.getFileName();
+            if (folderName.startsWith(searchString) && !folderName.equals(currentWorld)){
+                isaveformat.deleteWorldDirectory(folderName);
+            }
+        }
     }
 }

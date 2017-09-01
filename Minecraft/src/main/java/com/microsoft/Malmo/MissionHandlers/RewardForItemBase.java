@@ -19,21 +19,29 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.DatatypeConverter;
+
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpec;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
-public abstract class RewardForItemBase extends HandlerBase
+public abstract class RewardForItemBase extends RewardBase
 {
-    protected MultidimensionalReward accumulatedRewards = new MultidimensionalReward();
     List<ItemRewardMatcher> rewardMatchers = new ArrayList<ItemRewardMatcher>();
     
     public static class ItemMatcher
@@ -86,16 +94,23 @@ public abstract class RewardForItemBase extends HandlerBase
     public class ItemRewardMatcher extends ItemMatcher
     {
         float reward;
+        String distribution;
 
         ItemRewardMatcher(BlockOrItemSpecWithReward spec)
         {
             super(spec);
             this.reward = spec.getReward().floatValue();
+            this.distribution = spec.getDistribution();
         }
 
         float reward()
         {
             return this.reward;
+        }
+        
+        String distribution()
+        {
+            return this.distribution;
         }
     }
 
@@ -110,8 +125,19 @@ public abstract class RewardForItemBase extends HandlerBase
         {
             if (matcher.matches(stack))
             {
-                this.accumulatedRewards.add(dimension, stack.stackSize * matcher.reward());
+                addAndShareCachedReward(dimension, stack.getCount() * matcher.reward(), matcher.distribution());
             }
         }
+    }
+
+    protected static void sendItemStackToClient(EntityPlayerMP player, MalmoMessageType message, ItemStack is)
+    {
+        ByteBuf buf = Unpooled.buffer();
+        ByteBufUtils.writeItemStack(buf, is);
+        byte[] bytes = new byte[buf.readableBytes()];
+        buf.getBytes(0, bytes);
+        String data = DatatypeConverter.printBase64Binary(bytes);
+        MalmoMod.MalmoMessage msg = new MalmoMod.MalmoMessage(message, data);
+        MalmoMod.network.sendTo(msg, player);
     }
 }

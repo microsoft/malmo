@@ -24,6 +24,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
 
@@ -58,10 +59,10 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
     {
         this.tickCount++;
 
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
 
         // Get all the currently loaded entities:
-        List<?> entities = Minecraft.getMinecraft().theWorld.getLoadedEntityList();
+        List<?> entities = Minecraft.getMinecraft().world.getLoadedEntityList();
 
         // Get the list of RangeDefinitions that need firing:
         List<RangeDefinition> rangesToFire = new ArrayList<RangeDefinition>();
@@ -112,10 +113,12 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                 for (Entity e : entsInRangeList)
                 {
                     JsonObject jsent = new JsonObject();
+                    jsent.addProperty("yaw", e.rotationYaw);
                     jsent.addProperty("x", e.posX);
                     jsent.addProperty("y", e.posY);
                     jsent.addProperty("z", e.posZ);
-                    String name = e.getName();
+                    jsent.addProperty("pitch", e.rotationPitch);
+                    String name = MinecraftTypeHelper.getUnlocalisedEntityName(e);
                     if (e instanceof EntityItem)
                     {
                         ItemStack is = ((EntityItem)e).getEntityItem();
@@ -128,7 +131,12 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                             if (di.getVariant() != null)
                                 jsent.addProperty("variation",  di.getVariant().getValue());
                         }
-                        jsent.addProperty("quantity", is.stackSize);
+                        jsent.addProperty("quantity", is.getCount());
+                    }
+                    else if (e instanceof EntityLivingBase)
+                    {
+                        EntityLivingBase el = (EntityLivingBase)e;
+                        jsent.addProperty("life", el.getHealth());
                     }
                     jsent.addProperty("name", name);
                     arr.add(jsent);

@@ -32,7 +32,7 @@ public class ObservationFromDiscreteCellImplementation extends HandlerBase imple
 	public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
 	{
 		// Return a string that is unique for every cell on the x/z plane (ignores y)
-		EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		// getPosition() rounds to int.
 		int x = player.getPosition().getX();
 		int z = player.getPosition().getZ();

@@ -138,7 +138,7 @@ except OSError as exception:
 
 for iRepeat in xrange(NUM_REPEATS):
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat), validate)
-    # Set up a recording - MUST be done once for each mission - don't do this outside the loop!
+    # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//QuitFromReachingPosition_Test" + str(iRepeat) + ".tgz");
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
@@ -155,7 +155,7 @@ for iRepeat in xrange(NUM_REPEATS):
                 time.sleep(2)
 
     world_state = agent_host.getWorldState()
-    while not world_state.is_mission_running:
+    while not world_state.has_mission_begun:
         time.sleep(0.01)
         sys.stdout.write(".")
         world_state = agent_host.getWorldState()
