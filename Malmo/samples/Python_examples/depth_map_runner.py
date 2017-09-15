@@ -25,6 +25,8 @@ import struct
 import socket
 import os
 import sys
+import errno
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO)
 
@@ -44,10 +46,20 @@ logger.setLevel(logging.DEBUG) # set to INFO if you want fewer messages
 
 #-------------------------------------------------------------------------------------------------------------------------------------
 
+frame_no = 0
+
 def processFrame( frame ):
     '''Track through the middle line of the depth data and find the max discontinuities'''
-    global current_yaw_delta_from_depth
+    global current_yaw_delta_from_depth, frame_no
+    for x in xrange(0, video_width):
+        for y in xrange(0, video_height):
+            pix = x + (y * video_width)
+            f = struct.unpack('f', str(frame[pix:pix + 4]))
+            #print f
 
+    image_original = Image.frombytes('RGBA', (432, 240), str(frame))
+    image_original.save("dmap_{}.png".format(frame_no))
+    frame_no += 1
     y = int(video_height / 2)
     rowstart = y * video_width
     
@@ -160,10 +172,10 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
             <Placement x="-203.5" y="81.0" z="217.5"/> <!-- will be overwritten by MazeDecorator -->
         </AgentStart>
         <AgentHandlers>
-            <VideoProducer want_depth="true">
+            <DepthProducer>
                 <Width>''' + str(video_width) + '''</Width>
                 <Height>''' + str(video_height) + '''</Height>
-            </VideoProducer>
+            </DepthProducer>
             <ContinuousMovementCommands turnSpeedDegs="720" />
             <AgentQuitFromTouchingBlockType>
                 <Block type="redstone_block"/>
@@ -173,6 +185,20 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
   </Mission>'''
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+
+recordingsDirectory="DepthRecordings"
+
+try:
+    os.makedirs(recordingsDirectory)
+except OSError as exception:
+    if exception.errno != errno.EEXIST: # ignore error if already existed
+        raise
+
+# Set up a recording
+my_mission_record = MalmoPython.MissionRecordSpec()
+my_mission_record.recordRewards()
+my_mission_record.recordObservations()
+my_mission_record.recordMP4(24,2000000)
 
 validate = True
 my_mission = MalmoPython.MissionSpec( missionXML, validate )
@@ -196,14 +222,13 @@ if agent_host.receivedArgument("test"):
 else:
     num_reps = 30000
 
-my_mission_record_spec = MalmoPython.MissionRecordSpec()
-
 
 for iRepeat in range(num_reps):
+    my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
     max_retries = 3
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, my_mission_record_spec )
+            agent_host.startMission( my_mission, my_mission_record )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:

@@ -275,7 +275,25 @@ namespace malmo
         AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
         vps.set( VideoProducer( width, height ) );
     }
-    
+
+    void MissionSpec::requestLuminance(int width, int height)
+    {
+        AgentHandlers::LuminanceProducer_optional& lps = this->mission->AgentSection().front().AgentHandlers().LuminanceProducer();
+        lps.set(LuminanceProducer(width, height));
+    }
+
+    void MissionSpec::requestColourMap(int width, int height)
+    {
+        AgentHandlers::ColourMapProducer_optional& cps = this->mission->AgentSection().front().AgentHandlers().ColourMapProducer();
+        cps.set(ColourMapProducer(width, height));
+    }
+
+    void MissionSpec::request32bppDepth(int width, int height)
+    {
+        AgentHandlers::DepthProducer_optional& dps = this->mission->AgentSection().front().AgentHandlers().DepthProducer();
+        dps.set(DepthProducer(width, height));
+    }
+
     void MissionSpec::requestVideoWithDepth(int width, int height)
     {
         AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection().front().AgentHandlers().VideoProducer();
@@ -469,30 +487,55 @@ namespace malmo
         return this->mission->AgentSection()[role].AgentHandlers().VideoProducer().present();
     }
     
+    bool MissionSpec::isDepthRequested(int role) const
+    {
+        return this->mission->AgentSection()[role].AgentHandlers().DepthProducer().present();
+    }
+
+    bool MissionSpec::isLuminanceRequested(int role) const
+    {
+        return this->mission->AgentSection()[role].AgentHandlers().LuminanceProducer().present();
+    }
+
+    bool MissionSpec::isColourMapRequested(int role) const
+    {
+        return this->mission->AgentSection()[role].AgentHandlers().ColourMapProducer().present();
+    }
+
     int MissionSpec::getVideoWidth(int role) const
     {
-        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
-        if( !vps.present() )
+        if (!isVideoRequested(role) && !isDepthRequested(role) && !isLuminanceRequested(role) && !isColourMapRequested(role))
             throw runtime_error("MissionInitSpec::getVideoWidth : video has not been requested for this role");
-        return vps->Width();
+
+        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
+        AgentHandlers::DepthProducer_optional& dps = this->mission->AgentSection()[role].AgentHandlers().DepthProducer();
+        AgentHandlers::LuminanceProducer_optional& lps = this->mission->AgentSection()[role].AgentHandlers().LuminanceProducer();
+        AgentHandlers::ColourMapProducer_optional& cps = this->mission->AgentSection()[role].AgentHandlers().ColourMapProducer();
+        return vps.present() ? vps->Width() : (dps.present() ? dps->Width() : (lps.present() ? lps->Width() : cps->Width()));
     }
-    
+
     int MissionSpec::getVideoHeight(int role) const
     {
-        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
-        if( !vps.present() )
+        if (!isVideoRequested(role) && !isDepthRequested(role) && !isLuminanceRequested(role) && !isColourMapRequested(role))
             throw runtime_error("MissionInitSpec::getVideoHeight : video has not been requested for this role");
-        return vps->Height();
+
+        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
+        AgentHandlers::DepthProducer_optional& dps = this->mission->AgentSection()[role].AgentHandlers().DepthProducer();
+        AgentHandlers::LuminanceProducer_optional& lps = this->mission->AgentSection()[role].AgentHandlers().LuminanceProducer();
+        AgentHandlers::ColourMapProducer_optional& cps = this->mission->AgentSection()[role].AgentHandlers().ColourMapProducer();
+        return vps.present() ? vps->Height() : (dps.present() ? dps->Height() : (lps.present() ? lps->Height() : cps->Height()));
     }
-    
+
     int MissionSpec::getVideoChannels(int role) const
     {
-        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
-        if( !vps.present() )
+        // Only deals with video producer; depth producer always returns 32bpp; luminance producer always returns 8bpp; colourmap producer always returns 24bpp.
+        if (!isVideoRequested(role))
             throw runtime_error("MissionInitSpec::getVideoChannels : video has not been requested for this role");
+
+        AgentHandlers::VideoProducer_optional& vps = this->mission->AgentSection()[role].AgentHandlers().VideoProducer();
         return vps->want_depth() ? 4 : 3;
     }
-    
+
     vector<string> MissionSpec::getListOfCommandHandlers(int role) const
     {
         vector<string> command_handlers;

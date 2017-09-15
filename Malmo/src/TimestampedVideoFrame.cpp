@@ -40,11 +40,12 @@ namespace malmo
 
     }
 
-    TimestampedVideoFrame::TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message, Transform transform)
+    TimestampedVideoFrame::TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message, Transform transform, FrameType frametype)
         : timestamp(message.timestamp)
         , width(width)
         , height(height)
         , channels(channels)
+        , frametype(frametype)
         , xPos(0)
         , yPos(0)
         , zPos(0)

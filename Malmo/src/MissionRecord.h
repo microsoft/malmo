@@ -80,6 +80,18 @@ namespace malmo
             //! \returns The path as a string.
             std::string getMP4Path() const;
 
+            //! Gets the path where the mp4 depth video should be saved to, if recording has been requested.
+            //! \returns The path as a string.
+            std::string getMP4DepthPath() const;
+
+            //! Gets the path where the mp4 luminance video should be saved to, if recording has been requested.
+            //! \returns The path as a string.
+            std::string getMP4LuminancePath() const;
+
+            //! Gets the path where the mp4 colourmap video should be saved to, if recording has been requested.
+            //! \returns The path as a string.
+            std::string getMP4ColourMapPath() const;
+
             //! Gets the bitrate at which the video should be recorded, if MP4 recording has been requested.
             //! \returns The bitrate in bits per second.
             int64_t getMP4BitRate() const;
@@ -113,6 +125,9 @@ namespace malmo
             bool is_closed;
 
             std::string mp4_path;
+            std::string mp4_depth_path;
+            std::string mp4_luminance_path;
+            std::string mp4_colourmap_path;
             std::string observations_path;
             std::string rewards_path;
             std::string commands_path;

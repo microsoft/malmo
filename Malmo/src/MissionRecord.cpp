@@ -48,6 +48,9 @@ namespace malmo
             this->mission_id = boost::uuids::to_string(temp_uuid);
             this->temp_dir = this->temp_dir / "mission_records" / this->mission_id;
             this->mp4_path = (this->temp_dir / "video.mp4").string();
+            this->mp4_depth_path = (this->temp_dir / "depth_video.mp4").string();
+            this->mp4_luminance_path = (this->temp_dir / "luminance_video.mp4").string();
+            this->mp4_colourmap_path = (this->temp_dir / "colourmap_video.mp4").string();
             this->observations_path = (this->temp_dir / "observations.txt").string();
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
             this->commands_path = (this->temp_dir / "commands.txt").string();
@@ -93,6 +96,9 @@ namespace malmo
         , spec(record.spec)
         , commands_path(record.commands_path)
         , mp4_path(record.mp4_path)
+        , mp4_depth_path(record.mp4_depth_path)
+        , mp4_luminance_path(record.mp4_luminance_path)
+        , mp4_colourmap_path(record.mp4_colourmap_path)
         , observations_path(record.observations_path)
         , rewards_path(record.rewards_path)
         , mission_init_path(record.mission_init_path)
@@ -109,6 +115,9 @@ namespace malmo
             this->spec = record.spec;
             this->commands_path = record.commands_path;
             this->mp4_path = record.mp4_path;
+            this->mp4_depth_path = record.mp4_depth_path;
+            this->mp4_luminance_path = record.mp4_luminance_path;
+            this->mp4_colourmap_path = record.mp4_colourmap_path;
             this->observations_path = record.observations_path;
             this->rewards_path = record.rewards_path;
             this->mission_init_path = record.mission_init_path;
@@ -242,6 +251,21 @@ namespace malmo
     std::string MissionRecord::getMP4Path() const
     {
         return this->mp4_path;
+    }
+
+    std::string MissionRecord::getMP4DepthPath() const
+    {
+        return this->mp4_depth_path;
+    }
+
+    std::string MissionRecord::getMP4LuminancePath() const
+    {
+        return this->mp4_luminance_path;
+    }
+
+    std::string MissionRecord::getMP4ColourMapPath() const
+    {
+        return this->mp4_colourmap_path;
     }
 
     int64_t MissionRecord::getMP4BitRate() const

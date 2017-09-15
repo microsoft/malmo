@@ -39,7 +39,7 @@ namespace malmo
     class VideoFrameWriter
     {
     public:
-        VideoFrameWriter(std::string path, short width, short height, int frames_per_second);
+        VideoFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second);
         virtual ~VideoFrameWriter();
         virtual void open();
         virtual void close();
@@ -47,7 +47,7 @@ namespace malmo
         void write(TimestampedVideoFrame frame);
         bool isOpen() const;
 
-        static std::unique_ptr<VideoFrameWriter> create(std::string path, short width, short height, int frames_per_second, int64_t bit_rate);
+        static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate);
 
     protected:
         virtual void doWrite(char* rgb, int width, int height, int frame_index) = 0;

@@ -65,8 +65,11 @@
       <xs:element name="AgentIPAddress"              type="xs:string" />
       <xs:element name="AgentMissionControlPort"     type="xs:int" />
       <xs:element name="AgentVideoPort"              type="xs:int" />
+      <xs:element name="AgentDepthPort"              type="xs:int" />
+      <xs:element name="AgentLuminancePort"          type="xs:int" />
       <xs:element name="AgentObservationsPort"       type="xs:int" />
       <xs:element name="AgentRewardsPort"            type="xs:int" />
+      <xs:element name="AgentColourMapPort"          type="xs:int" />
     </xs:sequence>
   </xs:complexType>
 </xs:element>

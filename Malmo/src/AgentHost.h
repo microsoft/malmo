@@ -170,7 +170,7 @@ namespace malmo
             bool findServer(const ClientPool& client_pool);
 
             void listenForMissionControlMessages( int port );
-            void listenForVideo( int port, short width, short height, short channels );
+            boost::shared_ptr<VideoServer> listenForVideo(boost::shared_ptr<VideoServer> video_server, int port, short width, short height, short channels, TimestampedVideoFrame::FrameType frametype);
             void listenForRewards( int port );
             void listenForObservations( int port );
             
@@ -188,6 +188,9 @@ namespace malmo
             boost::asio::io_service io_service;
             boost::shared_ptr<StringServer>   mission_control_server;
             boost::shared_ptr<VideoServer>    video_server;
+            boost::shared_ptr<VideoServer>    depth_server;
+            boost::shared_ptr<VideoServer>    luminance_server;
+            boost::shared_ptr<VideoServer>    colourmap_server;
             boost::shared_ptr<StringServer>   rewards_server;
             boost::shared_ptr<StringServer>   observations_server;
             boost::optional<boost::asio::io_service::work> work;

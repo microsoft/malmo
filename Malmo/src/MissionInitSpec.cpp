@@ -45,6 +45,9 @@ namespace malmo
         const string agent_IP_address = "127.0.0.1";
         const int agent_mission_control_port = 0;
         const int agent_video_port = 0;
+        const int agent_depth_port = 0;
+        const int agent_luminance_port = 0;
+        const int agent_colourmap_port = 0;
         const int agent_observations_port = 0;
         const int agent_rewards_port = 0;
         ClientAgentConnection cac(
@@ -54,6 +57,9 @@ namespace malmo
             , agent_IP_address
             , agent_mission_control_port
             , agent_video_port
+            , agent_depth_port
+            , agent_colourmap_port
+            , agent_luminance_port
             , agent_observations_port
             , agent_rewards_port
             );
@@ -158,11 +164,41 @@ namespace malmo
         return this->mission_init->ClientAgentConnection().AgentVideoPort();
     }
     
+    int MissionInitSpec::getAgentDepthPort() const
+    {
+        return this->mission_init->ClientAgentConnection().AgentDepthPort();
+    }
+
+    int MissionInitSpec::getAgentLuminancePort() const
+    {
+        return this->mission_init->ClientAgentConnection().AgentLuminancePort();
+    }
+
+    int MissionInitSpec::getAgentColourMapPort() const
+    {
+        return this->mission_init->ClientAgentConnection().AgentColourMapPort();
+    }
+
     void MissionInitSpec::setAgentVideoPort(int port)
     {
         this->mission_init->ClientAgentConnection().AgentVideoPort() = port;
     }
     
+    void MissionInitSpec::setAgentDepthPort(int port)
+    {
+        this->mission_init->ClientAgentConnection().AgentDepthPort() = port;
+    }
+
+    void MissionInitSpec::setAgentLuminancePort(int port)
+    {
+        this->mission_init->ClientAgentConnection().AgentLuminancePort() = port;
+    }
+
+    void MissionInitSpec::setAgentColourMapPort(int port)
+    {
+        this->mission_init->ClientAgentConnection().AgentColourMapPort() = port;
+    }
+
     int MissionInitSpec::getAgentObservationsPort() const
     {
         return this->mission_init->ClientAgentConnection().AgentObservationsPort();

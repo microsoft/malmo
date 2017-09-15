@@ -20,11 +20,19 @@
 package com.microsoft.Malmo.Client;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Map;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.ITextureObject;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.MouseHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
@@ -32,6 +40,7 @@ import org.lwjgl.input.Mouse;
 
 import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 public class MalmoModClient
 {
@@ -57,6 +66,20 @@ public class MalmoModClient
         }
         
         @Override
+        public void grabMouseCursor()
+        {
+            if (MalmoModClient.this.inputType != InputType.HUMAN)
+            {
+                //Minecraft.getMinecraft().inGameHasFocus = false;
+                return;
+            }
+            if (Boolean.parseBoolean(System.getProperty("fml.noGrab","false"))) return;
+            Mouse.setGrabbed(true);
+            this.deltaX = 0;
+            this.deltaY = 0;
+        }
+
+        @Override
         /**
          * Ungrabs the mouse cursor so it can be moved and set it to the center of the screen
          */
@@ -74,7 +97,7 @@ public class MalmoModClient
         HUMAN, AI
     }
 
-    private InputType inputType = InputType.HUMAN;
+    protected InputType inputType = InputType.HUMAN;
     protected MouseHook mouseHook;
     protected MouseHelper originalMouseHelper;
 	private KeyManager keyManager;
@@ -87,6 +110,45 @@ public class MalmoModClient
         MinecraftForge.EVENT_BUS.register(this);
 
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
+
+        // Subvert the render manager:
+        RenderManager newRenderManager = new TextureHelper.MalmoRenderManager(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem());
+        // Are we in the dev environment or deployed?
+        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        // We need to know, because the TextManager's map name will either be obfuscated or not.
+        String mcRenderManagerName = devEnv ? "renderManager" : "field_175616_W";
+        String globalRenderManagerName = devEnv ? "renderManager" : "field_175010_j";
+        // NOTE: obfuscated name may need updating if Forge changes - search in
+        // ~\.gradle\caches\minecraft\de\oceanlabs\mcp\mcp_snapshot\20161220\1.11.2\srgs\mcp-srg.srg
+        Field renderMan;
+        Field globalRenderMan;
+        try
+        {
+            renderMan = Minecraft.class.getDeclaredField(mcRenderManagerName);
+            renderMan.setAccessible(true);
+            renderMan.set(Minecraft.getMinecraft(), newRenderManager);
+
+            globalRenderMan = RenderGlobal.class.getDeclaredField(globalRenderManagerName);
+            globalRenderMan.setAccessible(true);
+            globalRenderMan.set(Minecraft.getMinecraft().renderGlobal, newRenderManager);
+        }
+        catch (SecurityException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+        }
+
         setUpExtraKeys(settings);
 
         this.stateMachine = new ClientStateMachine(ClientState.WAITING_FOR_MOD_READY, this);
@@ -112,12 +174,18 @@ public class MalmoModClient
 
         // This stops Minecraft from doing the annoying thing of stealing your mouse.
         System.setProperty("fml.noGrab", input == InputType.AI ? "true" : "false");
+        inputType = input;
         if (input == InputType.HUMAN)
+        {
             Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = true;
+        }
         else
+        {
             Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = false;
+        }
 
-    	inputType = input;
 		this.stateMachine.getScreenHelper().addFragment("Mouse: " + input, TextCategory.TXT_INFO, INFO_MOUSE_CONTROL);
     }
 

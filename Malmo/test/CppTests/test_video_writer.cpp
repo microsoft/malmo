@@ -80,7 +80,7 @@ int main()
         boost::filesystem::remove(mp4_filename);
 
         cout << "beginning video writer test...";
-        runTest(VideoFrameWriter::create(mp4_filename, width, width, frequency, bit_rate));
+        runTest(VideoFrameWriter::create(mp4_filename, "frame_info.txt", width, width, frequency, bit_rate));
         cout << "complete." << endl;
 
         if (!boost::filesystem::exists(info_filename)) {
