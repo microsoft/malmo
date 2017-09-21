@@ -80,16 +80,18 @@
     7. `./b2 link=static cxxflags=-fPIC install`
 
 7. On Debian 7, CentOS 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD: 
-    1. For Debian and Ubuntu: `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`
-     - Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine  
-       For CentOS: `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm`
-    2. For Debian and Ubuntu: `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
-     - Run `sudo dpkg -i --force-all xsd_4.0.0-1_i386.deb` on a 32 bit machine  
-       `sudo apt-get install -f`  
-       For CentOS: `sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm`
+    1. For Debian and Ubuntu:
+       - `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`  
+         - (Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine)  
+       - `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
+         - (Use `sudo dpkg -i --force-all xsd_4.0.0-1_i386.deb` on a 32 bit machine)  
+       - `sudo apt-get install -f`
+    2. For CentOS:  
+       - `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm`  
+       - `sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm`
 
-       This step is needed because we require xsd version 4.0.  
-       (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
+    This step is needed because we require xsd version 4.0.  
+    (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
      
 8. Install Luabind:
     1. `git clone https://github.com/rpavlik/luabind.git ~/rpavlik-luabind`
