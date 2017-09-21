@@ -48,11 +48,18 @@
     
     6. On Arch Linux:
 
-      `sudo pacman -S --needed git cmake python2 tk jdk8-openjdk swig xsd xerces-c doxygen libxslt ffmpeg gcc mono lua51 lua51-socket `
+        `sudo pacman -S --needed git cmake python2 tk jdk8-openjdk swig xsd xerces-c doxygen libxslt ffmpeg gcc mono lua51 lua51-socket `
 
-      Install the following AUR packages:
-      `luabind-rpavlik-git boost-build torch7-git torch7-trepl-git`
-      (Skip to step 9)
+        Install the following AUR packages:
+        `luabind-rpavlik-git boost-build torch7-git torch7-trepl-git`
+        (Skip to step 9)
+
+    7. On CentOS 7:
+
+        `sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro`  
+        `sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm` (for ffmpeg)
+        
+        `sudo yum install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig  xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ lua lua-devel bzip2-devel tkinter python-pillow-tk`
 
 
 4. Install Torch: (if supported by your platform)
@@ -72,12 +79,15 @@
     6. `./bootstrap.sh --prefix=.`
     7. `./b2 link=static cxxflags=-fPIC install`
 
-7. On Debian 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD:
-    1. `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`
-     - Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine
-    2. `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
-     - Run `sudo dpkg -i --force-all xsd_4.0.0-1_i386.deb` on a 32 bit machine
-    3. `sudo apt-get install -f`  
+7. On Debian 7, CentOS 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD: 
+    1. For Debian and Ubuntu: `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`
+     - Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine  
+       For CentOS: `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm`
+    2. For Debian and Ubuntu: `sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb`  
+     - Run `sudo dpkg -i --force-all xsd_4.0.0-1_i386.deb` on a 32 bit machine  
+       `sudo apt-get install -f`  
+       For CentOS: `sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm`
+
        This step is needed because we require xsd version 4.0.  
        (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
      
