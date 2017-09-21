@@ -20,19 +20,11 @@
 package com.microsoft.Malmo.Client;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Map;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.MouseHelper;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
@@ -108,51 +100,12 @@ public class MalmoModClient
 	{
         // Register for various events:
         MinecraftForge.EVENT_BUS.register(this);
-
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
-
-        // Subvert the render manager:
-        RenderManager newRenderManager = new TextureHelper.MalmoRenderManager(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem());
-        // Are we in the dev environment or deployed?
-        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-        // We need to know, because the TextManager's map name will either be obfuscated or not.
-        String mcRenderManagerName = devEnv ? "renderManager" : "field_175616_W";
-        String globalRenderManagerName = devEnv ? "renderManager" : "field_175010_j";
-        // NOTE: obfuscated name may need updating if Forge changes - search in
-        // ~\.gradle\caches\minecraft\de\oceanlabs\mcp\mcp_snapshot\20161220\1.11.2\srgs\mcp-srg.srg
-        Field renderMan;
-        Field globalRenderMan;
-        try
-        {
-            renderMan = Minecraft.class.getDeclaredField(mcRenderManagerName);
-            renderMan.setAccessible(true);
-            renderMan.set(Minecraft.getMinecraft(), newRenderManager);
-
-            globalRenderMan = RenderGlobal.class.getDeclaredField(globalRenderManagerName);
-            globalRenderMan.setAccessible(true);
-            globalRenderMan.set(Minecraft.getMinecraft().renderGlobal, newRenderManager);
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e)
-        {
-            e.printStackTrace();
-        }
-        catch (NoSuchFieldException e)
-        {
-            e.printStackTrace();
-        }
-
+        TextureHelper.hookIntoRenderPipeline();
         setUpExtraKeys(settings);
 
         this.stateMachine = new ClientStateMachine(ClientState.WAITING_FOR_MOD_READY, this);
-        
+
         this.originalMouseHelper = Minecraft.getMinecraft().mouseHelper;
         this.mouseHook = new MouseHook();
         this.mouseHook.isOverriding = true;

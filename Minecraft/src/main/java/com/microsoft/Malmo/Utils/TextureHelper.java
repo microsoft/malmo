@@ -29,8 +29,10 @@ import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
@@ -39,11 +41,13 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.util.JsonException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import org.apache.commons.io.IOUtils;
@@ -53,8 +57,43 @@ import org.lwjgl.opengl.GL11;
 
 import com.microsoft.Malmo.MalmoMod;
 
+//Helper methods, classes etc which allow us to subvert the Minecraft render pipeline to produce
+//a colourmap image in addition to the normal Minecraft image.
 public class TextureHelper
 {
+    // Extend EntityRenderer to give us a relatively clean way to render multiple passes.
+    public static class MalmoEntityRenderer extends EntityRenderer
+    {
+        public MalmoEntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn)
+        {
+            super(mcIn, resourceManagerIn);
+        }
+
+        @Override
+        public void renderWorld(float partialTicks, long finishTimeNano)
+        {
+            if (isProducingColourMap)
+            {
+                // Creating a colourmap requires a completely separate pass through the render pipeline
+                colourmapFrame = true;
+                // Set the sky renderer to produce a solid block of colour:
+                Minecraft.getMinecraft().world.provider.setSkyRenderer(blankSkyRenderer);
+                // Render the world:
+                super.renderWorld(partialTicks, finishTimeNano);
+                // Now reset the sky renderer to default:
+                Minecraft.getMinecraft().world.provider.setSkyRenderer(null);
+                colourmapFrame = false;
+                // And get the render pipeline ready to go again:
+                GlStateManager.clear(16640);
+                Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
+                GlStateManager.enableTexture2D();
+            }
+            // Normal render:
+            super.renderWorld(partialTicks, finishTimeNano);
+        }
+    }
+
+    // Extended the RenderManager so that we can keep track of the entity currently being rendered.
     public static class MalmoRenderManager extends RenderManager
     {
         public MalmoRenderManager(TextureManager renderEngineIn, RenderItem itemRendererIn)
@@ -75,6 +114,7 @@ public class TextureHelper
         }
     }
 
+    // Sky renderer for use with colourmap video output - fills sky with solid colour.
     public static class BlankSkyRenderer extends net.minecraftforge.client.IRenderHandler
     {
         private byte r = 0;
@@ -90,6 +130,7 @@ public class TextureHelper
 
         public void render(float partialTicks, WorldClient world, Minecraft mc)
         {
+            // Adapted from the End sky renderer - just fill with solid colour.
             GlStateManager.disableFog();
             GlStateManager.disableAlpha();
             GlStateManager.disableBlend();
@@ -149,8 +190,58 @@ public class TextureHelper
     private static Map<String, Integer> idealMobColours = null;
     private static Map<Integer, Integer> texturesToColours = new HashMap<Integer, Integer>();
     private static Map<String, Integer> miscTexturesToColours = new HashMap<String, Integer>();
+    private static IRenderHandler blankSkyRenderer;
 
     private static boolean isProducingColourMap = false;
+    public static boolean colourmapFrame = false;
+
+    public static void hookIntoRenderPipeline()
+    {
+        // Subvert the render manager. This MUST be called at the right time (FMLInitializationEvent).
+        // 1: Replace the MC entity renderer with our own:
+        Minecraft.getMinecraft().entityRenderer = new MalmoEntityRenderer(Minecraft.getMinecraft(), Minecraft.getMinecraft().getResourceManager());
+        // 2: Create a new RenderManager:
+        RenderManager newRenderManager = new TextureHelper.MalmoRenderManager(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem());
+        // 3: Use reflection to:
+        //      a) replace Minecraft's RenderManager with our new RenderManager
+        //      b) point Minecraft's RenderGlobal object to the new RenderManager
+
+        // Are we in the dev environment or deployed?
+        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
+        // We need to know, because the names will either be obfuscated or not.
+        String mcRenderManagerName = devEnv ? "renderManager" : "field_175616_W";
+        String globalRenderManagerName = devEnv ? "renderManager" : "field_175010_j";
+        // NOTE: obfuscated name may need updating if Forge changes - search in
+        // ~\.gradle\caches\minecraft\de\oceanlabs\mcp\mcp_snapshot\20161220\1.11.2\srgs\mcp-srg.srg
+        Field renderMan;
+        Field globalRenderMan;
+        try
+        {
+            renderMan = Minecraft.class.getDeclaredField(mcRenderManagerName);
+            renderMan.setAccessible(true);
+            renderMan.set(Minecraft.getMinecraft(), newRenderManager);
+
+            globalRenderMan = RenderGlobal.class.getDeclaredField(globalRenderManagerName);
+            globalRenderMan.setAccessible(true);
+            globalRenderMan.set(Minecraft.getMinecraft().renderGlobal, newRenderManager);
+        }
+        catch (SecurityException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NoSuchFieldException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
     public static void init()
     {
@@ -172,7 +263,11 @@ public class TextureHelper
 
     public static void glBindTexture(int target, int texture)
     {
-        if (isProducingColourMap)
+        // The Minecraft render code is selecting a texture.
+        // If we are producing a colour map, this is our opportunity to activate our special fragment shader,
+        // which will ignore the texture and use a solid colour - either the colour we pass in, or a colour based
+        // on the texture coords (if using the block texture atlas).
+        if (isProducingColourMap && colourmapFrame)
         {
             if (shaderID != -1)
             {
@@ -242,6 +337,7 @@ public class TextureHelper
                     OpenGlHelper.glUseProgram(0);
             }
         }
+        // Finally, pass call on to OpenGL:
         GL11.glBindTexture(target, texture);
     }
 
@@ -292,10 +388,14 @@ public class TextureHelper
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return prog;
+    }
+
+    public static void setSkyRenderer(IRenderHandler skyRenderer)
+    {
+        blankSkyRenderer = skyRenderer;
     }
 
     public static void setMobColours(Map<String, Integer> mobColours)

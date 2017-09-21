@@ -1,5 +1,7 @@
 varying vec2 texture_coordinate;
 
+// Simple pass-through vertex shader - just pass the texture_coord onto the fragment shader.
+
 void main()
 {
     // Transforming The Vertex

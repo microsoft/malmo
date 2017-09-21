@@ -29,7 +29,6 @@ import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraftforge.client.IRenderHandler;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
@@ -43,7 +42,6 @@ public class ColourMapProducerImplementation extends HandlerBase implements IVid
 {
     private ColourMapProducer cmParams;
     private Framebuffer fbo;
-    private IRenderHandler defaultSkyRenderer = null;
     private Map<String, Integer> mobColours = new HashMap<String, Integer>();
     private Map<String, Integer> miscColours = new HashMap<String, Integer>();
 
@@ -96,6 +94,8 @@ public class ColourMapProducerImplementation extends HandlerBase implements IVid
     @Override
     public void getFrame(MissionInit missionInit, ByteBuffer buffer)
     {
+        // All the complicated work is done inside TextureHelper - by this point, all we need do
+        // is grab the contents of the Minecraft framebuffer.
         final int width = getWidth();
         final int height = getHeight();
 
@@ -113,14 +113,12 @@ public class ColourMapProducerImplementation extends HandlerBase implements IVid
         TextureHelper.setIsProducingColourMap(true);
         TextureHelper.setMobColours(this.mobColours);
         TextureHelper.setMiscTextureColours(this.miscColours);
-        this.defaultSkyRenderer = Minecraft.getMinecraft().world.provider.getSkyRenderer();
-        Minecraft.getMinecraft().world.provider.setSkyRenderer(new TextureHelper.BlankSkyRenderer(this.cmParams.getSkyColour()));
+        TextureHelper.setSkyRenderer(new TextureHelper.BlankSkyRenderer(this.cmParams.getSkyColour()));
     }
 
     @Override
     public void cleanup()
     {
-        Minecraft.getMinecraft().world.provider.setSkyRenderer(this.defaultSkyRenderer);
         TextureHelper.setIsProducingColourMap(false);
         this.fbo.deleteFramebuffer(); // Must do this or we leak resources.
     }

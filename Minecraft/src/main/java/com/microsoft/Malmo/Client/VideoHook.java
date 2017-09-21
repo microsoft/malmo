@@ -39,10 +39,11 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer.VideoType;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
-import org.lwjgl.opengl.GL11;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -229,6 +230,13 @@ public class VideoHook {
     @SubscribeEvent
     public void postRender(RenderWorldLastEvent event)
     {
+        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
+        // only the colourmap videoproducer needs to do anything.
+        boolean colourmapFrame = TextureHelper.colourmapFrame;
+        boolean colourmapVideoProducer = this.videoProducer.getVideoType() == VideoType.COLOUR_MAP;
+        if (colourmapFrame != colourmapVideoProducer)
+            return;
+
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
         float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());

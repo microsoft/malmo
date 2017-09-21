@@ -14,6 +14,7 @@ import net.minecraft.util.math.MathHelper;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.glu.Project;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.Schemas.DepthProducer;
@@ -57,17 +58,18 @@ public class DepthProducerImplementation extends HandlerBase implements IVideoPr
 
         this.fbo.bindFramebuffer(true);
         glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, buffer.asFloatBuffer());
-        FloatBuffer fds = BufferUtils.createFloatBuffer(16);
-        //GL11.glGetFloat(GL11.GL_DEPTH_BIAS, fds);
-        GL11.glGetFloat(GL11.GL_DEPTH_RANGE, fds);
+        // Depth map is in 32bpp floats in the range [0-1].
+        // We want to convert to give real distances in terms of block size.
+        // To do this, we need to know the near and far z-planes.
+        // First, get our byte buffer as a float buffer.
         FloatBuffer fluffer = buffer.asFloatBuffer();
-        //float ffff = fds.get(0);
-        //System.out.println(ffff);
-        System.out.println("Near: " + fds.get(0) + " far: " + fds.get(1));
-        float zNear = fds.get(0);
-        float zFar = fds.get(1);
-        zNear = 0.05F;
-        zFar = 128.0F * MathHelper.SQRT_2;
+        // The near and far planes are set by this line in EntityRenderer.renderWorldPass:
+        // Project.gluPerspective(this.getFOVModifier(partialTicks, true), (float)this.mc.displayWidth / (float)this.mc.displayHeight, 0.05F, this.farPlaneDistance * MathHelper.SQRT_2);
+        // So zNear is hardcoded to 0.05F:
+        float zNear = 0.05F;
+        // farPlaneDistance is private; we could use reflection to get at it, but we don't need to, because it's set by this line in EntityRenderer.setupCameraTransform:
+        // this.farPlaneDistance = (float)(this.mc.gameSettings.renderDistanceChunks * 16);
+        float zFar = (float)(Minecraft.getMinecraft().gameSettings.renderDistanceChunks * 16) * MathHelper.SQRT_2;
         float minval = 1;
         float maxval = 0;
         for (int i = 0; i < width * height; i++)
