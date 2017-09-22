@@ -27,7 +27,7 @@ import sys
 import time
 #from PIL import Image
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 agent_host = MalmoPython.AgentHost()
 try:

@@ -238,7 +238,7 @@ class TabQAgent(object):
                                      outline="#fff", fill="#fff" )
         self.root.update()
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 agent = TabQAgent()
 agent_host = MalmoPython.AgentHost()

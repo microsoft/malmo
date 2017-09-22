@@ -260,7 +260,7 @@ class ThreadedAgent(threading.Thread):
         time.sleep(2)
         self.agent_host = None
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,

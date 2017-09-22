@@ -113,7 +113,7 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
         </AgentSection>
   </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalIntArgument( "role,r", "For multi-agent missions, the role of this agent instance", 0)
 try:

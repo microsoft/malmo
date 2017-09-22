@@ -262,7 +262,7 @@ def indexOfClosest( arr, val ):
             d_closest = d
     return i_closest
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # -- set up the agent host --
 agent_host = MalmoPython.AgentHost()

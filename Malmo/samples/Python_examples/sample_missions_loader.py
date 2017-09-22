@@ -29,7 +29,7 @@ import sys
 import time
 import random
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # -- set up the mission -- #
 #mission_file_no_ext = '../Sample_missions/default_world_1'                 # Survive and find gold, diamond or redstone!

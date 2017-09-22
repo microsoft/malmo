@@ -110,7 +110,7 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
 my_client_pool = MalmoPython.ClientPool()

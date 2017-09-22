@@ -810,7 +810,7 @@ class SalesmanAgent(threading.Thread):
                 self.agent_host.sendCommand("move " + str(move_speed))
             time.sleep(0.001)
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,

@@ -184,7 +184,7 @@ def GetMissionXML(summary):
 
     </Mission>'''
    
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
 

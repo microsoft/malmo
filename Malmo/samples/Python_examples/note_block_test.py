@@ -130,7 +130,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
         </AgentSection>
     </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 my_mission = MalmoPython.MissionSpec(missionXML,True)
 agent_host = MalmoPython.AgentHost()
 try:

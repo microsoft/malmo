@@ -106,7 +106,7 @@ def safeWaitForStart(agent_hosts):
     print()
     print("Mission has started.")
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # -- set up two agent hosts --
 agent_host_simeon = MalmoPython.AgentHost()

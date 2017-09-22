@@ -149,7 +149,7 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 root = tk.Tk()
 root.wm_title("Collect the " + GOAL_TYPE + "s, dodge the " + MOB_TYPE + "s!")

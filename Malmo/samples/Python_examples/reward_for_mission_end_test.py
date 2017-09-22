@@ -110,7 +110,7 @@ def SetVelocity(vel):
 def SetTurn(turn):
     agent_host.sendCommand( "turn " + str(turn) )
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 recordingsDirectory="MissionEndRecordings"
 try:

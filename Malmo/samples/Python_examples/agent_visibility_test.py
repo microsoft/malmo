@@ -42,7 +42,7 @@ import time
 import uuid
 import errno
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # Create somewhere to store any failed frames:
 FAILED_FRAME_DIR = "VisibilityTest_FailedFrames"

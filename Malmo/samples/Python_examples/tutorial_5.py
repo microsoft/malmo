@@ -30,7 +30,7 @@ import sys
 import time
 import json
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 def Menger(xorg, yorg, zorg, size, blocktype, variant, holetype):
     #draw solid chunk

@@ -111,7 +111,7 @@ def getMissionXML(block_types):
     </AgentSection>
   </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )

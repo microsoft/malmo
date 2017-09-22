@@ -138,7 +138,7 @@ def GetMissionXML( mazeblock ):
 
     </Mission>'''
   
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
 mazeblocks = [maze1, maze2, maze3, maze4]

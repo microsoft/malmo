@@ -218,7 +218,7 @@ def sendCommand():
 root.bind_all('<KeyPress>', keyDown)
 root.bind_all('<KeyRelease>', keyUp)
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 agent_host = MalmoPython.ALEAgentHost()
 # add some arguments:

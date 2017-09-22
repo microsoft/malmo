@@ -31,7 +31,7 @@ import random
 import sys
 import time
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 # -- set up two agent hosts --
 agent_host1 = MalmoPython.AgentHost()

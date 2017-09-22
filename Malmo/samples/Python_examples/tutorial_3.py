@@ -29,7 +29,7 @@ import os
 import sys
 import time
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 def Menger(xorg, yorg, zorg, size, blocktype, holetype):
     #draw solid chunk

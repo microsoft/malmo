@@ -274,7 +274,7 @@ class HumanAgentHost(object):
         elif event.keysym in keysym_map:
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
             
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 human_agent_host = HumanAgentHost()
 human_agent_host.addOptionalStringArgument( "mission_xml,m", "Mission XML file name.", "" )

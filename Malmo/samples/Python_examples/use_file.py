@@ -27,7 +27,7 @@ import sys
 import time
 import json
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalStringArgument( "file", "An XML mission specification file to use - see Sample_missions folder.", "" )

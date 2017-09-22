@@ -85,7 +85,7 @@ def GetMissionXML( current_seed ):
   </Mission>'''
   
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
 validate = True
 my_mission = MalmoPython.MissionSpec(GetMissionXML("random"),validate)
