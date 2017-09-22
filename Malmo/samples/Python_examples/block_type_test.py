@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -34,7 +35,7 @@ schema_dir = None
 try:
     schema_dir = os.environ['MALMO_XSD_PATH']
 except KeyError:
-    print "MALMO_XSD_PATH not set? Check environment."
+    print("MALMO_XSD_PATH not set? Check environment.")
     exit(1)
 types_xsd = schema_dir + os.sep + "Types.xsd"
 
@@ -43,20 +44,20 @@ types_tree = None
 try:
     types_tree = ET.parse(types_xsd)
 except (ET.ParseError, IOError):
-    print "Could not find or parse Types.xsd - check Malmo installation."
+    print("Could not find or parse Types.xsd - check Malmo installation.")
     exit(1)
 
 # Find the BlockType element:
 root = types_tree.getroot()
 block_types_element = root.find("*[@name='BlockType']")
 if block_types_element == None:
-    print "Could not find block types in Types.xsd - file corruption?"
+    print("Could not find block types in Types.xsd - file corruption?")
     exit(1)
 
 # Find the enum inside the BlockType element:
 block_types_enum = block_types_element.find("*[@base]")
 if block_types_enum == None:
-    print "Unexpected schema format. Did the format get changed without this test getting updated?"
+    print("Unexpected schema format. Did the format get changed without this test getting updated?")
     exit(1)
 
 # Now make a list of block types:
@@ -113,11 +114,11 @@ agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for sa
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_iterations = 30000
@@ -152,7 +153,7 @@ for i in xrange(num_iterations):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
@@ -162,7 +163,7 @@ for i in xrange(num_iterations):
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     # main loop:
     while world_state.is_mission_running:
@@ -173,8 +174,8 @@ for i in xrange(num_iterations):
                 blocks = ob["all_the_blocks"]
                 missing_blocks = [b for b in block_types if not b in blocks]
                 if len(missing_blocks) > 0:
-                    print "MISSING:"
+                    print("MISSING:")
                     for b in missing_blocks:
-                        print b,
-                    print
+                        print(b, end=' ')
+                    print()
         world_state = agent_host.getWorldState()

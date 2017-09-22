@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -88,7 +89,7 @@ class TabQAgent:
             return 0
         current_s = "%d:%d" % (int(obs[u'XPos']), int(obs[u'ZPos']))
         self.logger.debug("State: %s (x = %.2f, z = %.2f)" % (current_s, float(obs[u'XPos']), float(obs[u'ZPos'])))
-        if not self.q_table.has_key(current_s):
+        if current_s not in self.q_table:
             self.q_table[current_s] = ([0] * len(self.actions))
 
         # update Q values
@@ -239,17 +240,17 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 # -- set up the mission -- #
 mission_file = './tutorial_6.xml'
 with open(mission_file, 'r') as f:
-    print "Loading mission from %s" % mission_file
+    print("Loading mission from %s" % mission_file)
     mission_xml = f.read()
     my_mission = MalmoPython.MissionSpec(mission_xml, True)
 # add 20% holes for interest
@@ -268,8 +269,8 @@ else:
 cumulative_rewards = []
 for i in range(num_repeats):
 
-    print
-    print 'Repeat %d of %d' % ( i+1, num_repeats )
+    print()
+    print('Repeat %d of %d' % ( i+1, num_repeats ))
     
     my_mission_record = MalmoPython.MissionRecordSpec()
 
@@ -279,31 +280,31 @@ for i in range(num_repeats):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2.5)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
-    print
+            print("Error:",error.text)
+    print()
 
     # -- run the agent in the world -- #
     cumulative_reward = agent.run(agent_host)
-    print 'Cumulative reward: %d' % cumulative_reward
+    print('Cumulative reward: %d' % cumulative_reward)
     cumulative_rewards += [ cumulative_reward ]
 
     # -- clean up -- #
     time.sleep(0.5) # (let the Mod reset)
 
-print "Done."
+print("Done.")
 
-print
-print "Cumulative rewards for all %d runs:" % num_repeats
-print cumulative_rewards
+print()
+print("Cumulative rewards for all %d runs:" % num_repeats)
+print(cumulative_rewards)

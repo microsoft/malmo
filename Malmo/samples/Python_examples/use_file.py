@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -31,11 +32,11 @@ agent_host.addOptionalStringArgument( "file", "An XML mission specification file
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -43,8 +44,8 @@ if agent_host.receivedArgument("test"):
 
 input_file_name = agent_host.getStringArgument( "file" )
 if input_file_name == "":
-    print '\nERROR: Supply a file to load on the command line.\n'
-    print agent_host.getUsage()
+    print('\nERROR: Supply a file to load on the command line.\n')
+    print(agent_host.getUsage())
     exit(1)
     
 validate = True
@@ -61,30 +62,30 @@ for iRepeat in range(30000):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     # main loop:
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
         while world_state.number_of_observations_since_last_state < 1 and world_state.is_mission_running:
-            print "Waiting for observations..."
+            print("Waiting for observations...")
             time.sleep(0.05)
             world_state = agent_host.getWorldState()
 
         if world_state.is_mission_running:
-            print "Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state."
+            print("Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state.")
             msg = world_state.observations[0].text
 
-    print "Mission has stopped."
+    print("Mission has stopped.")
     time.sleep(0.5) # Give mod a little time to get back to dormant state.

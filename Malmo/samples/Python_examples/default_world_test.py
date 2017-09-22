@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -78,11 +79,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -96,8 +97,8 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission",e
-            print "Is the game running?"
+            print("Error starting mission",e)
+            print("Is the game running?")
             exit(1)
         else:
             time.sleep(2)
@@ -147,7 +148,7 @@ while world_state.is_mission_running:
                 currentSequence = commands[1]
             else:
                 currentSequence = ""
-            print command
+            print(command)
             verb,sep,param = command.partition(" ")
             if verb == "wait":  # "wait" isn't a Malmo command - it's just used here to pause execution of our "programme".
                 waitCycles = int(param.strip())
@@ -156,6 +157,6 @@ while world_state.is_mission_running:
                 
     if currentSequence == "" and currentSpeed < 50 and waitCycles == 0: # Are we stuck?
         currentSequence = random.choice(commandSequences)   # Choose a random action (or insert your own logic here for choosing more sensibly...)
-        print "Stuck! Chosen programme: " + currentSequence
+        print("Stuck! Chosen programme: " + currentSequence)
 
 # Mission has ended.

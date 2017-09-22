@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -114,19 +115,19 @@ agent_host.addOptionalIntArgument( "role,r", "For multi-agent missions, the role
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 role = agent_host.getIntArgument("role")
-print "Will run as role",role
+print("Will run as role",role)
 
 if agent_host.receivedArgument("test"):
     if role == 0:
-        print "For test purposes, launching self with role 1 now."
+        print("For test purposes, launching self with role 1 now.")
         import subprocess
         subprocess.Popen(sys.executable + " " + __file__ + " --test --role 1", shell=True)
     num_episodes = 5
@@ -150,7 +151,7 @@ for iRepeat in xrange(num_episodes):
     zorg = ((iRepeat / 64) % 64) * 32
     yorg = 200 + ((iRepeat / (64*64)) % 64) * 8
 
-    print "Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg)
+    print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
     
     validate = True
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg), validate)
@@ -162,27 +163,27 @@ for iRepeat in xrange(num_episodes):
     retry = 0
     while True:
         try:
-            print "Calling startMission..."
+            print("Calling startMission...")
             agent_host.startMission( my_mission, client_pool, my_mission_record, role, unique_experiment_id )
             break
         except MalmoPython.MissionException as e:
             errorCode = e.details.errorCode
             if errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
-                print "Server not online yet - will keep waiting as long as needed."
+                print("Server not online yet - will keep waiting as long as needed.")
                 time.sleep(1)
             elif errorCode in [MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE,
                                MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND]:
                 retry += 1
                 if retry == max_retries:
-                    print "Error starting mission:", e
+                    print("Error starting mission:", e)
                     exit(1)
-                print "Resources not found - will wait and retry a limited number of times."
+                print("Resources not found - will wait and retry a limited number of times.")
                 time.sleep(5)
             else:
-                print "Blocking error:", e.message
+                print("Blocking error:", e.message)
                 exit(1)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     start_time = time.time()
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
@@ -191,13 +192,13 @@ for iRepeat in xrange(num_episodes):
         world_state = agent_host.getWorldState()
         if len(world_state.errors) > 0:
             for err in world_state.errors:
-                print err
+                print(err)
             exit(1)
         if time.time() - start_time > 120:
-            print "Mission failed to begin within two minutes - did you forget to start the other agent?"
+            print("Mission failed to begin within two minutes - did you forget to start the other agent?")
             exit(1)
-    print
-    print "Mission has begun."
+    print()
+    print("Mission has begun.")
     
     # main loop:
     while world_state.is_mission_running:
@@ -218,7 +219,7 @@ for iRepeat in xrange(num_episodes):
             time.sleep(0.05)
         if len(world_state.errors) > 0:
             for err in world_state.errors:
-                print err
+                print(err)
             
-    print "Mission has stopped."
-    print
+    print("Mission has stopped.")
+    print()

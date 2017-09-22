@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -146,11 +147,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -172,8 +173,8 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -246,10 +247,10 @@ for iRepeat in range(num_reps):
                     pig_population = num_pigs
                     tot = sheep_population + pig_population
                     if tot:
-                        print "PIGS:SHEEP",
+                        print("PIGS:SHEEP", end=' ')
                         r = 40.0 / tot
                         p = int(num_pigs * r)
-                        print "P" * p, "|", "S" * (40 - p), "(", num_pigs, num_sheep, ")"
+                        print("P" * p, "|", "S" * (40 - p), "(", num_pigs, num_sheep, ")")
                         
         if world_state.number_of_rewards_since_last_state > 0:
             # Keep track of our total reward:
@@ -257,14 +258,14 @@ for iRepeat in range(num_reps):
 
     # mission has ended.
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
     if world_state.number_of_rewards_since_last_state > 0:
         # A reward signal has come in - see what it is:
         total_reward += world_state.rewards[-1].getValue()
 
-    print
-    print "=" * 41
-    print "Total score this round:", total_reward
-    print "=" * 41
-    print
+    print()
+    print("=" * 41)
+    print("Total score this round:", total_reward)
+    print("=" * 41)
+    print()
     time.sleep(1) # Give the mod a little time to prepare for the next mission.

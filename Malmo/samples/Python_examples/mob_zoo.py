@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -96,7 +97,7 @@ def checkEnts(present_entities, required_entities):
         if not ent in present_entities:
             missing.append(ent)
     if len(missing) > 0:
-        print "Can't find:", missing
+        print("Can't find:", missing)
         if TESTING:
             exit(1)
 
@@ -136,11 +137,11 @@ agent_host.addOptionalFlag("mayhem,m", "Remove the safety glass from the cages..
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 rail_endpoints = []
@@ -333,8 +334,8 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission",e
-            print "Is the game running?"
+            print("Error starting mission",e)
+            print("Is the game running?")
             exit(1)
         else:
             time.sleep(2)
@@ -383,7 +384,7 @@ while world_state.is_mission_running:
 
 # End of mission:
 reward = world_state.rewards[-1].getValue()
-print "Result: " + str(reward)
+print("Result: " + str(reward))
 if reward < 0:
     exit(1)
 else:

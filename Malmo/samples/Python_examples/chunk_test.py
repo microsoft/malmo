@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -173,11 +174,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_iterations = 30000
@@ -198,18 +199,18 @@ for i in xrange(num_iterations):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Beginning test " + str(i) + "."
+    print("Beginning test " + str(i) + ".")
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     agent_host.sendCommand("pitch -0.1")    # Start looking up, because it's pretty.
     # main loop:
@@ -220,15 +221,15 @@ for i in xrange(num_iterations):
             if "structure" in obs:
                 struct = obs[u"structure"]
                 if struct == gridJson:
-                    print
-                    print "MATCHING - moving to next mission."
-                    print
+                    print()
+                    print("MATCHING - moving to next mission.")
+                    print()
                     structure = createTestStructure(SIZE_X, SIZE_Y, SIZE_Z) # Create the next one while we enjoy this one.
                     agent_host.sendCommand("quit")
                     break
                 else:
-                    print
-                    print "No match - test failed on iteration " + str(i)
+                    print()
+                    print("No match - test failed on iteration " + str(i))
                     # Find the discrepancies:
                     index = 0
                     for y in xrange(SIZE_Y):
@@ -237,7 +238,7 @@ for i in xrange(num_iterations):
                                 expected = gridJson[index]
                                 actual = struct[index]
                                 if expected != actual:
-                                    print "(" + str(x) + "," + str(y) + "," + str(z) + "), -" + actual + " +" + expected
+                                    print("(" + str(x) + "," + str(y) + "," + str(z) + "), -" + actual + " +" + expected)
                                 index += 1
                     agent_host.sendCommand("quit")
                     if agent_host.receivedArgument("test"):

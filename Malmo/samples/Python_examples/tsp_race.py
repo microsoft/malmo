@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -479,7 +480,7 @@ def get_genetic_algorithm_route(progress_callback, points, k, iters, mutation_pr
 
         # Generation completed - adjust crossover and mutation probabilites
         generation = list(next_gen)
-        print "Gen", it, ": best path = ", path_length(max(generation, key=lambda p:p[1])[0])
+        print("Gen", it, ": best path = ", path_length(max(generation, key=lambda p:p[1])[0]))
         total_fitness = sum(p[1] for p in generation)
     return max(generation, key=lambda p:p[1])[0]
 
@@ -496,7 +497,7 @@ def get_simulated_annealing_route(input_points):
     alpha = 0.9
     while temperature > 0.25:
         kept_bad = 0
-        print "Temp: ", temperature,
+        print("Temp: ", temperature, end=' ')
         dist_before = path_length(points)
         for i in xrange(len(points)*len(points)):
             i_from = random.randint(1, len(points)-1)
@@ -524,8 +525,8 @@ def get_simulated_annealing_route(input_points):
                 #print "up:", delta
         t += 1
         temperature = 10 * (alpha**t)
-        print "length: ", dist_before,
-        print "bad moves kept:", kept_bad
+        print("length: ", dist_before, end=' ')
+        print("bad moves kept:", kept_bad)
     return points
 
 
@@ -727,11 +728,11 @@ class SalesmanAgent(threading.Thread):
                     if used_attempts < max_attempts:
                         time.sleep(2)
                 else:
-                    print "Other error:", e.message
-                    print "Bailing immediately."
+                    print("Other error:", e.message)
+                    print("Bailing immediately.")
                     exit(1)
             if used_attempts == max_attempts:
-                print "Failed to start mission - bailing now."
+                print("Failed to start mission - bailing now.")
                 exit(1)
 
         start_time = time.time()
@@ -741,14 +742,14 @@ class SalesmanAgent(threading.Thread):
             world_state = self.agent_host.getWorldState()
             if len(world_state.errors) > 0:
                 for err in world_state.errors:
-                    print err
+                    print(err)
                 exit(1)
             if time.time() - start_time > 120:
-                print "Mission failed to begin within two minutes - did you forget to start the other agent?"
+                print("Mission failed to begin within two minutes - did you forget to start the other agent?")
                 exit(1)
         self.route = self.calculateRoute(self.points)
         self.runMissionLoop()
-        print RouteGenerators.DisplayNames[self.route_generator], "agent has finished!"
+        print(RouteGenerators.DisplayNames[self.route_generator], "agent has finished!")
 
     def calculateRoute(self, points):
         return RouteGenerators.Generators[self.route_generator](self, points)
@@ -832,11 +833,11 @@ parser.addOptionalIntArgument("points,p", "Number of points to use", 50)
 try:
     parser.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print parser.getUsage()
+    print('ERROR:',e)
+    print(parser.getUsage())
     exit(1)
 if parser.receivedArgument("help"):
-    print parser.getUsage()
+    print(parser.getUsage())
     exit(0)
 
 # Parse the command-line options:
@@ -865,7 +866,7 @@ for opt in options:
         agents.append(SalesmanAgent(role, opt[2], my_client_pool, xml, points, manager))
         role += 1
 if not len(agents):
-    print "No agents specified - using defaults"
+    print("No agents specified - using defaults")
     for opt in options:
         if opt[3]:
             agents.append(SalesmanAgent(role, opt[2], my_client_pool, xml, points, manager))

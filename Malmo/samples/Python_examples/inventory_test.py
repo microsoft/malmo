@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -144,11 +145,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_missions = 10 if agent_host.receivedArgument("test") else 30000
@@ -161,10 +162,10 @@ for mission_no in xrange(num_missions):
             agent_host.startMission( my_mission, my_mission_record )
             break
         except RuntimeError as e:
-            print e
+            print(e)
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -236,9 +237,9 @@ for mission_no in xrange(num_missions):
                 if boxCompleted(inv, box_colour, merges_allowed):
                     if not completed_boxes[box_colour]:
                         completed_boxes[box_colour] = True
-                        print "Completed " + box_colour + " box."
+                        print("Completed " + box_colour + " box.")
                         if not False in completed_boxes.values():
-                            print "ALL BOXES COMPLETED!"
+                            print("ALL BOXES COMPLETED!")
                             agent_host.sendCommand("turn 0")
                             time.sleep(1)   # Short pause to allow final rewards to get processed
                             agent_host.sendCommand("quit")
@@ -294,11 +295,11 @@ for mission_no in xrange(num_missions):
                 destCol = wrongColouredItem.colour if wrongColouredItem else "empty"
                 if rightColouredItem or wrongColouredItem:
                     if merging:
-                        print " " * int(-total_reward), "Merging " + dest + "(" + destCol + ") into our inventory"
+                        print(" " * int(-total_reward), "Merging " + dest + "(" + destCol + ") into our inventory")
                         num_merges += 1
                         agent_host.sendCommand("combineInventoryItems " + source + " " + dest)
                     else:
-                        print " " * int(-total_reward), "Swapping " + source + "(" + sourceCol + ") and " + dest + "(" + destCol + ")"
+                        print(" " * int(-total_reward), "Swapping " + source + "(" + sourceCol + ") and " + dest + "(" + destCol + ")")
                         num_swaps += 1
                         agent_host.sendCommand("swapInventoryItems " + source + " " + dest)
 
@@ -310,15 +311,15 @@ for mission_no in xrange(num_missions):
     test_passed = True
     if False in completed_boxes.values():
         test_passed = False
-        print "FAILED TO SORT BOXES: "
-        print [k for k in completed_boxes if not completed_boxes[k]]
+        print("FAILED TO SORT BOXES: ")
+        print([k for k in completed_boxes if not completed_boxes[k]])
     else:
-        print "Mission over - sorted boxes with " + str(num_swaps) + " swap commands and " + str(num_merges) + " merge commands (" + str(float(boxes_traversed)/16.0) + " laps)."
-        print "Final reward: ", total_reward
+        print("Mission over - sorted boxes with " + str(num_swaps) + " swap commands and " + str(num_merges) + " merge commands (" + str(float(boxes_traversed)/16.0) + " laps).")
+        print("Final reward: ", total_reward)
         if total_reward != 0:
-            print "Final reward should have been zero."
+            print("Final reward should have been zero.")
             test_passed = False
 
     if not test_passed and agent_host.receivedArgument("test"):
-        print "TEST FAILED"
+        print("TEST FAILED")
         exit(1)

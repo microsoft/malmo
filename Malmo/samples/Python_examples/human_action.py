@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -78,14 +79,14 @@ class HumanAgentHost:
         # decide on the action space
         command_handlers = mission_spec.getListOfCommandHandlers(role)
         if 'ContinuousMovement' in command_handlers and 'DiscreteMovement' in command_handlers:
-            print 'ERROR: Ambiguous action space in supplied mission: both continuous and discrete command handlers present.'
+            print('ERROR: Ambiguous action space in supplied mission: both continuous and discrete command handlers present.')
             exit(1)
         elif 'ContinuousMovement' in command_handlers:
             self.action_space = 'continuous'
         elif 'DiscreteMovement' in command_handlers:
             self.action_space = 'discrete'
         else:
-            print 'ERROR: Unknown action space in supplied mission: neither continuous or discrete command handlers present.'
+            print('ERROR: Unknown action space in supplied mission: neither continuous or discrete command handlers present.')
             exit(1)
 
         self.createGUI()
@@ -108,15 +109,15 @@ class HumanAgentHost:
             tkMessageBox.showerror("Error","Error starting mission: "+str(e))
             return
 
-        print "Waiting for the mission to start",
+        print("Waiting for the mission to start", end=' ')
         self.world_state = self.agent_host.peekWorldState()
         while not self.world_state.has_mission_begun:
             sys.stdout.write(".")
             time.sleep(0.1)
             self.world_state = self.agent_host.peekWorldState()
             for error in self.world_state.errors:
-                print "Error:",error.text
-        print
+                print("Error:",error.text)
+        print()
         if self.action_space == 'continuous':
             self.canvas.config(cursor='none') # hide the mouse cursor while over the canvas
             self.canvas.event_generate('<Motion>', warp=True, x=self.canvas.winfo_width()/2, y=self.canvas.winfo_height()/2) # put cursor at center
@@ -143,7 +144,7 @@ class HumanAgentHost:
             time.sleep(0.01)
         if self.action_space == 'continuous':
             self.canvas.config(cursor='arrow') # restore the mouse cursor
-        print 'Mission stopped'
+        print('Mission stopped')
         if not self.agent_host.receivedArgument("test"):
             tkMessageBox.showinfo("Mission ended","Mission has ended. Total reward: " + str(total_reward) )
         self.root_frame.destroy()
@@ -274,11 +275,11 @@ human_agent_host.addOptionalIntArgument( "role", "The role of the human agent. Z
 try:
     human_agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print human_agent_host.getUsage()
+    print('ERROR:',e)
+    print(human_agent_host.getUsage())
     exit(1)
 if human_agent_host.receivedArgument("help"):
-    print human_agent_host.getUsage()
+    print(human_agent_host.getUsage())
     exit(0)
     
 my_role = human_agent_host.getIntArgument("role")

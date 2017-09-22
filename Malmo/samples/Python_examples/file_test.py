@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -51,7 +52,7 @@ def genItems():
     return items
 
 def cleanup():
-    print "Cleaning up - deleting " + saved_filename
+    print("Cleaning up - deleting " + saved_filename)
     shutil.rmtree(saved_filename, ignore_errors=True)
     
 def startMission(agent_host, xml):
@@ -64,8 +65,8 @@ def startMission(agent_host, xml):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -75,7 +76,7 @@ def startMission(agent_host, xml):
         time.sleep(0.1)
         world_state = agent_host.peekWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
+            print("Error:",error.text)
         if len(world_state.errors) > 0:
             exit(1)
 
@@ -178,18 +179,18 @@ agent_host.addOptionalStringArgument( "savesDir,s", "Location of Minecraft saves
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 saveFolders = []
 savesDir = agent_host.getStringArgument("savesDir")
 if len(savesDir):
     if not os.path.isdir(savesDir):
-        print "Error - supplied saves folder not found. Can not proceed with test."
+        print("Error - supplied saves folder not found. Can not proceed with test.")
         exit(1)
     else:
         saveFolders.append(savesDir)
@@ -215,8 +216,8 @@ if len(saveFolders) == 0:
         currentFolder = os.path.normpath(os.path.join(currentFolder, ".."))
 
     if len(saveFolders) == 0:
-        print "Couldn't find the Minecraft saves folder - this test needs to be run somewhere that has access to the Minecraft client."
-        print "Please re-run from a different location, or explicitly pass in the saves folder location."
+        print("Couldn't find the Minecraft saves folder - this test needs to be run somewhere that has access to the Minecraft client.")
+        print("Please re-run from a different location, or explicitly pass in the saves folder location.")
         exit(1)
 
 # Now we have a list of save folders, build a list of all the saved worlds contained therein.
@@ -226,17 +227,17 @@ for dir in saveFolders:
         initialSavedWorlds.append(os.path.join(dir, item))
 
 # First mission: create a flatworld, add emeralds, run around until time runs out.
-print "Start creation mission."
+print("Start creation mission.")
 startMission(agent_host, createWorldXML)
 agent_host.sendCommand("move 1")
 agent_host.sendCommand("turn 0.2") 
 world_state = agent_host.peekWorldState()
 while world_state.is_mission_running:
     world_state = agent_host.peekWorldState()
-print "Creation mission over."
+print("Creation mission over.")
 world_state = agent_host.getWorldState()
 if world_state.rewards[-1].getValue() != 100:
-    print "Got incorrect reward - should have received 100 for time-up."
+    print("Got incorrect reward - should have received 100 for time-up.")
     exit(1)
 
 # Wait a bit...
@@ -252,17 +253,17 @@ for dir in saveFolders:
 newWorlds = []
 for world in currentSavedWorlds:
     if not world in initialSavedWorlds:
-        print "Found new saved world: " + world
+        print("Found new saved world: " + world)
         newWorlds.append(world)
 
 if len(newWorlds) != 1:
-    print "Couldn't find the new world file - cannot proceed with test."
+    print("Couldn't find the new world file - cannot proceed with test.")
     exit(1)
 
 # We don't try to copy this yet - Minecraft won't have saved our DrawingDecorator changes to it.
 # Instead, start the next mission - this will force the saving.
 # Second mission: to ensure a decent test, create a totally different world before reloading the first world.
-print "Start pallette cleanser."
+print("Start pallette cleanser.")
 startMission(agent_host, cleanserWorldXML)
 world_state = agent_host.peekWorldState()
 # We should just drown and die.
@@ -274,25 +275,25 @@ while world_state.is_mission_running:
         if "Air" in obs:
             air = obs[u"Air"]
             if air != current_air:
-                print "Air remaining: " + str(air)
+                print("Air remaining: " + str(air))
                 current_air = air
-print "Cleanser mission over."
+print("Cleanser mission over.")
 world_state = agent_host.getWorldState()
 if world_state.rewards[-1].getValue() != 100:
-    print "Got incorrect reward - should have received 100 for drowning."
+    print("Got incorrect reward - should have received 100 for drowning.")
     exit(1)
 
 # Now, try to copy the previous world files:
-print "Making copy of saved world " + newWorlds[0] + "..."
+print("Making copy of saved world " + newWorlds[0] + "...")
 try:
     shutil.copytree(newWorlds[0], saved_filename)
 except OSError as exc:
-    print "Failed to copy saved world - " + exc
-    print "Can not proceed with test."
+    print("Failed to copy saved world - " + exc)
+    print("Can not proceed with test.")
     exit(1)
 
 # Third mission: attempt to load the world we just copied.
-print "Start loading mission."
+print("Start loading mission.")
 startMission(agent_host, loadWorldXML)
 world_state = agent_host.peekWorldState()
 # Try to collect all the emeralds:
@@ -300,30 +301,30 @@ total_reward = 0
 for x in xrange(4):
     for z in xrange(4):
         tp_command = "tp " + str(x * 2000) + " 4 " + str(z * 2000)
-        print "Sending command: " + tp_command
+        print("Sending command: " + tp_command)
         agent_host.sendCommand(tp_command)
         world_state = agent_host.peekWorldState()
         if not world_state.is_mission_running:
-            print "Mission ended prematurely - error."
+            print("Mission ended prematurely - error.")
             exit(1)
         time.sleep(5) # Wait to make sure we collected the emerald.
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
             total_reward += world_state.rewards[-1].getValue()
-            print "Total reward: " + str(total_reward)
+            print("Total reward: " + str(total_reward))
 agent_host.sendCommand("quit")
 while world_state.is_mission_running:
     world_state = agent_host.peekWorldState()
 
-print "Loaded mission over."
+print("Loaded mission over.")
 world_state = agent_host.getWorldState()
 if world_state.number_of_rewards_since_last_state > 0:
     total_reward += world_state.rewards[-1].getValue()
 if total_reward != 16:
-    print "Got incorrect reward - should have received 16 for collecting 16 emeralds."
+    print("Got incorrect reward - should have received 16 for collecting 16 emeralds.")
     cleanup()
     exit(1)
 
-print "Test successful"
+print("Test successful")
 cleanup()
 exit(0)

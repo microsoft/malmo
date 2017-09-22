@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -86,11 +87,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -110,23 +111,23 @@ for i in range(num_repeats):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
     # Loop until mission starts:
-    print "Waiting for the mission to start ",
+    print("Waiting for the mission to start ", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
+            print("Error:",error.text)
 
-    print
-    print "Mission running ",
+    print()
+    print("Mission running ", end=' ')
 
     # Loop until mission ends:
     while world_state.is_mission_running:
@@ -134,8 +135,8 @@ for i in range(num_repeats):
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
+            print("Error:",error.text)
 
-    print
-    print "Mission ended"
+    print()
+    print("Mission ended")
     # Mission has ended.

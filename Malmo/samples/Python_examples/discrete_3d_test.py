@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -343,7 +344,7 @@ def getMissionXML(forceReset, structure, mode, pathtype, mission_description):
 
 def sendCommand(ah, command):
     if SHOW_COMMANDS:
-        print command
+        print(command)
     ah.sendCommand(command)
 
 def steerAgent(ah, description, dir, mode):
@@ -381,11 +382,11 @@ agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for sa
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_iterations = 30000
@@ -417,10 +418,10 @@ for i in xrange(num_iterations):
         my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i+1) + ".tgz")
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 
-    print ""
-    print ""
-    print description
-    print '=' * len(description)
+    print("")
+    print("")
+    print(description)
+    print('=' * len(description))
 
     max_retries = 3
     for retry in range(max_retries):
@@ -429,7 +430,7 @@ for i in xrange(num_iterations):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
@@ -439,7 +440,7 @@ for i in xrange(num_iterations):
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     moving = False
     last_subgoal = None
@@ -469,8 +470,8 @@ for i in xrange(num_iterations):
     ns_dict = {"malmo":"http://ProjectMalmo.microsoft.com"}
     stat = mission_end_tree.find("malmo:Status", ns_dict).text
     hr_stat = mission_end_tree.find("malmo:HumanReadableStatus", ns_dict).text
-    print "Mission over. Status: ", stat,
+    print("Mission over. Status: ", stat, end=' ')
     if len(hr_stat):
-        print " - " + hr_stat
+        print(" - " + hr_stat)
     if agent_host.receivedArgument("test") and "ERROR" in hr_stat:
         exit(1)

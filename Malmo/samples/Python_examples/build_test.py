@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -338,11 +339,11 @@ agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for sa
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_iterations = 30000
@@ -383,25 +384,25 @@ for i in xrange(num_iterations):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Beginning test " + str(i) + "."
+    print("Beginning test " + str(i) + ".")
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     total_reward = 0
     # Mission loop:
     while world_state.is_mission_running:
         if world_state.number_of_rewards_since_last_state > 0:
             for r in world_state.rewards:
-                print "Got reward: ", r.getValue()
+                print("Got reward: ", r.getValue())
                 total_reward += r.getValue()
         if world_state.number_of_observations_since_last_state > 0:
             msg = world_state.observations[-1].text
@@ -417,11 +418,11 @@ for i in xrange(num_iterations):
     ns_dict = {"malmo":"http://ProjectMalmo.microsoft.com"}
     stat = mission_end_tree.find("malmo:Status", ns_dict).text
     hr_stat = mission_end_tree.find("malmo:HumanReadableStatus", ns_dict).text
-    print "Mission over. Status: ", stat,
+    print("Mission over. Status: ", stat, end=' ')
     if len(hr_stat):
-        print " - " + hr_stat
+        print(" - " + hr_stat)
     if total_reward != expected_reward:
-        print "Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward)
+        print("Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward))
         if agent_host.receivedArgument("test"):
             exit(1)
-    print
+    print()

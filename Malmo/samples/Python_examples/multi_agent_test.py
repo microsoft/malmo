@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -45,11 +46,11 @@ agent_hosts[0].addOptionalIntArgument("agents,n", "Number of agents to use, incl
 try:
     agent_hosts[0].parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_hosts[0].getUsage()
+    print('ERROR:',e)
+    print(agent_hosts[0].getUsage())
     exit(1)
 if agent_hosts[0].receivedArgument("help"):
-    print agent_hosts[0].getUsage()
+    print(agent_hosts[0].getUsage())
     exit(0)
 
 DEBUG = agent_hosts[0].receivedArgument("debug")
@@ -74,7 +75,7 @@ def agentName(i):
 def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
     used_attempts = 0
     max_attempts = 5
-    print "Calling startMission for role", role
+    print("Calling startMission for role", role)
     while True:
         try:
             # Attempt start:
@@ -83,31 +84,31 @@ def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, 
         except MalmoPython.MissionException as e:
             errorCode = e.details.errorCode
             if errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
-                print "Server not quite ready yet - waiting..."
+                print("Server not quite ready yet - waiting...")
                 time.sleep(2)
             elif errorCode == MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE:
-                print "Not enough available Minecraft instances running."
+                print("Not enough available Minecraft instances running.")
                 used_attempts += 1
                 if used_attempts < max_attempts:
-                    print "Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left."
+                    print("Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left.")
                     time.sleep(2)
             elif errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND:
-                print "Server not found - has the mission with role 0 been started yet?"
+                print("Server not found - has the mission with role 0 been started yet?")
                 used_attempts += 1
                 if used_attempts < max_attempts:
-                    print "Will wait and retry.", max_attempts - used_attempts, "attempts left."
+                    print("Will wait and retry.", max_attempts - used_attempts, "attempts left.")
                     time.sleep(2)
             else:
-                print "Other error:", e.message
-                print "Waiting will not help here - bailing immediately."
+                print("Other error:", e.message)
+                print("Waiting will not help here - bailing immediately.")
                 exit(1)
         if used_attempts == max_attempts:
-            print "All chances used up - bailing now."
+            print("All chances used up - bailing now.")
             exit(1)
-    print "startMission called okay."
+    print("startMission called okay.")
 
 def safeWaitForStart(agent_hosts):
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     start_flags = [False for a in agent_hosts]
     start_time = time.time()
     time_out = 120  # Allow a two minute timeout.
@@ -116,18 +117,18 @@ def safeWaitForStart(agent_hosts):
         start_flags = [w.has_mission_begun for w in states]
         errors = [e for w in states for e in w.errors]
         if len(errors) > 0:
-            print "Errors waiting for mission start:"
+            print("Errors waiting for mission start:")
             for e in errors:
-                print e.text
-            print "Bailing now."
+                print(e.text)
+            print("Bailing now.")
             exit(1)
         time.sleep(0.1)
-        print ".",
+        print(".", end=' ')
     if time.time() - start_time >= time_out:
-        print "Timed out while waiting for mission to start - bailing."
+        print("Timed out while waiting for mission to start - bailing.")
         exit(1)
-    print
-    print "Mission has started."
+    print()
+    print("Mission has started.")
 
 def calcTurnValue(us, them, current_yaw):
     ''' Calc turn speed required to steer "us" towards "them".'''
@@ -295,7 +296,7 @@ player_kill_scores = [0 for x in range(NUM_AGENTS)] # Bad! Don't kill the other 
 
 num_missions = 5 if INTEGRATION_TEST_MODE else 30000
 for mission_no in xrange(1, num_missions+1):
-    print "Running mission #" + str(mission_no)
+    print("Running mission #" + str(mission_no))
     # Create mission xml - use forcereset if this is the first mission.
     my_mission = MalmoPython.MissionSpec(getXML("true" if mission_no == 1 else "false"), True)
 
@@ -369,7 +370,7 @@ for mission_no in xrange(1, num_missions+1):
                     apple_scores[i] += rew.getValue()
 
         time.sleep(0.05)
-    print
+    print()
 
     if not timed_out:
         # All agents except the watcher have died.
@@ -380,10 +381,10 @@ for mission_no in xrange(1, num_missions+1):
         # We timed out. Bonus score to any agents that survived!
         for i in xrange(NUM_AGENTS):
             if unresponsive_count[i] > 0:
-                print "SURVIVOR: " + agentName(i)
+                print("SURVIVOR: " + agentName(i))
                 survival_scores[i] += 1
 
-    print "Waiting for mission to end ",
+    print("Waiting for mission to end ", end=' ')
     # Mission should have ended already, but we want to wait until all the various agent hosts
     # have had a chance to respond to their mission ended message.
     hasEnded = False
@@ -406,14 +407,14 @@ for mission_no in xrange(1, num_missions+1):
     win_counts[winner_players] += 1
     win_counts[winner_apples] += 1
 
-    print
-    print "========================================="
-    print "Survival scores: ", survival_scores, "Winner: ", agentName(winner_survival)
-    print "Zombie kill scores: ", zombie_kill_scores, "Winner: ", agentName(winner_zombies)
-    print "Player kill scores: ", player_kill_scores, "Winner: ", agentName(winner_players)
-    print "Apple scores: ", apple_scores, "Winner: ", agentName(winner_apples)
-    print "========================================="
-    print "CURRENT OVERALL WINNER: " + agentName(win_counts.index(max(win_counts)))
-    print
+    print()
+    print("=========================================")
+    print("Survival scores: ", survival_scores, "Winner: ", agentName(winner_survival))
+    print("Zombie kill scores: ", zombie_kill_scores, "Winner: ", agentName(winner_zombies))
+    print("Player kill scores: ", player_kill_scores, "Winner: ", agentName(winner_players))
+    print("Apple scores: ", apple_scores, "Winner: ", agentName(winner_apples))
+    print("=========================================")
+    print("CURRENT OVERALL WINNER: " + agentName(win_counts.index(max(win_counts))))
+    print()
 
     time.sleep(2)

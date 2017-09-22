@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -96,11 +97,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 # Create a pool of Minecraft Mod clients:
@@ -139,7 +140,7 @@ for iRepeat in range(num_reps):
     zorg = ((iRepeat / 64) % 64) * 16
     yorg = 200 + ((iRepeat / (64*64)) % 64) * 8
 
-    print "Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg)
+    print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
 
     # Create a mission:
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), validate)
@@ -154,18 +155,18 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
+                print("Error starting mission",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         sys.stdout.write(".")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     # main loop:
     while world_state.is_mission_running:
@@ -183,5 +184,5 @@ for iRepeat in range(num_reps):
             agent_host.sendCommand( "move " + str(current_speed) )
             agent_host.sendCommand( "turn " + str(current_yaw_delta) )
 
-    print "Mission has stopped."
+    print("Mission has stopped.")
     time.sleep(0.5)  # Short pause to allow the Mod to get ready for the next mission.

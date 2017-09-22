@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -54,11 +55,11 @@ agent_host = MalmoPython.AgentHost()    # Purely for parsing command line
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 if agent_host.receivedArgument("test"):
     TESTING = True
@@ -238,7 +239,7 @@ class ThreadedAgent(threading.Thread):
                     if turn_index <= len(self.words):
                         word = self.words[turn_index - 1]
                         reconstructed_text += word + " "
-                        print word,
+                        print(word, end=' ')
                     self.agent_host.sendCommand("move 1", str(new_turn_key))
                     turn_key = new_turn_key
             time.sleep(0.001) # Helps python thread scheduler if we sleep a bit
@@ -295,20 +296,20 @@ for mission_no in xrange(iterations):
     for agent in agents:
         agent.join()
 
-    print
+    print()
     num_errors = 0
     for agent in agents:
-        print agent.role, agent.reward, agent.mission_end_message
+        print(agent.role, agent.reward, agent.mission_end_message)
         if agent.error:
-            print "ERROR FROM AGENT", agent.role, ":", agent.error
+            print("ERROR FROM AGENT", agent.role, ":", agent.error)
             num_errors += 1
     if TESTING and num_errors:
         exit(1)
 
     reconstructed_text = reconstructed_text.strip() # Deal with trailing space.
     if full_text != reconstructed_text:
-        print "ERROR!"
-        print "Expected: ", full_text
-        print "Received: ", reconstructed_text
+        print("ERROR!")
+        print("Expected: ", full_text)
+        print("Received: ", reconstructed_text)
         if TESTING:
             exit(1)
