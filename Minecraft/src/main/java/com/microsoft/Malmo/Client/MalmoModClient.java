@@ -50,27 +50,26 @@ public class MalmoModClient
             {
                 this.deltaX = 0;
                 this.deltaY = 0;
+                if (Mouse.isGrabbed())
+                    Mouse.setGrabbed(false);
+                Minecraft.getMinecraft().inGameHasFocus = false;
             }
             else
             {
                 super.mouseXYChange();
             }
         }
-        
+
         @Override
         public void grabMouseCursor()
         {
             if (MalmoModClient.this.inputType != InputType.HUMAN)
             {
-                //Minecraft.getMinecraft().inGameHasFocus = false;
                 return;
             }
-            if (Boolean.parseBoolean(System.getProperty("fml.noGrab","false"))) return;
-            Mouse.setGrabbed(true);
-            this.deltaX = 0;
-            this.deltaY = 0;
+            super.grabMouseCursor();
         }
-
+    
         @Override
         /**
          * Ungrabs the mouse cursor so it can be moved and set it to the center of the screen
