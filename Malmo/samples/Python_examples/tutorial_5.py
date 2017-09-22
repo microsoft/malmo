@@ -48,7 +48,7 @@ def Menger(xorg, yorg, zorg, size, blocktype, variant, holetype):
                 z=zorg+j
                 genstring += GenCuboid(xorg,y+w,z+w,xorg+size-1, (y+2*w)-1,(z+2*w)-1,holetype) + "\n"
                 genstring += GenCuboid(x+w,yorg,z+w,(x+2*w)-1,yorg+size-1,(z+2*w)-1,holetype) + "\n"
-        unit/=3
+        unit = w
     return genstring
 
 def GenCuboid(x1, y1, z1, x2, y2, z2, blocktype):
