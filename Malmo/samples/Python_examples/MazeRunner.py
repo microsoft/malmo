@@ -18,6 +18,8 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -174,7 +176,7 @@ my_mission_record = MalmoPython.MissionRecordSpec()
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
 
-for iRepeat in xrange(num_reps):
+for iRepeat in range(num_reps):
     my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
     mazeblock = random.choice(mazeblocks)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(mazeblock),validate)

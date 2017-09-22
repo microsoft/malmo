@@ -18,6 +18,8 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import json
 import math
@@ -35,8 +37,8 @@ HEIGHT=480
 
 def genItems():
     items = ""
-    for x in xrange(10):
-        for z in xrange(10):
+    for x in range(10):
+        for z in range(10):
             items += '<DrawBlock x="' + str(x * 1000) + '" y="3" z="' + str(z * 1000) + '" type="redstone_block"/>'
             items += '<DrawItem x="' + str(x * 1000) + '" y="10" z="' + str(z * 1000) + '" type="emerald"/>'
     return items
@@ -72,7 +74,7 @@ def processFrame(frame):
     green_total = 0
     blue_total = 0
     num_pixels = WIDTH * HEIGHT
-    for pixel in xrange(0, num_pixels*3, 3):
+    for pixel in range(0, num_pixels*3, 3):
         r = frame[pixel]
         g = frame[pixel+1]
         b = frame[pixel+2]
@@ -157,8 +159,8 @@ world_state = agent_host.peekWorldState()
 # Teleport to each location in turn, see if we collect the right number of emeralds,
 # and check we get the right image for each location.
 total_reward = 0
-for x in xrange(10):
-    for z in xrange(10):
+for x in range(10):
+    for z in range(10):
         teleport_x = x * 1000 + 0.5
         teleport_z = z * 1000 + 0.5
         tp_command = "tp " + str(teleport_x)+ " 4 " + str(teleport_z)

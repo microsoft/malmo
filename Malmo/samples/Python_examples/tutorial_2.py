@@ -20,6 +20,7 @@ from __future__ import print_function
 
 # Tutorial sample #2: Run simple mission using raw XML
 
+from builtins import range
 import MalmoPython
 import os
 import sys

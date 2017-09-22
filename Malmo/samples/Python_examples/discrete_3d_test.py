@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -34,6 +35,9 @@ from __future__ import print_function
 # (This is especially useful for the continuous case. The discrete cases could be solved much more simply
 # by just storing a list of the commands required, but doing it this way tests more things.)
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -87,12 +91,12 @@ def createTestStructure(sx, sy, sz):
     iterations = random.randint(20,25)
 
     # Run a cellular automata for a few iterations:
-    for i in xrange(iterations):
+    for i in range(iterations):
         if i == iterations - 1:
             colour = True   # Final iteration: don't apply the CA, just colour the cell.
-        for x in xrange(sx):
-            for y in xrange(sy):
-                for z in xrange(sz):
+        for x in range(sx):
+            for y in range(sy):
+                for z in range(sz):
                     tot = sum(neighbours(x,y,z)) - s[x][y][z]
                     result = s[x][y][z]
                     if colour:
@@ -112,8 +116,8 @@ def createTestStructure(sx, sy, sz):
         # copy next generation into source matrix.
         s = copy.deepcopy(t)
     # Give it a floor:
-    for x in xrange(sx):
-        for z in xrange(sz):
+    for x in range(sx):
+        for z in range(sz):
             s[x][0][z] = 26
 
     return s
@@ -133,9 +137,9 @@ def makePath(s, xorg, yorg, zorg, path_type):
     startpos = (0,0,0)
 
     # Build the graph:
-    for x in xrange(SIZE_X):
-        for y in xrange(SIZE_Y):
-            for z in xrange(SIZE_Z):
+    for x in range(SIZE_X):
+        for y in range(SIZE_Y):
+            for z in range(SIZE_Z):
                 # Can we stand on this block?
                 if not standable(x,y,z):
                     continue
@@ -143,8 +147,8 @@ def makePath(s, xorg, yorg, zorg, path_type):
                     startpos = (x,y,z)
                 jumpy = jumpable(x,y,z) and y < SIZE_Y - 1
                 # Enumerate accessible neighbours:
-                for dx in xrange(-1,2):
-                    for dz in xrange(-1,2):
+                for dx in range(-1,2):
+                    for dz in range(-1,2):
                         if dx==0 and dz==0:
                             continue
                         if dx != 0 and dz != 0:
@@ -160,7 +164,7 @@ def makePath(s, xorg, yorg, zorg, path_type):
 
     # Now search to lowest reachable point:
     queue = deque([startpos])
-    points = [(False,0) for i in xrange(SIZE_X * SIZE_Y * SIZE_Z)]
+    points = [(False,0) for i in range(SIZE_X * SIZE_Y * SIZE_Z)]
     start_ind = index(startpos[0], startpos[1], startpos[2])
     points[start_ind] = (True,0)
     node = startpos
@@ -192,9 +196,9 @@ def makePath(s, xorg, yorg, zorg, path_type):
     ind = index(endpos[0], endpos[1], endpos[2])
     while ind != start_ind:
         i = ind
-        y = i / (SIZE_X * SIZE_Z)
+        y = old_div(i, (SIZE_X * SIZE_Z))
         i -= y * SIZE_X * SIZE_Z
-        z = i / SIZE_X
+        z = old_div(i, SIZE_X)
         i -= z * SIZE_X
         x = i
         path.append((x + xorg, y + yorg, z + zorg))
@@ -205,12 +209,12 @@ def makePath(s, xorg, yorg, zorg, path_type):
 def structureToXML(structure, xorg, yorg, zorg, pallette):
     # Take the structure and create a drawing decorator for it.
     drawing = ""
-    for y in xrange(SIZE_Y):
-        for z in xrange(SIZE_Z):
-            for x in xrange(SIZE_X):
+    for y in range(SIZE_Y):
+        for z in range(SIZE_Z):
+            for x in range(SIZE_X):
                 value = structure[x][y][z]
                 if value > 0:
-                    type = pallette[value/5]
+                    type = pallette[old_div(value,5)]
                     parts = type.split()
                     type_string = ' type="' + parts[0] + '"'
                     if len(parts) > 1:
@@ -254,7 +258,7 @@ def getAnnotationAndTolerance(current, next, mode):
 def getMissionXML(forceReset, structure, mode, pathtype, mission_description):
     xpos = int((random.random() - 0.5) * 20000)
     zpos = int((random.random() - 0.5) * 20000)
-    xorg = xpos - int(SIZE_X / 2)
+    xorg = xpos - int(old_div(SIZE_X, 2))
     yorg = 1
     zorg = zpos + 1
     pallette = random.choice(palletes)
@@ -408,10 +412,10 @@ if len(recordingsDirectory) > 0:
     my_mission_record.recordCommands()
     my_mission_record.recordMP4(24,2000000)
 
-for i in xrange(num_iterations):
+for i in range(num_iterations):
     structure = createTestStructure(SIZE_X, SIZE_Y, SIZE_Z)
     mode = i % len(MovementModes)
-    pathtype = PathTypes.Silly if (i / len(MovementModes)) % 2 == 0 else PathTypes.Sensible
+    pathtype = PathTypes.Silly if (old_div(i, len(MovementModes))) % 2 == 0 else PathTypes.Sensible
     description = "3D navtest #" + str(i+1) + "; Actions=" + MovementModes[mode] + "; Path=" + PathTypes[pathtype]
     missionXML = getMissionXML('"false"', structure, mode, pathtype, description)
     if recording:

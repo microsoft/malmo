@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Tests overclocking the render speed by running a very simple task at a series of different frame sizes.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -133,7 +137,7 @@ print("This will run the same simple mission with " + str(len(sizes)) + " differ
 
 for iRepeat in range(len(sizes) * 2):
     prioritiseOffscreen = "true" if iRepeat % 2 else "false"
-    width,height = sizes[iRepeat/2]
+    width,height = sizes[old_div(iRepeat,2)]
     if iRepeat % 2:
         num_pixels.append(width*height)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(width), str(height), prioritiseOffscreen), validate)
@@ -177,7 +181,7 @@ for iRepeat in range(len(sizes) * 2):
 
     end = timer()
     missionTimeMs = (end - start) * 1000
-    dataShifted = (width * height * 3 * numFrames) / (1024*1024)
+    dataShifted = old_div((width * height * 3 * numFrames), (1024*1024))
     averagefps = numFrames * 1000 / missionTimeMs
     datarate = dataShifted * 1000 / missionTimeMs
     

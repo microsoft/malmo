@@ -18,6 +18,8 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import json
 import math
@@ -45,8 +47,8 @@ saved_filename = os.path.join(localSavesDirectory, str(uuid.uuid1()))
 
 def genItems():
     items = ""
-    for x in xrange(4):
-        for z in xrange(4):
+    for x in range(4):
+        for z in range(4):
             items += '<DrawBlock x="' + str(x * 2000) + '" y="3" z="' + str(z * 2000) + '" type="redstone_block"/>'
             items += '<DrawItem x="' + str(x * 2000) + '" y="10" z="' + str(z * 2000) + '" type="emerald"/>'
     return items
@@ -298,8 +300,8 @@ startMission(agent_host, loadWorldXML)
 world_state = agent_host.peekWorldState()
 # Try to collect all the emeralds:
 total_reward = 0
-for x in xrange(4):
-    for z in xrange(4):
+for x in range(4):
+    for z in range(4):
         tp_command = "tp " + str(x * 2000) + " 4 " + str(z * 2000)
         print("Sending command: " + tp_command)
         agent_host.sendCommand(tp_command)

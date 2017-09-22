@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Test blaze drawing, entity tracking etc.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -108,7 +112,7 @@ def angvel(target, current, scale):
         delta += 360;
     while delta > 180:
         delta -= 360;
-    return (2.0 / (1.0 + math.exp(-delta/scale))) - 1.0
+    return (old_div(2.0, (1.0 + math.exp(old_div(-delta,scale))))) - 1.0
 
 def pointTo(agent_host, ob, target_pitch, target_yaw, threshold):
     '''Steer towards the target pitch/yaw, return True when within the given tolerance threshold.'''
@@ -254,8 +258,8 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
                                            outer_back = outer_back,
                                            inner_back = inner_back)
     # Draw the levels:
-    num_levels = int(math.ceil(float(len(zooMobs)) / float(cells_across)))
-    for i in xrange(num_levels):
+    num_levels = int(math.ceil(old_div(float(len(zooMobs)), float(cells_across))))
+    for i in range(num_levels):
         # Dimensions for this level:
         outer_bottom = orgy + i * cell_height
         outer_top = orgy + (i + 1) * cell_height
@@ -293,7 +297,7 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
     for draw_pass in ["cell", "entity"]:
         for i, mob in enumerate(zooMobs):
             x = i % cells_across
-            y = i / cells_across
+            y = old_div(i, cells_across)
             # Dimensions for this cell:
             outer_left = orgx + x * cell_width
             outer_right = outer_left + cell_width
@@ -304,7 +308,7 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
 
             # Should we draw the entity?
             if draw_pass == "entity" and len(mob[0]) > 0:
-                mobx, moby, mobz = outer_left + cell_width / 2, inner_bottom, orgz + 3 * z_offset
+                mobx, moby, mobz = outer_left + old_div(cell_width, 2), inner_bottom, orgz + 3 * z_offset
                 missionXML += '<DrawEntity x="{}" y="{}" z="{}" type="{}" yaw="0"/>'.format(mobx, moby, mobz, mob[0])
                 cell_midpoints.append((mobx, moby, mobz, mob[0]))
 

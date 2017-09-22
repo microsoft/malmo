@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,16 +21,22 @@ from __future__ import print_function
 
 # Human Action Component - use this to let humans play through the same missions as you give to agents
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import MalmoPython
 import os
 import sys
 import time
-from Tkinter import *
-import tkMessageBox
+from tkinter import *
+import tkinter.messagebox
 from PIL import Image
 from PIL import ImageTk
 
-class HumanAgentHost:
+class HumanAgentHost(object):
 
     def __init__( self ):
         '''Initializes the class.'''
@@ -106,7 +113,7 @@ class HumanAgentHost:
         try:
             self.agent_host.startMission( mission_spec, mission_record_spec )
         except RuntimeError as e:
-            tkMessageBox.showerror("Error","Error starting mission: "+str(e))
+            tkinter.messagebox.showerror("Error","Error starting mission: "+str(e))
             return
 
         print("Waiting for the mission to start", end=' ')
@@ -120,7 +127,7 @@ class HumanAgentHost:
         print()
         if self.action_space == 'continuous':
             self.canvas.config(cursor='none') # hide the mouse cursor while over the canvas
-            self.canvas.event_generate('<Motion>', warp=True, x=self.canvas.winfo_width()/2, y=self.canvas.winfo_height()/2) # put cursor at center
+            self.canvas.event_generate('<Motion>', warp=True, x=old_div(self.canvas.winfo_width(),2), y=old_div(self.canvas.winfo_height(),2)) # put cursor at center
             self.root.after(50, self.update)
         self.canvas.focus_set()
 
@@ -133,9 +140,9 @@ class HumanAgentHost:
                 image = Image.frombytes('RGB', (frame.width,frame.height), str(frame.pixels) )
                 photo = ImageTk.PhotoImage(image)
                 self.canvas.delete("all")
-                self.canvas.create_image(frame.width/2, frame.height/2, image=photo)
-            self.canvas.create_line( self.canvas.winfo_width()/2-5, self.canvas.winfo_height()/2,   self.canvas.winfo_width()/2+6, self.canvas.winfo_height()/2,   fill='white' )
-            self.canvas.create_line( self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2-5, self.canvas.winfo_width()/2,   self.canvas.winfo_height()/2+6, fill='white' )
+                self.canvas.create_image(old_div(frame.width,2), old_div(frame.height,2), image=photo)
+            self.canvas.create_line( old_div(self.canvas.winfo_width(),2)-5, old_div(self.canvas.winfo_height(),2),   old_div(self.canvas.winfo_width(),2)+6, old_div(self.canvas.winfo_height(),2),   fill='white' )
+            self.canvas.create_line( old_div(self.canvas.winfo_width(),2),   old_div(self.canvas.winfo_height(),2)-5, old_div(self.canvas.winfo_width(),2),   old_div(self.canvas.winfo_height(),2)+6, fill='white' )
             # parse reward
             for reward in self.world_state.rewards:
                 total_reward += reward.getValue()
@@ -146,7 +153,7 @@ class HumanAgentHost:
             self.canvas.config(cursor='arrow') # restore the mouse cursor
         print('Mission stopped')
         if not self.agent_host.receivedArgument("test"):
-            tkMessageBox.showinfo("Mission ended","Mission has ended. Total reward: " + str(total_reward) )
+            tkinter.messagebox.showinfo("Mission ended","Mission has ended. Total reward: " + str(total_reward) )
         self.root_frame.destroy()
         
     def createGUI( self ):
@@ -202,9 +209,9 @@ class HumanAgentHost:
                         self.agent_host.sendCommand( 'pitch '+str(pitch_speed) )
                 if self.mouse_event:
                     if os.name == 'nt': # (moving the mouse cursor only seems to work on Windows)
-                        self.canvas.event_generate('<Motion>', warp=True, x=self.canvas.winfo_width()/2, y=self.canvas.winfo_height()/2) # put cursor at center
-                        self.mouse_event.x = self.canvas.winfo_width()/2
-                        self.mouse_event.y = self.canvas.winfo_height()/2
+                        self.canvas.event_generate('<Motion>', warp=True, x=old_div(self.canvas.winfo_width(),2), y=old_div(self.canvas.winfo_height(),2)) # put cursor at center
+                        self.mouse_event.x = old_div(self.canvas.winfo_width(),2)
+                        self.mouse_event.y = old_div(self.canvas.winfo_height(),2)
                     self.prev_mouse_event = self.mouse_event
         if self.world_state.is_mission_running:
             self.root.after(50, self.update)

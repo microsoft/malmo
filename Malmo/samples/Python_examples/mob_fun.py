@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -21,6 +22,11 @@ from __future__ import print_function
 # Demo of mob_spawner block - creates an arena, lines it with mob spawners of a given type, and then tries to keep an agent alive.
 # Just a bit of fun - no real AI in here!
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -30,7 +36,7 @@ import json
 import random
 import errno
 import math
-import Tkinter as tk
+import tkinter as tk
 from collections import namedtuple
 EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
 EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
@@ -47,10 +53,10 @@ MOB_TYPE = "Endermite"  # Change for fun, but note that spawning conditions have
 CANVAS_BORDER = 20
 CANVAS_WIDTH = 400
 CANVAS_HEIGHT = CANVAS_BORDER + ((CANVAS_WIDTH - CANVAS_BORDER) * ARENA_BREADTH / ARENA_WIDTH)
-CANVAS_SCALEX = (CANVAS_WIDTH-CANVAS_BORDER)/ARENA_WIDTH
-CANVAS_SCALEY = (CANVAS_HEIGHT-CANVAS_BORDER)/ARENA_BREADTH
-CANVAS_ORGX = -ARENA_WIDTH/CANVAS_SCALEX
-CANVAS_ORGY = -ARENA_BREADTH/CANVAS_SCALEY
+CANVAS_SCALEX = old_div((CANVAS_WIDTH-CANVAS_BORDER),ARENA_WIDTH)
+CANVAS_SCALEY = old_div((CANVAS_HEIGHT-CANVAS_BORDER),ARENA_BREADTH)
+CANVAS_ORGX = old_div(-ARENA_WIDTH,CANVAS_SCALEX)
+CANVAS_ORGY = old_div(-ARENA_BREADTH,CANVAS_SCALEY)
 
 # Agent parameters:
 agent_stepsize = 1
@@ -64,15 +70,15 @@ def getItemXML():
     ''' Build an XML string that contains some randomly positioned goal items'''
     xml=""
     for item in range(NUM_GOALS):
-        x = str(random.randint(-ARENA_WIDTH/2,ARENA_WIDTH/2))
-        z = str(random.randint(-ARENA_BREADTH/2,ARENA_BREADTH/2))
+        x = str(random.randint(old_div(-ARENA_WIDTH,2),old_div(ARENA_WIDTH,2)))
+        z = str(random.randint(old_div(-ARENA_BREADTH,2),old_div(ARENA_BREADTH,2)))
         xml += '''<DrawItem x="''' + x + '''" y="210" z="''' + z + '''" type="''' + GOAL_TYPE + '''"/>'''
     return xml
 
 def getCorner(index,top,left,expand=0,y=206):
     ''' Return part of the XML string that defines the requested corner'''
-    x = str(-(expand+ARENA_WIDTH/2)) if left else str(expand+ARENA_WIDTH/2)
-    z = str(-(expand+ARENA_BREADTH/2)) if top else str(expand+ARENA_BREADTH/2)
+    x = str(-(expand+old_div(ARENA_WIDTH,2))) if left else str(expand+old_div(ARENA_WIDTH,2))
+    z = str(-(expand+old_div(ARENA_BREADTH,2))) if top else str(expand+old_div(ARENA_BREADTH,2))
     return 'x'+index+'="'+x+'" y'+index+'="' +str(y)+'" z'+index+'="'+z+'"'
 
 def getMissionXML(summary):
@@ -172,9 +178,9 @@ def getBestAngle(entities, current_yaw, current_health):
         current_yaw -= 360
 
     # Look for best option
-    for i in xrange(agent_search_resolution):
+    for i in range(agent_search_resolution):
         # Calculate cost of turning:
-        ang = 2 * math.pi * (i / float(agent_search_resolution))
+        ang = 2 * math.pi * (old_div(i, float(agent_search_resolution)))
         yaw = i * 360.0 / float(agent_search_resolution)
         yawdist = min(abs(yaw-current_yaw), 360-abs(yaw-current_yaw))
         turncost = agent_turn_weight * yawdist
@@ -195,17 +201,17 @@ def getBestAngle(entities, current_yaw, current_health):
                     dist = 0.1
             elif ent.name == GOAL_TYPE:
                 weight = agent_goal_weight * current_health / 20.0
-            score += weight / float(dist)
+            score += old_div(weight, float(dist))
 
         # Calculate cost of proximity to edges:
-        distRight = (2+ARENA_WIDTH/2) - x
-        distLeft = (-2-ARENA_WIDTH/2) - x
-        distTop = (2+ARENA_BREADTH/2) - z
-        distBottom = (-2-ARENA_BREADTH/2) - z
-        score += agent_edge_weight / float(distRight * distRight * distRight * distRight)
-        score += agent_edge_weight / float(distLeft * distLeft * distLeft * distLeft)
-        score += agent_edge_weight / float(distTop * distTop * distTop * distTop)
-        score += agent_edge_weight / float(distBottom * distBottom * distBottom * distBottom)
+        distRight = (2+old_div(ARENA_WIDTH,2)) - x
+        distLeft = (-2-old_div(ARENA_WIDTH,2)) - x
+        distTop = (2+old_div(ARENA_BREADTH,2)) - z
+        distBottom = (-2-old_div(ARENA_BREADTH,2)) - z
+        score += old_div(agent_edge_weight, float(distRight * distRight * distRight * distRight))
+        score += old_div(agent_edge_weight, float(distLeft * distLeft * distLeft * distLeft))
+        score += old_div(agent_edge_weight, float(distTop * distTop * distTop * distTop))
+        score += old_div(agent_edge_weight, float(distBottom * distBottom * distBottom * distBottom))
         scores.append(score)
 
     # Find best score:
@@ -214,16 +220,16 @@ def getBestAngle(entities, current_yaw, current_health):
     return i * 360.0 / float(agent_search_resolution)
 
 def canvasX(x):
-    return (CANVAS_BORDER/2) + (0.5 + x/float(ARENA_WIDTH)) * (CANVAS_WIDTH-CANVAS_BORDER)
+    return (old_div(CANVAS_BORDER,2)) + (0.5 + old_div(x,float(ARENA_WIDTH))) * (CANVAS_WIDTH-CANVAS_BORDER)
 
 def canvasY(y):
-    return (CANVAS_BORDER/2) + (0.5 + y/float(ARENA_BREADTH)) * (CANVAS_HEIGHT-CANVAS_BORDER)
+    return (old_div(CANVAS_BORDER,2)) + (0.5 + old_div(y,float(ARENA_BREADTH))) * (CANVAS_HEIGHT-CANVAS_BORDER)
 
 def drawMobs(entities, flash):
     canvas.delete("all")
     if flash:
         canvas.create_rectangle(0,0,CANVAS_WIDTH,CANVAS_HEIGHT,fill="#ff0000") # Pain.
-    canvas.create_rectangle(canvasX(-ARENA_WIDTH/2), canvasY(-ARENA_BREADTH/2), canvasX(ARENA_WIDTH/2), canvasY(ARENA_BREADTH/2), fill="#888888")
+    canvas.create_rectangle(canvasX(old_div(-ARENA_WIDTH,2)), canvasY(old_div(-ARENA_BREADTH,2)), canvasX(old_div(ARENA_WIDTH,2)), canvasY(old_div(ARENA_BREADTH,2)), fill="#888888")
     for ent in entities:
         if ent.name == MOB_TYPE:
             canvas.create_oval(canvasX(ent.x)-2, canvasY(ent.z)-2, canvasX(ent.x)+2, canvasY(ent.z)+2, fill="#ff2244")

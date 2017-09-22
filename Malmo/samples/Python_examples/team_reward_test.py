@@ -36,6 +36,8 @@ from __future__ import print_function
 # Fred follows instructions sent to it in the form of chat messages.
 # Simeon instructs Fred to dig/build a staircase that enables him to walk straight down to the goal.
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import json
 import logging
@@ -190,22 +192,22 @@ client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001) )
 
 # Fred's instructions for building a staircase, calculated in advance:
 instructions=[]
-for x in xrange(20):
+for x in range(20):
     instructions.append("move -1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe -1")
     instructions.append("move 1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("attack")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe 1")
     instructions.append("move 1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe 1")
     instructions.append("move -1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("jumpuse")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe -1")
 
 expected_reward_simeon = len(instructions)  # One point for every instruction acted on.

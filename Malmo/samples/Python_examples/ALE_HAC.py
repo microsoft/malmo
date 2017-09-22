@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -18,13 +19,17 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.utils import old_div
 import MalmoPython
 import os
 import random
 import sys
 import time
 import errno
-import Tkinter as tk
+import tkinter as tk
 from PIL import Image, ImageTk
 from array import array
 from struct import pack
@@ -198,7 +203,7 @@ def sendCommand():
             image = Image.frombytes('RGB', (frame.width,frame.height), buff)
             photo = ImageTk.PhotoImage(image)
             canvas.delete("all")
-            canvas.create_image(frame.width/2, frame.height/2, image=photo)
+            canvas.create_image(old_div(frame.width,2), old_div(frame.height,2), image=photo)
             root.update()
 
     if world_state.is_mission_running:

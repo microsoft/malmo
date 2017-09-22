@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -24,6 +25,9 @@ from __future__ import print_function
 # For more relevant results, tailor the mission xml to reflect your actual needs (eg set the video to the
 # actual size you are after, add whatever observation producers you will be using, etc.)
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -172,7 +176,7 @@ for iRepeat in range(len(tickLengths)):
     end = timer()
     missionTimeMs = (end - start) * 1000
 
-    actual_mspertick = missionTimeMs / numObs
+    actual_mspertick = old_div(missionTimeMs, numObs)
     desired_distance = 4.317 * MISSION_LENGTH   # normal walking speed is around 4.317 m/s
     desired_walltime = MISSION_LENGTH * msPerTick / 50  # normal ticklength is 50ms
     desired_observations = MISSION_LENGTH * 20  # default is 20hz
@@ -185,20 +189,20 @@ for iRepeat in range(len(tickLengths)):
     print("Obs:\t\t" + "{0:.2f}".format(desired_observations) + "\t|\t" + str(numObs))
     print("Distance:\tc" + "{0:.2f}".format(desired_distance) + "\t|\t" + "{0:.2f}".format(distance))
     print("Frames:\t\t???\t|\t" + str(numFrames))
-    print("Wall time:\t" + str(desired_walltime) + "s\t|\t" + "{0:.2f}".format(missionTimeMs/1000) + "s")
+    print("Wall time:\t" + str(desired_walltime) + "s\t|\t" + "{0:.2f}".format(old_div(missionTimeMs,1000)) + "s")
     print("===============================================================================================")
     print()
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
 
-    timeTest.append(True if abs(desired_walltime-missionTimeMs/1000) < 1 else False)
+    timeTest.append(True if abs(desired_walltime-old_div(missionTimeMs,1000)) < 1 else False)
     obsTest.append(True if abs(desired_observations-numObs) < 20 else False)
     frameTest.append(True if numFrames >= numObs else False)
-    wallclockTimes.append(missionTimeMs/1000)
+    wallclockTimes.append(old_div(missionTimeMs,1000))
     distances.append(distance)
 
 # Do some interpretation on the results:
 # First off, simple test to see if server overclocking has worked:
-t = sum([(MISSION_LENGTH-v)*(MISSION_LENGTH-v) for v in wallclockTimes])/len(wallclockTimes)
+t = old_div(sum([(MISSION_LENGTH-v)*(MISSION_LENGTH-v) for v in wallclockTimes]),len(wallclockTimes))
 if t < 20:
     print("ERROR: All missions seemed to take around " + str(MISSION_LENGTH) + " seconds.")
     print("This indicates that the server tick length hasn't changed at all.")
@@ -223,7 +227,7 @@ for index in range(0, len(tickLengths)):
         error+=(desired_distance-distances[index])*(desired_distance-distances[index])
         count+=1
 if count > 0:
-    error = error/count
+    error = old_div(error,count)
     if error > 40:
         print("ERROR: We don't seem to be running the correct distance.")
         print("This indicates that the client tick length isn't changing correctly.")

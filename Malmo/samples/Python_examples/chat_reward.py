@@ -20,6 +20,7 @@ from __future__ import print_function
 
 # Tutorial sample #1: Run simple mission
 
+from builtins import range
 import MalmoPython
 import os
 import sys
@@ -34,7 +35,7 @@ items = {'red_flower':'flower',
          'iron_pickaxe':'pickaxe',
          'diamond_sword':'sword'
          }
-obj_id = items.keys()[random.randint(0, len(items)-1)]
+obj_id = list(items.keys())[random.randint(0, len(items)-1)]
 
 mission_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

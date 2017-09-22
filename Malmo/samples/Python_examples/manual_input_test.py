@@ -24,6 +24,9 @@ from __future__ import print_function
 # eg typing "tpy 255" will teleport the agent to a y-position of 255 (and then let him plummet to his death).
 # typing "turn 0.5" will begin the agent spinning on the spot, etc.
 
+from builtins import str
+from builtins import input
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -132,7 +135,7 @@ while world_state.is_mission_running:
         nb = "movesouth 1"
         time.sleep(1)
     else:
-        nb = raw_input('Enter command: ')
+        nb = input('Enter command: ')
     agent_host.sendCommand(nb)
     world_state = agent_host.getWorldState()
 

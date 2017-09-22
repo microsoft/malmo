@@ -20,6 +20,8 @@ from __future__ import print_function
 
 # A sample that demonstrates a two-agent mission with discrete actions to dig and place blocks
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import json
 import logging
@@ -170,7 +172,7 @@ safeWaitForStart([agent_host1, agent_host2])
 # perform a few actions
 reps = 3
 time.sleep(1)
-for i in xrange(reps):
+for i in range(reps):
     agent_host1.sendCommand('attack 1')
     agent_host2.sendCommand('attack 1')
     time.sleep(1)

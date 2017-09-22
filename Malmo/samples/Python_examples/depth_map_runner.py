@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -18,6 +19,9 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import random
 import time
@@ -49,7 +53,7 @@ def processFrame( frame ):
     '''Track through the middle line of the depth data and find the max discontinuities'''
     global current_yaw_delta_from_depth
 
-    y = int(video_height / 2)
+    y = int(old_div(video_height, 2))
     rowstart = y * video_width
     
     v = 0
@@ -103,17 +107,17 @@ def processFrame( frame ):
     # If it's a negative value, it represents a rapid change from far to close - eg the right-hand edge of a gap.
     # Aiming to put this point in the rightmost quarter of the screen will cause us to aim for the gap.
     if dv_max_sign:
-        edge = video_width / 4
+        edge = old_div(video_width, 4)
     else:
         edge = 3 * video_width / 4
 
     # Now, if there is something noteworthy in d2v, steer according to the above comment:
     if d2v_max > 8:
-        current_yaw_delta_from_depth = (float(d2v_max_pos - edge) / video_width)
+        current_yaw_delta_from_depth = (old_div(float(d2v_max_pos - edge), video_width))
     else:
         # Nothing obvious to aim for, so aim for the farthest point:
         if v_max < 255:
-            current_yaw_delta_from_depth = (float(v_max_pos) / video_width) - 0.5
+            current_yaw_delta_from_depth = (old_div(float(v_max_pos), video_width)) - 0.5
         else:
             # No real data to be had in d2v or v, so just go by the direction we were already travelling in:
             if current_yaw_delta_from_depth < 0:

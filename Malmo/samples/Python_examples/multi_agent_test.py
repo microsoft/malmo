@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Test of multi-agent missions - runs a number of agents in a shared environment.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import json
 import logging
@@ -61,7 +65,7 @@ NUM_MOBS = NUM_AGENTS * 2
 NUM_ITEMS = NUM_AGENTS * 2
 
 # Create the rest of the agent hosts - one for each robot, plus one to give a bird's-eye view:
-agent_hosts += [MalmoPython.AgentHost() for x in xrange(1, NUM_AGENTS + 1) ]
+agent_hosts += [MalmoPython.AgentHost() for x in range(1, NUM_AGENTS + 1) ]
 
 # Set up debug output:
 for ah in agent_hosts:
@@ -157,13 +161,13 @@ def getVelocity(this_agent, entities, current_yaw, current_pos, current_health):
 
     # Useful lambdas:
     distance = lambda entA, entB : abs(entA.x - entB.x) + abs(entA.y - entB.y) + abs(entA.z - entB.z)
-    proximity_score = lambda target, entities : sum([1.0 / (1 + distance(target, ent) * distance(target, ent)) for ent in entities if not ent == target])
+    proximity_score = lambda target, entities : sum([old_div(1.0, (1 + distance(target, ent) * distance(target, ent))) for ent in entities if not ent == target])
 
     # Now, score each poi to find the one we most want to visit.
     scores = []
     for ent in poi:
         dist_from_us = abs(ent.x - current_pos[0]) + abs(ent.z - current_pos[1])
-        dist_score = 1.0 / (1 + dist_from_us * dist_from_us)
+        dist_score = old_div(1.0, (1 + dist_from_us * dist_from_us))
         zombie_proximity = proximity_score(ent, zombies)
         if zombie_proximity == 0:
             zombie_proximity = 1    # Happens if there are no more zombies left.
@@ -179,14 +183,14 @@ def getVelocity(this_agent, entities, current_yaw, current_pos, current_health):
     # Calculate a speed to use - helps to avoid orbiting:
     dx = ent.x - current_pos[0]
     dz = ent.z - current_pos[1]
-    speed = 1.0 - (1.0 / (1.0 + abs(dx/3.0) + abs(dz/3.0)))
+    speed = 1.0 - (old_div(1.0, (1.0 + abs(old_div(dx,3.0)) + abs(old_div(dz,3.0)))))
     if abs(dx) + abs(dz) < 1.5:
         speed = 0
     return turn, speed
 
 def drawMobs():
     xml = ""
-    for i in xrange(NUM_MOBS):
+    for i in range(NUM_MOBS):
         x = str(random.randint(-17,17))
         z = str(random.randint(-17,17))
         xml += '<DrawEntity x="' + x + '" y="214" z="' + z + '" type="Zombie"/>'
@@ -194,7 +198,7 @@ def drawMobs():
 
 def drawItems():
     xml = ""
-    for i in xrange(NUM_ITEMS):
+    for i in range(NUM_ITEMS):
         x = str(random.randint(-17,17))
         z = str(random.randint(-17,17))
         xml += '<DrawItem x="' + x + '" y="224" z="' + z + '" type="apple"/>'
@@ -232,7 +236,7 @@ def getXML(reset):
     # Add an agent section for each robot. Robots run in survival mode.
     # Give each one a wooden pickaxe for protection...
 
-    for i in xrange(NUM_AGENTS):
+    for i in range(NUM_AGENTS):
       xml += '''<AgentSection mode="Survival">
         <Name>''' + agentName(i) + '''</Name>
         <AgentStart>
@@ -285,7 +289,7 @@ def getXML(reset):
 # are attempting to find the server - so this will fail for any agents on a
 # different machine.
 client_pool = MalmoPython.ClientPool()
-for x in xrange(10000, 10000 + NUM_AGENTS + 1):
+for x in range(10000, 10000 + NUM_AGENTS + 1):
     client_pool.add( MalmoPython.ClientInfo('127.0.0.1', x) )
 
 # Keep score of how our robots are doing:
@@ -295,7 +299,7 @@ zombie_kill_scores = [0 for x in range(NUM_AGENTS)] # Good! Help rescue humanity
 player_kill_scores = [0 for x in range(NUM_AGENTS)] # Bad! Don't kill the other players!
 
 num_missions = 5 if INTEGRATION_TEST_MODE else 30000
-for mission_no in xrange(1, num_missions+1):
+for mission_no in range(1, num_missions+1):
     print("Running mission #" + str(mission_no))
     # Create mission xml - use forcereset if this is the first mission.
     my_mission = MalmoPython.MissionSpec(getXML("true" if mission_no == 1 else "false"), True)
@@ -332,7 +336,7 @@ for mission_no in xrange(1, num_missions+1):
     timed_out = False
 
     while num_responsive_agents() > 0 and not timed_out:
-        for i in xrange(NUM_AGENTS):
+        for i in range(NUM_AGENTS):
             ah = agent_hosts[i]
             world_state = ah.getWorldState()
             if world_state.is_mission_running == False:
@@ -379,7 +383,7 @@ for mission_no in xrange(1, num_missions+1):
         agent_hosts[-1].sendCommand("quit")
     else:
         # We timed out. Bonus score to any agents that survived!
-        for i in xrange(NUM_AGENTS):
+        for i in range(NUM_AGENTS):
             if unresponsive_count[i] > 0:
                 print("SURVIVOR: " + agentName(i))
                 survival_scores[i] += 1
@@ -397,7 +401,7 @@ for mission_no in xrange(1, num_missions+1):
             if world_state.is_mission_running:
                 hasEnded = False # all not good
 
-    win_counts = [0 for robot in xrange(NUM_AGENTS)]
+    win_counts = [0 for robot in range(NUM_AGENTS)]
     winner_survival = survival_scores.index(max(survival_scores))
     winner_zombies = zombie_kill_scores.index(max(zombie_kill_scores))
     winner_players = player_kill_scores.index(max(player_kill_scores))

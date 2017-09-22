@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Tutorial sample #7: The Maze Decorator
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import sys
@@ -97,7 +101,7 @@ else:
     num_repeats = 10
 
 for i in range(num_repeats):
-    my_mission = MalmoPython.MissionSpec(GetMissionXML("random", float(i/10.0)), True)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML("random", float(old_div(i,10.0))), True)
     my_mission_record = MalmoPython.MissionRecordSpec()
 
     # Attempt to start a mission:

@@ -24,6 +24,12 @@ from __future__ import print_function
 # Reinforcement Learning, An Introduction
 # MIT Press, 1998
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import str
+from builtins import range
+from builtins import object
 import MalmoPython
 import json
 import logging
@@ -32,13 +38,13 @@ import os
 import random
 import sys
 import time
-import Tkinter as tk
+import tkinter as tk
 
 save_images = False
 if save_images:        
     from PIL import Image
 
-class TabQAgent:
+class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""
 
     def __init__(self, actions=[], epsilon=0.1, alpha=0.1, gamma=1.0, debug=False, canvas=None, root=None):
@@ -223,7 +229,7 @@ class TabQAgent:
                     expected_z = prev_z + [-1,1,0,0][self.prev_a]
                     if math.hypot( curr_x - expected_x, curr_z - expected_z ) > tol:
                         print(' - ERROR DETECTED! Expected:',expected_x,',',expected_z)
-                        raw_input("Press Enter to continue...")
+                        input("Press Enter to continue...")
                     else:
                         print('as expected.')
                     curr_x_from_render = frame.xPos
@@ -231,7 +237,7 @@ class TabQAgent:
                     print('New position from render:',curr_x_from_render,',',curr_z_from_render,'after action:',self.actions[self.prev_a], end=' ') #NSWE
                     if math.hypot( curr_x_from_render - expected_x, curr_z_from_render - expected_z ) > tol:
                         print(' - ERROR DETECTED! Expected:',expected_x,',',expected_z)
-                        raw_input("Press Enter to continue...")
+                        input("Press Enter to continue...")
                     else:
                         print('as expected.')
                 else:
@@ -333,7 +339,7 @@ if agent_host.receivedArgument("test"):
 else:
     num_maps = 30000
 
-for imap in xrange(num_maps):
+for imap in range(num_maps):
 
     # -- set up the agent -- #
     actionSet = ["movenorth 1", "movesouth 1", "movewest 1", "moveeast 1"]

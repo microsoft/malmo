@@ -18,6 +18,8 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -27,7 +29,7 @@ import json
 import random
 import errno
 
-def GetMissionXML():
+def getMissionXML():
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
@@ -76,7 +78,7 @@ def getAnimation():
     # Create a slowly descending roof...
     # And an orbiting pumpkin with its own skull sattelite.
     xml=""
-    for x in xrange(4):
+    for x in range(4):
         xml+='''
             <AnimationDecorator ticksPerUpdate="10">
                 <Linear>
@@ -143,7 +145,10 @@ except OSError as exception:
         raise
 
 validate = True
-my_mission = MalmoPython.MissionSpec(GetMissionXML(),validate)
+missionXML = getMissionXML()
+print(type(missionXML))
+
+my_mission = MalmoPython.MissionSpec(missionXML, validate)
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )

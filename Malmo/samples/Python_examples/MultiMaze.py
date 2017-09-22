@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -25,6 +26,9 @@ from __future__ import print_function
 # 3: Start agent two - eg "python multimaze --role 1"
 # They should find each other and begin running missions.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -145,11 +149,11 @@ client_pool.add( MalmoPython.ClientInfo( "127.0.0.1", 10001 ) )
 chat_frequency = 30 # if we send chat messages too frequently the agent will be disconnected for spamming
 num_steps_since_last_chat = 0
 
-for iRepeat in xrange(num_episodes):
+for iRepeat in range(num_episodes):
 
     xorg = (iRepeat % 64) * 32
-    zorg = ((iRepeat / 64) % 64) * 32
-    yorg = 200 + ((iRepeat / (64*64)) % 64) * 8
+    zorg = ((old_div(iRepeat, 64)) % 64) * 32
+    yorg = 200 + ((old_div(iRepeat, (64*64))) % 64) * 8
 
     print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
     

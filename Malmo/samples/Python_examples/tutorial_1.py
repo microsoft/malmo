@@ -20,6 +20,7 @@ from __future__ import print_function
 
 # Tutorial sample #1: Run simple mission
 
+from builtins import range
 import MalmoPython
 import os
 import sys

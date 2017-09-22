@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -24,6 +25,9 @@ from __future__ import print_function
 # this demo just uses ObservationFromRay and ObservationFromNearbyEntities to determine
 # when and where to attack.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -44,8 +48,8 @@ ARENA_BREADTH = 20
 
 def getCorner(index,top,left,expand=0,y=0):
     ''' Return part of the XML string that defines the requested corner'''
-    x = str(-(expand+ARENA_WIDTH/2)) if left else str(expand+ARENA_WIDTH/2)
-    z = str(-(expand+ARENA_BREADTH/2)) if top else str(expand+ARENA_BREADTH/2)
+    x = str(-(expand+old_div(ARENA_WIDTH,2))) if left else str(expand+old_div(ARENA_WIDTH,2))
+    z = str(-(expand+old_div(ARENA_BREADTH,2))) if top else str(expand+old_div(ARENA_BREADTH,2))
     return 'x'+index+'="'+x+'" y'+index+'="' +str(y)+'" z'+index+'="'+z+'"'
 
 def getSpawnEndTag(i):
@@ -83,8 +87,8 @@ def getMissionXML(summary):
                 <AnimationDecorator ticksPerUpdate="10">
                 <Linear>
                     <CanvasBounds>
-                        <min x="''' + str(-ARENA_BREADTH/2) + '''" y="205" z="''' + str(-ARENA_BREADTH/2) + '''"/>
-                        <max x="''' + str(ARENA_WIDTH/2) + '''" y="217" z="''' + str(ARENA_WIDTH/2) + '''"/>
+                        <min x="''' + str(old_div(-ARENA_BREADTH,2)) + '''" y="205" z="''' + str(old_div(-ARENA_BREADTH,2)) + '''"/>
+                        <max x="''' + str(old_div(ARENA_WIDTH,2)) + '''" y="217" z="''' + str(old_div(ARENA_WIDTH,2)) + '''"/>
                     </CanvasBounds>
                     <InitialPos x="0" y="207" z="0"/>
                     <InitialVelocity x="0" y="0.025" z="0"/>
@@ -248,7 +252,7 @@ for iRepeat in range(num_reps):
                     tot = sheep_population + pig_population
                     if tot:
                         print("PIGS:SHEEP", end=' ')
-                        r = 40.0 / tot
+                        r = old_div(40.0, tot)
                         p = int(num_pigs * r)
                         print("P" * p, "|", "S" * (40 - p), "(", num_pigs, num_sheep, ")")
                         

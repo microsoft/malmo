@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Tutorial sample #4: Challenge - get to the centre of the sponge (with solution)
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import sys
@@ -33,9 +37,9 @@ def Menger(xorg, yorg, zorg, size, blocktype, variant, holetype):
     #now remove holes
     unit = size
     while (unit >= 3):
-        w=unit/3
-        for i in xrange(0, size, unit):
-            for j in xrange(0, size, unit):
+        w=old_div(unit,3)
+        for i in range(0, size, unit):
+            for j in range(0, size, unit):
                 x=xorg+i
                 y=yorg+j
                 genstring += GenCuboid(x+w,y+w,zorg,(x+2*w)-1,(y+2*w)-1,zorg+size-1,holetype) + "\n"

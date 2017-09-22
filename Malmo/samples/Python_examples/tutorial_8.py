@@ -20,6 +20,7 @@ from __future__ import print_function
 
 # Tutorial sample #8: The Classroom Decorator
 
+from builtins import range
 import MalmoPython
 import os
 import sys

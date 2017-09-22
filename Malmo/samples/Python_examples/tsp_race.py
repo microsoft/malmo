@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -28,6 +29,13 @@ from __future__ import print_function
 # against each other. It's about the least efficient way imaginable of comparing TSP algorithms...
 # but it's fun.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import MalmoPython
 import os
 import random
@@ -38,7 +46,7 @@ import random
 import math
 import threading
 
-from Tkinter import *
+from tkinter import *
 
 ###################################################################################################################
 # General code for all approaches
@@ -161,8 +169,8 @@ def get_MST_route(points):
     # Create a rough approximation of the optimal TSP route using a depth-first search on the minimum spanning tree:
     # First, create a fully connected graph:
     edges = []
-    for i in xrange(len(points)):
-        for j in xrange(i + 1, len(points)):
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
             edges.append(edge(points[i], points[j]))
     # Get the MST:
     tree = min_span_tree(edges, points)
@@ -187,7 +195,7 @@ def get_MST_route(points):
 def generate_orders(n):
     # Recursively generate all the permutations of n cities, as a list of colon-delimited strings.
     # Eg "generate_orders(3)" will return ['0:1:2:', '0:2:1:', '1:0:2:', '1:2:0:', '2:0:1:', '2:1:0:']
-    values = [True for x in xrange(n)]
+    values = [True for x in range(n)]
     perms = []
     fill_next_value(0, n, values, perms, "")
     return perms
@@ -197,7 +205,7 @@ def fill_next_value(digit, num_digits, available_values, perms, seq_so_far):
     if digit == num_digits:
         perms.append(seq_so_far)
     else:
-        for i in xrange(num_digits):
+        for i in range(num_digits):
             if available_values[i]:
                 values_available_now=list(available_values)
                 values_available_now[i] = False
@@ -236,7 +244,7 @@ def assignKMeans(centroids, points):
             counts[p.k_index] += 1
             c.x += p.x
             c.y += p.y
-        for x in xrange(len(centroids)):
+        for x in range(len(centroids)):
             if counts[x] == 0:
                 centroids[x].x = random.randint(minx, maxx)
                 centroids[x].y = random.randint(miny, maxy)
@@ -259,7 +267,7 @@ def assignKMeans(centroids, points):
 
 # Pre-calculate the permutations for n cities, up to n = 8
 perm_tables = []
-for i in xrange(9):
+for i in range(9):
     perm_tables.append(generate_orders(i))
 
 def brute_force_best_perm(points, perms):
@@ -302,7 +310,7 @@ def divide_and_generate_route(points_in, route, level=0):
     elif len(points) > BRANCH_FACTOR:
         # Too many points for brute-force to work.
         # Use k-means to split into BRANCH_FACTOR groups.
-        centroids = [point_node(0,0) for x in xrange(BRANCH_FACTOR)]
+        centroids = [point_node(0,0) for x in range(BRANCH_FACTOR)]
         assignKMeans(centroids, points)
         # Find the best route through the centroids:
         perms = perm_tables[BRANCH_FACTOR]
@@ -326,7 +334,7 @@ def get_nearest_neighbour_route(in_points):
     # Simply sort by greedily choosing closest point next. Works surprisingly well in our toy case (but open to attack -
     # eg consider the 1d case of these points: [0,1,-2,5,-10,21...])
     points = list(in_points)
-    for n in xrange(len(points)-1):
+    for n in range(len(points)-1):
         p1 = points[n]
         dists = [distance(p1, p) for p in points[n+1:]]
         nn_ind = n+1 + dists.index(min(dists))
@@ -379,7 +387,7 @@ def get_spiral_route(points):
 ###################################################################################################################
 
 def shuffle(points):
-    for i in xrange(1, len(points)):    # Always leave starting point in place.
+    for i in range(1, len(points)):    # Always leave starting point in place.
         ind = random.randint(i, len(points) - 1)
         (points[i], points[ind]) = (points[ind], points[i])
 
@@ -394,20 +402,20 @@ def get_genetic_algorithm_route(progress_callback, points, k, iters, mutation_pr
     roulette = False
     tournament_size = int(2 * math.ceil(math.sqrt(k)))
 
-    for i in xrange(k):
+    for i in range(k):
         sample = list(points)
         shuffle(sample)
-        score = 1.0 / path_length(sample)
+        score = old_div(1.0, path_length(sample))
         total_fitness += score
         generation.append((sample, score))
 
-    for it in xrange(iters):
+    for it in range(iters):
         if progress_callback != None:
             progress_callback(100 * float(it) / float(iters))
 
         # Create next generation:
         next_gen = []
-        for i in xrange(int(math.ceil(float(k) / 2.0))):
+        for i in range(int(math.ceil(old_div(float(k), 2.0)))):
             # Choose two parents:
             if roulette:
                 # Choose by roulette:
@@ -428,11 +436,11 @@ def get_genetic_algorithm_route(progress_callback, points, k, iters, mutation_pr
             else:
                 # Choose by tournament:
                 tournament=[]
-                for t in xrange(tournament_size):
+                for t in range(tournament_size):
                     tournament.append(random.choice(generation))
                 parent1 = max(tournament, key=lambda p:p[1])[0]
                 tournament=[]
-                for t in xrange(tournament_size):
+                for t in range(tournament_size):
                     tournament.append(random.choice(generation))
                 parent2 = max(tournament, key=lambda p:p[1])[0]
 
@@ -474,9 +482,9 @@ def get_genetic_algorithm_route(progress_callback, points, k, iters, mutation_pr
                 (child2[ma], child2[mb]) = (child2[mb], child2[ma])
 
             # Add to generation:
-            next_gen.append((child1, 1.0/path_length(child1)))
+            next_gen.append((child1, old_div(1.0,path_length(child1))))
             if len(next_gen) < k:   # Deal with case where k is an odd number.
-                next_gen.append((child2, 1.0/path_length(child2)))
+                next_gen.append((child2, old_div(1.0,path_length(child2))))
 
         # Generation completed - adjust crossover and mutation probabilites
         generation = list(next_gen)
@@ -499,7 +507,7 @@ def get_simulated_annealing_route(input_points):
         kept_bad = 0
         print("Temp: ", temperature, end=' ')
         dist_before = path_length(points)
-        for i in xrange(len(points)*len(points)):
+        for i in range(len(points)*len(points)):
             i_from = random.randint(1, len(points)-1)
             p = points.pop(i_from)
             i_to = random.randint(1, len(points))
@@ -508,7 +516,7 @@ def get_simulated_annealing_route(input_points):
             delta = dist_before - dist_after
             if delta < 0:
                 # Did not improve things.
-                prop = math.exp(delta/temperature)
+                prop = math.exp(old_div(delta,temperature))
                 if random.random() > prop:
                     # Reject this move.
                     points.pop(i_to)
@@ -626,8 +634,8 @@ def getCitiesDrawingXML(points):
         xml += '<DrawItem x="' + x + '" y="10" z="' + z + '" type="ender_pearl"/>'
     return xml
 
-class RouteGenerators:
-    NearestNeighbour, Genetic, DivideAndConquer, MinSpanTree, Spiral, Annealing = range(6)
+class RouteGenerators(object):
+    NearestNeighbour, Genetic, DivideAndConquer, MinSpanTree, Spiral, Annealing = list(range(6))
     Generators = {NearestNeighbour:lambda progress_callback, points : get_nearest_neighbour_route(points),
                   Genetic:lambda progress_callback, points : get_genetic_algorithm_route(None, points, 20, 3000, 0.7, 0.9),
                   DivideAndConquer:lambda progress_callback, points : get_divide_and_conquer_route(points),
@@ -764,7 +772,7 @@ class SalesmanAgent(threading.Thread):
             delta += 360;
         while delta > 180:
             delta -= 360;
-        return (2.0 / (1.0 + math.exp(-delta/scale))) - 1.0
+        return (old_div(2.0, (1.0 + math.exp(old_div(-delta,scale))))) - 1.0
         
     def runMissionLoop(self):
         turn_key = ""
@@ -850,7 +858,7 @@ if not len(agentnames):
 
 # Create some data:
 points = [point_node(0,0)]  # Fix start point at the centre
-for i in xrange(TOTAL_POINTS-1):
+for i in range(TOTAL_POINTS-1):
     points.append(point_node(random.randint(-50,50), random.randint(-50,50)))
 
 # Create mission xml:
@@ -884,4 +892,4 @@ for agent in agents:
 
 # Allow user time to admire the finished plot:
 if not INTEGRATION_TEST_MODE:
-    nb = raw_input('Press enter to quit')
+    nb = input('Press enter to quit')

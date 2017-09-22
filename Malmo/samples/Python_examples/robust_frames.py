@@ -26,6 +26,11 @@ from __future__ import print_function
 # not valid for your experiment then you will need to find a different approach to obtain frame-
 # action pairs robustly.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import MalmoPython
 import json
 import logging
@@ -34,13 +39,13 @@ import os
 import random
 import sys
 import time
-import Tkinter as tk
+import tkinter as tk
 
 save_images = False
 if save_images:        
     from PIL import Image
     
-class RandomAgent:
+class RandomAgent(object):
 
     def __init__(self, agent_host, action_set ):
         self.rep = 0

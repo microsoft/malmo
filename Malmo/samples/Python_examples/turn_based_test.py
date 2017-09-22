@@ -18,6 +18,8 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import str
+from builtins import range
 description_text='''
 This python script is designed to test the turn scheduler, which was introduced to enable the
 creation of turn-based multi-agent scenarios. The turn scheduler forces agents to take turns in
@@ -272,12 +274,12 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 words = description_text.split()
 # Pad to a multiple of num_agents:
 if len(words) % 3 > 0:
-    for i in xrange(3-(len(words)%3)):
+    for i in range(3-(len(words)%3)):
         words.append("----")
 full_text = " ".join(words)
 
 iterations = 10 if TESTING else 30000
-for mission_no in xrange(iterations):
+for mission_no in range(iterations):
     reconstructed_text = ""
     mission_xml = GetMissionXML("Race!")
     agents = [ThreadedAgent(0, my_client_pool, mission_xml),
@@ -286,8 +288,8 @@ for mission_no in xrange(iterations):
 
     num_agents = len(agents)
 
-    for i in xrange(num_agents):
-        stream = [words[j] for j in xrange(i, len(words), num_agents)]
+    for i in range(num_agents):
+        stream = [words[j] for j in range(i, len(words), num_agents)]
         agents[i].setWords(stream)
 
     for agent in agents:

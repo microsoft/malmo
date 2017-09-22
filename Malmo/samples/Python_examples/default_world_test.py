@@ -23,6 +23,7 @@ from __future__ import print_function
 # to calculate speed of movement, and chooses tiny "programmes" to execute if the speed drops to below a certain threshold.
 # Mission continues until the agent dies.
 
+from builtins import range
 import MalmoPython
 import os
 import random

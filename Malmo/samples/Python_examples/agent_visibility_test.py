@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -23,6 +24,11 @@ from __future__ import print_function
 # If the number of agents is small enough (eg 3 or 4), each agent should be able to see every other agent.
 # Some basic image processing is applied in order to test this.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from past.utils import old_div
 WIDTH=860
 HEIGHT=480
 
@@ -81,7 +87,7 @@ failed_frame_count = 0
 
 # Dependencies for gui:
 if SHOW_GUI:
-    from Tkinter import *
+    from tkinter import *
     from PIL import Image
     from PIL import ImageTk
 
@@ -100,7 +106,7 @@ else:
 bmp_original = 0
 bmp_luminance = 1
 bmp_thresholded = 2
-bitmaps = [[(-1, None) for bmp_type in [bmp_original, bmp_luminance, bmp_thresholded]] for x in xrange(NUM_AGENTS)]
+bitmaps = [[(-1, None) for bmp_type in [bmp_original, bmp_luminance, bmp_thresholded]] for x in range(NUM_AGENTS)]
 
 def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
     used_attempts = 0
@@ -174,8 +180,8 @@ def getPlacementString(i):
     radius = 5
     accuracy = 1000.
     angle = 2*i*math.pi/NUM_AGENTS
-    x = int(accuracy * radius * math.cos(angle)) / accuracy
-    z = int(accuracy * radius * math.sin(angle)) / accuracy
+    x = old_div(int(accuracy * radius * math.cos(angle)), accuracy)
+    z = old_div(int(accuracy * radius * math.sin(angle)), accuracy)
     yaw = 90 + angle*180.0/math.pi
     return 'x="' + str(x) + '" y="227" z="' + str(z) + '" pitch="0" yaw="' + str(yaw) + '"'
 
@@ -201,13 +207,13 @@ def processFrame(width, height, pixels, agent, mission_count):
         photo_original = ImageTk.PhotoImage(image_original)
         if bitmaps[agent][bmp_original][1] != None:
             canvas.delete(bitmaps[agent][bmp_original][0])
-        handle = canvas.create_image(width/2, ((4*agent)+0.5)*(num_rows+5), image=photo_original)
+        handle = canvas.create_image(old_div(width,2), ((4*agent)+0.5)*(num_rows+5), image=photo_original)
         bitmaps[agent][bmp_original] = (handle, photo_original)
 
     # 2. Convert RGB to luminance. Build up a histogram as we go - this will be useful for finding a threshold point.
-    hist = [0 for x in xrange(256)]
-    for col in xrange(0, width*channels, channels):
-        for row in xrange(0, num_rows):
+    hist = [0 for x in range(256)]
+    for col in range(0, width*channels, channels):
+        for row in range(0, num_rows):
             pix = col + row * width * channels
             lum = int(0.2126 * middle_strip[pix] + 0.7152 * middle_strip[pix + 1] + 0.0722 * middle_strip[pix + 2])
             hist[lum] += 1
@@ -218,20 +224,20 @@ def processFrame(width, height, pixels, agent, mission_count):
         photo_greyscale = ImageTk.PhotoImage(image_greyscale)
         if bitmaps[agent][bmp_luminance][1] != None:
             canvas.delete(bitmaps[agent][bmp_luminance][0])
-        handle = canvas.create_image(width/2, ((4*agent+1)+0.5)*(num_rows+5), image=photo_greyscale)
+        handle = canvas.create_image(old_div(width,2), ((4*agent+1)+0.5)*(num_rows+5), image=photo_greyscale)
         bitmaps[agent][bmp_luminance] = (handle, photo_greyscale)
 
     # 3. Calculate a suitable threshold, using the Otsu method
     total_pixels = width * num_rows
     total_sum = 0.
-    for t in xrange(256):
+    for t in range(256):
         total_sum += t * hist[t]
     sum_background = 0.
     weight_background = 0.
     weight_foreground = 0.
     max_variation = 0.
     threshold = 0
-    for t in xrange(256):
+    for t in range(256):
         weight_background += hist[t]
         if weight_background == 0:
             continue
@@ -239,8 +245,8 @@ def processFrame(width, height, pixels, agent, mission_count):
         if weight_foreground == 0:
             break
         sum_background += t * hist[t]
-        mean_background = sum_background / weight_background
-        mean_foreground = (total_sum - sum_background) / weight_foreground
+        mean_background = old_div(sum_background, weight_background)
+        mean_foreground = old_div((total_sum - sum_background), weight_foreground)
         # Between class variance:
         var = weight_background * weight_foreground * (mean_background - mean_foreground) * (mean_background - mean_foreground)
         if var > max_variation:
@@ -248,7 +254,7 @@ def processFrame(width, height, pixels, agent, mission_count):
             threshold = t
 
     # 4. Apply this threshold
-    for pix in xrange(len(middle_strip)):
+    for pix in range(len(middle_strip)):
         if middle_strip[pix] <= threshold:
             middle_strip[pix] = 255
         else:
@@ -258,23 +264,23 @@ def processFrame(width, height, pixels, agent, mission_count):
     # At the same time, we count the number of changes (from foreground to background, or background to foreground)
     # that occur across the scanline. Assuming that there are no partial agents at the sides of the view - ie the scanline
     # starts and ends with background - this count should result in two changes per visible agent.
-    pixelvalue = lambda col: sum(middle_strip[x] for x in xrange(col, len(middle_strip), width * channels))
+    pixelvalue = lambda col: sum(middle_strip[x] for x in range(col, len(middle_strip), width * channels))
     lastval = 255
     changes = 0
-    for col in xrange(0, width * channels, channels):
+    for col in range(0, width * channels, channels):
         val = 0 if pixelvalue(col) > 0 else 255
         if lastval != val:
             changes += 1
         lastval = val
         if SHOW_GUI:
             # Update the bitmap so the user can see what we see.
-            for row in xrange(num_rows):
+            for row in range(num_rows):
                 middle_strip[col + row*width*channels] = val
                 middle_strip[1 + col + row*width*channels] = val
                 middle_strip[2 + col + row*width*channels] = 0  # blue channel always 0 (will simplify recolouring later)
 
     # 6. Perform the actual test.
-    agents_detected = changes / 2
+    agents_detected = old_div(changes, 2)
     test_passed = agents_detected == NUM_AGENTS - 1
 
     # 7. If we're displaying the gui, recolour the final image - turn the background red for error or green for success.
@@ -282,14 +288,14 @@ def processFrame(width, height, pixels, agent, mission_count):
     # the relevant channel.)
     if SHOW_GUI:
         channel_mask = 0 if test_passed else 1  # Remove red channel for success, remove green for failure
-        for pixel in xrange(channel_mask, len(middle_strip), channels):
+        for pixel in range(channel_mask, len(middle_strip), channels):
             middle_strip[pixel] = 0
         # And add this to the GUI:
         image_threshold = Image.frombytes('RGB', (width, num_rows), str(middle_strip))
         photo_threshold = ImageTk.PhotoImage(image_threshold)
         if bitmaps[agent][bmp_thresholded][1] != None:
             canvas.delete(bitmaps[agent][bmp_thresholded][0])
-        handle = canvas.create_image(width/2, ((4*agent+2)+0.5)*(num_rows+5), image=photo_threshold)
+        handle = canvas.create_image(old_div(width,2), ((4*agent+2)+0.5)*(num_rows+5), image=photo_threshold)
         bitmaps[agent][bmp_thresholded] = (handle, photo_threshold)
         # Update the canvas:
         root.update()
@@ -328,7 +334,7 @@ def createMissionXML(num_agents, width, height, reset):
 
     # Add an agent section for each watcher.
     # We put them in a leather helmet because it makes the image processing slightly easier.
-    for i in xrange(num_agents):
+    for i in range(num_agents):
         placement = getPlacementString(i)
         xml += '''<AgentSection mode="Survival">
         <Name>Watcher#''' + str(i) + '''</Name>
@@ -357,15 +363,15 @@ def createMissionXML(num_agents, width, height, reset):
 # are attempting to find the server - so this will fail for any agents on a
 # different machine.
 client_pool = MalmoPython.ClientPool()
-for x in xrange(10000, 10000 + NUM_AGENTS):
+for x in range(10000, 10000 + NUM_AGENTS):
     client_pool.add( MalmoPython.ClientInfo('127.0.0.1', x) )
 
-failed_frames = [0 for x in xrange(NUM_AGENTS)] # keep a count of the frames that failed for each agent.
+failed_frames = [0 for x in range(NUM_AGENTS)] # keep a count of the frames that failed for each agent.
 
 # If we're running as part of the integration tests, just do ten iterations. Otherwise keep going.
 missions_to_run = 10 if INTEGRATION_TEST_MODE else 30000
 
-for mission_no in xrange(1,missions_to_run+1):
+for mission_no in range(1,missions_to_run+1):
     # Create the mission. Force reset for the first mission, to ensure a clean world. No need for subsequent missions.
     my_mission = MalmoPython.MissionSpec(createMissionXML(NUM_AGENTS, WIDTH, HEIGHT, "true" if mission_no == 1 else "false"), True)
     print("Running mission #" + str(mission_no))
@@ -395,7 +401,7 @@ for mission_no in xrange(1,missions_to_run+1):
     # Main mission loop.
     # In this test, all we do is stand still and process our frames.
     while not timed_out:
-        for i in xrange(NUM_AGENTS):
+        for i in range(NUM_AGENTS):
             ah = agent_hosts[i]
             world_state = ah.getWorldState()
             if world_state.is_mission_running == False:

@@ -28,6 +28,8 @@ from __future__ import print_function
 # The actual behaviour depends upon the speed at which commands are sent.
 # See https://github.com/Microsoft/malmo/issues/104 for some details.
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -137,7 +139,7 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-for iRepeat in xrange(NUM_REPEATS):
+for iRepeat in range(NUM_REPEATS):
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat), validate)
     # Set up a recording
     my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//QuitFromReachingPosition_Test" + str(iRepeat) + ".tgz");

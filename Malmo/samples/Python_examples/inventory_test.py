@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -34,6 +35,9 @@ from __future__ import print_function
 # and the agent keeps rotating at a fixed speed, so may not have time to complete all the swaps before
 # moving on to the next box.)
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import json
 import math
@@ -59,7 +63,7 @@ def boxCompleted(inventoryFull, colour, merges_allowed):
         # occupying the first four slots.
         if len(inventory) != 4:
             return False    # Wrong number of items in inventory
-        slotFilled = [False for x in xrange(4)]
+        slotFilled = [False for x in range(4)]
         for i in inventory:
             if i.colour != colour:
                 return False    # Item of wrong colour in inventory
@@ -93,7 +97,7 @@ def getContainerXML():
         # items remaining, and swap it out after use.
         # (eg https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm)
         random.seed()   # Otherwise we always get the same arrangement
-        for content_index in xrange(i * 4, (i + 1) * 4):
+        for content_index in range(i * 4, (i + 1) * 4):
             rand = random.randint(content_index, len(contents) - 1)
             xml += contents[rand]
             contents[rand], contents[content_index] = contents[content_index], contents[rand]
@@ -153,7 +157,7 @@ if agent_host.receivedArgument("help"):
     exit(0)
 
 num_missions = 10 if agent_host.receivedArgument("test") else 30000
-for mission_no in xrange(num_missions):
+for mission_no in range(num_missions):
     merges_allowed = mission_no % 2
     my_mission_record = MalmoPython.MissionRecordSpec()
     max_retries = 3
@@ -238,7 +242,7 @@ for mission_no in xrange(num_missions):
                     if not completed_boxes[box_colour]:
                         completed_boxes[box_colour] = True
                         print("Completed " + box_colour + " box.")
-                        if not False in completed_boxes.values():
+                        if not False in list(completed_boxes.values()):
                             print("ALL BOXES COMPLETED!")
                             agent_host.sendCommand("turn 0")
                             time.sleep(1)   # Short pause to allow final rewards to get processed
@@ -248,8 +252,8 @@ for mission_no in xrange(num_missions):
                 # numbered entry for each slot, and whenever we encounter an item we mark its slot as used
                 # by setting that entry to a (high) sentinel value. We can then find the lowest available
                 # slot by finding the min value in the list.
-                ourUsedSlots = range(invSizeLocal)
-                theirUsedSlots = range(invSizeForeign)
+                ourUsedSlots = list(range(invSizeLocal))
+                theirUsedSlots = list(range(invSizeForeign))
 
                 # Now look for a good swap.
                 # The best-case scenario is swapping a wrong coloured item for a right coloured item.
@@ -309,12 +313,12 @@ for mission_no in xrange(num_missions):
         total_reward += world_state.rewards[-1].getValue()
 
     test_passed = True
-    if False in completed_boxes.values():
+    if False in list(completed_boxes.values()):
         test_passed = False
         print("FAILED TO SORT BOXES: ")
         print([k for k in completed_boxes if not completed_boxes[k]])
     else:
-        print("Mission over - sorted boxes with " + str(num_swaps) + " swap commands and " + str(num_merges) + " merge commands (" + str(float(boxes_traversed)/16.0) + " laps).")
+        print("Mission over - sorted boxes with " + str(num_swaps) + " swap commands and " + str(num_merges) + " merge commands (" + str(old_div(float(boxes_traversed),16.0)) + " laps).")
         print("Final reward: ", total_reward)
         if total_reward != 0:
             print("Final reward should have been zero.")

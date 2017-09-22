@@ -20,6 +20,8 @@ from __future__ import print_function
 
 # Similar to run_mission.py, but tests the Python _str_ bindings.
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random

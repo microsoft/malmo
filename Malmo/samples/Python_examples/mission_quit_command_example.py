@@ -20,6 +20,7 @@ from __future__ import print_function
 
 # Quit command example
 
+from builtins import range
 import MalmoPython
 import os
 import sys

@@ -25,6 +25,8 @@ from __future__ import print_function
 # 4 bowls = 3 planks
 # 1 rabbit_stew = 1 x cooked_rabbit + 1 x carrot + 1 x baked_potato + 1 x brown_mushroom + 1 x bowl
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -61,7 +63,7 @@ def getSubgoalPositions(positions):
     return goals
 
 def printInventory(obs):
-    for i in xrange(0,9):
+    for i in range(0,9):
         key = 'InventorySlot_'+str(i)+'_item'
         var_key = 'InventorySlot_'+str(i)+'_variant'
         col_key = 'InventorySlot_'+str(i)+'_colour'
@@ -79,7 +81,7 @@ def printInventory(obs):
 def checkInventoryForBowlIngredients(obs):
     # Need three planks
     plank_count = 0
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -90,7 +92,7 @@ def checkInventoryForBowlIngredients(obs):
     return plank_count >= 3
 
 def checkInventoryForItem(obs, requested):
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -103,7 +105,7 @@ def checkFuelPosition(obs, agent_host):
     # (We need to do this because the furnace crafting commands - cooking the potato and the rabbit -
     # take the first available item of fuel in the inventory. If this isn't the coal, it could end up burning the wood
     # that we need for making the bowl.)
-    for i in xrange(1,39):
+    for i in range(1,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -114,7 +116,7 @@ def checkFuelPosition(obs, agent_host):
 def checkInventoryForStewIngredients(obs):
     # Need a bowl, a cooked rabbit, a carrot, a mushroom and a baked potato.
     required=["cooked_rabbit", "baked_potato", "bowl", "carrot", "brown_mushroom"]
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]

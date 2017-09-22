@@ -25,6 +25,8 @@ from __future__ import print_function
 #
 # If everything is working correctly, the agent should ride around happily forever.
 
+from builtins import str
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -92,7 +94,7 @@ def drawloop(radius, y):
 def drawloops(radius, y):
     ''' Draw a set of concentric loops '''
     loops=""
-    for i in xrange(radius, 1, -2):
+    for i in range(radius, 1, -2):
         loops += drawloop(i, y)
         y += 1
     return loops
@@ -114,7 +116,7 @@ def drawstep(radius, y, type, half):
 def drawsteps(radius, y):
     ''' Draw a pyramid of steps '''
     steps = ""
-    for i in xrange(radius, 1, -2):
+    for i in range(radius, 1, -2):
         steps += drawstep(i, y, "quartz_stairs", "bottom")
         steps += drawstep(i, y-1, "dark_oak_stairs", "top")
         y += 1
@@ -123,7 +125,7 @@ def drawsteps(radius, y):
 def drawlinks(radius, y):
     ''' Link each circuit of powered rail into the adjacent inner loop '''
     links=""
-    for i in xrange(radius, 1, -2):
+    for i in range(radius, 1, -2):
         links += drawlink(i, y)
         y += 1
     return links
@@ -160,7 +162,7 @@ def drawHilbert(level, x, y, z):
     curve = a
     
     # Perform repeated substitutions:
-    for i in xrange(level):
+    for i in range(level):
         curve = expand_pattern.sub(expand_func, curve)
 
     # Remove the fluff:

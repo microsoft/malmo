@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -20,6 +21,9 @@ from __future__ import print_function
 
 # Work in progress: this will eventually be a test of Malmo's support for all block types.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import sys
@@ -67,7 +71,7 @@ def getMissionXML(block_types):
     forceReset = '"true"'
     structureXML = "<DrawingDecorator>" 
     for i, b in enumerate(block_types):
-        structureXML += '<DrawBlock x="{}" y="{}" z="{}" type="{}" />'.format(i % 10, 3, i / 10, b)
+        structureXML += '<DrawBlock x="{}" y="{}" z="{}" type="{}" />'.format(i % 10, 3, old_div(i, 10), b)
     structureXML += "</DrawingDecorator>"
     startpos=(-2, 10, -2)
     
@@ -140,7 +144,7 @@ if len(recordingsDirectory) > 0:
     my_mission_record.recordCommands()
     my_mission_record.recordMP4(24,2000000)
 
-for i in xrange(num_iterations):
+for i in range(num_iterations):
     missionXML = getMissionXML(block_types)
     if recording:
         my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i+1) + ".tgz")

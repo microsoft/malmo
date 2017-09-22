@@ -26,6 +26,11 @@ from __future__ import print_function
 # Reinforcement Learning, An Introduction
 # MIT Press, 1998
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
 import MalmoPython
 import json
 import logging
@@ -33,9 +38,9 @@ import os
 import random
 import sys
 import time
-import Tkinter as tk
+import tkinter as tk
 
-class TabQAgent:
+class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""
 
     def __init__(self):

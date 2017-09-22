@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -21,6 +22,9 @@ from __future__ import print_function
 # Stress test of the maze decorator and mission lifecycle - populates the playing arean with 30,000 small (16x16) mazes,
 # one at a time, and runs each mission for 1 second, recording commands and video.
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import errno
@@ -137,8 +141,8 @@ my_mission_record.recordMP4(24,400000)
 for iRepeat in range(num_reps):
     # Find the point at which to create the maze:
     xorg = (iRepeat % 64) * 16
-    zorg = ((iRepeat / 64) % 64) * 16
-    yorg = 200 + ((iRepeat / (64*64)) % 64) * 8
+    zorg = ((old_div(iRepeat, 64)) % 64) * 16
+    yorg = 200 + ((old_div(iRepeat, (64*64))) % 64) * 8
 
     print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
 
