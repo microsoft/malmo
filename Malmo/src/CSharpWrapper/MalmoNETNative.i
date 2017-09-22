@@ -515,6 +515,13 @@ private:
   TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message);
 
 public:
+    enum FrameType {
+        VIDEO
+        , DEPTH_MAP
+        , LUMINANCE
+        , COLOUR_MAP
+    };
+
   const boost::posix_time::ptime timestamp;
 
   const short width;
@@ -532,6 +539,8 @@ public:
   const float yaw;
 
   const float pitch;
+
+  const FrameType frametype;
 
   const std::vector<unsigned char> pixels;
 };
