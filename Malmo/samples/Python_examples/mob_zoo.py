@@ -326,7 +326,11 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
 my_client_pool = MalmoPython.ClientPool()
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10000))
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 my_mission = MalmoPython.MissionSpec(getMissionXML(endCondition, timeoutCondition), True)
 
 my_mission_record = MalmoPython.MissionRecordSpec()

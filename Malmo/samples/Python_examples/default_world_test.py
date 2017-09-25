@@ -72,7 +72,11 @@ commandSequences=[
     "move 0; pitch 1; wait 2; pitch 0; use 1; jump 1; wait 6; use 0; jump 0; pitch -1; wait 1; pitch 0; wait 2; move 1; wait 2" # attempt to build tower under our feet
 ]
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 my_mission = MalmoPython.MissionSpec(GetMissionXML(), True)
 

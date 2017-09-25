@@ -70,7 +70,11 @@ agent_hosts += [MalmoPython.AgentHost() for x in range(1, NUM_AGENTS + 1) ]
 for ah in agent_hosts:
     ah.setDebugOutput(DEBUG)    # Turn client-pool connection messages on/off.
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 def agentName(i):
     return "Robot#" + str(i + 1)

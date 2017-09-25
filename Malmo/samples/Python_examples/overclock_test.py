@@ -88,7 +88,11 @@ def GetMissionXML( msPerTick ):
 
     </Mission>'''
   
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 tickLengths = [100, 50, 40, 30, 25, 20, 15, 10, 8, 5, 4, 2]

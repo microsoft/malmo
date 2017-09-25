@@ -26,7 +26,11 @@ import os
 import sys
 import time
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 # More interesting generator string: "3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;12;"
 

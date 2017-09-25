@@ -94,7 +94,11 @@ def GetMissionXML( current_seed, xorg, yorg, zorg, iteration ):
 
     </Mission>'''
 
-#sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 validate = True
 agent_host = MalmoPython.AgentHost()
 try:
