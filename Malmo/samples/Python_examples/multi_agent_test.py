@@ -397,7 +397,7 @@ for mission_no in range(1, num_missions+1):
     hasEnded = False
     while not hasEnded:
         hasEnded = True # assume all good
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         for ah in agent_hosts:
             world_state = ah.getWorldState()

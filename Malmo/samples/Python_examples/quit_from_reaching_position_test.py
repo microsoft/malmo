@@ -163,7 +163,7 @@ for iRepeat in range(NUM_REPEATS):
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
         time.sleep(0.01)
-        sys.stdout.write(".")
+        print(".", end="")
         world_state = agent_host.getWorldState()
         if len(world_state.errors):
             print()
@@ -180,30 +180,30 @@ for iRepeat in range(NUM_REPEATS):
         if commands_sent < PATH_LENGTH or not STOP:
             agent_host.sendCommand("movesouth 1")
             commands_sent += 1
-            sys.stdout.write("C")
+            print("C", end="")
         time.sleep(WAIT_TIME)
         world_state = agent_host.getWorldState()
         if world_state.number_of_observations_since_last_state > 0:
             for ob in world_state.observations:
                 jsob = json.loads(ob.text)
                 distance = jsob.get(u'distanceFromStart', 0)
-                sys.stdout.write('O{0:.0f}'.format(distance))
+                print('O{0:.0f}'.format(distance), end="")
         if world_state.number_of_rewards_since_last_state > 0:
             for rew in world_state.rewards:
                 if rew.getValue()  == 0:
-                    sys.stdout.write("r")
+                    print("r", end="")
                 elif rew.getValue()  == 100:
-                    sys.stdout.write("R")
+                    print("R", end="")
                 elif rew.getValue()  == -1000:
-                    sys.stdout.write("*")
+                    print("*", end="")
                 else:
-                    sys.stdout.write("?")
+                    print("?", end="")
                 total_rewards += rew.getValue() 
         if world_state.is_mission_running:
-            sys.stdout.write("T")
+            print("T", end="")
         else:
-            sys.stdout.write("F")
-        sys.stdout.write(" ")
+            print("F", end="")
+        print(" ", end="")
     print()
     print("Mission Ended - sent " + str(commands_sent) + " commands; final reward: " + str(total_rewards))
     if total_rewards != 100:

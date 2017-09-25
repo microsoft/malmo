@@ -444,7 +444,7 @@ for i in range(num_iterations):
 
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
     print()

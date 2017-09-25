@@ -422,7 +422,7 @@ for mission_no in range(1,missions_to_run+1):
     print("Waiting for mission to end ", end=' ')
     hasEnded = False
     while not hasEnded:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         for ah in agent_hosts:
             world_state = ah.getWorldState()

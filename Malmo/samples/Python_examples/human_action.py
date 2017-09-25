@@ -118,7 +118,7 @@ class HumanAgentHost(object):
         print("Waiting for the mission to start", end=' ')
         self.world_state = self.agent_host.peekWorldState()
         while not self.world_state.has_mission_begun:
-            sys.stdout.write(".")
+            print(".", end="")
             time.sleep(0.1)
             self.world_state = self.agent_host.peekWorldState()
             for error in self.world_state.errors:
