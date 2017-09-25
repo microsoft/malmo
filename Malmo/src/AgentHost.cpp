@@ -529,8 +529,8 @@ namespace malmo
             // but now we need to re-create the file writers with the new file names
             if (this->current_mission_record->isRecordingMP4()){
                 video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
-                ret_server = video_server;
             }
+            ret_server = video_server;
         }
 
         ret_server->startRecording();
