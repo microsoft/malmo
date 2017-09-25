@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -17,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import range
 description_text='''
 This python script is designed to test the turn scheduler, which was introduced to enable the
 creation of turn-based multi-agent scenarios. The turn scheduler forces agents to take turns in
@@ -54,11 +56,11 @@ agent_host = MalmoPython.AgentHost()    # Purely for parsing command line
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 if agent_host.receivedArgument("test"):
     TESTING = True
@@ -238,7 +240,7 @@ class ThreadedAgent(threading.Thread):
                     if turn_index <= len(self.words):
                         word = self.words[turn_index - 1]
                         reconstructed_text += word + " "
-                        print word,
+                        print(word, end=' ')
                     self.agent_host.sendCommand("move 1", str(new_turn_key))
                     turn_key = new_turn_key
             time.sleep(0.001) # Helps python thread scheduler if we sleep a bit
@@ -257,7 +259,11 @@ class ThreadedAgent(threading.Thread):
         time.sleep(2)
         self.agent_host = None
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,
@@ -271,12 +277,12 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 words = description_text.split()
 # Pad to a multiple of num_agents:
 if len(words) % 3 > 0:
-    for i in xrange(3-(len(words)%3)):
+    for i in range(3-(len(words)%3)):
         words.append("----")
 full_text = " ".join(words)
 
 iterations = 10 if TESTING else 30000
-for mission_no in xrange(iterations):
+for mission_no in range(iterations):
     reconstructed_text = ""
     mission_xml = GetMissionXML("Race!")
     agents = [ThreadedAgent(0, my_client_pool, mission_xml),
@@ -285,8 +291,8 @@ for mission_no in xrange(iterations):
 
     num_agents = len(agents)
 
-    for i in xrange(num_agents):
-        stream = [words[j] for j in xrange(i, len(words), num_agents)]
+    for i in range(num_agents):
+        stream = [words[j] for j in range(i, len(words), num_agents)]
         agents[i].setWords(stream)
 
     for agent in agents:
@@ -295,20 +301,20 @@ for mission_no in xrange(iterations):
     for agent in agents:
         agent.join()
 
-    print
+    print()
     num_errors = 0
     for agent in agents:
-        print agent.role, agent.reward, agent.mission_end_message
+        print(agent.role, agent.reward, agent.mission_end_message)
         if agent.error:
-            print "ERROR FROM AGENT", agent.role, ":", agent.error
+            print("ERROR FROM AGENT", agent.role, ":", agent.error)
             num_errors += 1
     if TESTING and num_errors:
         exit(1)
 
     reconstructed_text = reconstructed_text.strip() # Deal with trailing space.
     if full_text != reconstructed_text:
-        print "ERROR!"
-        print "Expected: ", full_text
-        print "Received: ", reconstructed_text
+        print("ERROR!")
+        print("Expected: ", full_text)
+        print("Received: ", reconstructed_text)
         if TESTING:
             exit(1)

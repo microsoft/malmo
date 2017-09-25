@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -42,4 +43,4 @@ assert len( world_state.rewards ) == 0, 'World state has rewards stored.'
 
 assert len( world_state.video_frames ) == 0, 'World state has video frames stored.'
 
-print agent_host.getUsage()
+print(agent_host.getUsage())

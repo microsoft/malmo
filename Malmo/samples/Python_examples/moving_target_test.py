@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -21,6 +22,8 @@
 # Creates two moving targets - one which moves as fast as possible, and one which is turn-based, and
 # will wait for the agent to take its turn.
 
+from builtins import input
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -106,7 +109,11 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 my_client_pool = MalmoPython.ClientPool()
@@ -116,11 +123,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -139,8 +146,8 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -163,7 +170,7 @@ for iRepeat in range(num_reps):
                 if agent_host.receivedArgument("test"):
                     nb = random.choice(["movenorth","movesouth","moveeast","movewest"])
                 else:
-                    nb = raw_input('Enter command: ')
+                    nb = input('Enter command: ')
                 agent_host.sendCommand(nb, str(new_turn_key))
                 turn_key = new_turn_key
 

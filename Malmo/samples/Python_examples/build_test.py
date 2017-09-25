@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -35,6 +37,9 @@
 # to reproduce the source grid.
 # The expected total reward is calculated and compared to the actual reward received.
 
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -65,7 +70,7 @@ def createTestStructure(sx, sz):
     while True:
         s = [[(random.randint(0,len(pallette))) for z in range(sz)] for x in range(sx)]
         # Check we didn't create a block entirely made of air:
-        if sum(s[x][z] > 1 for x in xrange(sx) for z in xrange(sz)):
+        if sum(s[x][z] > 1 for x in range(sx) for z in range(sz)):
             break
     return s
 
@@ -74,8 +79,8 @@ def structureToXML(structure, xorg, yorg, zorg):
     drawing = ""
     inventory = {}
     expected_reward = 0
-    for z in xrange(SIZE_Z):
-        for x in xrange(SIZE_X):
+    for z in range(SIZE_Z):
+        for x in range(SIZE_X):
             value = structure[x][z]
             type = pallette[value % len(pallette)]
             type_string = ' type="' + type + '"'
@@ -91,9 +96,9 @@ def structureToXML(structure, xorg, yorg, zorg):
     drawingdecorator += drawing + "</DrawingDecorator>"
     inventoryxml = '<Inventory>'
     slot = 0
-    for i in xrange(0, len(inventory)):
-        if inventory.keys()[i] != "air":
-            inventoryxml += '<InventoryBlock slot="'+str(slot)+'" type="'+inventory.keys()[i] + '" quantity="' + str(inventory.values()[i]) + '"/>'
+    for i in range(0, len(inventory)):
+        if list(inventory.keys())[i] != "air":
+            inventoryxml += '<InventoryBlock slot="'+str(slot)+'" type="'+list(inventory.keys())[i] + '" quantity="' + str(list(inventory.values())[i]) + '"/>'
             slot += 1
     inventoryxml += '</Inventory>'
     expected_reward += REWARD_FOR_COMPLETION
@@ -103,7 +108,7 @@ def getMissionXML(forceReset, structure):
     # Draw a structure directly in front of the player.
     xpos = 0
     zpos = 0
-    xorg = xpos - int(SIZE_X / 2)
+    xorg = xpos - int(old_div(SIZE_X, 2))
     yorg = 1
     zorg = zpos + 1
     structureXML, inventoryXML, expected_reward = structureToXML(structure, xorg, yorg, zorg)
@@ -160,12 +165,12 @@ class CopyAgent(object):
     ''' An agent that can sweep an area, build up a model of what blocks exist, and then copy that
     model to a new location.'''
     sentinel=(-1,-1)
-    class Modes:
-        InitSweep, Sweep, InitMove, Move, InitCopy, Copy, Wait = range(7)
+    class Modes(object):
+        InitSweep, Sweep, InitMove, Move, InitCopy, Copy, Wait = list(range(7))
 
     def findHotKeyForBlockType(self, ob, type):
         '''Hunt in the inventory hotbar observations for the slot which contains the requested type.'''
-        for i in xrange(0, 9):
+        for i in range(0, 9):
             slot_name = u'Hotbar_' + str(i) + '_item'
             slot_contents = ob.get(slot_name, "")
             if slot_contents == type:
@@ -179,7 +184,7 @@ class CopyAgent(object):
             delta += 360;
         while delta > 180:
             delta -= 360;
-        return (2.0 / (1.0 + math.exp(-delta/scale))) - 1.0
+        return (old_div(2.0, (1.0 + math.exp(old_div(-delta,scale))))) - 1.0
 
     def pointTo(self, ah, ob, target_pitch, target_yaw, threshold):
         '''Steer towards the target pitch/yaw, return True when within the given tolerance threshold.'''
@@ -210,11 +215,11 @@ class CopyAgent(object):
         # Source grid:
         height = 0.625  # Height from top of block (player's eyes are positioned at height of 1.625 blocks from the ground.)
         direction = 1.0
-        for z in xrange(self.size_z, 0, -1):
-            for x in xrange(-(self.size_x/2),(self.size_x/2)+1):
-                yaw = direction * x * math.atan(1.0/z) * 180.0/math.pi
+        for z in range(self.size_z, 0, -1):
+            for x in range(-(old_div(self.size_x,2)),(old_div(self.size_x,2))+1):
+                yaw = direction * x * math.atan(old_div(1.0,z)) * 180.0/math.pi
                 distance = math.sqrt(x*x + z*z)
-                pitch = math.atan(height/distance) * 180.0/math.pi
+                pitch = math.atan(old_div(height,distance)) * 180.0/math.pi
                 self.targets.append((pitch,yaw))
             direction *= -1.0
 
@@ -224,11 +229,11 @@ class CopyAgent(object):
         # Dest grid:
         height = 1.625  # Height from ground.
         direction = 1.0
-        for z in xrange(self.size_z, 0, -1):
-            for x in xrange(-(self.size_x/2),(self.size_x/2)+1):
-                yaw = direction * x * math.atan(1.0/z) * 180.0/math.pi
+        for z in range(self.size_z, 0, -1):
+            for x in range(-(old_div(self.size_x,2)),(old_div(self.size_x,2))+1):
+                yaw = direction * x * math.atan(old_div(1.0,z)) * 180.0/math.pi
                 distance = math.sqrt(x*x + z*z)
-                pitch = math.atan(height/distance) * 180.0/math.pi
+                pitch = math.atan(old_div(height,distance)) * 180.0/math.pi
                 self.targets.append((pitch,yaw))
             direction *= -1.0
 
@@ -272,7 +277,7 @@ class CopyAgent(object):
         target_xpos = self.size_x + 1.5
         xpos = ob.get(u'XPos', 0)
         strafe = xpos - target_xpos
-        strafe = (2.0 / (1.0 + math.exp(-strafe))) - 1.0
+        strafe = (old_div(2.0, (1.0 + math.exp(-strafe)))) - 1.0
         ah.sendCommand("strafe " + str(strafe))
         if abs(target_xpos - xpos) < 0.1:
             agent_host.sendCommand("strafe 0")
@@ -331,18 +336,22 @@ class CopyAgent(object):
             self.mode += 1
 
 # Create a bunch of build battle missions and run an agent on them.
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )
 
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 num_iterations = 30000
@@ -367,7 +376,7 @@ if len(recordingsDirectory) > 0:
 # Create agent to run all the missions:
 agent = CopyAgent(SIZE_X, SIZE_Z)
 
-for i in xrange(num_iterations):
+for i in range(num_iterations):
     structure = createTestStructure(SIZE_X, SIZE_Z)
     missionXML, expected_reward = getMissionXML('"false"', structure)
     if recording:
@@ -383,25 +392,25 @@ for i in xrange(num_iterations):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Beginning test " + str(i) + "."
+    print("Beginning test " + str(i) + ".")
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     total_reward = 0
     # Mission loop:
     while world_state.is_mission_running:
         if world_state.number_of_rewards_since_last_state > 0:
             for r in world_state.rewards:
-                print "Got reward: ", r.getValue()
+                print("Got reward: ", r.getValue())
                 total_reward += r.getValue()
         if world_state.number_of_observations_since_last_state > 0:
             msg = world_state.observations[-1].text
@@ -417,11 +426,11 @@ for i in xrange(num_iterations):
     ns_dict = {"malmo":"http://ProjectMalmo.microsoft.com"}
     stat = mission_end_tree.find("malmo:Status", ns_dict).text
     hr_stat = mission_end_tree.find("malmo:HumanReadableStatus", ns_dict).text
-    print "Mission over. Status: ", stat,
+    print("Mission over. Status: ", stat, end=' ')
     if len(hr_stat):
-        print " - " + hr_stat
+        print(" - " + hr_stat)
     if total_reward != expected_reward:
-        print "Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward)
+        print("Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward))
         if agent_host.receivedArgument("test"):
             exit(1)
-    print
+    print()

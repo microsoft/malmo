@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -19,6 +21,8 @@
 
 # Test blaze drawing, entity tracking etc.
 
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -96,7 +100,7 @@ def checkEnts(present_entities, required_entities):
         if not ent in present_entities:
             missing.append(ent)
     if len(missing) > 0:
-        print "Can't find:", missing
+        print("Can't find:", missing)
         if TESTING:
             exit(1)
 
@@ -107,7 +111,7 @@ def angvel(target, current, scale):
         delta += 360;
     while delta > 180:
         delta -= 360;
-    return (2.0 / (1.0 + math.exp(-delta/scale))) - 1.0
+    return (old_div(2.0, (1.0 + math.exp(old_div(-delta,scale))))) - 1.0
 
 def pointTo(agent_host, ob, target_pitch, target_yaw, threshold):
     '''Steer towards the target pitch/yaw, return True when within the given tolerance threshold.'''
@@ -136,11 +140,11 @@ agent_host.addOptionalFlag("mayhem,m", "Remove the safety glass from the cages..
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 rail_endpoints = []
@@ -253,8 +257,8 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
                                            outer_back = outer_back,
                                            inner_back = inner_back)
     # Draw the levels:
-    num_levels = int(math.ceil(float(len(zooMobs)) / float(cells_across)))
-    for i in xrange(num_levels):
+    num_levels = int(math.ceil(old_div(float(len(zooMobs)), float(cells_across))))
+    for i in range(num_levels):
         # Dimensions for this level:
         outer_bottom = orgy + i * cell_height
         outer_top = orgy + (i + 1) * cell_height
@@ -292,7 +296,7 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
     for draw_pass in ["cell", "entity"]:
         for i, mob in enumerate(zooMobs):
             x = i % cells_across
-            y = i / cells_across
+            y = old_div(i, cells_across)
             # Dimensions for this cell:
             outer_left = orgx + x * cell_width
             outer_right = outer_left + cell_width
@@ -303,7 +307,7 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
 
             # Should we draw the entity?
             if draw_pass == "entity" and len(mob[0]) > 0:
-                mobx, moby, mobz = outer_left + cell_width / 2, inner_bottom, orgz + 3 * z_offset
+                mobx, moby, mobz = outer_left + old_div(cell_width, 2), inner_bottom, orgz + 3 * z_offset
                 missionXML += '<DrawEntity x="{}" y="{}" z="{}" type="{}" yaw="0"/>'.format(mobx, moby, mobz, mob[0])
                 cell_midpoints.append((mobx, moby, mobz, mob[0]))
 
@@ -322,7 +326,11 @@ def getZooXML(zooMobs, cells_across, cell_width, cell_height, cell_depth, orgx, 
 my_client_pool = MalmoPython.ClientPool()
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10000))
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 my_mission = MalmoPython.MissionSpec(getMissionXML(endCondition, timeoutCondition), True)
 
 my_mission_record = MalmoPython.MissionRecordSpec()
@@ -333,8 +341,8 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission",e
-            print "Is the game running?"
+            print("Error starting mission",e)
+            print("Is the game running?")
             exit(1)
         else:
             time.sleep(2)
@@ -383,7 +391,7 @@ while world_state.is_mission_running:
 
 # End of mission:
 reward = world_state.rewards[-1].getValue()
-print "Result: " + str(reward)
+print("Result: " + str(reward))
 if reward < 0:
     exit(1)
 else:

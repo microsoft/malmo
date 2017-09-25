@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -17,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -24,17 +26,21 @@ import sys
 import time
 #from PIL import Image
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 my_mission = MalmoPython.MissionSpec()
@@ -55,20 +61,20 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission:",e
+            print("Error starting mission:",e)
             exit(1)
         else:
             time.sleep(2)
 
-print "Waiting for the mission to start",
+print("Waiting for the mission to start", end=' ')
 world_state = agent_host.getWorldState()
 while not world_state.has_mission_begun:
-    sys.stdout.write(".")
+    print(".", end="")
     time.sleep(0.1)
     world_state = agent_host.getWorldState()
     for error in world_state.errors:
-        print "Error:",error.text
-print
+        print("Error:",error.text)
+print()
 
 # main loop:
 while world_state.is_mission_running:
@@ -76,12 +82,12 @@ while world_state.is_mission_running:
     agent_host.sendCommand( "turn " + str(random.random()*2-1) )
     time.sleep(0.5)
     world_state = agent_host.getWorldState()
-    print "video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state
+    print("video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state)
     for reward in world_state.rewards:
-        print "Summed reward:",reward.getValue()
+        print("Summed reward:",reward.getValue())
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
     for frame in world_state.video_frames:
-        print "Frame:",frame.width,'x',frame.height,':',frame.channels,'channels'
+        print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
         #image = Image.frombytes('RGB', (frame.width, frame.height), str(frame.pixels) ) # to convert to a PIL image
-print "Mission has stopped."
+print("Mission has stopped.")

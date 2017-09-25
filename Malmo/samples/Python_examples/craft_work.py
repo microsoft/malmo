@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -24,6 +25,7 @@
 # 4 bowls = 3 planks
 # 1 rabbit_stew = 1 x cooked_rabbit + 1 x carrot + 1 x baked_potato + 1 x brown_mushroom + 1 x bowl
 
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -60,25 +62,25 @@ def getSubgoalPositions(positions):
     return goals
 
 def printInventory(obs):
-    for i in xrange(0,9):
+    for i in range(0,9):
         key = 'InventorySlot_'+str(i)+'_item'
         var_key = 'InventorySlot_'+str(i)+'_variant'
         col_key = 'InventorySlot_'+str(i)+'_colour'
         if key in obs:
             item = obs[key]
-            print str(i) + " ------ " + item,
+            print(str(i) + " ------ " + item, end=' ')
         else:
-            print str(i) + " -- ",
+            print(str(i) + " -- ", end=' ')
         if var_key in obs:
-            print obs[var_key],
+            print(obs[var_key], end=' ')
         if col_key in obs:
-            print obs[col_key],
-        print
+            print(obs[col_key], end=' ')
+        print()
 
 def checkInventoryForBowlIngredients(obs):
     # Need three planks
     plank_count = 0
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -89,7 +91,7 @@ def checkInventoryForBowlIngredients(obs):
     return plank_count >= 3
 
 def checkInventoryForItem(obs, requested):
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -102,7 +104,7 @@ def checkFuelPosition(obs, agent_host):
     # (We need to do this because the furnace crafting commands - cooking the potato and the rabbit -
     # take the first available item of fuel in the inventory. If this isn't the coal, it could end up burning the wood
     # that we need for making the bowl.)
-    for i in xrange(1,39):
+    for i in range(1,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -113,7 +115,7 @@ def checkFuelPosition(obs, agent_host):
 def checkInventoryForStewIngredients(obs):
     # Need a bowl, a cooked rabbit, a carrot, a mushroom and a baked potato.
     required=["cooked_rabbit", "baked_potato", "bowl", "carrot", "brown_mushroom"]
-    for i in xrange(0,39):
+    for i in range(0,39):
         key = 'InventorySlot_'+str(i)+'_item'
         if key in obs:
             item = obs[key]
@@ -181,7 +183,11 @@ def GetMissionXML(summary):
 
     </Mission>'''
    
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 
@@ -211,11 +217,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -234,8 +240,8 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -248,7 +254,7 @@ for iRepeat in range(num_reps):
     total_reward = 0
     # main loop:
     agent_host.sendCommand( "move 1" )
-    print "Collecting ingredients..."
+    print("Collecting ingredients...")
     while world_state.is_mission_running:
         if world_state.number_of_observations_since_last_state > 0:
             msg = world_state.observations[-1].text
@@ -262,37 +268,37 @@ for iRepeat in range(num_reps):
                 agent_host.sendCommand("move 0")
                 agent_host.sendCommand("turn 0")
                 if checkInventoryForItem(ob, "rabbit"):
-                    print "Cooking the rabbit..."
+                    print("Cooking the rabbit...")
                     checkFuelPosition(ob, agent_host)
                     agent_host.sendCommand("craft cooked_rabbit")
                     time.sleep(1)
                 elif checkInventoryForItem(ob, "potato"):
-                    print "Cooking the potato..."
+                    print("Cooking the potato...")
                     checkFuelPosition(ob, agent_host)
                     agent_host.sendCommand("craft baked_potato")
                     time.sleep(1)
                 elif checkInventoryForBowlIngredients(ob):
-                    print "Crafting a bowl..."
+                    print("Crafting a bowl...")
                     agent_host.sendCommand("craft bowl")
                     time.sleep(1)
                 elif checkInventoryForStewIngredients(ob):
-                    print "Crafting a stew..."
+                    print("Crafting a stew...")
                     agent_host.sendCommand("craft rabbit_stew")
                     time.sleep(1)
         if world_state.number_of_rewards_since_last_state > 0:
             reward = world_state.rewards[-1].getValue()
-            print "Reward: " + str(reward)
+            print("Reward: " + str(reward))
             total_reward += reward
         world_state = agent_host.getWorldState()
         
     # mission has ended.
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
     if world_state.number_of_rewards_since_last_state > 0:
         reward = world_state.rewards[-1].getValue()
-        print "Final reward: " + str(reward)
+        print("Final reward: " + str(reward))
         total_reward += reward
-    print "Total Reward: " + str(total_reward)
+    print("Total Reward: " + str(total_reward))
     if total_reward < expected_reward:  # reward may be greater than expected due to items not getting cleared between runs
-        print "Total reward did not match up to expected reward - did the crafting work?"
+        print("Total reward did not match up to expected reward - did the crafting work?")
     time.sleep(0.5) # Give the mod a little time to prepare for the next mission.

@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -23,6 +25,8 @@
 # this demo just uses ObservationFromRay and ObservationFromNearbyEntities to determine
 # when and where to attack.
 
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -43,8 +47,8 @@ ARENA_BREADTH = 20
 
 def getCorner(index,top,left,expand=0,y=0):
     ''' Return part of the XML string that defines the requested corner'''
-    x = str(-(expand+ARENA_WIDTH/2)) if left else str(expand+ARENA_WIDTH/2)
-    z = str(-(expand+ARENA_BREADTH/2)) if top else str(expand+ARENA_BREADTH/2)
+    x = str(-(expand+old_div(ARENA_WIDTH,2))) if left else str(expand+old_div(ARENA_WIDTH,2))
+    z = str(-(expand+old_div(ARENA_BREADTH,2))) if top else str(expand+old_div(ARENA_BREADTH,2))
     return 'x'+index+'="'+x+'" y'+index+'="' +str(y)+'" z'+index+'="'+z+'"'
 
 def getSpawnEndTag(i):
@@ -82,8 +86,8 @@ def getMissionXML(summary):
                 <AnimationDecorator ticksPerUpdate="10">
                 <Linear>
                     <CanvasBounds>
-                        <min x="''' + str(-ARENA_BREADTH/2) + '''" y="205" z="''' + str(-ARENA_BREADTH/2) + '''"/>
-                        <max x="''' + str(ARENA_WIDTH/2) + '''" y="217" z="''' + str(ARENA_WIDTH/2) + '''"/>
+                        <min x="''' + str(old_div(-ARENA_BREADTH,2)) + '''" y="205" z="''' + str(old_div(-ARENA_BREADTH,2)) + '''"/>
+                        <max x="''' + str(old_div(ARENA_WIDTH,2)) + '''" y="217" z="''' + str(old_div(ARENA_WIDTH,2)) + '''"/>
                     </CanvasBounds>
                     <InitialPos x="0" y="207" z="0"/>
                     <InitialVelocity x="0" y="0.025" z="0"/>
@@ -136,7 +140,11 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 my_client_pool = MalmoPython.ClientPool()
@@ -146,11 +154,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -172,8 +180,8 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -246,10 +254,10 @@ for iRepeat in range(num_reps):
                     pig_population = num_pigs
                     tot = sheep_population + pig_population
                     if tot:
-                        print "PIGS:SHEEP",
-                        r = 40.0 / tot
+                        print("PIGS:SHEEP", end=' ')
+                        r = old_div(40.0, tot)
                         p = int(num_pigs * r)
-                        print "P" * p, "|", "S" * (40 - p), "(", num_pigs, num_sheep, ")"
+                        print("P" * p, "|", "S" * (40 - p), "(", num_pigs, num_sheep, ")")
                         
         if world_state.number_of_rewards_since_last_state > 0:
             # Keep track of our total reward:
@@ -257,14 +265,14 @@ for iRepeat in range(num_reps):
 
     # mission has ended.
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
     if world_state.number_of_rewards_since_last_state > 0:
         # A reward signal has come in - see what it is:
         total_reward += world_state.rewards[-1].getValue()
 
-    print
-    print "=" * 41
-    print "Total score this round:", total_reward
-    print "=" * 41
-    print
+    print()
+    print("=" * 41)
+    print("Total score this round:", total_reward)
+    print("=" * 41)
+    print()
     time.sleep(1) # Give the mod a little time to prepare for the next mission.

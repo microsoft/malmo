@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -24,6 +25,7 @@
 # Note that they need an air block directly above them in order to sound.
 # For best results, adjust your Minecraft sound options - put Noteblocks on 100% and reduce everything else.
 
+from builtins import range
 import MalmoPython
 import json
 import math
@@ -62,7 +64,7 @@ def genNoteblocks(x1, z1, x2, z2):
 
     # Randomise the pitches:
     tone_row = pitches
-    for i in xrange(len(tone_row)):
+    for i in range(len(tone_row)):
         s = random.randint(0, len(tone_row) - 1 - i)
         tone_row[i], tone_row[i + s] = tone_row[i + s], tone_row[i]
 
@@ -85,18 +87,18 @@ def genNoteblocks(x1, z1, x2, z2):
              <DrawLine x1="{inner_right}" y1="{y_lower}" z1="{front}" x2="{inner_right}" y2="{y_lower}" z2="{back}" type="tripwire_hook" face="WEST"/>'''.format(left = x1 - 1, inner_left = x1, right = x2 + 1, inner_right = x2, front = z1 + 1, back = z2 - 1, y_lower = 228)
 
     # Draw the trip wires and noteblocks:
-    for x in xrange(x1, x2 + 1):
+    for x in range(x1, x2 + 1):
         xml += '<DrawLine x1="{x}" y1="{y_lower}" z1="{front}" x2="{x}" y2="{y_lower}" z2="{back}" type="tripwire"/>'.format(x = x, front = z1 + 2, back = z2 - 2, y_lower = 227)
         xml += '<DrawLine x1="{x}" y1="{y_upper}" z1="{front}" x2="{x}" y2="{y_upper}" z2="{back}" type="tripwire"/>'.format(x = x, front = z1 + 2, back = z2 - 2, y_upper = 230)
 
         xml += '<DrawBlock x="{x}" y="228" z="{front}" type="noteblock" variant="{pitch}"/>'.format(x = x, front = z1, pitch = tone_row[(x - x1) % 25])
         xml += '<DrawBlock x="{x}" y="231" z="{front}" type="noteblock" variant="{pitch}"/>'.format(x = x, front = z2, pitch = tone_row[(x - x1) % 25])
-    for z in xrange(z1 + 1, z2):
+    for z in range(z1 + 1, z2):
         xml += '<DrawLine x1="{left}" y1="228" z1="{z}" x2="{right}" y2="228" z2="{z}" type="tripwire"/>'.format(left = x1 + 1, z = z, right = x2 - 1)
         xml += '<DrawBlock x="{x}" y="229" z="{z}" type="noteblock" variant="{pitch}"/>'.format(x = x1 - 1, z = z, pitch = tone_row[(z - z1) % 25])
 
     # Add some entities:
-    for i in xrange(10):
+    for i in range(10):
         xml += '<DrawEntity x="{}" y="229" z="{}" type="{}"/>'.format(random.randint(x1, x2), random.randint(z1, z2), random.choice(["Rabbit","Rabbit","Rabbit", "Sheep"]))
     return xml
 
@@ -127,17 +129,21 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
         </AgentSection>
     </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 my_mission = MalmoPython.MissionSpec(missionXML,True)
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 my_mission_record = MalmoPython.MissionRecordSpec()
@@ -148,8 +154,8 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission",e
-            print "Is the game running?"
+            print("Error starting mission",e)
+            print("Is the game running?")
             exit(1)
         else:
             time.sleep(2)

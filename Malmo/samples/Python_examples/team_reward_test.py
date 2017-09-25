@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -35,6 +36,7 @@
 # Fred follows instructions sent to it in the form of chat messages.
 # Simeon instructs Fred to dig/build a staircase that enables him to walk straight down to the goal.
 
+from builtins import range
 import MalmoPython
 import json
 import logging
@@ -48,7 +50,7 @@ import re
 def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
     used_attempts = 0
     max_attempts = 5
-    print "Calling startMission for role", role
+    print("Calling startMission for role", role)
     while True:
         try:
             # Attempt start:
@@ -57,31 +59,31 @@ def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, 
         except MalmoPython.MissionException as e:
             errorCode = e.details.errorCode
             if errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_WARMING_UP:
-                print "Server not quite ready yet - waiting..."
+                print("Server not quite ready yet - waiting...")
                 time.sleep(2)
             elif errorCode == MalmoPython.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE:
-                print "Not enough available Minecraft instances running."
+                print("Not enough available Minecraft instances running.")
                 used_attempts += 1
                 if used_attempts < max_attempts:
-                    print "Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left."
+                    print("Will wait in case they are starting up.", max_attempts - used_attempts, "attempts left.")
                     time.sleep(2)
             elif errorCode == MalmoPython.MissionErrorCode.MISSION_SERVER_NOT_FOUND:
-                print "Server not found - has the mission with role 0 been started yet?"
+                print("Server not found - has the mission with role 0 been started yet?")
                 used_attempts += 1
                 if used_attempts < max_attempts:
-                    print "Will wait and retry.", max_attempts - used_attempts, "attempts left."
+                    print("Will wait and retry.", max_attempts - used_attempts, "attempts left.")
                     time.sleep(2)
             else:
-                print "Other error:", e.message
-                print "Waiting will not help here - bailing immediately."
+                print("Other error:", e.message)
+                print("Waiting will not help here - bailing immediately.")
                 exit(1)
         if used_attempts == max_attempts:
-            print "All chances used up - bailing now."
+            print("All chances used up - bailing now.")
             exit(1)
-    print "startMission called okay."
+    print("startMission called okay.")
 
 def safeWaitForStart(agent_hosts):
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     start_flags = [False for a in agent_hosts]
     start_time = time.time()
     time_out = 120  # Allow a two minute timeout.
@@ -90,20 +92,24 @@ def safeWaitForStart(agent_hosts):
         start_flags = [w.has_mission_begun for w in states]
         errors = [e for w in states for e in w.errors]
         if len(errors) > 0:
-            print "Errors waiting for mission start:"
+            print("Errors waiting for mission start:")
             for e in errors:
-                print e.text
-            print "Bailing now."
+                print(e.text)
+            print("Bailing now.")
             exit(1)
         time.sleep(0.1)
-        print ".",
+        print(".", end=' ')
     if time.time() - start_time >= time_out:
-        print "Timed out while waiting for mission to start - bailing."
+        print("Timed out while waiting for mission to start - bailing.")
         exit(1)
-    print
-    print "Mission has started."
+    print()
+    print("Mission has started.")
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 # -- set up two agent hosts --
 agent_host_simeon = MalmoPython.AgentHost()
@@ -112,11 +118,11 @@ agent_host_fred = MalmoPython.AgentHost()
 try:
     agent_host_simeon.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host_simeon.getUsage()
+    print('ERROR:',e)
+    print(agent_host_simeon.getUsage())
     exit(1)
 if agent_host_simeon.receivedArgument("help"):
-    print agent_host_simeon.getUsage()
+    print(agent_host_simeon.getUsage())
     exit(0)
 
 
@@ -189,22 +195,22 @@ client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001) )
 
 # Fred's instructions for building a staircase, calculated in advance:
 instructions=[]
-for x in xrange(20):
+for x in range(20):
     instructions.append("move -1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe -1")
     instructions.append("move 1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("attack")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe 1")
     instructions.append("move 1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe 1")
     instructions.append("move -1")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("jumpuse")
-    for y in xrange(x+1):
+    for y in range(x+1):
         instructions.append("strafe -1")
 
 expected_reward_simeon = len(instructions)  # One point for every instruction acted on.
@@ -223,7 +229,7 @@ reward_simeon = 0
 # In a real scenario, each agent could have its own process, or at least thread.
 while agent_host_simeon.peekWorldState().is_mission_running or agent_host_fred.peekWorldState().is_mission_running:
     if sendNewInstruction:
-        print "Sending command:", instructions[i]
+        print("Sending command:", instructions[i])
         agent_host_simeon.sendCommand("chat " + instructions[i])
         sendNewInstruction = False
 
@@ -236,7 +242,7 @@ while agent_host_simeon.peekWorldState().is_mission_running or agent_host_fred.p
         # and Fred only sends a command when Simeon has sent a chat message.
         # So the presence of a reward signal indicates that it's time for the next chat message.
         i += 1
-        print "Ready for next command"
+        print("Ready for next command")
         if i < len(instructions):
             sendNewInstruction = True
         else:
@@ -249,7 +255,7 @@ while agent_host_simeon.peekWorldState().is_mission_running or agent_host_fred.p
             reward_fred += reward.getValue()
 
     for obs in world_state.observations:
-        print "Observation!"
+        print("Observation!")
         msg = obs.text
         ob = json.loads(msg)
         chat = ob.get(u'Chat', "")
@@ -263,5 +269,5 @@ world_state1 = agent_host_simeon.getWorldState()
 world_state2 = agent_host_fred.getWorldState()
 reward_simeon += sum(reward.getValue() for reward in world_state1.rewards)
 reward_fred += sum(reward.getValue() for reward in world_state2.rewards)
-print 'Simeon received',reward_simeon
-print 'Fred received',reward_fred
+print('Simeon received',reward_simeon)
+print('Fred received',reward_fred)

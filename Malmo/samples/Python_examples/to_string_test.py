@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -19,39 +20,44 @@
 
 # Similar to run_mission.py, but tests the Python _str_ bindings.
 
+from builtins import range
 import MalmoPython
 import os
 import random
 import sys
 import time
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 agent_host = MalmoPython.AgentHost()
-print agent_host
+print(agent_host)
 
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 my_mission = MalmoPython.MissionSpec()
 my_mission.timeLimitInSeconds( 10 )
 my_mission.requestVideo( 320, 240 )
 my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
-print my_mission
+print(my_mission)
 
 my_mission_record = MalmoPython.MissionRecordSpec("./saved_data.tgz")
 my_mission_record.recordCommands()
 my_mission_record.recordMP4(20, 400000)
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
-print my_mission_record
+print(my_mission_record)
 
 max_retries = 3
 for retry in range(max_retries):
@@ -60,20 +66,20 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission:",e
+            print("Error starting mission:",e)
             exit(1)
         else:
             time.sleep(2)
 
-print "Waiting for the mission to start",
+print("Waiting for the mission to start", end=' ')
 world_state = agent_host.getWorldState()
 while not world_state.has_mission_begun:
     time.sleep(0.1)
     world_state = agent_host.getWorldState()
-    print world_state
+    print(world_state)
     for error in world_state.errors:
-        print "Error:",error.text
-print
+        print("Error:",error.text)
+print()
 
 # main loop:
 while world_state.is_mission_running:
@@ -81,14 +87,14 @@ while world_state.is_mission_running:
     agent_host.sendCommand( "turn " + str(random.random()*2-1) )
     time.sleep(0.5)
     world_state = agent_host.getWorldState()
-    print world_state
+    print(world_state)
     for reward in world_state.rewards:
-        print reward
+        print(reward)
     for frame in world_state.video_frames:
-        print frame
+        print(frame)
     for obs in world_state.observations:
-        print obs
+        print(obs)
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
 
-print "Mission has stopped."
+print("Mission has stopped.")
