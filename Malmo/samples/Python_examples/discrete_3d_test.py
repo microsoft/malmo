@@ -35,7 +35,6 @@ from __future__ import division
 # (This is especially useful for the continuous case. The discrete cases could be solved much more simply
 # by just storing a list of the commands required, but doing it this way tests more things.)
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

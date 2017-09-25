@@ -22,7 +22,6 @@ from __future__ import print_function
 # Creates two moving targets - one which moves as fast as possible, and one which is turn-based, and
 # will wait for the agent to take its turn.
 
-from builtins import str
 from builtins import input
 from builtins import range
 import MalmoPython

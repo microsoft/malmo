@@ -25,7 +25,6 @@ from __future__ import print_function
 # 4 bowls = 3 planks
 # 1 rabbit_stew = 1 x cooked_rabbit + 1 x carrot + 1 x baked_potato + 1 x brown_mushroom + 1 x bowl
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

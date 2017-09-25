@@ -21,7 +21,6 @@ from __future__ import division
 
 # Work in progress: this will eventually be a test of Malmo's support for all block types.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

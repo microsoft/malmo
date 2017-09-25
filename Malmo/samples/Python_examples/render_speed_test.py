@@ -21,7 +21,6 @@ from __future__ import division
 
 # Tests overclocking the render speed by running a very simple task at a series of different frame sizes.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

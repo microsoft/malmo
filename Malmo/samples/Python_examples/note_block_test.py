@@ -25,7 +25,6 @@ from __future__ import print_function
 # Note that they need an air block directly above them in order to sound.
 # For best results, adjust your Minecraft sound options - put Noteblocks on 100% and reduce everything else.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import json

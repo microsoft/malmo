@@ -21,7 +21,6 @@ from __future__ import print_function
 # Sample mission loader
 # Used to check the mission repository
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

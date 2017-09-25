@@ -22,7 +22,6 @@ from __future__ import division
 # Stress test of the maze decorator and mission lifecycle - populates the playing arean with 30,000 small (16x16) mazes,
 # one at a time, and runs each mission for 1 second, recording commands and video.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

@@ -18,7 +18,6 @@ from __future__ import print_function
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-from builtins import str
 from builtins import range
 description_text='''
 This python script is designed to test the turn scheduler, which was introduced to enable the

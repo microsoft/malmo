@@ -21,7 +21,6 @@ from __future__ import print_function
 # Sample to demonstrate use of the RewardForDiscardingItem mission handler, and the DiscardCurrentItem command.
 # Leaves a trail of bread-crumbs.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

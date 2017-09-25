@@ -33,7 +33,6 @@ from __future__ import division
 # structure matches what should have been drawn.
 # If the initial observation is incorrect, then the test fails.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

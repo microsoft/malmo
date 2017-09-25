@@ -26,7 +26,6 @@ from __future__ import print_function
 # These outcomes will give a reward of 100, -800 and 400 respectively (specified in RewardForMissionEnd)
 # There is also a reward of -900 for running out of time (see ServerQuitFromTimeUp), and -1000 for dying.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

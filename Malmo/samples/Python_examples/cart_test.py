@@ -25,7 +25,6 @@ from __future__ import print_function
 #
 # If everything is working correctly, the agent should ride around happily forever.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

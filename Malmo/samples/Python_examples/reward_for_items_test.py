@@ -22,7 +22,6 @@ from __future__ import print_function
 # gives the agent a certain reward. Agent runs around collecting items, and turns left or right depending on the detected reward.
 # Also demonstrates use of ObservationFromNearbyEntities
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

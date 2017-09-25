@@ -28,7 +28,6 @@ from __future__ import print_function
 # The actual behaviour depends upon the speed at which commands are sent.
 # See https://github.com/Microsoft/malmo/issues/104 for some details.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import os

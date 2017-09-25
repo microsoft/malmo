@@ -35,7 +35,6 @@ from __future__ import division
 # and the agent keeps rotating at a fixed speed, so may not have time to complete all the swaps before
 # moving on to the next box.)
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

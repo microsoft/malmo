@@ -21,7 +21,6 @@ from __future__ import division
 
 # Tutorial sample #4: Challenge - get to the centre of the sponge (with solution)
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

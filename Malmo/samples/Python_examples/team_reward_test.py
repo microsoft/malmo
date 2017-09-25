@@ -36,7 +36,6 @@ from __future__ import print_function
 # Fred follows instructions sent to it in the form of chat messages.
 # Simeon instructs Fred to dig/build a staircase that enables him to walk straight down to the goal.
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import json

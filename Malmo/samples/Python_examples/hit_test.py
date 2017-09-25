@@ -25,7 +25,6 @@ from __future__ import division
 # this demo just uses ObservationFromRay and ObservationFromNearbyEntities to determine
 # when and where to attack.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

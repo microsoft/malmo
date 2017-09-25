@@ -21,7 +21,6 @@ from __future__ import division
 
 # Test of multi-agent missions - runs a number of agents in a shared environment.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

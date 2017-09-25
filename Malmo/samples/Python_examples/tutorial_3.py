@@ -21,7 +21,6 @@ from __future__ import division
 
 # Tutorial sample #3: Drawing
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

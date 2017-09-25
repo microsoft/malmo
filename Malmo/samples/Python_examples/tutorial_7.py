@@ -21,7 +21,6 @@ from __future__ import division
 
 # Tutorial sample #7: The Maze Decorator
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

@@ -20,7 +20,6 @@ from __future__ import print_function
 
 # A sample that demonstrates a two-agent mission with discrete actions to dig and place blocks
 
-from builtins import str
 from builtins import range
 import MalmoPython
 import json

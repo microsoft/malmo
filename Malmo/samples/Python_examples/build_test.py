@@ -37,7 +37,6 @@ from __future__ import division
 # to reproduce the source grid.
 # The expected total reward is calculated and compared to the actual reward received.
 
-from builtins import str
 from builtins import range
 from builtins import object
 from past.utils import old_div

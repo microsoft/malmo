@@ -25,7 +25,6 @@ from __future__ import division
 # For more relevant results, tailor the mission xml to reflect your actual needs (eg set the video to the
 # actual size you are after, add whatever observation producers you will be using, etc.)
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

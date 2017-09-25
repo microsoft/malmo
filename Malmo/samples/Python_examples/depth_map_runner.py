@@ -19,7 +19,6 @@ from __future__ import division
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython

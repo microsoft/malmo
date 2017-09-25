@@ -26,7 +26,6 @@ from __future__ import division
 # 3: Start agent two - eg "python multimaze --role 1"
 # They should find each other and begin running missions.
 
-from builtins import str
 from builtins import range
 from past.utils import old_div
 import MalmoPython
