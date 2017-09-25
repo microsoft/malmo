@@ -84,6 +84,7 @@ public class TextureHelper
                 Minecraft.getMinecraft().world.provider.setSkyRenderer(null);
                 colourmapFrame = false;
                 // And get the render pipeline ready to go again:
+                OpenGlHelper.glUseProgram(0);
                 GlStateManager.clear(16640);
                 Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
                 GlStateManager.enableTexture2D();
