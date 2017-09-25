@@ -274,7 +274,7 @@ class HumanAgentHost(object):
             self.agent_host.sendCommand( keysym_map[ event.keysym ] )
             
 if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 else:
     import functools
     print = functools.partial(print, flush=True)

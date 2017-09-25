@@ -177,7 +177,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
   </Mission>'''
 
 if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), w, 0)  # flush print output immediately
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 else:
     import functools
     print = functools.partial(print, flush=True)
