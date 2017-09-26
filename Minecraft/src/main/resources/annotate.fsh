@@ -1,3 +1,4 @@
+#version 130
 varying vec2 texture_coordinate;
 uniform sampler2D my_color_texture;
 uniform int entityColour;
