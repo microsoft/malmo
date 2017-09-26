@@ -18,11 +18,11 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 5. Follow the [Tutorial](https://github.com/Microsoft/malmo/blob/master/Malmo/samples/Python_examples/Tutorial.pdf) 
 
-6. Explore the [Documentation](http://microsoft.github.io/malmo/). This is also available in the readme.html in the release zip.
+6. Explore the [Documentation](http://microsoft.github.io/malmo/). This is also available in the `readme.html` in the release zip.
 
 7. Read the [Blog](http://microsoft.github.io/malmo/blog) for more information.
 
-If you want to build from source then see the build instructions for your OS: [Windows](doc/build_windows.md), [Linux](doc/build_linux.md), [MacOSX](doc/build_macosx.md).
+If you want to build from source, then see the build instructions for your OS: [Windows](doc/build_windows.md), [Linux](doc/build_linux.md), [MacOSX](doc/build_macosx.md).
 
 ----
 
@@ -107,7 +107,7 @@ To run the pre-built sample:
 `CSharpExamples_RunMission.exe` (on Windows)  
 `mono CSharpExamples_RunMission.exe` (on Linux or MacOSX)
 
-To build the sample yourself, open CSharp_Examples/RunMission.csproj in Visual Studio or MonoDevelop.
+To build the sample yourself, open `CSharp_Examples/RunMission.csproj` in Visual Studio or MonoDevelop.
 
 Or from the command-line:
 
@@ -142,7 +142,7 @@ python ALE_HAC.py
 
 # Citations #
 
-Please cite Malmo as:
+Please cite Malmö as:
 
 Johnson M., Hofmann K., Hutton T., Bignell D. (2016) [_The Malmo Platform for Artificial Intelligence Experimentation._](http://www.ijcai.org/Proceedings/16/Papers/643.pdf) [Proc. 25th International Joint Conference on Artificial Intelligence](http://www.ijcai.org/Proceedings/2016), Ed. Kambhampati S., p. 4246. AAAI Press, Palo Alto, California USA. https://github.com/Microsoft/malmo
 
