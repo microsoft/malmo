@@ -179,7 +179,11 @@ def get_mission_xml():
     </AgentSection>
   </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 agent_host = MalmoPython.AgentHost()
 try:
@@ -217,7 +221,7 @@ for iRepeat in range(num_reps):
 
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
     print
