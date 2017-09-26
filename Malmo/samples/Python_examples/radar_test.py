@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -23,6 +25,12 @@
 # how to determine frame type when more than one video producer is used.
 # The visualisation is constructed purely from the video streams - no other observations are required.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import bytes
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import MalmoPython
 import random
 import time
@@ -34,7 +42,7 @@ import sys
 import errno
 import json
 import math
-from Tkinter import *
+from tkinter import *
 from PIL import ImageTk
 from PIL import Image
 
@@ -52,7 +60,7 @@ canvas.config( width=WIDTH, height=HEIGHT )
 canvas.pack(padx=5, pady=5)
 root_frame.pack()
 
-class draw_helper:
+class draw_helper(object):
     def __init__(self, canvas):
         self._canvas = canvas
         self.reset()
@@ -76,9 +84,9 @@ class draw_helper:
 
             # Set up some drawing params:
             size = min(WIDTH, HEIGHT)
-            scale = size / 20.0
+            scale = old_div(size, 20.0)
             angle = frame.yaw * math.pi / 180.0
-            cx = size / 2
+            cx = old_div(size, 2)
             cy = cx
 
             # Draw the sweeping line:
@@ -97,7 +105,7 @@ class draw_helper:
 
             # Fade the lines and the blips:
             for i, seg in enumerate(self._segments):
-                fillstr = "#{0:02x}{1:02x}{2:02x}".format(0, int((self._line_fade - len(self._segments) + i) * (255.0 / float(self._line_fade))), 0)
+                fillstr = "#{0:02x}{1:02x}{2:02x}".format(0, int((self._line_fade - len(self._segments) + i) * (old_div(255.0, float(self._line_fade)))), 0)
                 self._canvas.itemconfig(seg, fill=fillstr)
             if len(self._segments) >= self._line_fade:
                 self._canvas.delete(self._segments.pop(0))
@@ -107,7 +115,7 @@ class draw_helper:
                 if brightness < 0:
                     self._canvas.delete(dot[0])
                 else:
-                    fillstr = "#{0:02x}{1:02x}{2:02x}".format(100, int(brightness * (255.0 / float(self._blip_fade))), 80)
+                    fillstr = "#{0:02x}{1:02x}{2:02x}".format(100, int(brightness * (old_div(255.0, float(self._blip_fade)))), 80)
                     self._canvas.itemconfig(dot[0], fill=fillstr)
                 self._dots = [dot for dot in self._dots if self._current_frame - dot[1] <= self._blip_fade]
             self._current_frame += 1
@@ -116,7 +124,7 @@ class draw_helper:
             # First create image from this frame:
             cmap = Image.frombytes('RGB', (video_width, video_height), bytes(frame.pixels))
             # Now crop just the centre slice:
-            left = (video_width / 2) - 4
+            left = (old_div(video_width, 2)) - 4
             cmap = cmap.crop((left, 0, left + 8, video_height))
             cmap.load()
             # Where does this slice belong in the panorama?
@@ -127,7 +135,7 @@ class draw_helper:
             self._panorama_photo = ImageTk.PhotoImage(self._panorama_image)
             # And update/create the canvas image:
             if self._image_handle is None:
-                self._image_handle = canvas.create_image(WIDTH / 2, HEIGHT - (video_height / 2), image=self._panorama_photo)
+                self._image_handle = canvas.create_image(old_div(WIDTH, 2), HEIGHT - (old_div(video_height, 2)), image=self._panorama_photo)
             else:
                 canvas.itemconfig(self._image_handle, image=self._panorama_photo)
 
@@ -189,11 +197,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 agent_host.setVideoPolicy(MalmoPython.VideoPolicy.LATEST_FRAME_ONLY)
@@ -224,7 +232,7 @@ for iRepeat in range(num_reps):
         print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     agent_host.sendCommand( "turn 1" )
 
