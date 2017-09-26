@@ -222,7 +222,7 @@ for iRepeat in range(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                logger.error("Error starting mission: %s" % e)
+                print("Error starting mission: %s" % e)
                 exit(1)
             else:
                 time.sleep(2)
