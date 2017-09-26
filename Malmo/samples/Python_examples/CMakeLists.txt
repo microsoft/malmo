@@ -39,6 +39,7 @@ set( SOURCES
   overclock_test.py
   patchwork_quilt.py
   quit_from_reaching_position_test.py
+  radar_test.py
   render_speed_test.py
   reward_for_discarding_items_test.py
   reward_for_items_test.py

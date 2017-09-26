@@ -86,7 +86,7 @@ int main()
 
     try{
         boost::asio::io_service io_service;
-        VideoServer server(io_service, port, width, width, channels, boost::function<void(const TimestampedVideoFrame)>(handleFrame));
+        VideoServer server(io_service, port, width, width, channels, TimestampedVideoFrame::VIDEO, boost::function<void(const TimestampedVideoFrame)>(handleFrame));
         server.recordMP4(filename, 10, 400000);
         server.startRecording();
         server.start();

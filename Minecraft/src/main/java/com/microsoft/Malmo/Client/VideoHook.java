@@ -39,9 +39,11 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer.VideoType;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -93,6 +95,7 @@ public class VideoHook {
     ByteBuffer buffer = null;
     ByteBuffer headerbuffer = null;
     final int POS_HEADER_SIZE = 20; // 20 bytes for the five floats governing x,y,z,yaw and pitch.
+
     /**
      * Resize the rendering and start sending video over TCP.
      */
@@ -108,8 +111,8 @@ public class VideoHook {
         this.videoProducer = videoProducer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
         this.headerbuffer = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
-        this.renderWidth = videoProducer.getWidth(missionInit);
-        this.renderHeight = videoProducer.getHeight(missionInit);
+        this.renderWidth = videoProducer.getWidth();
+        this.renderHeight = videoProducer.getHeight();
         resizeIfNeeded();
         Display.setResizable(false); // prevent the user from resizing using the window borders
 
@@ -118,7 +121,22 @@ public class VideoHook {
             return;	// Don't start up if we don't have any connection details.
 
         String agentIPAddress = cac.getAgentIPAddress();
-        int agentPort = cac.getAgentVideoPort();
+        int agentPort = 0;
+        switch (videoProducer.getVideoType())
+        {
+        case LUMINANCE:
+            agentPort = cac.getAgentLuminancePort();
+            break;
+        case DEPTH_MAP:
+            agentPort = cac.getAgentDepthPort();
+            break;
+        case VIDEO:
+            agentPort = cac.getAgentVideoPort();
+            break;
+        case COLOUR_MAP:
+            agentPort = cac.getAgentColourMapPort();
+            break;
+        }
 
         this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
         this.failedTCPSendCount = 0;
@@ -146,6 +164,9 @@ public class VideoHook {
             return;
         
         try {
+            int old_x = Display.getX();
+            int old_y = Display.getY();
+            Display.setLocation(old_x, old_y);
             Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
             System.out.println("Resized the window");
         } catch (LWJGLException e) {
@@ -209,6 +230,13 @@ public class VideoHook {
     @SubscribeEvent
     public void postRender(RenderWorldLastEvent event)
     {
+        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
+        // only the colourmap videoproducer needs to do anything.
+        boolean colourmapFrame = TextureHelper.colourmapFrame;
+        boolean colourmapVideoProducer = this.videoProducer.getVideoType() == VideoType.COLOUR_MAP;
+        if (colourmapFrame != colourmapVideoProducer)
+            return;
+
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
         float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());

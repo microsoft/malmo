@@ -29,7 +29,7 @@ namespace malmo
     {
     public:
 
-        PosixFrameWriter(std::string path, short width, short height, int frames_per_second, int64_t bit_rate = 400000);
+        PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate = 400000);
         ~PosixFrameWriter();
         void open() override;
         void close() override;

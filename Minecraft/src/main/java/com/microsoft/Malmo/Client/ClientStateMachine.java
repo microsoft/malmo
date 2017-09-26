@@ -73,6 +73,7 @@ import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.StateEpisode;
 import com.microsoft.Malmo.StateMachine;
 import com.microsoft.Malmo.Client.MalmoModClient.InputType;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
@@ -90,6 +91,7 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.TextureHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
@@ -737,6 +739,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute()
         {
+            TextureHelper.init();
+
             // Clear our current MissionInit state:
             csMachine.currentMissionInit = null;
             // Clear our current error state:
@@ -1551,7 +1555,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private int failedTCPRewardSendCount = 0;
         private int failedTCPObservationSendCount = 0;
         private boolean wantsToQuit = false; // We have decided our mission is at an end
-        private VideoHook videoHook = new VideoHook();
+        private List<VideoHook> videoHooks = new ArrayList<VideoHook>();
         private String quitCode = "";
         private TCPSocket observationSocket = null;
         private TCPSocket rewardSocket = null;
@@ -1584,7 +1588,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (currentMissionBehaviour().rewardProducer != null)
                 currentMissionBehaviour().rewardProducer.prepare(currentMissionInit());
 
-            this.videoHook.start(currentMissionInit(), currentMissionBehaviour().videoProducer);
+            for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
+            {
+                VideoHook hook = new VideoHook();
+                this.videoHooks.add(hook);
+                hook.start(currentMissionInit(), videoProducer);
+            }
 
             // Make sure we have mouse control:
             ClientStateMachine.this.inputController.setInputType(InputType.AI);
@@ -1619,7 +1628,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Close our communication channels:
             closeSockets();
 
-            this.videoHook.stop();
+            for (VideoHook hook : this.videoHooks)
+                hook.stop();
 
             // Return Minecraft speed to "normal":
             TimeHelper.setMinecraftClientClockSpeed(20);
@@ -1813,10 +1823,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             Minecraft.getMinecraft().mcProfiler.endSection();
 
-            if (this.videoHook.failedTCPSendCount > 0)
-                TCPUtils.Log(Level.WARNING, "Video signal failure count at " + this.videoHook.failedTCPSendCount);
+            int maxFailedTCPSendCount = 0;
+            for (VideoHook hook : this.videoHooks)
+            {
+                if (hook.failedTCPSendCount > maxFailedTCPSendCount)
+                    maxFailedTCPSendCount = hook.failedTCPSendCount;
+            }
+            if (maxFailedTCPSendCount > 0)
+                TCPUtils.Log(Level.WARNING, "Video signal failure count at " + maxFailedTCPSendCount);
             // Check that our messages are getting through:
-            int maxFailed = Math.max(this.failedTCPRewardSendCount, this.videoHook.failedTCPSendCount);
+            int maxFailed = Math.max(this.failedTCPRewardSendCount, maxFailedTCPSendCount);
             maxFailed = Math.max(maxFailed, this.failedTCPObservationSendCount);
             if (maxFailed > FailedTCPSendCountTolerance)
             {

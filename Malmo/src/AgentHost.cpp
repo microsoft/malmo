@@ -211,12 +211,38 @@ namespace malmo
         this->current_role = role;
 
         listenForMissionControlMessages(this->current_mission_init->getAgentMissionControlPort());
-        if (mission.isVideoRequested(this->current_role))
-        {
-            listenForVideo(this->current_mission_init->getAgentVideoPort(),
+        // Video producing handlers:
+        if (mission.isVideoRequested(this->current_role)) {
+            this->video_server = listenForVideo(this->video_server,
+                this->current_mission_init->getAgentVideoPort(),
                 mission.getVideoWidth(this->current_role),
                 mission.getVideoHeight(this->current_role),
-                mission.getVideoChannels(this->current_role));
+                mission.getVideoChannels(this->current_role),
+                TimestampedVideoFrame::VIDEO);
+        }
+        if (mission.isDepthRequested(this->current_role)) {
+            this->depth_server = listenForVideo(this->depth_server,
+                this->current_mission_init->getAgentDepthPort(),
+                mission.getVideoWidth(this->current_role),
+                mission.getVideoHeight(this->current_role),
+                4,
+                TimestampedVideoFrame::DEPTH_MAP);
+        }
+        if (mission.isLuminanceRequested(this->current_role)) {
+            this->luminance_server = listenForVideo(this->luminance_server,
+                this->current_mission_init->getAgentLuminancePort(),
+                mission.getVideoWidth(this->current_role),
+                mission.getVideoHeight(this->current_role),
+                1,
+                TimestampedVideoFrame::LUMINANCE);
+        }
+        if (mission.isColourMapRequested(this->current_role)) {
+            this->colourmap_server = listenForVideo(this->colourmap_server,
+                this->current_mission_init->getAgentColourMapPort(),
+                mission.getVideoWidth(this->current_role),
+                mission.getVideoHeight(this->current_role),
+                3,
+                TimestampedVideoFrame::COLOUR_MAP);
         }
         listenForRewards(this->current_mission_init->getAgentRewardsPort());
         listenForObservations(this->current_mission_init->getAgentObservationsPort());
@@ -232,9 +258,15 @@ namespace malmo
         // if the requested port was zero then the system will assign a free one, so store the resulting value in the MissionInit node for sending to the client
         this->current_mission_init->setAgentMissionControlPort(this->mission_control_server->getPort());
         this->current_mission_init->setAgentObservationsPort(this->observations_server->getPort());
-        if (this->video_server) {
+        if (this->video_server)
             this->current_mission_init->setAgentVideoPort(this->video_server->getPort());
-        }
+        if (this->depth_server)
+            this->current_mission_init->setAgentDepthPort(this->depth_server->getPort());
+        if (this->luminance_server)
+            this->current_mission_init->setAgentLuminancePort(this->luminance_server->getPort());
+        if (this->colourmap_server)
+            this->current_mission_init->setAgentColourMapPort(this->colourmap_server->getPort());
+
         this->current_mission_init->setAgentRewardsPort(this->rewards_server->getPort());
     }
     
@@ -455,31 +487,54 @@ namespace malmo
         this->mission_control_server->start();
     }
     
-    void AgentHost::listenForVideo( int port, short width, short height, short channels )
+    boost::shared_ptr<VideoServer> AgentHost::listenForVideo(boost::shared_ptr<VideoServer> video_server, int port, short width, short height, short channels, TimestampedVideoFrame::FrameType frametype)
     {
-        if( !this->video_server || 
-            (port != 0 && this->video_server->getPort() != port ) ||
-            this->video_server->getWidth() != width || 
-            this->video_server->getHeight() != height ||
-            this->video_server->getChannels() != channels )
+        boost::shared_ptr<VideoServer> ret_server;
+        std::string path;
+        switch (frametype)
         {
-            this->video_server = boost::make_shared<VideoServer>( this->io_service, port, width, height, channels, boost::bind(&AgentHost::onVideo, this, _1));
+        case TimestampedVideoFrame::COLOUR_MAP:
+            path = this->current_mission_record->getMP4ColourMapPath();
+            break;
+        case TimestampedVideoFrame::DEPTH_MAP:
+            path = this->current_mission_record->getMP4DepthPath();
+            break;
+        case TimestampedVideoFrame::LUMINANCE:
+            path = this->current_mission_record->getMP4LuminancePath();
+            break;
+        case TimestampedVideoFrame::VIDEO:
+        default:
+            path = this->current_mission_record->getMP4Path();
+            break;
+        }
+
+        if( !video_server || 
+            (port != 0 && video_server->getPort() != port ) ||
+            video_server->getWidth() != width || 
+            video_server->getHeight() != height ||
+            video_server->getChannels() != channels ||
+            video_server->getFrameType() != frametype)
+        {
+            // Can't use the server passed in - create a new one.
+            ret_server = boost::make_shared<VideoServer>( this->io_service, port, width, height, channels, frametype, boost::bind(&AgentHost::onVideo, this, _1));
 
             if (this->current_mission_record->isRecordingMP4()){
-                this->video_server->recordMP4(this->current_mission_record->getMP4Path(), this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+                ret_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
             }
-            
-            this->video_server->start();
+
+            ret_server->start();
         } 
         else {
             // re-use the existing video_server
             // but now we need to re-create the file writers with the new file names
             if (this->current_mission_record->isRecordingMP4()){
-                this->video_server->recordMP4(this->current_mission_record->getMP4Path(), this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+                video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
             }
+            ret_server = video_server;
         }
-        
-        this->video_server->startRecording();
+
+        ret_server->startRecording();
+        return ret_server;
     }
     
     void AgentHost::listenForRewards( int port )
@@ -630,6 +685,18 @@ namespace malmo
         this->world_state.is_mission_running = false;
         if (this->video_server) {
             this->video_server->stopRecording();
+        }
+
+        if (this->depth_server) {
+            this->depth_server->stopRecording();
+        }
+
+        if (this->luminance_server) {
+            this->luminance_server->stopRecording();
+        }
+
+        if (this->colourmap_server) {
+            this->colourmap_server->stopRecording();
         }
 
         if (this->observations_server){

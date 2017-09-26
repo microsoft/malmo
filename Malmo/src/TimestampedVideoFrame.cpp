@@ -36,15 +36,17 @@ namespace malmo
         , zPos(0)
         , yaw(0)
         , pitch(0)
+        , frametype(VIDEO)
     {
 
     }
 
-    TimestampedVideoFrame::TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message, Transform transform)
+    TimestampedVideoFrame::TimestampedVideoFrame(short width, short height, short channels, TimestampedUnsignedCharVector& message, Transform transform, FrameType frametype)
         : timestamp(message.timestamp)
         , width(width)
         , height(height)
         , channels(channels)
+        , frametype(frametype)
         , xPos(0)
         , yPos(0)
         , zPos(0)
@@ -81,13 +83,13 @@ namespace malmo
 
     bool TimestampedVideoFrame::operator==(const TimestampedVideoFrame& other) const
     {
-        return this->width == other.width && this->height == other.height && this->channels == other.channels && this->timestamp == other.timestamp && this->pixels == other.pixels;
+        return this->frametype == other.frametype && this->width == other.width && this->height == other.height && this->channels == other.channels && this->timestamp == other.timestamp && this->pixels == other.pixels;
         // Not much point in comparing pos, pitch and yaw - covered by the pixel comparison.
     }
 
     std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe)
     {
-        os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels << ", (" << tsvidframe.xPos << "," << tsvidframe.yPos << "," << tsvidframe.zPos << " - yaw:" << tsvidframe.yaw << ", pitch:" << tsvidframe.pitch << ")";
+        os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", type " << tsvidframe.frametype << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels << ", (" << tsvidframe.xPos << "," << tsvidframe.yPos << "," << tsvidframe.zPos << " - yaw:" << tsvidframe.yaw << ", pitch:" << tsvidframe.pitch << ")";
         return os;
     }
 

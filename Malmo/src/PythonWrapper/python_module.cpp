@@ -201,6 +201,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .value( "LATEST_OBSERVATION_ONLY",  AgentHost::LATEST_OBSERVATION_ONLY )
         .value( "KEEP_ALL_OBSERVATIONS",    AgentHost::KEEP_ALL_OBSERVATIONS )
     ;
+
     class_< AgentHost, bases< ArgumentParser >, boost::noncopyable >("AgentHost", init<>())
         .def( "startMission",                   startMissionSimple )
         .def( "startMission",                   startMissionComplex )
@@ -325,6 +326,13 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("getValue",              &TimestampedReward::getValue)
         .def(self_ns::str(self_ns::self))
     ;
+
+    enum_< TimestampedVideoFrame::FrameType >("FrameType")
+        .value("VIDEO", TimestampedVideoFrame::VIDEO)
+        .value("DEPTH_MAP", TimestampedVideoFrame::DEPTH_MAP)
+        .value("LUMINANCE", TimestampedVideoFrame::LUMINANCE)
+        .value("COLOUR_MAP", TimestampedVideoFrame::COLOUR_MAP);
+
     register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();
     class_< TimestampedVideoFrame >( "TimestampedVideoFrame", no_init )
         .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
@@ -336,6 +344,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "zPos",        &TimestampedVideoFrame::zPos)
         .def_readonly( "yaw",         &TimestampedVideoFrame::yaw)
         .def_readonly( "pitch",       &TimestampedVideoFrame::pitch)
+        .def_readonly( "frametype",    &TimestampedVideoFrame::frametype)
         .add_property( "pixels",      make_getter(&TimestampedVideoFrame::pixels, return_value_policy<return_by_value>()))
         .def(self_ns::str(self_ns::self))
     ;

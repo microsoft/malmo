@@ -1,3 +1,9 @@
+0.31.0
+-------------------
+New: Samples now compatible with Python 2 and 3
+New: Added luminance, 32bpp depth-map and colour-map video producers
+New: Support for containers - drawing them, transferring inventory, observation producers etc
+
 0.30.0
 -------------------
 New: UPGRADED TO LATEST MC/FORGE

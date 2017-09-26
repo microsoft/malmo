@@ -468,6 +468,13 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(tostring(const_self))
         ,
         class_< TimestampedVideoFrame, boost::shared_ptr< TimestampedVideoFrame > >("TimestampedVideoFrame")
+            .enum_("FrameType")
+                [
+                    value("VIDEO", TimestampedVideoFrame::VIDEO),
+                    value("DEPTH_MAP", TimestampedVideoFrame::DEPTH_MAP),
+                    value("LUMINANCE", TimestampedVideoFrame::LUMINANCE),
+                    value("COLOUR_MAP", TimestampedVideoFrame::COLOUR_MAP)
+                ]
             .def("timestamp",             &getPosixTimeAsLong<TimestampedVideoFrame>)
             .def_readonly("width",        &TimestampedVideoFrame::width)
             .def_readonly("height",       &TimestampedVideoFrame::height)
@@ -477,6 +484,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def_readonly("zPos",         &TimestampedVideoFrame::zPos)
             .def_readonly("yaw",          &TimestampedVideoFrame::yaw)
             .def_readonly("pitch",        &TimestampedVideoFrame::pitch)
+            .def_readonly("frametype",    &TimestampedVideoFrame::frametype)
             .def_readonly("pixels",       &TimestampedVideoFrame::pixels,               return_stl_iterator )
             .def(tostring(const_self))
       #ifdef TORCH

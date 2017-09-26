@@ -925,6 +925,63 @@
 
   <!--============================================== VIDEO PRODUCERS ==============================================-->
   
+  <xs:element name="DepthProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests that 32bpp depth frames be sent.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LuminanceProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests an 8bpp grayscale image.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="HexColour">
+    <xs:restriction base="xs:hexBinary">
+      <xs:length value="3"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="MobWithColour">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="colour" use="required" type="HexColour"/>
+  </xs:complexType>
+
+  <xs:element name="ColourMapProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests a 24bpp colour map - each object/entity represented by a solid block of colour.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="ColourSpec" type="MobWithColour"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="skyColour" type="HexColour" default="fbceb1"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="VideoProducer">
     <xs:annotation>
       <xs:documentation>

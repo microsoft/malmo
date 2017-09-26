@@ -27,6 +27,17 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  */
 public interface IVideoProducer
 {
+    public enum VideoType
+    {
+        VIDEO,
+        DEPTH_MAP,
+        LUMINANCE,
+        COLOUR_MAP
+    };
+
+    /** Get the type of video frames returned.*/
+    public VideoType getVideoType();
+
     /** Get a frame of video from Minecraft.
      * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the video requirements.
      * @return an array of bytes representing this frame.<br>
@@ -35,10 +46,10 @@ public interface IVideoProducer
     public void getFrame(MissionInit missionInit, ByteBuffer buffer);
     
     /** Get the requested width of the video frames returned.*/
-    public int getWidth(MissionInit missionInit);
+    public int getWidth();
 
     /** Get the requested height of the video frames returned.*/
-    public int getHeight(MissionInit missionInit);
+    public int getHeight();
     
     /** Get the number of bytes required to store a frame.*/
     public int getRequiredBufferSize();

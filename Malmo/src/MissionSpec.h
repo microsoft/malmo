@@ -163,7 +163,28 @@ namespace malmo
             //! \param width The width of the image in pixels. Ensure this is divisible by 4.
             //! \param height The height of the image in pixels. Ensure this is divisible by 2.
             void requestVideo(int width, int height);
-            
+
+            //! Asks for 8bpp greyscale image data to be sent from Minecraft for the agent. Only supports single agent missions.
+            //! Data will be delivered in a TimestampedVideoFrame structure as LLLL...
+            //! The default camera viewpoint will be used (first-person view) - use setViewpoint to change this.
+            //! \param width The width of the image in pixels. Ensure this is divisible by 4.
+            //! \param height The height of the image in pixels. Ensure this is divisible by 2.
+            void requestLuminance(int width, int height);
+
+            //! Asks for 24bpp colourmap image data to be sent from Minecraft for the agent. Only supports single agent missions.
+            //! Data will be delivered in a TimestampedVideoFrame structure as RGBRGB...
+            //! The default camera viewpoint will be used (first-person view) - use setViewpoint to change this.
+            //! \param width The width of the image in pixels. Ensure this is divisible by 4.
+            //! \param height The height of the image in pixels. Ensure this is divisible by 2.
+            void requestColourMap(int width, int height);
+
+            //! Asks for 32bpp depth data to be sent from Minecraft for the agent. Only supports single agent missions.
+            //! Data will be delivered in a TimestampedVideoFrame structure as an array of floats.
+            //! The default camera viewpoint will be used (first-person view) - use setViewpoint to change this.
+            //! \param width The width of the image in pixels. Ensure this is divisible by 4.
+            //! \param height The height of the image in pixels. Ensure this is divisible by 2.
+            void request32bppDepth(int width, int height);
+
             //! Asks for image data and depth data to be sent from Minecraft for the agent. Only supports single agent missions.
             //! Data will be delivered in a TimestampedVideoFrame structure as RGBDRGBDRGBD...
             //! If saving the video to file only the depth will be recorded, as greyscale.
@@ -292,7 +313,22 @@ namespace malmo
             //! \param role The agent index. Zero based.
             //! \returns True if video was requested.
             bool isVideoRequested(int role) const;
-            
+
+            //! Gets whether depthmap video has been requested for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \returns True if depthmap video was requested.
+            bool isDepthRequested(int role) const;
+
+            //! Gets whether luminance video has been requested for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \returns True if luminance video was requested.
+            bool isLuminanceRequested(int role) const;
+
+            //! Gets whether colourmap video has been requested for one of the agents involved in this mission.
+            //! \param role The agent index. Zero based.
+            //! \returns True if colourmap video was requested.
+            bool isColourMapRequested(int role) const;
+
             //! Returns the width of the requested video for one of the agents involved in this mission.
             //! \param role The agent index. Zero based.
             //! \returns The width of the video in pixels.

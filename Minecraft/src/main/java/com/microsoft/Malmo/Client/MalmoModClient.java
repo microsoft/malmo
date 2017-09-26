@@ -32,6 +32,7 @@ import org.lwjgl.input.Mouse;
 
 import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 public class MalmoModClient
 {
@@ -49,13 +50,26 @@ public class MalmoModClient
             {
                 this.deltaX = 0;
                 this.deltaY = 0;
+                if (Mouse.isGrabbed())
+                    Mouse.setGrabbed(false);
+                Minecraft.getMinecraft().inGameHasFocus = false;
             }
             else
             {
                 super.mouseXYChange();
             }
         }
-        
+
+        @Override
+        public void grabMouseCursor()
+        {
+            if (MalmoModClient.this.inputType != InputType.HUMAN)
+            {
+                return;
+            }
+            super.grabMouseCursor();
+        }
+    
         @Override
         /**
          * Ungrabs the mouse cursor so it can be moved and set it to the center of the screen
@@ -74,7 +88,7 @@ public class MalmoModClient
         HUMAN, AI
     }
 
-    private InputType inputType = InputType.HUMAN;
+    protected InputType inputType = InputType.HUMAN;
     protected MouseHook mouseHook;
     protected MouseHelper originalMouseHelper;
 	private KeyManager keyManager;
@@ -85,12 +99,12 @@ public class MalmoModClient
 	{
         // Register for various events:
         MinecraftForge.EVENT_BUS.register(this);
-
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
+        TextureHelper.hookIntoRenderPipeline();
         setUpExtraKeys(settings);
 
         this.stateMachine = new ClientStateMachine(ClientState.WAITING_FOR_MOD_READY, this);
-        
+
         this.originalMouseHelper = Minecraft.getMinecraft().mouseHelper;
         this.mouseHook = new MouseHook();
         this.mouseHook.isOverriding = true;
@@ -112,12 +126,18 @@ public class MalmoModClient
 
         // This stops Minecraft from doing the annoying thing of stealing your mouse.
         System.setProperty("fml.noGrab", input == InputType.AI ? "true" : "false");
+        inputType = input;
         if (input == InputType.HUMAN)
+        {
             Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = true;
+        }
         else
+        {
             Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = false;
+        }
 
-    	inputType = input;
 		this.stateMachine.getScreenHelper().addFragment("Mouse: " + input, TextCategory.TXT_INFO, INFO_MOUSE_CONTROL);
     }
 
