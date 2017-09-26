@@ -83,7 +83,6 @@ public class DepthProducerImplementation extends HandlerBase implements IVideoPr
             float zLinear = 2.0f * zNear * zFar / (zFar + zNear - f * (zFar - zNear));
             fluffer.put(i, zLinear);
         }
-        System.out.println("Range: " + minval + " - " + maxval);
         this.fbo.unbindFramebuffer();
     }
 
