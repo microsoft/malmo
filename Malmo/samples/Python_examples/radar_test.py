@@ -96,7 +96,7 @@ class draw_helper(object):
 
             # Get the depth value from the centre of the map:
             mid_pix = 2 * video_width * (video_height + 1)  # flattened index of middle pixel
-            depth = scale * struct.unpack('f', str(frame.pixels[mid_pix:mid_pix + 4]))[0]   # unpack 32bit float
+            depth = scale * struct.unpack('f', bytes(frame.pixels[mid_pix:mid_pix + 4]))[0]   # unpack 32bit float
 
             # Draw the "blip":
             x = cx + depth * math.cos(angle)
