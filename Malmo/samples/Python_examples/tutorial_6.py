@@ -37,7 +37,11 @@ import os
 import random
 import sys
 import time
-import tkinter as tk
+if sys.version_info[0] == 2:
+    # Workaround for https://github.com/PythonCharmers/python-future/issues/262
+    import Tkinter as tk
+else:
+    import tkinter as tk
 
 class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""

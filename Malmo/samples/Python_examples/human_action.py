@@ -30,8 +30,14 @@ import MalmoPython
 import os
 import sys
 import time
-from tkinter import *
-import tkinter.messagebox
+if sys.version_info[0] == 2:
+    # Workaround for https://github.com/PythonCharmers/python-future/issues/262
+    from Tkinter import *
+    import tkMessageBox
+    tkinter.messagebox = tkMessageBox
+else:
+    from tkinter import *
+    import tkinter.messagebox
 from PIL import Image
 from PIL import ImageTk
 

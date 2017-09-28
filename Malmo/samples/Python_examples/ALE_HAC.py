@@ -28,7 +28,11 @@ import random
 import sys
 import time
 import errno
-import tkinter as tk
+if sys.version_info[0] == 2:
+    # Workaround for https://github.com/PythonCharmers/python-future/issues/262
+    import Tkinter as tk
+else:
+    import tkinter as tk
 from PIL import Image, ImageTk
 from array import array
 from struct import pack

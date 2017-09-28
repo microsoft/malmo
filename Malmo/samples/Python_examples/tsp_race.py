@@ -45,7 +45,11 @@ import random
 import math
 import threading
 
-from tkinter import *
+if sys.version_info[0] == 2:
+    # Workaround for https://github.com/PythonCharmers/python-future/issues/262
+    from Tkinter import *
+else:
+    from tkinter import *
 
 ###################################################################################################################
 # General code for all approaches
