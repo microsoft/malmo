@@ -330,9 +330,15 @@ public class TextureHelper
                 if (col != null)
                 {
                     OpenGlHelper.glUseProgram(shaderID);
-                    int entColUniformLoc = OpenGlHelper.glGetUniformLocation(shaderID, "entityColour");
-                    if (entColUniformLoc != -1)
-                        OpenGlHelper.glUniform1i(entColUniformLoc, col);
+                    int entColUniformLocR = OpenGlHelper.glGetUniformLocation(shaderID, "entityColourR");
+                    int entColUniformLocG = OpenGlHelper.glGetUniformLocation(shaderID, "entityColourG");
+                    int entColUniformLocB = OpenGlHelper.glGetUniformLocation(shaderID, "entityColourB");
+                    if (entColUniformLocR != -1 && entColUniformLocG != -1 && entColUniformLocB != -1)
+                    {
+                        OpenGlHelper.glUniform1i(entColUniformLocR, col != -1 ? (col >> 16) & 0xff : -1);
+                        OpenGlHelper.glUniform1i(entColUniformLocG, col != -1 ? (col >> 8) & 0xff : -1);
+                        OpenGlHelper.glUniform1i(entColUniformLocB, col != -1 ? col & 0xff : -1);
+                    }
                 }
                 else
                     OpenGlHelper.glUseProgram(0);
