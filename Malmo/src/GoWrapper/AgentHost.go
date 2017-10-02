@@ -30,37 +30,6 @@ import "C"
 
 import "unsafe"
 
-// enums
-var (
-	// VideoPolicy: specifies what to do when there are more video frames being received than can be processed.
-	LATEST_FRAME_ONLY int // Discard all but the most recent frame. This is the default.
-	KEEP_ALL_FRAMES   int // Attempt to store all of the frames.
-
-	// RewardsPolicy: specifies what to do when there are more rewards being received than can be processed.
-	LATEST_REWARD_ONLY int // Discard all but the most recent reward.
-	SUM_REWARDS        int // Add up all the rewards received. This is the default.
-	KEEP_ALL_REWARDS   int // Attempt to store all the rewards.
-
-	// ObservationsPolicy: Specifies what to do when there are more observations being received than can be processed.
-	LATEST_OBSERVATION_ONLY int // Discard all but the most recent observation. This is the default.
-	KEEP_ALL_OBSERVATIONS   int // Attempt to store all the observations.
-)
-
-// initialise constants (enums)
-func init() {
-	C.agent_host_initialise_enums(
-		(*C.int)(unsafe.Pointer(&LATEST_FRAME_ONLY)),
-		(*C.int)(unsafe.Pointer(&KEEP_ALL_FRAMES)),
-
-		(*C.int)(unsafe.Pointer(&LATEST_REWARD_ONLY)),
-		(*C.int)(unsafe.Pointer(&SUM_REWARDS)),
-		(*C.int)(unsafe.Pointer(&KEEP_ALL_REWARDS)),
-
-		(*C.int)(unsafe.Pointer(&LATEST_OBSERVATION_ONLY)),
-		(*C.int)(unsafe.Pointer(&KEEP_ALL_OBSERVATIONS)),
-	)
-}
-
 // AgentHost mediates between the researcher's code (the agent) and the Mod (the target environment).
 type AgentHost struct {
 	pt     C.ptAgentHost // pointer to C.AgentHost
@@ -331,4 +300,37 @@ func (o *AgentHost) SendCommandTurnBased(command, key string) error {
 	defer free()
 	status := C.agent_host_send_command_turnbased(o.pt, o.err, ccommand, ckey)
 	return check(status, o.err)
+}
+
+// enums //////////////////////////////////////////////////////////////////////////////////////////
+
+// constants
+var (
+	// VideoPolicy: specifies what to do when there are more video frames being received than can be processed.
+	LATEST_FRAME_ONLY int // Discard all but the most recent frame. This is the default.
+	KEEP_ALL_FRAMES   int // Attempt to store all of the frames.
+
+	// RewardsPolicy: specifies what to do when there are more rewards being received than can be processed.
+	LATEST_REWARD_ONLY int // Discard all but the most recent reward.
+	SUM_REWARDS        int // Add up all the rewards received. This is the default.
+	KEEP_ALL_REWARDS   int // Attempt to store all the rewards.
+
+	// ObservationsPolicy: Specifies what to do when there are more observations being received than can be processed.
+	LATEST_OBSERVATION_ONLY int // Discard all but the most recent observation. This is the default.
+	KEEP_ALL_OBSERVATIONS   int // Attempt to store all the observations.
+)
+
+// initialise constants (enums)
+func init() {
+	C.agent_host_initialise_enums(
+		(*C.int)(unsafe.Pointer(&LATEST_FRAME_ONLY)),
+		(*C.int)(unsafe.Pointer(&KEEP_ALL_FRAMES)),
+
+		(*C.int)(unsafe.Pointer(&LATEST_REWARD_ONLY)),
+		(*C.int)(unsafe.Pointer(&SUM_REWARDS)),
+		(*C.int)(unsafe.Pointer(&KEEP_ALL_REWARDS)),
+
+		(*C.int)(unsafe.Pointer(&LATEST_OBSERVATION_ONLY)),
+		(*C.int)(unsafe.Pointer(&KEEP_ALL_OBSERVATIONS)),
+	)
 }
