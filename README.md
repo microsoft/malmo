@@ -24,6 +24,8 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 If you want to build from source then see the build instructions for your OS: [Windows](doc/build_windows.md), [Linux](doc/build_linux.md), [MacOSX](doc/build_macosx.md).
 
+See also minimal instructions [Minimal/Ubuntu/GoWrapper](doc/build_ubuntu_minimal_python_and_golang.md) to build from source for Ubuntu with focus on the Python and Go wrappers.
+
 ----
 
 ## Problems: ##
