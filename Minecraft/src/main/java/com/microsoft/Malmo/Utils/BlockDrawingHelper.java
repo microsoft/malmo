@@ -30,19 +30,27 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.tileentity.TileEntityMobSpawner;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.tileentity.TileEntityNote;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.registry.EntityEntry;
 
 import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.ContainedObjectType;
 import com.microsoft.Malmo.Schemas.DrawBlock;
+import com.microsoft.Malmo.Schemas.DrawContainer;
 import com.microsoft.Malmo.Schemas.DrawCuboid;
 import com.microsoft.Malmo.Schemas.DrawEntity;
 import com.microsoft.Malmo.Schemas.DrawItem;
@@ -51,6 +59,7 @@ import com.microsoft.Malmo.Schemas.DrawSphere;
 import com.microsoft.Malmo.Schemas.DrawingDecorator;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.NoteTypes;
 import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 
@@ -186,6 +195,8 @@ public class BlockDrawingHelper
                 DrawPrimitive( (DrawLine)obj, world );
             else if (obj instanceof DrawEntity)
                 DrawPrimitive( (DrawEntity)obj, world );
+            else if (obj instanceof DrawContainer)
+                DrawPrimitive( (DrawContainer)obj, world );
             else
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
@@ -205,6 +216,7 @@ public class BlockDrawingHelper
         if (!blockType.isValid())
             throw new Exception("Unrecogised item type: " + b.getType().value());
         BlockPos pos = new BlockPos( b.getX(), b.getY(), b.getZ() );
+        clearEntities(w, b.getX(), b.getY(), b.getZ(), b.getX() + 1, b.getY() + 1, b.getZ() + 1);
         setBlockState(w, pos, blockType );
     }
 
@@ -246,7 +258,7 @@ public class BlockDrawingHelper
                     {
                         BlockPos pos = new BlockPos( x, y, z );
                         setBlockState( w, pos, blockType );
-                        AxisAlignedBB aabb = new AxisAlignedBB(pos, pos).expand(0.5, 0.5, 0.5);
+                        AxisAlignedBB aabb = new AxisAlignedBB(pos, new BlockPos(x+1, y+1, z+1));
                         clearEntities(w, aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ);
                     }
                 }
@@ -297,14 +309,14 @@ public class BlockDrawingHelper
             int y = Math.round(l.getY1() + (float)i * dy);
             int z = Math.round(l.getZ1() + (float)i * dz);
             BlockPos pos = new BlockPos(x, y, z);
-            clearEntities(w, x-0.5,y-0.5,z-0.5,x+0.5,y+0.5,z+0.5);
+            clearEntities(w, x, y, z, x + 1, y + 1, z + 1);
             setBlockState(w, pos, y == prevY ? blockType : stepType);
 
             // Ensure 4-connected:
             if (x != prevX && z != prevZ)
             {
                 pos = new BlockPos(x, y, prevZ);
-                clearEntities(w, x-0.5,y-0.5,prevZ-0.5,x+0.5,y+0.5,prevZ+0.5);
+                clearEntities(w, x, y, prevZ, x + 1, y + 1, prevZ + 1);
                 setBlockState(w, pos, y == prevY ? blockType : stepType);
             }
             prevY = y;
@@ -343,9 +355,22 @@ public class BlockDrawingHelper
      */
     private void DrawPrimitive( DrawEntity e, World w ) throws Exception
     {
-        String entityName = e.getType().getValue();
+        String oldEntityName = e.getType().getValue();
+        String id = null;
+        for (EntityEntry ent : net.minecraftforge.fml.common.registry.ForgeRegistries.ENTITIES)
+        {
+           if (ent.getName().equals(oldEntityName))
+           {
+               id = ent.getRegistryName().toString();
+               break;
+           }
+        }
+        if (id == null)
+            return;
+
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("id", entityName);
+        nbttagcompound.setString("id", id);
+        nbttagcompound.setBoolean("PersistenceRequired", true); // Don't let this entity despawn
         Entity entity;
         try
         {
@@ -354,13 +379,58 @@ public class BlockDrawingHelper
             {
                 positionEntity(entity, e.getX().doubleValue(), e.getY().doubleValue(), e.getZ().doubleValue(), e.getYaw().floatValue(), e.getPitch().floatValue());
                 entity.setVelocity(e.getXVel().doubleValue(), e.getYVel().doubleValue(), e.getZVel().doubleValue());
-                w.spawnEntityInWorld(entity);
+                // Set all the yaw values imaginable:
+                if (entity instanceof EntityLivingBase)
+                {
+                    ((EntityLivingBase)entity).rotationYaw = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRotationYaw = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRotationYawHead = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).rotationYawHead = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).prevRenderYawOffset = e.getYaw().floatValue();
+                    ((EntityLivingBase)entity).renderYawOffset = e.getYaw().floatValue();
+                }
+                w.getBlockState(entity.getPosition());  // Force-load the chunk if necessary, to ensure spawnEntity will work.
+                if (!w.spawnEntity(entity))
+                {
+                    System.out.println("WARNING: Failed to spawn entity! Chunk not loaded?");
+                }
             }
         }
         catch (RuntimeException runtimeexception)
         {
             // Cannot summon this entity.
             throw new Exception("Couldn't create entity type: " + e.getType().getValue());
+        }
+    }
+
+    protected void DrawPrimitive( DrawContainer c, World w ) throws Exception
+    {
+        // First, draw the container block:
+        String cType = c.getType().value();
+        BlockType bType = BlockType.fromValue(cType); // Safe - ContainerType is a subset of BlockType
+        XMLBlockState blockType = new XMLBlockState(bType, c.getColour(), c.getFace(), c.getVariant());
+        if (!blockType.isValid())
+            throw new Exception("Unrecogised item type: " + c.getType().value());
+        BlockPos pos = new BlockPos( c.getX(), c.getY(), c.getZ() );
+        setBlockState(w, pos, blockType );
+        // Now fill the container:
+        TileEntity tileentity = w.getTileEntity(pos);
+        if (tileentity instanceof TileEntityLockableLoot)
+        {
+            // First clear out any leftovers:
+            ((TileEntityLockableLoot)tileentity).clear();
+            int index = 0;
+            for (ContainedObjectType cot : c.getObject())
+            {
+                DrawItem di  = new DrawItem();
+                di.setColour(cot.getColour());
+                di.setType(cot.getType());
+                di.setVariant(cot.getVariant());
+                ItemStack stack = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+                stack.setCount(cot.getQuantity());
+                ((TileEntityLockableLoot)tileentity).setInventorySlotContents(index, stack);
+                index++;
+            }
         }
     }
 
@@ -382,7 +452,7 @@ public class BlockDrawingHelper
         entityitem.motionY = 0;
         entityitem.motionZ = 0;
         entityitem.setDefaultPickupDelay();
-        world.spawnEntityInWorld(entityitem);
+        world.spawnEntity(entityitem);
     }
 
     protected EntityItem createItem(ItemStack stack, double x, double y, double z, World w, boolean centreItem)
@@ -407,14 +477,15 @@ public class BlockDrawingHelper
         if (!blockType.isValid())
             throw new Exception("Unrecogised item type: "+c.getType().value());
 
-        clearEntities(w, c.getX1(), c.getY1(), c.getZ1(), c.getX2(), c.getY2(), c.getZ2());
-
         int x1 = Math.min(c.getX1(), c.getX2());
         int x2 = Math.max(c.getX1(), c.getX2());
         int y1 = Math.min(c.getY1(), c.getY2());
         int y2 = Math.max(c.getY1(), c.getY2());
         int z1 = Math.min(c.getZ1(), c.getZ2());
         int z2 = Math.max(c.getZ1(), c.getZ2());
+
+        clearEntities(w, x1, y1, z1, x2 + 1, y2 + 1, z2 + 1);
+
         for( int x = x1; x <= x2; x++ ) {
             for( int y = y1; y <= y2; y++ ) {
                 for( int z = z1; z <= z2; z++ ) {
@@ -470,11 +541,31 @@ public class BlockDrawingHelper
                 try
                 {
                     EntityTypes entvar = EntityTypes.fromValue(state.variant.getValue());
-                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityName(entvar.value());
+                    ((TileEntityMobSpawner)te).getSpawnerBaseLogic().setEntityId(new ResourceLocation(entvar.value()));
                 }
                 catch (Exception e)
                 {
                     // Do nothing - user has requested a non-entity variant.
+                }
+            }
+        }
+        if (state.type == BlockType.NOTEBLOCK)
+        {
+            TileEntity te = w.getTileEntity(pos);
+            if (te != null && te instanceof TileEntityNote && state.variant != null)
+            {
+                try
+                {
+                    NoteTypes note = NoteTypes.fromValue(state.variant.getValue());
+                    if (note != null)
+                    {
+                        // User has requested a particular note.
+                        ((TileEntityNote)te).note = (byte)note.ordinal();
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // Wasn't a note variation. Ignore.
                 }
             }
         }

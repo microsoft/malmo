@@ -135,7 +135,7 @@ function Install-Java
     if (Should-Install "Java SE Development")
     {
         Display-Heading "Installing java"
-        $source = "http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jdk-8u111-windows-x64.exe"
+        $source = "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-windows-x64.exe"
         $destination = ($env:HOMEPATH + "\temp\jdkinstaller.exe")
         $client = new-object System.Net.WebClient 
         # Need to do some cookie business to sign the oracle licence agreement:
@@ -154,9 +154,9 @@ function Install-Java
         if ($?)
         {
             # Add environment variables:
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Machine")
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_111", "Process")
-            Append-Path "C:\Program Files\Java\jdk1.8.0_111\bin"
+            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Machine")
+            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Process")
+            Append-Path "C:\Program Files\Java\jdk1.8.0_131\bin"
             return $True
         }
         Write-Host "FAILED TO INSTALL JAVA"

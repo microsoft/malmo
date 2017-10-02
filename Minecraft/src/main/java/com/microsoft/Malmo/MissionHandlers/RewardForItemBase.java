@@ -125,7 +125,7 @@ public abstract class RewardForItemBase extends RewardBase
         {
             if (matcher.matches(stack))
             {
-                addAndShareCachedReward(dimension, stack.stackSize * matcher.reward(), matcher.distribution());
+                addAndShareCachedReward(dimension, stack.getCount() * matcher.reward(), matcher.distribution());
             }
         }
     }

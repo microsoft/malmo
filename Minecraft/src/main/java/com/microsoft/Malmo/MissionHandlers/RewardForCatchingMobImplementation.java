@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.Schemas.EntityTypes;
@@ -33,10 +33,10 @@ public class RewardForCatchingMobImplementation extends RewardBase
 
     static List<Entity> getCaughtEntities()
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        World world = player.worldObj;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        World world = player.world;
         // Get all the currently loaded entities:
-        List<?> entities = Minecraft.getMinecraft().theWorld.getLoadedEntityList();
+        List<?> entities = Minecraft.getMinecraft().world.getLoadedEntityList();
         // Now filter out all the player entities:
         List<BlockPos> entityPositions = new ArrayList<BlockPos>();
         for (Object obj : entities)
@@ -104,7 +104,7 @@ public class RewardForCatchingMobImplementation extends RewardBase
                         {
                             // If global flag is false, our player needs to be adjacent to the mob in order to claim the reward.
                             BlockPos entityPos = new BlockPos(e.posX, e.posY, e.posZ);
-                            EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+                            EntityPlayerSP player = Minecraft.getMinecraft().player;
                             BlockPos playerPos = new BlockPos(player.posX, player.posY, player.posZ);
                             if (Math.abs(entityPos.getX() - playerPos.getX()) + Math.abs(entityPos.getZ() - playerPos.getZ()) > 1)
                                 continue;

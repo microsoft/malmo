@@ -36,12 +36,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -49,12 +53,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
 import com.microsoft.Malmo.Client.MalmoModClient;
 import com.microsoft.Malmo.MissionHandlers.AbsoluteMovementCommandsImplementation;
 import com.microsoft.Malmo.MissionHandlers.DiscreteMovementCommandsImplementation;
 import com.microsoft.Malmo.MissionHandlers.InventoryCommandsImplementation;
+import com.microsoft.Malmo.MissionHandlers.ObservationFromFullInventoryImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromFullStatsImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromGridImplementation;
 import com.microsoft.Malmo.MissionHandlers.SimpleCraftCommandsImplementation;
@@ -63,6 +69,7 @@ import com.microsoft.Malmo.Server.MalmoModServer;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.TCPUtils;
 
 @Mod(modid = MalmoMod.MODID, guiFactory = "com.microsoft.Malmo.MalmoModGuiOptions")
 public class MalmoMod
@@ -90,7 +97,7 @@ public class MalmoMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
+         if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
             throw new RuntimeException("This mod has been incorrectly built; check schema version numbers.");
 
         if (event.getModMetadata().version.equals("${version}"))
@@ -111,6 +118,7 @@ public class MalmoMod
 
         AddressHelper.update(this.sessionConfig);
         ScreenHelper.update(this.permanentConfig);
+        TCPUtils.update(this.permanentConfig);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("Malmo");
         network.registerMessage(ObservationFromFullStatsImplementation.FullStatsRequestMessageHandler.class, ObservationFromFullStatsImplementation.FullStatsRequestMessage.class, 1, Side.SERVER);
@@ -122,6 +130,22 @@ public class MalmoMod
         network.registerMessage(InventoryCommandsImplementation.InventoryMessageHandler.class, InventoryCommandsImplementation.InventoryMessage.class, 7, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.UseActionMessageHandler.class, DiscreteMovementCommandsImplementation.UseActionMessage.class, 8, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.AttackActionMessageHandler.class, DiscreteMovementCommandsImplementation.AttackActionMessage.class, 9, Side.SERVER);
+        network.registerMessage(ObservationFromFullInventoryImplementation.InventoryRequestMessageHandler.class, ObservationFromFullInventoryImplementation.InventoryRequestMessage.class, 10, Side.SERVER);
+        network.registerMessage(InventoryCommandsImplementation.InventoryChangeMessageHandler.class, InventoryCommandsImplementation.InventoryChangeMessage.class, 11, Side.CLIENT);
+        }
+
+    @EventHandler
+    public void onMissingMappingsEvent(FMLMissingMappingsEvent event)
+    {
+        // The lit_furnace item was removed in Minecraft 1.9, so pre-1.9 files will produce a warning when
+        // loaded. This is harmless for a human user, but it breaks Malmo's FileWorldGenerator handler, since
+        // it will bring up a GUI and wait for the user to click a button before continuing.
+        // To avoid this, we specifically ignore lit_furnace item mapping.
+        for (MissingMapping mapping : event.getAll())
+        {
+            if (mapping.type == GameRegistry.Type.ITEM && mapping.name.equals("minecraft:lit_furnace"))
+                mapping.ignore();
+        }
     }
 
     public Configuration getModSessionConfigFile() { return this.sessionConfig; }
@@ -131,7 +155,9 @@ public class MalmoMod
     {
         if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
             return clientProperties;
-        if (MinecraftServer.getServer() != null && MinecraftServer.getServer().isCallingFromMinecraftThread())
+        
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if (server != null && server.isCallingFromMinecraftThread())
             return serverProperties;
         else throw new Exception("Request for properties made from unrecognised thread.");
     }
@@ -383,7 +409,7 @@ public class MalmoMod
                 if (ctx.side == Side.CLIENT)
                     mainThread = Minecraft.getMinecraft();
                 else
-                    mainThread = MinecraftServer.getServer();
+                    mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
                 mainThread.addScheduledTask(new Runnable()
                 {
                     @Override
@@ -406,8 +432,8 @@ public class MalmoMod
     public static void safeSendToAll(MalmoMessageType malmoMessage)
     {
         // network.sendToAll() is buggy - race conditions result in the message getting trashed if there is more than one client.
-        MinecraftServer server = MinecraftServer.getServer();
-        for (Object player : server.getConfigurationManager().playerEntityList)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        for (Object player : server.getPlayerList().getPlayers())
         {
             if (player != null && player instanceof EntityPlayerMP)
             {
@@ -425,8 +451,8 @@ public class MalmoMod
             safeSendToAll(malmoMessage);
             return;
         }
-        MinecraftServer server = MinecraftServer.getServer();
-        for (Object player : server.getConfigurationManager().playerEntityList)
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        for (Object player : server.getPlayerList().getPlayers())
         {
             if (player != null && player instanceof EntityPlayerMP)
             {

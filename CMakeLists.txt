@@ -24,7 +24,7 @@ project( Malmo )
 # -------------------- Options --------------------------------
 
 set( MALMO_VERSION_MAJOR 0)
-set( MALMO_VERSION_MINOR 21)
+set( MALMO_VERSION_MINOR 31)
 set( MALMO_VERSION_REVISION 0)
 set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION_REVISION} )
 # N.B. Check that this version number matches the ones in the schemas.
@@ -260,6 +260,7 @@ endif()
 if ( STATIC_BOOST )
   set( SYSTEM_NAME "${SYSTEM_NAME}_withBoost" )
 endif()
+set( SYSTEM_NAME "${SYSTEM_NAME}_Python${USE_PYTHON_VERSIONS}" )
 set( CPACK_SYSTEM_NAME ${SYSTEM_NAME} )
 set( CPACK_PACKAGE_VERSION "${MALMO_VERSION}" )
 set( CPACK_GENERATOR "ZIP" )

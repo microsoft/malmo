@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -19,6 +21,8 @@
 
 # Tests overclocking the render speed by running a very simple task at a series of different frame sizes.
 
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -81,18 +85,22 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
 
     </Mission>'''
   
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 agent_host = MalmoPython.AgentHost()
 
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 if agent_host.receivedArgument("test"):
@@ -126,13 +134,13 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-print "WELCOME TO THE RENDER SPEED TEST"
-print "================================"
-print "This will run the same simple mission with " + str(len(sizes)) + " different frame sizes."
+print("WELCOME TO THE RENDER SPEED TEST")
+print("================================")
+print("This will run the same simple mission with " + str(len(sizes)) + " different frame sizes.")
 
 for iRepeat in range(len(sizes) * 2):
     prioritiseOffscreen = "true" if iRepeat % 2 else "false"
-    width,height = sizes[iRepeat/2]
+    width,height = sizes[old_div(iRepeat,2)]
     if iRepeat % 2:
         num_pixels.append(width*height)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(width), str(height), prioritiseOffscreen), validate)
@@ -148,7 +156,7 @@ for iRepeat in range(len(sizes) * 2):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
@@ -158,11 +166,11 @@ for iRepeat in range(len(sizes) * 2):
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         if len(world_state.errors):
-            print
+            print()
             for error in world_state.errors:
-                print "Error:",error.text
+                print("Error:",error.text)
                 exit()
-    print
+    print()
 
     # main loop:
     agent_host.sendCommand("move 1")    # just go forwards, max speed.
@@ -176,21 +184,21 @@ for iRepeat in range(len(sizes) * 2):
 
     end = timer()
     missionTimeMs = (end - start) * 1000
-    dataShifted = (width * height * 3 * numFrames) / (1024*1024)
+    dataShifted = old_div((width * height * 3 * numFrames), (1024*1024))
     averagefps = numFrames * 1000 / missionTimeMs
     datarate = dataShifted * 1000 / missionTimeMs
     
-    print "==============================================================================================="
-    print "Result of test " + str(iRepeat + 1) + ":"
-    print "==============================================================================================="
-    print "Frame size: " + str(width) + " x " + str(height)
-    print "Prioritising offscreen rendering: " + prioritiseOffscreen
-    print "Frames received: " + str(numFrames)
-    print "Average fps: " + "{0:.2f}".format(averagefps)
-    print "Frame data transferred: " + "{0:.2f}".format(dataShifted) + "MB"
-    print "Data transfer rate: " + "{0:.2f}".format(datarate) + "MB/s"
-    print "==============================================================================================="
-    print
+    print("===============================================================================================")
+    print("Result of test " + str(iRepeat + 1) + ":")
+    print("===============================================================================================")
+    print("Frame size: " + str(width) + " x " + str(height))
+    print("Prioritising offscreen rendering: " + prioritiseOffscreen)
+    print("Frames received: " + str(numFrames))
+    print("Average fps: " + "{0:.2f}".format(averagefps))
+    print("Frame data transferred: " + "{0:.2f}".format(dataShifted) + "MB")
+    print("Data transfer rate: " + "{0:.2f}".format(datarate) + "MB/s")
+    print("===============================================================================================")
+    print()
 
     if iRepeat % 2:
         fps_offscreen.append(averagefps)

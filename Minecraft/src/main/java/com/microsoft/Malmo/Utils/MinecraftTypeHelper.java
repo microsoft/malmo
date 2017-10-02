@@ -23,19 +23,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLever.EnumOrientation;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 
 import com.microsoft.Malmo.Schemas.BlockType;
@@ -66,7 +69,7 @@ public class MinecraftTypeHelper
     {
         if( s == null )
             return null; 
-        Block block = (Block)Block.blockRegistry.getObject(new ResourceLocation( s ));
+        Block block = (Block)Block.REGISTRY.getObject(new ResourceLocation( s ));
         if( block instanceof BlockAir && !s.equals("air") ) // Minecraft returns BlockAir when it doesn't recognise the string
             return null; // unrecognised string
         return block.getDefaultState();
@@ -82,7 +85,7 @@ public class MinecraftTypeHelper
     {
         if (s == null)
             return null;
-        Item item = (Item)Item.itemRegistry.getObject(new ResourceLocation(s)); // Minecraft returns null when it doesn't recognise the string
+        Item item = (Item)Item.REGISTRY.getObject(new ResourceLocation(s)); // Minecraft returns null when it doesn't recognise the string
         if (item == null && checkBlocks)
         {
             // Maybe this is a request for a block item?
@@ -99,7 +102,7 @@ public class MinecraftTypeHelper
      */
     public static boolean blockColourMatches(IBlockState bs, List<Colour> allowedColours)
     {
-        for (IProperty prop : (java.util.Set<IProperty>) bs.getProperties().keySet())
+        for (IProperty prop : bs.getProperties().keySet())
         {
             if (prop.getName().equals("color") && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class)
             {
@@ -122,7 +125,7 @@ public class MinecraftTypeHelper
      */
     public static boolean blockVariantMatches(IBlockState bs, List<Variation> allowedVariants)
     {
-        for (IProperty prop : (java.util.Set<IProperty>) bs.getProperties().keySet())
+        for (IProperty prop : bs.getProperties().keySet())
         {
             if (prop.getName().equals("variant") && prop.getValueClass().isEnum())
             {
@@ -146,16 +149,14 @@ public class MinecraftTypeHelper
      */
     public static Colour attemptToGetAsColour(String part)
     {
-        Colour col = null;
-        try
+        String target = part.toUpperCase();
+        for (int i = 0; i < Colour.values().length; i++)
         {
-            col = Colour.valueOf(part.toUpperCase());
+            String col = Colour.values()[i].name().replace("_",  "");
+            if (col.equals(target))
+                return Colour.values()[i];
         }
-        catch (Exception e)
-        {
-            // Does nothing.
-        }
-        return col;
+        return null;
     }
     
     public static Facing attemptToGetAsFacing(String part)
@@ -186,7 +187,7 @@ public class MinecraftTypeHelper
             // (which are the names displayed by Minecraft when using the F3 debug etc.)
             ItemBlock ib = (ItemBlock)(is.getItem());
             IBlockState bs = ib.block.getStateFromMeta(is.getMetadata());
-            for (IProperty prop : (java.util.Set<IProperty>)bs.getProperties().keySet())
+            for (IProperty prop : bs.getProperties().keySet())
             { 
                 Comparable<?> comp = bs.getValue(prop);
                 Variation var = attemptToGetAsVariant(comp.toString());
@@ -319,7 +320,7 @@ public class MinecraftTypeHelper
             return null;
 
         DrawBlock block = new DrawBlock();
-        Object blockName = Block.blockRegistry.getNameForObject(state.getBlock());
+        Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
         if (blockName instanceof ResourceLocation)
         {
             String name = ((ResourceLocation)blockName).getResourcePath();
@@ -332,7 +333,7 @@ public class MinecraftTypeHelper
         Facing face = null;
 
         // Add properties:
-        for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet())
+        for (IProperty prop : state.getProperties().keySet())
         {
             String propVal = state.getValue(prop).toString();
             boolean matched = false;
@@ -392,7 +393,7 @@ public class MinecraftTypeHelper
             if (is.getItem() instanceof ItemMonsterPlacer)
             {
                 // Special case for eggs:
-                itemParts.add(ItemMonsterPlacer.getEntityName(is));
+                itemParts.add(ItemMonsterPlacer.getNamedIdFrom(is).toString());
             }
             // First part will be "tile" or "item".
             // Second part will be the item itself (eg "dyePowder" or "stainedGlass" etc).
@@ -416,7 +417,7 @@ public class MinecraftTypeHelper
             di.setVariant(var);
         }
         // Use the item registry name for the item - this is what we use in Types.XSD
-        Object obj = Item.itemRegistry.getNameForObject(is.getItem());
+        Object obj = Item.REGISTRY.getNameForObject(is.getItem());
         String publicName;
         if (obj instanceof ResourceLocation)
             publicName = ((ResourceLocation)obj).getResourcePath();
@@ -493,7 +494,7 @@ public class MinecraftTypeHelper
             {
                 // Attempt to find the subtype for this colour/variant - made tricky
                 // because Items don't provide any nice property stuff like Blocks do...
-                List<ItemStack> subItems = new ArrayList<ItemStack>();
+                NonNullList<ItemStack> subItems = NonNullList.create();
                 item.getSubItems(item, null, subItems);
 
                 for (ItemStack is : subItems)
@@ -501,7 +502,7 @@ public class MinecraftTypeHelper
                     String fullName = is.getUnlocalizedName();
                     if (is.getItem() instanceof ItemMonsterPlacer)
                     {
-                        fullName += "." + ItemMonsterPlacer.getEntityName(is);  // Special handling for eggs
+                        fullName += "." + ItemMonsterPlacer.getNamedIdFrom(is).toString();  // Special handling for eggs
                     }
                     String[] parts = fullName.split("\\.");
                     for (int p = 0; p < parts.length; p++)
@@ -514,7 +515,6 @@ public class MinecraftTypeHelper
                             return is;
                         }
                     }
-                    System.out.println(parts);
                 }
             }
             itemStack = new ItemStack(item);
@@ -533,7 +533,7 @@ public class MinecraftTypeHelper
         boolean relaxRequirements = false;
         for (int i = 0; i < 2; i++)
         {
-            for (IProperty prop : (java.util.Set<IProperty>) state.getProperties().keySet())
+            for (IProperty prop : state.getProperties().keySet())
             {
                 if ((prop.getName().equals("variant") || relaxRequirements) && prop.getValueClass().isEnum())
                 {
@@ -559,7 +559,7 @@ public class MinecraftTypeHelper
 	 */
 	static IBlockState applyColour(IBlockState state, Colour colour)
 	{
-	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
+	    for (IProperty prop : state.getProperties().keySet())
 	    {
 	        if (prop.getName().equals("color") && prop.getValueClass() == net.minecraft.item.EnumDyeColor.class)
 	        {
@@ -578,30 +578,57 @@ public class MinecraftTypeHelper
 	 * @param facing The new direction (N/S/E/W/U/D)
 	 * @return A new blockstate with the facing attribute edited
 	 */
-	static IBlockState applyFacing(IBlockState state, Facing facing)
-	{
-	    for (IProperty prop : (java.util.Set<IProperty>)state.getProperties().keySet())
-	    {
-	        if (prop.getName().equals("facing"))
-	        {
-	        	if(prop.getValueClass() == EnumFacing.class)
-	        	{
-	        		EnumFacing current = (EnumFacing)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
-	                }
-	        	}
-	        	else if(prop.getValueClass() == EnumOrientation.class)
-	        	{
-	        		EnumOrientation current = (EnumOrientation)state.getValue(prop);
-	                if (!current.getName().equalsIgnoreCase(facing.name()))
-	                {
-	                    return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
-	                }
-	        	}
-	        }
-	    }
-	    return state;
-	}
+    static IBlockState applyFacing(IBlockState state, Facing facing)
+    {
+        for (IProperty prop : state.getProperties().keySet())
+        {
+            if (prop.getName().equals("facing"))
+            {
+                if (prop.getValueClass() == EnumFacing.class)
+                {
+                    EnumFacing current = (EnumFacing) state.getValue(prop);
+                    if (!current.getName().equalsIgnoreCase(facing.name()))
+                    {
+                        return state.withProperty(prop, EnumFacing.valueOf(facing.name()));
+                    }
+                }
+                else if (prop.getValueClass() == EnumOrientation.class)
+                {
+                    EnumOrientation current = (EnumOrientation) state.getValue(prop);
+                    if (!current.getName().equalsIgnoreCase(facing.name()))
+                    {
+                        return state.withProperty(prop, EnumOrientation.valueOf(facing.name()));
+                    }
+                }
+            }
+        }
+        return state;
+    }
+
+    /** Does essentially the same as entity.getName(), but without pushing the result
+     * through the translation layer. This ensures the result matches what we use in Types.XSD,
+     * and prevents things like "entity.ShulkerBullet.name" being returned, where there is no
+     * translation provided in the .lang file.
+     * @param ent The entity
+     * @return The entity's name.
+     */
+    public static String getUnlocalisedEntityName(Entity e)
+    {
+        String name;
+        if (e.hasCustomName())
+        {
+            name = e.getCustomNameTag();
+        }
+        else if (e instanceof EntityPlayer)
+        {
+            name = e.getName(); // Just returns the user name
+        }
+        else
+        {
+            name = EntityList.getEntityString(e);
+            if (name == null)
+                name = "unknown";
+        }
+        return name;
+    }
 }

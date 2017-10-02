@@ -28,7 +28,7 @@ import net.minecraft.client.AnvilConverterException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.storage.ISaveFormat;
-import net.minecraft.world.storage.SaveFormatComparator;
+import net.minecraft.world.storage.WorldSummary;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 import org.apache.commons.io.FileUtils;
@@ -116,7 +116,7 @@ public class MapFileHelper
      * @param currentWorld excludes this world from deletion, can be null
      */
     public static void cleanupTemporaryWorlds(String currentWorld){
-        List<SaveFormatComparator> saveList;
+        List<WorldSummary> saveList;
         ISaveFormat isaveformat = Minecraft.getMinecraft().getSaveLoader();
         isaveformat.flushCache();
 
@@ -129,7 +129,7 @@ public class MapFileHelper
 
         String searchString = tempMark + AddressHelper.getMissionControlPort() + "_";
 
-        for (SaveFormatComparator s: saveList){
+        for (WorldSummary s: saveList){
             String folderName = s.getFileName();
             if (folderName.startsWith(searchString) && !folderName.equals(currentWorld)){
                 isaveformat.deleteWorldDirectory(folderName);

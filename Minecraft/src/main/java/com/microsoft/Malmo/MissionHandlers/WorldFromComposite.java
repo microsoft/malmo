@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.world.World;
 
@@ -39,11 +40,11 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
         for (IWorldDecorator builder : this.builders)
         {
-            builder.buildOnWorld(missionInit);
+            builder.buildOnWorld(missionInit, world);
         }
     }
 
@@ -57,12 +58,12 @@ public class WorldFromComposite extends HandlerBase implements IWorldDecorator
     }
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         boolean added = false;
         for (IWorldDecorator builder : this.builders)
         {
-            added |= builder.getExtraAgentHandlers(handlers);
+            added |= builder.getExtraAgentHandlersAndData(handlers, data);
         }
         return added;
     }

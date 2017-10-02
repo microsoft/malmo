@@ -25,6 +25,7 @@ set( SOURCES
    ClientPool.cpp
    FindSchemaFile.cpp
    Init.cpp
+   Logger.cpp
    MissionInitSpec.cpp
    MissionRecord.cpp
    MissionRecordSpec.cpp
@@ -55,6 +56,7 @@ set( HEADERS
    ClientPool.h
    FindSchemaFile.h
    Init.h
+   Logger.h
    MissionInitSpec.h
    MissionRecord.h
    MissionRecordSpec.h

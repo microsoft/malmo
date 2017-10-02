@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -17,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import range
 import MalmoPython
 import os
 import random
@@ -135,7 +137,11 @@ def GetMissionXML( mazeblock ):
 
     </Mission>'''
   
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 mazeblocks = [maze1, maze2, maze3, maze4]
@@ -145,11 +151,11 @@ agent_host.addOptionalIntArgument( "speed,s", "Length of tick, in ms.", 50)
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
@@ -173,7 +179,7 @@ my_mission_record = MalmoPython.MissionRecordSpec()
 my_mission_record.recordRewards()
 my_mission_record.recordObservations()
 
-for iRepeat in xrange(num_reps):
+for iRepeat in range(num_reps):
     my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
     mazeblock = random.choice(mazeblocks)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(mazeblock),validate)
@@ -185,41 +191,41 @@ for iRepeat in xrange(num_reps):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         if len(world_state.errors):
-            print
+            print()
             for error in world_state.errors:
-                print "Error:",error.text
+                print("Error:",error.text)
                 exit()
-    print
+    print()
 
     # main loop:
     while world_state.is_mission_running:
         if world_state.number_of_observations_since_last_state > 0:
-            print "Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state."
+            print("Got " + str(world_state.number_of_observations_since_last_state) + " observations since last state.")
             msg = world_state.observations[-1].text
             ob = json.loads(msg)
             current_yaw_delta = ob.get(u'yawDelta', 0)
             current_speed = (1-abs(current_yaw_delta))
-            print "Got observation: " + str(current_yaw_delta)
+            print("Got observation: " + str(current_yaw_delta))
             
             try:
                 agent_host.sendCommand( "move " + str(current_speed) )
                 agent_host.sendCommand( "turn " + str(current_yaw_delta) )
             except RuntimeError as e:
-                print "Failed to send command:",e
+                print("Failed to send command:",e)
                 pass
         world_state = agent_host.getWorldState()
                 
-    print "Mission has stopped."
+    print("Mission has stopped.")
     time.sleep(0.5) # Give mod a little time to get back to dormant state.

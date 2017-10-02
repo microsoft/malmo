@@ -61,7 +61,7 @@ Check that `java -version` and `javac -version` and `set JAVA_HOME` all report t
  
 ### 6. Install the Microsoft Visual Studio 2013 redistributable: ###
 
-Visit: https://www.microsoft.com/en-us/download/details.aspx?id=40784
+Visit: https://support.microsoft.com/en-us/help/3179560/update-for-visual-c-2013-and-visual-c-redistributable-package
 
 Download `vcredist_x64.exe` and run.
 

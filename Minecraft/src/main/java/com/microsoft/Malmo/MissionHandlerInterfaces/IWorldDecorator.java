@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlerInterfaces;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.world.World;
 
@@ -42,13 +43,15 @@ public interface IWorldDecorator
     /** Get the world into the required state for the start of the mission.
      * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the observation requirements.
      */
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException;
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException;
 
-    /** Gives the decorator a chance to add any client-side mission handlers that might be required - eg end-points for the maze generator, etc.
+    /** Gives the decorator a chance to add any client-side mission handlers that might be required - eg end-points for the maze generator, etc -
+     * and to communicate (via the map) any data back to the client-side.
      * @param handlers A list of handlers to which the decorator can add
+     * @param data A map which will be passed to the client
      * @return true if new decorators were added
      */
-    public boolean getExtraAgentHandlers(List<Object> handlers);
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data);
 
     /** Called periodically by the server, during the mission run. Use to provide dynamic behaviour.
      * @param world the World we are controlling.

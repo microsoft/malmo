@@ -39,7 +39,7 @@ namespace malmo
     {
     public:
 
-        WindowsFrameWriter(std::string path, short width, short height, int frames_per_second, int64_t bit_rate = 400000);
+        WindowsFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate = 400000);
         ~WindowsFrameWriter();
         void open() override;
         void close() override;

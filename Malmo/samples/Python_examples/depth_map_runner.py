@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -17,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import random
 import time
@@ -48,7 +52,7 @@ def processFrame( frame ):
     '''Track through the middle line of the depth data and find the max discontinuities'''
     global current_yaw_delta_from_depth
 
-    y = int(video_height / 2)
+    y = int(old_div(video_height, 2))
     rowstart = y * video_width
     
     v = 0
@@ -102,17 +106,17 @@ def processFrame( frame ):
     # If it's a negative value, it represents a rapid change from far to close - eg the right-hand edge of a gap.
     # Aiming to put this point in the rightmost quarter of the screen will cause us to aim for the gap.
     if dv_max_sign:
-        edge = video_width / 4
+        edge = old_div(video_width, 4)
     else:
         edge = 3 * video_width / 4
 
     # Now, if there is something noteworthy in d2v, steer according to the above comment:
     if d2v_max > 8:
-        current_yaw_delta_from_depth = (float(d2v_max_pos - edge) / video_width)
+        current_yaw_delta_from_depth = (old_div(float(d2v_max_pos - edge), video_width))
     else:
         # Nothing obvious to aim for, so aim for the farthest point:
         if v_max < 255:
-            current_yaw_delta_from_depth = (float(v_max_pos) / video_width) - 0.5
+            current_yaw_delta_from_depth = (old_div(float(v_max_pos), video_width)) - 0.5
         else:
             # No real data to be had in d2v or v, so just go by the direction we were already travelling in:
             if current_yaw_delta_from_depth < 0:
@@ -172,7 +176,11 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
     </AgentSection>
   </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 my_mission = MalmoPython.MissionSpec( missionXML, validate )
@@ -181,11 +189,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
@@ -216,10 +224,10 @@ for iRepeat in range(num_reps):
     logger.info("Waiting for the mission to start")
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
-    print
+    print()
 
     agent_host.sendCommand( "move 1" )
 

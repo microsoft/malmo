@@ -20,7 +20,6 @@
 set( SOURCES
   animation_test.py
   build_test.py
-  cart_test.py
   chat_reward.py
   chunk_test.py
   craft_work.py
@@ -29,16 +28,18 @@ set( SOURCES
   discrete_3d_test.py
   drawing_test.py
   file_test.py
+  hit_test.py
   human_action.py
+  inventory_test.py
   manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
-  MultiMaze.py
   mob_fun.py
   moving_target_test.py
   overclock_test.py
   patchwork_quilt.py
   quit_from_reaching_position_test.py
+  radar_test.py
   render_speed_test.py
   reward_for_discarding_items_test.py
   reward_for_items_test.py
@@ -71,12 +72,18 @@ set( MULTI_AGENT_TESTS
     team_reward_test.py
     multi_agent_test.py
     agent_visibility_test.py
+    tsp_race.py
     turn_based_test.py
+    MultiMaze.py
 )
 
 set( OTHER_FILES
   tutorial_6.xml
   Tutorial.pdf
+  note_block_test.py    # Currently no way to test audio
+  cart_test.py          # Currently unreliable
+  mob_zoo.py            # Currently unreliable
+  block_type_test.py    # WIP
 )
 
 install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )

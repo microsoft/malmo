@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -19,6 +20,9 @@
 
 # Used for integration tests.
 
+from builtins import str
+from builtins import range
+import io
 import os
 import platform
 import socket
@@ -26,7 +30,6 @@ import subprocess
 import sys
 import time
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 minecraft_path = os.path.dirname(os.path.abspath(__file__))
 
 def PortHasListener( port ):
@@ -41,27 +44,36 @@ if len(ports) == 0:
 
 for port in ports:
     if PortHasListener( port ):
-        print 'Something is listening on port',port,'- will assume Minecraft is running.'
+        print('Something is listening on port',port,'- will assume Minecraft is running.')
         continue
         
-    print 'Nothing is listening on port',port,'- will attempt to launch Minecraft from a new terminal.'
+    print('Nothing is listening on port',port,'- will attempt to launch Minecraft from a new terminal.')
     if os.name == 'nt':
         subprocess.Popen([minecraft_path + '/launchClient.bat', '-port', str(port)], creationflags=subprocess.CREATE_NEW_CONSOLE, close_fds=True)
     elif sys.platform == 'darwin':
-        subprocess.Popen(['open', '-a', 'Terminal.app ' + minecraft_path + '/launchClient.sh', '-port', str(port)])
+        # Can't pass parameters to launchClient via Terminal.app, so create a small launch
+        # script instead.
+        # (Launching a process to run the terminal app to run a small launch script to run
+        # the launchClient script to run Minecraft... is it possible that this is not the most
+        # straightforward way to go about things?)
+        tmp_file = open("/tmp/launcher.sh", "w")
+        tmp_file.write(minecraft_path + '/launchClient.sh -port ' + str(port))
+        tmp_file.close()
+        os.chmod("/tmp/launcher.sh", 0o777)
+        subprocess.Popen(['open', '-a', 'Terminal.app', '/tmp/launcher.sh'])
     elif platform.linux_distribution()[0] == 'Fedora':
         subprocess.Popen( minecraft_path + "/launchClient.sh -port " + str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
     else:
         subprocess.Popen( minecraft_path + "/launchClient.sh -port " + str(port), close_fds=True, shell=True, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE )
-    print 'Giving Minecraft some time to launch... '
+    print('Giving Minecraft some time to launch... ')
     launched = False
-    for i in xrange( 100 ):
-        print '.',
+    for i in range( 100 ):
+        print('.', end=' ')
         time.sleep( 3 )
         if PortHasListener( port ):
-            print 'ok'
+            print('ok')
             launched = True
             break
     if not launched:
-        print 'Minecraft not yet launched. Giving up.'
+        print('Minecraft not yet launched. Giving up.')
         exit(1)

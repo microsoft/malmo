@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
@@ -48,7 +49,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit)
+    public void buildOnWorld(MissionInit missionInit, World world)
     {
         Mission mission = missionInit.getMission();
         if (mission != null)
@@ -56,7 +57,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
             try
             {
                 BlockDrawingHelper drawContext = new BlockDrawingHelper();
-                drawContext.Draw(this.drawing, MinecraftServer.getServer().getEntityWorld());
+                drawContext.Draw(this.drawing, world);
             }
             catch (Exception e)
             {
@@ -69,7 +70,7 @@ public class DrawingDecoratorImplementation extends HandlerBase implements IWorl
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }

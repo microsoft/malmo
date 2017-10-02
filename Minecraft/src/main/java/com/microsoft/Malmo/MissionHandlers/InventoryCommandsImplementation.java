@@ -26,13 +26,23 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityEnderChest;
+import net.minecraft.tileentity.TileEntityLockableLoot;
+import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.InventoryCommand;
 import com.microsoft.Malmo.Schemas.InventoryCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
@@ -44,50 +54,137 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  */
 public class InventoryCommandsImplementation extends CommandGroup
 {
+    public static class InventoryChangeMessage implements IMessage
+    {
+        public ItemStack itemsGained = null;
+        public ItemStack itemsLost = null;
+
+        public InventoryChangeMessage()
+        {
+        }
+        public InventoryChangeMessage(ItemStack itemsGained, ItemStack itemsLost)
+        {
+            this.itemsGained = itemsGained;
+            this.itemsLost = itemsLost;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            boolean gainedItems = buf.readBoolean();
+            if (gainedItems)
+                this.itemsGained = ByteBufUtils.readItemStack(buf);
+            boolean lostItems = buf.readBoolean();
+            if (lostItems)
+                this.itemsLost = ByteBufUtils.readItemStack(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            buf.writeBoolean(this.itemsGained != null);
+            if (this.itemsGained != null)
+                ByteBufUtils.writeItemStack(buf, this.itemsGained);
+            buf.writeBoolean(this.itemsLost != null);
+            if (this.itemsLost != null)
+                ByteBufUtils.writeItemStack(buf, this.itemsLost);
+        }
+    }
+ 
     public static class InventoryMessage implements IMessage
     {
+        String invA;
+        String invB;
         int slotA;
         int slotB;
         boolean combine;
+        BlockPos containerPos;
 
         public InventoryMessage()
         {
         }
 
-        public InventoryMessage(int a, int b, boolean combine)
+        public InventoryMessage(List<Object> params, boolean combine)
         {
-            this.slotA = a;
-            this.slotB = b;
+            this.invA = (String)params.get(0);
+            this.slotA = (Integer)params.get(1);
+            this.invB = (String)params.get(2);
+            this.slotB = (Integer)params.get(3);
+            if (params.size() == 5)
+                this.containerPos = (BlockPos)params.get(4);
             this.combine = combine;
         }
 
         @Override
         public void fromBytes(ByteBuf buf)
         {
+            this.invA = ByteBufUtils.readUTF8String(buf);
             this.slotA = buf.readInt();
+            this.invB = ByteBufUtils.readUTF8String(buf);
             this.slotB = buf.readInt();
             this.combine = buf.readBoolean();
+            if (buf.readBoolean())
+                this.containerPos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
         }
 
         @Override
         public void toBytes(ByteBuf buf)
         {
+            ByteBufUtils.writeUTF8String(buf, this.invA);
             buf.writeInt(this.slotA);
+            ByteBufUtils.writeUTF8String(buf, this.invB);
             buf.writeInt(this.slotB);
             buf.writeBoolean(this.combine);
+            buf.writeBoolean(this.containerPos != null);
+            if (this.containerPos != null)
+            {
+                buf.writeInt(this.containerPos.getX());
+                buf.writeInt(this.containerPos.getY());
+                buf.writeInt(this.containerPos.getZ());
+            }
         }
     }
 
     public static class InventoryMessageHandler implements IMessageHandler<InventoryMessage, IMessage>
     {
         @Override
-        public IMessage onMessage(InventoryMessage message, MessageContext ctx)
+        public InventoryChangeMessage onMessage(final InventoryMessage message, MessageContext ctx)
         {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            if (message.combine)
-                combineSlots(player, message.slotA, message.slotB);
-            else
-                swapSlots(player, message.slotA, message.slotB);
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
+            mainThread.addScheduledTask(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ItemStack[] changes = null;
+                    if (message.combine)
+                        changes = combineSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                    else
+                        changes = swapSlots(player, message.invA, message.slotA, message.invB, message.slotB, message.containerPos);
+                    if (changes != null)
+                        MalmoMod.network.sendTo(new InventoryChangeMessage(changes[0], changes[1]), player);
+                }
+            });
+            return null;
+        }
+    }
+
+    public static class InventoryChangeMessageHandler implements IMessageHandler<InventoryChangeMessage, IMessage>
+    {
+        @Override
+        public IMessage onMessage(InventoryChangeMessage message, MessageContext ctx)
+        {
+            if (message.itemsGained != null)
+            {
+                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(message.itemsGained);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
+            if (message.itemsLost != null)
+            {
+                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(message.itemsLost);
+                MinecraftForge.EVENT_BUS.post(event);
+            }
             return null;
         }
     }
@@ -111,54 +208,141 @@ public class InventoryCommandsImplementation extends CommandGroup
         return true;
     }
 
-    static void combineSlots(EntityPlayerMP player, int dst, int add)
+    static ItemStack[] combineSlots(EntityPlayerMP player, String invDst, int dst, String invAdd, int add, BlockPos containerPos)
     {
-        InventoryPlayer inv = player.inventory;
-        ItemStack dstStack = inv.getStackInSlot(dst);
-        ItemStack addStack = inv.getStackInSlot(add);
+        IInventory container = null;
+        String containerName = "";
+        if (containerPos != null)
+        {
+            TileEntity te = player.world.getTileEntity(containerPos);
+            if (te != null && te instanceof TileEntityLockableLoot)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                container = (IInventory)te;
+            }
+            else if (te != null && te instanceof TileEntityEnderChest)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName(player.getInventoryEnderChest());
+                container = player.getInventoryEnderChest();
+            }
+        }
+        IInventory dstInv = invDst.equals("inventory") ? player.inventory : (invDst.equals(containerName) ? container : null);
+        IInventory addInv = invAdd.equals("inventory") ? player.inventory : (invAdd.equals(containerName) ? container : null);
+        if (dstInv == null || addInv == null)
+            return null; // Source or dest container not available.
+
+        ItemStack dstStack = dstInv.getStackInSlot(dst);
+        ItemStack addStack = addInv.getStackInSlot(add);
 
         if (addStack == null)
-            return;    // Combination is a no-op.
+            return null; // Combination is a no-op.
 
-        if (dstStack == null)   // Do a straight move - nothing to combine with.
+        ItemStack[] returnStacks = null;
+
+        if (dstStack == null) // Do a straight move - nothing to combine with.
         {
-            inv.setInventorySlotContents(dst, addStack);
-            inv.setInventorySlotContents(add, null);
-            return;
+            if (dstInv != addInv)
+            {
+                // Items are moving between our inventory and the foreign inventory - may need to trigger
+                // rewards for collecting / discarding.
+                returnStacks = new ItemStack[2];
+                ItemStack stackBeingLost = (addInv == player.inventory) ? addStack : null;
+                ItemStack stackBeingGained = (dstInv == player.inventory) ? addStack : null;
+                if (stackBeingGained != null)
+                    returnStacks[0] = stackBeingGained.copy();
+                if (stackBeingLost != null)
+                    returnStacks[1] = stackBeingLost.copy();
+            }
+            dstInv.setInventorySlotContents(dst, addStack);
+            addInv.setInventorySlotContents(add, null);
+            return returnStacks;
         }
 
         // Check we can combine. This logic comes from InventoryPlayer.storeItemStack():
         boolean itemsMatch = dstStack.getItem() == addStack.getItem();
-        boolean dstCanStack = dstStack.isStackable() && dstStack.stackSize < dstStack.getMaxStackSize() && dstStack.stackSize < inv.getInventoryStackLimit();
+        boolean dstCanStack = dstStack.isStackable() && dstStack.getCount() < dstStack.getMaxStackSize() && dstStack.getCount() < dstInv.getInventoryStackLimit();
         boolean subTypesMatch = !dstStack.getHasSubtypes() || dstStack.getMetadata() == addStack.getMetadata();
         boolean tagsMatch = ItemStack.areItemStackTagsEqual(dstStack, addStack);
         if (itemsMatch && dstCanStack && subTypesMatch && tagsMatch)
         {
             // We can combine, so figure out how much we have room for:
-            int limit = Math.min(dstStack.getMaxStackSize(), inv.getInventoryStackLimit());
-            int room = limit - dstStack.stackSize;
-            if (addStack.stackSize > room)
+            int limit = Math.min(dstStack.getMaxStackSize(), dstInv.getInventoryStackLimit());
+            int room = limit - dstStack.getCount();
+            ItemStack itemsTransferred = dstStack.copy();
+            if (addStack.getCount() > room)
             {
                 // Not room for all of it, so shift across as much as possible.
-                addStack.stackSize -= room;
-                dstStack.stackSize += room;
+                addStack.shrink(room);
+                dstStack.grow(room);
+                itemsTransferred.setCount(room);
             }
             else
             {
                 // Room for the whole lot, so empty out the add slot.
-                dstStack.stackSize += addStack.stackSize;
-                inv.setInventorySlotContents(add, null);
+                dstStack.grow(addStack.getCount());
+                itemsTransferred.setCount(addStack.getCount());
+                addInv.removeStackFromSlot(add);//setInventorySlotContents(add, null);
+            }
+            if (dstInv != addInv)
+            {
+                // Items are moving between our inventory and the foreign inventory - may need to trigger
+                // rewards for collecting / discarding.
+                returnStacks = new ItemStack[2];
+                if (dstInv == player.inventory)
+                    returnStacks[0] = itemsTransferred; // We're gaining them
+                else
+                    returnStacks[1] = itemsTransferred; // We're losing them
             }
         }
+        return returnStacks;
     }
 
-    static void swapSlots(EntityPlayerMP player, int lhs, int rhs)
+    static ItemStack[] swapSlots(EntityPlayerMP player, String lhsInv, int lhs, String rhsInv, int rhs, BlockPos containerPos)
     {
-        InventoryPlayer inv = player.inventory;
-        ItemStack srcStack = inv.getStackInSlot(lhs);
-        ItemStack dstStack = inv.getStackInSlot(rhs);
-        inv.setInventorySlotContents(lhs, dstStack);
-        inv.setInventorySlotContents(rhs, srcStack);
+        IInventory container = null;
+        String containerName = "";
+        if (containerPos != null)
+        {
+            TileEntity te = player.world.getTileEntity(containerPos);
+            if (te != null && te instanceof TileEntityLockableLoot)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                container = (IInventory)te;
+            }
+            else if (te != null && te instanceof TileEntityEnderChest)
+            {
+                containerName = ObservationFromFullInventoryImplementation.getInventoryName(player.getInventoryEnderChest());
+                container = player.getInventoryEnderChest();
+            }
+
+        }
+        IInventory lhsInventory = lhsInv.equals("inventory") ? player.inventory : (lhsInv.equals(containerName) ? container : null);
+        IInventory rhsInventory = rhsInv.equals("inventory") ? player.inventory : (rhsInv.equals(containerName) ? container : null);
+        if (lhsInventory == null || rhsInventory == null)
+            return null; // Source or dest container not available.
+        if (rhs < 0 || lhs < 0)
+            return null; // Out of bounds.
+        if (lhs >= lhsInventory.getSizeInventory() || rhs >= rhsInventory.getSizeInventory())
+            return null; // Out of bounds.
+
+        ItemStack srcStack = lhsInventory.getStackInSlot(lhs);
+        ItemStack dstStack = rhsInventory.getStackInSlot(rhs);
+        lhsInventory.setInventorySlotContents(lhs, dstStack);
+        rhsInventory.setInventorySlotContents(rhs, srcStack);
+        if (lhsInventory != rhsInventory)
+        {
+            // Items have moved between our inventory and the foreign inventory - may need to trigger
+            // rewards for collecting / discarding.
+            ItemStack[] returnStacks = new ItemStack[2];
+            ItemStack stackBeingLost = (lhsInventory == player.inventory) ? srcStack : dstStack;
+            ItemStack stackBeingGained = (lhsInventory == player.inventory) ? dstStack : srcStack;
+            if (stackBeingGained != null)
+                returnStacks[0] = stackBeingGained.copy();
+            if (stackBeingLost != null)
+                returnStacks[1] = stackBeingLost.copy();
+            return returnStacks;
+        }
+        return null;
     }
 
     @Override
@@ -168,11 +352,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             if (parameter != null && parameter.length() != 0)
             {
-                List<Integer> params = new ArrayList<Integer>();
+                List<Object> params = new ArrayList<Object>();
                 if (getParameters(parameter, params))
                 {
                     // All okay, so create a swap message for the server:
-                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), params.get(1), false));
+                    MalmoMod.network.sendToServer(new InventoryMessage(params, false));
                     return true;
                 }
                 else
@@ -183,11 +367,11 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             if (parameter != null && parameter.length() != 0)
             {
-                List<Integer> params = new ArrayList<Integer>();
+                List<Object> params = new ArrayList<Object>();
                 if (getParameters(parameter, params))
                 {
                     // All okay, so create a combine message for the server:
-                    MalmoMod.network.sendToServer(new InventoryMessage(params.get(0), params.get(1), true));
+                    MalmoMod.network.sendToServer(new InventoryMessage(params, true));
                     return true;
                 }
                 else
@@ -197,13 +381,13 @@ public class InventoryCommandsImplementation extends CommandGroup
         else if (verb.equalsIgnoreCase(InventoryCommand.DISCARD_CURRENT_ITEM.value()))
         {
             // This we can do on the client side:
-            Minecraft.getMinecraft().thePlayer.dropOneItem(false);  // false means just drop one item - true means drop everything in the current stack.
+            Minecraft.getMinecraft().player.dropItem(false);  // false means just drop one item - true means drop everything in the current stack.
             return true;
         }
         return super.onExecute(verb, parameter, missionInit);
     }
 
-    private boolean getParameters(String parameter, List<Integer> parsedParams)
+    private boolean getParameters(String parameter, List<Object> parsedParams)
     {
         String[] params = parameter.split(" ");
         if (params.length != 2)
@@ -211,30 +395,87 @@ public class InventoryCommandsImplementation extends CommandGroup
             System.out.println("Malformed parameter string (" + parameter + ") - expected <x> <y>");
             return false;   // Error - incorrect number of parameters.
         }
-        Integer lhs, rhs;
+        String[] lhsParams = params[0].split(":");
+        String[] rhsParams = params[1].split(":");
+        Integer lhsIndex, rhsIndex;
+        String lhsName, rhsName, lhsStrIndex, rhsStrIndex;
+        boolean checkContainers = false;
+        if (lhsParams.length == 2)
+        {
+            lhsName = lhsParams[0];
+            lhsStrIndex = lhsParams[1];
+            checkContainers = true;
+        }
+        else if (lhsParams.length == 1)
+        {
+            lhsName = "inventory";
+            lhsStrIndex = lhsParams[0];
+        }
+        else
+        {
+            System.out.println("Malformed parameter string (" + params[0] + ")");
+            return false;
+        }
+        if (rhsParams.length == 2)
+        {
+            rhsName = rhsParams[0];
+            rhsStrIndex = rhsParams[1];
+            checkContainers = true;
+        }
+        else if (rhsParams.length == 1)
+        {
+            rhsName = "inventory";
+            rhsStrIndex = rhsParams[0];
+        }
+        else
+        {
+            System.out.println("Malformed parameter string (" + params[1] + ")");
+            return false;
+        }
+
         try
         {
-            lhs = Integer.valueOf(params[0]);
-            rhs = Integer.valueOf(params[1]);
+            lhsIndex = Integer.valueOf(lhsStrIndex);
+            rhsIndex = Integer.valueOf(rhsStrIndex);
         }
         catch (NumberFormatException e)
         {
             System.out.println("Malformed parameter string (" + parameter + ") - " + e.getMessage());
             return false;
         }
-        if (lhs == null || rhs == null)
+        if (lhsIndex == null || rhsIndex == null)
         {
             System.out.println("Malformed parameter string (" + parameter + ")");
             return false;   // Error - incorrect parameters.
         }
-        InventoryPlayer inv = Minecraft.getMinecraft().thePlayer.inventory;
-        if (lhs < 0 || lhs >= inv.getSizeInventory() || rhs < 0 || rhs >= inv.getSizeInventory())
+        BlockPos containerPos = null;
+        if (checkContainers)
         {
-            System.out.println("Inventory swap parameters out of bounds - must be between 0 and " + (inv.getSizeInventory() - 1));
-            return false;   // Out of bounds.
+            String containerName = "";
+            RayTraceResult rtr = Minecraft.getMinecraft().objectMouseOver;
+            if (rtr != null && rtr.typeOfHit == RayTraceResult.Type.BLOCK)
+            {
+                containerPos = rtr.getBlockPos();
+                TileEntity te = Minecraft.getMinecraft().world.getTileEntity(containerPos);
+                if (te instanceof TileEntityLockableLoot)
+                    containerName = ObservationFromFullInventoryImplementation.getInventoryName((IInventory)te);
+                else if (te instanceof TileEntityEnderChest)
+                    containerName = ObservationFromFullInventoryImplementation.getInventoryName(Minecraft.getMinecraft().player.getInventoryEnderChest());
+            }
+            boolean containerMatches = (lhsName.equals("inventory") || lhsName.equals(containerName)) && (rhsName.equals("inventory") || rhsName.equals(containerName));
+            if (!containerMatches)
+            {
+                System.out.println("Missing container requested in parameter string (" + parameter + ")");
+                return false;
+            }
         }
-        parsedParams.add(lhs);
-        parsedParams.add(rhs);
+
+        parsedParams.add(lhsName);
+        parsedParams.add(lhsIndex);
+        parsedParams.add(rhsName);
+        parsedParams.add(rhsIndex);
+        if (containerPos != null)
+            parsedParams.add(containerPos);
         return true;
     }
 

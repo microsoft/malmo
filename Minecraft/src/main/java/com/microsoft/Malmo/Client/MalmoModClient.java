@@ -25,20 +25,14 @@ import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.MouseHelper;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.GuiIngameModOptions;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import org.lwjgl.input.Mouse;
 
-import com.microsoft.Malmo.MalmoModGuiOptions;
 import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 public class MalmoModClient
 {
@@ -56,13 +50,26 @@ public class MalmoModClient
             {
                 this.deltaX = 0;
                 this.deltaY = 0;
+                if (Mouse.isGrabbed())
+                    Mouse.setGrabbed(false);
+                Minecraft.getMinecraft().inGameHasFocus = false;
             }
             else
             {
                 super.mouseXYChange();
             }
         }
-        
+
+        @Override
+        public void grabMouseCursor()
+        {
+            if (MalmoModClient.this.inputType != InputType.HUMAN)
+            {
+                return;
+            }
+            super.grabMouseCursor();
+        }
+    
         @Override
         /**
          * Ungrabs the mouse cursor so it can be moved and set it to the center of the screen
@@ -81,7 +88,7 @@ public class MalmoModClient
         HUMAN, AI
     }
 
-    private InputType inputType = InputType.HUMAN;
+    protected InputType inputType = InputType.HUMAN;
     protected MouseHook mouseHook;
     protected MouseHelper originalMouseHelper;
 	private KeyManager keyManager;
@@ -91,14 +98,13 @@ public class MalmoModClient
 	public void init(FMLInitializationEvent event)
 	{
         // Register for various events:
-        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
-
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
+        TextureHelper.hookIntoRenderPipeline();
         setUpExtraKeys(settings);
 
         this.stateMachine = new ClientStateMachine(ClientState.WAITING_FOR_MOD_READY, this);
-        
+
         this.originalMouseHelper = Minecraft.getMinecraft().mouseHelper;
         this.mouseHook = new MouseHook();
         this.mouseHook.isOverriding = true;
@@ -120,12 +126,18 @@ public class MalmoModClient
 
         // This stops Minecraft from doing the annoying thing of stealing your mouse.
         System.setProperty("fml.noGrab", input == InputType.AI ? "true" : "false");
+        inputType = input;
         if (input == InputType.HUMAN)
+        {
             Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = true;
+        }
         else
+        {
             Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
+            Minecraft.getMinecraft().inGameHasFocus = false;
+        }
 
-    	inputType = input;
 		this.stateMachine.getScreenHelper().addFragment("Mouse: " + input, TextCategory.TXT_INFO, INFO_MOUSE_CONTROL);
     }
 
@@ -169,13 +181,14 @@ public class MalmoModClient
         this.keyManager = new KeyManager(settings, extraKeys);
     }
     
+    /*
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void onEvent(GuiOpenEvent event)
     {
-        if (event.gui instanceof GuiIngameModOptions)
+        if (event.getGui() instanceof GuiIngameModOptions)
         {
-            event.gui = new MalmoModGuiOptions.MalmoModGuiScreen(null);        
+            event.setGui(new MalmoModGuiOptions.MalmoModGuiScreen(null));
         }
-    }
+    }*/
 }

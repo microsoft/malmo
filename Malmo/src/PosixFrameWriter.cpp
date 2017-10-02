@@ -31,8 +31,8 @@
 
 namespace malmo
 {
-    PosixFrameWriter::PosixFrameWriter(std::string path, short width, short height, int frames_per_second, int64_t bit_rate)
-        : VideoFrameWriter(path, width, height, frames_per_second)
+    PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
+        : VideoFrameWriter(path, info_filename, width, height, frames_per_second)
         , bit_rate(bit_rate)
         , process_id(0)
     {

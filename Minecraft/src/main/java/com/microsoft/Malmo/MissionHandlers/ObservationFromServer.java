@@ -27,7 +27,7 @@ import java.util.Map;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.IThreadListener;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -37,8 +37,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -67,7 +67,7 @@ public abstract class ObservationFromServer extends HandlerBase implements IMalm
 	ObservationFromServer()
 	{
 		// Register for client ticks so we can keep requesting stats.
-		FMLCommonHandler.instance().bus().register(this);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
@@ -197,33 +197,37 @@ public abstract class ObservationFromServer extends HandlerBase implements IMalm
      * Any state required must be passed through the message.
      */
     public abstract static class ObservationRequestMessageHandler
-	{
-		public ObservationRequestMessageHandler()
-		{
-		}
-		
-		/** IMPORTANT: Call this from the onMessage method in the subclass. */
-		public IMessage processMessage(final ObservationRequestMessage message, final MessageContext ctx)
-		{
-			IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.worldObj;
-			mainThread.addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-					JsonObject json = new JsonObject();
-					buildJson(json, player, message, ctx);
-					// Send this message back again now we've filled in the json stats.
-					Map<String, String> returnData = new HashMap<String, String>();
-					returnData.put("json", json.toString());
-					message.addReturnData(returnData);
-					MalmoMod.network.sendTo(new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_OBSERVATIONSREADY, message.id, returnData), player);
-				}
-			});
-			return null; // no response in this case
-		}
-		
-		/** Build the JSON observation that has been requested by the message.
-		 */
-		abstract void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message, MessageContext ctx);
+    {
+        public ObservationRequestMessageHandler()
+        {
+        }
+
+        /** IMPORTANT: Call this from the onMessage method in the subclass. */
+        public IMessage processMessage(ObservationRequestMessage message, MessageContext ctx)
+        {
+            IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+            final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            final ObservationRequestMessage mess = message;
+            mainThread.addScheduledTask(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    JsonObject json = new JsonObject();
+                    buildJson(json, player, mess);
+                    // Send this message back again now we've filled in the json stats.
+                    Map<String, String> returnData = new HashMap<String, String>();
+                    returnData.put("json", json.toString());
+                    mess.addReturnData(returnData);
+                    MalmoMod.network.sendTo(new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_OBSERVATIONSREADY, mess.id, returnData), player);
+                }
+            });
+            return null; // no response in this case
+        }
+
+        /**
+         * Build the JSON observation that has been requested by the message.
+         */
+        abstract void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message);
     }
 }

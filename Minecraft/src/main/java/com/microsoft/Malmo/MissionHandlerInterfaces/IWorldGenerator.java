@@ -19,6 +19,8 @@
 
 package com.microsoft.Malmo.MissionHandlerInterfaces;
 
+import net.minecraft.world.World;
+
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Interface for objects which can determine the world structure for the Minecraft mission.
@@ -38,7 +40,7 @@ public interface IWorldGenerator
      * @param missionInit the MissionInit object for the currently running mission, which may contain parameters for the observation requirements.
      * @return true if the world should be created, false otherwise.
      */
-    public boolean shouldCreateWorld(MissionInit missionInit);
+    public boolean shouldCreateWorld(MissionInit missionInit, World world);
     
     public String getErrorDetails();
 }

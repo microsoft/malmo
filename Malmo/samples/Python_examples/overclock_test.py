@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import division
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -23,6 +25,8 @@
 # For more relevant results, tailor the mission xml to reflect your actual needs (eg set the video to the
 # actual size you are after, add whatever observation producers you will be using, etc.)
 
+from builtins import range
+from past.utils import old_div
 import MalmoPython
 import os
 import random
@@ -84,7 +88,11 @@ def GetMissionXML( msPerTick ):
 
     </Mission>'''
   
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 validate = True
 tickLengths = [100, 50, 40, 30, 25, 20, 15, 10, 8, 5, 4, 2]
@@ -98,11 +106,11 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
@@ -115,10 +123,10 @@ except OSError as exception:
     if exception.errno != errno.EEXIST: # ignore error if already existed
         raise
 
-print "WELCOME TO THE OVERCLOCK TEST"
-print "============================="
-print "This will run the same simple mission with " + str(len(tickLengths)) + " different tick lengths."
-print "(Each test should run faster than the previous one.)"
+print("WELCOME TO THE OVERCLOCK TEST")
+print("=============================")
+print("This will run the same simple mission with " + str(len(tickLengths)) + " different tick lengths.")
+print("(Each test should run faster than the previous one.)")
 
 for iRepeat in range(len(tickLengths)):
     msPerTick = tickLengths[iRepeat]
@@ -135,7 +143,7 @@ for iRepeat in range(len(tickLengths)):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2)
@@ -145,11 +153,11 @@ for iRepeat in range(len(tickLengths)):
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         if len(world_state.errors):
-            print
+            print()
             for error in world_state.errors:
-                print "Error:",error.text
+                print("Error:",error.text)
                 exit()
-    print
+    print()
 
     # main loop:
     agent_host.sendCommand("move 1")    # just go forwards, max speed.
@@ -171,45 +179,45 @@ for iRepeat in range(len(tickLengths)):
     end = timer()
     missionTimeMs = (end - start) * 1000
 
-    actual_mspertick = missionTimeMs / numObs
+    actual_mspertick = old_div(missionTimeMs, numObs)
     desired_distance = 4.317 * MISSION_LENGTH   # normal walking speed is around 4.317 m/s
     desired_walltime = MISSION_LENGTH * msPerTick / 50  # normal ticklength is 50ms
     desired_observations = MISSION_LENGTH * 20  # default is 20hz
 
-    print "==============================================================================================="
-    print "Result of test " + str(iRepeat + 1) + ":"
-    print "==============================================================================================="
-    print "\t\tDesired\t|\tActual"
-    print "MsPerTick:\t" + str(msPerTick) + "\t|\t" + "{0:.2f}".format(actual_mspertick)
-    print "Obs:\t\t" + "{0:.2f}".format(desired_observations) + "\t|\t" + str(numObs)
-    print "Distance:\tc" + "{0:.2f}".format(desired_distance) + "\t|\t" + "{0:.2f}".format(distance)
-    print "Frames:\t\t???\t|\t" + str(numFrames)
-    print "Wall time:\t" + str(desired_walltime) + "s\t|\t" + "{0:.2f}".format(missionTimeMs/1000) + "s"
-    print "==============================================================================================="
-    print
+    print("===============================================================================================")
+    print("Result of test " + str(iRepeat + 1) + ":")
+    print("===============================================================================================")
+    print("\t\tDesired\t|\tActual")
+    print("MsPerTick:\t" + str(msPerTick) + "\t|\t" + "{0:.2f}".format(actual_mspertick))
+    print("Obs:\t\t" + "{0:.2f}".format(desired_observations) + "\t|\t" + str(numObs))
+    print("Distance:\tc" + "{0:.2f}".format(desired_distance) + "\t|\t" + "{0:.2f}".format(distance))
+    print("Frames:\t\t???\t|\t" + str(numFrames))
+    print("Wall time:\t" + str(desired_walltime) + "s\t|\t" + "{0:.2f}".format(old_div(missionTimeMs,1000)) + "s")
+    print("===============================================================================================")
+    print()
     time.sleep(0.5) # Give mod a little time to get back to dormant state.
 
-    timeTest.append(True if abs(desired_walltime-missionTimeMs/1000) < 1 else False)
+    timeTest.append(True if abs(desired_walltime-old_div(missionTimeMs,1000)) < 1 else False)
     obsTest.append(True if abs(desired_observations-numObs) < 20 else False)
     frameTest.append(True if numFrames >= numObs else False)
-    wallclockTimes.append(missionTimeMs/1000)
+    wallclockTimes.append(old_div(missionTimeMs,1000))
     distances.append(distance)
 
 # Do some interpretation on the results:
 # First off, simple test to see if server overclocking has worked:
-t = sum([(MISSION_LENGTH-v)*(MISSION_LENGTH-v) for v in wallclockTimes])/len(wallclockTimes)
+t = old_div(sum([(MISSION_LENGTH-v)*(MISSION_LENGTH-v) for v in wallclockTimes]),len(wallclockTimes))
 if t < 20:
-    print "ERROR: All missions seemed to take around " + str(MISSION_LENGTH) + " seconds."
-    print "This indicates that the server tick length hasn't changed at all."
-    print "In other words, OVERCLOCKING IS NOT WORKING ON YOUR SYSTEM."
-    print
-    print "Possible causes:"
-    print "\tIf running Minecraft from Eclipse, make sure you have the following line in your VM arguments:"
-    print "\t\t-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin"
-    print "\tOtherwise, it's possible that you are using a different Minecraft build or Forge build to that"
-    print "\twhich the coremod expects."
-    print "\tOverclockingClassTransformer may need updating."
-    print
+    print("ERROR: All missions seemed to take around " + str(MISSION_LENGTH) + " seconds.")
+    print("This indicates that the server tick length hasn't changed at all.")
+    print("In other words, OVERCLOCKING IS NOT WORKING ON YOUR SYSTEM.")
+    print()
+    print("Possible causes:")
+    print("\tIf running Minecraft from Eclipse, make sure you have the following line in your VM arguments:")
+    print("\t\t-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin")
+    print("\tOtherwise, it's possible that you are using a different Minecraft build or Forge build to that")
+    print("\twhich the coremod expects.")
+    print("\tOverclockingClassTransformer may need updating.")
+    print()
     exit(1) # Other tests will be meaningless if overclocking has failed completely.
 
 # Test to see whether client overclocking has worked.
@@ -222,71 +230,71 @@ for index in range(0, len(tickLengths)):
         error+=(desired_distance-distances[index])*(desired_distance-distances[index])
         count+=1
 if count > 0:
-    error = error/count
+    error = old_div(error,count)
     if error > 40:
-        print "ERROR: We don't seem to be running the correct distance."
-        print "This indicates that the client tick length isn't changing correctly."
-        print "OVERCLOCKING IS NOT WORKING ON YOUR SYSTEM."
-        print
-        print "Possible causes:"
-        print "\tYou may be using a different Minecraft or Forge than expected."
-        print "\tTimeHelper.setMinecraftClientClockSpeed may need updating."
+        print("ERROR: We don't seem to be running the correct distance.")
+        print("This indicates that the client tick length isn't changing correctly.")
+        print("OVERCLOCKING IS NOT WORKING ON YOUR SYSTEM.")
+        print()
+        print("Possible causes:")
+        print("\tYou may be using a different Minecraft or Forge than expected.")
+        print("\tTimeHelper.setMinecraftClientClockSpeed may need updating.")
         exit(1) # Other tests will be meaningless if overclocking has failed completely.
         
 # Time test:
 # Expected behaviour: slowest ticks should be solidly good, fastest ticks solidly bad, stuff in between who knows.
-print "RESULTS OF TIME TEST:"
-print "====================="
-print
+print("RESULTS OF TIME TEST:")
+print("=====================")
+print()
 index = 0
 while index < len(frameTest) and frameTest[index]:
     index+=1
 if index==len(frameTest):
-    print "Time test passed for all clock speeds! Go ahead and overclock."
+    print("Time test passed for all clock speeds! Go ahead and overclock.")
 elif index==0:
-    print "Time test was a disaster - nothing is reliable."
+    print("Time test was a disaster - nothing is reliable.")
 else:
-    print "Time is reliable with tick lengths of " + str(tickLengths[index-1]) + "ms and longer."
+    print("Time is reliable with tick lengths of " + str(tickLengths[index-1]) + "ms and longer.")
 index = len(frameTest) - 1
 while index >= 0 and not frameTest[index]:
     index-=1
 if index != len(frameTest)-1 and index >= 0:
-    print "Time is definitely unreliable with tick lengths of " + str(tickLengths[index+1]) + "ms and shorter."
-    print "Anything in between is a gamble."
-print
-print
+    print("Time is definitely unreliable with tick lengths of " + str(tickLengths[index+1]) + "ms and shorter.")
+    print("Anything in between is a gamble.")
+print()
+print()
 
 # Observation test:
 # Do something similar to time test. Expected that longer ticks will be reliable, but there will be a breaking
 # point as ticks get shorter, when the server can no longer run as fast as we request.
-print "RESULTS OF OBSERVATION TEST:"
-print "============================"
-print
+print("RESULTS OF OBSERVATION TEST:")
+print("============================")
+print()
 index = 0
 while index < len(obsTest) and obsTest[index]:
     index+=1
 if index==len(obsTest):
-    print "Observation test passed for all clock speeds! Go ahead and overclock."
+    print("Observation test passed for all clock speeds! Go ahead and overclock.")
 elif index==0:
-    print "Observation test was a disaster - nothing is reliable."
+    print("Observation test was a disaster - nothing is reliable.")
 else:
-    print "Observations are reliable with tick lengths of " + str(tickLengths[index-1]) + "ms and longer."
+    print("Observations are reliable with tick lengths of " + str(tickLengths[index-1]) + "ms and longer.")
 index = len(obsTest) - 1
 while index >= 0 and not obsTest[index]:
     index-=1
 if index != len(obsTest)-1 and index >= 0:
-    print "Observations are definitely unreliable with tick lengths of " + str(tickLengths[index+1]) + "ms and shorter."
-    print "Anything in between is a gamble."
-print
-print
+    print("Observations are definitely unreliable with tick lengths of " + str(tickLengths[index+1]) + "ms and shorter.")
+    print("Anything in between is a gamble.")
+print()
+print()
 
 # Frame test:
 # Assuming that the user wants to be able to get frame-action pairs - ie there should be at least as many
 # frames as observations, this finds the point at which observations outnumber the pairs.
 # Expected behaviour is that frameTest should contain a run of passess followed by a run of fails.
-print "RESULTS OF FRAME TEST:"
-print "======================"
-print
+print("RESULTS OF FRAME TEST:")
+print("======================")
+print()
 count = 0
 index = 0
 for x in range(1, len(frameTest)):
@@ -294,12 +302,12 @@ for x in range(1, len(frameTest)):
         count+=1
         index = x
 if count > 1:
-    print "ERROR: frame tests are unreliable - don't know how to interpret results!"
+    print("ERROR: frame tests are unreliable - don't know how to interpret results!")
 else:
-    print "For frames of " + str(FRAME_WIDTH) + " x " + str(FRAME_HEIGHT) + ":"
+    print("For frames of " + str(FRAME_WIDTH) + " x " + str(FRAME_HEIGHT) + ":")
     if count == 0:
-        print "Render speed kept up with clock speed for all tests!"
+        print("Render speed kept up with clock speed for all tests!")
     else:
-        print "Render speed matches clock speed between " + str(tickLengths[index-1]) + "ms/tick and " + str(tickLengths[index]) + "ms/tick."
-        print "(At speeds greater than " + str(tickLengths[index]) + "ms/tick you will no longer be capable of receiving frame/action pairs.)"
-        print "(If you are not interested in collecting video data, this is not a problem.)"
+        print("Render speed matches clock speed between " + str(tickLengths[index-1]) + "ms/tick and " + str(tickLengths[index]) + "ms/tick.")
+        print("(At speeds greater than " + str(tickLengths[index]) + "ms/tick you will no longer be capable of receiving frame/action pairs.)")
+        print("(If you are not interested in collecting video data, this is not a problem.)")

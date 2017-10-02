@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -25,6 +26,10 @@
 # not valid for your experiment then you will need to find a different approach to obtain frame-
 # action pairs robustly.
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from builtins import object
 import MalmoPython
 import json
 import logging
@@ -33,13 +38,17 @@ import os
 import random
 import sys
 import time
-import Tkinter as tk
+if sys.version_info[0] == 2:
+    # Workaround for https://github.com/PythonCharmers/python-future/issues/262
+    import Tkinter as tk
+else:
+    import tkinter as tk
 
 save_images = False
 if save_images:        
     from PIL import Image
     
-class RandomAgent:
+class RandomAgent(object):
 
     def __init__(self, agent_host, action_set ):
         self.rep = 0
@@ -68,7 +77,7 @@ class RandomAgent:
             self.prev_y   = obs[u'YPos']
             self.prev_z   = obs[u'ZPos']
             self.prev_yaw = obs[u'Yaw']
-            print 'Initial position:',self.prev_x,',',self.prev_y,',',self.prev_z,'yaw',self.prev_yaw
+            print('Initial position:',self.prev_x,',',self.prev_y,',',self.prev_z,'yaw',self.prev_yaw)
             
             if save_images:
                 # save the frame, for debugging
@@ -83,11 +92,11 @@ class RandomAgent:
     def waitForNextState( self ):
         '''After each command has been sent we wait for the observation to change as expected and a frame.'''
         # wait for the observation position to have changed
-        print 'Waiting for observation...',
+        print('Waiting for observation...', end=' ')
         while True:
             world_state = self.agent_host.peekWorldState()
             if not world_state.is_mission_running:
-                print 'mission ended.'
+                print('mission ended.')
                 break
             if not all(e.text=='{}' for e in world_state.observations):
                 obs = json.loads( world_state.observations[-1].text )
@@ -99,21 +108,21 @@ class RandomAgent:
                     if math.fabs( self.curr_x - self.prev_x ) > self.tolerance or\
                        math.fabs( self.curr_y - self.prev_y ) > self.tolerance or\
                        math.fabs( self.curr_z - self.prev_z ) > self.tolerance:
-                        print 'received a move.'
+                        print('received a move.')
                         break
                 elif self.require_yaw_change:
                     if math.fabs( self.curr_yaw - self.prev_yaw ) > self.tolerance:
-                        print 'received a turn.'
+                        print('received a turn.')
                         break
                 else:
-                    print 'received.'
+                    print('received.')
                     break
         # wait for the render position to have changed
-        print 'Waiting for render...',
+        print('Waiting for render...', end=' ')
         while True:
             world_state = self.agent_host.peekWorldState()
             if not world_state.is_mission_running:
-                print 'mission ended.'
+                print('mission ended.')
                 break
             if len(world_state.video_frames) > 0:
                 frame = world_state.video_frames[-1]
@@ -125,14 +134,14 @@ class RandomAgent:
                     if math.fabs( curr_x_from_render - self.prev_x ) > self.tolerance or\
                        math.fabs( curr_y_from_render - self.prev_y ) > self.tolerance or\
                        math.fabs( curr_z_from_render - self.prev_z ) > self.tolerance:
-                        print 'received a move.'
+                        print('received a move.')
                         break
                 elif self.require_yaw_change:
                     if math.fabs( curr_yaw_from_render - self.prev_yaw ) > self.tolerance:
-                        print 'received a turn.'
+                        print('received a turn.')
                         break
                 else:
-                    print 'received.'
+                    print('received.')
                     break
             
         num_frames_before_get = len(world_state.video_frames)
@@ -157,28 +166,28 @@ class RandomAgent:
             self.curr_y   = obs[u'YPos']
             self.curr_z   = obs[u'ZPos']
             self.curr_yaw = obs[u'Yaw']
-            print 'New position from observation:',self.curr_x,',',self.curr_y,',',self.curr_z,'yaw',self.curr_yaw,
+            print('New position from observation:',self.curr_x,',',self.curr_y,',',self.curr_z,'yaw',self.curr_yaw, end=' ')
             if math.fabs( self.curr_x   - self.expected_x   ) > self.tolerance or\
                math.fabs( self.curr_y   - self.expected_y   ) > self.tolerance or\
                math.fabs( self.curr_z   - self.expected_z   ) > self.tolerance or\
                math.fabs( self.curr_yaw - self.expected_yaw ) > self.tolerance:
-                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_y,',',self.expected_z,'yaw',self.expected_yaw
+                print(' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_y,',',self.expected_z,'yaw',self.expected_yaw)
                 exit(1)
             else:
-                print 'as expected.'
+                print('as expected.')
             curr_x_from_render   = frame.xPos
             curr_y_from_render   = frame.yPos
             curr_z_from_render   = frame.zPos
             curr_yaw_from_render = frame.yaw
-            print 'New position from render:',curr_x_from_render,',',curr_y_from_render,',',curr_z_from_render,'yaw',curr_yaw_from_render,
+            print('New position from render:',curr_x_from_render,',',curr_y_from_render,',',curr_z_from_render,'yaw',curr_yaw_from_render, end=' ')
             if math.fabs( curr_x_from_render   - self.expected_x   ) > self.tolerance or\
                math.fabs( curr_y_from_render   - self.expected_y   ) > self.tolerance or \
                math.fabs( curr_z_from_render   - self.expected_z   ) > self.tolerance or \
                math.fabs( curr_yaw_from_render - self.expected_yaw ) > self.tolerance:
-                print ' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_y,',',self.expected_z,'yaw',self.expected_yaw
+                print(' - ERROR DETECTED! Expected:',self.expected_x,',',self.expected_y,',',self.expected_z,'yaw',self.expected_yaw)
                 exit(1)
             else:
-                print 'as expected.'
+                print('as expected.')
             self.prev_x   = self.curr_x
             self.prev_y   = self.curr_y
             self.prev_z   = self.curr_z
@@ -206,11 +215,11 @@ class RandomAgent:
             self.require_yaw_change = False
             actions = ['tp '+str(self.expected_x)+' '+str(self.expected_y)+' '+str(self.expected_z)]
         else:
-            print 'ERROR: Unsupported action set:',self.action_set
+            print('ERROR: Unsupported action set:',self.action_set)
             exit(1)
         i_action = random.randint(0,len(actions)-1)
         action = actions[ i_action ]
-        print 'Sending',action
+        print('Sending',action)
         self.agent_host.sendCommand( action )
         if self.action_set == 'discrete_absolute':
             self.expected_x = self.prev_x + [0,0,-1,1][i_action]
@@ -243,7 +252,7 @@ class RandomAgent:
         elif self.action_set == 'teleport':
             pass
         else:
-            print 'ERROR: Unsupported action set:',self.action_set
+            print('ERROR: Unsupported action set:',self.action_set)
             exit(1)
             
 def indexOfClosest( arr, val ):
@@ -256,18 +265,22 @@ def indexOfClosest( arr, val ):
             d_closest = d
     return i_closest
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 
 # -- set up the agent host --
 agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 # -- set up the mission --
@@ -317,7 +330,7 @@ for action_set in action_sets:
     elif action_set == 'teleport':
         my_mission.allowAllAbsoluteMovementCommands()
     else:
-        print 'ERROR: Unsupported action set:',action_set
+        print('ERROR: Unsupported action set:',action_set)
         exit(1)
 
     for retry in range(max_retries):
@@ -326,20 +339,20 @@ for action_set in action_sets:
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission:",e
+                print("Error starting mission:",e)
                 exit(1)
             else:
                 time.sleep(2.5)
 
-    print "Waiting for the mission to start",
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
     while not world_state.has_mission_begun:
-        sys.stdout.write(".")
+        print(".", end="")
         time.sleep(0.1)
         world_state = agent_host.getWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
-    print
+            print("Error:",error.text)
+    print()
 
     # the main loop:
     agent = RandomAgent( agent_host, action_set )

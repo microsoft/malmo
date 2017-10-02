@@ -32,7 +32,7 @@
 
 namespace malmo
 {
-    VideoFrameWriter::VideoFrameWriter(std::string path, short width, short height, int frames_per_second)
+    VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second)
         : path(path)
         , width(width)
         , height(height)
@@ -42,10 +42,10 @@ namespace malmo
     {
         boost::filesystem::path fs_path(path);
         if (boost::filesystem::is_directory(fs_path)) {
-            this->frame_info_path = fs_path / "frame_info.txt";
+            this->frame_info_path = fs_path / frame_info_filename;
         }
         else {
-            this->frame_info_path = fs_path.parent_path() / "frame_info.txt";
+            this->frame_info_path = fs_path.parent_path() / frame_info_filename;
         }
     }
 
@@ -130,21 +130,86 @@ namespace malmo
 
                 if (frame.channels == 4)
                 {
-                    // extract DDD from RGBD
-                    // TODO: support other options, output multiple videos
-                    char *out_pixels = new char[frame.width * frame.height * 3];
-                    for (int i = 0; i < frame.width*frame.height; i++)
+                    if (frame.frametype == TimestampedVideoFrame::DEPTH_MAP)
                     {
-                        out_pixels[i*3] = out_pixels[i*3 + 1] = out_pixels[i*3 + 2] = frame.pixels[i*4 + 3];
-                    }
-                    this->doWrite(out_pixels, frame.width, frame.height, count);
+                        // For making videos out of 32bpp depth maps, what exactly should we display?
+                        // We could reduce to greyscale, but that way we loose a lot of precision.
+                        // Instead, convert to an HSV colour cone, which hopefully gives a great range
+                        // of colour values to map to.
+                        float* fPixels = reinterpret_cast<float*>(&(frame.pixels[0]));
+                        char *out_pixels = new char[frame.width * frame.height * 3];
+                        for (int i = 0; i < frame.width*frame.height; i++)
+                        {
+                            float f = fPixels[i];
+                            float h = 60.0 * f;
+                            while (h >= 360.0)
+                                h -= 360.0;
+                            float s = 1.0;
+                            float v = 1.0 - (f / 200.0);
+                            if (v < 0)
+                                v = 0;
+                            if (v > 1.0)
+                                v = 1.0;
+                            h = h / 60.0;
+                            float fract = h- floor(h);
 
-                    delete[]out_pixels;
+                            v *= 255.0;
+
+                            float p = v*(1. - s);
+                            float q = v*(1. - s*fract);
+                            float t = v*(1. - s*(1. - fract));
+
+                            unsigned int out;
+                            if (0. <= h && h < 1.)
+                                out = int(v) + (int(t) << 8) + (int(p) << 16);
+                            else if (1. <= h && h < 2.)
+                                out = int(q) + (int(v) << 8) + (int(p) << 16);
+                            else if (2. <= h && h < 3.)
+                                out = int(p) + (int(v) << 8) + (int(t) << 16);
+                            else if (3. <= h && h < 4.)
+                                out = int(p) + (int(q) << 8) + (int(v) << 16);
+                            else if (4. <= h && h < 5.)
+                                out = int(t) + (int(p) << 8) + (int(v) << 16);
+                            else if (5. <= h && h < 6.)
+                                out = int(v) + (int(p) << 8) + (int(q) << 16);
+                            else
+                                out = 0;
+
+                            out_pixels[3 * i] = out & 0xff;
+                            out_pixels[3 * i + 1] = (out >> 8) & 0xff;
+                            out_pixels[3 * i + 2] = (out >> 16) & 0xff;
+                        }
+                        this->doWrite(out_pixels, frame.width, frame.height, count);
+                        delete[] out_pixels;
+                    }
+                    else
+                    {
+                        // extract DDD from RGBD
+                        char *out_pixels = new char[frame.width * frame.height * 3];
+                        for (int i = 0; i < frame.width*frame.height; i++)
+                        {
+                            out_pixels[i * 3] = out_pixels[i * 3 + 1] = out_pixels[i * 3 + 2] = frame.pixels[i * 4 + 3];
+                        }
+                        this->doWrite(out_pixels, frame.width, frame.height, count);
+                        delete[] out_pixels;
+                    }
                 }
                 else if (frame.channels == 3)
                 {
                     // write the RGB data directly
                     this->doWrite((char*)&frame.pixels[0], frame.width, frame.height, count);
+                }
+                else if (frame.channels == 1)
+                {
+                    // Convert luminance to greyscale RGB
+                    // TODO - could ffmpeg just record 8bpp, and avoid this work?
+                    char *out_pixels = new char[frame.width * frame.height * 3];
+                    for (int i = 0; i < frame.width*frame.height; i++)
+                    {
+                        out_pixels[i * 3] = out_pixels[i * 3 + 1] = out_pixels[i * 3 + 2] = frame.pixels[i];
+                    }
+                    this->doWrite(out_pixels, frame.width, frame.height, count);
+                    delete[] out_pixels;
                 }
                 else throw std::runtime_error("Unsupported number of channels");
 
@@ -184,12 +249,12 @@ namespace malmo
         }
     }
 
-    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, short width, short height, int frames_per_second, int64_t bit_rate)
+    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
     {
 #if WIN32
-        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, width, height, frames_per_second, bit_rate) );
+        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate) );
 #else
-        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, width, height, frames_per_second, bit_rate) );
+        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate) );
 #endif
         return instance;
     }

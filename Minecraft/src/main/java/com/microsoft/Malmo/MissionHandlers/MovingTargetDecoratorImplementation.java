@@ -13,8 +13,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import com.microsoft.Malmo.MalmoMod;
@@ -80,10 +80,9 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
     }
 
     @Override
-    public void buildOnWorld(MissionInit missionInit) throws DecoratorException
+    public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
         this.path.add(this.startPos);
-        World world = MinecraftServer.getServer().getEntityWorld();
         this.originalPath.add(world.getBlockState(this.startPos));
         BlockDrawingHelper drawContext = new BlockDrawingHelper();
         drawContext.beginDrawing(world);
@@ -92,7 +91,7 @@ public class MovingTargetDecoratorImplementation extends HandlerBase implements 
     }
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }

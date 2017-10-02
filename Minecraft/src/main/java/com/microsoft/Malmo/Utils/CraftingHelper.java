@@ -40,6 +40,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
@@ -80,7 +81,7 @@ public class CraftingHelper
         }
         else if (recipe instanceof ShapelessOreRecipe)
         {
-            ArrayList<Object> objs = ((ShapelessOreRecipe)recipe).getInput();
+            NonNullList<Object> objs = ((ShapelessOreRecipe)recipe).getInput();
             for (Object o : objs)
             {
                 if (o != null)
@@ -153,7 +154,7 @@ public class CraftingHelper
                 if (destIS != null && sourceIS != null && itemStackIngredientsMatch(destIS, sourceIS))
                 {
                     bFound = true;
-                    destIS.stackSize += sourceIS.stackSize;
+                    destIS.setCount(destIS.getCount() + sourceIS.getCount());
                 }
             }
             if (!bFound)
@@ -170,17 +171,17 @@ public class CraftingHelper
      */
     public static boolean playerHasIngredients(EntityPlayerMP player, List<ItemStack> ingredients)
     {
-        ItemStack[] main = player.inventory.mainInventory;
-        ItemStack[] arm = player.inventory.armorInventory;
+        NonNullList<ItemStack> main = player.inventory.mainInventory;
+        NonNullList<ItemStack> arm = player.inventory.armorInventory;
 
         for (ItemStack isIngredient : ingredients)
         {
-            int target = isIngredient.stackSize;
-            for (int i = 0; i < main.length + arm.length && target > 0; i++)
+            int target = isIngredient.getCount();
+            for (int i = 0; i < main.size() + arm.size() && target > 0; i++)
             {
-                ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
+                ItemStack isPlayer = (i >= main.size()) ? arm.get(i - main.size()) : main.get(i);
                 if (isPlayer != null && isIngredient != null && itemStackIngredientsMatch(isPlayer, isIngredient))
-                    target -= isPlayer.stackSize;
+                    target -= isPlayer.getCount();
             }
             if (target > 0)
                 return false;   // Don't have enough of this.
@@ -212,9 +213,9 @@ public class CraftingHelper
     {
         Integer fromCache = fuelCaches.get(player);
         int total = (fromCache != null) ? fromCache : 0;
-        for (int i = 0; i < player.inventory.mainInventory.length; i++)
+        for (int i = 0; i < player.inventory.mainInventory.size(); i++)
         {
-            ItemStack is = player.inventory.mainInventory[i];
+            ItemStack is = player.inventory.mainInventory.get(i);
             total += TileEntityFurnace.getItemBurnTime(is);
         }
         return total;
@@ -233,30 +234,30 @@ public class CraftingHelper
         else
             fuelCaches.put(player, fuelCaches.get(player) - burnAmount);
         int index = 0;
-        while (fuelCaches.get(player) < 0 && index < player.inventory.mainInventory.length)
+        while (fuelCaches.get(player) < 0 && index < player.inventory.mainInventory.size())
         {
-            ItemStack is = player.inventory.mainInventory[index];
+            ItemStack is = player.inventory.mainInventory.get(index);
             if (is != null)
             {
                 int burnTime = TileEntityFurnace.getItemBurnTime(is);
                 if (burnTime != 0)
                 {
                     // Consume item:
-                    if (is.stackSize > 1)
-                        is.stackSize--;
+                    if (is.getCount() > 1)
+                        is.setCount(is.getCount() - 1);
                     else
                     {
                         // If this is a bucket of lava, we need to consume the lava but leave the bucket.
-                        if (is.getItem() == Items.lava_bucket)
+                        if (is.getItem() == Items.LAVA_BUCKET)
                         {
                             // And if we're cooking wet sponge, we need to leave the bucket filled with water.
-                            if (input.getItem() == Item.getItemFromBlock(Blocks.sponge) && input.getMetadata() == 1)
-                                player.inventory.mainInventory[index] = new ItemStack(Items.water_bucket);
+                            if (input.getItem() == Item.getItemFromBlock(Blocks.SPONGE) && input.getMetadata() == 1)
+                                player.inventory.mainInventory.set(index, new ItemStack(Items.WATER_BUCKET));
                             else
-                                player.inventory.mainInventory[index] = new ItemStack(Items.bucket);
+                                player.inventory.mainInventory.set(index, new ItemStack(Items.BUCKET));
                         }
                         else
-                            player.inventory.mainInventory[index] = null;
+                            player.inventory.mainInventory.get(index).setCount(0);
                         index++;
                     }
                     fuelCaches.put(player, fuelCaches.get(player) + burnTime);
@@ -275,29 +276,29 @@ public class CraftingHelper
      */
     public static void removeIngredientsFromPlayer(EntityPlayerMP player, List<ItemStack> ingredients)
     {
-        ItemStack[] main = player.inventory.mainInventory;
-        ItemStack[] arm = player.inventory.armorInventory;
+        NonNullList<ItemStack> main = player.inventory.mainInventory;
+        NonNullList<ItemStack> arm = player.inventory.armorInventory;
 
         for (ItemStack isIngredient : ingredients)
         {
-            int target = isIngredient.stackSize;
-            for (int i = 0; i < main.length + arm.length && target > 0; i++)
+            int target = isIngredient.getCount();
+            for (int i = 0; i < main.size() + arm.size() && target > 0; i++)
             {
-                ItemStack isPlayer = (i >= main.length) ? arm[i - main.length] : main[i];
+                ItemStack isPlayer = (i >= main.size()) ? arm.get(i - main.size()) : main.get(i);
                 if (isPlayer != null && isIngredient != null && itemStackIngredientsMatch(isPlayer, isIngredient))
                 {
-                    if (target >= isPlayer.stackSize)
+                    if (target >= isPlayer.getCount())
                     {
                         // Consume this stack:
-                        target -= isPlayer.stackSize;
-                        if (i >= main.length)
-                            arm[i - main.length] = null;
+                        target -= isPlayer.getCount();
+                        if (i >= main.size())
+                            arm.get(i - main.size()).setCount(0);
                         else
-                            main[i] = null;
+                            main.get(i).setCount(0);
                     }
                     else
                     {
-                        isPlayer.stackSize -= target;
+                        isPlayer.setCount(isPlayer.getCount() - target);
                         target = 0;
                     }
                 }
@@ -441,14 +442,16 @@ public class CraftingHelper
                 ItemStack is = ((IRecipe)obj).getRecipeOutput();
                 if (is == null)
                     continue;
-                String s = is.stackSize + "x" + is.getUnlocalizedName() + " = ";
+                String s = is.getCount() + "x" + is.getUnlocalizedName() + " = ";
                 List<ItemStack> ingredients = getIngredients((IRecipe)obj);
+                if (ingredients == null)
+                    continue;
                 boolean first = true;
                 for (ItemStack isIngredient : ingredients)
                 {
                     if (!first)
                         s += ", ";
-                    s += isIngredient.stackSize + "x" + isIngredient.getUnlocalizedName();
+                    s += isIngredient.getCount() + "x" + isIngredient.getUnlocalizedName();
                     s += "(" + isIngredient.getDisplayName() + ")";
                     first = false;
                 }
@@ -461,7 +464,7 @@ public class CraftingHelper
         {
             ItemStack isInput = (ItemStack)furnaceIt.next();
             ItemStack isOutput = (ItemStack)FurnaceRecipes.instance().getSmeltingList().get(isInput);
-            String s = isOutput.stackSize + "x" + isOutput.getUnlocalizedName() + " = FUEL + " + isInput.stackSize + "x" + isInput.getUnlocalizedName() + "\n";
+            String s = isOutput.getCount() + "x" + isOutput.getUnlocalizedName() + " = FUEL + " + isInput.getCount() + "x" + isInput.getUnlocalizedName() + "\n";
             writer.write(s);
         }
         writer.close();

@@ -24,25 +24,26 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
+import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer.VideoType;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.TCPSocketHelper;
+import com.microsoft.Malmo.Utils.TCPSocketChannel;
+import com.microsoft.Malmo.Utils.TextureHelper;
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -85,7 +86,7 @@ public class VideoHook {
     /**
      * Object which maintains our connection to the agent.
      */
-    private TCPSocketHelper.SocketChannelHelper connection = null;
+    private TCPSocketChannel connection = null;
     
     private int renderWidth;
     
@@ -94,6 +95,7 @@ public class VideoHook {
     ByteBuffer buffer = null;
     ByteBuffer headerbuffer = null;
     final int POS_HEADER_SIZE = 20; // 20 bytes for the five floats governing x,y,z,yaw and pitch.
+
     /**
      * Resize the rendering and start sending video over TCP.
      */
@@ -109,8 +111,8 @@ public class VideoHook {
         this.videoProducer = videoProducer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
         this.headerbuffer = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
-        this.renderWidth = videoProducer.getWidth(missionInit);
-        this.renderHeight = videoProducer.getHeight(missionInit);
+        this.renderWidth = videoProducer.getWidth();
+        this.renderHeight = videoProducer.getHeight();
         resizeIfNeeded();
         Display.setResizable(false); // prevent the user from resizing using the window borders
 
@@ -119,15 +121,29 @@ public class VideoHook {
             return;	// Don't start up if we don't have any connection details.
 
         String agentIPAddress = cac.getAgentIPAddress();
-        int agentPort = cac.getAgentVideoPort();
+        int agentPort = 0;
+        switch (videoProducer.getVideoType())
+        {
+        case LUMINANCE:
+            agentPort = cac.getAgentLuminancePort();
+            break;
+        case DEPTH_MAP:
+            agentPort = cac.getAgentDepthPort();
+            break;
+        case VIDEO:
+            agentPort = cac.getAgentVideoPort();
+            break;
+        case COLOUR_MAP:
+            agentPort = cac.getAgentColourMapPort();
+            break;
+        }
 
-        this.connection = new TCPSocketHelper.SocketChannelHelper(agentIPAddress, agentPort);
+        this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
         this.failedTCPSendCount = 0;
 
         try
         {
             MinecraftForge.EVENT_BUS.register(this);
-            FMLCommonHandler.instance().bus().register(this); 
         }
         catch(Exception e)
         {
@@ -148,6 +164,9 @@ public class VideoHook {
             return;
         
         try {
+            int old_x = Display.getX();
+            int old_y = Display.getY();
+            Display.setLocation(old_x, old_y);
             Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
             System.out.println("Resized the window");
         } catch (LWJGLException e) {
@@ -173,7 +192,6 @@ public class VideoHook {
         try
         {
             MinecraftForge.EVENT_BUS.unregister(this);
-            FMLCommonHandler.instance().bus().unregister(this); 
         }
         catch(Exception e)
         {
@@ -212,12 +230,19 @@ public class VideoHook {
     @SubscribeEvent
     public void postRender(RenderWorldLastEvent event)
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.partialTicks);
-        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.partialTicks);
-        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.partialTicks);
-        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.partialTicks;
-        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.partialTicks;
+        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
+        // only the colourmap videoproducer needs to do anything.
+        boolean colourmapFrame = TextureHelper.colourmapFrame;
+        boolean colourmapVideoProducer = this.videoProducer.getVideoType() == VideoType.COLOUR_MAP;
+        if (colourmapFrame != colourmapVideoProducer)
+            return;
+
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
+        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());
+        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks());
+        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.getPartialTicks();
+        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.getPartialTicks();
 
         long time_before_ns = System.nanoTime();
 

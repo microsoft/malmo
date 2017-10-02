@@ -22,12 +22,13 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -74,10 +75,10 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
 	
 	public SnakeDecoratorImplementation()
 	{
-		Block fresh = (Block)Block.blockRegistry.getObject(new ResourceLocation(this.freshBlockName));
-		Block stale = (Block)Block.blockRegistry.getObject(new ResourceLocation(this.staleBlockName));
-		this.freshBlock = (fresh != null) ? fresh.getDefaultState() : Blocks.glowstone.getDefaultState();
-		this.staleBlock = (stale != null) ? stale.getDefaultState() : Blocks.air.getDefaultState();
+		Block fresh = (Block)Block.REGISTRY.getObject(new ResourceLocation(this.freshBlockName));
+		Block stale = (Block)Block.REGISTRY.getObject(new ResourceLocation(this.staleBlockName));
+		this.freshBlock = (fresh != null) ? fresh.getDefaultState() : Blocks.GLOWSTONE.getDefaultState();
+		this.staleBlock = (stale != null) ? stale.getDefaultState() : Blocks.AIR.getDefaultState();
 	}
 	
     @Override
@@ -100,8 +101,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
 		{
     		BlockPos bp = this.path.get(this.path.size() - 1);
     		// Create the block, or a gap if we are leaving a gap:
-       		world.setBlockState(bp, this.consecutiveGaps == 0 ? this.freshBlock : Blocks.air.getDefaultState());
-       		world.markBlockForUpdate(bp);
+       		world.setBlockState(bp, this.consecutiveGaps == 0 ? this.freshBlock : Blocks.AIR.getDefaultState());
 			this.pendingBlock = false;
     		
     		// Create space above and below this block (even if we are leaving a gap):
@@ -241,7 +241,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     }
     
 	@Override
-	public void buildOnWorld(MissionInit missionInit)
+	public void buildOnWorld(MissionInit missionInit, World world)
 	{
 		initRNGs();
 		initBlocks();
@@ -290,7 +290,7 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
     }
 
     @Override
-    public boolean getExtraAgentHandlers(List<Object> handlers)
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
     {
         return false;
     }

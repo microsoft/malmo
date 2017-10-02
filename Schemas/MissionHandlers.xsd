@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.21">
+           version="0.31">
 
   <xs:include schemaLocation="Types.xsd" />
   <xs:include schemaLocation="Mission.xsd" /> 
@@ -540,6 +540,35 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="ContainedObjectType">
+    <xs:attribute name="type" use="required" type="BlockOrItem"/>
+    <xs:attribute name="variant" use="optional" type="Variation" />
+    <xs:attribute name="colour" use="optional" type="Colour" />
+    <xs:attribute name="quantity" type="xs:int" use="optional" default="1" />
+  </xs:complexType>
+
+  <xs:complexType name="DrawContainer">
+    <xs:annotation>
+      <xs:documentation>
+        Specify a container item by location and type and contents.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="DrawObjectType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+          <xs:element name="Object" type="ContainedObjectType"/>
+        </xs:choice>
+        <xs:attribute name="x" type="xs:int" use="required" />
+        <xs:attribute name="y" type="xs:int" use="required" />
+        <xs:attribute name="z" type="xs:int" use="required" />
+        <xs:attribute name="type" type="ContainerType" use="required" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
+      </xs:extension>
+   </xs:complexContent>
+  </xs:complexType>
   
   <xs:complexType name="DrawEntity">
     <xs:annotation>
@@ -622,6 +651,7 @@
   <xs:element name="DrawSphere" type="DrawSphere" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawBlock" type="DrawBlock" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawCuboid" type="DrawCuboid" substitutionGroup="DrawObjectType"/>
+  <xs:element name="DrawContainer" type="DrawContainer" substitutionGroup="DrawObjectType"/>
 
   <xs:element name="ClassroomDecorator">
     <xs:annotation>
@@ -895,6 +925,63 @@
 
   <!--============================================== VIDEO PRODUCERS ==============================================-->
   
+  <xs:element name="DepthProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests that 32bpp depth frames be sent.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="LuminanceProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests an 8bpp grayscale image.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="HexColour">
+    <xs:restriction base="xs:hexBinary">
+      <xs:length value="3"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="MobWithColour">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="colour" use="required" type="HexColour"/>
+  </xs:complexType>
+
+  <xs:element name="ColourMapProducer">
+    <xs:annotation>
+      <xs:documentation>
+        Requests a 24bpp colour map - each object/entity represented by a solid block of colour.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Width" type="xs:int" />
+        <xs:element name="Height" type="xs:int" />
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="ColourSpec" type="MobWithColour"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute name="skyColour" type="HexColour" default="fbceb1"/>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="VideoProducer">
     <xs:annotation>
       <xs:documentation>
@@ -1120,6 +1207,22 @@
         
         Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use commands 
         - e.g. if the agent does 'use' while holding a block item it will place the block into the world.
+        
+        If the agent is currently pointed at a container item - eg a chest, shulker box, dispenser etc - then the swap and combine commands
+        can be extended to allow access to the container's inventory. To do this, simply prefix the slot number with the name of the foreign
+        inventory (which will be provided by the {{{ObservationFromFullInventory}}} observations).
+        
+        So to move an item out of the hotbar and into slot 0 of a chest, say:
+        
+        "{{{swapInventoryItems 3 Chest:0}}}"
+        
+        Note that this is the same as writing 
+
+        "{{{swapInventoryItems Inventory:3 Chest:0}}}"
+
+        "Inventory" is the name of the player's inventory.
+        
+        See inventory_test.py for a working example of this.
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -1469,7 +1572,7 @@
       <xs:documentation>
         When present, the Mod will return several observations:
 
-        * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{PlayersKilled}}}, {{{DamageTaken}}}
+        * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{PlayersKilled}}}, {{{DamageTaken}}}, {{{DamageDealt}}}
         * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}, {{{Name}}}
         * Position statistics: {{{XPos}}}, {{{YPos}}}, {{{ZPos}}}, {{{Pitch}}}, {{{Yaw}}}
         * Environment statistics: {{{WorldTime}}} - current time in ticks, {{{TotalTime}}} - total world time, unaffected by ServerInitialConditions
@@ -1484,7 +1587,7 @@
         When present, the Mod will return a JSON object called "LineOfSight", containing observations about the block or entity which is currently in the centre of the screen:
 
         * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object. {{{distance}}} gives the straight-line distance from the agent.
-        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block.
+        * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
         * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
         * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
       </xs:documentation>
@@ -1495,13 +1598,40 @@
   <xs:element name="ObservationFromFullInventory">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return observations that say what is in the player's inventory.
+        When present, the Mod will return observations that describe the contents of the player's inventory.
+        There are two modes - "flat" (the default) is provided for backwards compatibility, and behaves like this:
 
-        Up to four values are returned for each slot, if not empty: e.g. {{{Inventory_0_size}}} and {{{Inventory_0_item}}} containing the number and
-        type of the item(s) in the slot, respectively, and {{{Inventory_0_colour}}} and {{{Inventory_0_variant}}} if the item has a colour/variation. Inventory slots are numbered 0 to 39 inclusive.
+        The inventory contents are returned in a flat format in the root of the json observations.
+        Up to four values are returned for each slot, if not empty: e.g. {{{InventorySlot_0_size}}} and {{{InventorySlot_0_item}}} containing the number and
+        type of the item(s) in the slot, respectively, and {{{InventorySlot_0_colour}}} and {{{InventorySlot_0_variant}}} if the item has a colour/variation.
+        Inventory slots are numbered 0 to 39 inclusive.
+        If there is a container item available (eg the player is pointed at a chest), this will be returned in the same way, but "InventorySlot"
+        will be replaced by "ContainerNameSlot" - eg {{{ShulkerBoxSlot_0_item}}} etc.
+        
+        If {{{flat}}} is false (recommended), the data is returned as an array of objects, one for each item in the inventory/inventories.
+        The JSON array is called "inventory", and each item in the array will contain:
+        * {{{type}}} - the type of the object in that ItemStack
+        * {{{colour}}} - the colour, if relevant
+        * {{{variant}}} - the variant, if relevant
+        * {{{quantity}}} - the number of objects in the ItemStack
+        * {{{index}}} - the slot number
+        * {{{inventory}}} - the name of the inventory - will be "Inventory" for the player, or, for example, "ShulkerBox", "Chest" etc, if a container is available.
+        This index and inventory information can be used to specify the item in the {{{InventoryCommands}}} - items are specified as inventory:index -
+        eg "ShulkerBox:12"
+        
+        In addition to this information, whether {{{flat}}} is true or false, an array called "inventoriesAvailable" will also be returned.
+        This will contain a list of all the inventories available (usually just the player's, but if the player is pointed at a container, this
+        will also be available.)
+        For each inventory, an object will be returned that specifies:
+        * {{{name}}} - the inventory name (same as will be returned in the {{{inventory}}} field for any items in that inventory)
+        * {{{size}}} - the number of slots the inventory provides.
+        
+        For a working example please see inventory_test.py in the Python samples folder.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attribute name="flat" type="xs:boolean" use="optional" default="true" />
+    </xs:complexType>
   </xs:element>
 
   <xs:element name="ObservationFromDiscreteCell">
@@ -1663,6 +1793,26 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="MobWithReward">
+    <xs:attribute name="type" type="MobList" use="required"/>
+    <xs:attribute name="reward" type="xs:decimal" use="required" />
+    <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+  </xs:complexType>
+
+  <xs:element name="RewardForDamagingEntity">
+    <xs:annotation>
+      <xs:documentation>
+        Sends a reward when an entity is damaged.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element name="Mob" type="MobWithReward"/>
+      </xs:choice>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+    </xs:complexType>
+  </xs:element>
+  
   <xs:element name="RewardForReachingPosition">
     <xs:annotation>
       <xs:documentation>

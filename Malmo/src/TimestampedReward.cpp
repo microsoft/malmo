@@ -83,6 +83,7 @@ namespace malmo
             }
             lastpos = nextpos + 1;
         }
+        return *this;
     }
 
     TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward)

@@ -3,7 +3,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.Map;
 
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
@@ -87,7 +86,6 @@ public class RewardForStructureCopyingImplementation extends RewardBase implemen
     {
         super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
-        FMLCommonHandler.instance().bus().register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_BUILDBATTLEREWARD);
 
         if (this.rscparams.getAddQuitProducer() != null)
@@ -130,7 +128,6 @@ public class RewardForStructureCopyingImplementation extends RewardBase implemen
     {
         super.cleanup();
         MinecraftForge.EVENT_BUS.unregister(this);
-        FMLCommonHandler.instance().bus().unregister(this);
         structureHasBeenCompleted = false;
         MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_MISSIONOVER);
     }

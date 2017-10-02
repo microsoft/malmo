@@ -107,6 +107,14 @@ public class CommandGroup extends CommandBase
     }
 
     @Override
+    public void setParentBehaviour(MissionBehaviour mb)
+    {
+        super.setParentBehaviour(mb);
+        for (ICommandHandler han : this.handlers)
+            ((HandlerBase)han).setParentBehaviour(mb);
+    }
+
+    @Override
     public void appendExtraServerInformation(HashMap<String, String> map)
     {
         for (ICommandHandler han : this.handlers)

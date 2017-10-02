@@ -36,7 +36,7 @@ int main()
     const int PORT = 0;
     try {
         boost::asio::io_service io_service;
-        TCPServer server( io_service, PORT, onMessageReceived );
+        TCPServer server( io_service, PORT, onMessageReceived, "test" );
         int assigned_port = server.getPort();
         std::cout << "Server listening on port: " << assigned_port << std::endl;
         if( assigned_port < 10000 || assigned_port > 11000 )

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2016 Microsoft Corporation
 # 
@@ -17,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+from builtins import range
 import MalmoPython
 import json
 import math
@@ -34,8 +36,8 @@ HEIGHT=480
 
 def genItems():
     items = ""
-    for x in xrange(10):
-        for z in xrange(10):
+    for x in range(10):
+        for z in range(10):
             items += '<DrawBlock x="' + str(x * 1000) + '" y="3" z="' + str(z * 1000) + '" type="redstone_block"/>'
             items += '<DrawItem x="' + str(x * 1000) + '" y="10" z="' + str(z * 1000) + '" type="emerald"/>'
     return items
@@ -50,8 +52,8 @@ def startMission(agent_host, xml):
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
-                print "Error starting mission",e
-                print "Is the game running?"
+                print("Error starting mission",e)
+                print("Is the game running?")
                 exit(1)
             else:
                 time.sleep(2)
@@ -61,7 +63,7 @@ def startMission(agent_host, xml):
         time.sleep(0.1)
         world_state = agent_host.peekWorldState()
         for error in world_state.errors:
-            print "Error:",error.text
+            print("Error:",error.text)
         if len(world_state.errors) > 0:
             exit(1)
 
@@ -71,7 +73,7 @@ def processFrame(frame):
     green_total = 0
     blue_total = 0
     num_pixels = WIDTH * HEIGHT
-    for pixel in xrange(0, num_pixels*3, 3):
+    for pixel in range(0, num_pixels*3, 3):
         r = frame[pixel]
         g = frame[pixel+1]
         b = frame[pixel+2]
@@ -137,17 +139,21 @@ worldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
 
     </Mission>'''
 
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+if sys.version_info[0] == 2:
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
+else:
+    import functools
+    print = functools.partial(print, flush=True)
 agent_host = MalmoPython.AgentHost()
 
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
 startMission(agent_host, worldXML)
@@ -156,12 +162,12 @@ world_state = agent_host.peekWorldState()
 # Teleport to each location in turn, see if we collect the right number of emeralds,
 # and check we get the right image for each location.
 total_reward = 0
-for x in xrange(10):
-    for z in xrange(10):
+for x in range(10):
+    for z in range(10):
         teleport_x = x * 1000 + 0.5
         teleport_z = z * 1000 + 0.5
         tp_command = "tp " + str(teleport_x)+ " 4 " + str(teleport_z)
-        print "Sending command: " + tp_command
+        print("Sending command: " + tp_command)
         agent_host.sendCommand(tp_command)
         # Hang around until the image stabilises and the reward is collected.
         # While the chunk is loading, everything will be blue.
@@ -175,11 +181,11 @@ for x in xrange(10):
         while not good_frame or not collected_reward:
             world_state = agent_host.getWorldState()
             if not world_state.is_mission_running:
-                print "Mission ended prematurely - error."
+                print("Mission ended prematurely - error.")
                 exit(1)
             if not collected_reward and world_state.number_of_rewards_since_last_state > 0:
                 total_reward += world_state.rewards[-1].getValue()
-                print "Total reward: " + str(total_reward)
+                print("Total reward: " + str(total_reward))
                 collected_reward = True
                 end_reward = timer()
             if not good_frame and world_state.number_of_video_frames_since_last_state > 0:
@@ -190,20 +196,20 @@ for x in xrange(10):
                     if b == 0:
                         good_frame = True
                         end_frame = timer()
-        print "Took " + "{0:.2f}".format((end_frame - start) * 1000) + "ms to stabilise frame; " + "{0:.2f}".format((end_reward - start) * 1000) + "ms to collect reward."
+        print("Took " + "{0:.2f}".format((end_frame - start) * 1000) + "ms to stabilise frame; " + "{0:.2f}".format((end_reward - start) * 1000) + "ms to collect reward.")
 
 # Visited all the locations - quit the mission.
 agent_host.sendCommand("quit")
 while world_state.is_mission_running:
     world_state = agent_host.peekWorldState()
 
-print "Teleport mission over."
+print("Teleport mission over.")
 world_state = agent_host.getWorldState()
 if world_state.number_of_rewards_since_last_state > 0:
     total_reward += world_state.rewards[-1].getValue()
 if total_reward != 100:
-    print "Got incorrect reward (" + str(total_reward) + ") - should have received 100 for collecting 100 emeralds."
+    print("Got incorrect reward (" + str(total_reward) + ") - should have received 100 for collecting 100 emeralds.")
     exit(1)
 
-print "Test successful"
+print("Test successful")
 exit(0)

@@ -46,7 +46,7 @@ public abstract class QuitFromTimeUpBase extends HandlerBase implements IWantToQ
 	@Override
 	public boolean doIWantToQuit(MissionInit missionInit)
 	{
-		if (missionInit == null || missionInit.getMission() == null || Minecraft.getMinecraft().theWorld == null)
+		if (missionInit == null || missionInit.getMission() == null || Minecraft.getMinecraft().world == null)
 			return false;
 
 		// Initialise our start-of-mission time:

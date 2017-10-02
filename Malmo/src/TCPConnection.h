@@ -41,7 +41,8 @@ namespace malmo
             static boost::shared_ptr<TCPConnection> create(
                 boost::asio::io_service& io_service, 
                 boost::function<void(const TimestampedUnsignedCharVector message) > callback,
-                bool expect_size_header );
+                bool expect_size_header,
+                const std::string& log_name);
 
             boost::asio::ip::tcp::socket& getSocket();
 
@@ -51,7 +52,7 @@ namespace malmo
 
         private:
 
-            TCPConnection(boost::asio::io_service& io_service, boost::function<void(const TimestampedUnsignedCharVector) > callback, bool expect_size_header);
+            TCPConnection(boost::asio::io_service& io_service, boost::function<void(const TimestampedUnsignedCharVector) > callback, bool expect_size_header, const std::string& log_name);
 
             // called when we have successfully read the size header
             void handle_read_header( const boost::system::error_code& error, size_t bytes_transferred );
@@ -80,6 +81,7 @@ namespace malmo
             bool confirm_with_fixed_reply;
             std::string fixed_reply;
             bool expect_size_header;
+            std::string log_name;
     };
 }
 

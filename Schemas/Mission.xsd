@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.21">
+           version="0.31">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -133,6 +133,13 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="EnderBoxInventory" minOccurs="0" maxOccurs="1" >
+                    <xs:complexType>
+                        <xs:choice minOccurs="0" maxOccurs="unbounded" >    <!-- minOccurs = 0 to allow an empty Inventory -->
+                            <xs:element ref="InventoryObject" />
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -157,7 +164,7 @@
                 <xs:element name="AllowedMobs" minOccurs="0" maxOccurs="1">
                   <xs:annotation>
                     <xs:documentation>
-                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings do not effect mob_spawner blocks.
+                      If AllowSpawning is set to true, use this to specify a list of the allowed mobs. Only those mobs which are on the list will be allowed to spawn. If no list is specified, normal spawning behaviour will take place. Note that these settings *do* effect mob_spawner blocks.
                     </xs:documentation>
                   </xs:annotation>
                     <xs:simpleType>
@@ -335,6 +342,9 @@
             <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
+            <xs:element ref="DepthProducer" minOccurs="0"/>
+            <xs:element ref="LuminanceProducer" minOccurs="0"/>
+            <xs:element ref="ColourMapProducer" minOccurs="0"/>
 
             <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />
@@ -346,6 +356,7 @@
             <xs:element ref="RewardForStructureCopying" minOccurs="0"/>
             <xs:element ref="RewardForTimeTaken" minOccurs="0"/>
             <xs:element ref="RewardForCatchingMob" minOccurs="0"/>
+            <xs:element ref="RewardForDamagingEntity" minOccurs="0"/>
 
             <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
             <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>

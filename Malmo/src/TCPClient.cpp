@@ -19,6 +19,7 @@
 
 // Local:
 #include "TCPClient.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/asio.hpp>
@@ -31,17 +32,42 @@ namespace malmo
     {
         tcp::resolver resolver(io_service);
         tcp::resolver::query query(address, boost::lexical_cast<std::string>(port));
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+        tcp::resolver::iterator endpoint_iterator;
+        try
+        {
+            endpoint_iterator = resolver.resolve(query);
+        }
+        catch (boost::system::system_error e)
+        {
+            LOGERROR(LT("Failed to resolve endpoint for "), address, LT(":"), port, LT(" - "), e.code().message());
+            throw e;
+        }
 
         tcp::socket socket(io_service);
-        boost::asio::connect(socket, endpoint_iterator);
+        try
+        {
+            boost::asio::connect(socket, endpoint_iterator);
+        }
+        catch (boost::system::system_error e)
+        {
+            LOGERROR(LT("Failed to connect to "), address, LT(":"), port, LT(" - "), e.code().message());
+            throw e;
+        }
 
         if (withSizeHeader)
         {
             // the size header is 4 bytes containing the size of the body of the message as a network byte order integer
             const int SIZE_HEADER_LENGTH = 4;
             u_long size_header = htonl((u_long)message.size());
-            boost::asio::write(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH));
+            try
+            {
+                boost::asio::write(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH));
+            }
+            catch (boost::system::system_error e)
+            {
+                LOGERROR(LT("Failed to write header to "), address, LT(":"), port, LT(" - "), e.code().message());
+                throw e;
+            }
         }
         else if (message.back() != '\n')
         {
@@ -49,7 +75,15 @@ namespace malmo
             message.push_back('\n');
         }
         
-        boost::asio::write(socket, boost::asio::buffer(message));
+        try
+        {
+            boost::asio::write(socket, boost::asio::buffer(message));
+        }
+        catch (boost::system::system_error e)
+        {
+            LOGERROR(LT("Failed to write message to "), address, LT(":"), port, LT(" - "), e.code().message());
+            throw e;
+        }
     }
 
     void SendStringOverTCP(boost::asio::io_service& io_service, std::string address, int port, std::string message, bool withSizeHeader)
@@ -66,10 +100,16 @@ namespace malmo
         
         tcp::resolver resolver(io_service);
         tcp::resolver::query query(ip_address, boost::lexical_cast<std::string>(port));
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+        boost::system::error_code ec;
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query, ec);
+
+        if (ec)
+            LOGERROR(LT("Failed to resolve "), ip_address, LT(":"), port, LT(" - "), ec.message());
 
         tcp::socket socket(io_service);
-        boost::asio::connect(socket, endpoint_iterator);
+        boost::asio::connect(socket, endpoint_iterator, ec);
+        if (ec)
+            LOGERROR(LT("Failed to connect to "), ip_address, LT(":"), port, LT(" - "), ec.message());
 
         const int SIZE_HEADER_LENGTH = 4;
         u_long size_header;
@@ -79,22 +119,36 @@ namespace malmo
             // the size header is 4 bytes containing the size of the body of the message as a network byte order integer
             const int SIZE_HEADER_LENGTH = 4;
             u_long size_header = htonl((u_long)message.size());
-            boost::asio::write(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH));
+            boost::asio::write(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH), ec);
+            if (ec)
+                LOGERROR(LT("Failed to write header to "), ip_address, LT(":"), port, LT(" - "), ec.message());
         }
 
-        boost::asio::write(socket, boost::asio::buffer(message_vector));
+        size_t bytes_transferred = boost::asio::write(socket, boost::asio::buffer(message_vector), ec);
+        if (ec)
+            LOGERROR(LT("Failed to write message to "), ip_address, LT(":"), port, LT(" - "), ec.message(), LT(" ("), bytes_transferred, LT(" bytes written) - was trying to send: "), message);
+        else
+            LOGFINE(LT("Sent "), bytes_transferred, LT(" bytes to "), ip_address, LT(":"), port, LT(" -"), message);
 
-        boost::asio::read(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH), boost::asio::transfer_exactly(SIZE_HEADER_LENGTH));
+        boost::asio::read(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH), boost::asio::transfer_exactly(SIZE_HEADER_LENGTH), ec);
+        if (ec)
+            LOGERROR(LT("Failed to read response header from "), ip_address, LT(":"), port, LT(" - "), ec.message());
 
         size_header = ntohl(size_header);
         
-        if( size_header > MAX_PACKET_LENGTH )
-            throw std::runtime_error( "Packet length exceeds maximum allowed." );
+        if (size_header > MAX_PACKET_LENGTH)
+        {
+            LOGERROR(LT("Packet length of "), size_header, LT(" received from "), ip_address, LT(":"), port, LT(" exceeds maximum allowed. Throwing."));
+            throw std::runtime_error("Packet length exceeds maximum allowed.");
+        }
 
-        boost::asio::read(socket, boost::asio::buffer(data, size_header), boost::asio::transfer_exactly(size_header) );
+        bytes_transferred = boost::asio::read(socket, boost::asio::buffer(data, size_header), boost::asio::transfer_exactly(size_header), ec );
+        if (ec)
+            LOGERROR(LT("Failed to read response body from "), ip_address, LT(":"), port, LT(" - "), ec.message(), LT(" (read "), bytes_transferred, LT(" bytes)"));
 
         std::string reply(data, data + size_header);
-
+        if (!ec)
+            LOGFINE(LT("Received reply from  "), ip_address, LT(":"), port, LT(" - "), reply);
         return reply;
     }
 }

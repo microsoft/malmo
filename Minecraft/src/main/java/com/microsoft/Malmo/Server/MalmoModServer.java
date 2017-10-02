@@ -19,11 +19,10 @@
 
 package com.microsoft.Malmo.Server;
 
-import com.microsoft.Malmo.Schemas.MissionInit;
-
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+
+import com.microsoft.Malmo.Schemas.MissionInit;
 
 public class MalmoModServer
 {
@@ -55,7 +54,6 @@ public class MalmoModServer
 	private void initBusses()
 	{
         // Register for various events:
-        FMLCommonHandler.instance().bus().register(this);
         MinecraftForge.EVENT_BUS.register(this);
     }
 

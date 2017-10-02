@@ -19,6 +19,7 @@
 
 // Local:
 #include "TCPServer.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -33,10 +34,11 @@ using boost::asio::ip::tcp;
 
 namespace malmo
 {
-    TCPServer::TCPServer( boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback )
+    TCPServer::TCPServer( boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback, const std::string& log_name )
         : onMessageReceived(callback)
         , confirm_with_fixed_reply(false)
         , expect_size_header(true)
+        , log_name(log_name)
     {
         if (port == 0) {
             // attempt to assign a port from a predefined range
@@ -71,7 +73,8 @@ namespace malmo
         boost::shared_ptr<TCPConnection> new_connection = TCPConnection::create(
             this->acceptor->get_io_service(),
             this->onMessageReceived,
-            this->expect_size_header
+            this->expect_size_header,
+            this->log_name
         );
             
         if( this->confirm_with_fixed_reply )
@@ -93,6 +96,8 @@ namespace malmo
             new_connection->read();
             this->startAccept();
         }
+        else
+            LOGERROR(LT("TCPServer::handleAccept("), this->log_name, LT(") - "), error.message());
     }
 
     int TCPServer::getPort() const
@@ -101,7 +106,9 @@ namespace malmo
     }
     
     void TCPServer::bindToRandomPortInRange(boost::asio::io_service& io_service, int port_min, int port_max)
-    {            
+    {
+        LOGSECTION(LOG_FINE, "Choosing random port for " + this->log_name)
+
         auto a = boost::counting_iterator<int>( port_min );
         auto b = boost::counting_iterator<int>( port_max );
         std::vector<int> port_range( a, b );
@@ -113,6 +120,7 @@ namespace malmo
         for( auto test_port : port_range )
         {
             try {
+                LOGFINE(LT("Trying port "), test_port);
                 this->bindToPort( io_service, test_port );
                 return;
             } catch( const boost::system::system_error& ) {
@@ -120,12 +128,22 @@ namespace malmo
                 continue;
             }
         }
+        LOGERROR(LT("Couldn't find an available port for "), this->log_name, LT(" - throwing!"));
         throw std::runtime_error( "All ports in range were busy!" );
     }
     
     void TCPServer::bindToPort(boost::asio::io_service& io_service, int port)
     {
         tcp::endpoint endpt = tcp::endpoint( tcp::v4(), port );
-        this->acceptor = boost::make_shared< tcp::acceptor >(io_service, endpt, false);
+        try
+        {
+            this->acceptor = boost::make_shared< tcp::acceptor >(io_service, endpt, false);
+        }
+        catch (boost::system::system_error e)
+        {
+            LOGERROR(this->log_name, LT(" couldn't bind to "), endpt, LT(" - "), e.code().message());
+            throw e;
+        }
+        LOGFINE(this->log_name, LT(" bound local endpoint "), this->acceptor->local_endpoint(), LT(" to "), endpt);
     }
 }

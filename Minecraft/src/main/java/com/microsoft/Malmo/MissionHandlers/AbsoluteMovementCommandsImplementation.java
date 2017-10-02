@@ -27,9 +27,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.IThreadListener;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -71,7 +72,7 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
 
     private void sendChanges()
     {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player == null)
             return;
 
@@ -172,27 +173,27 @@ public class AbsoluteMovementCommandsImplementation extends CommandBase
             if (ctx.side == Side.CLIENT)
                 mainThread = Minecraft.getMinecraft();
             else
-                mainThread = MinecraftServer.getServer();
+                mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
             mainThread.addScheduledTask(new Runnable()
             {
                 @Override
                 public void run()
                 {
-                    EnumSet<S08PacketPlayerPosLook.EnumFlags> enumset = EnumSet.noneOf(S08PacketPlayerPosLook.EnumFlags.class);
+                    EnumSet<SPacketPlayerPosLook.EnumFlags> enumset = EnumSet.noneOf(SPacketPlayerPosLook.EnumFlags.class);
                     if (!message.setX)
-                        enumset.add(S08PacketPlayerPosLook.EnumFlags.X);
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.X);
                     if (!message.setY)
-                        enumset.add(S08PacketPlayerPosLook.EnumFlags.Y);
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Y);
                     if (!message.setZ)
-                        enumset.add(S08PacketPlayerPosLook.EnumFlags.Z);
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Z);
                     if (!message.setYaw)
-                        enumset.add(S08PacketPlayerPosLook.EnumFlags.Y_ROT);
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.Y_ROT);
                     if (!message.setPitch)
-                        enumset.add(S08PacketPlayerPosLook.EnumFlags.X_ROT);
+                        enumset.add(SPacketPlayerPosLook.EnumFlags.X_ROT);
 
                     EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-                    player.mountEntity((Entity) null);
-                    player.playerNetServerHandler.setPlayerLocation(message.x, message.y, message.z, message.yaw, message.pitch, enumset);
+                    player.dismountRidingEntity();
+                    player.connection.setPlayerLocation(message.x, message.y, message.z, message.yaw, message.pitch, enumset);
                     player.setRotationYawHead(message.yaw);
                 }
             });
