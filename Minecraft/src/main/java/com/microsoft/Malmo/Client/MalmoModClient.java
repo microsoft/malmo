@@ -36,9 +36,15 @@ import com.microsoft.Malmo.Utils.TextureHelper;
 
 public class MalmoModClient
 {
-    private class MouseHook extends MouseHelper
+    public interface MouseEventListener
+    {
+        public void onXYChange(int deltaX, int deltaY);
+    }
+
+    public class MouseHook extends MouseHelper
     {
         public boolean isOverriding = true;
+        private MouseEventListener observer = null;
         /* (non-Javadoc)
          * @see net.minecraft.util.MouseHelper#mouseXYChange()
          * If we are overriding control, don't allow Minecraft to do any of the usual camera/yaw/pitch stuff that happens when the mouse moves.
@@ -56,7 +62,10 @@ public class MalmoModClient
             }
             else
             {
+                
                 super.mouseXYChange();
+                if (this.observer != null)
+                    this.observer.onXYChange(this.deltaX, this.deltaY);
             }
         }
 
@@ -79,6 +88,11 @@ public class MalmoModClient
             // Vanilla Minecraft calls Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2) at this point...
             // but it's seriously annoying, so we don't.
             Mouse.setGrabbed(false);
+        }
+
+        public void requestEvents(MouseEventListener observer)
+        {
+            this.observer = observer;
         }
     }
     

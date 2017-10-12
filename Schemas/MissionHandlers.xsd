@@ -1581,6 +1581,15 @@
     <xs:complexType/>
   </xs:element>
 
+  <xs:element name="ObservationFromHuman">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return low-level keyboard and mouse events:
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
   <xs:element name="ObservationFromRay">
     <xs:annotation>
       <xs:documentation>
