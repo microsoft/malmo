@@ -1292,8 +1292,41 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="HumanLevelCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Commands for controlling Minecraft at the level of keyboard and mouse events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="forward" />
+      <xs:enumeration value="left" />
+      <xs:enumeration value="back" />
+      <xs:enumeration value="right" />
+      <xs:enumeration value="jump" />
+      <xs:enumeration value="sneak" />
+      <xs:enumeration value="sprint" />
+      <xs:enumeration value="inventory" />
+      <xs:enumeration value="swapHands" />
+      <xs:enumeration value="drop" />
+      <xs:enumeration value="use" />
+      <xs:enumeration value="attack" />
+      <xs:enumeration value="pickItem" />
+      <xs:enumeration value="hotbar.1" />
+      <xs:enumeration value="hotbar.2" />
+      <xs:enumeration value="hotbar.3" />
+      <xs:enumeration value="hotbar.4" />
+      <xs:enumeration value="hotbar.5" />
+      <xs:enumeration value="hotbar.6" />
+      <xs:enumeration value="hotbar.7" />
+      <xs:enumeration value="hotbar.8" />
+      <xs:enumeration value="hotbar.9" />
+      <xs:enumeration value="moveMouse" />
+    </xs:restriction>
+  </xs:simpleType>
+  
   <xs:simpleType name="Command">
-    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand"/>
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand HumanLevelCommand"/>
   </xs:simpleType>
 
   <xs:simpleType name="CommandList">
@@ -1515,6 +1548,29 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="HumanLevelCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept commands on the level of mouse and keyboard events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="HumanLevelCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 

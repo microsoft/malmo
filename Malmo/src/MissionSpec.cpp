@@ -554,6 +554,8 @@ namespace malmo
             command_handlers.push_back( "SimpleCraft" );
         if( ah.MissionQuitCommands().present() )
             command_handlers.push_back( "MissionQuit" );
+        if( ah.HumanLevelCommands().present() )
+            command_handlers.push_back(" HumanLevel" );
         return command_handlers;
     }
     
@@ -606,6 +608,13 @@ namespace malmo
             vector<string> commands( begin(MissionQuitCommand::_xsd_MissionQuitCommand_literals_), end(MissionQuitCommand::_xsd_MissionQuitCommand_literals_) );
             if( ah.MissionQuitCommands()->ModifierList().present() )
                 return getModifiedCommandList( commands, *ah.MissionQuitCommands()->ModifierList() );
+            else
+                return commands;
+        }
+        else if( command_handler == "HumanLevel" && ah.HumanLevelCommands().present() ) {
+            vector<string> commands( begin(HumanLevelCommand::_xsd_HumanLevelCommand_literals_), end(HumanLevelCommand::_xsd_HumanLevelCommand_literals_) );
+            if( ah.HumanLevelCommands()->ModifierList().present() )
+                return getModifiedCommandList( commands, *ah.HumanLevelCommands()->ModifierList() );
             else
                 return commands;
         }
