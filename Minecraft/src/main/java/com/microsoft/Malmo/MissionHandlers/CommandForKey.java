@@ -49,6 +49,9 @@ public class CommandForKey extends CommandBase
     	private boolean isDown = false;
     	private boolean justPressed = false;
     	private String commandString = null;
+    	private boolean lastPressedState = false;
+    	private boolean lastKeydownState = false;
+    	
    	
     	/** Create a KeyBinding object for the specified key, keycode and category.<br>
     	 * @param description see Minecraft KeyBinding class
@@ -86,6 +89,9 @@ public class CommandForKey extends CommandBase
         public boolean isKeyDown()
         {
             boolean bReturn = this.isOverridingPresses ? this.isDown : super.isKeyDown();
+            if (!this.isOverridingPresses && bReturn != this.lastKeydownState)
+                System.out.println(this.commandString + " is keydown: " + bReturn);
+            this.lastKeydownState = bReturn;
             return bReturn;
         }
     
@@ -99,6 +105,9 @@ public class CommandForKey extends CommandBase
         {
         	boolean bReturn = this.isOverridingPresses ? this.justPressed : super.isPressed();
         	this.justPressed = false;	// This appears to be how the KeyBinding is expected to work.
+        	if (!this.isOverridingPresses && bReturn != this.lastPressedState)
+        	    System.out.println(this.commandString + " is pressed: " + bReturn);
+        	this.lastPressedState = bReturn;
         	return bReturn;
         }
     
