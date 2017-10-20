@@ -169,14 +169,13 @@ function Install-Java
 
 function Install-Python
 {
-    if (Should-Install "Python 2.7")
+    if (Should-Install "Python 3.6")
     {
         Display-Heading "Installing python"
-        Download-File "https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi" ($env:HOMEPATH + "\temp\python_install.msi")
-        Start-Process .\temp\python_install.msi -ArgumentList "/qn" -Wait
+        Download-File "https://www.python.org/ftp/python/3.6.3/python-3.6.3-amd64.exe" ($env:HOMEPATH + "\temp\python_install.exe")
+        Start-Process .\temp\python_install.exe -ArgumentList "/quiet PrependPath=1" -Wait
         if ($?)
         {
-            Append-Path "C:\Python27"
             return $True
         }
         Write-Host "FAILED TO INSTALL PYTHON"
