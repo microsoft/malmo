@@ -1,3 +1,7 @@
+param (
+    [switch]$headless = $false
+)
+
 Import-Module .\pslib\malmo_lib.psm1
 
 # get the malmo install dir
@@ -20,7 +24,10 @@ try {
          Install-Python;
          Install-XSD;
          Install-VCRedist;
-         Install-Mesa;"
+         "
+    if ($headless) {
+         $InstallList += "Install-Mesa;"
+    }
     if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
         Write-Host "Elevating to admin ..."
