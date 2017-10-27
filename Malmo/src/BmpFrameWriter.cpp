@@ -189,7 +189,7 @@ namespace malmo
                 tarrer.addFrame(frame);
                 // And add details to index files:
                 std::stringstream name;
-                name << "frame_" << std::setfill('0') << std::setw(6) << tarrer.getFrameCount() - 1;
+                name << "frame_" << std::setfill('0') << std::setw(6) << tarrer.getFrameCount();
                 std::stringstream posdata;
                 posdata << "xyzyp: " << frame.xPos << " " << frame.yPos << " " << frame.zPos << " " << frame.yaw << " " << frame.pitch;
                 this->frame_info_stream << boost::posix_time::to_iso_string(frame.timestamp) << " " << name.str() << " " << posdata.str() << std::endl;

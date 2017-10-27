@@ -215,7 +215,7 @@ namespace malmo
         }
     }
 
-    void VideoFrameWriter::write(TimestampedVideoFrame frame)
+    bool VideoFrameWriter::write(TimestampedVideoFrame frame)
     {
         boost::lock_guard<boost::mutex> write_guard(this->write_mutex);
 
@@ -223,7 +223,7 @@ namespace malmo
             this->last_timestamp = frame.timestamp;
 
             std::stringstream name;
-            name << "frame_" << std::setfill('0') << std::setw(6) << this->frame_index;
+            name << "frame_" << std::setfill('0') << std::setw(6) << this->frame_index + 1;
             std::stringstream posdata;
             posdata << "xyzyp: " << frame.xPos << " " << frame.yPos << " " << frame.zPos << " " << frame.yaw << " " << frame.pitch;
             this->frame_info_stream << boost::posix_time::to_iso_string(frame.timestamp) << " " << name.str() << " " << posdata.str() << std::endl;
