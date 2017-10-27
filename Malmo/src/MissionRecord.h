@@ -60,10 +60,6 @@ namespace malmo
             //! \returns Boolean value.
             bool isRecording() const;
 
-            //! Gets whether the video from the mission will be recorded or not.
-            //! \returns Boolean value.
-            bool isRecordingMP4() const;
-
             //! Gets whether the observations from the mission will be recorded or not.
             //! \returns Boolean value.
             bool isRecordingObservations() const;
@@ -94,11 +90,19 @@ namespace malmo
 
             //! Gets the bitrate at which the video should be recorded, if MP4 recording has been requested.
             //! \returns The bitrate in bits per second.
-            int64_t getMP4BitRate() const;
+            int64_t getMP4BitRate(TimestampedVideoFrame::FrameType type) const;
 
             //! Gets the frequency at which frames should be recorded, if MP4 recording has been requested.
             //! \returns The frames per second.
-            int getMP4FramesPerSecond() const;
+            int getMP4FramesPerSecond(TimestampedVideoFrame::FrameType type) const;
+
+            //! Gets whether or not the specified video type is being recorded to MP4.
+            //! \returns Boolean value.
+            bool isRecordingMP4(TimestampedVideoFrame::FrameType type) const;
+
+            //! Gets whether or not the specified video type is being recorded to individual frames.
+            //! \returns Boolean value.
+            bool isRecordingBmps(TimestampedVideoFrame::FrameType type) const;
 
             //! Gets the path where the observations should be saved to, if recording has been requested.
             //! \returns The path as a string.

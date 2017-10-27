@@ -231,11 +231,6 @@ namespace malmo
         return this->spec.isRecording();
     }
 
-    bool MissionRecord::isRecordingMP4() const
-    {
-        return this->spec.is_recording_mp4;
-    }
-
     bool MissionRecord::isRecordingObservations() const
     {
         return this->spec.is_recording_observations;
@@ -271,14 +266,28 @@ namespace malmo
         return this->mp4_colourmap_path;
     }
 
-    int64_t MissionRecord::getMP4BitRate() const
+    int64_t MissionRecord::getMP4BitRate(TimestampedVideoFrame::FrameType type) const
     {
-        return this->spec.mp4_bit_rate;
+        auto it = this->spec.video_recordings.find(type);
+        return (it != this->spec.video_recordings.end()) ? it->second.mp4_bit_rate : 0;
     }
 
-    int MissionRecord::getMP4FramesPerSecond() const
+    int MissionRecord::getMP4FramesPerSecond(TimestampedVideoFrame::FrameType type) const
     {
-        return this->spec.mp4_fps;
+        auto it = this->spec.video_recordings.find(type);
+        return (it != this->spec.video_recordings.end()) ? it->second.mp4_fps : 0;
+    }
+
+    bool MissionRecord::isRecordingMP4(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it != this->spec.video_recordings.end() && it->second.fr_type == MissionRecordSpec::VIDEO;
+    }
+
+    bool MissionRecord::isRecordingBmps(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it != this->spec.video_recordings.end() && it->second.fr_type == MissionRecordSpec::BMP;
     }
 
     std::string MissionRecord::getObservationsPath() const

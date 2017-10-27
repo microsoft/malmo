@@ -218,6 +218,11 @@ void recordMP4(MissionRecordSpec* mrs, int frames_per_second, long bitrate)
     mrs->recordMP4(frames_per_second,static_cast<int64_t>(bitrate));
 }
 
+void recordMP4Specific(MissionRecordSpec* mrs, TimestampedVideoFrame::FrameType type, int frames_per_second, long bitrate)
+{
+    mrs->recordMP4(type, frames_per_second, static_cast<int64_t>(bitrate));
+}
+
 // wrapper for MissionSpec::getListOfCommandHandlers that returns a table
 luabind::object getListOfCommandHandlers( lua_State *L, const MissionSpec& m, int role )
 {
@@ -423,6 +428,8 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(constructor<>())
             .def(constructor < std::string >())
             .def("recordMP4",               &recordMP4)
+            .def("recordMP4",               &recordMP4Specific)
+            .def("recordBitmaps",           &recordBitmaps)
             .def("recordObservations",      &MissionRecordSpec::recordObservations)
             .def("recordRewards",           &MissionRecordSpec::recordRewards)
             .def("recordCommands",          &MissionRecordSpec::recordCommands)

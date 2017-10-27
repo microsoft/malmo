@@ -83,6 +83,8 @@ public:
     MissionRecordSpec();
     MissionRecordSpec(std::string destination);
     void recordMP4(int frames_per_second, int64_t bit_rate);
+    void recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate);
+    void recordBitmaps(TimestampedVideoFrame::FrameType type);
     void recordObservations();
     void recordRewards();
     void recordCommands();

@@ -94,6 +94,9 @@ void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, co
 void (AgentHost::*sendCommand)(std::string) = &AgentHost::sendCommand;
 void (AgentHost::*sendCommandWithKey)(std::string, std::string) = &AgentHost::sendCommand;
 
+void (MissionRecordSpec::*recordMP4General)(int, int64_t bit_rate) = &MissionRecordSpec::recordMP4;
+void (MissionRecordSpec::*recordMP4Specific)(TimestampedVideoFrame::FrameType, int, int64_t) = &MissionRecordSpec::recordMP4;
+
 #ifdef WRAP_ALE
 void (ALEAgentHost::*startALEMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &ALEAgentHost::startMission;
 void (ALEAgentHost::*startALEMissionComplex)(const MissionSpec&, const ClientPool&, const MissionRecordSpec&, int, std::string) = &ALEAgentHost::startMission;
@@ -282,7 +285,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< MissionRecordSpec >("MissionRecordSpec", init<>())
         .def(init < std::string >())
-        .def("recordMP4",               &MissionRecordSpec::recordMP4)
+        .def("recordMP4",               recordMP4General)
+        .def("recordMP4",               recordMP4Specific)
+        .def("recordBitmaps",           &MissionRecordSpec::recordBitmaps)
         .def("recordObservations",      &MissionRecordSpec::recordObservations)
         .def("recordRewards",           &MissionRecordSpec::recordRewards)
         .def("recordCommands",          &MissionRecordSpec::recordCommands)
@@ -344,7 +349,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "zPos",        &TimestampedVideoFrame::zPos)
         .def_readonly( "yaw",         &TimestampedVideoFrame::yaw)
         .def_readonly( "pitch",       &TimestampedVideoFrame::pitch)
-        .def_readonly( "frametype",    &TimestampedVideoFrame::frametype)
+        .def_readonly( "frametype",   &TimestampedVideoFrame::frametype)
         .add_property( "pixels",      make_getter(&TimestampedVideoFrame::pixels, return_value_policy<return_by_value>()))
         .def(self_ns::str(self_ns::self))
     ;
