@@ -215,14 +215,14 @@ public class VideoHook {
         // And fill in some diagnostic data:
         if (diags != null)
         {
-        	VideoData vd = new VideoData();
-        	vd.setFrameType(this.videoProducer.getVideoType().toString());
-        	vd.setFramesSent((int)this.framesSent);
-        	if (this.timeOfLastFrame == this.timeOfFirstFrame)
-        		vd.setAverageFpsSent(new BigDecimal(0));
-        	else
-        		vd.setAverageFpsSent(new BigDecimal(1000.0 * this.framesSent / (this.timeOfLastFrame - this.timeOfFirstFrame)));
-        	diags.getVideoData().add(vd);
+            VideoData vd = new VideoData();
+            vd.setFrameType(this.videoProducer.getVideoType().toString());
+            vd.setFramesSent((int) this.framesSent);
+            if (this.timeOfLastFrame == this.timeOfFirstFrame)
+                vd.setAverageFpsSent(new BigDecimal(0));
+            else
+                vd.setAverageFpsSent(new BigDecimal(1000.0 * this.framesSent / (this.timeOfLastFrame - this.timeOfFirstFrame)));
+            diags.getVideoData().add(vd);
         }
     }
 
