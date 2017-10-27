@@ -175,7 +175,7 @@ namespace malmo
 
         std::cout << "Deleting MissionRecord temp folder..." << std::endl;
 
-        //boost::filesystem::remove_all(this->temp_dir);
+        boost::filesystem::remove_all(this->temp_dir);
 
         this->is_closed = true;
     }

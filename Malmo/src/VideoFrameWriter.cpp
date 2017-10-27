@@ -244,8 +244,9 @@ namespace malmo
             }
 
             this->frames_available_cond.notify_one();
+            return true;
         }
-        return true;
+        return false;
     }
 
     std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
