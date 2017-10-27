@@ -44,7 +44,7 @@ public class ObservationFromHumanImplementation extends HandlerBase implements I
         public JsonObject getJSON()
         {
             JsonObject jsonEvent = new JsonObject();
-    		jsonEvent.addProperty("time", this.timestamp);
+            jsonEvent.addProperty("time", this.timestamp);
             jsonEvent.addProperty("type", "mouse");
             jsonEvent.addProperty("deltaX", this.deltaX);
             jsonEvent.addProperty("deltaY", this.deltaY);
