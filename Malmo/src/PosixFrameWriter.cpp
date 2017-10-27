@@ -20,6 +20,9 @@
 // Local:
 #include "PosixFrameWriter.h"
 
+// Boost:
+#include <boost/filesystem.hpp>
+
 // POSIX:
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -77,7 +80,10 @@ namespace malmo
 
             // send ffmpeg's output to file
             {
-                int out_fd = ::open("./ffmpeg.out", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+                boost::filesystem::path fs_path(this->path);
+                std::string ffmpeg_outfile = (fs_path.parent_path() / (fs_path.stem().string() + "_ffmpeg.out")).string();
+
+                int out_fd = ::open(ffmpeg_outfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
                 if( out_fd < 0 )
                     throw std::runtime_error( "Failed to open ffmpeg.out for writing." );
                     
