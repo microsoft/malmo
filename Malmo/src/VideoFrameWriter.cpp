@@ -150,23 +150,23 @@ namespace malmo
                         for (int i = 0; i < frame.width*frame.height; i++)
                         {
                             float f = fPixels[i];
-                            float h = 60.0 * f;
+                            float h = 60.0f * f;
                             while (h >= 360.0)
                                 h -= 360.0;
                             float s = 1.0;
-                            float v = 1.0 - (f / 200.0);
+                            float v = 1.0f - (f / 200.0f);
                             if (v < 0)
                                 v = 0;
                             if (v > 1.0)
                                 v = 1.0;
-                            h = h / 60.0;
+                            h = h / 60.0f;
                             float fract = h- floor(h);
 
                             v *= 255.0;
 
-                            float p = v*(1. - s);
-                            float q = v*(1. - s*fract);
-                            float t = v*(1. - s*(1. - fract));
+                            float p = v*(1.0f - s);
+                            float q = v*(1.0f - s*fract);
+                            float t = v*(1.0f - s*(1.0f - fract));
 
                             unsigned int out;
                             if (0. <= h && h < 1.)
