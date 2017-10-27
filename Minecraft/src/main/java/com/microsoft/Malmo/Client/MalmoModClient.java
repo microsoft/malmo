@@ -59,11 +59,9 @@ public class MalmoModClient
                 this.deltaY = 0;
                 if (Mouse.isGrabbed())
                     Mouse.setGrabbed(false);
-                Minecraft.getMinecraft().inGameHasFocus = false;
             }
             else
             {
-                
                 super.mouseXYChange();
                 if (this.observer != null)
                     this.observer.onXYZChange(this.deltaX, this.deltaY, Mouse.getDWheel());
@@ -145,12 +143,10 @@ public class MalmoModClient
         if (input == InputType.HUMAN)
         {
             Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
-            Minecraft.getMinecraft().inGameHasFocus = true;
         }
         else
         {
             Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-            Minecraft.getMinecraft().inGameHasFocus = false;
         }
 
 		this.stateMachine.getScreenHelper().addFragment("Mouse: " + input, TextCategory.TXT_INFO, INFO_MOUSE_CONTROL);
