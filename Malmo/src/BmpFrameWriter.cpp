@@ -146,7 +146,6 @@ namespace malmo
     void BmpFrameWriter::close()
     {
         if (this->is_open) {
-            std::cout << "Closing bmp writer..." << std::endl;
             this->frame_info_stream.close();
 
             this->is_open = false;
@@ -160,7 +159,6 @@ namespace malmo
             this->frames_available_cond.notify_one();
 
             this->frame_writer_thread.join();
-            std::cout << "Bmp writer closed." << std::endl;
         }
     }
 
@@ -183,7 +181,7 @@ namespace malmo
                     if (this->frame_buffer.size() > 0) {
                         frame = this->frame_buffer.front();
                         this->frame_buffer.pop();
-                        std::cout << "Frames in queue: " << this->frame_buffer.size() << std::endl;
+                        //std::cout << "Frames in queue: " << this->frame_buffer.size() << std::endl;
                     }
                     else {
                         boost::lock_guard<boost::mutex> frames_available_guard(this->frames_available_mutex);
