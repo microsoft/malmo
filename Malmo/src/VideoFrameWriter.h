@@ -67,6 +67,7 @@ namespace malmo
         short width;
         short height;
         int frames_per_second;
+        int channels;
         bool is_open;
 
     private:

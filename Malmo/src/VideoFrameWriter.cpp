@@ -32,11 +32,12 @@
 
 namespace malmo
 {
-    VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second)
+    VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second, int channels)
         : path(path)
         , width(width)
         , height(height)
         , frames_per_second(frames_per_second)
+        , channels(channels)
         , is_open(false)
         , frame_duration(boost::posix_time::milliseconds(1000) / frames_per_second)
     {
@@ -194,22 +195,10 @@ namespace malmo
                         delete[] out_pixels;
                     }
                 }
-                else if (frame.channels == 3)
+                else if (frame.channels == 3 || frame.channels == 1)
                 {
-                    // write the RGB data directly
+                    // write the pixel data directly
                     this->doWrite((char*)&frame.pixels[0], frame.width, frame.height, count);
-                }
-                else if (frame.channels == 1)
-                {
-                    // Convert luminance to greyscale RGB
-                    // TODO - could ffmpeg just record 8bpp, and avoid this work?
-                    char *out_pixels = new char[frame.width * frame.height * 3];
-                    for (int i = 0; i < frame.width*frame.height; i++)
-                    {
-                        out_pixels[i * 3] = out_pixels[i * 3 + 1] = out_pixels[i * 3 + 2] = frame.pixels[i];
-                    }
-                    this->doWrite(out_pixels, frame.width, frame.height, count);
-                    delete[] out_pixels;
                 }
                 else throw std::runtime_error("Unsupported number of channels");
 
@@ -247,14 +236,15 @@ namespace malmo
 
             this->frames_available_cond.notify_one();
         }
+        return true;
     }
 
-    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
+    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels)
     {
 #if WIN32
-        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate) );
+        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels) );
 #else
-        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate) );
+        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels) );
 #endif
         return instance;
     }

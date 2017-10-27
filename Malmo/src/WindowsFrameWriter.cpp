@@ -29,8 +29,8 @@
 
 namespace malmo
 {
-    WindowsFrameWriter::WindowsFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
-        : VideoFrameWriter(path, info_filename, width, height, frames_per_second)
+    WindowsFrameWriter::WindowsFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels)
+        : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels)
         , bit_rate(bit_rate)
     {
         this->ffmpeg_path = search_path();
@@ -102,7 +102,8 @@ namespace malmo
         DWORD dwWritten;
         BOOL bSuccess = FALSE;
         std::stringstream header;
-        header << "P6\n" << width << " " << height << "\n255\n";
+        std::string magic_number = this->channels == 1 ? "P5" : "P6";
+        header << magic_number << "\n" << width << " " << height << "\n255\n";
         std::string headerStr = header.str();        
 
         bSuccess = WriteFile(this->g_hChildStd_IN_Wr, headerStr.c_str(), (DWORD)headerStr.length(), &dwWritten, NULL);
@@ -110,7 +111,7 @@ namespace malmo
             throw std::runtime_error("Unable to write frame header to pipe.");
         }
 
-        bSuccess = WriteFile(this->g_hChildStd_IN_Wr, rgb, width*height*3, &dwWritten, NULL);
+        bSuccess = WriteFile(this->g_hChildStd_IN_Wr, rgb, width*height*this->channels, &dwWritten, NULL);
         if (!bSuccess){
             throw std::runtime_error("Unable to write frame pixels to pipe.");
         }
@@ -148,11 +149,12 @@ namespace malmo
         STARTUPINFO siStartInfo;
         BOOL bSuccess = FALSE;
 
+        std::string input_format = this->channels == 1 ? "pgm" : "ppm";
         std::stringstream cmd_line;
         cmd_line << this->ffmpeg_path << " -y -f image2pipe "
             << "-framerate " << this->frames_per_second
             //<< "-s " << this->width << "x" << this->height
-            << " -c:v ppm -i - -c:v libx264 "
+            << " -c:v " << input_format << " -i - -c:v libx264 "
             << "-b:v " << this->bit_rate
             << " -pix_fmt yuv420p " << this->path;
 

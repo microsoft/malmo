@@ -64,6 +64,7 @@ namespace malmo
 
     VideoServer& VideoServer::recordMP4(std::string path, int frames_per_second, int64_t bit_rate)
     {
+        int channels = 3;
         std::string filename;
         switch (this->frametype)
         {
@@ -75,13 +76,15 @@ namespace malmo
             break;
         case TimestampedVideoFrame::LUMINANCE:
             filename = "luminance_frame_info.txt";
+            channels = 1;
             break;
         case TimestampedVideoFrame::VIDEO:
         default:
             filename = "frame_info.txt";
             break;
         }
-        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate));
+        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate, channels));
+        this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
 
         return *this;
     }

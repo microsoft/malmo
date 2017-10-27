@@ -31,8 +31,8 @@
 
 namespace malmo
 {
-    PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
-        : VideoFrameWriter(path, info_filename, width, height, frames_per_second)
+    PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels)
+        : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels)
         , bit_rate(bit_rate)
         , process_id(0)
     {
@@ -94,6 +94,8 @@ namespace malmo
                     throw std::runtime_error( "Failed to close ffmpeg.out file descriptor." );
             }
 
+            std::string input_format = this->channels == 1 ? "pgm" : "ppm";
+
             ret = execlp( this->ffmpeg_path.c_str(), 
                           this->ffmpeg_path.c_str(),
                           "-y",
@@ -102,7 +104,7 @@ namespace malmo
                           "-framerate",
                           std::to_string(this->frames_per_second).c_str(),
                           "-vcodec",
-                          "ppm",
+                          input_format,
                           "-i",
                           "-",
                           "-vcodec",
@@ -151,8 +153,9 @@ namespace malmo
 
     void PosixFrameWriter::doWrite(char* rgb, int width, int height, int frame_index)
     {
+        std::string magic_number = this->channels == 1 ? "P5" : "P6";
         std::ostringstream oss;
-        oss << "P6\n" << width << " " << height << "\n255\n";
+        oss << magic_number << "\n" << width << " " << height << "\n255\n";
         ssize_t ret = ::write( this->pipe_fd[1], oss.str().c_str(), oss.str().size() );
         if( ret < 0 )
             throw std::runtime_error( "Call to write failed." );
