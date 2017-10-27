@@ -24,6 +24,7 @@
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -139,39 +140,42 @@ namespace malmo
             return;
         }
 
+        std::cout << "Closing MissionRecord..." << std::endl;
+
         // create zip file, push to destination
         std::vector<boost::filesystem::path> fileList;
         this->addFiles(fileList, this->temp_dir);
+        std::cout << "Found " << fileList.size() << " files to tar." << std::endl;
 
         if (fileList.size() > 0){
-            std::stringstream out("tempfile");
-            lindenb::io::Tar tarball(out);
-
-            for (auto file : fileList){
-                try{
-                    this->addFile(tarball, file);
-                }
-                catch (const std::exception& e){
-                    std::cout << "[warning] Unable to archive " << file.string() << ": " << e.what() << std::endl;
-                }
+            std::ofstream file(this->spec.destination, std::ofstream::binary);
+            if (file.fail()) {
+                std::cout << "[warning] Unable to write recording to output file " << this->spec.destination << std::endl;
             }
+            else {
+                boost::iostreams::filtering_ostream out;
+                out.push(boost::iostreams::gzip_compressor());
+                out.push(file);
+                lindenb::io::Tar tarball(out);
 
-            tarball.finish();
-            {
-                std::ofstream file(this->spec.destination, std::ofstream::binary);
-                if (file.fail()) {
-                    std::cout << "[warning] Unable to write recording to output file " << this->spec.destination << std::endl;
+                for (auto file : fileList){
+                    try{
+                        this->addFile(tarball, file);
+                    }
+                    catch (const std::exception& e){
+                        std::cout << "[warning] Unable to archive " << file.string() << ": " << e.what() << std::endl;
+                    }
                 }
-                else {
-                    boost::iostreams::filtering_streambuf< boost::iostreams::input> in;
-                    in.push(boost::iostreams::gzip_compressor());
-                    in.push(out);
-                    boost::iostreams::copy(in, file);
-                }
+
+                tarball.finish();
+                if (!out.good())
+                    std::cout << "[warning] tar file corrupted." << std::endl;
             }
         }
 
-        boost::filesystem::remove_all(this->temp_dir);
+        std::cout << "Deleting MissionRecord temp folder..." << std::endl;
+
+        //boost::filesystem::remove_all(this->temp_dir);
 
         this->is_closed = true;
     }
@@ -223,6 +227,7 @@ namespace malmo
         }
         std::string file_name_in_archive = relpath.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
+        std::cout << "- adding " << path.string() << " as " << file_name_in_archive << std::endl;
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
 
