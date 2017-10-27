@@ -32,11 +32,12 @@
 
 namespace malmo
 {
-    VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second, int channels)
+    VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second, int channels, bool drop_input_frames)
         : path(path)
         , width(width)
         , height(height)
         , frames_per_second(frames_per_second)
+        , drop_input_frames(drop_input_frames)
         , channels(channels)
         , is_open(false)
         , frame_duration(boost::posix_time::milliseconds(1000) / frames_per_second)
@@ -219,7 +220,7 @@ namespace malmo
     {
         boost::lock_guard<boost::mutex> write_guard(this->write_mutex);
 
-        if (frame.timestamp - this->last_timestamp >= this->frame_duration) {
+        if (!this->drop_input_frames || frame.timestamp - this->last_timestamp >= this->frame_duration) {
             this->last_timestamp = frame.timestamp;
 
             std::stringstream name;
@@ -247,12 +248,12 @@ namespace malmo
         return true;
     }
 
-    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels)
+    std::unique_ptr<VideoFrameWriter> VideoFrameWriter::create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
     {
 #if WIN32
-        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels) );
+        std::unique_ptr<VideoFrameWriter> instance( new WindowsFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels, drop_input_frames) );
 #else
-        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels) );
+        std::unique_ptr<VideoFrameWriter> instance( new PosixFrameWriter(path, info_filename, width, height, frames_per_second, bit_rate, channels, drop_input_frames) );
 #endif
         return instance;
     }

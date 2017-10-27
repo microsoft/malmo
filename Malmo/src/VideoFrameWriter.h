@@ -50,7 +50,7 @@ namespace malmo
     class VideoFrameWriter : public IFrameWriter
     {
     public:
-        VideoFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int channels);
+        VideoFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int channels, bool drop_input_frames);
         virtual ~VideoFrameWriter();
         virtual void open();
         virtual void close();
@@ -58,7 +58,7 @@ namespace malmo
         virtual bool write(TimestampedVideoFrame frame);
         virtual bool isOpen() const;
 
-        static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels);
+        static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames);
 
     protected:
         virtual void doWrite(char* rgb, int width, int height, int frame_index) = 0;
@@ -67,6 +67,7 @@ namespace malmo
         short width;
         short height;
         int frames_per_second;
+        bool drop_input_frames;
         int channels;
         bool is_open;
 

@@ -29,8 +29,8 @@
 
 namespace malmo
 {
-    WindowsFrameWriter::WindowsFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels)
-        : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels)
+    WindowsFrameWriter::WindowsFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
+        : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels, drop_input_frames)
         , bit_rate(bit_rate)
     {
         this->ffmpeg_path = search_path();

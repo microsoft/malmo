@@ -136,7 +136,7 @@ namespace malmo
                                                                 this->body_buffer ) );
         this->read();
     }
-    
+
     void TCPConnection::sendReply() 
     {
         const int REPLY_SIZE_HEADER_LENGTH = 4;

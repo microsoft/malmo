@@ -100,6 +100,9 @@ namespace malmo
             //! \returns Boolean value.
             bool isRecordingMP4(TimestampedVideoFrame::FrameType type) const;
 
+            //! Gets whether or not the specified video type is dropping input frames to cap the fps.
+            bool isDroppingFrames(TimestampedVideoFrame::FrameType type) const;
+
             //! Gets whether or not the specified video type is being recorded to individual frames.
             //! \returns Boolean value.
             bool isRecordingBmps(TimestampedVideoFrame::FrameType type) const;

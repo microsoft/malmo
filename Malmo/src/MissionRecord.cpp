@@ -283,6 +283,12 @@ namespace malmo
         return (it != this->spec.video_recordings.end()) ? it->second.mp4_fps : 0;
     }
 
+    bool MissionRecord::isDroppingFrames(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it == this->spec.video_recordings.end() || it->second.drop_input_frames;
+    }
+
     bool MissionRecord::isRecordingMP4(TimestampedVideoFrame::FrameType type) const
     {
         auto it = this->spec.video_recordings.find(type);

@@ -519,7 +519,7 @@ namespace malmo
             ret_server = boost::make_shared<VideoServer>( this->io_service, port, width, height, channels, frametype, boost::bind(&AgentHost::onVideo, this, _1));
 
             if (this->current_mission_record->isRecordingMP4(frametype)){
-                ret_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype));
+                ret_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype), this->current_mission_record->isDroppingFrames(frametype));
             }
             else if (this->current_mission_record->isRecordingBmps(frametype)){
                 ret_server->recordBmps(this->current_mission_record->getTemporaryDirectory());
@@ -531,7 +531,7 @@ namespace malmo
             // re-use the existing video_server
             // but now we need to re-create the file writers with the new file names
             if (this->current_mission_record->isRecordingMP4(frametype)){
-                video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype));
+                video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype), this->current_mission_record->isDroppingFrames(frametype));
             }
             else if (this->current_mission_record->isRecordingBmps(frametype)){
                 video_server->recordBmps(this->current_mission_record->getTemporaryDirectory());

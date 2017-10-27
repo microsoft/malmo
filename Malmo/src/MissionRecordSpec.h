@@ -65,11 +65,12 @@ namespace malmo
 
         //! Requests that video be recorded, for the specified video producer, at the specified quality.
         //! Ensure that the width of the video requested is divisible by 4, and the height of the video requested is divisible by 2.
-        //! \param frames_per_second The number of frames to record per second. e.g. 20.
+        //! \param frames_per_second The number of frames to output per second. e.g. 24.
         //! \param bit_rate The bit rate to record at. e.g. 400000 for 400kbps.
+        //! \param drop_input_frames If true, will drop input frames to match frames_per_second (default behaviour) - pass false to avoid losing data.
         //! Bitmaps and MP4 cannot both be recorded for a given video producer;
         //! whichever is called last out of recordMP4 and recordBitmaps will take effect.
-        void recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate);
+        void recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate, bool drop_input_frames);
 
         //! Requests that video be recorded, for the specified video producer, in individual bitmap frames.
         //! Bitmaps and MP4 cannot both be recorded for a given video producer;
@@ -101,6 +102,7 @@ namespace malmo
             FrameRecordingType fr_type;
             int64_t mp4_bit_rate;
             int mp4_fps;
+            bool drop_input_frames;
         };
         std::map<TimestampedVideoFrame::FrameType, FrameRecordingSpec> video_recordings;
         bool is_recording_observations;

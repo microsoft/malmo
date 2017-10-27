@@ -95,7 +95,7 @@ void (AgentHost::*sendCommand)(std::string) = &AgentHost::sendCommand;
 void (AgentHost::*sendCommandWithKey)(std::string, std::string) = &AgentHost::sendCommand;
 
 void (MissionRecordSpec::*recordMP4General)(int, int64_t bit_rate) = &MissionRecordSpec::recordMP4;
-void (MissionRecordSpec::*recordMP4Specific)(TimestampedVideoFrame::FrameType, int, int64_t) = &MissionRecordSpec::recordMP4;
+void (MissionRecordSpec::*recordMP4Specific)(TimestampedVideoFrame::FrameType, int, int64_t, bool) = &MissionRecordSpec::recordMP4;
 
 #ifdef WRAP_ALE
 void (ALEAgentHost::*startALEMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &ALEAgentHost::startMission;

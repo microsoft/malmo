@@ -70,16 +70,18 @@ namespace malmo
             fspec.fr_type = VIDEO;
             fspec.mp4_bit_rate = bit_rate;
             fspec.mp4_fps = frames_per_second;
+            fspec.drop_input_frames = true; // nasty behaviour, but preserved for backwards compatibility
             this->video_recordings[(TimestampedVideoFrame::FrameType)ftype] = fspec;
         }
     }
 
-    void MissionRecordSpec::recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate)
+    void MissionRecordSpec::recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate, bool drop_input_frames)
     {
         FrameRecordingSpec fspec;
         fspec.fr_type = VIDEO;
         fspec.mp4_bit_rate = bit_rate;
         fspec.mp4_fps = frames_per_second;
+        fspec.drop_input_frames = drop_input_frames;
         this->video_recordings[type] = fspec;
     }
 

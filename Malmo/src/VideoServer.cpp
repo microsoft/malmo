@@ -62,7 +62,7 @@ namespace malmo
         this->writers.clear();
     }
 
-    VideoServer& VideoServer::recordMP4(std::string path, int frames_per_second, int64_t bit_rate)
+    VideoServer& VideoServer::recordMP4(std::string path, int frames_per_second, int64_t bit_rate, bool drop_input_frames)
     {
         int channels = 3;
         std::string filename;
@@ -83,7 +83,7 @@ namespace malmo
             filename = "frame_info.txt";
             break;
         }
-        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate, channels));
+        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate, channels, drop_input_frames));
         this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
 
         return *this;
