@@ -34,7 +34,7 @@ public class ObservationFromHumanImplementation extends HandlerBase implements I
 
         public MouseObservationEvent(int deltaX, int deltaY, int deltaZ)
         {
-        	super();
+            super();
             this.deltaX = deltaX;
             this.deltaY = deltaY;
             this.deltaZ = deltaZ;
@@ -132,6 +132,12 @@ public class ObservationFromHumanImplementation extends HandlerBase implements I
             return;
         }
         ((MalmoModClient.MouseHook)mhelp).requestEvents(this.observer);
+        this.keys = HumanLevelCommandsImplementation.getKeyOverrides();
+        for (CommandForKey k : this.keys)
+        {
+            k.install(missionInit);
+            k.setKeyEventObserver(this.observer);
+        }
     }
 
     @Override
@@ -144,5 +150,9 @@ public class ObservationFromHumanImplementation extends HandlerBase implements I
             return;
         }
         ((MalmoModClient.MouseHook)mhelp).requestEvents(null);
+        for (CommandForKey k : this.keys)
+        {
+            k.setKeyEventObserver(null);
+        }
     }
 }

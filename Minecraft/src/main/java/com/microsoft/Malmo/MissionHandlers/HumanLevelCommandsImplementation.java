@@ -1,30 +1,50 @@
 package com.microsoft.Malmo.MissionHandlers;
 
-import com.microsoft.Malmo.Schemas.ContinuousMovementCommands;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.MathHelper;
+
+import com.microsoft.Malmo.Client.MalmoModClient;
+import com.microsoft.Malmo.Schemas.HumanLevelCommand;
+import com.microsoft.Malmo.Schemas.HumanLevelCommands;
+import com.microsoft.Malmo.Schemas.MissionInit;
 
 public class HumanLevelCommandsImplementation extends CommandGroup
 {
     public HumanLevelCommandsImplementation()
     {
+        super();
         setShareParametersWithChildren(true);   // Pass our parameter block on to the following children:
+        List<CommandForKey> keys = getKeyOverrides();
+        for (CommandForKey k : keys)
+        {
+            addCommandHandler(k);
+        }
+    }
 
-        addCommandHandler(new CommandForKey("key.forward"));
-        addCommandHandler(new CommandForKey("key.left"));
-        addCommandHandler(new CommandForKey("key.back"));
-        addCommandHandler(new CommandForKey("key.right"));
-        addCommandHandler(new CommandForKey("key.jump"));
-        addCommandHandler(new CommandForKey("key.sneak"));
-        addCommandHandler(new CommandForKey("key.sprint"));
-        addCommandHandler(new CommandForKey("key.inventory"));
-        addCommandHandler(new CommandForKey("key.swapHands"));
-        addCommandHandler(new CommandForKey("key.drop"));
-        addCommandHandler(new CommandForKey("key.use"));
-        addCommandHandler(new CommandForKey("key.attack"));
-        addCommandHandler(new CommandForKey("key.pickItem"));
+    static public List<CommandForKey> getKeyOverrides()
+    {
+        List<CommandForKey> keys = new ArrayList<CommandForKey>();
+        keys.add(new CommandForKey("key.forward"));
+        keys.add(new CommandForKey("key.left"));
+        keys.add(new CommandForKey("key.back"));
+        keys.add(new CommandForKey("key.right"));
+        keys.add(new CommandForKey("key.jump"));
+        keys.add(new CommandForKey("key.sneak"));
+        keys.add(new CommandForKey("key.sprint"));
+        keys.add(new CommandForKey("key.inventory"));
+        keys.add(new CommandForKey("key.swapHands"));
+        keys.add(new CommandForKey("key.drop"));
+        keys.add(new CommandForKey("key.use"));
+        keys.add(new CommandForKey("key.attack"));
+        keys.add(new CommandForKey("key.pickItem"));
         for (int i = 1; i <= 9; i++)
         {
-            addCommandHandler(new CommandForKey("key.hotbar." + i));
-        }        
+            keys.add(new CommandForKey("key.hotbar." + i));
+        }
+        return keys;
     }
 
     @Override

@@ -262,6 +262,11 @@ public class CommandForKey extends CommandBase
         }
     }
 
+    public void setKeyEventObserver(KeyEventListener observer)
+    {
+        this.keyHook.setObserver(observer);
+    }
+
     @Override
     public void install(MissionInit missionInit)
     {
