@@ -47,6 +47,7 @@ namespace malmo
     
     void VideoServer::startRecording()
     {
+        this->written_frames = this->received_frames = 0;
         for (const auto& writer : this->writers){
             writer->open();
         }
