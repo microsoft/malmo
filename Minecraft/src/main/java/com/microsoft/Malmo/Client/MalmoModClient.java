@@ -38,14 +38,15 @@ public class MalmoModClient
 {
     public interface MouseEventListener
     {
-        public void onXYChange(int deltaX, int deltaY);
+        public void onXYZChange(int deltaX, int deltaY, int deltaZ);
     }
 
     public class MouseHook extends MouseHelper
     {
         public boolean isOverriding = true;
         private MouseEventListener observer = null;
-        /* (non-Javadoc)
+
+		/* (non-Javadoc)
          * @see net.minecraft.util.MouseHelper#mouseXYChange()
          * If we are overriding control, don't allow Minecraft to do any of the usual camera/yaw/pitch stuff that happens when the mouse moves.
          */
@@ -65,7 +66,7 @@ public class MalmoModClient
                 
                 super.mouseXYChange();
                 if (this.observer != null)
-                    this.observer.onXYChange(this.deltaX, this.deltaY);
+                    this.observer.onXYZChange(this.deltaX, this.deltaY, Mouse.getDWheel());
             }
         }
 
