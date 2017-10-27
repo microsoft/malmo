@@ -110,7 +110,7 @@ namespace malmo
                           "-framerate",
                           std::to_string(this->frames_per_second).c_str(),
                           "-vcodec",
-                          input_format,
+                          input_format.c_str(),
                           "-i",
                           "-",
                           "-vcodec",
