@@ -218,9 +218,9 @@ void recordMP4(MissionRecordSpec* mrs, int frames_per_second, long bitrate)
     mrs->recordMP4(frames_per_second,static_cast<int64_t>(bitrate));
 }
 
-void recordMP4Specific(MissionRecordSpec* mrs, TimestampedVideoFrame::FrameType type, int frames_per_second, long bitrate)
+void recordMP4Specific(MissionRecordSpec* mrs, TimestampedVideoFrame::FrameType type, int frames_per_second, long bitrate, bool drop_frames)
 {
-    mrs->recordMP4(type, frames_per_second, static_cast<int64_t>(bitrate));
+    mrs->recordMP4(type, frames_per_second, static_cast<int64_t>(bitrate), drop_frames);
 }
 
 // wrapper for MissionSpec::getListOfCommandHandlers that returns a table
