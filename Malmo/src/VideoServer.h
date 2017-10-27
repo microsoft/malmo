@@ -44,6 +44,9 @@ namespace malmo
             //! Request that the video is saved in an mp4 file. Call before either startInBackground() or startRecording().
             VideoServer& recordMP4(std::string path, int frames_per_second, int64_t bit_rate);
 
+            //! Request that each frame of the video is saved in an individual file. Call before either startInBackground() or startRecording().
+            VideoServer& recordBmps(std::string path);
+
             //! Gets the port this server is listening on.
             //! \returns The port this server is listening on.
             int getPort() const;
@@ -82,6 +85,7 @@ namespace malmo
             short width;
             short height;
             short channels;
+            TimestampedVideoFrame::Transform transform;
             TimestampedVideoFrame::FrameType frametype;
             TCPServer server;
             std::vector<std::unique_ptr<IFrameWriter>> writers;

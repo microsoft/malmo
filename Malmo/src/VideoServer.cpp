@@ -20,6 +20,7 @@
 // Local:
 #include "VideoServer.h"
 #include "VideoFrameWriter.h"
+#include "BmpFrameWriter.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -84,7 +85,39 @@ namespace malmo
 
         return *this;
     }
-    
+
+    VideoServer& VideoServer::recordBmps(std::string path)
+    {
+        std::string filename;
+        std::string frame_dir;
+        switch (this->frametype)
+        {
+        case TimestampedVideoFrame::COLOUR_MAP:
+            filename = "colour_map_info.txt";
+            frame_dir = "colour_map_frames";
+            break;
+        case TimestampedVideoFrame::DEPTH_MAP:
+            filename = "depth_frame_info.txt";
+            frame_dir = "depth_frames";
+            break;
+        case TimestampedVideoFrame::LUMINANCE:
+            filename = "luminance_frame_info.txt";
+            frame_dir = "luminance_frames";
+            break;
+        case TimestampedVideoFrame::VIDEO:
+        default:
+            filename = "frame_info.txt";
+            frame_dir = "video_frames";
+            break;
+        }
+        boost::filesystem::path fs_path(path);
+        boost::filesystem::path frame_path = fs_path / frame_dir;
+        this->writers.push_back(BmpFrameWriter::create(frame_path.string(), filename));
+        //this->transform = TimestampedVideoFrame::RAW_BMP;
+        this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
+        return *this;
+    }
+
     void VideoServer::handleMessage( TimestampedUnsignedCharVector message )
     {
         if (message.data.size() != TimestampedVideoFrame::FRAME_HEADER_SIZE + this->width * this->height * this->channels)

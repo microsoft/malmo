@@ -17,11 +17,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef _VIDEOFRAMEWRITER_H_
-#define _VIDEOFRAMEWRITER_H_
+#ifndef _BMPFRAMEWRITER_H_
+#define _BMPFRAMEWRITER_H_
 
 // Local:
 #include "TimestampedVideoFrame.h"
+#include "VideoFrameWriter.h"
 
 // Boost:
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -36,37 +37,21 @@
 
 namespace malmo
 {
-    class IFrameWriter
+    class BmpFrameWriter : public IFrameWriter
     {
     public:
-        IFrameWriter() {}
-        virtual ~IFrameWriter() {}
-        virtual void open() = 0;
-        virtual void close() = 0;
-        virtual bool write(TimestampedVideoFrame frame) = 0;
-        virtual bool isOpen() const = 0;
-    };
-
-    class VideoFrameWriter : public IFrameWriter
-    {
-    public:
-        VideoFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int channels);
-        virtual ~VideoFrameWriter();
+        BmpFrameWriter(std::string path, std::string frame_info_filename);
+        virtual ~BmpFrameWriter();
         virtual void open();
         virtual void close();
         
         virtual bool write(TimestampedVideoFrame frame);
         virtual bool isOpen() const;
 
-        static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels);
+        static std::unique_ptr<BmpFrameWriter> create(std::string path, std::string frame_info_filename);
 
     protected:
-        virtual void doWrite(char* rgb, int width, int height, int frame_index) = 0;
-
         std::string path;
-        short width;
-        short height;
-        int frames_per_second;
         bool is_open;
 
     private:
@@ -77,6 +62,7 @@ namespace malmo
         boost::posix_time::time_duration frame_duration;
         std::ofstream frame_info_stream;
         boost::filesystem::path frame_info_path;
+        boost::filesystem::path frames_path;
         int frame_index;
 
         std::queue<TimestampedVideoFrame> frame_buffer;
