@@ -59,6 +59,14 @@ namespace malmo
     {
         this->close();
 
+        // Create helpful script:
+        boost::filesystem::path fs_path(this->path);
+        std::string ffmpeg_helpfile = (fs_path.parent_path() / (fs_path.stem().string() + "_to_pngs.sh")).string();
+        std::ofstream helpfile(ffmpeg_helpfile);
+        helpfile << "#! To extract individual frames from the mp4\n";
+        helpfile << "mkdir " << fs_path.stem().string() << "_frames\n";
+        helpfile << "ffmpeg -i " << fs_path.filename() << " " << fs_path.stem().string() << "_frames/frame_%06d.png\n";
+
         this->frame_info_stream.open(this->frame_info_path.string());
 
         this->frame_info_stream << "width=" << this->width << std::endl;
