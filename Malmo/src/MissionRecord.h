@@ -116,6 +116,10 @@ namespace malmo
             //! \returns The path as a string
             std::string getMissionInitPath() const;
 
+            //! Gets the path where the mission ended should be saved to
+            //! \returns The path as a string
+            std::string getMissionEndedPath() const;
+
             //! Gets the temporary directory for this mission record.
             //! \returns The temporary directory for the mission record.
             std::string getTemporaryDirectory() const;
@@ -132,6 +136,7 @@ namespace malmo
             std::string rewards_path;
             std::string commands_path;
             std::string mission_init_path;
+            std::string mission_ended_path;
             std::string mission_id;
             boost::filesystem::path temp_dir;
 

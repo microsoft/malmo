@@ -71,6 +71,9 @@ namespace malmo
             //! Starts the video server.
             void start();
 
+            std::size_t receivedFrames() const { return this->received_frames; }
+            std::size_t writtenFrames() const { return this->written_frames; }
+
         private:
 
             void handleMessage( const TimestampedUnsignedCharVector message );
@@ -81,7 +84,11 @@ namespace malmo
             short channels;
             TimestampedVideoFrame::FrameType frametype;
             TCPServer server;
-            std::vector<std::unique_ptr<VideoFrameWriter>> writers;
+            std::vector<std::unique_ptr<IFrameWriter>> writers;
+
+            // diagnostics:
+            std::size_t received_frames;
+            std::size_t written_frames;
     };
 }
 

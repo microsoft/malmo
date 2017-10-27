@@ -32,12 +32,15 @@ namespace malmo
         , height( height )
         , channels( channels )
         , frametype( frametype )
+        , received_frames(0)
+        , written_frames(0)
         , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
     {
     }
 
     void VideoServer::start()
     {
+        this->written_frames = this->received_frames = 0;
         this->server.start();
     }
     
@@ -90,12 +93,15 @@ namespace malmo
             // one when the same port has been reassigned. Could throw here but chose to silently ignore since very rare.
             return;
         }
-        TimestampedVideoFrame frame(this->width, this->height, this->channels, message, TimestampedVideoFrame::REVERSE_SCANLINE, this->frametype);
-        this->handle_frame(frame);
-        
+        TimestampedVideoFrame frame(this->width, this->height, this->channels, message, this->transform, this->frametype);
+        this->received_frames++;
+        this->handle_frame(frame); 
+
         for (const auto& writer : this->writers){
             if (writer->isOpen()){
-                writer->write(frame);
+                if (writer->write(frame)){
+                    this->written_frames++;
+                }
             }
         }
     }

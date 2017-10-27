@@ -55,6 +55,7 @@ namespace malmo
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
             this->commands_path = (this->temp_dir / "commands.txt").string();
             this->mission_init_path = (this->temp_dir / "missionInit.xml").string();
+            this->mission_ended_path = (this->temp_dir / "missionEnded.xml").string();
             bool created_tmp = false;
             try {
                 created_tmp = boost::filesystem::create_directories(this->temp_dir);
@@ -102,6 +103,7 @@ namespace malmo
         , observations_path(record.observations_path)
         , rewards_path(record.rewards_path)
         , mission_init_path(record.mission_init_path)
+        , mission_ended_path(record.mission_ended_path)
         , temp_dir(record.temp_dir)
         , mission_id(record.mission_id)
     {
@@ -121,6 +123,7 @@ namespace malmo
             this->observations_path = record.observations_path;
             this->rewards_path = record.rewards_path;
             this->mission_init_path = record.mission_init_path;
+            this->mission_ended_path = record.mission_ended_path;
             this->temp_dir = record.temp_dir;
             this->mission_id = record.mission_id;
 
@@ -296,6 +299,11 @@ namespace malmo
     std::string MissionRecord::getMissionInitPath() const
     {
         return this->mission_init_path;
+    }
+
+    std::string MissionRecord::getMissionEndedPath() const
+    {
+        return this->mission_ended_path;
     }
 
     std::string MissionRecord::getTemporaryDirectory() const

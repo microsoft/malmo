@@ -643,6 +643,31 @@ namespace malmo
                         this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsSimpleString()));
                     }
                 }
+                // Add some diagnostics of our own before this gets to the agent:
+                if (this->video_server || this->luminance_server || this->depth_server || this->colourmap_server) {
+                    for (auto &vd : mission_ended->MissionDiagnostics().VideoData()) {
+                        boost::shared_ptr<VideoServer> vs = 0;
+                        if (vd.frameType() == "VIDEO")
+                            vs = this->video_server;
+                        else if (vd.frameType() == "DEPTH_MAP")
+                            vs = this->depth_server;
+                        else if (vd.frameType() == "LUMINANCE")
+                            vs = this->luminance_server;
+                        else if (vd.frameType() == "COLOUR_MAP")
+                            vs = this->colourmap_server;
+                        if (vs) {
+                            vd.framesReceived(vs->receivedFrames());
+                            vd.framesWritten(vs->writtenFrames());
+                        }
+                    }
+                    std::ostringstream oss;
+                    xml_schema::namespace_infomap map;
+                    map[""].name = xml_namespace;
+                    map[""].schema = "MissionEnded.xsd";
+                    xml_schema::flags flags = xml_schema::flags::dont_initialize;
+                    malmo::schemas::MissionEnded_(oss, *mission_ended, map, "UTF-8", flags);
+                    xml.text = oss.str();
+                }
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
@@ -652,7 +677,10 @@ namespace malmo
                 this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
                 return;
             }
-            
+            if (this->current_mission_record->isRecording()){
+                std::ofstream missionEndedXML(this->current_mission_record->getMissionEndedPath());
+                missionEndedXML << xml.text;
+            }
             this->close();
         }
         else if (root_node_name == "ping") {
