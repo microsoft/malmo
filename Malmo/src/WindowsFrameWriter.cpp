@@ -65,7 +65,9 @@ namespace malmo
             throw std::runtime_error("Unable to set handle information on pipe.");
         }
 
-        this->g_hChildStd_OUT_Wr = CreateFile("ffmpeg.out",
+        boost::filesystem::path fs_path(this->path);
+        std::string ffmpeg_outfile = (fs_path.parent_path() / (fs_path.stem().string() + "_ffmpeg.out")).string();
+        this->g_hChildStd_OUT_Wr = CreateFile(ffmpeg_outfile.c_str(),
             GENERIC_WRITE,
             FILE_SHARE_WRITE | FILE_SHARE_READ,
             &saAttr,
