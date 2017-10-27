@@ -37,7 +37,13 @@ namespace malmo
     public:
         TarHelper(boost::filesystem::path path, std::size_t max_tar_size = 1 << 30) : path(path), frame_count(0), max_tar_size(max_tar_size), unzipped_byte_count(0), compression_level(6)
         {
+            // For now, get this from the environment:
+            char *compression_env = getenv("MALMO_BMP_COMPRESSION_LEVEL");
+            if (compression_env) {
+                this->compression_level = std::min(std::max(atoi(compression_env), 0), 9);
+            }
         }
+
         ~TarHelper()
         {
             if (this->tarball)
