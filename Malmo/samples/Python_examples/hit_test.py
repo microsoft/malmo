@@ -36,10 +36,6 @@ import json
 import random
 import errno
 import math
-from collections import namedtuple
-
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 # Task parameters:
 ARENA_WIDTH = 20
@@ -221,21 +217,21 @@ for iRepeat in range(num_reps):
             # Use the nearby-entities observation to decide which way to move, and to keep track
             # of population sizes - allows us some measure of "progress".
             if u'entities' in ob:
-                entities = [EntityInfo(**k) for k in ob["entities"]]
+                entities = ob["entities"]
                 num_pigs = 0
                 num_sheep = 0
                 x_pull = 0
                 z_pull = 0
                 for e in entities:
-                    if e.name == "Sheep":
+                    if e["name"] == "Sheep":
                         num_sheep += 1
                         # Each sheep contributes to the direction we should head in...
-                        dist = max(0.0001, (e.x - self_x) * (e.x - self_x) + (e.z - self_z) * (e.z - self_z))
+                        dist = max(0.0001, (e["x"] - self_x) * (e["x"] - self_x) + (e["z"] - self_z) * (e["z"] - self_z))
                         # Prioritise going after wounded sheep. Max sheep health is 8, according to Minecraft wiki...
-                        weight = 9.0 - e.life
-                        x_pull += weight * (e.x - self_x) / dist
-                        z_pull += weight * (e.z - self_z) / dist
-                    elif e.name == "Pig":
+                        weight = 9.0 - e["life"]
+                        x_pull += weight * (e["x"] - self_x) / dist
+                        z_pull += weight * (e["z"] - self_z) / dist
+                    elif e["name"] == "Pig":
                         num_pigs += 1
                 # Determine the direction we need to turn in order to head towards the "sheepiest" point:
                 yaw = -180 * math.atan2(x_pull, z_pull) / math.pi

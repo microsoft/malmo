@@ -33,8 +33,7 @@ import random
 import errno
 from collections import namedtuple
 
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, quantity')
 
 def GetMissionXML(summary, itemDrawingXML):
     ''' Build an XML mission string that uses the RewardForCollectingItem mission handler.'''
@@ -181,12 +180,12 @@ for iRepeat in range(num_reps):
             msg = world_state.observations[-1].text
             ob = json.loads(msg)
             if "close_entities" in ob:
-                entities = [EntityInfo(**k) for k in ob["close_entities"]]
+                entities = [EntityInfo(k["x"], k["y"], k["z"], k["name"], k.get("quantity")) for k in ob["close_entities"]]
                 for ent in entities:
                     print(ent.name, ent.x, ent.z, ent.quantity)
             
             if "far_entities" in ob:
-                far_entities = [EntityInfo(**k) for k in ob["far_entities"]]
+                far_entities = [EntityInfo(k["x"], k["y"], k["z"], k["name"], k.get("quantity")) for k in ob["far_entities"]]
                 for ent in far_entities:
                     print(ent.name, ent.quantity)
                 

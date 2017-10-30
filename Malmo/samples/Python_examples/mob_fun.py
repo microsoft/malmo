@@ -41,8 +41,6 @@ if sys.version_info[0] == 2:
 else:
     import tkinter as tk
 from collections import namedtuple
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 # Task parameters:
 NUM_GOALS = 20
@@ -167,9 +165,9 @@ root.update()
 
 def findUs(entities):
     for ent in entities:
-        if ent.name == MOB_TYPE:
+        if ent["name"] == MOB_TYPE:
             continue
-        elif ent.name == GOAL_TYPE:
+        elif ent["name"] == GOAL_TYPE:
             continue
         else:
             return ent
@@ -194,19 +192,19 @@ def getBestAngle(entities, current_yaw, current_health):
         score = turncost
 
         # Calculate entity proximity cost for new (x,z):
-        x = us.x + agent_stepsize - math.sin(ang)
-        z = us.z + agent_stepsize * math.cos(ang)
+        x = us["x"] + agent_stepsize - math.sin(ang)
+        z = us["z"] + agent_stepsize * math.cos(ang)
         for ent in entities:
-            dist = (ent.x - x)*(ent.x - x) + (ent.z - z)*(ent.z - z)
+            dist = (ent["x"] - x)*(ent["x"] - x) + (ent["z"] - z)*(ent["z"] - z)
             if (dist == 0):
                 continue
             weight = 0.0
-            if ent.name == MOB_TYPE:
+            if ent["name"] == MOB_TYPE:
                 weight = agent_mob_weight
                 dist -= 1   # assume mobs are moving towards us
                 if dist <= 0:
                     dist = 0.1
-            elif ent.name == GOAL_TYPE:
+            elif ent["name"] == GOAL_TYPE:
                 weight = agent_goal_weight * current_health / 20.0
             score += old_div(weight, float(dist))
 
@@ -238,12 +236,12 @@ def drawMobs(entities, flash):
         canvas.create_rectangle(0,0,CANVAS_WIDTH,CANVAS_HEIGHT,fill="#ff0000") # Pain.
     canvas.create_rectangle(canvasX(old_div(-ARENA_WIDTH,2)), canvasY(old_div(-ARENA_BREADTH,2)), canvasX(old_div(ARENA_WIDTH,2)), canvasY(old_div(ARENA_BREADTH,2)), fill="#888888")
     for ent in entities:
-        if ent.name == MOB_TYPE:
-            canvas.create_oval(canvasX(ent.x)-2, canvasY(ent.z)-2, canvasX(ent.x)+2, canvasY(ent.z)+2, fill="#ff2244")
-        elif ent.name == GOAL_TYPE:
-            canvas.create_oval(canvasX(ent.x)-3, canvasY(ent.z)-3, canvasX(ent.x)+3, canvasY(ent.z)+3, fill="#4422ff")
+        if ent["name"] == MOB_TYPE:
+            canvas.create_oval(canvasX(ent["x"])-2, canvasY(ent["z"])-2, canvasX(ent["x"])+2, canvasY(ent["z"])+2, fill="#ff2244")
+        elif ent["name"] == GOAL_TYPE:
+            canvas.create_oval(canvasX(ent["x"])-3, canvasY(ent["z"])-3, canvasX(ent["x"])+3, canvasY(ent["z"])+3, fill="#4422ff")
         else:
-            canvas.create_oval(canvasX(ent.x)-4, canvasY(ent.z)-4, canvasX(ent.x)+4, canvasY(ent.z)+4, fill="#22ff44")
+            canvas.create_oval(canvasX(ent["x"])-4, canvasY(ent["z"])-4, canvasX(ent["x"])+4, canvasY(ent["z"])+4, fill="#22ff44")
     root.update()
 
 validate = True
@@ -321,7 +319,7 @@ for iRepeat in range(num_reps):
                     flash = True
                 current_life = life
             if "entities" in ob:
-                entities = [EntityInfo(**k) for k in ob["entities"]]
+                entities = ob["entities"]
                 drawMobs(entities, flash)
                 best_yaw = getBestAngle(entities, current_yaw, current_life)
                 difference = best_yaw - current_yaw;
