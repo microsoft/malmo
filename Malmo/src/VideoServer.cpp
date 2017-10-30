@@ -35,6 +35,7 @@ namespace malmo
         , frametype( frametype )
         , received_frames(0)
         , written_frames(0)
+        , transform(TimestampedVideoFrame::REVERSE_SCANLINE)
         , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
     {
     }
