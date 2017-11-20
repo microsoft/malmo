@@ -166,7 +166,7 @@ class TabQAgent(object):
         if save_images:
             # save the frame, for debugging
             frame = world_state.video_frames[-1]
-            image = Image.frombytes('RGB', (frame.width, frame.height), str(frame.pixels) )
+            image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) )
             iFrame = 0
             self.rep = self.rep + 1
             image.save( 'rep_' + str(self.rep).zfill(3) + '_saved_frame_' + str(iFrame).zfill(4) + '.png' )
@@ -215,7 +215,7 @@ class TabQAgent(object):
                 if world_state.is_mission_running:
                     assert len(world_state.video_frames) > 0, 'No video frames!?'
                     frame = world_state.video_frames[-1]
-                    image = Image.frombytes('RGB', (frame.width, frame.height), str(frame.pixels) )
+                    image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) )
                     iFrame = iFrame + 1
                     image.save( 'rep_' + str(self.rep).zfill(3) + '_saved_frame_' + str(iFrame).zfill(4) + '_after_' + self.actions[self.prev_a] + '.png' )
                 

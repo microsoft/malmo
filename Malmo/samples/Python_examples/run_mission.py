@@ -89,5 +89,5 @@ while world_state.is_mission_running:
         print("Error:",error.text)
     for frame in world_state.video_frames:
         print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
-        #image = Image.frombytes('RGB', (frame.width, frame.height), str(frame.pixels) ) # to convert to a PIL image
+        #image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) ) # to convert to a PIL image
 print("Mission has stopped.")
