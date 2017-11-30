@@ -1,0 +1,261 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+
+%%% Examples of Article customizations
+% These packages are optional, depending whether you want the features they provide.
+% See the LaTeX Companion or other references for full information.
+
+%%% PAGE DIMENSIONS
+\usepackage{geometry} % to change the page dimensions
+\geometry{a4paper} % or letterpaper (US) or a5paper or....
+% \geometry{margin=2in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+%   read geometry.pdf for detailed page layout information
+
+\usepackage{graphicx} % support the \includegraphics command and options
+
+% \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
+
+%%% PACKAGES
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+% These packages are all incorporated in the memoir class to one degree or another...
+
+\usepackage{listings}
+\lstset{language=XML,basicstyle=\ttfamily\small,breaklines=true,showstringspaces=false}
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+% (This matches ConTeXt defaults)
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+\usepackage{enumitem}
+\setlist[enumerate]{itemsep=0mm}
+
+\usepackage{xcolor}
+\usepackage{mdframed}
+\mdfdefinestyle{tipFrame}{roundcorner=10pt,backgroundcolor=pink!20,nobreak=true,linewidth=1pt,innermargin=0.5cm,outermargin=0.5cm}
+
+%%% END Article customizations
+
+
+\title{The Malm\"o Mission XML Format}
+\author{Dave Bignell}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+Minecraft's enormous popularity stems, to a large degree, from the richness and versatility of the world it presents to its 
+users. Hundreds of block types, item types, many different creatures, and environmental aspects such as weather and lighting, 
+all interact to create vast potential for exploration. It was the goal of Malm\"o to preserve this wide flexibility and harness 
+it for AI experimentation. To that end, we needed an extensible, detailed, concise and portable means of specifying the exact 
+parameters of any environment the researcher might wish to set up. For this task, we created the \emph{Mission XML}.
+
+Because XML is sometimes seen as ungainly or intimidating, this manual will attempt to provide a friendly reference to Malm\"o's XML specification. For a less readable, but always up-to-date reference, please see the XSD files themselves (located within the Schemas folder of the Malmo installation), which define precisely the syntax of the Mission XML.
+
+But first, a simple example:
+
+\begin{lstlisting}[frame=lines]
+<?xml version="1.0" encoding="UTF-8" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+  <About>
+    <Summary>Simple Mission</Summary>
+  </About>
+
+  <ServerSection>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
+      <ServerQuitFromTimeUp timeLimitMs="30000"/>
+      <ServerQuitWhenAnyAgentFinishes />
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection>
+    <Name>Knuth</Name>
+    <AgentStart>
+      <Placement x="0.5" y="227.0" z="0.5"/>
+    </AgentStart>
+    <AgentHandlers>
+      <DepthProducer>
+        <Width>860</Width>
+        <Height>480</Height>
+      </DepthProducer>
+      <ContinuousMovementCommands turnSpeedDegs="180" />
+    </AgentHandlers>
+  </AgentSection>
+</Mission>
+\end{lstlisting}  
+
+It's only around 25 lines of code, but this will:
+\begin{enumerate}
+  \item Create a new mission called ``Simple Mission''
+  \item Tell Malmo to create a standard flat grass-covered Minecraft world
+  \item Instruct Malmo to create a 30 second timelimit on the mission (30000 ms)
+  \item Set the mission to end if any of the agents ``finish'' (\lstinline!ServerQuitWhenAnyAgentFinishes!)
+  \item Create one agent in the world and name them ``Knuth''
+  \item Position the agent at a certain point in the world (0.5,227,0.5)
+  \item Request depth-map images from Malmo at 860x480 pixels.
+  \item Define the set of actions which will be used to control the agent
+\end{enumerate}
+
+This is a very basic skeleton - the Mission XML has many more powerful features, and the rest of this manual will unpack them.
+
+\section{The Shape of a Mission specification}
+As the example showed, there are three main sections to a Mission spec - the \lstinline!About! section, the \lstinline!ServerSection! section, and the \lstinline!AgentSection! section. These must always be present. There is a fourth, optional section - the \lstinline!ModSettings! - which, if present, must be placed after the About section.
+We'll look at each in turn:
+
+\subsection{About}
+
+This tells Malmo the name of the mission, and, optionally, allows the user to provide a brief description of the mission. For example:
+
+\begin{lstlisting}[frame=lines]
+<About>
+  <Summary>Cliff Walking</Summary>
+  <Description>
+    Cliff walking mission based on Sutton and Barto
+  </Description>
+</About>
+\end{lstlisting}
+
+The summary field will be briefly displayed in the Minecraft window when the mission is received. The description field is optional and is currently ignored by Malmo.
+
+\begin{mdframed}[style=tipFrame]
+\subsection*{TIP}
+If you are running a sequence of missions, it can be very useful to add an index number to the summary field - this is easy to achieve, for example, if you are generating the XML mission in Python using a template. Because the summary is displayed in Minecraft, it will also appear in the Minecraft log files, and can provide a handy reference point. For example, if your agent code does something strange on Mission \#3541 out of 10000, you will be able to find the relevant section of the Minecraft log without too much trouble. It can also be nice for visual inspection purposes - you can watch the Minecraft window and see, each time a mission starts, which mission the agent is currently on.
+\end{mdframed}
+
+\subsection{ModSettings}
+
+The mod settings are not really part of the mission specification, but rather control how that mission is \emph{run}. There are two settings: \lstinline!MsPerTick! and \lstinline!PrioritiseOffscreenRendering!, and they are used like this:
+
+\begin{lstlisting}[frame=lines]
+<ModSettings>
+  <MsPerTick>5</MsPerTick>
+  <PrioritiseOffscreenRendering>
+    true
+  </PrioritiseOffscreenRendering>
+</ModSettings>
+\end{lstlisting}
+
+Minecraft's default tick rate is 20Hz - ie the default setting is 50 ms/tick. Malmo allows you to overclock (or underclock) this - but use with caution! Setting 1 ms/tick is unlikely to run your mission 50 times faster - in practice, on decent hardware, you might get a reasonably reliable 10x speedup.
+
+\lstinline!PrioritiseOffscreenRendering! allows Malmo to try to push up the framerate by displaying fewer of the frames on the screen. If a high framerate is a priority, this can be useful, but the Minecraft window will only refresh once a second.
+
+For an example of these settings in operation, look at \lstinline!overclock_test.py! and \lstinline!render_speed_test.py! in the Python samples folder.
+
+\subsection{ServerSection}
+
+Minecraft has a client/server architecture, and this is partially reflected in the Mission XML. Certain settings only apply to the Minecraft server, and these settings are configured through the \lstinline!ServerInitialConditions! and \lstinline!ServerHandlers! sections of the XML. We've seen some of the handlers in the basic example above, and we'll look at the available handlers in detail later.
+
+\subsection{AgentSection}
+
+\section{Client (Agent) Handlers}
+
+\subsection{Observation Handlers}
+
+\subsubsection{ObservationFromRecentCommands}
+\subsubsection{ObservationFromHotBar}
+\subsubsection{ObservationFromFullStats}
+\subsubsection{ObservationFromFullInventory}
+\subsubsection{ObservationFromSubgoalPositionList}
+\subsubsection{ObservationFromGrid}
+\subsubsection{ObservationFromDistance}
+\subsubsection{ObservationFromDiscreteCell}
+\subsubsection{ObservationFromChat}
+\subsubsection{ObservationFromNearbyEntities}
+\subsubsection{ObservationFromRay}
+\subsubsection{ObservationFromTurnScheduler}
+
+\subsection{Video Producers}
+
+\subsubsection{VideoProducer}
+\subsubsection{DepthProducer}
+\subsubsection{LuminanceProducer}
+\subsubsection{ColourMapProducer}
+
+\subsection{Reward Handlers}
+
+\subsubsection{RewardForTouchingBlockType}
+\subsubsection{RewardForSendingCommand}
+\subsubsection{RewardForSendingMatchingChatMessage}
+\subsubsection{RewardForCollectingItem}
+\subsubsection{RewardForDiscardingItem}
+\subsubsection{RewardForReachingPosition}
+\subsubsection{RewardForMissionEnd}
+\subsubsection{RewardForStructureCopying}
+\subsubsection{RewardForTimeTaken}
+\subsubsection{RewardForCatchingMob}
+\subsubsection{RewardForDamagingEntity}
+
+\subsection{Command Handlers}
+
+\subsubsection{ContinuousMovementCommands}
+\subsubsection{AbsoluteMovementCommands}
+\subsubsection{DiscreteMovementCommands}
+\subsubsection{InventoryCommands}
+\subsubsection{ChatCommands}
+\subsubsection{SimpleCraftCommands}
+\subsubsection{MissionQuitCommands}
+\subsubsection{TurnBasedCommands}
+
+\subsection{Quit Producers}
+
+\subsubsection{AgentQuitFromTimeUp}
+\subsubsection{AgentQuitFromReachingPosition}
+\subsubsection{AgentQuitFromTouchingBlockType}
+\subsubsection{AgentQuitFromCollectingItem}
+\subsubsection{AgentQuitFromReachingCommandQuota}
+\subsubsection{AgentQuitFromCatchingMob}
+
+\section{Server Handlers}
+
+\subsection{World Generators}
+
+\subsubsection{FlatWorldGenerator}
+\subsubsection{FileWorldGenerator}
+\subsubsection{DefaultWorldGenerator}
+
+\subsection{World Decorators}
+
+\subsubsection{DrawingDecorator}
+\subsubsection{AnimationDecorator}
+\subsubsection{MazeDecorator}
+\subsubsection{ClassroomDecorator}
+\subsubsection{SnakeDecorator}
+\subsubsection{MovingTargetDecorator}
+\subsubsection{BuildBattleDecorator}
+
+\subsection{Quit Producers}
+
+\subsubsection{ServerQuitFromTimeUp}
+\subsubsection{ServerQuitWhenAnyAgentFinishes}
+
+\end{document}
