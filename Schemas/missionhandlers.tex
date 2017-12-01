@@ -69,6 +69,7 @@
 
 \begin{document}
 \maketitle
+\tableofcontents
 
 \section{Introduction}
 
@@ -118,7 +119,7 @@ It's only around 25 lines of code, but this will:
 \begin{enumerate}
   \item Create a new mission called ``Simple Mission''
   \item Tell Malmo to create a standard flat grass-covered Minecraft world
-  \item Instruct Malmo to create a 30 second timelimit on the mission (30000 ms)
+  \item Instruct Malmo to create a 30 second time limit on the mission (30000 ms)
   \item Set the mission to end if any of the agents ``finish'' (\lstinline!ServerQuitWhenAnyAgentFinishes!)
   \item Create one agent in the world and name them ``Knuth''
   \item Position the agent at a certain point in the world (0.5,227,0.5)
@@ -148,7 +149,6 @@ This tells Malmo the name of the mission, and, optionally, allows the user to pr
 The summary field will be briefly displayed in the Minecraft window when the mission is received. The description field is optional and is currently ignored by Malmo.
 
 \begin{mdframed}[style=tipFrame]
-\subsection*{TIP}
 If you are running a sequence of missions, it can be very useful to add an index number to the summary field - this is easy to achieve, for example, if you are generating the XML mission in Python using a template. Because the summary is displayed in Minecraft, it will also appear in the Minecraft log files, and can provide a handy reference point. For example, if your agent code does something strange on Mission \#3541 out of 10000, you will be able to find the relevant section of the Minecraft log without too much trouble. It can also be nice for visual inspection purposes - you can watch the Minecraft window and see, each time a mission starts, which mission the agent is currently on.
 \end{mdframed}
 
@@ -173,13 +173,170 @@ For an example of these settings in operation, look at \lstinline!overclock_test
 
 \subsection{ServerSection}
 
-Minecraft has a client/server architecture, and this is partially reflected in the Mission XML. Certain settings only apply to the Minecraft server, and these settings are configured through the \lstinline!ServerInitialConditions! and \lstinline!ServerHandlers! sections of the XML. We've seen some of the handlers in the basic example above, and we'll look at the available handlers in detail later.
+Minecraft has a client/server architecture, and this is partially reflected in the Mission XML. Certain settings only apply to the Minecraft server, and these settings are configured through the optional \lstinline!ServerInitialConditions! and the compulsory \lstinline!ServerHandlers! sections of the XML.
 
+We've seen some of the handlers in the basic example above, and we'll look at the available handlers in detail later. The \lstinline!ServerInitialConditions! section allows you to control Minecraft's time, weather, and spawning features:
+
+\begin{lstlisting}[frame=lines]
+<ServerSection>
+  <ServerInitialConditions>
+    <AllowSpawning>true</AllowSpawning>
+    <AllowedMobs>Pig Sheep Ozelot LLama</AllowedMobs>
+    <Time>
+      <StartTime>1000</StartTime>
+      <AllowPassageOfTime>false</AllowPassageOfTime>
+    </Time>
+    <Weather>clear</Weather>
+  </ServerInitialConditions>
+  <ServerHandlers>
+    ...
+    ...
+  </ServerHandlers>
+</ServerSection>
+\end{lstlisting}
+
+All these settings are optional. By default, spawning is turned off, and the time and weather follow Minecraft's default behaviour. The example above freezes the time at 1000 (early morning), forces the weather to remain clear (no rain/snow), and switches spawning on for pigs, sheep, ocelots and llamas only. Possible weather options are \lstinline!normal!, \lstinline!clear!, \lstinline!rain!, and \lstinline!thunder!; time is set in thousandths of an hour, with noon set at 6000 and midnight at 18000.
+
+If \lstinline!AllowedMobs! is unspecified, the \lstinline!AllowSpawning! flag applies to all mob types; otherwise, if \lstinline!AllowSpawning! is switched on, only those mobs listed will be allowed to spawn. For a complete list of mobs, see \lstinline!EntityTypes! in Types.xsd, in the Schemas folder of the Malmo installation.
+
+\begin{mdframed}[style=tipFrame]
+The spawning settings are \emph{in addition} to Minecraft's normal spawning logic - they don't override it. So to spawn spiders, for example, you will need to ensure that \lstinline!AllowSpawning! is true, \emph{and} that  that the normal Minecraft requirements are met (a light level of 7 or less, with a 3x3x2 space on solid blocks etc).
+
+Details of different mob's spawning requirements are readily available on the Internet.
+\end{mdframed}
+ 
 \subsection{AgentSection}
 
+The rest of the Mission XML specifies how the agents will behave. There must be a separate AgentSection for each agent in the mission, and each can contain the following elements, in the following order:
+
+\begin{enumerate}
+  \item \lstinline!Name! - the username given to the agent in-game; if you are creating a multi-agent mission, make sure each agent has a unique name. (Although Malmo currently allows you to create names with whitespace in them, it's not advisable, as it can confuse Minecraft.)
+  \item \lstinline!AgentStart! - details of the agent's initial setup. (Although the AgentStart section must exist, the contents are optional.)
+  \begin{enumerate}
+    \item \lstinline!Placement! - the starting position, yaw and pitch. If omitted, the agent will spawn according to the Minecraft default behaviour. (This can be useful for running missions in default worlds where safe spawning points are unknowable beforehand.)
+    \item \lstinline!Inventory! - a list of the items the player should begin the mission with. If omitted, the player's inventory will remain \emph{unchanged} (eg in a run of consecutive missions, they may start a mission with items they picked up on the previous mission.) If the Inventory section is specified, but left empty, the inventory will be cleared at the start of each mission.
+    \item \lstinline!EnderBoxInventory! - ender boxes are special containers whose contents are a property of the \emph{player} rather than the \emph{box}. If such a box is placed in the world, this section allows you to specify the items that player will find in it.
+  \end{enumerate}
+  \item \lstinline!AgentHandlers! - the components that control the precise interaction between the agent and the game: the observations the agent can ``see'', the actions the agent can perform, a reward structure which can be used to shape the agent's learning (in Reinforcement Learning applications, for example), and logic to determine when the mission should end. An examination of these handlers will form the bulk of the rest of this manual.
+\end{enumerate}
+
+It's also possible to set the game mode for each agent, as an attribute of the AgentSection. Available game modes are \lstinline!Survival! (the default), \lstinline!Adventure!, \lstinline!Creative! and \lstinline!Spectator! - see the Internet for details of their behaviour.
+
+For example:
+
+\begin{lstlisting}[frame=lines]
+<AgentSection mode="Survival">
+  <Name>Picasso</Name>
+  <AgentStart>
+    <Placement x="0.5" y="227.0" z="0.5" yaw="90" pitch="0"/>
+    <Inventory>
+      <!-- Slots 0-8 represent the Minecraft hotbar -->
+      <InventoryObject slot="0" type="cookie" quantity="64"/>
+      <InventoryObject slot="1" type="fish" quantity="64"/>
+      <!-- Slots 36-39 represent the armour slots -->
+      <!-- 36=boots, 37=leggings, 38=chestplate, 39=helmet -->
+      <InventoryObject slot="39" type="golden_helmet" quantity="1"/>
+    </Inventory>
+  </AgentStart>
+  <AgentHandlers>
+  ...
+  ...
+  </AgentHandlers>
+</AgentSection>
+\end{lstlisting}
+
+Now that we have the basic shape of the Mission XML, it's time to drill down into the core of Malmo's flexibility: the mission handlers.
+
+\begin{mdframed}[style=tipFrame]
+This guide is a work in progress, with many details still to be fleshed out. But for almost every mission handler listed below there is a corresponding python sample. The best way to learn what each handler does is to look at, and play around with, the sample code that uses it. Use \lstinline!grep! (or the search tool of your choice) within the Python\_Examples folder of your Malmo installation to identify which samples contain the handler you are interested in.
+\end{mdframed}
+
+\section{Server Handlers}
+
+These handlers set up behaviour which affects \emph{all} the agents within the mission.
+
+\subsection{World Generators}
+
+Before Malmo can run any missions, it needs to have \emph{somewhere} to run it - it needs a Minecraft world.
+
+There are three ways to create a world: by using the default Minecraft world generator, using the flat world generator, or loading a world from disk. Each mission must specify one - and only one - world generator.
+
+\begin{mdframed}[style=tipFrame]
+Because creating worlds is expensive, by default Malmo will try to reuse the current world, if it matches the requirements. This can cause confusion, since changes made in one mission will persist into subsequent missions. The normal way of dealing with this is to use the \lstinline!DrawingDecorator! to reset the arena - many of the samples demonstrate this behaviour. Alternatively, the world reuse can be turned off by setting the \lstinline!forceRest! flag.
+\end{mdframed}
+
+\subsubsection{FlatWorldGenerator}
+This creates a simple flat world, of exactly the type available by using the Minecraft in-game flat-world menu.
+
+\begin{lstlisting}[frame=lines]
+<ServerHandlers>
+  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;157;" />
+  ...
+  ...
+</ServerHandlers>
+\end{lstlisting}
+
+The generator string is a Minecraft-defined format which specifies the block types for each layer of the world, the biome, and the presence/absence of various decorations such as lakes or villages. Details of the format are available on the Internet, and there are various useful online tools which will allow you to create/edit these strings.
+
+\subsubsection{FileWorldGenerator}
+
+Malmo can run experiments in a saved world file. It does this in a \emph{copy}, so that the original file is never altered. Simply pass a \emph{fully specified} path to the folder in which the Minecraft world data resides:
+
+\begin{lstlisting}[frame=lines]
+<ServerHandlers>
+  <FileWorldGenerator src="C:\\dev\\experiments\\environments\\my_world"/>
+  ...
+  ...
+</ServerHandlers>
+\end{lstlisting}
+
+\subsubsection{DefaultWorldGenerator}
+
+This simply creates a default, random, vanilla Minecraft world.
+
+\subsection{World Decorators}
+
+Once a world has been \emph{created}, it can be \emph{decorated}. Unlike the world generators, decorators can be combined.
+
+\subsubsection{DrawingDecorator}
+This allows the user to draw structures into the world, and provides a great degree of flexibility for setting up environments. The python samples contain many examples of the various draw commands available.
+
+\subsubsection{AnimationDecorator}
+The animation decorator allows the creation of more dynamic environments, by wrapping DrawingDecorators with update rules that allow structures to be animated. See animation\_test.py for an example of this.
+
+\begin{mdframed}[style=tipFrame]
+Beware of animating large structures, and forcing large lighting updates. Minecraft is very slow at recalculating light levels, so animating, for example, a big cuboid of glowstone blocks will consume a lot of server time and possibly cripple the framerate / tickrate.
+\end{mdframed}
+
+\subsubsection{MazeDecorator}
+The maze decorator is a highly configurable stochastic maze generator. It will create custom mazes from a random seed, guaranteeing that there is always a valid route from the start to end squares. Useful for path-finding experiments. See the xsd for full details of the parameters, or MazeRunner.py for an example of it in action.
+
+\subsubsection{ClassroomDecorator}
+Similar to the maze decorator, the classroom decorator creates stochastic environments, but in this case the maze is built from a series of joined rooms.
+
+\subsubsection{SnakeDecorator}
+Adds a random ``snake'' made of blocks, that grows at one end and shrinks at the other. Useful for parkour-style challenges.
+
+\subsubsection{MovingTargetDecorator}
+Creates a moving two-block target which takes random moves within a specified arena. Useful for creating the prey in collaborative hunter-prey scenarios, where the movement of actual Minecraft mobs (eg sheep, pigs etc) would be \emph{too} unpredictable. The moving target provides a discrete object with a regular update interval (which can also be linked to a ``turn scheduler'' so it waits for its turn). The target will stop when an agent is standing on it, to enable agents to ``catch'' it.
+
+\subsubsection{BuildBattleDecorator}
+Useful for ``build battle`` type scenarios where an agent needs to copy a source structure to a destination location.
+
+\subsection{Quit Producers}
+The server needs to know when to call the mission ``finished''. The quit producers allow the user to specify when that should happen. By default, with no quit producer set, the server will not consider the mission over until all the agents in the mission have finished (according to their own quit producers).
+
+\subsubsection{ServerQuitFromTimeUp}
+Ends the mission after a set time has elapsed.
+
+\subsubsection{ServerQuitWhenAnyAgentFinishes}
+Ends the mission after the \emph{first} agent completes.
+
 \section{Client (Agent) Handlers}
+For more details of these handlers please see MissionHandlers.xsd and the python samples.
 
 \subsection{Observation Handlers}
+Observation handlers define the observations which Malmo will send to the agent - in effect prescribing what the agent can ``see''.
 
 \subsubsection{ObservationFromRecentCommands}
 \subsubsection{ObservationFromHotBar}
@@ -195,6 +352,7 @@ Minecraft has a client/server architecture, and this is partially reflected in t
 \subsubsection{ObservationFromTurnScheduler}
 
 \subsection{Video Producers}
+Video frames are another type of observation. Malmo can send the vanilla Minecraft frames, a depth map, a greyscale frame, or a ``colour map`` in which different blocktypes/entities are represented by solid blocks of colour.
 
 \subsubsection{VideoProducer}
 \subsubsection{DepthProducer}
@@ -202,6 +360,7 @@ Minecraft has a client/server architecture, and this is partially reflected in t
 \subsubsection{ColourMapProducer}
 
 \subsection{Reward Handlers}
+Reward handlers allow the user to set up a reward structure for Reinforcement Learning applications.
 
 \subsubsection{RewardForTouchingBlockType}
 \subsubsection{RewardForSendingCommand}
@@ -216,6 +375,7 @@ Minecraft has a client/server architecture, and this is partially reflected in t
 \subsubsection{RewardForDamagingEntity}
 
 \subsection{Command Handlers}
+The command handlers define the subset of commands that the agent can use to affect its environment.
 
 \subsubsection{ContinuousMovementCommands}
 \subsubsection{AbsoluteMovementCommands}
@@ -227,35 +387,12 @@ Minecraft has a client/server architecture, and this is partially reflected in t
 \subsubsection{TurnBasedCommands}
 
 \subsection{Quit Producers}
-
+Finally, the quit producers allow the researcher to define an end point for the mission.
 \subsubsection{AgentQuitFromTimeUp}
 \subsubsection{AgentQuitFromReachingPosition}
 \subsubsection{AgentQuitFromTouchingBlockType}
 \subsubsection{AgentQuitFromCollectingItem}
 \subsubsection{AgentQuitFromReachingCommandQuota}
 \subsubsection{AgentQuitFromCatchingMob}
-
-\section{Server Handlers}
-
-\subsection{World Generators}
-
-\subsubsection{FlatWorldGenerator}
-\subsubsection{FileWorldGenerator}
-\subsubsection{DefaultWorldGenerator}
-
-\subsection{World Decorators}
-
-\subsubsection{DrawingDecorator}
-\subsubsection{AnimationDecorator}
-\subsubsection{MazeDecorator}
-\subsubsection{ClassroomDecorator}
-\subsubsection{SnakeDecorator}
-\subsubsection{MovingTargetDecorator}
-\subsubsection{BuildBattleDecorator}
-
-\subsection{Quit Producers}
-
-\subsubsection{ServerQuitFromTimeUp}
-\subsubsection{ServerQuitWhenAnyAgentFinishes}
 
 \end{document}
