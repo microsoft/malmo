@@ -169,7 +169,7 @@ namespace lindenb { namespace io {
 
 		void putFile(const char* filename,const char* nameInArchive)
 		{
-			char buff[BUFSIZ * 1024];
+			char buff[128 << 10]; // 128k
 			std::FILE* in=std::fopen(filename,"rb");
 			if(in==NULL)
 			{
@@ -190,7 +190,7 @@ namespace lindenb { namespace io {
 			out.write((const char*)&header,sizeof(PosixTarHeader));
 
 			std::size_t nRead=0;
-			while((nRead=std::fread(buff,sizeof(char),BUFSIZ * 1024,in))>0)
+			while((nRead=std::fread(buff,sizeof(char),128<<10,in))>0)
 			{
 				out.write(buff,nRead);
 			}
