@@ -283,7 +283,7 @@ class TabQAgent(object):
                     if not s in self.q_table:
                         continue
                     value = self.q_table[s][action]
-                    color = 255 * ( value - min_value ) / ( max_value - min_value ) # map value to 0-255
+                    color = int( 255 * ( value - min_value ) / ( max_value - min_value )) # map value to 0-255
                     color = max( min( color, 255 ), 0 ) # ensure within [0,255]
                     color_string = '#%02x%02x%02x' % (255-color, color, 0)
                     self.canvas.create_oval( (world_x - 1 - x + action_positions[action][0] - action_radius ) *scale,
