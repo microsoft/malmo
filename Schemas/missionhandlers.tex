@@ -248,12 +248,12 @@ For example:
 Now that we have the basic shape of the Mission XML, it's time to drill down into the core of Malmo's flexibility: the mission handlers.
 
 \begin{mdframed}[style=tipFrame]
-This guide is a work in progress, with many details still to be fleshed out. But for almost every mission handler listed below there is a corresponding python sample. The best way to learn what each handler does is to look at, and play around with, the sample code that uses it. Use \lstinline!grep! (or the search tool of your choice) within the Python\_Examples folder of your Malmo installation to identify which samples contain the handler you are interested in.
+For almost every mission handler listed below there is a corresponding python sample. The best way to learn what each handler does is to look at, and play around with, the sample code that uses it. Use \lstinline!grep! (or the search tool of your choice) within the Python\_Examples folder of your Malmo installation to identify which samples contain the handler you are interested in.
 \end{mdframed}
 
 \section{Server Handlers}
 
-These handlers set up behaviour which affects \emph{all} the agents within the mission.
+These handlers set up the Minecraft server behaviour, which affects \emph{all} the agents within the mission.
 
 \subsection{World Generators}
 
@@ -261,26 +261,56 @@ Before Malmo can run any missions, it needs to have \emph{somewhere} to run it -
 
 There are three ways to create a world: by using the default Minecraft world generator, using the flat world generator, or loading a world from disk. Each mission must specify one - and only one - world generator.
 
-\begin{mdframed}[style=tipFrame]
-Because creating worlds is expensive, by default Malmo will try to reuse the current world, if it matches the requirements. This can cause confusion, since changes made in one mission will persist into subsequent missions. The normal way of dealing with this is to use the \lstinline!DrawingDecorator! to reset the arena - many of the samples demonstrate this behaviour. Alternatively, the world reuse can be turned off by setting the \lstinline!forceRest! flag.
-\end{mdframed}
+Whichever of the three generators you use, there are two optional flags to know about: \lstinline!forceReset! and \lstinline!destroyAfterUse!.
+
+\subsubsection{forceReset (default value: \emph{false})}
+Creating Minecraft worlds is expensive. In typical Reinforcement Learning scenarios, many thousands of episodes ("missions") may be run, each lasting only a few seconds. The overhead of creating a new world for each episode would be enormous. By default, therefore, Malmo will try to reuse the current world. It will only do this if the world requirements match the existing world. In other words:
+\begin{enumerate}
+  \item For flat worlds, the generator string (see below) and the random number seed (if specified) must match exactly.
+  \item For worlds loaded from file, the filenames must match.
+  \item For default Minecraft worlds, the random number seed must match, if specified. Otherwise, Malmo will reuse any other default world.
+\end{enumerate}
+
+The obvious downside to this world reuse is that changes made in one mission will persist into subsequent missions. In most cases, it's possible to work around this by using the \lstinline!DrawingDecorator! to reset the arena - for example, by filling the arena with air blocks, which will remove any built structures and destroy any entities/items. Many of the samples demonstrate this behaviour.
+
+In more complicated scenarios, it may be sufficient to \emph{move} the arena for each mission - for example, in a featureless flat world, one spot is exactly like another, so each mission could be started at a new location.
+
+If neither of these approaches are sufficient, then set the forceReset flag to true, and you will have a fresh world for each mission (but at the cost of slower start times).
+
+\subsubsection{destroyAfterUse (default value: \emph{true})}
+
+Whichever way the world was generated, Minecraft will need to store it on disk. Minecraft keeps these files in its own saves folder - for example in \lstinline!C:/MyMalmoInstallation/Minecraft/run/saves!. Although this is the default Minecraft behaviour, because of the way Malmo abuses Minecraft, a problem can quickly arise. Consider, for example, running a 10,000 episode experiment, with the forceReset flag set to true. Minecraft will generate 10,000 new world folders, each of which can be several megabytes in size. Without some sort of file management, the hard drive will gradually fill up with useless Minecraft worlds.
+
+To get around this, Malmo periodically hunts out and deletes old world files. It does this by going through the Minecraft saves folder and destroying any file that it believes it was responsible for creating. (It's important not to simply delete \emph{all} the world files, since Malmo-generated worlds and user-generated worlds all share the same saves folder, and there's nothing worse than having your beautiful hand-crafted Minecraft creations deleted by an over-zealous AI research platform.) To avoid this catastrophe, Malmo uses a specific naming convention when it creates worlds - for example, \lstinline!TEMP\_10000\_4ee66158-a2d8-481b-9441-4856dc24e299!
+
+The \lstinline!"TEMP"! tells Malmo that this is intended to be a temporary file. The \lstinline!"10000"! is the \emph{Mission Control Port} currently being used by this instance of Minecraft. (Multiple copies of Minecraft can be run on a single machine, and can share the same saves folder, so it's important to distinguish between them, otherwise one instance of Malmo may end up deleting files which are currently being used by another instance.) The rest of the filename is a randomly generated GUID, to ensure no accidental naming collisions. (Previous versions of Malmo used the current time to generate the filename, but with multiple instances running simultaneously naming collisions became a problem.)
+
+Malmo, then, will periodically delete any worlds beginning with ``TEMP\_'' and matching its mission control port. (If you've just spent six weeks building a perfect scale model of your town in Minecraft, and have named it ``TEMP\_10000\_MyTown'', you probably deserve what's coming to you next time you run Malmo.)
+
+It's possible that a user might want to keep the world files from each run of an experiment - to inspect what an agent built, for example, or to allow an agent to continue from where it left off. In this case, set \lstinline!destroyAfterUse! to false. The TEMP indicator won't be added to the filenames, and Malmo will never delete the worlds. It's up to the user to do their own housekeeping in this case.
+
+So much for the optional flags. Now onto the generators themselves.
 
 \subsubsection{FlatWorldGenerator}
-This creates a simple flat world, of exactly the type available by using the Minecraft in-game flat-world menu.
+This is possibly the most useful, and most used, of the three generators. It creates a simple flat world, of exactly the type available by using the Minecraft in-game flat-world menu.
 
 \begin{lstlisting}[frame=lines]
 <ServerHandlers>
-  <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;157;" />
+  <FlatWorldGenerator seed="3141592654" generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;157;" />
   ...
   ...
 </ServerHandlers>
 \end{lstlisting}
 
-The generator string is a Minecraft-defined format which specifies the block types for each layer of the world, the biome, and the presence/absence of various decorations such as lakes or villages. Details of the format are available on the Internet, and there are various useful online tools which will allow you to create/edit these strings.
+The generator string is a Minecraft-defined format which specifies the block types for each layer of the world, the biome, and the presence/absence of various decorations such as lakes or villages. The precise specification of the format is beyond the scope of this manual, but details are available on the Internet, and there are various useful online tools which will allow you to create/edit these strings in a friendly way.
+
+The seed is used by Minecraft to seed its random number generators. In a flat world without features (pools, villages etc) this will have no discernible effect, but if you want a more interesting flat world, setting this will ensure you get the same features in the same place each time you run. Omit the seed entirely to leave everything up to Minecraft.
 
 \subsubsection{FileWorldGenerator}
 
-Malmo can run experiments in a saved world file. It does this in a \emph{copy}, so that the original file is never altered. Simply pass a \emph{fully specified} path to the folder in which the Minecraft world data resides:
+Although a flat world is sufficient for many tasks - and it can be decorated (see below) to include simple buildings and structures - it might be that you require a more intricate setup for your experiment. (For example, you might want an environment containing redstone circuits, pressure plates, etc, or you may want to place your agent within a perfect scale model of your own town...) In this case, you can hand-craft your environment in the normal way, from within Minecraft itself. (Or use any of the Minecraft map-editing tools which can be found on the Internet.)
+
+Once you have designed your world, you need to provide Malmo with a path to the saved folder. We've already seen that Minecraft keeps its saved worlds in a specific place. It's recommended, however, that you preserve your world files somewhere \emph{else}, to avoid confusion. Malmo will always run the experiment in a \emph{copy} of the world you provide, so that the original file is never altered. Simply pass a \emph{fully specified} path to the folder in which the Minecraft world data resides:
 
 \begin{lstlisting}[frame=lines]
 <ServerHandlers>
@@ -290,9 +320,23 @@ Malmo can run experiments in a saved world file. It does this in a \emph{copy}, 
 </ServerHandlers>
 \end{lstlisting}
 
+\begin{mdframed}[style=tipFrame]
+Because Malmo allows the agent to be running on a different machine to the Minecraft process, it's important to be clear on what files need to be where. Imagine the following (not uncommon) setup: the agent is running locally on a Linux machine, while Minecraft is running on a Windows machine somewhere in the cloud. Although the XML (in which the saved world's path is specified) originates from the \emph{agent's} machine, the files to which it points need to be read from the \emph{Minecraft} machine. In other words, the XML is sent via TCP, but the world files are not - they need to be already accesible to the Minecraft process. It is up to the user, therefore, to ensure that the world files are placed within reach of the Minecraft process, and that the path sent in the XML makes sense from that point of view. The path is for \emph{Minecraft's} benefit, not the \emph{agent's} benefit!
+\end{mdframed}
+
+
 \subsubsection{DefaultWorldGenerator}
 
-This simply creates a default, random, vanilla Minecraft world.
+This creates the default, random, vanilla Minecraft world that you would expect if you were running the game as a normal player, accepting all the default options.
+
+\begin{lstlisting}[frame=lines]
+<ServerHandlers>
+  <DefaultWorldGenerator src="C:\\dev\\experiments\\environments\\my_world"/>
+  ...
+  ...
+</ServerHandlers>
+\end{lstlisting}
+
 
 \subsection{World Decorators}
 
