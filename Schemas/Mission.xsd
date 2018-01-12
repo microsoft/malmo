@@ -341,6 +341,7 @@
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
             <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
             <xs:element ref="ObservationFromHuman" minOccurs="0"/>
+            <xs:element ref="ObservationFromSystem" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
             <xs:element ref="DepthProducer" minOccurs="0"/>

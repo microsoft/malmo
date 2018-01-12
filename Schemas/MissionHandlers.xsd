@@ -1640,7 +1640,16 @@
   <xs:element name="ObservationFromHuman">
     <xs:annotation>
       <xs:documentation>
-        When present, the Mod will return low-level keyboard and mouse events:
+        When present, the Mod will return low-level keyboard and mouse events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromSystem">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return information on the current performance of the Minecraft system - eg tick speeds, etc.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>

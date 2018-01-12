@@ -1,3 +1,7 @@
+0.32.0
+-------------------
+New: ObservationFromSystem to return stats on Minecraft's health (eg render/server/client ticks per second)
+
 0.31.0
 -------------------
 New: Samples now compatible with Python 2 and 3
