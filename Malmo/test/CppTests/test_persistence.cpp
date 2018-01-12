@@ -99,7 +99,7 @@ void runGameShim( )
     SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentRewardsPort(), "0:123.45", true);
 
     std::stringstream end_xml;
-    end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus></MissionEnded>";
+    end_xml << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><MissionEnded xmlns=\"http://ProjectMalmo.microsoft.com\"><Status>ENDED</Status><HumanReadableStatus>Mission ended normally</HumanReadableStatus><MissionDiagnostics/></MissionEnded>";
     SendStringOverTCP(io_service, mission_init->getAgentAddress(), mission_init->getAgentMissionControlPort(), end_xml.str(), true);
     
     io_service.run();
