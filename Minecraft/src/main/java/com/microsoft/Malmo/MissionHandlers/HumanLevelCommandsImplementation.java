@@ -3,16 +3,28 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.MathHelper;
-
-import com.microsoft.Malmo.Client.MalmoModClient;
 import com.microsoft.Malmo.Schemas.HumanLevelCommand;
 import com.microsoft.Malmo.Schemas.HumanLevelCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.TimeHelper;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class HumanLevelCommandsImplementation extends CommandGroup
 {
+    float targetYawDelta = 0;
+    float targetPitchDelta = 0;
+    float targetYawDeltaDelta = 0;
+    float targetPitchDeltaDelta = 0;
+    TimeHelper.TickRateMonitor clientTickMonitor = new TimeHelper.TickRateMonitor();
+    TimeHelper.TickRateMonitor renderTickMonitor = new TimeHelper.TickRateMonitor();
+
     public HumanLevelCommandsImplementation()
     {
         super();
@@ -98,12 +110,18 @@ public class HumanLevelCommandsImplementation extends CommandGroup
                     float f1 = f * f * f * 8.0F;
                     float f2 = (float)x * f1;
                     float f3 = (float)y * f1;
-                    int i = 1;
-
                     if (mc.gameSettings.invertMouse)
-                        i = -1;
+                        f3 = -f3;
 
-                    mc.player.turn(f2, f3 * (float)i);
+                    // Correct any errors from last mouse move:
+                    mc.player.turn(this.targetYawDelta,  this.targetPitchDelta);
+                    int renderTicksPerClientTick = this.clientTickMonitor.getEventsPerSecond() >= 1 ? (int)Math.ceil(this.renderTickMonitor.getEventsPerSecond() / this.clientTickMonitor.getEventsPerSecond()) : 0;
+                    renderTicksPerClientTick = Math.max(1, renderTicksPerClientTick);
+                    this.targetYawDelta = f2;
+                    this.targetPitchDelta = f3;
+                    this.targetYawDeltaDelta = f2 / (float)renderTicksPerClientTick;
+                    this.targetPitchDeltaDelta = f3 / (float)renderTicksPerClientTick;
+                    //System.out.println("Changing over " + renderTicksPerClientTick + " render ticks.");
                 }
                 if (z != 0)
                 {
@@ -120,4 +138,64 @@ public class HumanLevelCommandsImplementation extends CommandGroup
 
     @Override
     public boolean isFixed() { return true; }
+
+    @Override
+    public void install(MissionInit missionInit)
+    {
+        super.install(missionInit);
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    @Override
+    public void deinstall(MissionInit missionInit)
+    {
+        super.deinstall(missionInit);
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    @SubscribeEvent
+    public void onClientTick(ClientTickEvent ev)
+    {
+        if (ev.phase == Phase.START)
+        {
+            // Track average client ticks per second:
+            this.clientTickMonitor.beat();
+        }
+    }
+
+    /** Called for each screen redraw - approximately three times as often as the other tick events,
+     * under normal conditions.<br>
+     * This is where we want to update our yaw/pitch, in order to get smooth panning etc
+     * (which is how Minecraft itself does it).
+     * The speed of the render ticks is not guaranteed, and can vary from machine to machine, so
+     * we try to account for this in the calculations.
+     * @param ev the RenderTickEvent object for this tick
+     */
+    @SubscribeEvent
+    public void onRenderTick(TickEvent.RenderTickEvent ev)
+    {
+        if (ev.phase == Phase.START)
+        {
+            // Track average fps:
+            this.renderTickMonitor.beat();
+            if (this.isOverriding())
+            {
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+                if (player != null)
+                {
+                    if (this.targetPitchDelta != 0 || this.targetYawDelta != 0)
+                    {
+                        System.out.println("Target yaw and pitch: " + this.targetYawDelta + ", " + this.targetPitchDelta);
+                        player.turn(this.targetYawDeltaDelta, this.targetPitchDeltaDelta);
+                        this.targetYawDelta -= this.targetYawDeltaDelta;
+                        this.targetPitchDelta -= this.targetPitchDeltaDelta;
+                        if (this.targetYawDelta / this.targetYawDeltaDelta < 1.0)
+                            this.targetYawDeltaDelta = this.targetYawDelta;
+                        if (this.targetPitchDelta / this.targetPitchDeltaDelta < 1.0)
+                            this.targetPitchDeltaDelta = this.targetPitchDelta;
+                    }
+                }
+            }
+        }
+    }
 }
