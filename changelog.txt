@@ -1,5 +1,6 @@
 0.32.0
 -------------------
+New: Titles and subtitles are now returned as part of the chat observation.
 New: ObservationFromSystem to return stats on Minecraft's health (eg render/server/client ticks per second)
 
 0.31.0

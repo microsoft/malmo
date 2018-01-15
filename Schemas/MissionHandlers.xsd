@@ -1828,8 +1828,10 @@
     <xs:annotation>
       <xs:documentation>
         When present, the Mod will return observations that say what chat messages have occurred and from which player.
+        It will also return messages for any title or subtitle change (eg via Minecraft's title command)
 
         A JSON element {{{Chat}}} will be returned, with a list of chat strings.
+        In the same way, title changes and subtitle changes will be returned in {{{Title}}} and {{{Subtitle}}} respectively.
         
         Note that unless the AgentHost ObservationsPolicy is set to KEEP_ALL_OBSERVATIONS it is likely that chat messages will be missed.
         The default policy is LATEST_OBSERVATION_ONLY.
