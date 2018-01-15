@@ -185,7 +185,6 @@ public class HumanLevelCommandsImplementation extends CommandGroup
                 {
                     if (this.targetPitchDelta != 0 || this.targetYawDelta != 0)
                     {
-                        System.out.println("Target yaw and pitch: " + this.targetYawDelta + ", " + this.targetPitchDelta);
                         player.turn(this.targetYawDeltaDelta, this.targetPitchDeltaDelta);
                         this.targetYawDelta -= this.targetYawDeltaDelta;
                         this.targetPitchDelta -= this.targetPitchDeltaDelta;
