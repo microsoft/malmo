@@ -716,6 +716,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // This is necessary in order to allow user to exit the Minecraft window without halting the experiment:
             GameSettings settings = Minecraft.getMinecraft().gameSettings;
             settings.pauseOnLostFocus = false;
+            // And hook the screen helper into the ingame gui (which is responsible for overlaying chat, titles etc) -
+            // this has to be done after Minecraft.init(), so we do it here.
+            ScreenHelper.hookIntoInGameGui();
         }
 
         @Override

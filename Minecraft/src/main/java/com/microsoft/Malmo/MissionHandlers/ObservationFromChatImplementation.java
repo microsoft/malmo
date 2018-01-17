@@ -27,14 +27,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Utils.ScreenHelper;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.text.TextFormatting;
 
 public class ObservationFromChatImplementation extends HandlerBase implements IObservationProducer
 {
@@ -54,24 +52,6 @@ public class ObservationFromChatImplementation extends HandlerBase implements IO
     }
 
     private ArrayList<ChatMessage> chatMessagesReceived = new ArrayList<ChatMessage>();
-    private GuiIngame mcIngame;
-
-    public class IngameGUIHook extends GuiIngameForge
-    {
-        public IngameGUIHook(Minecraft mc)
-        {
-            super(mc);
-        }
-
-        public void displayTitle(String title, String subTitle, int timeFadeIn, int displayTime, int timeFadeOut)
-        {
-            if (title != null)
-                ObservationFromChatImplementation.this.chatMessagesReceived.add(new ChatMessage(TITLE_TYPE, TextFormatting.getTextWithoutFormattingCodes(title)));
-            if (subTitle != null)
-                ObservationFromChatImplementation.this.chatMessagesReceived.add(new ChatMessage(SUBTITLE_TYPE, TextFormatting.getTextWithoutFormattingCodes(subTitle)));
-            super.displayTitle(title, subTitle, timeFadeIn, displayTime, timeFadeOut);
-        }
-    }
 
     @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
@@ -106,15 +86,21 @@ public class ObservationFromChatImplementation extends HandlerBase implements IO
     public void prepare(MissionInit missionInit)
     {
         MinecraftForge.EVENT_BUS.register(this);
-        this.mcIngame = Minecraft.getMinecraft().ingameGUI;
-        Minecraft.getMinecraft().ingameGUI = new IngameGUIHook(Minecraft.getMinecraft());
     }
 
     @Override
     public void cleanup()
     {
         MinecraftForge.EVENT_BUS.unregister(this);
-        Minecraft.getMinecraft().ingameGUI = this.mcIngame;
+    }
+
+    @SubscribeEvent
+    public void onTitleChange(ScreenHelper.TitleChangeEvent event)
+    {
+        if (event.title != null)
+            this.chatMessagesReceived.add(new ChatMessage(TITLE_TYPE, TextFormatting.getTextWithoutFormattingCodes(event.title)));
+        if (event.subtitle != null)
+            this.chatMessagesReceived.add(new ChatMessage(SUBTITLE_TYPE, TextFormatting.getTextWithoutFormattingCodes(event.subtitle)));
     }
 
     @SubscribeEvent
