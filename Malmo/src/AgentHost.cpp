@@ -716,6 +716,7 @@ namespace malmo
 
     void AgentHost::close()
     {
+        LOGSECTION(LOG_FINE, "Closing AgentHost.");
         this->world_state.is_mission_running = false;
         if (this->video_server) {
             this->video_server->stopRecording();

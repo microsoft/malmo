@@ -19,6 +19,7 @@
 
 // Local:
 #include "VideoFrameWriter.h"
+#include "Logger.h"
 
 #if WIN32
 #include "WindowsFrameWriter.h"
@@ -91,20 +92,23 @@ namespace malmo
 
     void VideoFrameWriter::close()
     {
+        LOGSECTION(LOG_FINE, "In VideoFrameWriter::close()...");
         if (this->is_open) {
             this->frame_info_stream.close();
 
             this->is_open = false;
-
+            LOGFINE(LT("Set is_open to false"));
             {
                 boost::lock_guard<boost::mutex> frames_available_guard(this->frames_available_mutex);
 
                 this->frames_available = true;
             }
 
+            LOGFINE(LT("Notifying worker thread that frames are available, in order to close."));
             this->frames_available_cond.notify_one();
-
+            LOGFINE(LT("Waiting for worker thread to join."));
             this->frame_writer_thread.join();
+            LOGFINE(LT("Worker thread joined."));
         }
     }
 
@@ -138,6 +142,7 @@ namespace malmo
                     break;
                 }
 
+                LOGTRACE(LT("Writing frame "), count + 1, LT(", "), frame.width, LT("x"), frame.height, LT("x"), frame.channels);
                 if (frame.channels == 4)
                 {
                     if (frame.frametype == TimestampedVideoFrame::DEPTH_MAP)
@@ -230,10 +235,10 @@ namespace malmo
             this->frame_info_stream << boost::posix_time::to_iso_string(frame.timestamp) << " " << name.str() << " " << posdata.str() << std::endl;
 
             this->frame_index++;
-
             {
                 boost::lock_guard<boost::mutex> buffer_guard(this->frame_buffer_mutex);
 
+                LOGTRACE(LT("Pushing frame "), this->frame_index, LT(", "), frame.width, LT("x"), frame.height, LT("x"), frame.channels, LT(" to write buffer."));
                 this->frame_buffer.push(frame);
             }
 

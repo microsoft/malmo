@@ -19,6 +19,7 @@
 
 // Local:
 #include "MissionRecord.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/iostreams/copy.hpp>
@@ -62,6 +63,7 @@ namespace malmo
                 created_tmp = boost::filesystem::create_directories(this->temp_dir);
             }
             catch (const std::exception& e) {
+                LOGERROR(LT("Unable to create temporary folder for recording "), this->temp_dir.string(), LT(": "), e.what());
                 std::cout << "Unable to create temporary folder for recording " << this->temp_dir.string() << ": " << e.what() << std::endl;
                 throw std::runtime_error("Check your MALMO_TEMP_PATH and try again.");
             }
@@ -70,6 +72,7 @@ namespace malmo
                 this->is_closed = false;
             }
             else {
+                LOGERROR(LT("Unable to create temporary folder for recording "), this->temp_dir.string());
                 throw std::runtime_error("Unable to create temporary folder for recording " + this->temp_dir.string() + ": check your MALMO_TEMP_PATH?");
             }
         }
@@ -86,10 +89,12 @@ namespace malmo
         catch (const std::exception& e) {
             // we don't really want to assume that is safe to write to cout but can't have destructors throwing exceptions
             std::cout << "Exception in closing of MissionRecord: " << e.what() << std::endl;
+            LOGERROR(LT("Exception in closing of MissionRecord: "), e.what());
         }
         catch(...) {
             // we don't really want to assume that is safe to write to cout but can't have destructors throwing exceptions
             std::cout << "Unknown exception in closing of MissionRecord." << std::endl;
+            LOGERROR(LT("Unknown exception in closing of MissionRecord."));
         }
     }
 
@@ -140,17 +145,18 @@ namespace malmo
             return;
         }
 
-        std::cout << "Closing MissionRecord..." << std::endl;
+        LOGSECTION(LOG_INFO, LT("Closing MissionRecord..."));
 
         // create zip file, push to destination
         std::vector<boost::filesystem::path> fileList;
         this->addFiles(fileList, this->temp_dir);
-        std::cout << "Found " << fileList.size() << " files to tar." << std::endl;
+        LOGINFO(LT("Found "), fileList.size(), LT(" files to tar:"));
 
         if (fileList.size() > 0){
             std::ofstream file(this->spec.destination, std::ofstream::binary);
             if (file.fail()) {
                 std::cout << "[warning] Unable to write recording to output file " << this->spec.destination << std::endl;
+                LOGERROR(LT("Unable to write recording to output file "), this->spec.destination);
             }
             else {
                 boost::iostreams::filtering_ostream out;
@@ -164,17 +170,18 @@ namespace malmo
                     }
                     catch (const std::exception& e){
                         std::cout << "[warning] Unable to archive " << file.string() << ": " << e.what() << std::endl;
+                        LOGERROR(LT("Unable to archive "), file.string(), LT(": "), e.what());
                     }
                 }
 
                 tarball.finish();
-                if (!out.good())
+                if (!out.good()) {
                     std::cout << "[warning] tar file corrupted." << std::endl;
+                    LOGERROR(LT("Tar file corrupted."));
+                }
             }
         }
-
-        std::cout << "Deleting MissionRecord temp folder..." << std::endl;
-
+        LOGINFO(LT("Deleting MissionRecord temp folder."));
         boost::filesystem::remove_all(this->temp_dir);
 
         this->is_closed = true;
@@ -184,6 +191,7 @@ namespace malmo
     {
         if (!boost::filesystem::exists(directory))
         {
+            LOGERROR(LT("Attempt to write to non-existent directory: "), directory.string());
             throw std::runtime_error("Attempt to write to non-existent directory: " + directory.string());
         }
         boost::filesystem::directory_iterator dirIter(directory);
@@ -227,7 +235,7 @@ namespace malmo
         }
         std::string file_name_in_archive = relpath.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
-        std::cout << "- adding " << path.string() << " as " << file_name_in_archive << std::endl;
+        LOGINFO(LT("- adding "), path.string(), LT(" as "), file_name_in_archive);
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
 
