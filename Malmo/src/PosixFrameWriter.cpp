@@ -19,6 +19,7 @@
 
 // Local:
 #include "PosixFrameWriter.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/filesystem.hpp>
@@ -131,13 +132,13 @@ namespace malmo
 
     PosixFrameWriter::~PosixFrameWriter()
     {
-        LOGFINE(LT("Destructing PosixFrameWriter - calling close()"))
+        LOGFINE(LT("Destructing PosixFrameWriter - calling close()"));
         this->close();
     }
 
     void PosixFrameWriter::close()
     {
-        LOGFINE(LT("In PosixFrameWriter::close()"))
+        LOGFINE(LT("In PosixFrameWriter::close()"));
         if (this->is_open)
         {
             VideoFrameWriter::close();
@@ -146,25 +147,25 @@ namespace malmo
         // if the parent process then close the pipe and wait for ffmpeg to finish
         if( this->process_id ) 
         {
-            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe..."))
+            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe..."));
             int ret = ::close( this->pipe_fd[1] );
             if (ret)
             {
-                LOGERROR(LT("Failed to close pipe: "), ret)
+                LOGERROR(LT("Failed to close pipe: "), ret);
                 throw std::runtime_error("Failed to close the pipe.");
             }
 
             int status;
-            LOGFINE(LT("Pipe closed, waiting for ffmpeg to end..."))
+            LOGFINE(LT("Pipe closed, waiting for ffmpeg to end..."));
             ret = waitpid( this->process_id, &status, 0 );
             if (ret != this->process_id)
             {
-                LOGERROR(LT("Call to waitpid failed: "), ret)
+                LOGERROR(LT("Call to waitpid failed: "), ret);
                 throw std::runtime_error("Call to waitpid failed.");
             }
             if (!WIFEXITED(status))
             {
-                LOGERROR(LT("FFMPEG process exited abnormally: "), status)
+                LOGERROR(LT("FFMPEG process exited abnormally: "), status);
                 throw std::runtime_error("FFMPEG process exited abnormally.");
             }
 
@@ -178,12 +179,18 @@ namespace malmo
         std::ostringstream oss;
         oss << magic_number << "\n" << width << " " << height << "\n255\n";
         ssize_t ret = ::write( this->pipe_fd[1], oss.str().c_str(), oss.str().size() );
-        if( ret < 0 )
-            throw std::runtime_error( "Call to write failed." );
+        if (ret < 0)
+        {
+            LOGERROR(LT("Failed to write frame header: "), ret, LT(" - throwing runtime_error"));
+            throw std::runtime_error("Call to write failed.");
+        }
 
         ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
-        if( ret < 0 )
-            throw std::runtime_error( "Call to write failed." );
+        if (ret < 0)
+        {
+            LOGERROR(LT("Failed to write frame body: "), ret, LT(" - throwing runtime_error"));
+            throw std::runtime_error("Call to write failed.");
+        }
     }
 
     std::string PosixFrameWriter::search_path()
