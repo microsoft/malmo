@@ -164,6 +164,7 @@ namespace malmo
             throw MissionException("A mission is already running.", MissionException::MISSION_ALREADY_RUNNING);
         }
 
+        // Once initializeOurServers has completed, we MUST call AgentHost::close() before bailing out of this method with an exception.
         initializeOurServers( mission, mission_record, role, unique_experiment_id );
 
         ClientPool pool = client_pool;
@@ -176,6 +177,8 @@ namespace malmo
             if (reservedAgents.clients.size() != mission.getNumberOfAgents())
             {
                 // Not enough clients available - go no further.
+                LOGWARNING(LT("Failed to reserve sufficient clients - throwing MissionException."));
+                this->close();
                 if (mission.getNumberOfAgents() == 1)
                     throw MissionException("Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
                 else
@@ -336,6 +339,7 @@ namespace malmo
                 catch (std::exception&)
                 {
                     // This is not expected, and probably means something bad has happened.
+                    LOGERROR(LT("Failed to cancel reservation request with "), item.ip_address, LT(":"), item.port);
                     continue;
                 }
                 LOGINFO(LT("Cancelling reservation, received reply from "), item.ip_address, LT(": "), reply);
@@ -412,13 +416,14 @@ namespace malmo
             this->current_mission_init->setClientAddress( item.ip_address );
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
-    
+
             LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.port);
             try 
             {
                 reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
             }
             catch( std::exception& ) {
+                LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.port);
                 // This is expected quite often - client is likely not running.
                 continue;
             }
@@ -431,6 +436,7 @@ namespace malmo
                 return; // mission was accepted, now wait for the mission to start
         }
 
+        LOGWARNING(LT("Failed to find an available client for this mission - throwing MissionException."));
         this->close();
         throw MissionException( "Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE );
     }
