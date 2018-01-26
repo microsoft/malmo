@@ -32,6 +32,8 @@
 #include <exception>
 #include <sstream>
 
+#define LOG_COMPONENT Logger::LOG_VIDEO
+
 namespace malmo
 {
     PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
@@ -129,11 +131,13 @@ namespace malmo
 
     PosixFrameWriter::~PosixFrameWriter()
     {
+        LOGFINE(LT("Destructing PosixFrameWriter - calling close()"))
         this->close();
     }
 
     void PosixFrameWriter::close()
     {
+        LOGFINE(LT("In PosixFrameWriter::close()"))
         if (this->is_open)
         {
             VideoFrameWriter::close();
@@ -142,16 +146,27 @@ namespace malmo
         // if the parent process then close the pipe and wait for ffmpeg to finish
         if( this->process_id ) 
         {
+            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe..."))
             int ret = ::close( this->pipe_fd[1] );
-            if( ret )
-                throw std::runtime_error( "Failed to close the pipe." );
+            if (ret)
+            {
+                LOGERROR(LT("Failed to close pipe: "), ret)
+                throw std::runtime_error("Failed to close the pipe.");
+            }
 
             int status;
+            LOGFINE(LT("Pipe closed, waiting for ffmpeg to end..."))
             ret = waitpid( this->process_id, &status, 0 );
-            if( ret != this->process_id )
-                throw std::runtime_error( "Call to waitpid failed." );
-            if( !WIFEXITED( status ) )
-                throw std::runtime_error( "FFMPEG process exited abnormally." );
+            if (ret != this->process_id)
+            {
+                LOGERROR(LT("Call to waitpid failed: "), ret)
+                throw std::runtime_error("Call to waitpid failed.");
+            }
+            if (!WIFEXITED(status))
+            {
+                LOGERROR(LT("FFMPEG process exited abnormally: "), status)
+                throw std::runtime_error("FFMPEG process exited abnormally.");
+            }
 
             this->process_id = 0;
         }
@@ -202,3 +217,5 @@ namespace malmo
         return "";
     }
 }
+
+#undef LOG_COMPONENT
