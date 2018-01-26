@@ -24,6 +24,8 @@
 // Boost:
 #include <boost/bind.hpp>
 
+#define LOG_COMPONENT Logger::LOG_TCP
+
 namespace malmo
 {
     boost::shared_ptr< ClientConnection > ClientConnection::create( boost::asio::io_service& io_service, std::string address, int port )
@@ -111,3 +113,5 @@ namespace malmo
             this->write();  
     }
 }
+
+#undef LOG_COMPONENT

@@ -25,6 +25,8 @@
 #include <boost/bind.hpp>
 using boost::asio::ip::tcp;
 
+#define LOG_COMPONENT Logger::LOG_TCP
+
 namespace malmo
 {
     boost::shared_ptr<TCPConnection> TCPConnection::create(boost::asio::io_service& io_service, boost::function<void(const TimestampedUnsignedCharVector) > callback, bool expect_size_header, const std::string& log_name)
@@ -169,3 +171,5 @@ namespace malmo
         return size_in_host_byte_order;
     }
 }
+
+#undef LOG_COMPONENT

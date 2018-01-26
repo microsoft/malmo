@@ -159,8 +159,17 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .value("LOG_ALL", Logger::LOG_ALL)
         ;
 
+    enum_< Logger::LoggingComponent >("LoggingComponent")
+        .value("LOG_TCP", Logger::LOG_TCP)
+        .value("LOG_RECORDING", Logger::LOG_RECORDING)
+        .value("LOG_VIDEO", Logger::LOG_VIDEO)
+        .value("LOG_AGENTHOST", Logger::LOG_AGENTHOST)
+        .value("LOG_ALL_COMPONENTS", Logger::LOG_ALL_COMPONENTS)
+        ;
+
     def("setLogging", &Logger::setLogging);
     def("appendToLog", &Logger::appendToLog);
+    def("setLoggingComponent", &Logger::setLoggingComponent);
 
     class_< MissionException >("MissionExceptionDetails", init< const std::string&, MissionException::MissionErrorCode >())
         .add_property("errorCode", &MissionException::getMissionErrorCode)

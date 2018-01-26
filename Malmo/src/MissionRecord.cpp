@@ -35,6 +35,8 @@
 #include <exception>
 #include <iostream>
 
+#define LOG_COMPONENT Logger::LOG_RECORDING
+
 namespace malmo
 {
     MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec)
@@ -146,7 +148,6 @@ namespace malmo
         }
 
         LOGSECTION(LOG_INFO, LT("Closing MissionRecord..."));
-
         // create zip file, push to destination
         std::vector<boost::filesystem::path> fileList;
         this->addFiles(fileList, this->temp_dir);
@@ -348,3 +349,5 @@ namespace malmo
         }
     }
 }
+
+#undef LOG_COMPONENT

@@ -49,6 +49,8 @@
 #include <mutex>
 #include <string>
 
+#define LOG_COMPONENT Logger::LOG_AGENTHOST
+
 namespace malmo
 {
     std::once_flag test_schemas_flag;
@@ -886,3 +888,5 @@ namespace malmo
         return os;
     }
 }
+
+#undef LOG_COMPONENT

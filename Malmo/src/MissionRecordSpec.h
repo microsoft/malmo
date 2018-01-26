@@ -33,6 +33,8 @@
 #include "Logger.h"
 #include "TimestampedVideoFrame.h"
 
+#define LOG_COMPONENT Logger::LOG_RECORDING
+
 namespace malmo
 {
     //! Specifies the type of data that should be recorded from the mission.
@@ -112,4 +114,5 @@ namespace malmo
     };
 }
 
+#undef LOG_COMPONENT
 #endif

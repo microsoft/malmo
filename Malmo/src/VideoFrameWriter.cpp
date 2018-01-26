@@ -31,6 +31,8 @@
 #include <exception>
 #include <sstream>
 
+#define LOG_COMPONENT Logger::LOG_VIDEO
+
 namespace malmo
 {
     VideoFrameWriter::VideoFrameWriter(std::string path, std::string frame_info_filename, short width, short height, int frames_per_second, int channels, bool drop_input_frames)
@@ -264,3 +266,5 @@ namespace malmo
         return instance;
     }
 }
+
+#undef LOG_COMPONENT
