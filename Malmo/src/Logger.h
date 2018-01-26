@@ -150,6 +150,7 @@ namespace malmo
         void setSeverityLevel(LoggingSeverityLevel level) { severity_level = level; }
         void setFilename(const std::string& file)
         {
+            std::lock_guard< std::timed_mutex > lock(this->write_guard);
             if (this->writer.is_open())
                 this->writer.close();
             this->writer.open(file, std::ofstream::out | std::ofstream::app);
@@ -250,7 +251,7 @@ namespace malmo
             // The worker thread needs to aquire this lock before it can create the at_thread_exit_mutex, so it
             // is forced to wait while everything else is destructed and cleaned before it can carry on.
 
-            // THe end result is that the worker thread has just enough time to create and lock the mutex before
+            // The end result is that the worker thread has just enough time to create and lock the mutex before
             // the main thread calls ExitProcess, which calls the DLL cleanup code, which deletes the mutex,
             // resulting in an abort() with a "mutex destroyed while busy" error.
 
