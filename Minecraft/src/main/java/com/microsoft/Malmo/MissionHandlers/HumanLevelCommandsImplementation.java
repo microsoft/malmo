@@ -131,6 +131,7 @@ public class HumanLevelCommandsImplementation extends CommandGroup
                         Minecraft.getMinecraft().player.inventory.changeCurrentItem(z);
                     }
                 }
+                return true;
             }
         }
         return super.onExecute(verb, parameter, missionInit);
