@@ -76,6 +76,7 @@ namespace malmo
 
             std::size_t receivedFrames() const { return this->received_frames; }
             std::size_t writtenFrames() const { return this->written_frames; }
+            std::size_t queuedFrames() const { return this->queued_frames; }
 
         private:
 
@@ -92,6 +93,7 @@ namespace malmo
 
             // diagnostics:
             std::size_t received_frames;
+            std::size_t queued_frames;
             std::size_t written_frames;
     };
 }

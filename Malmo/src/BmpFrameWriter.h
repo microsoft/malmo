@@ -47,6 +47,7 @@ namespace malmo
         
         virtual bool write(TimestampedVideoFrame frame);
         virtual bool isOpen() const;
+        virtual size_t getFrameWriteCount() const { return frames_actually_written; }
 
         static std::unique_ptr<BmpFrameWriter> create(std::string path, std::string frame_info_filename);
 
@@ -64,6 +65,7 @@ namespace malmo
         boost::filesystem::path frame_info_path;
         boost::filesystem::path frames_path;
         int frame_index;
+        int frames_actually_written = 0;
 
         std::queue<TimestampedVideoFrame> frame_buffer;
         boost::mutex write_mutex;

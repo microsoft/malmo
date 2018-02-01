@@ -111,12 +111,14 @@ namespace malmo
             LOGFINE(LT("Waiting for worker thread to join."));
             this->frame_writer_thread.join();
             LOGFINE(LT("Worker thread joined."));
+            LOGFINE(LT("Frames received for writing: "), this->frame_index);
+            LOGFINE(LT("Frames actually written: "), this->frames_actually_written);
         }
     }
 
     void VideoFrameWriter::writeFrames()
     {
-        int count = 0;
+        this->frames_actually_written = 0;
         while (this->is_open) {
             {
                 boost::unique_lock<boost::mutex> lock(this->frames_available_mutex);
@@ -144,83 +146,94 @@ namespace malmo
                     break;
                 }
 
-                LOGTRACE(LT("Writing frame "), count + 1, LT(", "), frame.width, LT("x"), frame.height, LT("x"), frame.channels);
-                if (frame.channels == 4)
+                try
                 {
-                    if (frame.frametype == TimestampedVideoFrame::DEPTH_MAP)
-                    {
-                        // For making videos out of 32bpp depth maps, what exactly should we display?
-                        // We could reduce to greyscale, but that way we loose a lot of precision.
-                        // Instead, convert to an HSV colour cone, which hopefully gives a great range
-                        // of colour values to map to.
-                        float* fPixels = reinterpret_cast<float*>(&(frame.pixels[0]));
-                        char *out_pixels = new char[frame.width * frame.height * 3];
-                        for (int i = 0; i < frame.width*frame.height; i++)
-                        {
-                            float f = fPixels[i];
-                            float h = 60.0f * f;
-                            while (h >= 360.0)
-                                h -= 360.0;
-                            float s = 1.0;
-                            float v = 1.0f - (f / 200.0f);
-                            if (v < 0)
-                                v = 0;
-                            if (v > 1.0)
-                                v = 1.0;
-                            h = h / 60.0f;
-                            float fract = h- floor(h);
-
-                            v *= 255.0;
-
-                            float p = v*(1.0f - s);
-                            float q = v*(1.0f - s*fract);
-                            float t = v*(1.0f - s*(1.0f - fract));
-
-                            unsigned int out;
-                            if (0. <= h && h < 1.)
-                                out = int(v) + (int(t) << 8) + (int(p) << 16);
-                            else if (1. <= h && h < 2.)
-                                out = int(q) + (int(v) << 8) + (int(p) << 16);
-                            else if (2. <= h && h < 3.)
-                                out = int(p) + (int(v) << 8) + (int(t) << 16);
-                            else if (3. <= h && h < 4.)
-                                out = int(p) + (int(q) << 8) + (int(v) << 16);
-                            else if (4. <= h && h < 5.)
-                                out = int(t) + (int(p) << 8) + (int(v) << 16);
-                            else if (5. <= h && h < 6.)
-                                out = int(v) + (int(p) << 8) + (int(q) << 16);
-                            else
-                                out = 0;
-
-                            out_pixels[3 * i] = out & 0xff;
-                            out_pixels[3 * i + 1] = (out >> 8) & 0xff;
-                            out_pixels[3 * i + 2] = (out >> 16) & 0xff;
-                        }
-                        this->doWrite(out_pixels, frame.width, frame.height, count);
-                        delete[] out_pixels;
-                    }
-                    else
-                    {
-                        // extract DDD from RGBD
-                        char *out_pixels = new char[frame.width * frame.height * 3];
-                        for (int i = 0; i < frame.width*frame.height; i++)
-                        {
-                            out_pixels[i * 3] = out_pixels[i * 3 + 1] = out_pixels[i * 3 + 2] = frame.pixels[i * 4 + 3];
-                        }
-                        this->doWrite(out_pixels, frame.width, frame.height, count);
-                        delete[] out_pixels;
-                    }
+                    writeSingleFrame(frame, this->frames_actually_written);
+                    this->frames_actually_written++;
                 }
-                else if (frame.channels == 3 || frame.channels == 1)
+                catch (std::exception& e)
                 {
-                    // write the pixel data directly
-                    this->doWrite((char*)&frame.pixels[0], frame.width, frame.height, count);
+                    LOGERROR(LT("Failed to write frame: "), e.what());
                 }
-                else throw std::runtime_error("Unsupported number of channels");
-
-                count++;
             }
         }
+    }
+
+    void VideoFrameWriter::writeSingleFrame(const TimestampedVideoFrame& frame, int count)
+    {
+        LOGTRACE(LT("Writing frame "), count + 1, LT(", "), frame.width, LT("x"), frame.height, LT("x"), frame.channels);
+        if (frame.channels == 4)
+        {
+            if (frame.frametype == TimestampedVideoFrame::DEPTH_MAP)
+            {
+                // For making videos out of 32bpp depth maps, what exactly should we display?
+                // We could reduce to greyscale, but that way we loose a lot of precision.
+                // Instead, convert to an HSV colour cone, which hopefully gives a greater range
+                // of colour values to map to.
+                const float* fPixels = reinterpret_cast<const float*>(&(frame.pixels[0]));
+                char *out_pixels = new char[frame.width * frame.height * 3];
+                for (int i = 0; i < frame.width*frame.height; i++)
+                {
+                    float f = fPixels[i];
+                    float h = 60.0f * f;
+                    while (h >= 360.0)
+                        h -= 360.0;
+                    float s = 1.0;
+                    float v = 1.0f - (f / 200.0f);
+                    if (v < 0)
+                        v = 0;
+                    if (v > 1.0)
+                        v = 1.0;
+                    h = h / 60.0f;
+                    float fract = h - floor(h);
+
+                    v *= 255.0;
+
+                    float p = v*(1.0f - s);
+                    float q = v*(1.0f - s*fract);
+                    float t = v*(1.0f - s*(1.0f - fract));
+
+                    unsigned int out;
+                    if (0. <= h && h < 1.)
+                        out = int(v) + (int(t) << 8) + (int(p) << 16);
+                    else if (1. <= h && h < 2.)
+                        out = int(q) + (int(v) << 8) + (int(p) << 16);
+                    else if (2. <= h && h < 3.)
+                        out = int(p) + (int(v) << 8) + (int(t) << 16);
+                    else if (3. <= h && h < 4.)
+                        out = int(p) + (int(q) << 8) + (int(v) << 16);
+                    else if (4. <= h && h < 5.)
+                        out = int(t) + (int(p) << 8) + (int(v) << 16);
+                    else if (5. <= h && h < 6.)
+                        out = int(v) + (int(p) << 8) + (int(q) << 16);
+                    else
+                        out = 0;
+
+                    out_pixels[3 * i] = out & 0xff;
+                    out_pixels[3 * i + 1] = (out >> 8) & 0xff;
+                    out_pixels[3 * i + 2] = (out >> 16) & 0xff;
+                }
+                this->doWrite(out_pixels, frame.width, frame.height, count);
+                delete[] out_pixels;
+            }
+            else
+            {
+                // extract DDD from RGBD
+                char *out_pixels = new char[frame.width * frame.height * 3];
+                for (int i = 0; i < frame.width*frame.height; i++)
+                {
+                    out_pixels[i * 3] = out_pixels[i * 3 + 1] = out_pixels[i * 3 + 2] = frame.pixels[i * 4 + 3];
+                }
+                this->doWrite(out_pixels, frame.width, frame.height, count);
+                delete[] out_pixels;
+            }
+        }
+        else if (frame.channels == 3 || frame.channels == 1)
+        {
+            // write the pixel data directly
+            this->doWrite((char*)&frame.pixels[0], frame.width, frame.height, count);
+        }
+        else throw std::runtime_error("Unsupported number of channels");
     }
 
     bool VideoFrameWriter::write(TimestampedVideoFrame frame)

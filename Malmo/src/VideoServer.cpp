@@ -35,6 +35,7 @@ namespace malmo
         , frametype( frametype )
         , received_frames(0)
         , written_frames(0)
+        , queued_frames(0)
         , transform(TimestampedVideoFrame::REVERSE_SCANLINE)
         , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
     {
@@ -42,13 +43,13 @@ namespace malmo
 
     void VideoServer::start()
     {
-        this->written_frames = this->received_frames = 0;
+        this->written_frames = this->queued_frames = this->received_frames = 0;
         this->server.start();
     }
     
     void VideoServer::startRecording()
     {
-        this->written_frames = this->received_frames = 0;
+        this->written_frames = this->queued_frames = this->received_frames = 0;
         for (const auto& writer : this->writers){
             writer->open();
         }
@@ -59,6 +60,7 @@ namespace malmo
         for (const auto& writer : this->writers){
             if (writer->isOpen()){
                 writer->close();
+                this->written_frames += writer->getFrameWriteCount();
             }
         }
         this->writers.clear();
@@ -138,7 +140,7 @@ namespace malmo
         for (const auto& writer : this->writers){
             if (writer->isOpen()){
                 if (writer->write(frame)){
-                    this->written_frames++;
+                    this->queued_frames++;
                 }
             }
         }

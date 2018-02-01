@@ -45,6 +45,7 @@ namespace malmo
         virtual void close() = 0;
         virtual bool write(TimestampedVideoFrame frame) = 0;
         virtual bool isOpen() const = 0;
+        virtual size_t getFrameWriteCount() const = 0;
     };
 
     class VideoFrameWriter : public IFrameWriter
@@ -57,6 +58,7 @@ namespace malmo
         
         virtual bool write(TimestampedVideoFrame frame);
         virtual bool isOpen() const;
+        virtual size_t getFrameWriteCount() const { return frames_actually_written; }
 
         static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames);
 
@@ -73,6 +75,7 @@ namespace malmo
 
     private:
         void writeFrames();
+        void writeSingleFrame(const TimestampedVideoFrame& frame, int count);
 
         boost::posix_time::ptime start_time;
         boost::posix_time::ptime last_timestamp;
@@ -80,6 +83,7 @@ namespace malmo
         std::ofstream frame_info_stream;
         boost::filesystem::path frame_info_path;
         int frame_index;
+        int frames_actually_written = 0;
 
         std::queue<TimestampedVideoFrame> frame_buffer;
         boost::mutex write_mutex;

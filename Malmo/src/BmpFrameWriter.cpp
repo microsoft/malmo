@@ -164,6 +164,7 @@ namespace malmo
 
     void BmpFrameWriter::writeFrames()
     {
+        this->frames_actually_written = 0;
         TarHelper tarrer(boost::filesystem::path(this->path));
         while (this->is_open) {
             // Wait for frames to become available
@@ -197,6 +198,7 @@ namespace malmo
                 std::stringstream posdata;
                 posdata << "xyzyp: " << frame.xPos << " " << frame.yPos << " " << frame.zPos << " " << frame.yaw << " " << frame.pitch;
                 this->frame_info_stream << boost::posix_time::to_iso_string(frame.timestamp) << " " << name.str() << " " << posdata.str() << std::endl;
+                this->frames_actually_written++;
             }
         }
         this->frame_info_stream.flush();
