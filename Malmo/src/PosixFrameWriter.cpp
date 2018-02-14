@@ -181,14 +181,14 @@ namespace malmo
         ssize_t ret = ::write( this->pipe_fd[1], oss.str().c_str(), oss.str().size() );
         if (ret < 0)
         {
-            LOGERROR(LT("Failed to write frame header: "), ret, LT(" - throwing runtime_error"));
+            LOGERROR(LT("Failed to write frame header: "), std::strerror(errno), LT(" - throwing runtime_error"));
             throw std::runtime_error("Call to write failed.");
         }
 
         ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
         if (ret < 0)
         {
-            LOGERROR(LT("Failed to write frame body: "), ret, LT(" - throwing runtime_error"));
+            LOGERROR(LT("Failed to write frame body: "), std::strerror(errno), LT(" - throwing runtime_error"));
             throw std::runtime_error("Call to write failed.");
         }
     }
