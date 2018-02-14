@@ -569,6 +569,30 @@
       </xs:extension>
    </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="DrawSign">
+    <xs:annotation>
+      <xs:documentation>
+        Draw a sign at the required location with the specified text.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="DrawObjectType">
+        <xs:attribute name="x" type="xs:int" use="required" />
+        <xs:attribute name="y" type="xs:int" use="required" />
+        <xs:attribute name="z" type="xs:int" use="required" />
+        <xs:attribute name="type" type="SignType" use="required" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
+        <xs:attribute name="line1" type="xs:string" use="optional" />
+        <xs:attribute name="line2" type="xs:string" use="optional" />
+        <xs:attribute name="line3" type="xs:string" use="optional" />
+        <xs:attribute name="line4" type="xs:string" use="optional" />
+        <xs:attribute name="rotation" type="xs:int" use="optional" />
+      </xs:extension>
+   </xs:complexContent>
+  </xs:complexType>
   
   <xs:complexType name="DrawEntity">
     <xs:annotation>
@@ -652,6 +676,7 @@
   <xs:element name="DrawBlock" type="DrawBlock" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawCuboid" type="DrawCuboid" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawContainer" type="DrawContainer" substitutionGroup="DrawObjectType"/>
+  <xs:element name="DrawSign" type="DrawSign" substitutionGroup="DrawObjectType"/>
 
   <xs:element name="ClassroomDecorator">
     <xs:annotation>

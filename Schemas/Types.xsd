@@ -523,6 +523,18 @@
   <xs:union memberTypes="BlockType ItemType"/>
 </xs:simpleType>
 
+<xs:simpleType name="SignType">
+  <xs:annotation>
+    <xs:documentation>
+      Subset of the block types which act as signs
+    </xs:documentation>
+  </xs:annotation>
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="standing_sign" />
+    <xs:enumeration value="wall_sign" />
+  </xs:restriction>
+</xs:simpleType>
+
 <xs:simpleType name="ContainerType">
   <xs:annotation>
     <xs:documentation>

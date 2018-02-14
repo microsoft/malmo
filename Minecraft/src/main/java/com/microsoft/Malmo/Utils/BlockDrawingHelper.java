@@ -24,6 +24,24 @@ import java.util.List;
 
 import javax.xml.bind.JAXBElement;
 
+import com.microsoft.Malmo.Schemas.BlockType;
+import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.ContainedObjectType;
+import com.microsoft.Malmo.Schemas.DrawBlock;
+import com.microsoft.Malmo.Schemas.DrawContainer;
+import com.microsoft.Malmo.Schemas.DrawCuboid;
+import com.microsoft.Malmo.Schemas.DrawEntity;
+import com.microsoft.Malmo.Schemas.DrawItem;
+import com.microsoft.Malmo.Schemas.DrawLine;
+import com.microsoft.Malmo.Schemas.DrawSign;
+import com.microsoft.Malmo.Schemas.DrawSphere;
+import com.microsoft.Malmo.Schemas.DrawingDecorator;
+import com.microsoft.Malmo.Schemas.EntityTypes;
+import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.NoteTypes;
+import com.microsoft.Malmo.Schemas.ShapeTypes;
+import com.microsoft.Malmo.Schemas.Variation;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRailBase;
 import net.minecraft.block.properties.IProperty;
@@ -36,32 +54,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.tileentity.TileEntityNote;
+import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.EntityEntry;
-
-import com.microsoft.Malmo.Schemas.BlockType;
-import com.microsoft.Malmo.Schemas.Colour;
-import com.microsoft.Malmo.Schemas.ContainedObjectType;
-import com.microsoft.Malmo.Schemas.DrawBlock;
-import com.microsoft.Malmo.Schemas.DrawContainer;
-import com.microsoft.Malmo.Schemas.DrawCuboid;
-import com.microsoft.Malmo.Schemas.DrawEntity;
-import com.microsoft.Malmo.Schemas.DrawItem;
-import com.microsoft.Malmo.Schemas.DrawLine;
-import com.microsoft.Malmo.Schemas.DrawSphere;
-import com.microsoft.Malmo.Schemas.DrawingDecorator;
-import com.microsoft.Malmo.Schemas.EntityTypes;
-import com.microsoft.Malmo.Schemas.Facing;
-import com.microsoft.Malmo.Schemas.NoteTypes;
-import com.microsoft.Malmo.Schemas.ShapeTypes;
-import com.microsoft.Malmo.Schemas.Variation;
 
 /**
  *  The Mission node can specify drawing primitives, which are drawn in the world by this helper class.  
@@ -197,6 +199,8 @@ public class BlockDrawingHelper
                 DrawPrimitive( (DrawEntity)obj, world );
             else if (obj instanceof DrawContainer)
                 DrawPrimitive( (DrawContainer)obj, world );
+            else if (obj instanceof DrawSign)
+                DrawPrimitive( (DrawSign)obj, world );
             else
                 throw new Exception("Unsupported drawing primitive: "+obj.getClass().getName() );
         }
@@ -431,6 +435,41 @@ public class BlockDrawingHelper
                 ((TileEntityLockableLoot)tileentity).setInventorySlotContents(index, stack);
                 index++;
             }
+        }
+    }
+
+    protected void DrawPrimitive( DrawSign s, World w ) throws Exception
+    {
+        String sType = s.getType().value();
+        BlockType bType = BlockType.fromValue(sType); // Safe - SignType is a subset of BlockType
+        XMLBlockState blockType = new XMLBlockState(bType, s.getColour(), s.getFace(), s.getVariant());
+        BlockPos pos = new BlockPos( s.getX(), s.getY(), s.getZ() );
+        setBlockState(w, pos, blockType );
+        if (blockType.type == BlockType.STANDING_SIGN && s.getRotation() != null)
+        {
+            IBlockState placedBlockState = w.getBlockState(pos);
+            if (placedBlockState != null)
+            {
+                Block placedBlock = placedBlockState.getBlock();
+                if (placedBlock != null)
+                {
+                    IBlockState rotatedBlock = placedBlock.getStateFromMeta(s.getRotation());
+                    w.setBlockState(pos, rotatedBlock);
+                }
+            }
+        }
+        TileEntity tileentity = w.getTileEntity(pos);
+        if (tileentity instanceof TileEntitySign)
+        {
+            TileEntitySign sign = (TileEntitySign)tileentity;
+            if (s.getLine1() != null)
+                sign.signText[0] = new TextComponentString(s.getLine1());
+            if (s.getLine2() != null)
+                sign.signText[1] = new TextComponentString(s.getLine2());
+            if (s.getLine3() != null)
+                sign.signText[2] = new TextComponentString(s.getLine3());
+            if (s.getLine4() != null)
+                sign.signText[3] = new TextComponentString(s.getLine4());
         }
     }
 
