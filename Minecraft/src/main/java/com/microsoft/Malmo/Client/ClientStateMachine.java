@@ -463,7 +463,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // 3: MALMO_FIND_SERVER<experiment_id>
                 // 4: MissionInit
 
-                String reservePrefix = "MALMO_REQUEST_CLIENT:" + Loader.instance().activeModContainer().getVersion() + ":";
+                String reservePrefixGeneral = "MALMO_REQUEST_CLIENT:";
+                String reservePrefix = reservePrefixGeneral + Loader.instance().activeModContainer().getVersion() + ":";
                 String findServerPrefix = "MALMO_FIND_SERVER";
                 String cancelRequestCommand = "MALMO_CANCEL_REQUEST";
 
@@ -482,6 +483,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         // We're busy - we can't be reserved.
                         reply("MALMOBUSY", dos);
                     }
+                }
+                else if (command.startsWith(reservePrefixGeneral))
+                {
+                    // Reservation request, but it didn't match the request we expect, above.
+                    // This happens if the agent sending the request is running a different version of Malmo -
+                    // a version mismatch error.
+                    reply("MALMOERRORVERSIONMISMATCH in reservation string (Got " + command + ", expected " + reservePrefix + " - check your path for old versions of MalmoPython/MalmoJava/Malmo.lib etc)", dos);
                 }
                 else if (command.equals(cancelRequestCommand))
                 {
