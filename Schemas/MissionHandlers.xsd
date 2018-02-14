@@ -1664,9 +1664,12 @@
         * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
         * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
         * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
+        * NBTTagCompound: for tile entity blocks, optionally returns a json object called "NBTTagCompound" which contains the entity's entire NBTTagCompound - eg useful for reading the text off signs, etc. Set {{{includeNBT}}} to true to receive this data.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attribute name="includeNBT" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
   </xs:element>
   
   <xs:element name="ObservationFromFullInventory">

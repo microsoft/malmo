@@ -28,23 +28,44 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.DrawBlock;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.ObservationFromDistance;
+import com.microsoft.Malmo.Schemas.ObservationFromRay;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
 public class ObservationFromRayImplementation extends HandlerBase implements IObservationProducer
 {
+    private ObservationFromRay ofrparams;
+    
+    @Override
+    public boolean parseParameters(Object params)
+    {
+        if (params == null || !(params instanceof ObservationFromRay))
+            return false;
+        
+        this.ofrparams = (ObservationFromRay)params;
+        return true;
+    }
+
     @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        buildMouseOverData(json);
+        buildMouseOverData(json, this.ofrparams.isIncludeNBT());
     }
 
     @Override
@@ -61,7 +82,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
      * If there is any data to be returned, the json will be added in a subnode called "LineOfSight".
      * @param json a JSON object into which the info for the object under the mouse will be added.
      */
-    public static void buildMouseOverData(JsonObject json)
+    public static void buildMouseOverData(JsonObject json, boolean includeNBTData)
     {
         // We could use Minecraft.getMinecraft().objectMouseOver but it's limited to the block reach distance, and
         // doesn't register floating tile items.
@@ -114,6 +135,30 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                         jsonMop.addProperty(key, Integer.valueOf(state.getValue(prop).toString()));
                     else
                         jsonMop.addProperty(key, state.getValue(prop).toString());
+                }
+            }
+            // Add the NBTTagCompound, if this is a tile entity.
+            if (includeNBTData)
+            {
+                TileEntity tileentity = Minecraft.getMinecraft().world.getTileEntity(mop.getBlockPos());
+                if (tileentity != null)
+                {
+                    NBTTagCompound data = tileentity.getUpdateTag();
+                    if (data != null)
+                    {
+                        // Turn data directly into json and add it to what we're already returning.
+                        String jsonString = data.toString();
+                        try
+                        {
+                            JsonElement jelement = new JsonParser().parse(jsonString);
+                            if (jelement != null)
+                                jsonMop.add("NBTTagCompound", jelement);
+                        }
+                        catch (JsonSyntaxException e)
+                        {
+                            // Duff NBTTagCompound - ignore it.
+                        }
+                    }
                 }
             }
             jsonMop.addProperty("inRange", hitDist <= blockReach);
