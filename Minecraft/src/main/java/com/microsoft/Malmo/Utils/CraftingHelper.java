@@ -29,10 +29,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.material.EnumPushReaction;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -41,13 +56,11 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-
-import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
-import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
 public class CraftingHelper
 {
@@ -422,6 +435,91 @@ public class CraftingHelper
         return false;
     }
 
+    /** Little utility method for dumping out a list of all the Minecraft items, plus as many useful attributes as
+     * we can find for them. This is primarily used by decision_tree_test.py but might be useful for real-world applications too.
+     * @param filename location to save the dumped list.
+     * @throws IOException
+     */
+    public static void dumpItemProperties(String filename) throws IOException
+    {
+        FileOutputStream fos = new FileOutputStream("..//..//build//install//Python_Examples//item_database.json");
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
+        BufferedWriter writer = new BufferedWriter(osw);
+        JsonArray itemTypes = new JsonArray();
+        for (ResourceLocation i : Item.REGISTRY.getKeys())
+        {
+            Item item = Item.REGISTRY.getObject(i);
+            if (item != null)
+            {
+                JsonObject json = new JsonObject();
+                json.addProperty("type", Item.REGISTRY.getNameForObject(item).toString().replace("minecraft:",""));
+                json.addProperty("damageable", item.isDamageable());
+                json.addProperty("rendersIn3D", item.isFull3D());
+                json.addProperty("repairable", item.isRepairable());
+                CreativeTabs tab = item.getCreativeTab();
+                json.addProperty("tab", ((tab != null) ? item.getCreativeTab().getTabLabel() : "none"));
+                ItemStack is = item.getDefaultInstance();
+                json.addProperty("stackable", is.isStackable());
+                json.addProperty("enchantable", is.isItemEnchantable());
+                json.addProperty("rare", (is.getRarity() == EnumRarity.RARE));    // Enum has four types, but only two (COMMON and RARE) appear to be used.
+                json.addProperty("action", is.getItemUseAction().toString());
+                json.addProperty("hasSubtypes", item.getHasSubtypes());
+                json.addProperty("maxDamage", is.getMaxDamage());
+                json.addProperty("maxUseDuration", is.getMaxItemUseDuration());
+                json.addProperty("block", item instanceof ItemBlock);
+                json.addProperty("hasContainerItem", item.hasContainerItem());
+                if (item instanceof ItemBlock)
+                {
+                    ItemBlock ib = (ItemBlock)item;
+                    Block b = ib.getBlock();
+                    IBlockState bs = b.getDefaultState();
+                    json.addProperty("slipperiness", b.slipperiness);
+                    json.addProperty("hardness", bs.getBlockHardness(null, null));
+                    json.addProperty("causesSuffocation", bs.causesSuffocation());
+                    json.addProperty("canProvidePower", bs.canProvidePower());
+                    json.addProperty("translucent", bs.isTranslucent());
+                    Material mat = bs.getMaterial();
+                    if (mat != null)
+                    {
+                        json.addProperty("canBurn", mat.getCanBurn());
+                        json.addProperty("isLiquid", mat.isLiquid());
+                        json.addProperty("blocksMovement", mat.blocksMovement());
+                        json.addProperty("needsNoTool", mat.isToolNotRequired());
+                        json.addProperty("isReplaceable", mat.isReplaceable());
+                        json.addProperty("pistonPushable", mat.getMobilityFlag() == EnumPushReaction.NORMAL);
+                        json.addProperty("woodenMaterial", mat == Material.WOOD);
+                        json.addProperty("ironMaterial", mat == Material.IRON);
+                        json.addProperty("glassyMaterial",  mat == Material.GLASS);
+                        json.addProperty("clothMaterial",  mat == Material.CLOTH);
+                    }
+
+                    boolean hasDirection = false;
+                    boolean hasColour = false;
+                    boolean hasVariant = false;
+                    for (IProperty prop : bs.getProperties().keySet())
+                    {
+                        System.out.println(Item.REGISTRY.getNameForObject(item).toString() + " -- " + prop);
+                        if (prop instanceof PropertyDirection)
+                            hasDirection = true;
+                        if (prop instanceof PropertyEnum && prop.getName().equals("color"))
+                            hasColour = true;
+                        if (prop instanceof PropertyEnum && prop.getName().equals("variant"))
+                        {
+                            hasVariant = true;
+                            json.addProperty("variant", bs.getValue(prop).toString());
+                        }
+                    }
+                    json.addProperty("hasDirection", hasDirection);
+                    json.addProperty("hasColour", hasColour);
+                    json.addProperty("hasVariant",  hasVariant);
+                }
+                itemTypes.add(json);
+            }
+        }
+        writer.write(itemTypes.toString());
+        writer.close();
+    }
+
     /** Little utility method for dumping out a list of all the recipes we understand.
      * @param filename location to save the dumped list.
      * @throws IOException
@@ -431,7 +529,6 @@ public class CraftingHelper
         FileOutputStream fos = new FileOutputStream(filename);
         OutputStreamWriter osw = new OutputStreamWriter(fos, "utf-8");
         BufferedWriter writer = new BufferedWriter(osw);
-
         List<?> recipes = CraftingManager.getInstance().getRecipeList();
         for (Object obj : recipes)
         {
