@@ -28,7 +28,7 @@ setlocal enableDelayedExpansion
 ::
 :: The order of the definitions is not important.
 ::
-set "options=-port:0"
+set "options=-port:0 -replaceable:"
 
 :: Set the default option values
 for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
@@ -47,7 +47,7 @@ if not "%~1"=="" (
   ) else if "!test:~0,1!"==" " (
     rem Set the flag option using the option name.
     rem The value doesn't matter, it just needs to be defined.
-    set "%~1=1"
+    set "%~1=true"
   ) else (
     rem Set the option value using the option as the name.
     rem and the next arg as the value
@@ -75,9 +75,18 @@ echo.
 echo malmoports {
 echo I:portOverride=!-port!
 echo }
+if "!-replaceable!"=="true" (
+    echo runtype {
+    echo B:replaceable=!-replaceable!
+    echo }
+    )
 ) > "run\config\malmomodCLIENT.cfg"
 
+:launchLoop
 REM finally run Minecraft:
 call gradlew setupDecompWorkspace
 call gradlew build
 call gradlew runClient
+if "!-replaceable!"=="true" (
+    goto :launchLoop
+)

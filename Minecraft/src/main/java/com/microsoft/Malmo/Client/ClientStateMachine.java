@@ -55,7 +55,9 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -461,13 +463,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // 1: MALMO_REQUEST_CLIENT:<malmo version>:<reservation_length(ms)><experiment_id>
                 // 2: MALMO_CANCEL_REQUEST
                 // 3: MALMO_FIND_SERVER<experiment_id>
-                // 4: MissionInit
+                // 4: MALMO_KILL_CLIENT
+                // 5: MissionInit
 
                 String reservePrefixGeneral = "MALMO_REQUEST_CLIENT:";
                 String reservePrefix = reservePrefixGeneral + Loader.instance().activeModContainer().getVersion() + ":";
                 String findServerPrefix = "MALMO_FIND_SERVER";
                 String cancelRequestCommand = "MALMO_CANCEL_REQUEST";
-
+                String killClientCommand = "MALMO_KILL_CLIENT";
+                
                 if (command.startsWith(reservePrefix))
                 {
                     // Reservation request.
@@ -524,6 +528,36 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         // We don't have a MissionInit ourselves, or we're running a different experiment,
                         // so we can't help.
                         reply("MALMONOSERVER", dos);
+                    }
+                }
+                else if (command.equals(killClientCommand))
+                {
+                    // Kill switch provided in case AI takes over the world...
+                    // Or, more likely, in case this Minecraft instance has become unreliable (eg if it's been running for several days)
+                    // and needs to be replaced with a fresh instance.
+                    // If we are currently running a mission, we gracefully decline, to prevent users from wiping out
+                    // other users' experiments.
+                    // We also decline unless we were launched in "replaceable" mode - a command-line switch that indicates we were
+                    // launched by a script which is still running, and can therefore replace us when we terminate.
+                    IState currentState = getStableState();
+                    if (currentState != null && currentState.equals(ClientState.DORMANT) && !isReserved())
+                    {
+                        Configuration config = MalmoMod.instance.getModSessionConfigFile();
+                        if (config.getBoolean("replaceable", "runtype", false, "Will be replaced if killed"))
+                        {
+                            reply("MALMOOK", dos);
+                            // Have to use FMLCommonHandler; direct calls to System.exit() are trapped and denied by the FML code.
+                            FMLCommonHandler.instance().exitJava(0, false);
+                        }
+                        else
+                        {
+                            reply("MALMOERRORNOTKILLABLE", dos);
+                        }
+                    }
+                    else
+                    {
+                        // We're too busy and important to be killed.
+                        reply("MALMOBUSY", dos);
                     }
                 }
                 else

@@ -201,7 +201,9 @@ public:
         MISSION_SERVER_WARMING_UP,
         MISSION_SERVER_NOT_FOUND,
         MISSION_NO_COMMAND_PORT,
-        MISSION_BAD_INSTALLATION
+        MISSION_BAD_INSTALLATION,
+        MISSION_CAN_NOT_KILL_BUSY_CLIENT,
+        MISSION_CAN_NOT_KILL_IRREPLACEABLE_CLIENT
     };
     MissionException(const std::string& message, MissionErrorCode code);
     ~MissionException();
@@ -241,6 +243,8 @@ public:
       const MissionSpec& mission
     , const MissionRecordSpec& mission_record
   ) throw (MissionException const &);
+
+  bool killClient(const ClientInfo& client);
 
   WorldState peekWorldState() const;
   
