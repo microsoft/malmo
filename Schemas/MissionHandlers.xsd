@@ -569,6 +569,30 @@
       </xs:extension>
    </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="DrawSign">
+    <xs:annotation>
+      <xs:documentation>
+        Draw a sign at the required location with the specified text.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="DrawObjectType">
+        <xs:attribute name="x" type="xs:int" use="required" />
+        <xs:attribute name="y" type="xs:int" use="required" />
+        <xs:attribute name="z" type="xs:int" use="required" />
+        <xs:attribute name="type" type="SignType" use="required" />
+        <xs:attribute name="variant" type="Variation" use="optional" />
+        <xs:attribute name="colour" type="Colour" use="optional" />
+        <xs:attribute name="face" type="Facing" use="optional" />
+        <xs:attribute name="line1" type="xs:string" use="optional" />
+        <xs:attribute name="line2" type="xs:string" use="optional" />
+        <xs:attribute name="line3" type="xs:string" use="optional" />
+        <xs:attribute name="line4" type="xs:string" use="optional" />
+        <xs:attribute name="rotation" type="xs:int" use="optional" />
+      </xs:extension>
+   </xs:complexContent>
+  </xs:complexType>
   
   <xs:complexType name="DrawEntity">
     <xs:annotation>
@@ -652,6 +676,7 @@
   <xs:element name="DrawBlock" type="DrawBlock" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawCuboid" type="DrawCuboid" substitutionGroup="DrawObjectType"/>
   <xs:element name="DrawContainer" type="DrawContainer" substitutionGroup="DrawObjectType"/>
+  <xs:element name="DrawSign" type="DrawSign" substitutionGroup="DrawObjectType"/>
 
   <xs:element name="ClassroomDecorator">
     <xs:annotation>
@@ -1664,9 +1689,12 @@
         * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
         * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
         * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
+        * NBTTagCompound: for tile entity blocks, optionally returns a json object called "NBTTagCompound" which contains the entity's entire NBTTagCompound - eg useful for reading the text off signs, etc. Set {{{includeNBT}}} to true to receive this data.
       </xs:documentation>
     </xs:annotation>
-    <xs:complexType/>
+    <xs:complexType>
+      <xs:attribute name="includeNBT" type="xs:boolean" use="optional" default="false" />
+    </xs:complexType>
   </xs:element>
   
   <xs:element name="ObservationFromFullInventory">

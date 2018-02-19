@@ -5,6 +5,9 @@ Fix: Many fixes to recording, tarring, etc - improved stability.
 New: "Human" action space and observations, for tighter human-in-the-loop scenarios.
 New: Titles and subtitles are now returned as part of the chat observation.
 New: ObservationFromSystem to return stats on Minecraft's health (eg render/server/client ticks per second)
+New: DrawSign allows signposts to be drawn with specific text.
+New: 'includeNBT' flag for ObservationFromRay, to return JSON NBTTagCompound for tile entities.
+New: 'decision_tree_test.py' to test signs/NBTTagCompound.
 
 0.31.0
 -------------------
