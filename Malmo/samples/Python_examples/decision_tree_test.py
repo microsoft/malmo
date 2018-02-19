@@ -518,7 +518,7 @@ for i in range(num_iterations):
             if u"ground" in ob and direction != 0:
                 grid = ob[u"ground"]
                 iron_blocks = grid.count("iron_block")
-                speed = direction * (0.6 ** (5 - iron_blocks))
+                speed = direction * (0.5 ** (5 - iron_blocks))
                 agent_host.sendCommand("strafe " + str(speed))
             # Use the line of sight observation to "read" the signs:
             if u"LineOfSight" in ob:
@@ -534,7 +534,13 @@ for i in range(num_iterations):
                             agent_host.sendCommand("chat " + question + "?")
                             time.sleep(sleep_scale)
                             last_question = question
-                            if item_table[target_item][question]:
+                            if not question in item_table[target_item]:
+                                print("Something went wrong - did we fall off a branch?")
+                                if testing:
+                                    exit(1)
+                                else:
+                                    agent_host.sendCommand("quit")
+                            elif item_table[target_item][question]:
                                 agent_host.sendCommand("chat Yes!")
                                 direction = -1
                             else:
