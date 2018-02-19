@@ -20,6 +20,7 @@
 // Local:
 #include "BmpFrameWriter.h"
 #include "Tarball.hpp"
+#include "Logger.h"
 
 // STL:
 #include <exception>
@@ -145,20 +146,24 @@ namespace malmo
 
     void BmpFrameWriter::close()
     {
+        LOGSECTION(LOG_FINE, "In BmpFrameWriter::close()...");
+
         if (this->is_open) {
-            this->frame_info_stream.close();
-
             this->is_open = false;
-
             {
                 boost::lock_guard<boost::mutex> frames_available_guard(this->frames_available_mutex);
 
                 this->frames_available = true;
             }
 
+            LOGFINE(LT("Notifying worker thread that frames are available, in order to close."));
             this->frames_available_cond.notify_one();
-
+            LOGFINE(LT("Waiting for worker thread to join."));
             this->frame_writer_thread.join();
+            this->frame_info_stream.close();
+            LOGFINE(LT("Worker thread joined."));
+            LOGFINE(LT("Frames received for writing: "), this->frame_index);
+            LOGFINE(LT("Frames actually written: "), this->frames_actually_written);
         }
     }
 
