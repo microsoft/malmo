@@ -119,8 +119,7 @@ namespace malmo
         }
         boost::filesystem::path fs_path(path);
         boost::filesystem::path frame_path = fs_path / frame_dir;
-        this->writers.push_back(BmpFrameWriter::create(frame_path.string(), filename));
-        //this->transform = TimestampedVideoFrame::RAW_BMP;
+        this->writers.push_back(BmpFrameWriter::create(frame_path.string(), filename, this->frametype==TimestampedVideoFrame::DEPTH_MAP));
         this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
         return *this;
     }
