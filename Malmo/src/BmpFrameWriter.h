@@ -40,7 +40,7 @@ namespace malmo
     class BmpFrameWriter : public IFrameWriter
     {
     public:
-        BmpFrameWriter(std::string path, std::string frame_info_filename);
+        BmpFrameWriter(std::string path, std::string frame_info_filename, bool saveInNumpyFormat);
         virtual ~BmpFrameWriter();
         virtual void open();
         virtual void close();
@@ -49,11 +49,12 @@ namespace malmo
         virtual bool isOpen() const;
         virtual size_t getFrameWriteCount() const { return frames_actually_written; }
 
-        static std::unique_ptr<BmpFrameWriter> create(std::string path, std::string frame_info_filename);
+        static std::unique_ptr<BmpFrameWriter> create(std::string path, std::string frame_info_filename, bool saveInNumpyFormat);
 
     protected:
         std::string path;
         bool is_open;
+        bool is_numpy_format;
 
     private:
         void writeFrames();

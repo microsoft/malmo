@@ -679,6 +679,10 @@ namespace malmo
                         this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsSimpleString()));
                     }
                 }
+
+                // Close our servers now, before we finish writing the MissionEnded message.
+                this->closeServers();
+
                 // Add some diagnostics of our own before this gets to the agent:
                 if (this->video_server || this->luminance_server || this->depth_server || this->colourmap_server) {
                     for (auto &vd : mission_ended->MissionDiagnostics().VideoData()) {
@@ -748,6 +752,12 @@ namespace malmo
     {
         LOGSECTION(LOG_FINE, "Closing AgentHost.");
         this->world_state.is_mission_running = false;
+        closeServers();
+        closeRecording();
+    }
+
+    void AgentHost::closeServers()
+    {
         if (this->video_server) {
             this->video_server->stopRecording();
         }
@@ -776,9 +786,13 @@ namespace malmo
             this->commands_stream.close();
         }
         
-        if( this->commands_connection ) {
+        if (this->commands_connection) {
             this->commands_connection.reset();
         }
+    }
+
+    void AgentHost::closeRecording()
+    {
         this->current_mission_record.reset();
     }
 

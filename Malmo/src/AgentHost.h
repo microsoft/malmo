@@ -188,6 +188,8 @@ namespace malmo
             void openCommandsConnection();
 
             void close();
+            void closeServers();
+            void closeRecording();
             
             void processReceivedReward( TimestampedReward reward );
             
