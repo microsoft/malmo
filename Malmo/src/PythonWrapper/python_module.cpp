@@ -94,6 +94,9 @@ void (AgentHost::*startMissionComplex)(const MissionSpec&, const ClientPool&, co
 void (AgentHost::*sendCommand)(std::string) = &AgentHost::sendCommand;
 void (AgentHost::*sendCommandWithKey)(std::string, std::string) = &AgentHost::sendCommand;
 
+void (MissionRecordSpec::*recordMP4General)(int, int64_t bit_rate) = &MissionRecordSpec::recordMP4;
+void (MissionRecordSpec::*recordMP4Specific)(TimestampedVideoFrame::FrameType, int, int64_t, bool) = &MissionRecordSpec::recordMP4;
+
 #ifdef WRAP_ALE
 void (ALEAgentHost::*startALEMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &ALEAgentHost::startMission;
 void (ALEAgentHost::*startALEMissionComplex)(const MissionSpec&, const ClientPool&, const MissionRecordSpec&, int, std::string) = &ALEAgentHost::startMission;
@@ -156,8 +159,17 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .value("LOG_ALL", Logger::LOG_ALL)
         ;
 
+    enum_< Logger::LoggingComponent >("LoggingComponent")
+        .value("LOG_TCP", Logger::LOG_TCP)
+        .value("LOG_RECORDING", Logger::LOG_RECORDING)
+        .value("LOG_VIDEO", Logger::LOG_VIDEO)
+        .value("LOG_AGENTHOST", Logger::LOG_AGENTHOST)
+        .value("LOG_ALL_COMPONENTS", Logger::LOG_ALL_COMPONENTS)
+        ;
+
     def("setLogging", &Logger::setLogging);
     def("appendToLog", &Logger::appendToLog);
+    def("setLoggingComponent", &Logger::setLoggingComponent);
 
     class_< MissionException >("MissionExceptionDetails", init< const std::string&, MissionException::MissionErrorCode >())
         .add_property("errorCode", &MissionException::getMissionErrorCode)
@@ -282,7 +294,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< MissionRecordSpec >("MissionRecordSpec", init<>())
         .def(init < std::string >())
-        .def("recordMP4",               &MissionRecordSpec::recordMP4)
+        .def("recordMP4",               recordMP4General)
+        .def("recordMP4",               recordMP4Specific)
+        .def("recordBitmaps",           &MissionRecordSpec::recordBitmaps)
         .def("recordObservations",      &MissionRecordSpec::recordObservations)
         .def("recordRewards",           &MissionRecordSpec::recordRewards)
         .def("recordCommands",          &MissionRecordSpec::recordCommands)
@@ -320,7 +334,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     register_ptr_to_python< boost::shared_ptr< TimestampedReward > >();
     class_< TimestampedReward >( "TimestampedReward", no_init )
-        .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
+        .add_property( "timestamp",   make_getter(&TimestampedReward::timestamp, return_value_policy<return_by_value>()))
         .def("hasValueOnDimension",   &TimestampedReward::hasValueOnDimension)
         .def("getValueOnDimension",   &TimestampedReward::getValueOnDimension)
         .def("getValue",              &TimestampedReward::getValue)
@@ -335,7 +349,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
 
     register_ptr_to_python< boost::shared_ptr< TimestampedVideoFrame > >();
     class_< TimestampedVideoFrame >( "TimestampedVideoFrame", no_init )
-        .add_property( "timestamp",   make_getter(&TimestampedString::timestamp, return_value_policy<return_by_value>()))
+        .add_property( "timestamp",   make_getter(&TimestampedVideoFrame::timestamp, return_value_policy<return_by_value>()))
         .def_readonly( "width",       &TimestampedVideoFrame::width )
         .def_readonly( "height",      &TimestampedVideoFrame::height )
         .def_readonly( "channels",    &TimestampedVideoFrame::channels )
@@ -344,7 +358,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly( "zPos",        &TimestampedVideoFrame::zPos)
         .def_readonly( "yaw",         &TimestampedVideoFrame::yaw)
         .def_readonly( "pitch",       &TimestampedVideoFrame::pitch)
-        .def_readonly( "frametype",    &TimestampedVideoFrame::frametype)
+        .def_readonly( "frametype",   &TimestampedVideoFrame::frametype)
         .add_property( "pixels",      make_getter(&TimestampedVideoFrame::pixels, return_value_policy<return_by_value>()))
         .def(self_ns::str(self_ns::self))
     ;

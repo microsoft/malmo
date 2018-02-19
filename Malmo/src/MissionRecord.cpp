@@ -19,11 +19,13 @@
 
 // Local:
 #include "MissionRecord.h"
+#include "Logger.h"
 
 // Boost:
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -32,6 +34,8 @@
 // STL:
 #include <exception>
 #include <iostream>
+
+#define LOG_COMPONENT Logger::LOG_RECORDING
 
 namespace malmo
 {
@@ -55,11 +59,13 @@ namespace malmo
             this->rewards_path = (this->temp_dir / "rewards.txt").string();
             this->commands_path = (this->temp_dir / "commands.txt").string();
             this->mission_init_path = (this->temp_dir / "missionInit.xml").string();
+            this->mission_ended_path = (this->temp_dir / "missionEnded.xml").string();
             bool created_tmp = false;
             try {
                 created_tmp = boost::filesystem::create_directories(this->temp_dir);
             }
             catch (const std::exception& e) {
+                LOGERROR(LT("Unable to create temporary folder for recording "), this->temp_dir.string(), LT(": "), e.what());
                 std::cout << "Unable to create temporary folder for recording " << this->temp_dir.string() << ": " << e.what() << std::endl;
                 throw std::runtime_error("Check your MALMO_TEMP_PATH and try again.");
             }
@@ -68,6 +74,7 @@ namespace malmo
                 this->is_closed = false;
             }
             else {
+                LOGERROR(LT("Unable to create temporary folder for recording "), this->temp_dir.string());
                 throw std::runtime_error("Unable to create temporary folder for recording " + this->temp_dir.string() + ": check your MALMO_TEMP_PATH?");
             }
         }
@@ -84,10 +91,12 @@ namespace malmo
         catch (const std::exception& e) {
             // we don't really want to assume that is safe to write to cout but can't have destructors throwing exceptions
             std::cout << "Exception in closing of MissionRecord: " << e.what() << std::endl;
+            LOGERROR(LT("Exception in closing of MissionRecord: "), e.what());
         }
         catch(...) {
             // we don't really want to assume that is safe to write to cout but can't have destructors throwing exceptions
             std::cout << "Unknown exception in closing of MissionRecord." << std::endl;
+            LOGERROR(LT("Unknown exception in closing of MissionRecord."));
         }
     }
 
@@ -102,6 +111,7 @@ namespace malmo
         , observations_path(record.observations_path)
         , rewards_path(record.rewards_path)
         , mission_init_path(record.mission_init_path)
+        , mission_ended_path(record.mission_ended_path)
         , temp_dir(record.temp_dir)
         , mission_id(record.mission_id)
     {
@@ -121,6 +131,7 @@ namespace malmo
             this->observations_path = record.observations_path;
             this->rewards_path = record.rewards_path;
             this->mission_init_path = record.mission_init_path;
+            this->mission_ended_path = record.mission_ended_path;
             this->temp_dir = record.temp_dir;
             this->mission_id = record.mission_id;
 
@@ -136,38 +147,42 @@ namespace malmo
             return;
         }
 
+        LOGSECTION(LOG_INFO, LT("Closing MissionRecord..."));
         // create zip file, push to destination
         std::vector<boost::filesystem::path> fileList;
         this->addFiles(fileList, this->temp_dir);
+        LOGINFO(LT("Found "), fileList.size(), LT(" files to tar:"));
 
         if (fileList.size() > 0){
-            std::stringstream out("tempfile");
-            lindenb::io::Tar tarball(out);
-
-            for (auto file : fileList){
-                try{
-                    this->addFile(tarball, file);
-                }
-                catch (const std::exception& e){
-                    std::cout << "[warning] Unable to archive " << file.string() << ": " << e.what() << std::endl;
-                }
+            std::ofstream file(this->spec.destination, std::ofstream::binary);
+            if (file.fail()) {
+                std::cout << "[warning] Unable to write recording to output file " << this->spec.destination << std::endl;
+                LOGERROR(LT("Unable to write recording to output file "), this->spec.destination);
             }
+            else {
+                boost::iostreams::filtering_ostream out;
+                out.push(boost::iostreams::gzip_compressor());
+                out.push(file);
+                lindenb::io::Tar tarball(out);
 
-            tarball.finish();
-            {
-                std::ofstream file(this->spec.destination, std::ofstream::binary);
-                if (file.fail()) {
-                    std::cout << "[warning] Unable to write recording to output file " << this->spec.destination << std::endl;
+                for (auto file : fileList){
+                    try{
+                        this->addFile(tarball, file);
+                    }
+                    catch (const std::exception& e){
+                        std::cout << "[warning] Unable to archive " << file.string() << ": " << e.what() << std::endl;
+                        LOGERROR(LT("Unable to archive "), file.string(), LT(": "), e.what());
+                    }
                 }
-                else {
-                    boost::iostreams::filtering_streambuf< boost::iostreams::input> in;
-                    in.push(boost::iostreams::gzip_compressor());
-                    in.push(out);
-                    boost::iostreams::copy(in, file);
+
+                tarball.finish();
+                if (!out.good()) {
+                    std::cout << "[warning] tar file corrupted." << std::endl;
+                    LOGERROR(LT("Tar file corrupted."));
                 }
             }
         }
-
+        LOGINFO(LT("Deleting MissionRecord temp folder."));
         boost::filesystem::remove_all(this->temp_dir);
 
         this->is_closed = true;
@@ -177,6 +192,7 @@ namespace malmo
     {
         if (!boost::filesystem::exists(directory))
         {
+            LOGERROR(LT("Attempt to write to non-existent directory: "), directory.string());
             throw std::runtime_error("Attempt to write to non-existent directory: " + directory.string());
         }
         boost::filesystem::directory_iterator dirIter(directory);
@@ -220,17 +236,13 @@ namespace malmo
         }
         std::string file_name_in_archive = relpath.normalize().string();
         std::replace(file_name_in_archive.begin(), file_name_in_archive.end(), '\\', '/');
+        LOGINFO(LT("- adding "), path.string(), LT(" as "), file_name_in_archive);
         archive.putFile(path.string().c_str(), file_name_in_archive.c_str());
     }
 
     bool MissionRecord::isRecording() const
     {
         return this->spec.isRecording();
-    }
-
-    bool MissionRecord::isRecordingMP4() const
-    {
-        return this->spec.is_recording_mp4;
     }
 
     bool MissionRecord::isRecordingObservations() const
@@ -268,14 +280,34 @@ namespace malmo
         return this->mp4_colourmap_path;
     }
 
-    int64_t MissionRecord::getMP4BitRate() const
+    int64_t MissionRecord::getMP4BitRate(TimestampedVideoFrame::FrameType type) const
     {
-        return this->spec.mp4_bit_rate;
+        auto it = this->spec.video_recordings.find(type);
+        return (it != this->spec.video_recordings.end()) ? it->second.mp4_bit_rate : 0;
     }
 
-    int MissionRecord::getMP4FramesPerSecond() const
+    int MissionRecord::getMP4FramesPerSecond(TimestampedVideoFrame::FrameType type) const
     {
-        return this->spec.mp4_fps;
+        auto it = this->spec.video_recordings.find(type);
+        return (it != this->spec.video_recordings.end()) ? it->second.mp4_fps : 0;
+    }
+
+    bool MissionRecord::isDroppingFrames(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it == this->spec.video_recordings.end() || it->second.drop_input_frames;
+    }
+
+    bool MissionRecord::isRecordingMP4(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it != this->spec.video_recordings.end() && it->second.fr_type == MissionRecordSpec::VIDEO;
+    }
+
+    bool MissionRecord::isRecordingBmps(TimestampedVideoFrame::FrameType type) const
+    {
+        auto it = this->spec.video_recordings.find(type);
+        return it != this->spec.video_recordings.end() && it->second.fr_type == MissionRecordSpec::BMP;
     }
 
     std::string MissionRecord::getObservationsPath() const
@@ -298,6 +330,11 @@ namespace malmo
         return this->mission_init_path;
     }
 
+    std::string MissionRecord::getMissionEndedPath() const
+    {
+        return this->mission_ended_path;
+    }
+
     std::string MissionRecord::getTemporaryDirectory() const
     {
         if (!this->spec.isRecording()){
@@ -312,3 +349,5 @@ namespace malmo
         }
     }
 }
+
+#undef LOG_COMPONENT

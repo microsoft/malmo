@@ -414,7 +414,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                                 AxisAlignedBB axisalignedbb = b.getDefaultState().getCollisionBoundingBox(player.world, pos);
                                 Entity exceptedEntity = (command == DiscreteMovementCommand.USE) ? null : player;
                                 // (Not ideal, but needed by jump-use to allow the player to place a block where their feet would be.)
-                                if (axisalignedbb == null || player.world.checkNoEntityCollision(axisalignedbb, exceptedEntity))
+                                if (axisalignedbb == null || player.world.checkNoEntityCollision(axisalignedbb.offset(pos), exceptedEntity))
                                 {
                                     boolean standOnBlockPlaced = (command == DiscreteMovementCommand.JUMPUSE && mop.getBlockPos().equals(new BlockPos(player.posX, player.posY - 1, player.posZ)));
                                     MalmoMod.network.sendToServer(new UseActionMessage(mop.getBlockPos(), itemStack, mop.sideHit, standOnBlockPlaced, mop.hitVec));

@@ -31,6 +31,9 @@
 
 // Local:
 #include "Logger.h"
+#include "TimestampedVideoFrame.h"
+
+#define LOG_COMPONENT Logger::LOG_RECORDING
 
 namespace malmo
 {
@@ -54,11 +57,27 @@ namespace malmo
         //! Specifies the destination for the recording.
         void setDestination(const std::string& destination);
 
-        //! Requests that video be recorded, at the specified quality.
+        //! Requests that video be recorded, for *each* video producer, at the specified quality.
         //! Ensure that the width of the video requested is divisible by 4, and the height of the video requested is divisible by 2.
+        //! Bitmaps and MP4 cannot both be recorded for a given video producer;
+        //! whichever is called last out of recordMP4 and recordBitmaps will take effect.
         //! \param frames_per_second The number of frames to record per second. e.g. 20.
         //! \param bit_rate The bit rate to record at. e.g. 400000 for 400kbps.
         void recordMP4(int frames_per_second, int64_t bit_rate);
+
+        //! Requests that video be recorded, for the specified video producer, at the specified quality.
+        //! Ensure that the width of the video requested is divisible by 4, and the height of the video requested is divisible by 2.
+        //! \param frames_per_second The number of frames to output per second. e.g. 24.
+        //! \param bit_rate The bit rate to record at. e.g. 400000 for 400kbps.
+        //! \param drop_input_frames If true, will drop input frames to match frames_per_second (default behaviour) - pass false to avoid losing data.
+        //! Bitmaps and MP4 cannot both be recorded for a given video producer;
+        //! whichever is called last out of recordMP4 and recordBitmaps will take effect.
+        void recordMP4(TimestampedVideoFrame::FrameType type, int frames_per_second, int64_t bit_rate, bool drop_input_frames);
+
+        //! Requests that video be recorded, for the specified video producer, in individual bitmap frames.
+        //! Bitmaps and MP4 cannot both be recorded for a given video producer;
+        //! whichever is called last out of recordMP4 and recordBitmaps will take effect.
+        void recordBitmaps(TimestampedVideoFrame::FrameType type);
 
         //! Requests that observations be recorded.
         void recordObservations();
@@ -75,15 +94,25 @@ namespace malmo
         friend std::ostream& operator<<(std::ostream& os, const MissionRecordSpec& msp);
 
     private:
-
-        bool is_recording_mp4;
+        enum FrameRecordingType
+        {
+            BMP,
+            VIDEO
+        };
+        struct FrameRecordingSpec
+        {
+            FrameRecordingType fr_type;
+            int64_t mp4_bit_rate;
+            int mp4_fps;
+            bool drop_input_frames;
+        };
+        std::map<TimestampedVideoFrame::FrameType, FrameRecordingSpec> video_recordings;
         bool is_recording_observations;
         bool is_recording_rewards;
         bool is_recording_commands;
-        int64_t mp4_bit_rate;
-        int mp4_fps;
         std::string destination;
     };
 }
 
+#undef LOG_COMPONENT
 #endif

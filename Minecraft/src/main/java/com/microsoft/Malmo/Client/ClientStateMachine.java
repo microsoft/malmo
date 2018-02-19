@@ -82,6 +82,7 @@ import com.microsoft.Malmo.Schemas.AgentStart;
 import com.microsoft.Malmo.Schemas.ClientAgentConnection;
 import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
 import com.microsoft.Malmo.Schemas.Mission;
+import com.microsoft.Malmo.Schemas.MissionDiagnostics;
 import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
@@ -118,6 +119,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     private MissionBehaviour missionBehaviour = new MissionBehaviour();
     private String missionQuitCode = ""; // The reason why this mission ended.
     private MultidimensionalReward finalReward = new MultidimensionalReward(true); // The reward at the end of the mission, sent separately to ensure timely delivery.
+    private MissionDiagnostics missionEndedData = new MissionDiagnostics();
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 
@@ -714,6 +716,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // This is necessary in order to allow user to exit the Minecraft window without halting the experiment:
             GameSettings settings = Minecraft.getMinecraft().gameSettings;
             settings.pauseOnLostFocus = false;
+            // And hook the screen helper into the ingame gui (which is responsible for overlaying chat, titles etc) -
+            // this has to be done after Minecraft.init(), so we do it here.
+            ScreenHelper.hookIntoInGameGui();
         }
 
         @Override
@@ -1629,7 +1634,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             closeSockets();
 
             for (VideoHook hook : this.videoHooks)
-                hook.stop();
+                hook.stop(ClientStateMachine.this.missionEndedData);
 
             // Return Minecraft speed to "normal":
             TimeHelper.setMinecraftClientClockSpeed(20);
@@ -2019,7 +2024,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     missionEnded.setReward(ClientStateMachine.this.finalReward.getAsReward());
                     ClientStateMachine.this.finalReward.clear();
                 }
-                // And send it to the agent to inform it that the mission has ended:
+                missionEnded.setMissionDiagnostics(ClientStateMachine.this.missionEndedData);	// send our diagnostics
+                ClientStateMachine.this.missionEndedData = new MissionDiagnostics();			// and clear them for the next mission
+                // And send MissionEnded message to the agent to inform it that the mission has ended:
                 sendMissionEnded(missionEnded);
             }
 

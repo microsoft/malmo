@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.31">
+           version="0.32">
 
     <xs:include schemaLocation="Types.xsd" /> 
     <xs:include schemaLocation="MissionHandlers.xsd" /> 
@@ -340,6 +340,8 @@
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
             <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
+            <xs:element ref="ObservationFromHuman" minOccurs="0"/>
+            <xs:element ref="ObservationFromSystem" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
             <xs:element ref="DepthProducer" minOccurs="0"/>
@@ -366,6 +368,7 @@
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>
             <xs:element ref="TurnBasedCommands" minOccurs="0"/>
+            <xs:element ref="HumanLevelCommands" minOccurs="0"/>
             <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands, and add to TurnBasedApplicableCommandHandlers (below) if appropriate --> 
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />

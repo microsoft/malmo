@@ -42,7 +42,10 @@ namespace malmo
             VideoServer( boost::asio::io_service& io_service, int port, short width, short height, short channels, TimestampedVideoFrame::FrameType frametype, const boost::function<void(const TimestampedVideoFrame message)> handle_frame );
             
             //! Request that the video is saved in an mp4 file. Call before either startInBackground() or startRecording().
-            VideoServer& recordMP4(std::string path, int frames_per_second, int64_t bit_rate);
+            VideoServer& recordMP4(std::string path, int frames_per_second, int64_t bit_rate, bool drop_input_frames);
+
+            //! Request that each frame of the video is saved in an individual file. Call before either startInBackground() or startRecording().
+            VideoServer& recordBmps(std::string path);
 
             //! Gets the port this server is listening on.
             //! \returns The port this server is listening on.
@@ -71,6 +74,10 @@ namespace malmo
             //! Starts the video server.
             void start();
 
+            std::size_t receivedFrames() const { return this->received_frames; }
+            std::size_t writtenFrames() const { return this->written_frames; }
+            std::size_t queuedFrames() const { return this->queued_frames; }
+
         private:
 
             void handleMessage( const TimestampedUnsignedCharVector message );
@@ -79,9 +86,15 @@ namespace malmo
             short width;
             short height;
             short channels;
+            TimestampedVideoFrame::Transform transform;
             TimestampedVideoFrame::FrameType frametype;
             TCPServer server;
-            std::vector<std::unique_ptr<VideoFrameWriter>> writers;
+            std::vector<std::unique_ptr<IFrameWriter>> writers;
+
+            // diagnostics:
+            std::size_t received_frames;
+            std::size_t queued_frames;
+            std::size_t written_frames;
     };
 }
 

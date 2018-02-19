@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 
 import org.lwjgl.BufferUtils;
@@ -169,6 +170,8 @@ public class VideoProducerImplementation extends HandlerBase implements IVideoPr
         // buffer);
         glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, buffer);
         this.fbo.unbindFramebuffer();
+        GlStateManager.enableDepth();
+        Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
     }
 
     @Override

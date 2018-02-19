@@ -32,6 +32,8 @@ using boost::asio::ip::tcp;
 #include <chrono>
 #include <random>
 
+#define LOG_COMPONENT Logger::LOG_TCP
+
 namespace malmo
 {
     TCPServer::TCPServer( boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback, const std::string& log_name )
@@ -147,3 +149,5 @@ namespace malmo
         LOGFINE(this->log_name, LT(" bound local endpoint "), this->acceptor->local_endpoint(), LT(" to "), endpt);
     }
 }
+
+#undef LOG_COMPONENT

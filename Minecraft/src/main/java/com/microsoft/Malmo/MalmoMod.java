@@ -63,6 +63,7 @@ import com.microsoft.Malmo.MissionHandlers.InventoryCommandsImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromFullInventoryImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromFullStatsImplementation;
 import com.microsoft.Malmo.MissionHandlers.ObservationFromGridImplementation;
+import com.microsoft.Malmo.MissionHandlers.ObservationFromSystemImplementation;
 import com.microsoft.Malmo.MissionHandlers.SimpleCraftCommandsImplementation;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Server.MalmoModServer;
@@ -132,7 +133,8 @@ public class MalmoMod
         network.registerMessage(DiscreteMovementCommandsImplementation.AttackActionMessageHandler.class, DiscreteMovementCommandsImplementation.AttackActionMessage.class, 9, Side.SERVER);
         network.registerMessage(ObservationFromFullInventoryImplementation.InventoryRequestMessageHandler.class, ObservationFromFullInventoryImplementation.InventoryRequestMessage.class, 10, Side.SERVER);
         network.registerMessage(InventoryCommandsImplementation.InventoryChangeMessageHandler.class, InventoryCommandsImplementation.InventoryChangeMessage.class, 11, Side.CLIENT);
-        }
+        network.registerMessage(ObservationFromSystemImplementation.SystemRequestMessageHandler.class, ObservationFromSystemImplementation.SystemRequestMessage.class, 12, Side.SERVER);
+    }
 
     @EventHandler
     public void onMissingMappingsEvent(FMLMissingMappingsEvent event)
@@ -190,6 +192,14 @@ public class MalmoMod
             throw new Exception("Trying to send a mission request directly when no server has been created!");
 
         this.server.sendMissionInitDirectToServer(minit);
+    }
+
+    public float getServerTickRate() throws Exception
+    {
+        if (this.server == null)
+            throw new Exception("Trying to get the server tick rate when no server has been created!");
+
+        return this.server.getServerTickRate();
     }
 
     public enum MalmoMessageType

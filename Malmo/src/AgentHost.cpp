@@ -49,6 +49,8 @@
 #include <mutex>
 #include <string>
 
+#define LOG_COMPONENT Logger::LOG_AGENTHOST
+
 namespace malmo
 {
     std::once_flag test_schemas_flag;
@@ -162,6 +164,7 @@ namespace malmo
             throw MissionException("A mission is already running.", MissionException::MISSION_ALREADY_RUNNING);
         }
 
+        // Once initializeOurServers has completed, we MUST call AgentHost::close() before bailing out of this method with an exception.
         initializeOurServers( mission, mission_record, role, unique_experiment_id );
 
         ClientPool pool = client_pool;
@@ -174,6 +177,8 @@ namespace malmo
             if (reservedAgents.clients.size() != mission.getNumberOfAgents())
             {
                 // Not enough clients available - go no further.
+                LOGWARNING(LT("Failed to reserve sufficient clients - throwing MissionException."));
+                this->close();
                 if (mission.getNumberOfAgents() == 1)
                     throw MissionException("Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE);
                 else
@@ -334,6 +339,7 @@ namespace malmo
                 catch (std::exception&)
                 {
                     // This is not expected, and probably means something bad has happened.
+                    LOGERROR(LT("Failed to cancel reservation request with "), item.ip_address, LT(":"), item.port);
                     continue;
                 }
                 LOGINFO(LT("Cancelling reservation, received reply from "), item.ip_address, LT(": "), reply);
@@ -410,13 +416,14 @@ namespace malmo
             this->current_mission_init->setClientAddress( item.ip_address );
             this->current_mission_init->setClientMissionControlPort( item.port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
-    
+
             LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.port);
             try 
             {
                 reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
             }
             catch( std::exception& ) {
+                LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.port);
                 // This is expected quite often - client is likely not running.
                 continue;
             }
@@ -429,6 +436,7 @@ namespace malmo
                 return; // mission was accepted, now wait for the mission to start
         }
 
+        LOGWARNING(LT("Failed to find an available client for this mission - throwing MissionException."));
         this->close();
         throw MissionException( "Failed to find an available client for this mission - tried all the clients in the supplied client pool.", MissionException::MISSION_INSUFFICIENT_CLIENTS_AVAILABLE );
     }
@@ -518,8 +526,11 @@ namespace malmo
             // Can't use the server passed in - create a new one.
             ret_server = boost::make_shared<VideoServer>( this->io_service, port, width, height, channels, frametype, boost::bind(&AgentHost::onVideo, this, _1));
 
-            if (this->current_mission_record->isRecordingMP4()){
-                ret_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+            if (this->current_mission_record->isRecordingMP4(frametype)){
+                ret_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype), this->current_mission_record->isDroppingFrames(frametype));
+            }
+            else if (this->current_mission_record->isRecordingBmps(frametype)){
+                ret_server->recordBmps(this->current_mission_record->getTemporaryDirectory());
             }
 
             ret_server->start();
@@ -527,8 +538,11 @@ namespace malmo
         else {
             // re-use the existing video_server
             // but now we need to re-create the file writers with the new file names
-            if (this->current_mission_record->isRecordingMP4()){
-                video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(), this->current_mission_record->getMP4BitRate());
+            if (this->current_mission_record->isRecordingMP4(frametype)){
+                video_server->recordMP4(path, this->current_mission_record->getMP4FramesPerSecond(frametype), this->current_mission_record->getMP4BitRate(frametype), this->current_mission_record->isDroppingFrames(frametype));
+            }
+            else if (this->current_mission_record->isRecordingBmps(frametype)){
+                video_server->recordBmps(this->current_mission_record->getTemporaryDirectory());
             }
             ret_server = video_server;
         }
@@ -643,6 +657,35 @@ namespace malmo
                         this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsSimpleString()));
                     }
                 }
+
+                // Close our servers now, before we finish writing the MissionEnded message.
+                this->closeServers();
+
+                // Add some diagnostics of our own before this gets to the agent:
+                if (this->video_server || this->luminance_server || this->depth_server || this->colourmap_server) {
+                    for (auto &vd : mission_ended->MissionDiagnostics().VideoData()) {
+                        boost::shared_ptr<VideoServer> vs = 0;
+                        if (vd.frameType() == "VIDEO")
+                            vs = this->video_server;
+                        else if (vd.frameType() == "DEPTH_MAP")
+                            vs = this->depth_server;
+                        else if (vd.frameType() == "LUMINANCE")
+                            vs = this->luminance_server;
+                        else if (vd.frameType() == "COLOUR_MAP")
+                            vs = this->colourmap_server;
+                        if (vs) {
+                            vd.framesReceived(vs->receivedFrames());
+                            vd.framesWritten(vs->writtenFrames());
+                        }
+                    }
+                    std::ostringstream oss;
+                    xml_schema::namespace_infomap map;
+                    map[""].name = xml_namespace;
+                    map[""].schema = "MissionEnded.xsd";
+                    xml_schema::flags flags = xml_schema::flags::dont_initialize;
+                    malmo::schemas::MissionEnded_(oss, *mission_ended, map, "UTF-8", flags);
+                    xml.text = oss.str();
+                }
             }
             catch (const xml_schema::exception& e) {
                 std::ostringstream oss;
@@ -652,7 +695,10 @@ namespace malmo
                 this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
                 return;
             }
-            
+            if (this->current_mission_record->isRecording()){
+                std::ofstream missionEndedXML(this->current_mission_record->getMissionEndedPath());
+                missionEndedXML << xml.text;
+            }
             this->close();
         }
         else if (root_node_name == "ping") {
@@ -682,7 +728,14 @@ namespace malmo
 
     void AgentHost::close()
     {
+        LOGSECTION(LOG_FINE, "Closing AgentHost.");
         this->world_state.is_mission_running = false;
+        closeServers();
+        closeRecording();
+    }
+
+    void AgentHost::closeServers()
+    {
         if (this->video_server) {
             this->video_server->stopRecording();
         }
@@ -711,9 +764,13 @@ namespace malmo
             this->commands_stream.close();
         }
         
-        if( this->commands_connection ) {
+        if (this->commands_connection) {
             this->commands_connection.reset();
         }
+    }
+
+    void AgentHost::closeRecording()
+    {
         this->current_mission_record.reset();
     }
 
@@ -851,3 +908,5 @@ namespace malmo
         return os;
     }
 }
+
+#undef LOG_COMPONENT

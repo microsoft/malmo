@@ -25,19 +25,54 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.microsoft.Malmo.MalmoMod;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
-import com.microsoft.Malmo.MalmoMod;
-
 public class ScreenHelper
 {
+    private static class IngameGUIHook extends GuiIngameForge
+    {
+        public IngameGUIHook(Minecraft mc)
+        {
+            super(mc);
+        }
+
+        public void displayTitle(String title, String subTitle, int timeFadeIn, int displayTime, int timeFadeOut)
+        {
+            TitleChangeEvent event = new TitleChangeEvent(title, subTitle);
+            MinecraftForge.EVENT_BUS.post(event);
+            super.displayTitle(title, subTitle, timeFadeIn, displayTime, timeFadeOut);
+        }
+    }
+
+    public static class TitleChangeEvent extends Event
+    {
+        public final String title;
+        public final String subtitle;
+
+        public TitleChangeEvent(String title, String subtitle)
+        {
+            this.title = title;
+            this.subtitle = subtitle;
+        }
+    }
+
+    public static void hookIntoInGameGui()
+    {
+        Minecraft.getMinecraft().ingameGUI = new IngameGUIHook(Minecraft.getMinecraft());
+    }
+
     public enum TextCategory
     {
         TXT_INFO,

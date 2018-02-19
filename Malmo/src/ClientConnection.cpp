@@ -24,6 +24,8 @@
 // Boost:
 #include <boost/bind.hpp>
 
+#define LOG_COMPONENT Logger::LOG_TCP
+
 namespace malmo
 {
     boost::shared_ptr< ClientConnection > ClientConnection::create( boost::asio::io_service& io_service, std::string address, int port )
@@ -103,7 +105,7 @@ namespace malmo
             LOGERROR(LT("Failed to write to "), this->socket->remote_endpoint(), LT(" - transferred "), bytes_transferred, LT(" bytes - "), error.message());
         else
         {
-            LOGTRACE(LT("Succesfully wrote "), this->outbox.front(), LT(" to "), this->socket->remote_endpoint());
+            LOGTRACE(LT("Successfully wrote "), this->outbox.front(), LT(" to "), this->socket->remote_endpoint());
             boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
             this->outbox.pop_front();
         }
@@ -111,3 +113,5 @@ namespace malmo
             this->write();  
     }
 }
+
+#undef LOG_COMPONENT

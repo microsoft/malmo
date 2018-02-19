@@ -26,6 +26,8 @@
 #include <boost/lexical_cast.hpp>
 using boost::asio::ip::tcp;
 
+#define LOG_COMPONENT Logger::LOG_TCP
+
 namespace malmo
 {
     void SendOverTCP(boost::asio::io_service& io_service, std::string address, int port, std::vector<unsigned char> message, bool withSizeHeader)
@@ -152,3 +154,5 @@ namespace malmo
         return reply;
     }
 }
+
+#undef LOG_COMPONENT

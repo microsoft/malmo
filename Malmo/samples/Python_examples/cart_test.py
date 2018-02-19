@@ -35,13 +35,9 @@ import json
 import random
 import re
 import math
-from collections import namedtuple
 
 # For a bit more fun, set MOB_TYPE = "Creeper"...
 MOB_TYPE = "Villager"
-
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
 
 def drawrailline(x1, z1, x2, z2, y):
     ''' Draw a powered rail between the two points '''
@@ -200,9 +196,9 @@ def drawHilbert(level, x, y, z):
 def calcYawToMob(entities, x, y, z):
     ''' Find the mob we are following, and calculate the yaw we need in order to face it '''
     for ent in entities:
-        if ent.name == MOB_TYPE:
-            dx = ent.x - x
-            dz = ent.z - z
+        if ent['name'] == MOB_TYPE:
+            dx = ent['x'] - x
+            dz = ent['z'] - z
             yaw = -180 * math.atan2(dx, dz) / math.pi
             return yaw
     return 0
@@ -373,8 +369,7 @@ while world_state.is_mission_running:
         pitch = data.get(u'Pitch', 0)
         # Try to look somewhere interesting:
         if "entities" in data:
-            entities = [EntityInfo(**k) for k in data["entities"]]
-            yaw_to_mob = calcYawToMob(entities, current_x, current_y, current_z)
+            yaw_to_mob = calcYawToMob(data['entities'], current_x, current_y, current_z)
         if pitch < 0:
             agent_host.sendCommand("pitch 0") # stop looking up
         # Find shortest angular distance between the two yaws, preserving sign:

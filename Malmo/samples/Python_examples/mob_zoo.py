@@ -35,9 +35,7 @@ import math
 from collections import namedtuple
 import xml.etree.ElementTree
 
-
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, name')
 
 hostileMobs =  [("ElderGuardian", "", 2),
                 ("WitherSkeleton", "", 1.95),
@@ -368,7 +366,7 @@ while world_state.is_mission_running:
         current_z = data.get(u'ZPos', 0)
         current_y = data.get(u'YPos', 0)
         if "entities" in data:
-            entities = [EntityInfo(**k) for k in data["entities"]]
+            entities = [EntityInfo(k["x"], k["y"], k["z"], k["name"]) for k in data["entities"]]
             checkEnts([ent.name for ent in entities], mobs_to_view)
             # Find our closest cell, and work out what should be in it:
             dist_to_cells = [abs(c[0] - current_x) + abs(c[1] - current_y) + abs(c[2] - current_z) for c in cell_midpoints]

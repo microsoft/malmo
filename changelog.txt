@@ -1,3 +1,11 @@
+0.32.0
+-------------------
+New: Can now record video streams as individual frames rather than video.
+Fix: Many fixes to recording, tarring, etc - improved stability.
+New: "Human" action space and observations, for tighter human-in-the-loop scenarios.
+New: Titles and subtitles are now returned as part of the chat observation.
+New: ObservationFromSystem to return stats on Minecraft's health (eg render/server/client ticks per second)
+
 0.31.0
 -------------------
 New: Samples now compatible with Python 2 and 3

@@ -41,112 +41,174 @@ public class CommandForKey extends CommandBase
     public static final String DOWN_COMMAND_STRING = "1";
     public static final String UP_COMMAND_STRING = "0";
 
+    public interface KeyEventListener
+    {
+        public void onKeyChange(String commandString, boolean pressed);
+    }
+
     private class KeyHook extends KeyBinding
     {
-    	/** Tracks whether or not this object is overriding the default Minecraft keyboard handling.
-    	 */
-    	private boolean isOverridingPresses = false;
-    	private boolean isDown = false;
-    	private boolean justPressed = false;
-    	private String commandString = null;
-   	
-    	/** Create a KeyBinding object for the specified key, keycode and category.<br>
-    	 * @param description see Minecraft KeyBinding class
-    	 * @param keyCode see Minecraft KeyBinding class
-    	 * @param category see Minecraft KeyBinding class
-    	 */
-    	public KeyHook(String description, int keyCode, String category)
-    	{
-    		super(description, keyCode, category);
-    	}
-    	
-    	/** Set our "pressed" state to true and "down" state to true.<br>
-    	 * This provides a means to set the state externally, without anyone actually having to press a key on the keyboard.
-    	 */
-    	public void press()
-    	{
-    		this.isDown = true;
-    		this.justPressed = true;
-    	}
-    	
+        /**
+         * Tracks whether or not this object is overriding the default Minecraft
+         * keyboard handling.
+         */
+        private boolean isOverridingPresses = false;
+        private boolean isDown = false;
+        private boolean justPressed = false;
+        private String commandString = null;
+        private boolean keyDownEventSent = false;
+        private boolean lastPressedState = false;
+        private boolean lastKeydownState = false;
+        private KeyEventListener observer = null;
+
+        /** Create a KeyBinding object for the specified key, keycode and category.<br>
+         * @param description see Minecraft KeyBinding class
+         * @param keyCode see Minecraft KeyBinding class
+         * @param category see Minecraft KeyBinding class
+         */
+        public KeyHook(String description, int keyCode, String category)
+        {
+            super(description, keyCode, category);
+        }
+
+        /** Set our "pressed" state to true and "down" state to true.<br>
+         * This provides a means to set the state externally, without anyone actually having to press a key on the keyboard.
+         */
+        public void press()
+        {
+            this.isDown = true;
+            this.justPressed = true;
+        }
+
         /** Set our "down" state to false.<br>
          * This provides a means to set the state externally, without anyone actually having to press a key on the keyboard.
          */
-    	public void release()
-    	{
-    		this.isDown = false;
-    	}
-    	
-    	/** Return true if this key is "down"<br>
-    	 * ie the controlling code has issued a key-down command and hasn't yet followed it with a key-up.
-    	 * If this object is not currently set to override, the default Minecraft keyboard handling will be used.
-    	 * @return true if the key is in its "down" state.
-    	 */
-    	@Override
+        public void release()
+        {
+            this.isDown = false;
+        }
+
+        /**
+         * Return true if this key is "down"<br>
+         * ie the controlling code has issued a key-down command and hasn't yet
+         * followed it with a key-up. If this object is not currently set to
+         * override, the default Minecraft keyboard handling will be used.
+         * 
+         * @return true if the key is in its "down" state.
+         */
+        @Override
         public boolean isKeyDown()
         {
             boolean bReturn = this.isOverridingPresses ? this.isDown : super.isKeyDown();
+            if (this.observer != null && !this.isOverridingPresses)
+            {
+                if (bReturn && !this.keyDownEventSent)
+                {
+                    this.observer.onKeyChange(this.getCommandString(), true);
+                    this.keyDownEventSent = true;
+                }
+                else if (!bReturn && this.keyDownEventSent)
+                {
+                    this.observer.onKeyChange(this.getCommandString(), false);
+                    this.keyDownEventSent = false;
+                }
+            }
             return bReturn;
         }
     
-    	/** Return true if this key is "pressed"<br>
-         * This is used for one-shot responses in Minecraft - ie isPressed() will only return true once, even if isKeyDown is still returning true.
-         * If this object is not currently set to override, the default Minecraft keyboard handling will be used.
-    	 * @return true if the key has been pressed since the last time this was called.
-    	 */
-    	@Override
+        /**
+         * Return true if this key is "pressed"<br>
+         * This is used for one-shot responses in Minecraft - ie isPressed()
+         * will only return true once, even if isKeyDown is still returning
+         * true. If this object is not currently set to override, the default
+         * Minecraft keyboard handling will be used.
+         * 
+         * @return true if the key has been pressed since the last time this was
+         *         called.
+         */
+        @Override
         public boolean isPressed()
         {
-        	boolean bReturn = this.isOverridingPresses ? this.justPressed : super.isPressed();
-        	this.justPressed = false;	// This appears to be how the KeyBinding is expected to work.
-        	return bReturn;
+            boolean bReturn = this.isOverridingPresses ? this.justPressed : super.isPressed();
+            this.justPressed = false; // This appears to be how the KeyBinding
+                                      // is expected to work.
+            if (this.observer != null && !this.isOverridingPresses)
+            {
+                if (bReturn)
+                {
+                    // Always send an event if pressed is true.
+                    this.observer.onKeyChange(this.getCommandString(), true);
+                    this.keyDownEventSent = true;
+                }
+            }
+            return bReturn;
         }
     
-    	/** Construct a command string from our internal key description.<br>
-    	 * This is the command that we expect to be given from outside in order to control our state.<br>
-    	 * For example, the second hotbar key ("2" on the keyboard, by default) will have a description of "key.hotbar.2",
-    	 * which will result in a command string of "hotbar.2".<br>
-    	 * To "press" and "release" this key, the agent needs to send "hotbar.2 1" followed by "hotbar.2 0".
-    	 * @return the command string, parsed from the key's description.
-    	 */
-    	private String getCommandString()
-    	{
-    		if (this.commandString == null)
-    		{
-    		    this.commandString = getKeyDescription();
-    			int splitpoint = this.commandString.indexOf(".");    // Descriptions are "key.whatever" - remove the "key." part.
-    			if (splitpoint != -1 && splitpoint != this.commandString.length())
-    			{
-    			    this.commandString = this.commandString.substring(splitpoint + 1);
-    			}
-    		}
-    		return this.commandString;
-    	}
-    	
-    	/** Attempt to handle this command string, if relevant.
-    	 * @param command the command to handle. eg "attack 1" means "press the attack key".
-    	 * @return true if the command was relevant and was successfully handled; false otherwise.
-    	 */
-    	public boolean execute(String verb, String parameter)
-    	{
-    		if (verb != null && verb.equalsIgnoreCase(getCommandString()))
-    		{
-    			if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING))
-    			{
-    				press();
-    			}
-    			else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING))
-    			{
-    				release();
-    			}
-    			else
-    			{
-    				return false;
-    			}
-    			return true;
-    		}
-    		return false;
-    	}
+        /**
+         * Construct a command string from our internal key description.<br>
+         * This is the command that we expect to be given from outside in order
+         * to control our state.<br>
+         * For example, the second hotbar key ("2" on the keyboard, by default)
+         * will have a description of "key.hotbar.2", which will result in a
+         * command string of "hotbar.2".<br>
+         * To "press" and "release" this key, the agent needs to send
+         * "hotbar.2 1" followed by "hotbar.2 0".
+         * 
+         * @return the command string, parsed from the key's description.
+         */
+        private String getCommandString()
+        {
+            if (this.commandString == null)
+            {
+                this.commandString = getKeyDescription();
+                int splitpoint = this.commandString.indexOf("."); // Descriptions
+                                                                  // are
+                                                                  // "key.whatever"
+                                                                  // - remove
+                                                                  // the "key."
+                                                                  // part.
+                if (splitpoint != -1 && splitpoint != this.commandString.length())
+                {
+                    this.commandString = this.commandString.substring(splitpoint + 1);
+                }
+            }
+            return this.commandString;
+        }
+
+        /**
+         * Attempt to handle this command string, if relevant.
+         * 
+         * @param command
+         *            the command to handle. eg "attack 1" means
+         *            "press the attack key".
+         * @return true if the command was relevant and was successfully
+         *         handled; false otherwise.
+         */
+        public boolean execute(String verb, String parameter)
+        {
+            if (verb != null && verb.equalsIgnoreCase(getCommandString()))
+            {
+                if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING))
+                {
+                    press();
+                }
+                else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING))
+                {
+                    release();
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public void setObserver(KeyEventListener observer)
+        {
+            this.observer = observer;
+        }
     }
 
     private KeyHook keyHook = null;
@@ -198,6 +260,11 @@ public class CommandForKey extends CommandBase
             this.keyHook.justPressed = false;
             this.keyHook.isOverridingPresses = b;
         }
+    }
+
+    public void setKeyEventObserver(KeyEventListener observer)
+    {
+        this.keyHook.setObserver(observer);
     }
 
     @Override

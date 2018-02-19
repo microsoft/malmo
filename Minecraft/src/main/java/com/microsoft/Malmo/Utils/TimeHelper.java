@@ -25,6 +25,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.Timer;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.Side;
 
 /** Time-based methods and helpers.<br>
  * Time is usually measured in some form of game tick (eg WorldTick etc). In the normal course of operations,
@@ -39,6 +44,50 @@ public class TimeHelper
     public static long serverTickLength = 50;
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
+
+    /** Provide a means to measure the frequency of an event, over a rolling window.
+     */
+    static public class TickRateMonitor
+    {
+        long[] eventTimestamps;
+        int eventIndex = 0;
+        float eventsPerSecond = 0;
+        int windowSize = 10;
+
+        public TickRateMonitor()
+        {
+            this.init(10);
+        }
+
+        public TickRateMonitor(int windowSize)
+        {
+            this.init(windowSize);
+        }
+
+        void init(int windowSize)
+        {
+            this.windowSize = windowSize;
+            this.eventTimestamps = new long[this.windowSize];
+        }
+
+        public float getEventsPerSecond()
+        {
+            return this.eventsPerSecond;
+        }
+
+        public void beat()
+        {
+            this.eventIndex = (this.eventIndex + 1) % this.windowSize;
+            long then = this.eventTimestamps[this.eventIndex];
+            long now = System.currentTimeMillis();
+            this.eventTimestamps[this.eventIndex] = now;
+            if (then == now)
+            {
+                System.out.println("Warning: window too narrow for timing events - increase window, or call beat() less often.");
+            }
+            this.eventsPerSecond = 1000.0f * (float) this.windowSize / (float) (now - then);
+        }
+    }
 
     /** Very simple stopwatch-style timer class; times in WorldTicks.
      */

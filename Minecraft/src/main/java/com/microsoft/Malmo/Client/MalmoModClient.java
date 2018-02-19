@@ -22,24 +22,31 @@ package com.microsoft.Malmo.Client;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.util.MouseHelper;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-
 import org.lwjgl.input.Mouse;
 
 import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TextureHelper;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.util.MouseHelper;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+
 public class MalmoModClient
 {
-    private class MouseHook extends MouseHelper
+    public interface MouseEventListener
+    {
+        public void onXYZChange(int deltaX, int deltaY, int deltaZ);
+    }
+
+    public class MouseHook extends MouseHelper
     {
         public boolean isOverriding = true;
-        /* (non-Javadoc)
+        private MouseEventListener observer = null;
+
+		/* (non-Javadoc)
          * @see net.minecraft.util.MouseHelper#mouseXYChange()
          * If we are overriding control, don't allow Minecraft to do any of the usual camera/yaw/pitch stuff that happens when the mouse moves.
          */
@@ -52,11 +59,12 @@ public class MalmoModClient
                 this.deltaY = 0;
                 if (Mouse.isGrabbed())
                     Mouse.setGrabbed(false);
-                Minecraft.getMinecraft().inGameHasFocus = false;
             }
             else
             {
                 super.mouseXYChange();
+                if (this.observer != null)
+                    this.observer.onXYZChange(this.deltaX, this.deltaY, Mouse.getDWheel());
             }
         }
 
@@ -79,6 +87,11 @@ public class MalmoModClient
             // Vanilla Minecraft calls Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2) at this point...
             // but it's seriously annoying, so we don't.
             Mouse.setGrabbed(false);
+        }
+
+        public void requestEvents(MouseEventListener observer)
+        {
+            this.observer = observer;
         }
     }
     
@@ -130,12 +143,10 @@ public class MalmoModClient
         if (input == InputType.HUMAN)
         {
             Minecraft.getMinecraft().mouseHelper.grabMouseCursor();
-            Minecraft.getMinecraft().inGameHasFocus = true;
         }
         else
         {
             Minecraft.getMinecraft().mouseHelper.ungrabMouseCursor();
-            Minecraft.getMinecraft().inGameHasFocus = false;
         }
 
 		this.stateMachine.getScreenHelper().addFragment("Mouse: " + input, TextCategory.TXT_INFO, INFO_MOUSE_CONTROL);

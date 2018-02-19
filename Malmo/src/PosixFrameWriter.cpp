@@ -19,6 +19,10 @@
 
 // Local:
 #include "PosixFrameWriter.h"
+#include "Logger.h"
+
+// Boost:
+#include <boost/filesystem.hpp>
 
 // POSIX:
 #include <fcntl.h>
@@ -29,10 +33,12 @@
 #include <exception>
 #include <sstream>
 
+#define LOG_COMPONENT Logger::LOG_VIDEO
+
 namespace malmo
 {
-    PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate)
-        : VideoFrameWriter(path, info_filename, width, height, frames_per_second)
+    PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
+        : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels, drop_input_frames)
         , bit_rate(bit_rate)
         , process_id(0)
     {
@@ -77,7 +83,10 @@ namespace malmo
 
             // send ffmpeg's output to file
             {
-                int out_fd = ::open("./ffmpeg.out", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+                boost::filesystem::path fs_path(this->path);
+                std::string ffmpeg_outfile = (fs_path.parent_path() / (fs_path.stem().string() + "_ffmpeg.out")).string();
+
+                int out_fd = ::open(ffmpeg_outfile.c_str(), O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
                 if( out_fd < 0 )
                     throw std::runtime_error( "Failed to open ffmpeg.out for writing." );
                     
@@ -94,6 +103,8 @@ namespace malmo
                     throw std::runtime_error( "Failed to close ffmpeg.out file descriptor." );
             }
 
+            std::string input_format = this->channels == 1 ? "pgm" : "ppm";
+
             ret = execlp( this->ffmpeg_path.c_str(), 
                           this->ffmpeg_path.c_str(),
                           "-y",
@@ -102,7 +113,7 @@ namespace malmo
                           "-framerate",
                           std::to_string(this->frames_per_second).c_str(),
                           "-vcodec",
-                          "ppm",
+                          input_format.c_str(),
                           "-i",
                           "-",
                           "-vcodec",
@@ -121,11 +132,13 @@ namespace malmo
 
     PosixFrameWriter::~PosixFrameWriter()
     {
+        LOGFINE(LT("Destructing PosixFrameWriter - calling close()"));
         this->close();
     }
 
     void PosixFrameWriter::close()
     {
+        LOGFINE(LT("In PosixFrameWriter::close()"));
         if (this->is_open)
         {
             VideoFrameWriter::close();
@@ -134,16 +147,27 @@ namespace malmo
         // if the parent process then close the pipe and wait for ffmpeg to finish
         if( this->process_id ) 
         {
+            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe..."));
             int ret = ::close( this->pipe_fd[1] );
-            if( ret )
-                throw std::runtime_error( "Failed to close the pipe." );
+            if (ret)
+            {
+                LOGERROR(LT("Failed to close pipe: "), ret);
+                throw std::runtime_error("Failed to close the pipe.");
+            }
 
             int status;
+            LOGFINE(LT("Pipe closed, waiting for ffmpeg to end..."));
             ret = waitpid( this->process_id, &status, 0 );
-            if( ret != this->process_id )
-                throw std::runtime_error( "Call to waitpid failed." );
-            if( !WIFEXITED( status ) )
-                throw std::runtime_error( "FFMPEG process exited abnormally." );
+            if (ret != this->process_id)
+            {
+                LOGERROR(LT("Call to waitpid failed: "), ret);
+                throw std::runtime_error("Call to waitpid failed.");
+            }
+            if (!WIFEXITED(status))
+            {
+                LOGERROR(LT("FFMPEG process exited abnormally: "), status);
+                throw std::runtime_error("FFMPEG process exited abnormally.");
+            }
 
             this->process_id = 0;
         }
@@ -151,15 +175,22 @@ namespace malmo
 
     void PosixFrameWriter::doWrite(char* rgb, int width, int height, int frame_index)
     {
+        std::string magic_number = this->channels == 1 ? "P5" : "P6";
         std::ostringstream oss;
-        oss << "P6\n" << width << " " << height << "\n255\n";
+        oss << magic_number << "\n" << width << " " << height << "\n255\n";
         ssize_t ret = ::write( this->pipe_fd[1], oss.str().c_str(), oss.str().size() );
-        if( ret < 0 )
-            throw std::runtime_error( "Call to write failed." );
+        if (ret < 0)
+        {
+            LOGERROR(LT("Failed to write frame header: "), std::strerror(errno), LT(" - throwing runtime_error"));
+            throw std::runtime_error("Call to write failed.");
+        }
 
         ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
-        if( ret < 0 )
-            throw std::runtime_error( "Call to write failed." );
+        if (ret < 0)
+        {
+            LOGERROR(LT("Failed to write frame body: "), std::strerror(errno), LT(" - throwing runtime_error"));
+            throw std::runtime_error("Call to write failed.");
+        }
     }
 
     std::string PosixFrameWriter::search_path()
@@ -193,3 +224,5 @@ namespace malmo
         return "";
     }
 }
+
+#undef LOG_COMPONENT

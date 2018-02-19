@@ -60,10 +60,6 @@ namespace malmo
             //! \returns Boolean value.
             bool isRecording() const;
 
-            //! Gets whether the video from the mission will be recorded or not.
-            //! \returns Boolean value.
-            bool isRecordingMP4() const;
-
             //! Gets whether the observations from the mission will be recorded or not.
             //! \returns Boolean value.
             bool isRecordingObservations() const;
@@ -94,11 +90,22 @@ namespace malmo
 
             //! Gets the bitrate at which the video should be recorded, if MP4 recording has been requested.
             //! \returns The bitrate in bits per second.
-            int64_t getMP4BitRate() const;
+            int64_t getMP4BitRate(TimestampedVideoFrame::FrameType type) const;
 
             //! Gets the frequency at which frames should be recorded, if MP4 recording has been requested.
             //! \returns The frames per second.
-            int getMP4FramesPerSecond() const;
+            int getMP4FramesPerSecond(TimestampedVideoFrame::FrameType type) const;
+
+            //! Gets whether or not the specified video type is being recorded to MP4.
+            //! \returns Boolean value.
+            bool isRecordingMP4(TimestampedVideoFrame::FrameType type) const;
+
+            //! Gets whether or not the specified video type is dropping input frames to cap the fps.
+            bool isDroppingFrames(TimestampedVideoFrame::FrameType type) const;
+
+            //! Gets whether or not the specified video type is being recorded to individual frames.
+            //! \returns Boolean value.
+            bool isRecordingBmps(TimestampedVideoFrame::FrameType type) const;
 
             //! Gets the path where the observations should be saved to, if recording has been requested.
             //! \returns The path as a string.
@@ -116,6 +123,10 @@ namespace malmo
             //! \returns The path as a string
             std::string getMissionInitPath() const;
 
+            //! Gets the path where the mission ended should be saved to
+            //! \returns The path as a string
+            std::string getMissionEndedPath() const;
+
             //! Gets the temporary directory for this mission record.
             //! \returns The temporary directory for the mission record.
             std::string getTemporaryDirectory() const;
@@ -132,6 +143,7 @@ namespace malmo
             std::string rewards_path;
             std::string commands_path;
             std::string mission_init_path;
+            std::string mission_ended_path;
             std::string mission_id;
             boost::filesystem::path temp_dir;
 

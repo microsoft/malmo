@@ -8,7 +8,7 @@
 *
 *
 *		Modified by OJ in order to make cross platform
-*
+*       Modified by DB to increase buffer size and add files from memory
 */
 
 #ifndef LINDENB_IO_TARBALL_HPP
@@ -169,7 +169,7 @@ namespace lindenb { namespace io {
 
 		void putFile(const char* filename,const char* nameInArchive)
 		{
-			char buff[BUFSIZ];
+			char buff[128 << 10]; // 128k
 			std::FILE* in=std::fopen(filename,"rb");
 			if(in==NULL)
 			{
@@ -190,7 +190,7 @@ namespace lindenb { namespace io {
 			out.write((const char*)&header,sizeof(PosixTarHeader));
 
 			std::size_t nRead=0;
-			while((nRead=std::fread(buff,sizeof(char),BUFSIZ,in))>0)
+			while((nRead=std::fread(buff,sizeof(char),128<<10,in))>0)
 			{
 				out.write(buff,nRead);
 			}
@@ -198,7 +198,34 @@ namespace lindenb { namespace io {
 
 			_endRecord(len);
 		}
-	};
+
+        void putMem(const char* memory, std::size_t size, const char* nameInArchive)
+        {
+            PosixTarHeader header;
+            _init((void*)&header);
+            _filename((void*)&header, nameInArchive);
+            header.typeflag[0] = 0;
+            _size((void*)&header, size);
+            _checksum((void*)&header);
+            out.write((const char*)&header, sizeof(PosixTarHeader));
+            out.write(memory, size);
+            _endRecord(size);
+        }
+
+        void putMemWithHeader(const char* mem_header, std::size_t headersize, const char* mem_body, std::size_t bodysize, const char* nameInArchive)
+        {
+            PosixTarHeader header;
+            _init((void*)&header);
+            _filename((void*)&header, nameInArchive);
+            header.typeflag[0] = 0;
+            _size((void*)&header, headersize + bodysize);
+            _checksum((void*)&header);
+            out.write((const char*)&header, sizeof(PosixTarHeader));
+            out.write(mem_header, headersize);
+            out.write(mem_body, bodysize);
+            _endRecord(headersize + bodysize);
+        }
+    };
 
 }}
 #endif // LINDENB_IO_TARBALL_HPP

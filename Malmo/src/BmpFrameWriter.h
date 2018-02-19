@@ -17,11 +17,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef _VIDEOFRAMEWRITER_H_
-#define _VIDEOFRAMEWRITER_H_
+#ifndef _BMPFRAMEWRITER_H_
+#define _BMPFRAMEWRITER_H_
 
 // Local:
 #include "TimestampedVideoFrame.h"
+#include "VideoFrameWriter.h"
 
 // Boost:
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -36,23 +37,11 @@
 
 namespace malmo
 {
-    class IFrameWriter
+    class BmpFrameWriter : public IFrameWriter
     {
     public:
-        IFrameWriter() {}
-        virtual ~IFrameWriter() {}
-        virtual void open() = 0;
-        virtual void close() = 0;
-        virtual bool write(TimestampedVideoFrame frame) = 0;
-        virtual bool isOpen() const = 0;
-        virtual size_t getFrameWriteCount() const = 0;
-    };
-
-    class VideoFrameWriter : public IFrameWriter
-    {
-    public:
-        VideoFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int channels, bool drop_input_frames);
-        virtual ~VideoFrameWriter();
+        BmpFrameWriter(std::string path, std::string frame_info_filename, bool saveInNumpyFormat);
+        virtual ~BmpFrameWriter();
         virtual void open();
         virtual void close();
         
@@ -60,28 +49,22 @@ namespace malmo
         virtual bool isOpen() const;
         virtual size_t getFrameWriteCount() const { return frames_actually_written; }
 
-        static std::unique_ptr<VideoFrameWriter> create(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames);
+        static std::unique_ptr<BmpFrameWriter> create(std::string path, std::string frame_info_filename, bool saveInNumpyFormat);
 
     protected:
-        virtual void doWrite(char* rgb, int width, int height, int frame_index) = 0;
-
         std::string path;
-        short width;
-        short height;
-        int frames_per_second;
-        bool drop_input_frames;
-        int channels;
         bool is_open;
+        bool is_numpy_format;
 
     private:
         void writeFrames();
-        void writeSingleFrame(const TimestampedVideoFrame& frame, int count);
 
         boost::posix_time::ptime start_time;
         boost::posix_time::ptime last_timestamp;
         boost::posix_time::time_duration frame_duration;
         std::ofstream frame_info_stream;
         boost::filesystem::path frame_info_path;
+        boost::filesystem::path frames_path;
         int frame_index;
         int frames_actually_written = 0;
 

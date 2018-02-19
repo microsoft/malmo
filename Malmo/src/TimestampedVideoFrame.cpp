@@ -67,6 +67,18 @@ namespace malmo
             this->pixels = std::vector<unsigned char>(message.data.begin() + FRAME_HEADER_SIZE, message.data.end());
             break;
 
+        case RAW_BMP:
+            this->pixels = std::vector<unsigned char>(message.data.begin() + FRAME_HEADER_SIZE, message.data.end());
+            if (channels == 3){
+                // Swap BGR -> RGB:
+                for (int i = 0; i < this->pixels.size(); i += 3){
+                    char t = this->pixels[i];
+                    this->pixels[i] = this->pixels[i + 2];
+                    this->pixels[i + 2] = t;
+                }
+            }
+            break;
+
         case REVERSE_SCANLINE:
             this->pixels = std::vector<unsigned char>();
             for (int i = 0, offset = (height - 1)*stride; i < height; i++, offset -= stride){
@@ -90,6 +102,24 @@ namespace malmo
     std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame& tsvidframe)
     {
         os << "TimestampedVideoFrame: " << to_simple_string(tsvidframe.timestamp) << ", type " << tsvidframe.frametype << ", " << tsvidframe.width << " x " << tsvidframe.height << " x " << tsvidframe.channels << ", (" << tsvidframe.xPos << "," << tsvidframe.yPos << "," << tsvidframe.zPos << " - yaw:" << tsvidframe.yaw << ", pitch:" << tsvidframe.pitch << ")";
+        return os;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const TimestampedVideoFrame::FrameType& type)
+    {
+        switch (type)
+        {
+        case TimestampedVideoFrame::VIDEO:
+            os << "video"; break;
+        case TimestampedVideoFrame::DEPTH_MAP:
+            os << "depth"; break;
+        case TimestampedVideoFrame::LUMINANCE:
+            os << "luminance"; break;
+        case TimestampedVideoFrame::COLOUR_MAP:
+            os << "colourmap"; break;
+        default:
+            break;
+        }
         return os;
     }
 

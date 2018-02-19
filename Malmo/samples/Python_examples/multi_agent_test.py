@@ -36,8 +36,7 @@ import uuid
 from collections import namedtuple
 from operator import add
 
-EntityInfo = namedtuple('EntityInfo', 'x, y, z, yaw, pitch, name, colour, variation, quantity, life')
-EntityInfo.__new__.__defaults__ = (0, 0, 0, 0, 0, "", "", "", 1, "")
+EntityInfo = namedtuple('EntityInfo', 'x, y, z, name')
 
 # Create one agent host for parsing:
 agent_hosts = [MalmoPython.AgentHost()]
@@ -361,7 +360,7 @@ for mission_no in range(1, num_missions+1):
                 if "XPos" in ob and "ZPos" in ob:
                     current_pos[i] = (ob[u'XPos'], ob[u'ZPos'])
                 if "entities" in ob:
-                    entities = [EntityInfo(**k) for k in ob["entities"]]
+                    entities = [EntityInfo(k["x"], k["y"], k["z"], k["name"]) for k in ob["entities"]]
                     turn, speed = getVelocity(agentName(i), entities, current_yaw[i], current_pos[i], current_life[i])
                     ah.sendCommand("move " + str(speed))
                     ah.sendCommand("turn " + str(turn))

@@ -6,7 +6,7 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            elementFormDefault="qualified"
            jaxb:version="2.1"
-           version="0.31">
+           version="0.32">
 
   <xs:include schemaLocation="Types.xsd" />
   <xs:include schemaLocation="Mission.xsd" /> 
@@ -1292,8 +1292,41 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="HumanLevelCommand">
+    <xs:annotation>
+      <xs:documentation>
+        Commands for controlling Minecraft at the level of keyboard and mouse events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="forward" />
+      <xs:enumeration value="left" />
+      <xs:enumeration value="back" />
+      <xs:enumeration value="right" />
+      <xs:enumeration value="jump" />
+      <xs:enumeration value="sneak" />
+      <xs:enumeration value="sprint" />
+      <xs:enumeration value="inventory" />
+      <xs:enumeration value="swapHands" />
+      <xs:enumeration value="drop" />
+      <xs:enumeration value="use" />
+      <xs:enumeration value="attack" />
+      <xs:enumeration value="pickItem" />
+      <xs:enumeration value="hotbar.1" />
+      <xs:enumeration value="hotbar.2" />
+      <xs:enumeration value="hotbar.3" />
+      <xs:enumeration value="hotbar.4" />
+      <xs:enumeration value="hotbar.5" />
+      <xs:enumeration value="hotbar.6" />
+      <xs:enumeration value="hotbar.7" />
+      <xs:enumeration value="hotbar.8" />
+      <xs:enumeration value="hotbar.9" />
+      <xs:enumeration value="moveMouse" />
+    </xs:restriction>
+  </xs:simpleType>
+  
   <xs:simpleType name="Command">
-    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand"/>
+    <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand HumanLevelCommand"/>
   </xs:simpleType>
 
   <xs:simpleType name="CommandList">
@@ -1518,6 +1551,29 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="HumanLevelCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept commands on the level of mouse and keyboard events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="HumanLevelCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
   <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
   <xs:element name="ObservationFromRecentCommands">
@@ -1576,6 +1632,24 @@
         * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}, {{{Name}}}
         * Position statistics: {{{XPos}}}, {{{YPos}}}, {{{ZPos}}}, {{{Pitch}}}, {{{Yaw}}}
         * Environment statistics: {{{WorldTime}}} - current time in ticks, {{{TotalTime}}} - total world time, unaffected by ServerInitialConditions
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromHuman">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return low-level keyboard and mouse events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+  <xs:element name="ObservationFromSystem">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will return information on the current performance of the Minecraft system - eg tick speeds, etc.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
@@ -1754,8 +1828,10 @@
     <xs:annotation>
       <xs:documentation>
         When present, the Mod will return observations that say what chat messages have occurred and from which player.
+        It will also return messages for any title or subtitle change (eg via Minecraft's title command)
 
         A JSON element {{{Chat}}} will be returned, with a list of chat strings.
+        In the same way, title changes and subtitle changes will be returned in {{{Title}}} and {{{Subtitle}}} respectively.
         
         Note that unless the AgentHost ObservationsPolicy is set to KEEP_ALL_OBSERVATIONS it is likely that chat messages will be missed.
         The default policy is LATEST_OBSERVATION_ONLY.

@@ -20,6 +20,7 @@
 // Local:
 #include "VideoServer.h"
 #include "VideoFrameWriter.h"
+#include "BmpFrameWriter.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -32,17 +33,23 @@ namespace malmo
         , height( height )
         , channels( channels )
         , frametype( frametype )
+        , received_frames(0)
+        , written_frames(0)
+        , queued_frames(0)
+        , transform(TimestampedVideoFrame::REVERSE_SCANLINE)
         , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
     {
     }
 
     void VideoServer::start()
     {
+        this->written_frames = this->queued_frames = this->received_frames = 0;
         this->server.start();
     }
     
     void VideoServer::startRecording()
     {
+        this->written_frames = this->queued_frames = this->received_frames = 0;
         for (const auto& writer : this->writers){
             writer->open();
         }
@@ -53,13 +60,15 @@ namespace malmo
         for (const auto& writer : this->writers){
             if (writer->isOpen()){
                 writer->close();
+                this->written_frames += writer->getFrameWriteCount();
             }
         }
         this->writers.clear();
     }
 
-    VideoServer& VideoServer::recordMP4(std::string path, int frames_per_second, int64_t bit_rate)
+    VideoServer& VideoServer::recordMP4(std::string path, int frames_per_second, int64_t bit_rate, bool drop_input_frames)
     {
+        int channels = 3;
         std::string filename;
         switch (this->frametype)
         {
@@ -71,17 +80,50 @@ namespace malmo
             break;
         case TimestampedVideoFrame::LUMINANCE:
             filename = "luminance_frame_info.txt";
+            channels = 1;
             break;
         case TimestampedVideoFrame::VIDEO:
         default:
             filename = "frame_info.txt";
             break;
         }
-        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate));
+        this->writers.push_back(VideoFrameWriter::create(path, filename, this->width, this->height, frames_per_second, bit_rate, channels, drop_input_frames));
+        this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
 
         return *this;
     }
-    
+
+    VideoServer& VideoServer::recordBmps(std::string path)
+    {
+        std::string filename;
+        std::string frame_dir;
+        switch (this->frametype)
+        {
+        case TimestampedVideoFrame::COLOUR_MAP:
+            filename = "colour_map_info.txt";
+            frame_dir = "colour_map_frames";
+            break;
+        case TimestampedVideoFrame::DEPTH_MAP:
+            filename = "depth_frame_info.txt";
+            frame_dir = "depth_frames";
+            break;
+        case TimestampedVideoFrame::LUMINANCE:
+            filename = "luminance_frame_info.txt";
+            frame_dir = "luminance_frames";
+            break;
+        case TimestampedVideoFrame::VIDEO:
+        default:
+            filename = "frame_info.txt";
+            frame_dir = "video_frames";
+            break;
+        }
+        boost::filesystem::path fs_path(path);
+        boost::filesystem::path frame_path = fs_path / frame_dir;
+        this->writers.push_back(BmpFrameWriter::create(frame_path.string(), filename, this->frametype==TimestampedVideoFrame::DEPTH_MAP));
+        this->transform = TimestampedVideoFrame::REVERSE_SCANLINE;
+        return *this;
+    }
+
     void VideoServer::handleMessage( TimestampedUnsignedCharVector message )
     {
         if (message.data.size() != TimestampedVideoFrame::FRAME_HEADER_SIZE + this->width * this->height * this->channels)
@@ -90,12 +132,15 @@ namespace malmo
             // one when the same port has been reassigned. Could throw here but chose to silently ignore since very rare.
             return;
         }
-        TimestampedVideoFrame frame(this->width, this->height, this->channels, message, TimestampedVideoFrame::REVERSE_SCANLINE, this->frametype);
-        this->handle_frame(frame);
-        
+        TimestampedVideoFrame frame(this->width, this->height, this->channels, message, this->transform, this->frametype);
+        this->received_frames++;
+        this->handle_frame(frame); 
+
         for (const auto& writer : this->writers){
             if (writer->isOpen()){
-                writer->write(frame);
+                if (writer->write(frame)){
+                    this->queued_frames++;
+                }
             }
         }
     }

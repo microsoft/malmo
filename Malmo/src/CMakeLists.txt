@@ -39,6 +39,7 @@ set( SOURCES
    TimestampedString.cpp
    TimestampedVideoFrame.cpp
    VideoFrameWriter.cpp
+   BmpFrameWriter.cpp
    VideoServer.cpp
    WorldState.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/Mission.cpp
@@ -72,6 +73,7 @@ set( HEADERS
    TimestampedString.h
    TimestampedVideoFrame.h
    VideoFrameWriter.h
+   BmpFrameWriter.h
    VideoServer.h
    WorldState.h
    ${CMAKE_CURRENT_BINARY_DIR}/Mission.h

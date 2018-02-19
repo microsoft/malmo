@@ -139,6 +139,8 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                 arrInvs.add(jobjTell);
             }
             json.add("inventoriesAvailable", arrInvs);
+            // Also add a field to show which slot in the hotbar is currently selected.
+            json.addProperty("currentItemIndex", player.inventory.currentItem);
         }
 
         @Override
