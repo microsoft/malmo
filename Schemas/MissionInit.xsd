@@ -4,7 +4,7 @@
            targetNamespace="http://ProjectMalmo.microsoft.com"
            xmlns="http://ProjectMalmo.microsoft.com"
            elementFormDefault="qualified"
-           version="0.33">
+           version="0.32">
            
 <xs:include schemaLocation="Mission.xsd" />
 
