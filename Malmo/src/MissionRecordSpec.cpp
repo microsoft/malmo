@@ -52,12 +52,13 @@ namespace malmo
 
     void MissionRecordSpec::setDestination(const std::string& destination)
     {
-        std::ofstream file(destination, std::ofstream::binary);
+        boost::filesystem::path filepath = boost::filesystem::absolute(destination);
+        std::ofstream file(filepath.string(), std::ofstream::binary);
         if (file.fail()) {
-            std::cout << "ERROR: Cannot write to " << destination << " - check the path exists and you have permission to write there." << std::endl;
+            std::cout << "ERROR: Cannot write to " << filepath.string() << " - check the path exists and you have permission to write there." << std::endl;
             throw std::runtime_error("Can not write to recording destination.");
         }
-        this->destination = destination;
+        this->destination = filepath.string();
     }
 
     void MissionRecordSpec::recordMP4(int frames_per_second, int64_t bit_rate)
