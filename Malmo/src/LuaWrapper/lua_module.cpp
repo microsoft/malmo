@@ -265,7 +265,9 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             value("MISSION_SERVER_WARMING_UP", MissionException::MISSION_SERVER_WARMING_UP),
             value("MISSION_SERVER_NOT_FOUND", MissionException::MISSION_SERVER_NOT_FOUND),
             value("MISSION_NO_COMMAND_PORT", MissionException::MISSION_NO_COMMAND_PORT),
-            value("MISSION_BAD_INSTALLATION", MissionException::MISSION_BAD_INSTALLATION)
+            value("MISSION_BAD_INSTALLATION", MissionException::MISSION_BAD_INSTALLATION),
+            value("MISSION_CAN_NOT_KILL_BUSY_CLIENT", MissionException::MISSION_CAN_NOT_KILL_BUSY_CLIENT),
+            value("MISSION_CAN_NOT_KILL_IRREPLACEABLE_CLIENT", MissionException::MISSION_CAN_NOT_KILL_IRREPLACEABLE_CLIENT)
         ]
     ,
 
@@ -330,6 +332,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
             .def(constructor<>())
             .def("startMission",                    startMissionSimple)
             .def("startMission",                    startMissionComplex)
+            .def("killClient",                      &AgentHost::killClient)
             .def("peekWorldState",                  &AgentHost::peekWorldState)
             .def("getWorldState",                   &AgentHost::getWorldState)
             .def("setVideoPolicy",                  &AgentHost::setVideoPolicy)

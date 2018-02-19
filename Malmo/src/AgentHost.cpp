@@ -139,6 +139,28 @@ namespace malmo
         startMission(mission, client_pool, mission_record, 0, "");
     }
 
+    bool AgentHost::killClient(const ClientInfo& client)
+    {
+        LOGINFO(LT("Sending kill command to "), client.ip_address, LT(":"), client.port);
+        std::string reply;
+        try
+        {
+            reply = SendStringAndGetShortReply(this->io_service, client.ip_address, client.port, "MALMO_KILL_CLIENT\n", false);
+        }
+        catch (std::exception& e)
+        {
+            // This is expected quite often - client is likely not running.
+            LOGINFO(LT("Exception attempting to kill client: "), e.what());
+            return false;
+        }
+        LOGINFO(LT("Killing client, received reply from "), client.ip_address, LT(": "), reply);
+        if (reply == "MALMOBUSY")
+            throw MissionException("Failed to kill Minecraft instance - mod is not dormant (is a mission still running?)", MissionException::MISSION_CAN_NOT_KILL_BUSY_CLIENT);
+        else if (reply == "MALMOERRORNOTKILLABLE")
+            throw MissionException("Failed to kill Minecraft instance - mod must be run with 'replaceable' command-line argument.", MissionException::MISSION_CAN_NOT_KILL_IRREPLACEABLE_CLIENT);
+        return reply == "MALMOOK";
+    }
+
     void AgentHost::startMission(const MissionSpec& mission, const ClientPool& client_pool, const MissionRecordSpec& mission_record, int role, std::string unique_experiment_id)
     {
         std::call_once(test_schemas_flag, testSchemasCompatible);
