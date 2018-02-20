@@ -58,7 +58,7 @@ except KeyError:
     exit(1)
 item_json = schema_dir + os.sep + "items.json"
 
-with open('item_database.json', encoding='utf-8') as data_file:
+with open(item_json, encoding='utf-8') as data_file:
     item_data = json.loads(data_file.read())
 
 # Now process it into a useful state.
