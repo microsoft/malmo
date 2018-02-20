@@ -471,15 +471,20 @@ print()
 
 testing = agent_host.receivedArgument("test")
 if testing:
-    num_iterations = len(identifiable_objects)
+    # Just do 20 iterations, don't bother pausing at each sign,
+    # and move more slowly and carefully, since slipping off a branch
+    # will cause the test to fail.
+    num_iterations = 20
     sleep_scale = 0.3
+    speed_scale = 0.4
 else:
     num_iterations = 30000
     sleep_scale = 1.0
+    speed_scale = 0.6
 
 for i in range(num_iterations):
     if testing:
-        target_item = identifiable_objects[i]
+        target_item = random.choice(identifiable_objects)
     else: # Choose a random item to "find":
         target_item = random.choice(item_types)
     print("Mission {} - target: {}".format(i+1, target_item))
@@ -517,8 +522,8 @@ for i in range(num_iterations):
             # if we are near the edge of a platform, slow down!
             if u"ground" in ob and direction != 0:
                 grid = ob[u"ground"]
-                iron_blocks = grid.count("iron_block")
-                speed = direction * (0.5 ** (5 - iron_blocks))
+                iron_blocks = max(grid.count("iron_block"), 2)
+                speed = direction * (speed_scale ** (5 - iron_blocks))
                 agent_host.sendCommand("strafe " + str(speed))
             # Use the line of sight observation to "read" the signs:
             if u"LineOfSight" in ob:
