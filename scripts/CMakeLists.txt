@@ -33,3 +33,4 @@ if( UNIX AND NOT APPLE )
     install( FILES ${SCRIPT_FILES} DESTINATION scripts )
 endif()
 
+add_subdirectory( tools )

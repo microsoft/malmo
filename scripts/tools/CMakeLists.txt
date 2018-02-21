@@ -17,9 +17,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-set( SCRIPT_FILES
+set( TOOL_FILES
   depth_map_parser.py
   frame_rate_plotter.py
   readme.md
 )
-install( FILES ${SCRIPT_FILES} DESTINATION tools )
+install( FILES ${TOOL_FILES} DESTINATION scripts/tools )
