@@ -249,6 +249,7 @@ if( INCLUDE_ALE )
   add_subdirectory( ALE_ROMS )
 endif()
 
+# Save a small properties file, so we can easily tell what version of python this was built against, etc.
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/malmo.properties malmo.properties )
 INSTALL( FILES ${CMAKE_BINARY_DIR}/malmo.properties DESTINATION .)
 
