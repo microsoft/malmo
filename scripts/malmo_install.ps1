@@ -14,6 +14,16 @@ if (-Not (Test-Path .\temp))
     mkdir temp
 }
 
+# Attempt to get version information from the Malmo properties file.
+# (This file was added in 0.34.0)
+try {
+    Write-Host "Looking for $MALMO_HOME\malmo.properties"
+    $versions = Get-Content $MALMO_HOME\malmo.properties | Out-String | ConvertFrom-StringData
+} catch {
+    Write-Host $error -foreground Red
+    Write-Host "An error occurred attempting to read $MALMO_HOME\malmo.properties - please check this file exists."
+}
+
 $error.clear()
 try {
     # Install dependencies:
@@ -21,13 +31,20 @@ try {
     $InstallList = "Install-7Zip;
          Install-Ffmpeg;
          Install-Java;
-         Install-Python;
          Install-XSD;
          Install-VCRedist;
          "
     if ($headless) {
          $InstallList += "Install-Mesa;"
     }
+    if ($versions.python_version -ge 3) {
+        $InstallList += "Install-Python3"
+    }
+    else {
+        $InstallList += "Install-Python2"
+    }
+    Write-Host $InstallList
+
     if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
         Write-Host "Elevating to admin ..."

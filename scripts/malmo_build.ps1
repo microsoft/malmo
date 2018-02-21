@@ -41,7 +41,8 @@ if (Should-Install "CMake")
     }
 }
 
-Install-Python
+# Assume python3... this needs to be an option.
+Install-Python3
 
 # Add MSBuild to path:
 Write-Host

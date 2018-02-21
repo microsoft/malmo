@@ -249,6 +249,9 @@ if( INCLUDE_ALE )
   add_subdirectory( ALE_ROMS )
 endif()
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/malmo.properties malmo.properties )
+INSTALL( FILES ${CMAKE_BINARY_DIR}/malmo.properties DESTINATION .)
+
 # -------------------- Package ------------------------------------
 if( INCLUDE_ALE )
   set( SYSTEM_NAME "${SYSTEM_NAME}_withALE" )
