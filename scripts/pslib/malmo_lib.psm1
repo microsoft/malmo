@@ -167,7 +167,26 @@ function Install-Java
     return $True
 }
 
-function Install-Python
+function Install-Python2
+{
+    if (Should-Install "Python 2.7")
+    {
+        Display-Heading "Installing python"
+        Download-File "https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi" ($env:HOMEPATH + "\temp\python_install.msi")
+        Start-Process .\temp\python_install.msi -ArgumentList "/qn" -Wait
+        if ($?)
+        {
+            Append-Path "C:\Python27"
+            return $True
+        }
+        Write-Host "FAILED TO INSTALL PYTHON 2"
+        Start-Sleep 3
+        exit 1
+    }
+    Write-Host "Python2 already installed."
+}
+
+function Install-Python3
 {
     if (Should-Install "Python 3.6")
     {
@@ -178,11 +197,11 @@ function Install-Python
         {
             return $True
         }
-        Write-Host "FAILED TO INSTALL PYTHON"
+        Write-Host "FAILED TO INSTALL PYTHON3"
         Start-Sleep 3
         exit 1
     }
-    Write-Host "Python already installed."
+    Write-Host "Python3 already installed."
 }
 
 function Install-XSD
