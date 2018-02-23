@@ -52,7 +52,7 @@ if( INCLUDE_PYTHON )
   set( USE_PYTHON_VERSIONS_DESC "Specifies which version of Python to build Malmo with Python bindings" )
   if ( PYTHON_OLD )
     set( USE_PYTHON_VERSIONS 2.7 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
-  else
+  else()
     set( USE_PYTHON_VERSIONS 3.6 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
   endif()
 endif()
@@ -105,9 +105,12 @@ SET(Boost_ADDITIONAL_VERSIONS "1.64" "1.64.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.65" "1.65.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.65.1" "1.65.1")
 
-BOOST_PYTHON_MODULE_NAME = "python"
-if ( USE_PYTHON_VERSIONS >= 3 )
-    BOOST_PYTHON_MODULE_NAME = "python3"
+SET(BOOST_PYTHON_MODULE_NAME "python")
+message( "Testing python version..." )
+if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
+    message("Python version greater than 3")
+    SET(BOOST_PYTHON_MODULE_NAME "python3")
+endif()
 
 if( WIN32 )
   SET(Boost_USE_STATIC_LIBS ON)

@@ -32,11 +32,14 @@
     7. `cmake --build . --config Release --target install`
     8. Add `C:\Program Files\zlib\bin` to your PATH ([How To](https://support.microsoft.com/en-us/kb/310519))
 
-6. Install and build Boost 1.59.0 or later: (NOTE - if you have Python31 installed, ensure that it isn't picked up by the boost build - make sure it comes _after_ Python27 in your path)
+6. Install and build Boost 1.59.0 or later:
     1. Download e.g. `boost_1_59_0.zip` from http://boost.org
     2. Extract to `c:\boost`
     3. Open a Visual Studio 2013 x64 command prompt with Admin rights ([How-To](https://technet.microsoft.com/en-us/library/cc947813(v=ws.10).aspx))
     4. e.g. `cd c:\boost\boost_1_59_0`
+    *If you are using Python 3, rather than Python 2:*
+        a. Create a user-config.jam file in the root of your boost installation (eg c:\boost\boost_1_59_0\user-config.jam) - the easiest way to do this is copy the example one from boost's tools\build\example
+        b. Find the section on Python, and uncomment the "using python" line, changing it to point to your python3 installation - eg `using python : 3.6 : C:/python36 : C:/python36/include : C:/python36/lib ;`
     5. `bootstrap.bat`
     6. `b2.exe toolset=msvc-12.0 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.8"`   
     7. For more information on installing Boost with ZLib support, see [here](http://www.boost.org/doc/libs/1_59_0/libs/iostreams/doc/installation.html)
