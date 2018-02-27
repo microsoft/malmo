@@ -26,11 +26,10 @@ import os
 import sys
 import time
 import json
-import copy
 import errno
 import random
 import math
-import xml.etree.ElementTree as ET
+from io import open
 
 # Test of DrawSign, DrawItem, and reading NBTTagCompounds from ObservationFromRay.
 # This draws a physical decision tree, and then animates the process of traversing it.
@@ -491,7 +490,7 @@ for i in range(num_iterations):
     missionXML = getMissionXML(target_item, i == 0, tree, testing)
     if recording:
         my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i+1) + ".tgz")
-    my_mission = MalmoPython.MissionSpec(missionXML, True)
+    my_mission = MalmoPython.MissionSpec(str(missionXML), True)
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -536,7 +535,7 @@ for i in range(num_iterations):
                         question = t1["text"][:-1]
                         if not question == last_question:
                             agent_host.sendCommand("strafe 0")
-                            agent_host.sendCommand("chat " + question + "?")
+                            agent_host.sendCommand("chat " + str(question) + "?")
                             time.sleep(sleep_scale)
                             last_question = question
                             if not question in item_table[target_item]:
