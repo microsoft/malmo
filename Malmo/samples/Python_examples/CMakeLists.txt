@@ -79,6 +79,7 @@ set( MULTI_AGENT_TESTS
 )
 
 set( OTHER_FILES
+  malmoutils.py
   tutorial_6.xml
   Tutorial.pdf
   note_block_test.py    # Currently no way to test audio
@@ -97,8 +98,8 @@ function(addTestsFromFiles SOURCES_TO_TEST)
     # add an integration test for each sample
     foreach( file ${SOURCES_TO_TEST} )
 
-      get_filename_component( test_name "${file}" NAME_WE )
-      set( test_name "PythonIntegrationTests_${test_name}" )
+      get_filename_component( script_name "${file}" NAME_WE )
+      set( test_name "PythonIntegrationTests_${script_name}" )
       
       add_test(NAME ${test_name}_help
         WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
@@ -108,7 +109,7 @@ function(addTestsFromFiles SOURCES_TO_TEST)
 
       add_test(NAME ${test_name}
         WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test --recording_dir ${script_name} --record_video
       )
       set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
 

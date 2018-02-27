@@ -26,13 +26,14 @@ import os
 import sys
 import time
 import random
+import malmoutils
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
+malmutils.fix_print()
 
+# Create default Malmo objects:
+agent_host = MalmoPython.AgentHost()
+malmutils.parse_command_line(agent_host)
+    
 items = {'red_flower':'flower',
          'apple':'apple',
          'iron_sword':'sword',
@@ -93,22 +94,13 @@ mission_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 </Mission>
 '''
 
-
-# Create default Malmo objects:
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 my_mission = MalmoPython.MissionSpec(mission_xml, True)
-my_mission_record = MalmoPython.MissionRecordSpec("chat_reward.tgz")
+my_mission_record = MalmoPython.MissionRecordSpec()
+recordDirectory = malmoutils.get_recordings_directory(agent_host)
+if recordDirectory:
+    my_mission_record.setDestination(recordDirectory + "//" + "chat_recording.tgz")
+    if agent_host.receivedArgument("record_video"):
+        my_mission_record.recordMP4(24,2000000)
 
 # Attempt to start a mission:
 max_retries = 3
