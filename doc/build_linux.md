@@ -16,7 +16,7 @@
          
     2. On Ubuntu 14.04:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk libbz2-dev`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -125,8 +125,12 @@
       `source ~/.bashrc`
        
     **Note:** To include ALE in your malmo build, add `-DINCLUDE_ALE=ON` to your cmake command in step 10. If you stored your ALE directory somewhere other than ~/ALE, also add `-DROOT_ALE_DIR=/path/to/your/ALE`
+       
+11. Install necessary Python dependencies:
+    1. pip install future
+    2. pip install pillow
 
-11. Build Malmo:
+12. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`
@@ -144,12 +148,12 @@
     9. `make install`
     10. You can then run the samples from e.g. `install/Python_Examples`
 
-12. Test Malmo:
+13. Test Malmo:
     1. `ctest`
     2. `ctest -E Integration` to exclude the integration tests.
     3. `ctest -VV` to get verbose output.
 
-13. Make a distributable:
+14. Make a distributable:
     1. Run all the tests.
     2. Change the version number in CMakeLists.txt and Minecraft/src/main/java/com/microsoft/Malmo/MalmoMod.java, and commit.
     3. `cmake -DCMAKE_BUILD_TYPE=Release ..`

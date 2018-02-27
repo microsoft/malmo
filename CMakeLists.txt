@@ -106,9 +106,7 @@ SET(Boost_ADDITIONAL_VERSIONS "1.65" "1.65.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.65.1" "1.65.1")
 
 SET(BOOST_PYTHON_MODULE_NAME "python")
-message( "Testing python version..." )
 if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
-    message("Python version greater than 3")
     SET(BOOST_PYTHON_MODULE_NAME "python3")
 endif()
 
