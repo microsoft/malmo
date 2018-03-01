@@ -100,6 +100,10 @@ RUN make
 
 RUN sudo luarocks install luasocket
 RUN sudo pip install future
+RUN sudo pip install pillow
 
-COPY ./build_ubuntu1404_python2.sh /
-ENTRYPOINT ["/build_ubuntu1404_python2.sh"]
+COPY ./build_ubuntu1404_python2.sh /home/malmo
+RUN sudo apt-get update && sudo apt-get install -y dos2unix
+RUN sudo dos2unix /home/malmo/build_ubuntu1404_python2.sh
+RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
+ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]

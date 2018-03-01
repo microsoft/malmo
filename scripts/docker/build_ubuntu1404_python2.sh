@@ -17,6 +17,10 @@
 # SOFTWARE.
 # ===================================================================================================================
 
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+
+echo $JAVA_HOME
+
 echo "Fetching and building Malmo..."
 {
     git clone https://github.com/Microsoft/malmo.git /home/malmo/MalmoPlatform
@@ -28,7 +32,8 @@ echo "Fetching and building Malmo..."
     cd build
     cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..
     make install
-} | tee /home/malmo/build_malmo.log >&3
+}
+# | tee /home/malmo/build_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Error building Malmo."
@@ -41,7 +46,8 @@ echo "Running integration tests..."
     xpra start :100
     export DISPLAY=:100
     ctest -VV
-} | tee /home/malmo/test_malmo.log >&3
+}
+# | tee /home/malmo/test_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Malmo tests failed!! Please inspect /home/$USER/build_logs/test_malmo.log for details."

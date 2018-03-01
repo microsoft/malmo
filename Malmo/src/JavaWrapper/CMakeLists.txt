@@ -31,7 +31,7 @@ if( ALE_FOUND )
 endif()
 set( CMAKE_SWIG_FLAGS -package ${PACKAGE_NAME} )
 
-SWIG_ADD_LIBRARY(MalmoJava LANGUAGE java SOURCES MalmoJava.i ) 
+SWIG_ADD_MODULE(MalmoJava java MalmoJava.i)
 
 swig_link_libraries( MalmoJava Malmo )
 install( TARGETS MalmoJava DESTINATION Java_Examples )
