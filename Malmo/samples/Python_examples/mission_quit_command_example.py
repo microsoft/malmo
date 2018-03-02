@@ -25,12 +25,12 @@ import MalmoPython
 import os
 import sys
 import time
+import malmoutils
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -57,26 +57,15 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <MissionQuitCommands quitDescription="give_up"/>
                   <RewardForMissionEnd>
                     <Reward description="give_up" reward="-1000"/>
-                  </RewardForMissionEnd>
+                  </RewardForMissionEnd>''' + malmoutils.get_video_xml(agent_host) + '''
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
 
 # Create default Malmo objects:
 
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 my_mission = MalmoPython.MissionSpec(missionXML, True)
-my_mission_record = MalmoPython.MissionRecordSpec()
+my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_1")
 
 # Attempt to start a mission:
 max_retries = 3

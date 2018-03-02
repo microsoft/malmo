@@ -36,6 +36,14 @@ import json
 import random
 import errno
 import math
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 # Task parameters:
 ARENA_WIDTH = 20
@@ -122,40 +130,15 @@ def getMissionXML(summary):
                 <ObservationFromNearbyEntities>
                     <Range name="entities" xrange="'''+str(ARENA_WIDTH)+'''" yrange="2" zrange="'''+str(ARENA_BREADTH)+'''" />
                 </ObservationFromNearbyEntities>
-                <ObservationFromFullStats/>
-
+                <ObservationFromFullStats/>''' + video_requirements + '''
             </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
 
-recordingsDirectory="HuntRecordings"
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
 validate = True
 my_client_pool = MalmoPython.ClientPool()
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10000))
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 if agent_host.receivedArgument("test"):
     num_reps = 1
@@ -165,12 +148,19 @@ else:
 for iRepeat in range(num_reps):
     mission_xml = getMissionXML("Go hunting! #" + str(iRepeat))
     my_mission = MalmoPython.MissionSpec(mission_xml,validate)
+    # Set up a recording
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    if recordingsDirectory:
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat + 1) + ".tgz")
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+        my_mission_record.recordCommands()
+        if agent_host.receivedArgument("record_video")
+            my_mission_record.recordMP4(24,2000000)
+
     max_retries = 3
     for retry in range(max_retries):
         try:
-            # Set up a recording
-            my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
-            my_mission_record.recordRewards()
             # Attempt to start the mission:
             agent_host.startMission( my_mission, my_client_pool, my_mission_record, 0, "hunterExperiment" )
             break

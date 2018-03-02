@@ -46,20 +46,21 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     libbz2-dev \
     python-pip \
     software-properties-common \
-    xpra
+    xpra \
+	libgl1-mesa-dri
 
 # Need to use Java 8, because Java 7 has problems with "EC parameter error" on Ubuntu 14.04
 RUN sudo add-apt-repository ppa:openjdk-r/ppa
 RUN sudo apt-get update && apt-get install -y openjdk-8-jdk
 RUN sudo update-ca-certificates -f
 
+# Note the trailing slash - essential!
+RUN export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
+
 # Switch to the malmo user:
 USER malmo
 WORKDIR /home/malmo
-
-# Note the trailing slash - essential!
-RUN export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-RUN echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
 
 # TORCH:
 RUN echo "Installing torch..."
@@ -105,5 +106,7 @@ RUN sudo pip install pillow
 COPY ./build_ubuntu1404_python2.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
 RUN sudo dos2unix /home/malmo/build_ubuntu1404_python2.sh
-RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
-ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]
+
+RUN sudo add-apt-repository ppa:oibaf/graphics-drivers
+RUN sudo apt-get -y update && sudo apt-get -y dist-upgrade
+#ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]

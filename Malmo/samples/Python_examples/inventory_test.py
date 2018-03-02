@@ -45,6 +45,12 @@ import random
 import sys
 import time
 from collections import namedtuple
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 # Create a named tuple type for the inventory contents.
 InventoryObject = namedtuple('InventoryObject', 'type, colour, variation, quantity, inventory, index')
@@ -136,33 +142,17 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 </RewardForCollectingItem>
                 <RewardForDiscardingItem>
                     <Item reward="1" type="stained_glass"/>
-                </RewardForDiscardingItem>
+                </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host) + '''
             </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 my_mission = MalmoPython.MissionSpec(missionXML,True)
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 num_missions = 10 if agent_host.receivedArgument("test") else 30000
 for mission_no in range(num_missions):
     merges_allowed = mission_no % 2
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_{}".format(mission_no + 1))
     max_retries = 3
     for retry in range(max_retries):
         try:

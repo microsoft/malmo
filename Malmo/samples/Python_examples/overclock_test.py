@@ -35,6 +35,12 @@ import time
 import json
 import errno
 from timeit import default_timer as timer
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 MISSION_LENGTH=30
 FRAME_WIDTH=432
@@ -87,12 +93,6 @@ def GetMissionXML( msPerTick ):
         </AgentSection>
 
     </Mission>'''
-  
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 
 validate = True
 tickLengths = [100, 50, 40, 30, 25, 20, 15, 10, 8, 5, 4, 2]
@@ -102,26 +102,7 @@ frameTest = []
 wallclockTimes = []
 distances = []
 
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
-
-recordingsDirectory="Overclock_Test_Recordings"
-
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
 
 print("WELCOME TO THE OVERCLOCK TEST")
 print("=============================")
@@ -132,10 +113,7 @@ for iRepeat in range(len(tickLengths)):
     msPerTick = tickLengths[iRepeat]
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(msPerTick)),validate)
     # Set up a recording
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//Overclock_Test" + str(iRepeat) + ".tgz");
-    my_mission_record.recordRewards()
-    my_mission_record.recordObservations()
-    my_mission_record.recordMP4(120,1200000) # Attempt to record at 120fps
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Overclock_Test_" + str(msPerTick) + "ms_per_tick");
     max_retries = 3
     for retry in range(max_retries):
         try:

@@ -30,9 +30,7 @@ set( SOURCES
   drawing_test.py
   file_test.py
   hit_test.py
-  human_action.py
   inventory_test.py
-  manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
   mob_fun.py
@@ -51,16 +49,6 @@ set( SOURCES
   tabular_q_learning.py
   teleport_test.py
   to_string_test.py
-  tutorial_1.py
-  tutorial_2.py
-  tutorial_3.py
-  tutorial_4.py
-  tutorial_4_solved.py
-  tutorial_5.py
-  tutorial_5_solved.py
-  tutorial_6.py
-  tutorial_7.py
-  tutorial_8.py
   use_file.py
 )
 
@@ -80,12 +68,24 @@ set( MULTI_AGENT_TESTS
 
 set( OTHER_FILES
   malmoutils.py
-  tutorial_6.xml
   Tutorial.pdf
   note_block_test.py    # Currently no way to test audio
   cart_test.py          # Currently unreliable
   mob_zoo.py            # Currently unreliable
   block_type_test.py    # WIP
+  human_action.py       # Doesn't make much sense to run this as an integration test
+  manual_input_test.py  # Doesn't make much sense to run this as an integration test
+  tutorial_1.py
+  tutorial_2.py
+  tutorial_3.py
+  tutorial_4.py
+  tutorial_4_solved.py
+  tutorial_5.py
+  tutorial_5_solved.py
+  tutorial_6.py
+  tutorial_6.xml
+  tutorial_7.py
+  tutorial_8.py
 )
 
 install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )
