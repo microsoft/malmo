@@ -49,6 +49,18 @@ def parse_command_line(agent_host):
 def get_video_xml(agent_host):
     return '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
+def get_default_recording_object(agent_host, filename):
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    recordingsDirectory = get_recordings_directory(agent_host)
+    if recordingsDirectory:
+        my_mission_record.setDestination(recordingsDirectory + "//" + filename + ".tgz")
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+        my_mission_record.recordCommands()
+        if agent_host.receivedArgument("record_video")
+            my_mission_record.recordMP4(24,2000000)
+    return my_mission_record
+
 def get_recordings_directory(agent_host):
     # Check the dir passed in:
     recordingsDirectory = agent_host.getStringArgument('recording_dir')
