@@ -30,6 +30,14 @@ import errno
 import random
 import math
 from io import open
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 # Test of DrawSign, DrawItem, and reading NBTTagCompounds from ObservationFromRay.
 # This draws a physical decision tree, and then animates the process of traversing it.
@@ -403,43 +411,18 @@ def getMissionXML(target_item, fresh_world, tree, testing):
             </ObservationFromGrid>''' + endCondition + '''
             <RewardForMissionEnd rewardForDeath="-1.0">
                 <Reward description="PASSED" reward="1.0"/>
-            </RewardForMissionEnd>
+            </RewardForMissionEnd>''' + video_requirements + '''
         </AgentHandlers>
     </AgentSection>
   </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
-recording = False
 my_mission_record = MalmoPython.MissionRecordSpec()
-recordingsDirectory = agent_host.getStringArgument("recordingDir")
-if len(recordingsDirectory) > 0:
-    recording = True
-    try:
-        os.makedirs(recordingsDirectory)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST: # ignore error if already existed
-            raise
+if recordingsDirectory:
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
     my_mission_record.recordCommands()
-    my_mission_record.recordMP4(24,2000000)
+    if agent_host.receivedArgument("record_video")
+        my_mission_record.recordMP4(24,2000000)
 
 print("GENERATING TREE...")
 tree = createTree() # This runs the ID3 and creates the actual XML for sending to Minecraft.
@@ -488,7 +471,7 @@ for i in range(num_iterations):
         target_item = random.choice(item_types)
     print("Mission {} - target: {}".format(i+1, target_item))
     missionXML = getMissionXML(target_item, i == 0, tree, testing)
-    if recording:
+    if recordingsDirectory:
         my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i+1) + ".tgz")
     my_mission = MalmoPython.MissionSpec(str(missionXML), True)
     max_retries = 3

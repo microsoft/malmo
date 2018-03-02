@@ -28,7 +28,7 @@ echo "Fetching and building Malmo..."
     cd /home/malmo/MalmoPlatform
     mkdir build
     cd build
-    cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..
+    cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DUSE_PYTHON_VERSIONS=3.4 -DCMAKE_BUILD_TYPE=Release ..
     make install
 }
 # | tee /home/malmo/build_malmo.log >&3
@@ -43,6 +43,7 @@ echo "Running integration tests..."
 {
     xpra start :100
     export DISPLAY=:100
+    export MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
     ctest -VV
 }
 # | tee /home/malmo/test_malmo.log >&3

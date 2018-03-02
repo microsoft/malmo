@@ -18,7 +18,10 @@
 # NB if building this on Windows/OSX, make sure Docker has been allowed enough memory - the default 2048Mb is not
 # enough for the gradle Minecraft deobfuscation step.
 
-FROM ubuntu:14.04
+FROM debian:jessie
+
+# Need to install sudo first:
+RUN apt-get update && apt-get install -y sudo
 
 # Create a user called "malmo", give it sudo access and remove the requirement for a password:
 RUN useradd --create-home --shell /bin/bash --no-log-init --groups sudo malmo
@@ -35,6 +38,7 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     lua5.1 \
     liblua5.1-0-dev \
     swig \
+	xsdcxx \
     libxerces-c-dev \
     doxygen \
     xsltproc \
@@ -47,11 +51,12 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     python-pip \
     software-properties-common \
     xpra \
-	libgl1-mesa-dri
+	libgl1-mesa-dri \
+	zlib1g-dev
 
-# Need to use Java 8, because Java 7 has problems with "EC parameter error" on Ubuntu 14.04
-RUN sudo add-apt-repository ppa:openjdk-r/ppa
-RUN sudo apt-get update && apt-get install -y openjdk-8-jdk
+# Need to use Java 8, because Java 7 has problems with "EC parameter error"
+RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list
+RUN sudo apt-get update && apt-get install -y -t jessie-backports openjdk-8-jdk
 RUN sudo update-ca-certificates -f
 
 # Note the trailing slash - essential!
@@ -62,34 +67,24 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.b
 USER malmo
 WORKDIR /home/malmo
 
-# TORCH:
-RUN echo "Installing torch..."
-RUN git clone https://github.com/torch/distro.git /home/malmo/torch --recursive
-WORKDIR /home/malmo/torch
-RUN bash install-deps
-RUN ./install.sh -b
-#RUN source /home/malmo/torch/install/bin/torch-activate
-RUN /home/malmo/torch/install/bin/th -e "print 'Torch installed correctly'"
+# TORCH not supported on Debian, so nothing to do here.
 
 # MONO:
 RUN echo "Installing mono..."
 RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN echo "deb http://download.mono-project.com/repo/ubuntu stable-trusty main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
+RUN echo "deb http://download.mono-project.com/repo/debian stable-jessie main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
 RUN sudo apt-get -y update && sudo apt-get -y install mono-devel mono-complete
 
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.gz
-RUN tar xvf boost_1_60_0.tar.gz
-WORKDIR /home/malmo/boost/boost_1_60_0
+COPY ./boost_1_65_0.tar.gz /home/malmo/boost
+#RUN wget http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz
+
+RUN tar xvf boost_1_65_0.tar.gz
+WORKDIR /home/malmo/boost/boost_1_65_0
 RUN ./bootstrap.sh --prefix=.
 RUN ./b2 link=static cxxflags=-fPIC install
-
-# XSD:
-RUN wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb
-RUN sudo dpkg -i --force-all xsd_4.0.0-1_amd64.deb
-RUN sudo apt-get -y install -f
 
 # LUABIND:
 RUN git clone https://github.com/rpavlik/luabind.git /home/malmo/rpavlik-luabind
@@ -99,14 +94,10 @@ WORKDIR /home/malmo/rpavlik-luabind/build
 RUN cmake -DCMAKE_BUILD_TYPE=Release ..
 RUN make
 
-RUN sudo luarocks install luasocket
 RUN sudo pip install future
 RUN sudo pip install pillow
 
-COPY ./build_ubuntu1404_python2.sh /home/malmo
+COPY ./build_debian8_python2.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
-RUN sudo dos2unix /home/malmo/build_ubuntu1404_python2.sh
-
-RUN sudo add-apt-repository ppa:oibaf/graphics-drivers
-RUN sudo apt-get -y update && sudo apt-get -y dist-upgrade
+RUN sudo dos2unix /home/malmo/build_debian8_python2.sh
 #ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]
