@@ -45,11 +45,9 @@ set( SOURCES
   reward_for_mission_end_test.py
   robust_frames.py
   run_mission.py
-  sample_missions_loader.py
   tabular_q_learning.py
   teleport_test.py
   to_string_test.py
-  use_file.py
 )
 
 set( ALESOURCES
@@ -59,10 +57,6 @@ set( ALESOURCES
 set( MULTI_AGENT_TESTS
     two_diggers.py
     team_reward_test.py
-    multi_agent_test.py
-    agent_visibility_test.py
-    tsp_race.py
-    turn_based_test.py
     MultiMaze.py
 )
 
@@ -75,6 +69,8 @@ set( OTHER_FILES
   block_type_test.py    # WIP
   human_action.py       # Doesn't make much sense to run this as an integration test
   manual_input_test.py  # Doesn't make much sense to run this as an integration test
+  sample_missions_loader.py # Ditto
+  use_file.py           # Ditto
   tutorial_1.py
   tutorial_2.py
   tutorial_3.py
@@ -86,6 +82,10 @@ set( OTHER_FILES
   tutorial_6.xml
   tutorial_7.py
   tutorial_8.py
+  multi_agent_test.py       # Moving these here for now, as running
+  agent_visibility_test.py  # sufficient copies of Minecraft to test them
+  tsp_race.py               # requires a pretty high-spec machine.
+  turn_based_test.py
 )
 
 install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )

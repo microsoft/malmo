@@ -36,8 +36,29 @@ import sys
 import time
 import json
 import errno
+import malmoutils
 
-def GetMissionXML(num):
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalIntArgument( "length,l", "Number of steps required to reach goal square.", 10)
+# Eg set the length to 0 or 1 to test https://github.com/Microsoft/malmo/issues/23
+
+agent_host.addOptionalFlag( "stop,s", "Stop after required number of steps.")
+# Eg if length is set to 10, will send 10 move commands and then wait for the mission to end.
+# This can be used to test that commands are all being acted on, regardless of the speed they are sent at,
+# and can give some indication of the latency between sending the final command and receiving the mission ended message.
+
+agent_host.addOptionalFloatArgument( "wait,w", "Number of seconds to wait between sending commands.", 0.1)
+# Setting this to something slow (eg 0.1) should show a clear cycle of commands/observations/rewards,
+# and a quit triggered after the correct number of commands.
+# Setting this to something faster (eg 0.05) should still show a clear cylce of commands/observations/rewards,
+# but there may be extra commands sent unnecessarily at the end (which shouldn't be acted on).
+# Setting this to something extreme (eg 0.01) should show behaviour whereby the commands get clustered together,
+# but the agent should still quit correctly.
+malmoutils.parse_command_line(agent_host)
+
+def GetMissionXML(num, video_xml):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
@@ -76,47 +97,13 @@ def GetMissionXML(num):
                 </RewardForReachingPosition>      
                 <AgentQuitFromReachingPosition>
                     <Marker tolerance="0.1" x="0.5" y="227" z="''' + str(PATH_LENGTH+0.5) + '''"/>
-                </AgentQuitFromReachingPosition>
+                </AgentQuitFromReachingPosition>''' + video_xml + '''
             </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
-  
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 
 validate = True
-
-agent_host = MalmoPython.AgentHost()
-
-agent_host.addOptionalIntArgument( "length,l", "Number of steps required to reach goal square.", 10)
-# Eg set the length to 0 or 1 to test https://github.com/Microsoft/malmo/issues/23
-
-agent_host.addOptionalFlag( "stop,s", "Stop after required number of steps.")
-# Eg if length is set to 10, will send 10 move commands and then wait for the mission to end.
-# This can be used to test that commands are all being acted on, regardless of the speed they are sent at,
-# and can give some indication of the latency between sending the final command and receiving the mission ended message.
-
-agent_host.addOptionalFloatArgument( "wait,w", "Number of seconds to wait between sending commands.", 0.1)
-# Setting this to something slow (eg 0.1) should show a clear cycle of commands/observations/rewards,
-# and a quit triggered after the correct number of commands.
-# Setting this to something faster (eg 0.05) should still show a clear cylce of commands/observations/rewards,
-# but there may be extra commands sent unnecessarily at the end (which shouldn't be acted on).
-# Setting this to something extreme (eg 0.01) should show behaviour whereby the commands get clustered together,
-# but the agent should still quit correctly.
-
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 PATH_LENGTH = agent_host.getIntArgument("length")
 STOP = agent_host.receivedArgument("stop")
@@ -125,7 +112,7 @@ MISSION_LENGTH = 30
 NUM_REPEATS = 10
 
 if agent_host.receivedArgument("test"):
-    print("Using test setings (overrides other command-line arguments).")
+    print("Using test settings (overrides other command-line arguments).")
     NUM_REPEATS = 1
     WAIT_TIME = 0.2
     STOP = True
@@ -134,20 +121,10 @@ if agent_host.receivedArgument("test"):
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.KEEP_ALL_OBSERVATIONS)
 agent_host.setRewardsPolicy(MalmoPython.RewardsPolicy.KEEP_ALL_REWARDS)
 
-recordingsDirectory="QuitFromReachingPosition_Recordings"
-
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
 for iRepeat in range(NUM_REPEATS):
-    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat), validate)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, malmoutils.get_video_xml(agent_host)), validate)
     # Set up a recording
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//QuitFromReachingPosition_Test" + str(iRepeat) + ".tgz");
-    my_mission_record.recordRewards()
-    my_mission_record.recordObservations()
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "QuitFromReachingPosition_Test" + str(iRepeat));
     max_retries = 3
     for retry in range(max_retries):
         try:

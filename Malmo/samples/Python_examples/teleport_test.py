@@ -28,6 +28,12 @@ import sys
 import time
 import errno
 from timeit import default_timer as timer
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 # Test that AbsoluteMovementCommand teleportation works for long distances.
 
@@ -44,7 +50,7 @@ def genItems():
 
 def startMission(agent_host, xml):
     my_mission = MalmoPython.MissionSpec(xml, True)
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "teleport_results")
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -126,6 +132,7 @@ worldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
             <AgentHandlers>
                 <ObservationFromFullInventory/>
                 <AbsoluteMovementCommands/>
+                <ContinuousMovementCommands/>
                 <MissionQuitCommands/>
                 <RewardForCollectingItem>
                     <Item type="emerald" reward="1"/>
@@ -139,25 +146,13 @@ worldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
 
     </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-agent_host = MalmoPython.AgentHost()
-
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 startMission(agent_host, worldXML)
 world_state = agent_host.peekWorldState()
+
+# This test can get stuck, since Minecraft sometimes won't redraw the scene unless the agent moves slightly,
+# and we don't move until Minecraft redraws the scene.
+# To get around this, set a gentle rotation:
+agent_host.sendCommand("turn 0.01")
 
 # Teleport to each location in turn, see if we collect the right number of emeralds,
 # and check we get the right image for each location.

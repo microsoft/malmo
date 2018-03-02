@@ -31,6 +31,12 @@ import time
 import json
 import errno
 from timeit import default_timer as timer
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 def GetMissionXML( width, height, prioritiseOffscreen ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
@@ -84,24 +90,6 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
         </AgentSection>
 
     </Mission>'''
-  
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 if agent_host.receivedArgument("test"):
     MISSION_LENGTH=5
@@ -126,14 +114,6 @@ datarate_onscreen=[]
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
-recordingsDirectory="Render_Speed_Test_Recordings"
-
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
 print("WELCOME TO THE RENDER SPEED TEST")
 print("================================")
 print("This will run the same simple mission with " + str(len(sizes)) + " different frame sizes.")
@@ -145,10 +125,7 @@ for iRepeat in range(len(sizes) * 2):
         num_pixels.append(width*height)
     my_mission = MalmoPython.MissionSpec(GetMissionXML(str(width), str(height), prioritiseOffscreen), validate)
     # Set up a recording
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//RenderSpeed_Test" + str(iRepeat) + ".tgz");
-    my_mission_record.recordRewards()
-    my_mission_record.recordObservations()
-    my_mission_record.recordMP4(120,1200000) # Attempt to record at 120fps
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "RenderSpeed_Test" + str(iRepeat));
     max_retries = 3
     for retry in range(max_retries):
         try:

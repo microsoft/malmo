@@ -38,11 +38,17 @@ import os
 import random
 import sys
 import time
+import malmoutils
 if sys.version_info[0] == 2:
     # Workaround for https://github.com/PythonCharmers/python-future/issues/262
     import Tkinter as tk
 else:
     import tkinter as tk
+    
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 save_images = False
 if save_images:        
@@ -265,24 +271,6 @@ def indexOfClosest( arr, val ):
             d_closest = d
     return i_closest
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-# -- set up the agent host --
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 # -- set up the mission --
 xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -333,9 +321,10 @@ for action_set in action_sets:
         print('ERROR: Unsupported action set:',action_set)
         exit(1)
 
+    my_mission_recording = malmoutils.get_default_recording_object(agent_host, action_set)
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, MalmoPython.MissionRecordSpec() )
+            agent_host.startMission( my_mission, my_mission_recording )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
