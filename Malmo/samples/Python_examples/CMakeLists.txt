@@ -85,7 +85,7 @@ set( OTHER_FILES
   multi_agent_test.py       # Moving these here for now, as running
   agent_visibility_test.py  # sufficient copies of Minecraft to test them
   tsp_race.py               # requires a pretty high-spec machine.
-  turn_based_test.py
+  turn_based_test.py        # Remember to add more ports to the launch_minecraft_in_background call below when restoring.
 )
 
 install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )
@@ -123,7 +123,7 @@ addTestsFromFiles( "${SOURCES}" )
 add_test(
   NAME PreMultiAgentIntegrationTests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Minecraft
-  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001 10002 10003
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001
 )
 set_tests_properties( PreMultiAgentIntegrationTests PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 addTestsFromFiles( "${MULTI_AGENT_TESTS}" )
