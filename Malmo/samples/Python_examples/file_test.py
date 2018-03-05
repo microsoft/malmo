@@ -72,7 +72,7 @@ def startMission(agent_host, xml, record_description):
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
         my_mission_record.recordCommands()
-        if agent_host.receivedArgument("record_video")
+        if agent_host.receivedArgument("record_video"):
             my_mission_record.recordMP4(24,2000000)
         if recordingsDirectory:
             my_mission_record.setDestination(recordingsDirectory + "//" + record_description + ".tgz")

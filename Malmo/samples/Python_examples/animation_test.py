@@ -34,8 +34,7 @@ malmoutils.fix_print()
 agent_host = MalmoPython.AgentHost()
 malmoutils.parse_command_line(agent_host)
 recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
-
-video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
+video_requirements = malmoutils.get_video_xml(agent_host)
     
 def getMissionXML():
     return '''<?xml version="1.0" encoding="UTF-8" ?>

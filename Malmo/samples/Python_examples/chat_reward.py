@@ -95,12 +95,7 @@ mission_xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 '''
 
 my_mission = MalmoPython.MissionSpec(mission_xml, True)
-my_mission_record = MalmoPython.MissionRecordSpec()
-recordDirectory = malmoutils.get_recordings_directory(agent_host)
-if recordDirectory:
-    my_mission_record.setDestination(recordDirectory + "//" + "chat_recording.tgz")
-    if agent_host.receivedArgument("record_video"):
-        my_mission_record.recordMP4(24,2000000)
+my_mission_record = malmoutils.get_default_recording_object(agent_host, "chat_recording")
 
 # Attempt to start a mission:
 max_retries = 3
