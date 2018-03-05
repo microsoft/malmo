@@ -193,6 +193,15 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
         mYaw += deltaYaw;
         mCameraPitch += deltaPitch;
         mCameraPitch = (mCameraPitch < -90) ? -90 : (mCameraPitch > 90 ? 90 : mCameraPitch);    // Clamp to [-90, 90]
+
+        // And update the player:
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player != null)
+        {
+            player.rotationPitch = this.mCameraPitch;
+            player.rotationYaw = this.mYaw;
+        }
+
     }
     
     @Override
@@ -283,13 +292,7 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
         {
             if (this.isOverriding())
             {
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
-                if (player != null)
-                {
-                    updateYawAndPitch();
-                    player.rotationPitch = this.mCameraPitch;
-                    player.rotationYaw = this.mYaw;
-                }
+                updateYawAndPitch();
             }
         }
     }
