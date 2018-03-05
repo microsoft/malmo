@@ -98,7 +98,8 @@ RUN make
 RUN sudo pip3 install future
 RUN sudo pip3 install pillow
 
-COPY ./build_debian8_python3.sh /home/malmo
+COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
-RUN sudo dos2unix /home/malmo/build_debian8_python3.sh
-#ENTRYPOINT ["/home/malmo/build_ubuntu1404_python3.sh"]
+RUN sudo dos2unix /home/malmo/build.sh
+ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0", "-python", "3.4"]

@@ -78,8 +78,8 @@ RUN sudo apt-get -y update && sudo apt-get -y install mono-devel mono-complete
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-COPY ./boost_1_65_0.tar.gz /home/malmo/boost
-#RUN wget http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz
+#COPY ./boost_1_65_0.tar.gz /home/malmo/boost
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.65.0/boost_1_65_0.tar.gz
 
 RUN tar xvf boost_1_65_0.tar.gz
 WORKDIR /home/malmo/boost/boost_1_65_0
@@ -97,7 +97,8 @@ RUN make
 RUN sudo pip install future
 RUN sudo pip install pillow
 
-COPY ./build_debian8_python2.sh /home/malmo
+COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
-RUN sudo dos2unix /home/malmo/build_debian8_python2.sh
-#ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]
+RUN sudo dos2unix /home/malmo/build.sh
+ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0"]

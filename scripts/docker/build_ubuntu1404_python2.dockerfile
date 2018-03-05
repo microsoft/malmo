@@ -103,10 +103,8 @@ RUN sudo luarocks install luasocket
 RUN sudo pip install future
 RUN sudo pip install pillow
 
-COPY ./build_ubuntu1404_python2.sh /home/malmo
+COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
-RUN sudo dos2unix /home/malmo/build_ubuntu1404_python2.sh
-
-RUN sudo add-apt-repository ppa:oibaf/graphics-drivers
-RUN sudo apt-get -y update && sudo apt-get -y dist-upgrade
-#ENTRYPOINT ["/home/malmo/build_ubuntu1404_python2.sh"]
+RUN sudo dos2unix /home/malmo/build.sh
+ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_60_0"]
