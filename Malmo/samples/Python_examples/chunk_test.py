@@ -44,11 +44,11 @@ import json
 import copy
 import malmoutils
 
-malmutils.fix_print()
+malmoutils.fix_print()
 
 # Create default Malmo objects:
 agent_host = MalmoPython.AgentHost()
-malmutils.parse_command_line(agent_host)
+malmoutils.parse_command_line(agent_host)
 recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
 
 # Set up some pallettes:
