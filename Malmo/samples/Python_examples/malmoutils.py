@@ -67,7 +67,7 @@ def get_default_recording_object(agent_host, filename):
         my_mission_record.recordRewards()
         my_mission_record.recordObservations()
         my_mission_record.recordCommands()
-        if agent_host.receivedArgument("record_video")
+        if agent_host.receivedArgument("record_video"):
             my_mission_record.recordMP4(24,2000000)
     return my_mission_record
 
