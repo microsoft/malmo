@@ -58,7 +58,7 @@ RUN sudo update-ca-certificates -f
 
 # Note the trailing slash - essential!
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-RUN echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
+RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
 
 # Switch to the malmo user:
 USER malmo
