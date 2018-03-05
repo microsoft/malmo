@@ -57,7 +57,7 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
 RUN sudo update-ca-certificates -f
 
 # Note the trailing slash - essential!
-RUN export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 RUN echo "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.bashrc
 
 # Switch to the malmo user:
