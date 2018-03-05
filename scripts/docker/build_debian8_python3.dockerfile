@@ -44,7 +44,7 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     xsltproc \
     libav-tools \
     python3-tk \
-    python3-imaging-tk \
+    python3-pil.imagetk \
     wget \
     luarocks \
     libbz2-dev \
