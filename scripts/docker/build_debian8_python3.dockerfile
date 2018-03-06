@@ -33,7 +33,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     git \
     cmake \
     cmake-qt-gui \
-    libboost-all-dev \
     libpython3.4-dev \
     lua5.1 \
     liblua5.1-0-dev \
@@ -92,11 +91,12 @@ RUN git clone https://github.com/rpavlik/luabind.git /home/malmo/rpavlik-luabind
 WORKDIR /home/malmo/rpavlik-luabind
 RUN mkdir build
 WORKDIR /home/malmo/rpavlik-luabind/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release ..
+RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DCMAKE_BUILD_TYPE=Release ..
 RUN make
 
 RUN sudo pip3 install future
 RUN sudo pip3 install pillow
+RUN sudo luarocks install luasocket
 
 COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
