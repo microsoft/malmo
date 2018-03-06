@@ -21,6 +21,8 @@ branch=master
 boost=1_65_0
 python=2.7
 interactive=0
+test_results_dir=/home/malmo/test_results
+verbose_mode=1
 
 while [ $# -gt 0 ]
 do
@@ -29,13 +31,20 @@ do
         -boost) boost="$2"; shift;;
         -python) python="$2"; shift;;
         -interactive) interactive=1;;
+        -test_results_dir) test_results_dir="$2"; shift;;
         *) echo >&2 \
-            "usage: $0 [-branch branchname] [-boost version] [-python version] [-interactive]"
+            "usage: $0 [-branch branchname] [-boost version] [-python version] [-test_results_dir folder] [-interactive]"
             exit 1;;
     esac
     shift
 done
-  
+
+if [ $verbose_mode ]; then
+    exec 4>&2 3>&1
+else
+    exec 4>/dev/null 3>/dev/null
+fi
+
 if ! [[ $boost =~ ^-?[0-9,_]+$ ]]; then
     echo "Boost value should be eg '1_65_0'"
     exit 1
@@ -45,6 +54,8 @@ if ! [[ $python =~ ^-?[0-9,.]+$ ]]; then
     echo "Python value should be eg '3.4'"
     exit 1
 fi
+
+export MALMO_TEST_RECORDINGS_PATH=$test_results_dir
 
 echo "Fetching Malmo..."
 {
@@ -66,8 +77,7 @@ echo "Building Malmo..."
     cd build
     cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_$boost/include -DUSE_PYTHON_VERSIONS=$python -DCMAKE_BUILD_TYPE=Release ..
     make install
-}
-# | tee /home/malmo/build_malmo.log >&3
+} | tee $test_results_dir/build_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Error building Malmo."
@@ -80,8 +90,7 @@ echo "Running integration tests..."
     xpra start :100
     export DISPLAY=:100
     ctest -VV
-}
-# | tee /home/malmo/test_malmo.log >&3
+} | tee $test_results_dir/test_malmo.log >&3
 result=$?;
 if [ $result -ne 0 ]; then
     echo "Malmo tests failed!!"
@@ -91,8 +100,9 @@ fi
 # Build the package:
 echo "Building Malmo package..."
 make package | tee /home/malmo/build_malmo_package.log >&3
-result=$?;
+result=1
+#$?;
 if [ $result -eq 0 ]; then
-    echo "MALMO BUILT OK - HERE IS YOUR BINARY:"
-    ls *.zip
+    echo "MALMO TESTED OK - COPYING BINARY:"
+    cp *.zip $test_results_dir
 fi
