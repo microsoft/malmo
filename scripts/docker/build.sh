@@ -90,6 +90,7 @@ echo "Running integration tests..."
 {
     xpra start :100
     export DISPLAY=:100
+    cd /home/malmo/MalmoPlatform/build
     ctest -VV
 } | tee $test_results_dir/test_malmo.log >&3
 #result=$?;
