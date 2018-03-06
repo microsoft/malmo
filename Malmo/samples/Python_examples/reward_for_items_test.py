@@ -119,7 +119,6 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
 itemdrawingxml = GetItemDrawingXML()
-video_xml = malmoutils.get_video_xml(agent_host)
 
 if agent_host.receivedArgument("test"):
     num_reps = 1
@@ -127,7 +126,7 @@ else:
     num_reps = 30000
 
 for iRepeat in range(num_reps):
-    my_mission = MalmoPython.MissionSpec(GetMissionXML("Nom nom nom run #" + str(iRepeat), itemdrawingxml, video_xml),validate)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML("Nom nom nom run #" + str(iRepeat), itemdrawingxml),validate)
     # Set up a recording
     my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_" + str(iRepeat + 1))
     max_retries = 3

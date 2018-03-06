@@ -128,7 +128,7 @@ for iRepeat in range(num_reps):
     print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
 
     # Create a mission:
-    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), validate)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), True)
     
     # Give the recording a destination filename:
     my_mission_record.setDestination(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")

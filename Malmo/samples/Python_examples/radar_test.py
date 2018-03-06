@@ -212,7 +212,7 @@ for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec( get_mission_xml(), True )
     my_mission_record = malmoutils.get_default_recording_object(agent_host, "colourmap_test_{}".format(iRepeat + 1))
     # Default only records normal video stream - we might also want to record the colourmap stream:
-    if agent_host.receivedArgument("record_video")
+    if agent_host.receivedArgument("record_video"):
         my_mission_record.recordMP4(MalmoPython.FrameType.COLOUR_MAP, 24, 2000000, False)
     max_retries = 3
     for retry in range(max_retries):

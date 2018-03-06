@@ -143,7 +143,7 @@ if recordingsDirectory:
     my_mission_record.recordObservations()
     my_mission_record.recordCommands()
     my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_1.tgz")
-    if agent_host.receivedArgument("record_video")
+    if agent_host.receivedArgument("record_video"):
         my_mission_record.recordMP4(24,2000000)
 
 max_retries = 3
