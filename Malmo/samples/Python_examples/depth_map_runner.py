@@ -194,7 +194,7 @@ if agent_host.receivedArgument("test"):
 else:
     num_reps = 30000
 
-my_mission_record_spec = MalmoPython.MissionRecordSpec()
+my_mission_record = MalmoPython.MissionRecordSpec()
 if recordingsDirectory:
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
@@ -208,7 +208,7 @@ for iRepeat in range(num_reps):
     max_retries = 3
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, my_mission_record_spec )
+            agent_host.startMission( my_mission, my_mission_record )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:
