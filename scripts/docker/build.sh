@@ -78,7 +78,8 @@ echo "Building Malmo..."
     cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_$boost/include -DUSE_PYTHON_VERSIONS=$python -DCMAKE_BUILD_TYPE=Release ..
     make install
 } | tee $test_results_dir/build_malmo.log >&3
-result=$?;
+#result=$?;
+result=1
 if [ $result -ne 0 ]; then
     echo "Error building Malmo."
     exit $result
@@ -91,7 +92,8 @@ echo "Running integration tests..."
     export DISPLAY=:100
     ctest -VV
 } | tee $test_results_dir/test_malmo.log >&3
-result=$?;
+#result=$?;
+result=1
 if [ $result -ne 0 ]; then
     echo "Malmo tests failed!!"
     exit $result
@@ -100,9 +102,9 @@ fi
 # Build the package:
 echo "Building Malmo package..."
 make package | tee /home/malmo/build_malmo_package.log >&3
+#result=#$?;
 result=1
-#$?;
 if [ $result -eq 0 ]; then
-    echo "MALMO TESTED OK - COPYING BINARY:"
+    echo "MALMO BUILT AND TESTED OK - COPYING BINARY:"
     cp *.zip $test_results_dir
 fi
