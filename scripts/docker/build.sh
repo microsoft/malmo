@@ -79,7 +79,7 @@ echo "Building Malmo..."
     make install
 } | tee $test_results_dir/build_malmo.log >&3
 #result=$?;
-result=1
+result=0
 if [ $result -ne 0 ]; then
     echo "Error building Malmo."
     exit $result
@@ -94,7 +94,7 @@ echo "Running integration tests..."
     ctest -VV
 } | tee $test_results_dir/test_malmo.log >&3
 #result=$?;
-result=1
+result=0
 if [ $result -ne 0 ]; then
     echo "Malmo tests failed!!"
     exit $result
@@ -104,7 +104,7 @@ fi
 echo "Building Malmo package..."
 make package | tee /home/malmo/build_malmo_package.log >&3
 #result=#$?;
-result=1
+result=0
 if [ $result -eq 0 ]; then
     echo "MALMO BUILT AND TESTED OK - COPYING BINARY:"
     cp *.zip $test_results_dir
