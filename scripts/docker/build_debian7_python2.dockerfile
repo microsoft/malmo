@@ -105,7 +105,14 @@ RUN make
 RUN sudo pip install --index-url=https://pypi.python.org/simple/ --upgrade pip
 RUN sudo pip install future pillow
 # Need to install unzip on Wheezy for luarocks to work
-RUN sudo apt-get update && sudo apt-get install unzip && sudo luarocks install luasocket
+RUN sudo apt-get update && sudo apt-get install unzip
+# The version of luarocks on Wheezy is old and weak, and we have to jump through
+# the following hoops to get it to work:
+# First, install luasec - without this, luarocks won't work. Unfortunately, the way
+# to install luasec is WITH luarocks.
+RUN sudo luarocks install --only-server=http://rocks.moonscript.org luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu/
+# Now we can install luasocket:
+RUN sudo luarocks install luasocket
 
 COPY ./build.sh /home/malmo
 # Need dos2unix to deal with line endings, and the lsb-release package so that Malmo's
