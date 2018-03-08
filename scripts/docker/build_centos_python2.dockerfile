@@ -30,6 +30,14 @@ RUN sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-rel
 RUN useradd --create-home --shell /bin/bash --no-log-init --groups wheel malmo
 RUN sudo bash -c 'echo "malmo ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 
+# Add repo for xpra:
+RUN rpm --import "http://winswitch.org/gpg.asc"
+RUN su -c 'curl https://winswitch.org/downloads/CentOS/winswitch.repo | tee /etc/yum.repos.d/winswitch.repo'
+
+# Add repo for mono:
+RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+RUN su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
+
 # While we are still root, install the necessary dependencies for Malmo:
 RUN sudo yum install -y \
     git \
@@ -48,7 +56,7 @@ RUN sudo yum install -y \
     lua-devel \
     bzip2-devel \
     tkinter \
-    python-pillow-tk \
+    python2-pillow-tk \
     wget \
     luarocks \
     software-properties-common \
@@ -56,8 +64,9 @@ RUN sudo yum install -y \
 	libgl1-mesa-dri \
     make \
     python-pip \
-    zlib-devel
-
+    zlib-devel \
+    mono-devel \
+    mono-complete
 
 #    libbz2-dev \
 #	zlib1g-dev
@@ -66,18 +75,11 @@ RUN sudo yum install -y \
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/" >> /home/malmo/.bashrc
 
-RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-RUN su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
-
 # Switch to the malmo user:
 USER malmo
 WORKDIR /home/malmo
 
 # TORCH not supported on CentOS, so nothing to do here.
-
-# MONO:
-RUN echo "Installing mono..."
-RUN sudo yum install -y mono-devel mono-complete
 
 # BOOST:
 RUN mkdir /home/malmo/boost
