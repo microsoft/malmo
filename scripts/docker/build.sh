@@ -23,6 +23,7 @@ python=2.7
 interactive=0
 test_results_dir=/home/malmo/test_results
 verbose_mode=1
+run_tests=1
 
 while [ $# -gt 0 ]
 do
@@ -32,8 +33,9 @@ do
         -python) python="$2"; shift;;
         -interactive) interactive=1;;
         -test_results_dir) test_results_dir="$2"; shift;;
+        -no_testing) run_tests=0;;
         *) echo >&2 \
-            "usage: $0 [-branch branchname] [-boost version] [-python version] [-test_results_dir folder] [-interactive]"
+            "usage: $0 [-branch branchname] [-boost version] [-python version] [-test_results_dir folder] [-interactive] [-no_testing]"
             exit 1;;
     esac
     shift
@@ -87,18 +89,20 @@ if [ $result -ne 0 ]; then
 fi
 
 # Run the tests:
-echo "Running integration tests..."
-{
-    xpra start :100
-    export DISPLAY=:100
-    cd /home/malmo/MalmoPlatform/build
-    ctest -VV
-} | tee $test_results_dir/test_malmo.log >&3
-#result=$?;
-result=0
-if [ $result -ne 0 ]; then
-    echo "Malmo tests failed!!"
-    exit $result
+if [ $run_tests -gt 0 ]; then
+    echo "Running integration tests..."
+    {
+        xpra start :100
+        export DISPLAY=:100
+        cd /home/malmo/MalmoPlatform/build
+        ctest -VV
+    } | tee $test_results_dir/test_malmo.log >&3
+    #result=$?;
+    result=0
+    if [ $result -ne 0 ]; then
+        echo "Malmo tests failed!!"
+        exit $result
+    fi
 fi
 
 # Build the package:

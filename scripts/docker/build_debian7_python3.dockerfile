@@ -101,18 +101,11 @@ WORKDIR /home/malmo/rpavlik-luabind/build
 RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_64_0/include -DCMAKE_BUILD_TYPE=Release ..
 RUN make
 
-# The pip which comes with Wheezy doesn't work - need to get it to upgrade itself.
-RUN sudo pip-3.2 install --index-url=https://pypi.python.org/simple/ --upgrade pip
-RUN sudo pip-3.2 install future pillow
-# Need to install unzip on Wheezy for luarocks to work
-RUN sudo apt-get update && sudo apt-get install unzip
-# The version of luarocks on Wheezy is old and weak, and we have to jump through
-# the following hoops to get it to work:
-# First, install luasec - without this, luarocks won't work. Unfortunately, the way
-# to install luasec is WITH luarocks.
-RUN sudo luarocks install --only-server=http://rocks.moonscript.org luasec OPENSSL_LIBDIR=/usr/lib/x86_64-linux-gnu/
-# Now we can install luasocket:
-RUN sudo luarocks install luasocket
+# We don't run the integration tests for the Debian7 Python3 build, because the version of
+# Python that ships with Wheezy isn't compatible with the Python2/3 solution we used (futures) -
+# Wheezy ships with 3.2, and futures doesn't work with anything pre 3.3.
+# This means none of the Malmo samples will work, but if someone *really* wants to use Python3
+# and doesn't want to update from Debian 7, at least there's a build for them to use!
 
 COPY ./build.sh /home/malmo
 # Need dos2unix to deal with line endings, and the lsb-release package so that Malmo's
@@ -120,4 +113,4 @@ COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix lsb-release
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_64_0", "-python", "3.2"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_64_0", "-python", "3.2", "-no_testing"]

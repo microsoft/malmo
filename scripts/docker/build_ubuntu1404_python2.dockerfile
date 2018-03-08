@@ -102,8 +102,13 @@ RUN sudo luarocks install luasocket
 RUN sudo pip install future
 RUN sudo pip install pillow
 
+# We don't run the integration tests on Ubuntu 14.04, because of a bug in the version of mesa shipped with
+# 14.04. (Resizing the Minecraft window often causes a SIGFPE in swrast-dri.so)
+# There's no easy way to update the mesa drivers, so the only workaround is to not run the tests headless.
+# Rather than drop support for 14.04 entirely (it's still covered by LTS), we just stop testing it!
+
 COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_60_0"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_60_0", "-no_testing"]
