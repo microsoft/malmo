@@ -56,6 +56,7 @@ if ! [[ $python =~ ^-?[0-9,.]+$ ]]; then
 fi
 
 export MALMO_TEST_RECORDINGS_PATH=$test_results_dir
+mkdir -p $test_results_dir
 
 echo "Fetching Malmo..."
 {
@@ -102,6 +103,7 @@ fi
 
 # Build the package:
 echo "Building Malmo package..."
+cd /home/malmo/MalmoPlatform/build
 make package | tee /home/malmo/build_malmo_package.log >&3
 #result=#$?;
 result=0
