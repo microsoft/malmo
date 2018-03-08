@@ -130,8 +130,6 @@ for iRepeat in range(num_reps):
     # Create a mission:
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), True)
     
-    # Give the recording a destination filename:
-    my_mission_record.setDestination(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
     max_retries = 3
     for retry in range(max_retries):
         try:
