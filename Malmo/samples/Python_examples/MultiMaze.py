@@ -129,7 +129,7 @@ print("Will run as role",role)
 if agent_host.receivedArgument("test"):
     if role == 0:
         forward_args = " --test --role 1"
-        if agent_host.receivedArgument('record_video')
+        if agent_host.receivedArgument('record_video'):
             forward_args += " --record_video"
         recordingsDirectory = agent_host.getStringArgument('recording_dir')
         if recordingsDirectory:
