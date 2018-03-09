@@ -290,5 +290,5 @@ print('Simeon received {} (expected {})'.format(reward_simeon, expected_reward_s
 print('Fred received {} (expected {})'.format(reward_fred, expected_reward_fred))
 
 if agent_host_simeon.receivedArgument("test") and (reward_fred != expected_reward_fred or reward_simeon != expected_reward_simeon):
-    print('Rewards don't match - test failed!')
+    print("Rewards don't match - test failed!")
     exit(1)
