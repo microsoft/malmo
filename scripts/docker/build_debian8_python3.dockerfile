@@ -77,8 +77,7 @@ RUN sudo apt-get -y update && sudo apt-get -y install mono-devel mono-complete
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-COPY ./boost_1_65_0.tar.gz /home/malmo/boost
-#RUN wget http://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.gz
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.65.0/boost_1_65_0.tar.gz
 
 RUN tar xvf boost_1_65_0.tar.gz
 WORKDIR /home/malmo/boost/boost_1_65_0
