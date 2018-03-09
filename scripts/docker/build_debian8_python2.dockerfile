@@ -95,7 +95,7 @@ RUN make
 
 RUN sudo pip install future
 RUN sudo pip install pillow
-RUN sudo luarocks install luasocket
+RUN sudo apt-get install -y unzip && sudo luarocks install luasocket
 
 COPY ./build.sh /home/malmo
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
