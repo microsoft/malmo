@@ -29,27 +29,18 @@ import os
 import random
 import sys
 import time
+import malmoutils
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
+malmoutils.fix_print()
 
 # -- set up two agent hosts --
 agent_host1 = MalmoPython.AgentHost()
 agent_host2 = MalmoPython.AgentHost()
 
-try:
-    agent_host1.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host1.getUsage())
-    exit(1)
-if agent_host1.receivedArgument("help"):
-    print(agent_host1.getUsage())
-    exit(0)
-
+# Use agent_host1 for parsing the command-line options.
+# (This is why agent_host1 is passed in to all the subsequent malmoutils calls, even for
+# agent 2's setup.)
+malmoutils.parse_command_line(agent_host1)
 
 # -- set up the mission --
 xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -82,7 +73,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       </RewardForCollectingItem>
       <RewardForDiscardingItem>
         <Item reward="10" type="dirt"/>
-      </RewardForDiscardingItem>
+      </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host1) + '''
     </AgentHandlers>
   </AgentSection>
 
@@ -98,7 +89,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       </RewardForCollectingItem>
       <RewardForDiscardingItem>
         <Item reward="100" type="dirt"/>
-      </RewardForDiscardingItem>
+      </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host1) + '''
     </AgentHandlers>
   </AgentSection>
   
@@ -168,8 +159,8 @@ def safeWaitForStart(agent_hosts):
         exit(1)
     print("Mission has started.")
 
-safeStartMission(agent_host1, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 0, '' )
-safeStartMission(agent_host2, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 1, '' )
+safeStartMission(agent_host1, my_mission, client_pool, malmoutils.get_default_recording_object(agent_host1, "agent_1_viewpoint_discrete"), 0, '' )
+safeStartMission(agent_host2, my_mission, client_pool, malmoutils.get_default_recording_object(agent_host1, "agent_2_viewpoint_discrete"), 1, '' )
 safeWaitForStart([agent_host1, agent_host2])
 
 # perform a few actions
@@ -235,7 +226,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       </RewardForCollectingItem>
       <RewardForDiscardingItem>
         <Item reward="10" type="sand"/>
-      </RewardForDiscardingItem>
+      </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host1) + '''
     </AgentHandlers>
   </AgentSection>
 
@@ -251,7 +242,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       </RewardForCollectingItem>
       <RewardForDiscardingItem>
         <Item reward="100" type="sponge"/>
-      </RewardForDiscardingItem>
+      </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host1) + '''
     </AgentHandlers>
   </AgentSection>
   
@@ -262,8 +253,8 @@ client_pool = MalmoPython.ClientPool()
 client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10000) )
 client_pool.add( MalmoPython.ClientInfo('127.0.0.1',10001) )
 
-safeStartMission( agent_host1, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 0, '' )
-safeStartMission( agent_host2, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 1, '' )
+safeStartMission(agent_host1, my_mission, client_pool, malmoutils.get_default_recording_object(agent_host1, "agent_1_viewpoint_continuous"), 0, '' )
+safeStartMission(agent_host2, my_mission, client_pool, malmoutils.get_default_recording_object(agent_host1, "agent_2_viewpoint_continuous"), 1, '' )
 safeWaitForStart( [agent_host1, agent_host2] )
 
 # perform a few actions
