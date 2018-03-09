@@ -70,6 +70,8 @@ namespace malmo
         private:
 
             boost::asio::ip::tcp::socket socket;
+            std::string safe_local_endpoint() const;
+            std::string safe_remote_endpoint() const;
 
             static const int SIZE_HEADER_LENGTH = 4;
             boost::asio::streambuf delimited_buffer;

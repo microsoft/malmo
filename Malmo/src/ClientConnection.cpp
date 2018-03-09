@@ -75,7 +75,10 @@ namespace malmo
         this->outbox.push_back( message );
         if ( this->outbox.size() > 1 ) {
             // outstanding write
-            LOGTRACE(LT("Backlog writing to "), this->socket->remote_endpoint(), LT(" - "), this->outbox.size(), LT(" items awaiting send"));
+            boost::system::error_code ec;
+            LOGTRACE(LT("Backlog writing to "), this->socket->remote_endpoint(ec), LT(" - "), this->outbox.size(), LT(" items awaiting send"));
+            if (ec)
+                LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
             return;
         }
 
@@ -85,7 +88,10 @@ namespace malmo
     void ClientConnection::write()
     {
         const std::string& message = this->outbox.front();
-        LOGFINE(LT("About to async_write "), message, LT(" to "), this->socket->remote_endpoint());
+        boost::system::error_code ec;
+        LOGFINE(LT("About to async_write "), message, LT(" to "), this->socket->remote_endpoint(ec));
+        if (ec)
+            LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
         boost::asio::async_write(
             *this->socket,
             boost::asio::buffer( message ),
@@ -102,10 +108,18 @@ namespace malmo
                                   size_t bytes_transferred )
     {        
         if (error)
-            LOGERROR(LT("Failed to write to "), this->socket->remote_endpoint(), LT(" - transferred "), bytes_transferred, LT(" bytes - "), error.message());
+        {
+            boost::system::error_code ec;
+            LOGERROR(LT("Failed to write to "), this->socket->remote_endpoint(ec), LT(" - transferred "), bytes_transferred, LT(" bytes - "), error.message());
+            if (ec)
+                LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
+        }
         else
         {
-            LOGTRACE(LT("Successfully wrote "), this->outbox.front(), LT(" to "), this->socket->remote_endpoint());
+            boost::system::error_code ec;
+            LOGTRACE(LT("Successfully wrote "), this->outbox.front(), LT(" to "), this->socket->remote_endpoint(ec));
+            if (ec)
+                LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
             boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
             this->outbox.pop_front();
         }

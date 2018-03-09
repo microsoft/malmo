@@ -75,13 +75,13 @@ namespace malmo
             );
         }
     }
-    
+
     void TCPConnection::handle_read_header(
         const boost::system::error_code& error,
         size_t bytes_transferred)
     {
         if( !error ) {
-            LOGTRACE(LT("TCPConnection("), this->log_name, LT(")::handle_read_header("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred);
+            LOGTRACE(LT("TCPConnection("), this->log_name, LT(")::handle_read_header("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred);
             const size_t body_size = getSizeFromHeader();
             this->body_buffer.resize( body_size );
             boost::asio::async_read(
@@ -96,22 +96,36 @@ namespace malmo
             );
         }
         else
-            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_header("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
+            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_header("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
     }
-    
+
+    std::string TCPConnection::safe_remote_endpoint() const
+    {
+        boost::system::error_code ec;
+        auto rep = this->socket.remote_endpoint(ec).address();
+        return ec ? ec.message() : rep.to_string();
+    }
+
+    std::string TCPConnection::safe_local_endpoint() const
+    {
+        boost::system::error_code ec;
+        auto rep = this->socket.local_endpoint(ec).address();
+        return ec ? ec.message() : rep.to_string();
+    }
+
     void TCPConnection::handle_read_body(
         const boost::system::error_code& error,
         size_t bytes_transferred)
     {
         if (!error)
         {
-            LOGTRACE(LT("TCPConnection("), this->log_name, LT(")::handle_read_body("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred);
+            LOGTRACE(LT("TCPConnection("), this->log_name, LT(")::handle_read_body("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred);
             this->processMessage();
         }
         else
-            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_body("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
+            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_body("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
     }
-    
+
     void TCPConnection::handle_read_line(
         const boost::system::error_code& error,
         size_t bytes_transferred)
@@ -125,12 +139,12 @@ namespace malmo
             this->processMessage();
         }
         else
-            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_line("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
+            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_line("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
     }
     
     void TCPConnection::processMessage()
     {
-        LOGFINE(LT("TCPConnection("), this->log_name, LT(")::processMessage("), this->socket.local_endpoint(), LT("/"), this->socket.remote_endpoint(), LT(") - bytes received: "), this->body_buffer.size());
+        LOGFINE(LT("TCPConnection("), this->log_name, LT(")::processMessage("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes received: "), this->body_buffer.size());
 
         if( this->confirm_with_fixed_reply )
             sendReply();
