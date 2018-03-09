@@ -176,10 +176,10 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       <DiscreteMovementCommands autoJump="true" autoFall="true"/>
       <ObservationFromChat/>
       <RewardForSendingCommand reward="1" distribution="SimeonTheStylite:1"/>
-      <DepthMapProducer>
+      <DepthProducer>
         <Width>860</Width>
         <Height>480</Height>
-      </DepthMapProducer>
+      </DepthProducer>
     </AgentHandlers>
   </AgentSection>
 </Mission>'''
