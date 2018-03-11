@@ -228,6 +228,7 @@ class TabQAgent(object):
                     color = 255 * ( value - min_value ) / ( max_value - min_value ) # map value to 0-255
                     color = max( min( color, 255 ), 0 ) # ensure within [0,255]
                     color_string = '#%02x%02x%02x' % (255-color, color, 0)
+                    color = int(color)
                     self.canvas.create_oval( (x + action_positions[action][0] - action_radius ) *scale,
                                              (y + action_positions[action][1] - action_radius ) *scale,
                                              (x + action_positions[action][0] + action_radius ) *scale,
