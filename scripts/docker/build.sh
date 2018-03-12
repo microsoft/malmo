@@ -100,7 +100,7 @@ if [ $run_tests -gt 0 ]; then
     #result=$?;
     result=0
     # Copy the Minecraft logs over for forensic purposes:
-    cp /home/malmo/MalmoPlatform/Minecraft/run/logs $test_results_dir/minecraft_run_logs
+    cp -r /home/malmo/MalmoPlatform/Minecraft/run/logs $test_results_dir/minecraft_run_logs
     if [ $result -ne 0 ]; then
         echo "Malmo tests failed!!"
         exit $result
