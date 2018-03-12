@@ -297,6 +297,8 @@ public class TextureHelper
                         {
                             // Provide a default mapping from entity to colour
                             String ent = EntityList.getEntityString(currentEntity);
+                            if (ent == null)    // Happens if, for example, currentEntity is of type EntityOtherPlayerMP.
+                                ent = currentEntity.getClass().getName();
                             col = (ent.hashCode()) % 0xffffff;
                         }
                         texturesToColours.put(texture, col);
