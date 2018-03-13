@@ -115,6 +115,10 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block" />
                 </AgentQuitFromTouchingBlockType>
+                <LuminanceProducer>
+                    <Width>860</Width>
+                    <Height>480</Height>
+                </LuminanceProducer>
             </AgentHandlers>
         </AgentSection>
   </Mission>'''
