@@ -59,13 +59,22 @@ int main(int argc, const char **argv)
     my_mission_record.recordRewards();
     my_mission_record.recordObservations();
 
-    try {
-        agent_host.startMission( my_mission, my_mission_record );
-    }
-    catch (exception& e) {
-        cout << "Error starting mission: " << e.what() << endl;
-        return EXIT_FAILURE;
-    }
+    int attempts = 0;
+    bool connected = false;
+    do {
+        try {
+            agent_host.startMission(my_mission, my_mission_record);
+            connected = true;
+        }
+        catch (exception& e) {
+            cout << "Error starting mission: " << e.what() << endl;
+            attempts += 1;
+            if (attempts >= 3)
+                return EXIT_FAILURE;    // Give up after three attempts.
+            else
+                boost::this_thread::sleep(boost::posix_time::milliseconds(1000));   // Wait a second and try again.
+        }
+    } while (!connected);
 
     WorldState world_state;
 

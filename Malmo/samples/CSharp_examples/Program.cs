@@ -53,22 +53,30 @@ class Program
         missionRecord.recordRewards();
         missionRecord.recordObservations();
 
-        try
+        bool connected = false;
+        int attempts = 0;
+        while (!connected)
         {
-            agentHost.startMission(mission, missionRecord);
+            try
+            {
+                attempts += 1;
+                agentHost.startMission(mission, missionRecord);
+                connected = true;
+            }
+            catch (MissionException ex)
+            {
+                // Using catch(Exception ex) would also work, but specifying MissionException allows
+                // us to access the error code:
+                Console.Error.WriteLine("Error starting mission: {0}", ex.Message);
+                Console.Error.WriteLine("Error code: {0}", ex.getMissionErrorCode());
+                // We can do more specific error handling using this code, eg:
+                if (ex.getMissionErrorCode() == MissionException.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
+                    Console.Error.WriteLine("Have you started a Minecraft client?");
+                if (attempts >= 3)   // Give up after three goes.
+                    Environment.Exit(1);
+                Thread.Sleep(1000); // Wait a second and try again.
+            }
         }
-        catch (MissionException ex)
-        {
-            // Using catch(Exception ex) would also work, but specifying MissionException allows
-            // us to access the error code:
-            Console.Error.WriteLine("Error starting mission: {0}", ex.Message);
-            Console.Error.WriteLine("Error code: {0}", ex.getMissionErrorCode());
-            // We can do more specific error handling using this code, eg:
-            if (ex.getMissionErrorCode() == MissionException.MissionErrorCode.MISSION_INSUFFICIENT_CLIENTS_AVAILABLE)
-                Console.Error.WriteLine("Have you started a Minecraft client?");
-            Environment.Exit(1);
-        }
-
         WorldState worldState;
 
         Console.WriteLine("Waiting for the mission to start");
