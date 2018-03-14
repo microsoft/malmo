@@ -44,6 +44,11 @@ namespace malmo
         
         int pipe_fd[2];
         pid_t process_id;
+
+        typedef std::pair<pid_t, int> pid_fd;
+        static std::stack<pid_fd> child_process_stack;
+        static std::vector<pid_fd> child_processes_pending_deletion;
+        static void close_pending_children();
     };
 }
 

@@ -239,9 +239,6 @@ namespace malmo
 
         listenForMissionControlMessages(this->current_mission_init->getAgentMissionControlPort());
         // Video producing handlers.
-        // WARNING: Be careful with the creation order - they MUST be closed in reverse order,
-        // or a deadlock will occur.
-        // See the comment in closeServers() for an explanation.
         if (mission.isVideoRequested(this->current_role)) {
             this->video_server = listenForVideo(this->video_server,
                 this->current_mission_init->getAgentVideoPort(),
@@ -761,34 +758,20 @@ namespace malmo
 
     void AgentHost::closeServers()
     {
-        // The four video servers MUST be stopped in the reverse of their creation order.
-        // The reason for this is to do with Posix file descriptor inheritance and forked processes:
-        // Each video server forks to launch ffmpeg, creating a pipe between Malmo and the child process.
-        // When the server is closed, it closes the pipe and waits for the ffmpeg process to end.
-        // This works well for the first server, but each forked child process inherits the *full*
-        // file descriptor table from the parent, so the second video server's fork will (unintentionally)
-        // duplicate the parent's fd for the first pipe; the third video server's child will get a copy
-        // of the fds for the first and second pipe, and so on. This means the first pipe to be created
-        // will be kept open by all the subsequent forked children, since the pipe will not close until *all*
-        // the fds pointing to it are closed.
-        // If the servers aren't closed in reverse order, therefore, a deadlock will occur: Malmo will close
-        // its file descriptor and wait for ffmpeg to quit, but the other children will be inadvertantly keeping
-        // the pipe open, so ffmpeg will keep running and Malmo will hang.
-
-        if (this->colourmap_server) {
-            this->colourmap_server->stopRecording();
-        }
-
-        if (this->luminance_server) {
-            this->luminance_server->stopRecording();
+        if (this->video_server) {
+            this->video_server->stopRecording();
         }
 
         if (this->depth_server) {
             this->depth_server->stopRecording();
         }
 
-        if (this->video_server) {
-            this->video_server->stopRecording();
+        if (this->luminance_server) {
+            this->luminance_server->stopRecording();
+        }
+
+        if (this->colourmap_server) {
+            this->colourmap_server->stopRecording();
         }
 
         if (this->observations_server){
