@@ -458,7 +458,7 @@ if testing:
     # will cause the test to fail.
     num_iterations = 20
     sleep_scale = 0.3
-    speed_scale = 0.2
+    speed_scale = 0.3
 else:
     num_iterations = 30000
     sleep_scale = 1.0
