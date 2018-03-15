@@ -25,7 +25,6 @@ import json
 
 sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
 
-
 def processFrame(frame):
     width = frame.width
     height = frame.height
@@ -49,18 +48,19 @@ def get_intensity(x, y, width):
     brightness = (r + g + b) / 3
     return brightness / 255.0
 
-def calc_yaw_and_velocity(left, right):
+def calc_yaw_and_velocity(left_sensor, right_sensor):
     wheel_span = 0.5
-    yaw = (right - left) / wheel_span
-    # velocity = 0.7 # min(left, right) + abs(yaw / 2)
-    velocity = 0.7 if (min(left, right) > 0.1) else -0.7
+    yaw = (right_sensor - left_sensor) / wheel_span
+    velocity = min(left_sensor, right_sensor) + abs(yaw / 2)
+    #velocity = 0.7 if (min(left, right) > 0.1) else -0.7
     return yaw, velocity
 
-missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+def get_mission_xml(brait_type, decorations):
+    return '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
             <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             
               <About>
-                <Summary>Hello world!</Summary>
+                <Summary>Braitenberg:{brait_type}</Summary>
               </About>
               
               <ServerSection>
@@ -73,34 +73,26 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <ServerHandlers>
                   <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
 					<DrawingDecorator>
-						<DrawCuboid x1="0" y1="46" z1="0" x2="36" y2="50" z2="36" type="air" />
-						<DrawCuboid x1="0" y1="45" z1="0" x2="35" y2="45" z2="36" type="stone"/>
-						<DrawBlock x="15"  y="45" z="7" type="glowstone" />
-						<DrawBlock x="4"  y="46" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="47" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="48" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="49" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="50" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="46" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="47" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="48" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="49" z="1" type="glowstone" />
-						<DrawBlock x="4"  y="50" z="1" type="glowstone" />
-						<DrawBlock x="28"  y="46" z="8" type="glowstone" />
-						<DrawBlock x="28"  y="47" z="8" type="glowstone" />
-						<DrawBlock x="28"  y="48" z="8" type="glowstone" />
-						<DrawBlock x="28"  y="49" z="8" type="glowstone" />
-						<DrawBlock x="28"  y="50" z="8" type="glowstone" />
-						<DrawBlock x="12"  y="45" z="15" type="glowstone" />
-						<DrawBlock x="4"  y="45" z="26" type="glowstone" />
-						<DrawBlock x="20"  y="46" z="32" type="glowstone" />
-						<DrawBlock x="34"  y="46" z="15" type="glowstone" />
-					</DrawingDecorator>
+                        <DrawCuboid x1="-50" y1="40" z1="-50" x2="50" y2="80" z2="50" type="obsidian"/>
+                        <DrawCuboid x1="-49" y1="41" z1="-49" x2="49" y2="79" z2="49" type="air"/>
+                        <DrawCuboid x1="-49" y1="49" z1="-49" x2="49" y2="49" z2="49" type="stained_glass" colour="PINK"/>
+                    </DrawingDecorator>
+                    <MovingTargetDecorator>
+                        <ArenaBounds>
+                           <min x="-50" y="40" z="-50"/>
+                           <max x="50" y="60" z="50"/>
+                        </ArenaBounds>
+                        <StartPos x="-3" y="50" z="0"/>
+                        <Seed>random</Seed>
+                        <UpdateSpeed>8</UpdateSpeed>
+                        <PermeableBlocks type="air obsidian"/>
+                        <BlockType type="beacon"/>
+                    </MovingTargetDecorator>
                   <ServerQuitFromTimeUp timeLimitMs="300000"/>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
               </ServerSection>
-              
+
               <AgentSection mode="Survival">
                 <Name>Breitenburg#1</Name>
                 <AgentStart>
@@ -113,13 +105,13 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <ObservationFromRay/>
 				  <ObservationFromFullStats/>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
-                  <VideoProducer>
+                  <LuminanceProducer>
                     <Width>640</Width>
                     <Height>480</Height>
-                  </VideoProducer>
+                  </LuminanceProducer>
                 </AgentHandlers>
               </AgentSection>
-            </Mission>'''
+            </Mission>'''.format(brait_type=brait_type, decorations=decorations)
 
 # Create default Malmo objects:
 
@@ -127,14 +119,14 @@ agent_host = MalmoPython.AgentHost()
 try:
     agent_host.parse( sys.argv )
 except RuntimeError as e:
-    print 'ERROR:',e
-    print agent_host.getUsage()
+    print('ERROR:',e)
+    print(agent_host.getUsage())
     exit(1)
 if agent_host.receivedArgument("help"):
-    print agent_host.getUsage()
+    print(agent_host.getUsage())
     exit(0)
 
-my_mission = MalmoPython.MissionSpec(missionXML, True)
+my_mission = MalmoPython.MissionSpec(getMissionXML("love",""), True)
 my_mission_record = MalmoPython.MissionRecordSpec()
 
 # Attempt to start a mission:
@@ -145,34 +137,33 @@ for retry in range(max_retries):
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
-            print "Error starting mission:",e
+            print("Error starting mission:",e)
             exit(1)
         else:
             time.sleep(2)
 
 # Loop until mission starts:
-print "Waiting for the mission to start ",
+print("Waiting for the mission to start ")
 world_state = agent_host.getWorldState()
 while not world_state.has_mission_begun:
     sys.stdout.write(".")
     time.sleep(0.1)
     world_state = agent_host.getWorldState()
     for error in world_state.errors:
-        print "Error:",error.text
+        print("Error:",error.text)
 
-print
-print "Mission running ",
+print()
+print("Mission running ")
 
 # Loop until mission ends:
 while world_state.is_mission_running:
     world_state = agent_host.getWorldState()
     if world_state.number_of_video_frames_since_last_state > 0:
         frame = world_state.video_frames[-1]
-        left_brightness, right_brightness = processFrame(frame)
-        print left_brightness, right_brightness
-        yaw, speed = calc_yaw_and_velocity(left_brightness, right_brightness)
+        left_signal, right_signal = processFrame(frame)
+        yaw, speed = calc_yaw_and_velocity(left_signal, right_signal)
         agent_host.sendCommand("turn " + str(yaw))
-        agent_host.sendCommand("move " + str(speed * 3))
+        agent_host.sendCommand("move " + str(speed))
     if world_state.number_of_observations_since_last_state > 0:
         msg = world_state.observations[-1].text
         ob = json.loads(msg)
@@ -182,13 +173,10 @@ while world_state.is_mission_running:
             if type == "glowstone":
                 agent_host.sendCommand("attack 1")
             else:
-				agent_host.sendCommand("attack 0")
-	for error in world_state.errors:
-		print "Error:",error.text
+                agent_host.sendCommand("attack 0")
+    for error in world_state.errors:
+        print("Error:",error.text)
 
-print
-print "Mission ended"
+print()
+print("Mission ended")
 # Mission has ended.
-
-
-agent_host.sendCommand("move 1")
