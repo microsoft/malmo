@@ -97,7 +97,7 @@ if agent_host.receivedArgument("test"):
 max_retries = 3
 for retry in range(max_retries):
     try:
-        agent_host.startMission( my_mission, MalmoPython.MissionRecordSpec() )
+        agent_host.startMission( my_mission, my_mission_record )
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
