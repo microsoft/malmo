@@ -39,7 +39,6 @@ namespace malmo
         std::string search_path();
         
         int64_t bit_rate;
-        int channels;
         std::string ffmpeg_path;
         
         int pipe_fd[2];
