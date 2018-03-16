@@ -35,6 +35,7 @@ set( SOURCES
   MazeRunner.py
   mission_quit_command_example.py
   mob_fun.py
+  mouse_steering_test.py
   moving_target_test.py
   overclock_test.py
   patchwork_quilt.py
