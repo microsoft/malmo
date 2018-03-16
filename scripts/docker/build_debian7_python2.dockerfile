@@ -48,7 +48,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     libbz2-dev \
     python-pip \
     software-properties-common \
-    xpra \
     libgl1-mesa-dri
 
 # Need to old version of Java 7, because latest version has problems with "EC parameter error",
@@ -56,6 +55,9 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
 RUN apt-get update && apt-get install -y openjdk-7-jre-headless=7u95-2.6.4-1~deb7u1 \
                                          openjdk-7-jre=7u95-2.6.4-1~deb7u1 \
                                          openjdk-7-jdk=7u95-2.6.4-1~deb7u1
+
+RUN echo "deb http://http.debian.net/debian wheezy-backports main" >> /etc/apt/sources.list
+RUN sudo apt-get update && apt-get install -y -t wheezy-backports xpra
    
 RUN sudo update-ca-certificates -f
 
@@ -115,9 +117,13 @@ RUN sudo luarocks install --only-server=http://rocks.moonscript.org luasec OPENS
 RUN sudo luarocks install luasocket
 
 COPY ./build.sh /home/malmo
+COPY ./xpra.conf /etc/xpra/xpra.conf
 # Need dos2unix to deal with line endings, and the lsb-release package so that Malmo's
 # modification to CMake's FindXSD code will work.
-RUN sudo apt-get update && sudo apt-get install -y dos2unix lsb-release
+RUN sudo apt-get update && sudo apt-get install -y dos2unix lsb-release xorg xauth xserver-xorg-video-dummy
 RUN sudo dos2unix /home/malmo/build.sh
+RUN sudo dos2unix /etc/xpra/xpra.conf
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_64_0"]
+
+
