@@ -19,6 +19,7 @@
 
 set( SOURCES
   animation_test.py
+  braitenberg_simulation.py
   build_test.py
   chat_reward.py
   chunk_test.py
