@@ -114,7 +114,8 @@ public class HumanLevelCommandsImplementation extends CommandGroup
                         f3 = -f3;
 
                     // Correct any errors from last mouse move:
-                    mc.player.turn(this.targetYawDelta,  this.targetPitchDelta);
+                    if (this.isOverriding())
+                        mc.player.turn(this.targetYawDelta,  this.targetPitchDelta);
                     int renderTicksPerClientTick = this.clientTickMonitor.getEventsPerSecond() >= 1 ? (int)Math.ceil(this.renderTickMonitor.getEventsPerSecond() / this.clientTickMonitor.getEventsPerSecond()) : 0;
                     renderTicksPerClientTick = Math.max(1, renderTicksPerClientTick);
                     this.targetYawDelta = f2;
@@ -126,7 +127,7 @@ public class HumanLevelCommandsImplementation extends CommandGroup
                 if (z != 0)
                 {
                     // Code based on Minecraft.runTickMouse
-                    if (!Minecraft.getMinecraft().player.isSpectator())
+                    if (!Minecraft.getMinecraft().player.isSpectator() && this.isOverriding())
                     {
                         Minecraft.getMinecraft().player.inventory.changeCurrentItem(z);
                     }
@@ -175,7 +176,7 @@ public class HumanLevelCommandsImplementation extends CommandGroup
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev)
     {
-        if (ev.phase == Phase.START)
+        if (ev.phase == Phase.START && this.isOverriding())
         {
             // Track average fps:
             this.renderTickMonitor.beat();
