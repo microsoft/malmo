@@ -405,8 +405,8 @@ def getMissionXML(target_item, fresh_world, tree, testing):
             <ObservationFromRay includeNBT="true"/>
             <ObservationFromGrid>
                 <Grid name="ground" absoluteCoords="false">
-                    <min x="-2" y="-1" z="-1"/>
-                    <max x="2" y="-1" z="-1"/>
+                    <min x="-5" y="-1" z="-1"/>
+                    <max x="5" y="-1" z="-1"/>
                 </Grid>
             </ObservationFromGrid>''' + endCondition + '''
             <RewardForMissionEnd rewardForDeath="-1.0">
@@ -458,11 +458,11 @@ if testing:
     # will cause the test to fail.
     num_iterations = 20
     sleep_scale = 0.3
-    speed_scale = 0.3
+    speed_scale = 0.6
 else:
     num_iterations = 30000
     sleep_scale = 1.0
-    speed_scale = 0.6
+    speed_scale = 0.7
 
 for i in range(num_iterations):
     if testing:
@@ -504,8 +504,16 @@ for i in range(num_iterations):
             # if we are near the edge of a platform, slow down!
             if u"ground" in ob and direction != 0:
                 grid = ob[u"ground"]
-                iron_blocks = max(grid.count("iron_block"), 2)
-                speed = direction * (speed_scale ** (5 - iron_blocks))
+                # Only consider blocks ahead of us in the direction of travel.
+                # (Lower down the tree, there might be other platforms in front of us,
+                # separated from us by air - don't count these blocks!)
+                index = 5 + direction
+                while index >= 0 and index < len(grid) and grid[index] == "iron_block":
+                    index += direction
+                iron_blocks = abs(index - 5)    # Number of iron blocks ahead of us on *this* platform.
+                # Calculate speed from the number of blocks ahead.
+                # If we go too fast, we can overshoot the sign below us.
+                speed = direction * speed_scale ** (6 - iron_blocks)
                 agent_host.sendCommand("strafe " + str(speed))
             # Use the line of sight observation to "read" the signs:
             if u"LineOfSight" in ob:
@@ -523,10 +531,13 @@ for i in range(num_iterations):
                             last_question = question
                             if not question in item_table[target_item]:
                                 print("Something went wrong - did we fall off a branch?")
+                                agent_host.sendCommand("quit")
                                 if testing:
+                                    print("Test failed - waiting to quit.")
+                                    while world_state.is_mission_running:
+                                        world_state = agent_host.getWorldState()
+                                        time.sleep(1)
                                     exit(1)
-                                else:
-                                    agent_host.sendCommand("quit")
                             elif item_table[target_item][question]:
                                 agent_host.sendCommand("chat Yes!")
                                 direction = -1
