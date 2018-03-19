@@ -120,7 +120,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;157;" />
                 <DrawingDecorator>''' + getContainerXML() + '''
                 </DrawingDecorator>
-                <ServerQuitFromTimeUp timeLimitMs="60000" description="out_of_time"/>
+                <ServerQuitFromTimeUp timeLimitMs="120000" description="out_of_time"/>
                 <ServerQuitWhenAnyAgentFinishes />
             </ServerHandlers>
         </ServerSection>
@@ -172,9 +172,6 @@ for mission_no in range(num_missions):
         time.sleep(0.1)
         world_state = agent_host.peekWorldState()
 
-    # Start the agent turning:
-    agent_host.sendCommand("turn 0.2")
-
     last_inventory = None
     last_box_colour = None
     boxes_traversed = 0
@@ -184,6 +181,9 @@ for mission_no in range(num_missions):
     completed_boxes = { col:False for col in colours }
 
     total_reward = 0
+    turn_speed = 0.2
+    # Start the agent turning:
+    agent_host.sendCommand("turn " + str(turn_speed))
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
@@ -202,6 +202,9 @@ for mission_no in range(num_missions):
                 if box_colour != last_box_colour:
                     last_box_colour = box_colour
                     boxes_traversed += 1
+                    if boxes_traversed % 16 == 0:
+                        turn_speed *= 0.9   # Get slower with each lap.
+                        agent_host.sendCommand("turn " + str(turn_speed))
 
             # In our setup, we know that the "foreign" inventories will all be named "shulkerBox",
             # but here is how we could check for the presence of an inventory by using the "inventoriesAvailable"
