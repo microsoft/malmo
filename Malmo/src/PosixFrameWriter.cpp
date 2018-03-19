@@ -206,7 +206,7 @@ namespace malmo
             throw std::runtime_error("Call to write failed.");
         }
 
-        ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
+        ret = ::write( this->pipe_fd[1], rgb, width*height*this->channels );
         if (ret < 0)
         {
             LOGERROR(LT("Failed to write frame body: "), std::strerror(errno), LT(" - throwing runtime_error"));
