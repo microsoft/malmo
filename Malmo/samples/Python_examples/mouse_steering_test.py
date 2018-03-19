@@ -129,7 +129,7 @@ run_data = []
 for iRepeat in range(num_reps):
     if SWEEP_DAMPENING_FACTOR:
         # Sweep for a good dampening factor (see comments below)
-        dampen_factor = (iRepeat + 1) / num_reps
+        dampen_factor = (iRepeat + 1.0) / num_reps
         print("Running with dampening factor: ", dampen_factor)
     else:
         dampen_factor = 0.3 # Seems to work pretty well.
