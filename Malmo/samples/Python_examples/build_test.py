@@ -56,6 +56,8 @@ malmoutils.fix_print()
 
 agent_host = MalmoPython.AgentHost()
 malmoutils.parse_command_line(agent_host)
+TESTING = agent_host.receivedArgument("test")
+
 recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
 
 video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
@@ -232,6 +234,12 @@ class CopyAgent(object):
                 self.targets.append((pitch,yaw))
             direction *= -1.0
 
+        if TESTING:
+            # For added security in test scenario, loop backwards through targets.
+            tmp = list(self.targets)
+            tmp.reverse()
+            self.targets += tmp
+
         self.targets.append((0,0))
         self.targets.append(CopyAgent.sentinel)
 
@@ -346,7 +354,7 @@ class CopyAgent(object):
 
 # Create a bunch of build battle missions and run an agent on them.
 num_iterations = 30000
-if agent_host.receivedArgument("test"):
+if TESTING:
     num_iterations = 5
 
 # Set up a recording
@@ -418,6 +426,6 @@ for i in range(num_iterations):
         print(" - " + hr_stat)
     if total_reward != expected_reward:
         print("Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward))
-        if agent_host.receivedArgument("test"):
+        if TESTING:
             exit(1)
     print()
