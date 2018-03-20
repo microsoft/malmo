@@ -32,6 +32,12 @@ import sys
 import time
 import json
 import uuid
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 def GetMissionXML( current_seed, xorg, yorg, zorg, iteration ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
@@ -94,23 +100,6 @@ def GetMissionXML( current_seed, xorg, yorg, zorg, iteration ):
 
     </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-validate = True
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 # Create a pool of Minecraft Mod clients:
 my_client_pool = MalmoPython.ClientPool()
 # Add the default client - port 10000 on the local machine:
@@ -123,25 +112,14 @@ my_client_pool.add(my_client)
 # In multi-agent missions all agents must pass the same experimentID, in order to prevent agents from joining the wrong experiments.
 experimentID = uuid.uuid4()
 
-# Create a folder to put our recordings - the platform will not create missing folders itself, it will simply throw an exception.
-recordingsDirectory="QuiltRecordings"
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
 if agent_host.receivedArgument("test"):
-    num_reps = 1
+    num_reps = 30
 else:
     num_reps = 30000
 
-# Set up a recording
-my_mission_record = MalmoPython.MissionRecordSpec()
-my_mission_record.recordCommands()
-my_mission_record.recordMP4(24,400000)
-
 for iRepeat in range(num_reps):
+    # Set up a recording
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Patch_{}".format(iRepeat + 1))
     # Find the point at which to create the maze:
     xorg = (iRepeat % 64) * 16
     zorg = ((old_div(iRepeat, 64)) % 64) * 16
@@ -150,10 +128,8 @@ for iRepeat in range(num_reps):
     print("Mission " + str(iRepeat) + " --- starting at " + str(xorg) + ", " + str(yorg) + ", " + str(zorg))
 
     # Create a mission:
-    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), validate)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg, iRepeat), True)
     
-    # Give the recording a destination filename:
-    my_mission_record.setDestination(recordingsDirectory + "//" + "Quilt_" + str(iRepeat) + ".tgz")
     max_retries = 3
     for retry in range(max_retries):
         try:

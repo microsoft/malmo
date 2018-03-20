@@ -50,6 +50,17 @@ import copy
 import errno
 import math
 import xml.etree.ElementTree
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+TESTING = agent_host.receivedArgument("test")
+
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 # dimensions of the test structure (works best with 3x3)
 SIZE_X = 3
@@ -155,7 +166,7 @@ def getMissionXML(forceReset, structure):
                 <AddQuitProducer description="Build successful!"/>
             </RewardForStructureCopying>
             <ObservationFromRay/>
-            <ObservationFromHotBar/>
+            <ObservationFromHotBar/>''' + video_requirements + '''
             </AgentHandlers>
     </AgentSection>
 
@@ -222,6 +233,12 @@ class CopyAgent(object):
                 pitch = math.atan(old_div(height,distance)) * 180.0/math.pi
                 self.targets.append((pitch,yaw))
             direction *= -1.0
+
+        if TESTING:
+            # For added security in test scenario, loop backwards through targets.
+            tmp = list(self.targets)
+            tmp.reverse()
+            self.targets += tmp
 
         self.targets.append((0,0))
         self.targets.append(CopyAgent.sentinel)
@@ -303,7 +320,10 @@ class CopyAgent(object):
 
         proceed = True if hotkey < 0 else False # Skip this position if there's nothing to place there.
         if not proceed and self.pointTo(ah, ob, target_pitch, target_yaw, self.replay_accuracy):
-            self.replay_accuracy = 5    # Once we've honed in on the first point, we can be less accurate with the rest.
+            if TESTING:
+                self.replay_accuracy = 1
+            else:
+                self.replay_accuracy = 5    # Once we've honed in on the first point, we can be less accurate with the rest.
             if u'LineOfSight' in ob:
                 los = ob[u'LineOfSight']
                 x = int(math.floor(los["x"]))
@@ -336,42 +356,20 @@ class CopyAgent(object):
             self.mode += 1
 
 # Create a bunch of build battle missions and run an agent on them.
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )
-
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 num_iterations = 30000
-if agent_host.receivedArgument("test"):
+if TESTING:
     num_iterations = 5
 
 # Set up a recording
 recording = False
 my_mission_record = MalmoPython.MissionRecordSpec()
-recordingsDirectory = agent_host.getStringArgument("recordingDir")
-if len(recordingsDirectory) > 0:
+if recordingsDirectory:
     recording = True
-    try:
-        os.makedirs(recordingsDirectory)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST: # ignore error if already existed
-            raise
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
     my_mission_record.recordCommands()
+    if video_requirements:
+        my_mission_record.recordMP4(24,2000000)
 
 # Create agent to run all the missions:
 agent = CopyAgent(SIZE_X, SIZE_Z)
@@ -380,7 +378,7 @@ for i in range(num_iterations):
     structure = createTestStructure(SIZE_X, SIZE_Z)
     missionXML, expected_reward = getMissionXML('"false"', structure)
     if recording:
-        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i) + ".tgz")
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i + 1) + ".tgz")
     my_mission = MalmoPython.MissionSpec(missionXML, True)
     agent.reset()
 
@@ -431,6 +429,6 @@ for i in range(num_iterations):
         print(" - " + hr_stat)
     if total_reward != expected_reward:
         print("Mission failed - total reward was " + str(total_reward) + ", expected reward was " + str(expected_reward))
-        if agent_host.receivedArgument("test"):
+        if TESTING:
             exit(1)
     print()

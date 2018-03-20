@@ -46,6 +46,9 @@ import random
 import sys
 import time
 import re
+import malmoutils
+
+malmoutils.fix_print()
 
 def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, role, expId):
     used_attempts = 0
@@ -105,26 +108,12 @@ def safeWaitForStart(agent_hosts):
     print()
     print("Mission has started.")
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
 # -- set up two agent hosts --
 agent_host_simeon = MalmoPython.AgentHost()
 agent_host_fred = MalmoPython.AgentHost()
 
-try:
-    agent_host_simeon.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host_simeon.getUsage())
-    exit(1)
-if agent_host_simeon.receivedArgument("help"):
-    print(agent_host_simeon.getUsage())
-    exit(0)
-
+# Use simeon's agenthost to hold the command-line options:
+malmoutils.parse_command_line(agent_host_simeon)
 
 # -- set up the mission --
 xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -171,6 +160,10 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       <AgentQuitFromTouchingBlockType>
         <Block type="redstone_block"/>
       </AgentQuitFromTouchingBlockType>
+      <ColourMapProducer>
+        <Width>860</Width>
+        <Height>480</Height>
+      </ColourMapProducer>
     </AgentHandlers>
   </AgentSection>
 
@@ -183,6 +176,10 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
       <DiscreteMovementCommands autoJump="true" autoFall="true"/>
       <ObservationFromChat/>
       <RewardForSendingCommand reward="1" distribution="SimeonTheStylite:1"/>
+      <DepthProducer>
+        <Width>860</Width>
+        <Height>480</Height>
+      </DepthProducer>
     </AgentHandlers>
   </AgentSection>
 </Mission>'''
@@ -214,9 +211,29 @@ for x in range(20):
         instructions.append("strafe -1")
 
 expected_reward_simeon = len(instructions)  # One point for every instruction acted on.
+expected_reward_fred = 10000    # Reward when Simeon touches redstone block.
 
-safeStartMission(agent_host_simeon, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 0, '' )
-safeStartMission(agent_host_fred, my_mission, client_pool, MalmoPython.MissionRecordSpec(), 1, '' )
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host_simeon)
+simeon_recording_spec = MalmoPython.MissionRecordSpec()
+fred_recording_spec = MalmoPython.MissionRecordSpec()
+if recordingsDirectory:
+    # Command-line arguments requested a recording, so set it up:
+    simeon_recording_spec.setDestination(recordingsDirectory + "//simeon_viewpoint.tgz")
+    simeon_recording_spec.recordRewards()
+    simeon_recording_spec.recordCommands()
+    simeon_recording_spec.recordObservations()
+    fred_recording_spec.setDestination(recordingsDirectory + "//fred_viewpoint.tgz")
+    fred_recording_spec.recordRewards()
+    fred_recording_spec.recordCommands()
+    fred_recording_spec.recordObservations()
+    if agent_host_simeon.receivedArgument("record_video"):
+        # Simeon sees the world as a colour map:
+        simeon_recording_spec.recordMP4(MalmoPython.FrameType.COLOUR_MAP, 24, 2000000, False)
+        # Fred sees the world as a 32bpp depth map:
+        fred_recording_spec.recordBitmaps(MalmoPython.FrameType.DEPTH_MAP)
+
+safeStartMission(agent_host_simeon, my_mission, client_pool, simeon_recording_spec, 0, '' )
+safeStartMission(agent_host_fred, my_mission, client_pool, fred_recording_spec, 1, '' )
 safeWaitForStart([ agent_host_simeon, agent_host_fred ])
 
 i = 0
@@ -269,5 +286,9 @@ world_state1 = agent_host_simeon.getWorldState()
 world_state2 = agent_host_fred.getWorldState()
 reward_simeon += sum(reward.getValue() for reward in world_state1.rewards)
 reward_fred += sum(reward.getValue() for reward in world_state2.rewards)
-print('Simeon received',reward_simeon)
-print('Fred received',reward_fred)
+print('Simeon received {} (expected {})'.format(reward_simeon, expected_reward_simeon))
+print('Fred received {} (expected {})'.format(reward_fred, expected_reward_fred))
+
+if agent_host_simeon.receivedArgument("test") and (reward_fred != expected_reward_fred or reward_simeon != expected_reward_simeon):
+    print("Rewards don't match - test failed!")
+    exit(1)

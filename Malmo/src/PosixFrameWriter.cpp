@@ -37,6 +37,9 @@
 
 namespace malmo
 {
+    std::stack<PosixFrameWriter::pid_fd> PosixFrameWriter::child_process_stack;
+    std::vector<PosixFrameWriter::pid_fd> PosixFrameWriter::child_processes_pending_deletion;
+
     PosixFrameWriter::PosixFrameWriter(std::string path, std::string info_filename, short width, short height, int frames_per_second, int64_t bit_rate, int channels, bool drop_input_frames)
         : VideoFrameWriter(path, info_filename, width, height, frames_per_second, channels, drop_input_frames)
         , bit_rate(bit_rate)
@@ -65,6 +68,8 @@ namespace malmo
         if( this->process_id ) 
         {
             // this is the parent process, can write to pipe_fd[1]
+            // push our child's proc id onto the stack:
+            child_process_stack.push(std::make_pair(this->process_id, this->pipe_fd[1]));
             ret = ::close( this->pipe_fd[0] ); // close the end of the pipe we don't want to use
             if( ret )
                 throw std::runtime_error( "Failed to close unused pipe end." );
@@ -143,12 +148,30 @@ namespace malmo
         {
             VideoFrameWriter::close();
         }
-        
+
         // if the parent process then close the pipe and wait for ffmpeg to finish
-        if( this->process_id ) 
+        // it's VERY important we do this in reverse order of creation, since later child processes
+        // will be holding handles to previous child processes (they inherit the full fd table from the
+        // parent.) Closing them first ensures that all handles have been closed by the time the first
+        // child processes are closed.
+        if (this->process_id)
         {
-            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe..."));
-            int ret = ::close( this->pipe_fd[1] );
+            LOGFINE(LT("Parent PosixFrameWriter process requesting pipe close - fd: "), this->pipe_fd[1], LT(" pid: "), this->process_id);
+            child_processes_pending_deletion.push_back(std::make_pair(this->process_id, this->pipe_fd[1]));
+            this->process_id = 0;
+            close_pending_children();
+        }
+    }
+
+    void PosixFrameWriter::close_pending_children()
+    {
+        // we can only close the process at the top of the stack.
+        while (child_process_stack.size() && std::find(child_processes_pending_deletion.begin(), child_processes_pending_deletion.end(), child_process_stack.top()) != child_processes_pending_deletion.end())
+        {
+            pid_fd child = child_process_stack.top();
+            child_process_stack.pop();
+            LOGFINE(LT("Parent PosixFrameWriter process is closing pipe - fd: "), child.second, LT(" pid: "), child.first);
+            int ret = ::close(child.second);
             if (ret)
             {
                 LOGERROR(LT("Failed to close pipe: "), ret);
@@ -157,8 +180,8 @@ namespace malmo
 
             int status;
             LOGFINE(LT("Pipe closed, waiting for ffmpeg to end..."));
-            ret = waitpid( this->process_id, &status, 0 );
-            if (ret != this->process_id)
+            ret = waitpid( child.first, &status, 0 );
+            if (ret != child.first)
             {
                 LOGERROR(LT("Call to waitpid failed: "), ret);
                 throw std::runtime_error("Call to waitpid failed.");
@@ -168,8 +191,6 @@ namespace malmo
                 LOGERROR(LT("FFMPEG process exited abnormally: "), status);
                 throw std::runtime_error("FFMPEG process exited abnormally.");
             }
-
-            this->process_id = 0;
         }
     }
 
@@ -185,7 +206,7 @@ namespace malmo
             throw std::runtime_error("Call to write failed.");
         }
 
-        ret = ::write( this->pipe_fd[1], rgb, width*height*3 );
+        ret = ::write( this->pipe_fd[1], rgb, width*height*this->channels );
         if (ret < 0)
         {
             LOGERROR(LT("Failed to write frame body: "), std::strerror(errno), LT(" - throwing runtime_error"));

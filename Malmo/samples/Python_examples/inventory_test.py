@@ -45,6 +45,12 @@ import random
 import sys
 import time
 from collections import namedtuple
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 # Create a named tuple type for the inventory contents.
 InventoryObject = namedtuple('InventoryObject', 'type, colour, variation, quantity, inventory, index')
@@ -114,7 +120,7 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <FlatWorldGenerator generatorString="3;7,44*49,73,35:1,159:4,95:13,35:13,159:11,95:10,159:14,159:6,35:6,95:6;157;" />
                 <DrawingDecorator>''' + getContainerXML() + '''
                 </DrawingDecorator>
-                <ServerQuitFromTimeUp timeLimitMs="60000" description="out_of_time"/>
+                <ServerQuitFromTimeUp timeLimitMs="120000" description="out_of_time"/>
                 <ServerQuitWhenAnyAgentFinishes />
             </ServerHandlers>
         </ServerSection>
@@ -136,33 +142,17 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 </RewardForCollectingItem>
                 <RewardForDiscardingItem>
                     <Item reward="1" type="stained_glass"/>
-                </RewardForDiscardingItem>
+                </RewardForDiscardingItem>''' + malmoutils.get_video_xml(agent_host) + '''
             </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 my_mission = MalmoPython.MissionSpec(missionXML,True)
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 num_missions = 10 if agent_host.receivedArgument("test") else 30000
 for mission_no in range(num_missions):
     merges_allowed = mission_no % 2
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_{}".format(mission_no + 1))
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -182,9 +172,6 @@ for mission_no in range(num_missions):
         time.sleep(0.1)
         world_state = agent_host.peekWorldState()
 
-    # Start the agent turning:
-    agent_host.sendCommand("turn 0.2")
-
     last_inventory = None
     last_box_colour = None
     boxes_traversed = 0
@@ -194,6 +181,9 @@ for mission_no in range(num_missions):
     completed_boxes = { col:False for col in colours }
 
     total_reward = 0
+    turn_speed = 0.2
+    # Start the agent turning:
+    agent_host.sendCommand("turn " + str(turn_speed))
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
@@ -212,6 +202,9 @@ for mission_no in range(num_missions):
                 if box_colour != last_box_colour:
                     last_box_colour = box_colour
                     boxes_traversed += 1
+                    if boxes_traversed % 16 == 0:
+                        turn_speed *= 0.9   # Get slower with each lap.
+                        agent_host.sendCommand("turn " + str(turn_speed))
 
             # In our setup, we know that the "foreign" inventories will all be named "shulkerBox",
             # but here is how we could check for the presence of an inventory by using the "inventoriesAvailable"

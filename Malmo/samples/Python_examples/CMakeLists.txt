@@ -19,6 +19,7 @@
 
 set( SOURCES
   animation_test.py
+  braitenberg_simulation.py
   build_test.py
   chat_reward.py
   chunk_test.py
@@ -30,12 +31,11 @@ set( SOURCES
   drawing_test.py
   file_test.py
   hit_test.py
-  human_action.py
   inventory_test.py
-  manual_input_test.py
   MazeRunner.py
   mission_quit_command_example.py
   mob_fun.py
+  mouse_steering_test.py
   moving_target_test.py
   overclock_test.py
   patchwork_quilt.py
@@ -47,21 +47,9 @@ set( SOURCES
   reward_for_mission_end_test.py
   robust_frames.py
   run_mission.py
-  sample_missions_loader.py
   tabular_q_learning.py
   teleport_test.py
   to_string_test.py
-  tutorial_1.py
-  tutorial_2.py
-  tutorial_3.py
-  tutorial_4.py
-  tutorial_4_solved.py
-  tutorial_5.py
-  tutorial_5_solved.py
-  tutorial_6.py
-  tutorial_7.py
-  tutorial_8.py
-  use_file.py
 )
 
 set( ALESOURCES
@@ -71,20 +59,35 @@ set( ALESOURCES
 set( MULTI_AGENT_TESTS
     two_diggers.py
     team_reward_test.py
-    multi_agent_test.py
-    agent_visibility_test.py
-    tsp_race.py
-    turn_based_test.py
     MultiMaze.py
 )
 
 set( OTHER_FILES
-  tutorial_6.xml
+  malmoutils.py
   Tutorial.pdf
   note_block_test.py    # Currently no way to test audio
   cart_test.py          # Currently unreliable
   mob_zoo.py            # Currently unreliable
   block_type_test.py    # WIP
+  human_action.py       # Doesn't make much sense to run this as an integration test
+  manual_input_test.py  # Doesn't make much sense to run this as an integration test
+  sample_missions_loader.py # Ditto
+  use_file.py           # Ditto
+  tutorial_1.py
+  tutorial_2.py
+  tutorial_3.py
+  tutorial_4.py
+  tutorial_4_solved.py
+  tutorial_5.py
+  tutorial_5_solved.py
+  tutorial_6.py
+  tutorial_6.xml
+  tutorial_7.py
+  tutorial_8.py
+  multi_agent_test.py       # Moving these here for now, as running
+  agent_visibility_test.py  # sufficient copies of Minecraft to test them
+  tsp_race.py               # requires a pretty high-spec machine.
+  turn_based_test.py        # Remember to add more ports to the launch_minecraft_in_background call below when restoring.
 )
 
 install( FILES ${SOURCES} ${MULTI_AGENT_TESTS} ${OTHER_FILES} DESTINATION Python_Examples )
@@ -97,8 +100,8 @@ function(addTestsFromFiles SOURCES_TO_TEST)
     # add an integration test for each sample
     foreach( file ${SOURCES_TO_TEST} )
 
-      get_filename_component( test_name "${file}" NAME_WE )
-      set( test_name "PythonIntegrationTests_${test_name}" )
+      get_filename_component( script_name "${file}" NAME_WE )
+      set( test_name "PythonIntegrationTests_${script_name}" )
       
       add_test(NAME ${test_name}_help
         WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
@@ -108,7 +111,7 @@ function(addTestsFromFiles SOURCES_TO_TEST)
 
       add_test(NAME ${test_name}
         WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file} --test --recording_dir ${script_name} --record_video
       )
       set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};${MALMO_TEST_ENVIRONMENT}" )
 
@@ -122,7 +125,7 @@ addTestsFromFiles( "${SOURCES}" )
 add_test(
   NAME PreMultiAgentIntegrationTests
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/Minecraft
-  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001 10002 10003
+  COMMAND ${PYTHON_EXECUTABLE} launch_minecraft_in_background.py 10001
 )
 set_tests_properties( PreMultiAgentIntegrationTests PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 addTestsFromFiles( "${MULTI_AGENT_TESTS}" )

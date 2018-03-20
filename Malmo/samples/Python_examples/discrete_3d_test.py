@@ -47,6 +47,13 @@ import copy
 import errno
 import xml.etree.ElementTree
 from collections import deque
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
 
 # Set up some pallettes:
 colourful=["stained_glass", "diamond_block", "lapis_block", "gold_block", "redstone_block", "obsidian"]
@@ -378,42 +385,19 @@ def steerAgent(ah, description, dir, mode):
             sendCommand(ah, str(description) + "move " + str(move_values[dir]))
             return True
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 num_iterations = 30000
 if agent_host.receivedArgument("test"):
     num_iterations = len(MovementModes) * len(PathTypes) # Once through all combinations of path type and action space
 
 recording = False
 my_mission_record = MalmoPython.MissionRecordSpec()
-recordingsDirectory = agent_host.getStringArgument("recordingDir")
-if len(recordingsDirectory) > 0:
+if recordingsDirectory:
     recording = True
-    try:
-        os.makedirs(recordingsDirectory)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST: # ignore error if already existed
-            raise
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
     my_mission_record.recordCommands()
-    my_mission_record.recordMP4(24,2000000)
+    if agent_host.receivedArgument("record_video"):
+        my_mission_record.recordMP4(24,2000000)
 
 for i in range(num_iterations):
     structure = createTestStructure(SIZE_X, SIZE_Y, SIZE_Z)

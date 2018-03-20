@@ -24,35 +24,20 @@ import os
 import random
 import sys
 import time
+import malmoutils
 #from PIL import Image
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
+malmoutils.fix_print()
 
 agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
+malmoutils.parse_command_line(agent_host)
 
 my_mission = MalmoPython.MissionSpec()
 my_mission.timeLimitInSeconds( 10 )
 my_mission.requestVideo( 320, 240 )
 my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
 
-my_mission_record = MalmoPython.MissionRecordSpec("./saved_data.tgz")
-my_mission_record.recordCommands()
-my_mission_record.recordMP4(20, 400000)
-my_mission_record.recordRewards()
-my_mission_record.recordObservations()
+my_mission_record = malmoutils.get_default_recording_object(agent_host, "saved_data")
 
 max_retries = 3
 for retry in range(max_retries):

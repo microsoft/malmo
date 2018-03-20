@@ -26,6 +26,13 @@ import sys
 import time
 import json
 import errno
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalIntArgument( "speed,s", "Length of tick, in ms.", 50)
+malmoutils.parse_command_line(agent_host)
 
 maze1 = '''
     <MazeDecorator>
@@ -98,7 +105,7 @@ maze4 = '''
     </MazeDecorator>
 '''
 
-def GetMissionXML( mazeblock ):
+def GetMissionXML( mazeblock, agent_host ):
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <About>
@@ -131,58 +138,28 @@ def GetMissionXML( mazeblock ):
                     <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
                         <command>strafe</command>
                     </ModifierList>
-                </ContinuousMovementCommands>
-            </AgentHandlers>
+                </ContinuousMovementCommands>''' + malmoutils.get_video_xml(agent_host) + '''
+                </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
-  
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 
 validate = True
 mazeblocks = [maze1, maze2, maze3, maze4]
 
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalIntArgument( "speed,s", "Length of tick, in ms.", 50)
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 
 if agent_host.receivedArgument("test"):
-    num_reps = 1
+    num_reps = 10
 else:
     num_reps = 30000
 
-recordingsDirectory="MazeRecordings"
 TICK_LENGTH = agent_host.getIntArgument("speed")
 
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
-# Set up a recording
-my_mission_record = MalmoPython.MissionRecordSpec()
-my_mission_record.recordRewards()
-my_mission_record.recordObservations()
-
 for iRepeat in range(num_reps):
-    my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_{}".format(iRepeat + 1))
     mazeblock = random.choice(mazeblocks)
-    my_mission = MalmoPython.MissionSpec(GetMissionXML(mazeblock),validate)
+    my_mission = MalmoPython.MissionSpec(GetMissionXML(mazeblock, agent_host),validate)
 
     max_retries = 3
     for retry in range(max_retries):

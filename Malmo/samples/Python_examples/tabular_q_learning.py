@@ -37,6 +37,7 @@ import os
 import random
 import sys
 import time
+import malmoutils
 
 if sys.version_info[0] == 2:
     # Workaround for https://github.com/PythonCharmers/python-future/issues/262
@@ -47,6 +48,8 @@ else:
 save_images = False
 if save_images:        
     from PIL import Image
+    
+malmoutils.fix_print()
 
 class TabQAgent(object):
     """Tabular Q-learning agent for discrete state/action spaces."""
@@ -299,17 +302,21 @@ class TabQAgent(object):
                                      outline="#fff", fill="#fff" )
         self.root.update()
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 
 agent_host = MalmoPython.AgentHost()
 
+# Find the default mission file by looking next to the schemas folder:
+schema_dir = None
+try:
+    schema_dir = os.environ['MALMO_XSD_PATH']
+except KeyError:
+    print("MALMO_XSD_PATH not set? Check environment.")
+    exit(1)
+mission_file = os.path.abspath(os.path.join(schema_dir, '..', 'sample_missions', 'cliff_walking_1.xml'))
+
 # add some args
 agent_host.addOptionalStringArgument('mission_file',
-    'Path/to/file from which to load the mission.', '../Sample_missions/cliff_walking_1.xml')
+    'Path/to/file from which to load the mission.', mission_file)
 agent_host.addOptionalFloatArgument('alpha',
     'Learning rate of the Q-learning agent.', 0.1)
 agent_host.addOptionalFloatArgument('epsilon',
@@ -319,18 +326,7 @@ agent_host.addOptionalFlag('load_model', 'Load initial model from model_file.')
 agent_host.addOptionalStringArgument('model_file', 'Path to the initial model file', '')
 agent_host.addOptionalFlag('debug', 'Turn on debugging.')
 
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
-if agent_host.receivedArgument("test"):
-    exit(0) # can't test any further because mission_file path unknowable TODO: find a way to run this sample as an integration test
+malmoutils.parse_command_line(agent_host)
 
 # -- set up the python-side drawing -- #
 scale = 40
@@ -389,11 +385,7 @@ for imap in range(num_maps):
         
         print("\nMap %d - Mission %d of %d:" % ( imap, i+1, num_repeats ))
 
-        my_mission_record = MalmoPython.MissionRecordSpec( "./save_%s-map%d-rep%d.tgz" % (expID, imap, i) )
-        my_mission_record.recordCommands()
-        my_mission_record.recordMP4(20, 400000)
-        my_mission_record.recordRewards()
-        my_mission_record.recordObservations()
+        my_mission_record = malmoutils.get_default_recording_object(agent_host, "./save_%s-map%d-rep%d" % (expID, imap, i))
 
         for retry in range(max_retries):
             try:

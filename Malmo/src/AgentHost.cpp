@@ -238,7 +238,7 @@ namespace malmo
         this->current_role = role;
 
         listenForMissionControlMessages(this->current_mission_init->getAgentMissionControlPort());
-        // Video producing handlers:
+        // Video producing handlers.
         if (mission.isVideoRequested(this->current_role)) {
             this->video_server = listenForVideo(this->video_server,
                 this->current_mission_init->getAgentVideoPort(),

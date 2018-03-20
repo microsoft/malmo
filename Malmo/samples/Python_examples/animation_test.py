@@ -27,7 +27,15 @@ import time
 import json
 import random
 import errno
+import malmoutils
 
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = malmoutils.get_video_xml(agent_host)
+    
 def getMissionXML():
     return '''<?xml version="1.0" encoding="UTF-8" ?>
     <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -55,7 +63,7 @@ def getMissionXML():
                 <Inventory>
                 </Inventory>
             </AgentStart>
-            <AgentHandlers>
+            <AgentHandlers>''' + video_requirements + '''
                 <RewardForMissionEnd rewardForDeath="-1000.0">
                     <Reward description="out_of_time" reward="-900.0"/>
                     <Reward description="found_goal" reward="100000.0"/>
@@ -134,34 +142,10 @@ def getAnimation():
                 </DrawingDecorator>
             </AnimationDecorator>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-recordingsDirectory="AnimationRecordings"
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
 validate = True
 missionXML = getMissionXML()
-print(type(missionXML))
 
 my_mission = MalmoPython.MissionSpec(missionXML, validate)
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 my_client_pool = MalmoPython.ClientPool()
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10000))
@@ -173,9 +157,13 @@ else:
 
 for iRepeat in range(num_reps):
     # Set up a recording
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
-    my_mission_record.recordRewards()
-    my_mission_record.recordMP4(24,400000)
+    my_mission_record = MalmoPython.MissionRecordSpec()
+    if recordingsDirectory:
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Animation_" + str(iRepeat + 1) + ".tgz")
+        my_mission_record.recordRewards()
+        if video_requirements:
+            my_mission_record.recordMP4(24,2000000)
+
     max_retries = 3
     for retry in range(max_retries):
         try:

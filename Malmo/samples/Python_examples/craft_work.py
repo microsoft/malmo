@@ -34,6 +34,14 @@ import time
 import json
 import random
 import errno
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 items=["red_flower white_tulip", "coal", "planks spruce", "planks birch", "planks dark_oak", "rabbit", "carrot", "potato", "brown_mushroom"]
 
@@ -177,17 +185,11 @@ def GetMissionXML(summary):
                 <ObservationFromFullInventory/>
                 <AgentQuitFromCollectingItem>
                     <Item type="rabbit_stew" description="Supper's Up!!"/>
-                </AgentQuitFromCollectingItem>
+                </AgentQuitFromCollectingItem>''' + video_requirements + '''
             </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
-   
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 
 validate = True
 
@@ -213,17 +215,6 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 if agent_host.receivedArgument("test"):
     num_reps = 1
 else:
@@ -232,6 +223,14 @@ else:
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Crafty #" + str(iRepeat)),validate)
     my_mission_record = MalmoPython.MissionRecordSpec() # Records nothing by default
+    if recordingsDirectory:
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+        my_mission_record.recordCommands()
+        if agent_host.receivedArgument("record_video"):
+            my_mission_record.recordMP4(24,2000000)
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat + 1) + ".tgz")
+
     max_retries = 3
     for retry in range(max_retries):
         try:

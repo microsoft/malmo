@@ -83,3 +83,10 @@ Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc
 1. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).
 2. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` (or your Schemas location) to your `~/.bashrc` and do `source ~/.bashrc`
 3. When you update Malmo you will need to update the MALMO_XSD_PATH too.
+
+### 7. Optional: Install required Python modules: ###
+
+If you want to use the python samples, you will need:
+       
+1. pip install future
+2. pip install pillow

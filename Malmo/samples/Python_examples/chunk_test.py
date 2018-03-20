@@ -42,6 +42,14 @@ import sys
 import time
 import json
 import copy
+import malmoutils
+
+malmoutils.fix_print()
+
+# Create default Malmo objects:
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
 
 # Set up some pallettes:
 colourful=["stained_glass", "diamond_block", "emerald_block", "gold_block", "redstone_block", "obsidian"]
@@ -170,32 +178,25 @@ def getMissionXMLAndJson(forceReset, structure):
     </AgentSection>
 
   </Mission>''', gridJson
-    
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 num_iterations = 30000
 if agent_host.receivedArgument("test"):
     num_iterations = 10 # Haven't got all day
 
 my_mission_record = MalmoPython.MissionRecordSpec()
+if recordingsDirectory:
+    my_mission_record.recordRewards()
+    my_mission_record.recordObservations()
+    my_mission_record.recordCommands()
+    if agent_host.receivedArgument("record_video"):
+        my_mission_record.recordMP4(24,2000000)
+
 structure = createTestStructure(SIZE_X, SIZE_Y, SIZE_Z) # Create the first one outside the loop.
 
 for i in range(num_iterations):
+    if recordingsDirectory:
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i + 1) + ".tgz")
+
     missionXML, gridJson = getMissionXMLAndJson('"false"', structure)
     my_mission = MalmoPython.MissionSpec(missionXML, True)
 

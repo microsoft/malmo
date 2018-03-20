@@ -60,7 +60,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 SWIG_LINK_LIBRARIES(${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
 
 if( UNIX )
-  set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".so")
+  set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES PREFIX "lib" SUFFIX ".so")
   set( MALMO_NET_NATIVE libMalmoNETNative.so CACHE INTERNAL "The MalmoNETNative built library" )
 else()
   set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES SUFFIX ".dll")

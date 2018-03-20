@@ -41,6 +41,12 @@ if sys.version_info[0] == 2:
 else:
     import tkinter as tk
 from collections import namedtuple
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 # Task parameters:
 NUM_GOALS = 20
@@ -137,7 +143,7 @@ def getMissionXML(summary):
                 <ObservationFromFullStats/>
                 <RewardForCollectingItem>
                     <Item type="'''+GOAL_TYPE+'''" reward="'''+str(GOAL_REWARD)+'''"/>
-                </RewardForCollectingItem>
+                </RewardForCollectingItem>''' + malmoutils.get_video_xml(agent_host) + '''
             </AgentHandlers>
         </AgentSection>
 
@@ -255,17 +261,6 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 if agent_host.receivedArgument("test"):
     num_reps = 1
 else:
@@ -279,11 +274,10 @@ for iRepeat in range(num_reps):
     mission_xml = getMissionXML(MOB_TYPE + " Apocalypse #" + str(iRepeat))
     my_mission = MalmoPython.MissionSpec(mission_xml,validate)
     max_retries = 3
+    # Set up a recording
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_" + str(iRepeat))
     for retry in range(max_retries):
         try:
-            # Set up a recording
-            my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
-            my_mission_record.recordRewards()
             # Attempt to start the mission:
             agent_host.startMission( my_mission, my_client_pool, my_mission_record, 0, "predatorExperiment" )
             break

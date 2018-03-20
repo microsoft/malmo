@@ -42,6 +42,12 @@ import sys
 import errno
 import json
 import math
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 if sys.version_info[0] == 2:
     # Workaround for https://github.com/PythonCharmers/python-future/issues/262
@@ -193,27 +199,10 @@ def get_mission_xml():
     </AgentSection>
   </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 agent_host.setVideoPolicy(MalmoPython.VideoPolicy.LATEST_FRAME_ONLY)
 
 if agent_host.receivedArgument("test"):
-    num_reps = 1
+    num_reps = 2
 else:
     num_reps = 30000
 
@@ -221,10 +210,11 @@ drawer = draw_helper(canvas)
 
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec( get_mission_xml(), True )
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "colourmap_test_{}".format(iRepeat + 1))
     max_retries = 3
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, MalmoPython.MissionRecordSpec() )
+            agent_host.startMission( my_mission, my_mission_record )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:

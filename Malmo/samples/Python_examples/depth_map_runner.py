@@ -29,6 +29,13 @@ import struct
 import socket
 import os
 import sys
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -176,25 +183,8 @@ missionXML = '''<?xml version="1.0" encoding="UTF-8" ?>
     </AgentSection>
   </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
 validate = True
 my_mission = MalmoPython.MissionSpec( missionXML, validate )
-
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 agent_host.setObservationsPolicy(MalmoPython.ObservationsPolicy.LATEST_OBSERVATION_ONLY)
 agent_host.setVideoPolicy(MalmoPython.VideoPolicy.LATEST_FRAME_ONLY)
@@ -204,14 +194,21 @@ if agent_host.receivedArgument("test"):
 else:
     num_reps = 30000
 
-my_mission_record_spec = MalmoPython.MissionRecordSpec()
-
+my_mission_record = MalmoPython.MissionRecordSpec()
+if recordingsDirectory:
+    my_mission_record.recordRewards()
+    my_mission_record.recordObservations()
+    my_mission_record.recordCommands()
+    if agent_host.receivedArgument("record_video"):
+        my_mission_record.recordMP4(24,2000000)
 
 for iRepeat in range(num_reps):
+    if recordingsDirectory:
+        my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(iRepeat + 1) + ".tgz")
     max_retries = 3
     for retry in range(max_retries):
         try:
-            agent_host.startMission( my_mission, my_mission_record_spec )
+            agent_host.startMission( my_mission, my_mission_record )
             break
         except RuntimeError as e:
             if retry == max_retries - 1:

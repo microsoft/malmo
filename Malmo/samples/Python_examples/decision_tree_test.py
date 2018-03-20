@@ -26,11 +26,18 @@ import os
 import sys
 import time
 import json
-import copy
 import errno
 import random
 import math
-import xml.etree.ElementTree as ET
+from io import open
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 # Test of DrawSign, DrawItem, and reading NBTTagCompounds from ObservationFromRay.
 # This draws a physical decision tree, and then animates the process of traversing it.
@@ -398,49 +405,24 @@ def getMissionXML(target_item, fresh_world, tree, testing):
             <ObservationFromRay includeNBT="true"/>
             <ObservationFromGrid>
                 <Grid name="ground" absoluteCoords="false">
-                    <min x="-2" y="-1" z="-1"/>
-                    <max x="2" y="-1" z="-1"/>
+                    <min x="-5" y="-1" z="-1"/>
+                    <max x="5" y="-1" z="-1"/>
                 </Grid>
             </ObservationFromGrid>''' + endCondition + '''
             <RewardForMissionEnd rewardForDeath="-1.0">
                 <Reward description="PASSED" reward="1.0"/>
-            </RewardForMissionEnd>
+            </RewardForMissionEnd>''' + video_requirements + '''
         </AgentHandlers>
     </AgentSection>
   </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalStringArgument( "recordingDir,r", "Path to location for saving mission recordings", "" )
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
-recording = False
 my_mission_record = MalmoPython.MissionRecordSpec()
-recordingsDirectory = agent_host.getStringArgument("recordingDir")
-if len(recordingsDirectory) > 0:
-    recording = True
-    try:
-        os.makedirs(recordingsDirectory)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST: # ignore error if already existed
-            raise
+if recordingsDirectory:
     my_mission_record.recordRewards()
     my_mission_record.recordObservations()
     my_mission_record.recordCommands()
-    my_mission_record.recordMP4(24,2000000)
+    if agent_host.receivedArgument("record_video"):
+        my_mission_record.recordMP4(24,2000000)
 
 print("GENERATING TREE...")
 tree = createTree() # This runs the ID3 and creates the actual XML for sending to Minecraft.
@@ -476,11 +458,11 @@ if testing:
     # will cause the test to fail.
     num_iterations = 20
     sleep_scale = 0.3
-    speed_scale = 0.4
+    speed_scale = 0.6
 else:
     num_iterations = 30000
     sleep_scale = 1.0
-    speed_scale = 0.6
+    speed_scale = 0.7
 
 for i in range(num_iterations):
     if testing:
@@ -489,9 +471,9 @@ for i in range(num_iterations):
         target_item = random.choice(item_types)
     print("Mission {} - target: {}".format(i+1, target_item))
     missionXML = getMissionXML(target_item, i == 0, tree, testing)
-    if recording:
+    if recordingsDirectory:
         my_mission_record.setDestination(recordingsDirectory + "//" + "Mission_" + str(i+1) + ".tgz")
-    my_mission = MalmoPython.MissionSpec(missionXML, True)
+    my_mission = MalmoPython.MissionSpec(str(missionXML), True)
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -522,8 +504,16 @@ for i in range(num_iterations):
             # if we are near the edge of a platform, slow down!
             if u"ground" in ob and direction != 0:
                 grid = ob[u"ground"]
-                iron_blocks = max(grid.count("iron_block"), 2)
-                speed = direction * (speed_scale ** (5 - iron_blocks))
+                # Only consider blocks ahead of us in the direction of travel.
+                # (Lower down the tree, there might be other platforms in front of us,
+                # separated from us by air - don't count these blocks!)
+                index = 5 + direction
+                while index >= 0 and index < len(grid) and grid[index] == "iron_block":
+                    index += direction
+                iron_blocks = abs(index - 5)    # Number of iron blocks ahead of us on *this* platform.
+                # Calculate speed from the number of blocks ahead.
+                # If we go too fast, we can overshoot the sign below us.
+                speed = direction * speed_scale ** (6 - iron_blocks)
                 agent_host.sendCommand("strafe " + str(speed))
             # Use the line of sight observation to "read" the signs:
             if u"LineOfSight" in ob:
@@ -536,15 +526,18 @@ for i in range(num_iterations):
                         question = t1["text"][:-1]
                         if not question == last_question:
                             agent_host.sendCommand("strafe 0")
-                            agent_host.sendCommand("chat " + question + "?")
+                            agent_host.sendCommand("chat " + str(question) + "?")
                             time.sleep(sleep_scale)
                             last_question = question
                             if not question in item_table[target_item]:
                                 print("Something went wrong - did we fall off a branch?")
+                                agent_host.sendCommand("quit")
                                 if testing:
+                                    print("Test failed - waiting to quit.")
+                                    while world_state.is_mission_running:
+                                        world_state = agent_host.getWorldState()
+                                        time.sleep(1)
                                     exit(1)
-                                else:
-                                    agent_host.sendCommand("quit")
                             elif item_table[target_item][question]:
                                 agent_host.sendCommand("chat Yes!")
                                 direction = -1

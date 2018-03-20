@@ -34,6 +34,9 @@ import random
 import sys
 import time
 import json
+import malmoutils
+
+malmoutils.fix_print()
 
 MalmoPython.setLogging("", MalmoPython.LoggingSeverityLevel.LOG_OFF)
 
@@ -89,6 +92,10 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block" />
                 </AgentQuitFromTouchingBlockType>
+                <VideoProducer>
+                    <Width>860</Width>
+                    <Height>480</Height>
+                </VideoProducer>
             </AgentHandlers>
         </AgentSection>
         
@@ -108,35 +115,32 @@ def GetMissionXML( current_seed, xorg, yorg, zorg ):
                 <AgentQuitFromTouchingBlockType>
                     <Block type="redstone_block" />
                 </AgentQuitFromTouchingBlockType>
+                <LuminanceProducer>
+                    <Width>860</Width>
+                    <Height>480</Height>
+                </LuminanceProducer>
             </AgentHandlers>
         </AgentSection>
   </Mission>'''
 
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
 agent_host = MalmoPython.AgentHost()
 agent_host.addOptionalIntArgument( "role,r", "For multi-agent missions, the role of this agent instance", 0)
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
+malmoutils.parse_command_line(agent_host)
 
 role = agent_host.getIntArgument("role")
 print("Will run as role",role)
 
 if agent_host.receivedArgument("test"):
     if role == 0:
-        print("For test purposes, launching self with role 1 now.")
+        forward_args = " --test --role 1"
+        if agent_host.receivedArgument('record_video'):
+            forward_args += " --record_video"
+        recordingsDirectory = agent_host.getStringArgument('recording_dir')
+        if recordingsDirectory:
+            forward_args += " --recording_dir " + recordingsDirectory
+        print("For test purposes, launching self with [{}] now.".format(forward_args))
         import subprocess
-        subprocess.Popen(sys.executable + " " + __file__ + " --test --role 1", shell=True)
+        subprocess.Popen(sys.executable + " " + __file__ + forward_args, shell=True)
     num_episodes = 5
 else:
     num_episodes = 30000
@@ -163,7 +167,7 @@ for iRepeat in range(num_episodes):
     validate = True
     my_mission = MalmoPython.MissionSpec(GetMissionXML(iRepeat, xorg, yorg, zorg), validate)
 
-    my_mission_record = MalmoPython.MissionRecordSpec()
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "episode_{}_role_{}".format(iRepeat + 1, role))
     unique_experiment_id = genExperimentID(iRepeat) # used to disambiguate multiple running copies of the same mission
  
     max_retries = 3

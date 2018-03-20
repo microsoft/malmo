@@ -32,6 +32,12 @@ import json
 import random
 import errno
 from collections import namedtuple
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+malmoutils.parse_command_line(agent_host)
 
 EntityInfo = namedtuple('EntityInfo', 'x, y, z, name, quantity')
 
@@ -101,19 +107,6 @@ def SetVelocity(vel):
 def SetTurn(turn):
     agent_host.sendCommand( "turn " + str(turn) )
 
-recordingsDirectory="EatingRecordings"
-try:
-    os.makedirs(recordingsDirectory)
-except OSError as exception:
-    if exception.errno != errno.EEXIST: # ignore error if already existed
-        raise
-
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-
 validate = True
 # Create a pool of Minecraft Mod clients.
 # By default, mods will choose consecutive mission control ports, starting at 10000,
@@ -125,17 +118,6 @@ my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10001))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10002))
 my_client_pool.add(MalmoPython.ClientInfo("127.0.0.1", 10003))
 
-agent_host = MalmoPython.AgentHost()
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
-
 itemdrawingxml = GetItemDrawingXML()
 
 if agent_host.receivedArgument("test"):
@@ -146,9 +128,7 @@ else:
 for iRepeat in range(num_reps):
     my_mission = MalmoPython.MissionSpec(GetMissionXML("Nom nom nom run #" + str(iRepeat), itemdrawingxml),validate)
     # Set up a recording
-    my_mission_record = MalmoPython.MissionRecordSpec(recordingsDirectory + "//" + "Mission_" + str(iRepeat) + ".tgz")
-    my_mission_record.recordRewards()
-    my_mission_record.recordMP4(24,400000)
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "Mission_" + str(iRepeat + 1))
     max_retries = 3
     for retry in range(max_retries):
         try:

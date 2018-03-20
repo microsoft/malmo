@@ -31,6 +31,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/asio.hpp>   // For htonl
+#include <boost/make_shared.hpp>
 
 #define LOG_COMPONENT Logger::LOG_VIDEO
 

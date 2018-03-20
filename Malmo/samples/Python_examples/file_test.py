@@ -29,6 +29,15 @@ import time
 import shutil
 import uuid
 import errno
+import malmoutils
+
+malmoutils.fix_print()
+
+agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalStringArgument( "savesDir,s", "Location of Minecraft saves folder", "" )
+malmoutils.parse_command_line(agent_host)
+recordingsDirectory = malmoutils.get_recordings_directory(agent_host)
+video_requirements = '<VideoProducer><Width>860</Width><Height>480</Height></VideoProducer>' if agent_host.receivedArgument("record_video") else ''
 
 # Test that FileWorldGenerator works.
 # First create a world using the FlatWorldGenerator, then attempt to copy the world file.
@@ -56,9 +65,18 @@ def cleanup():
     print("Cleaning up - deleting " + saved_filename)
     shutil.rmtree(saved_filename, ignore_errors=True)
     
-def startMission(agent_host, xml):
+def startMission(agent_host, xml, record_description):
     my_mission = MalmoPython.MissionSpec(xml, True)
     my_mission_record = MalmoPython.MissionRecordSpec()
+    if recordingsDirectory:
+        my_mission_record.recordRewards()
+        my_mission_record.recordObservations()
+        my_mission_record.recordCommands()
+        if agent_host.receivedArgument("record_video"):
+            my_mission_record.recordMP4(24,2000000)
+        if recordingsDirectory:
+            my_mission_record.setDestination(recordingsDirectory + "//" + record_description + ".tgz")
+
     max_retries = 3
     for retry in range(max_retries):
         try:
@@ -108,7 +126,7 @@ createWorldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <ContinuousMovementCommands/>
                 <RewardForMissionEnd>
                     <Reward description="time_up" reward="100.0"/>
-                </RewardForMissionEnd>
+                </RewardForMissionEnd>''' + video_requirements + '''
             </AgentHandlers>
         </AgentSection>
 
@@ -137,7 +155,7 @@ cleanserWorldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
             <ObservationFromFullStats/>
             <RewardForMissionEnd rewardForDeath="100.0">
                 <Reward description="time_up" reward="-900.0"/>
-            </RewardForMissionEnd>
+            </RewardForMissionEnd>''' + video_requirements + '''
         </AgentHandlers>
     </AgentSection>
 
@@ -167,29 +185,11 @@ loadWorldXML = '''<?xml version="1.0" encoding="UTF-8" ?>
                 <MissionQuitCommands/>
                 <RewardForCollectingItem>
                     <Item type="emerald" reward="1"/>
-                </RewardForCollectingItem>
-            </AgentHandlers>
+                </RewardForCollectingItem>''' + video_requirements + '''
+                </AgentHandlers>
         </AgentSection>
 
     </Mission>'''
-
-if sys.version_info[0] == 2:
-    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
-else:
-    import functools
-    print = functools.partial(print, flush=True)
-agent_host = MalmoPython.AgentHost()
-agent_host.addOptionalStringArgument( "savesDir,s", "Location of Minecraft saves folder", "" )
-
-try:
-    agent_host.parse( sys.argv )
-except RuntimeError as e:
-    print('ERROR:',e)
-    print(agent_host.getUsage())
-    exit(1)
-if agent_host.receivedArgument("help"):
-    print(agent_host.getUsage())
-    exit(0)
 
 saveFolders = []
 savesDir = agent_host.getStringArgument("savesDir")
@@ -233,7 +233,7 @@ for dir in saveFolders:
 
 # First mission: create a flatworld, add emeralds, run around until time runs out.
 print("Start creation mission.")
-startMission(agent_host, createWorldXML)
+startMission(agent_host, createWorldXML, "createWorld")
 agent_host.sendCommand("move 1")
 agent_host.sendCommand("turn 0.2") 
 world_state = agent_host.peekWorldState()
@@ -269,7 +269,7 @@ if len(newWorlds) != 1:
 # Instead, start the next mission - this will force the saving.
 # Second mission: to ensure a decent test, create a totally different world before reloading the first world.
 print("Start pallette cleanser.")
-startMission(agent_host, cleanserWorldXML)
+startMission(agent_host, cleanserWorldXML, "palletteCleanser")
 world_state = agent_host.peekWorldState()
 # We should just drown and die.
 current_air = 0
@@ -299,7 +299,7 @@ except OSError as exc:
 
 # Third mission: attempt to load the world we just copied.
 print("Start loading mission.")
-startMission(agent_host, loadWorldXML)
+startMission(agent_host, loadWorldXML, "loadWorld")
 world_state = agent_host.peekWorldState()
 # Try to collect all the emeralds:
 total_reward = 0
