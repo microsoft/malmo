@@ -93,10 +93,11 @@ WORKDIR /home/malmo/rpavlik-luabind/build
 RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DCMAKE_BUILD_TYPE=Release ..
 RUN make
 
+# Dependencies for matplotlib and luarocks:
+RUN sudo apt-get update && sudo apt-get install -y unzip libfreetype6-dev pkg-config libpng12-dev dos2unix
 RUN sudo pip3 install future pillow matplotlib
-RUN sudo apt-get install -y unzip && sudo luarocks install luasocket
+RUN sudo luarocks install luasocket
 
-RUN sudo apt-get update && sudo apt-get install -y dos2unix
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
