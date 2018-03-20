@@ -171,10 +171,10 @@ def processFrame(frame):
     return left_sensor, right_sensor
 
 def calc_velocities(left_wheel_speed, right_wheel_speed):
-    # Malmo steers the agent by giving them a forward speed (-1 to 1) and a turn speed (-1 to 1).
+    # Malmo steers the agent by giving them a forward speed (0 to 1) and a turn speed (-1 to 1).
     # Calculate these from the "wheel" speeds we're given.
     # Many ways of doing this - but this is simple and seems to work well:
-    forward_velocity = min(left_wheel_speed, right_wheel_speed)
+    forward_velocity = min(left_wheel_speed, right_wheel_speed, 0.01)   # Don't let it stop completely.
     angular_velocity = (left_wheel_speed - right_wheel_speed) * forward_velocity
     return angular_velocity, forward_velocity
 
