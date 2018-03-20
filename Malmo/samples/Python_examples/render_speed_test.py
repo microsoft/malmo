@@ -36,6 +36,7 @@ import malmoutils
 malmoutils.fix_print()
 
 agent_host = MalmoPython.AgentHost()
+agent_host.addOptionalFlag("plot,p", "Plot the results of the render speed tests")
 malmoutils.parse_command_line(agent_host)
 
 def GetMissionXML( width, height, prioritiseOffscreen ):
@@ -91,12 +92,13 @@ def GetMissionXML( width, height, prioritiseOffscreen ):
 
     </Mission>'''
 
-if agent_host.receivedArgument("test"):
+TESTING = agent_host.receivedArgument("test")
+SHOW_PLOT = TESTING or agent_host.receivedArgument("plot")
+
+if TESTING:
     MISSION_LENGTH=5
-    SHOW_PLOT=False
 else:
     MISSION_LENGTH=10
-    SHOW_PLOT=True
 
 if SHOW_PLOT:
     import matplotlib
@@ -196,4 +198,7 @@ if SHOW_PLOT:
     pylab.ylabel("MB/s or frames/s")
     pylab.legend()
     pylab.title("Plot of render and data-transfer speeds for varying frame sizes, with and without onscreen rendering")
-    pylab.show()
+    if TESTING:
+        pylab.savefig(malmoutils.get_recordings_directory(agent_host) + "//render_test_results.png")
+    else:
+        pylab.show()
