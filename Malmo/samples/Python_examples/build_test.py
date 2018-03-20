@@ -320,7 +320,10 @@ class CopyAgent(object):
 
         proceed = True if hotkey < 0 else False # Skip this position if there's nothing to place there.
         if not proceed and self.pointTo(ah, ob, target_pitch, target_yaw, self.replay_accuracy):
-            self.replay_accuracy = 5    # Once we've honed in on the first point, we can be less accurate with the rest.
+            if TESTING:
+                self.replay_accuracy = 1
+            else:
+                self.replay_accuracy = 5    # Once we've honed in on the first point, we can be less accurate with the rest.
             if u'LineOfSight' in ob:
                 los = ob[u'LineOfSight']
                 x = int(math.floor(los["x"]))
