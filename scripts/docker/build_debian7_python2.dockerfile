@@ -105,7 +105,7 @@ RUN make
 
 # The pip which comes with Wheezy doesn't work - need to get it to upgrade itself.
 RUN sudo pip install --index-url=https://pypi.python.org/simple/ --upgrade pip
-RUN sudo pip install future pillow
+RUN sudo pip install future pillow matplotlib
 # Need to install unzip on Wheezy for luarocks to work
 RUN sudo apt-get update && sudo apt-get install unzip
 # The version of luarocks on Wheezy is old and weak, and we have to jump through
@@ -116,14 +116,13 @@ RUN sudo luarocks install --only-server=http://rocks.moonscript.org luasec OPENS
 # Now we can install luasocket:
 RUN sudo luarocks install luasocket
 
-COPY ./build.sh /home/malmo
-COPY ./xpra.conf /etc/xpra/xpra.conf
 # Need dos2unix to deal with line endings, and the lsb-release package so that Malmo's
 # modification to CMake's FindXSD code will work.
 RUN sudo apt-get update && sudo apt-get install -y dos2unix lsb-release xorg xauth xserver-xorg-video-dummy
+
+COPY ./build.sh /home/malmo
+COPY ./xpra.conf /etc/xpra/xpra.conf
 RUN sudo dos2unix /home/malmo/build.sh
 RUN sudo dos2unix /etc/xpra/xpra.conf
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_64_0"]
-
-

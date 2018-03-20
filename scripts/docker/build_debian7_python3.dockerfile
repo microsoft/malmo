@@ -107,10 +107,10 @@ RUN make
 # This means none of the Malmo samples will work, but if someone *really* wants to use Python3
 # and doesn't want to update from Debian 7, at least there's a build for them to use!
 
-COPY ./build.sh /home/malmo
 # Need dos2unix to deal with line endings, and the lsb-release package so that Malmo's
 # modification to CMake's FindXSD code will work.
 RUN sudo apt-get update && sudo apt-get install -y dos2unix lsb-release
+COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_64_0", "-python", "3.2", "-no_testing"]

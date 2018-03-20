@@ -98,11 +98,10 @@ RUN make
 
 RUN sudo luarocks install luasocket
 RUN sudo pip3 install setuptools
-RUN sudo pip3 install future
-RUN sudo pip3 install pillow
+RUN sudo pip3 install future pillow matplotlib
 
-COPY ./build.sh /home/malmo/build.sh
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
+COPY ./build.sh /home/malmo/build.sh
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0", "-python", "3.5"]
