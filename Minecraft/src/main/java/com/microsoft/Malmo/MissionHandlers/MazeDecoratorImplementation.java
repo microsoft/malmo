@@ -495,7 +495,7 @@ public class MazeDecoratorImplementation extends HandlerBase implements IWorldDe
                     int cellindex = cellx + cellz * width;
                     if (cellindex < 0 || cellindex >= grid.length || grid[cellindex] == null)
                         walkable = false;
-                    if (walkable && gapHeight > optimalPathHeight && !gapBlock.equals(Blocks.AIR.getDefaultState()))
+                    if (walkable && gapHeight > optimalPathHeight && !gapBlock.getBlock().getDefaultState().equals(Blocks.AIR.getDefaultState()))
                     {
                         // The "gaps" are in fact walls, so we need to be a bit more conservative with our path, since the
                         // player has a width of 0.4 cells. We do this in a very unsophisticated, brute-force manor by testing
