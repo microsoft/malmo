@@ -17,9 +17,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 3.8 )
 
 project( Malmo )
+
+enable_language( CSharp )
 
 # -------------------- Options --------------------------------
 
@@ -127,13 +129,13 @@ else()
   set( ALE_ROOT_DIR ~/ALE )
 endif()
 
-if( INCLUDE_CSHARP )
+if( INCLUDE_CSHARP_XXX )
+  # TODO sort out architecture or use anycpu
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     set( CSHARP_PLATFORM "x64" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
   else()
     set( CSHARP_PLATFORM "x86" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
   endif()
-  find_package( CSharp REQUIRED )
 endif()
 
 if( BUILD_DOCUMENTATION )
