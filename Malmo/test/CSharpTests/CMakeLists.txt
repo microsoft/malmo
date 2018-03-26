@@ -44,18 +44,15 @@ foreach( file ${CSHARP_TEST_SOURCES} )
   add_executable( ${test_name} ${file} )
   target_link_libraries( ${test_name} MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
 
-  if ( ${INCLUDE_CSHARP_TEST_XXX}) 
-    # TODO
-    # copy the MalmoNET dynamic libraries to the test build folder
-    add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/MalmoNET.dll ${TEST_FOLDER}/MalmoNET.dll )
-    add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/${MALMO_NET_NATIVE} ${TEST_FOLDER}/${MALMO_NET_NATIVE} )
+  # copy the MalmoNET dynamic libraries to the test build folder
+  add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/MalmoNET.dll ${TEST_FOLDER}/MalmoNET.dll )
+  add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/${MALMO_NET_NATIVE} ${TEST_FOLDER}/${MALMO_NET_NATIVE} )
 
-    if( NOT WIN32 )
-      add_test( NAME ${test_name} COMMAND ${CSHARP_INTERPRETER} ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
-    else()
-      add_test( NAME ${test_name} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
-    endif()
-    set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
-  endif( ${INCLUDE_CSHARP_TEST_XXX} )
+  if( NOT WIN32 )
+    add_test( NAME ${test_name} COMMAND ${CSHARP_INTERPRETER} ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
+  else()
+    add_test( NAME ${test_name} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
+  endif()
+  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
 
 endforeach()
