@@ -23,10 +23,15 @@ add_executable( CSharpExamples_RunMission RunMission.cs )
 
 target_link_libraries( CSharpExamples_RunMission MalmoNET MalmoNETNative )
 
+# install the executable
+
 if( WIN32 )
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
 else( UNIX )
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CSharpExamples_RunMission.exe DESTINATION CSharp_Examples )
 endif( WIN32 )
 
-install(FILES install_files/App.config install_files/RunMission.sln install_files/RunMission.csproj DESTINATION CSharp_Examples)
+# install the sample files
+
+install(FILES RunMission.cs install_files/App.config install_files/RunMission.sln install_files/RunMission.csproj DESTINATION CSharp_Examples)
+install(FILES install_files/Properties/AssemblyInfo.cs DESTINATION CSharp_Examples/Properties)

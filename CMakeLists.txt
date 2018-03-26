@@ -129,8 +129,8 @@ else()
   set( ALE_ROOT_DIR ~/ALE )
 endif()
 
-if( INCLUDE_CSHARP_XXX )
-  # TODO sort out architecture or use anycpu
+if( INCLUDE_CSHARP )
+  # Select the .NET architecture
   if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
     set( CSHARP_PLATFORM "x64" CACHE STRING "C# target platform: x86, x64, anycpu, or itanium")
   else()
