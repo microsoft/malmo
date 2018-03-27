@@ -54,6 +54,7 @@ if( ALE_FOUND )
 endif()
 
 SET_SOURCE_FILES_PROPERTIES(MalmoNETNative.i PROPERTIES SWIG_FLAGS "-includeall")
+
 SWIG_ADD_LIBRARY( MalmoNETNative 
     LANGUAGE csharp
     TYPE SHARED 
@@ -61,7 +62,8 @@ SWIG_ADD_LIBRARY( MalmoNETNative
 )
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-SWIG_LINK_LIBRARIES(${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
+
+SWIG_LINK_LIBRARIES( ${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
 
 if( UNIX )
   set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES PREFIX "lib" SUFFIX ".so")
@@ -120,14 +122,15 @@ add_library(
     MalmoNET
     ${SWIG_CSHARP_SOURCES}
 )
-target_link_libraries(MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME})
+
+target_link_libraries( MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
 
 install( TARGETS ${SWIG_MODULE_MalmoNETNative_REAL_NAME} DESTINATION CSharp_Examples )
 install( TARGETS ${SWIG_MODULE_MalmoNETNative_REAL_NAME} DESTINATION HumanAction )
 if( WIN32 )
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION CSharp_Examples )
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION HumanAction )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION CSharp_Examples )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION HumanAction )
 else( UNIX )
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION CSharp_Examples )
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION HumanAction )
+	install( FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION CSharp_Examples )
+	install( FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION HumanAction )
 endif( WIN32 )
