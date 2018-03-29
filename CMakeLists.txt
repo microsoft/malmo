@@ -21,8 +21,6 @@ cmake_minimum_required( VERSION 3.8 )
 
 project( Malmo )
 
-enable_language( CSharp )
-
 # -------------------- Options --------------------------------
 
 set( MALMO_VERSION_MAJOR 0)
@@ -95,6 +93,13 @@ else()
 endif()
 
 # -------------------- Find packages --------------------------
+
+if ( WIN32 )
+    enable_language( CSharp )
+else()
+    set( INCLUDE_CSHARP OFF )
+endif()
+
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 SET(Boost_ADDITIONAL_VERSIONS "1.59" "1.59.0")
