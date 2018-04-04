@@ -23,9 +23,6 @@
 // Boost:
 #include <boost/shared_ptr.hpp>
 
-// Schemas:
-#include <Mission.h>
-
 // STL:
 #include <string>
 #include <vector>
@@ -358,17 +355,7 @@ namespace malmo
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
         private:
         
-            static void putVerbOnList( ::xsd::cxx::tree::optional< malmo::schemas::ModifierList >& mlo
-                              , const std::string& verb
-                              , const std::string& on_list
-                              , const std::string& off_list );
-            static std::vector<std::string> getModifiedCommandList(
-                                const std::vector<std::string>& all_commands
-                              , const malmo::schemas::CommandListModifier& modifier_list );
-        
             friend class MissionInitSpec;
-        
-            boost::shared_ptr<schemas::Mission> mission;
     };
 }
 

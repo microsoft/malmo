@@ -24,7 +24,6 @@
 #include "FindSchemaFile.h"
 #include "TCPClient.h"
 #include "WorldState.h"
-#include "Init.h"
 #include "Logger.h"
 
 // Boost:
@@ -38,9 +37,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-
-// Schemas:
-#include <MissionEnded.h>
 
 // STL:
 #include <exception>
@@ -63,8 +59,6 @@ namespace malmo
         , observations_policy(LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
     {
-        initialiser::initXSD();
-
         this->addOptionalFlag("help,h", "show description of allowed options");
         this->addOptionalFlag("test",   "run this as an integration test");
 
@@ -301,17 +295,6 @@ namespace malmo
     {
         const bool prettyPrint = false;
         const std::string generated_xml = this->current_mission_init->getAsXML( prettyPrint );
-
-        try {
-            const bool validate = true;
-            MissionInitSpec test_output(generated_xml,validate);
-        }
-        catch (xml_schema::exception& e)
-        {
-            std::ostringstream oss;
-            oss << "Internal error: the XML we generate does not validate: " << e.what() << "\n" << e << "\n" << generated_xml << std::endl;
-            throw std::runtime_error(oss.str());
-        }
 
         return generated_xml;
     }
@@ -625,20 +608,10 @@ namespace malmo
         std::string root_node_name(pt.front().first.data());
 
         if( !this->world_state.is_mission_running && root_node_name == "MissionInit" ) {
-            try {
-                const bool validate = true;
-                this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
-                this->world_state.is_mission_running = true;
-                this->world_state.has_mission_begun = true;
-            }
-            catch (const xml_schema::exception& e) {
-                std::ostringstream oss;
-                oss << "Error parsing MissionInit message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
-                TimestampedString error_message(xml);
-                error_message.text = oss.str();
-                this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-                return;
-            }
+            const bool validate = true;
+            this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
+            this->world_state.is_mission_running = true;
+            this->world_state.has_mission_begun = true;
             this->openCommandsConnection();
         }
         else if( root_node_name == "MissionEnded" ) {

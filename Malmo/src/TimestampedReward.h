@@ -23,9 +23,6 @@
 // Boost:
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-// Schemas:
-#include <MissionEnded.h>
-
 // STL:
 #include <map>
 
@@ -48,10 +45,10 @@ namespace malmo
             TimestampedReward& createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string);
 
             //! Constructs from an XML node element.
-            TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
+            // NOXSDGEN TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
             
             //! Sets the values stored in this reward to be those from the specified XML structure.
-            void setValuesFromRewardStructure(const schemas::Reward& reward);
+            // NOXSDGEN void setValuesFromRewardStructure(const schemas::Reward& reward);
             
             //! Formats as an XML string.
             //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
@@ -81,8 +78,6 @@ namespace malmo
             friend std::ostream& operator<<(std::ostream& os, const TimestampedReward& tsf);
         
         private:
-
-            schemas::Reward getAsRewardStructure() const;
 
             std::map<int,double> values;
     };

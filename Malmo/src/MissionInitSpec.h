@@ -28,9 +28,6 @@
 // Boost:
 #include <boost/shared_ptr.hpp>
 
-// Schemas:
-#include <MissionInit.h>
-
 namespace malmo
 {
     //! Specifies a mission to be run together with the IP addresses and ports of the agents and Mod instances to run it on.
@@ -163,10 +160,6 @@ namespace malmo
             //! \param address The Minecraft server address.
             //! \param port The Minecraft server port.
             void setMinecraftServerInformation(const std::string& address, int port);
-
-        private:
-
-            boost::shared_ptr<schemas::MissionInit> mission_init;
     };
 }
 
