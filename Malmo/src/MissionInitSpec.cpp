@@ -47,6 +47,8 @@ namespace malmo
         const int agent_colourmap_port = 0;
         const int agent_observations_port = 0;
         const int agent_rewards_port = 0;
+
+        /* NOXSDGEN
         ClientAgentConnection cac(
               client_IP_address 
             , default_client_mission_control_port
@@ -67,10 +69,12 @@ namespace malmo
             , cac
             );
         this->mission_init->PlatformVersion(BOOST_PP_STRINGIZE(MALMO_VERSION));
+        */
     }
 
     MissionInitSpec::MissionInitSpec(const std::string& xml, bool validate)
     {
+        /* NOXSDGEN
         xml_schema::properties props;
         props.schema_location(xml_namespace, FindSchemaFile("MissionInit.xsd"));
 
@@ -80,12 +84,13 @@ namespace malmo
 
         istringstream iss(xml);
         this->mission_init = MissionInit_(iss, flags, props);
+        */
     }
 
     std::string MissionInitSpec::getAsXML( bool prettyPrint ) const
     { 
         std::ostringstream oss;
-        
+        /* NOXSDGEN
         xml_schema::namespace_infomap map;
         map[""].name = xml_namespace;
         map[""].schema = "MissionInit.xsd";
@@ -95,7 +100,7 @@ namespace malmo
             flags = flags | xml_schema::flags::dont_pretty_print;
 
         MissionInit_( oss, *this->mission_init, map, "UTF-8", flags );
-        
+        */
         return oss.str();
     }
 
