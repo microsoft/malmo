@@ -56,9 +56,7 @@ RUN sudo yum install -y \
 	libgl1-mesa-dri \
     make \
     python34-pip \
-    zlib-devel \
-    mono-devel \
-    mono-complete
+    zlib-devel
 
 #    libbz2-dev \
 #	zlib1g-dev
@@ -67,14 +65,9 @@ RUN sudo yum install -y \
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/" >> /home/malmo/.bashrc
 
-RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-RUN su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
-
 # Switch to the malmo user:
 USER malmo
 WORKDIR /home/malmo
-
-# TORCH not supported on CentOS, so nothing to do here.
 
 # BOOST:
 RUN mkdir /home/malmo/boost
