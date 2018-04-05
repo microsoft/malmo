@@ -34,8 +34,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     cmake-qt-gui \
     libpython3.4-dev \
-    lua5.1 \
-    liblua5.1-0-dev \
     swig \
 	xsdcxx \
     libxerces-c-dev \
@@ -45,7 +43,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     python3-tk \
     python3-pil.imagetk \
     wget \
-    luarocks \
     libbz2-dev \
     python3-pip \
     software-properties-common \
@@ -66,39 +63,31 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.b
 USER malmo
 WORKDIR /home/malmo
 
-# TORCH not supported on Debian, so nothing to do here.
-
-# MONO:
-RUN echo "Installing mono..."
-RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN echo "deb http://download.mono-project.com/repo/debian stable-jessie main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-RUN sudo apt-get -y update && sudo apt-get -y install mono-devel mono-complete
-
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.65.0/boost_1_65_0.tar.gz
-
-RUN tar xvf boost_1_65_0.tar.gz
-WORKDIR /home/malmo/boost/boost_1_65_0
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz
+RUN tar xvf boost_1_66_0.tar.gz
+WORKDIR /home/malmo/boost/boost_1_66_0
 RUN echo "using python : 3.4 : /usr/bin/python3 : /usr/include/python3.4 : /usr/lib ;" > /home/malmo/user-config.jam
 RUN ./bootstrap.sh --prefix=.
 RUN ./b2 link=static cxxflags=-fPIC install
 
-# LUABIND:
-RUN git clone https://github.com/rpavlik/luabind.git /home/malmo/rpavlik-luabind
-WORKDIR /home/malmo/rpavlik-luabind
-RUN mkdir build
-WORKDIR /home/malmo/rpavlik-luabind/build
-RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DCMAKE_BUILD_TYPE=Release ..
-RUN make
+# CMAKE:
+RUN mkdir /home/malmo/cmake
+WORKDIR /home/malmo/cmake
+RUN wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz
+RUN tar xvf cmake-3.11.0.tar.gz
+WORKDIR /home/malmo/cmake/cmake-3.11.0
+RUN ./bootstrap
+RUN make -j4
+RUN sudo make install
 
-# Dependencies for matplotlib and luarocks:
+# Dependencies for matplotlib:
 RUN sudo apt-get update && sudo apt-get install -y unzip libfreetype6-dev pkg-config libpng12-dev dos2unix
 RUN sudo pip3 install future pillow matplotlib
-RUN sudo luarocks install luasocket
 
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0", "-python", "3.4"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]

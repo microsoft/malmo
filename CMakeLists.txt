@@ -52,8 +52,9 @@ if( INCLUDE_PYTHON )
 endif()
 
 if( UNIX AND NOT APPLE )
-  set( INCLUDE_LUA       ON  CACHE BOOL ${INCLUDE_LUA_DESC} )
-  set( INCLUDE_TORCH     ON  CACHE BOOL ${INCLUDE_TORCH_DESC} )
+  # Lua deprecated
+  set( INCLUDE_LUA       OFF  CACHE BOOL ${INCLUDE_LUA_DESC} )
+  set( INCLUDE_TORCH     OFF  CACHE BOOL ${INCLUDE_TORCH_DESC} )
 else()
   # Lua and Torch not currently supported
   set( INCLUDE_LUA       OFF CACHE BOOL ${INCLUDE_LUA_DESC} )

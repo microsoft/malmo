@@ -34,10 +34,6 @@ RUN sudo bash -c 'echo "malmo ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" vi
 RUN rpm --import "http://winswitch.org/gpg.asc"
 RUN su -c 'curl https://winswitch.org/downloads/CentOS/winswitch.repo | tee /etc/yum.repos.d/winswitch.repo'
 
-# Add repo for mono:
-RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-RUN su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
-
 # While we are still root, install the necessary dependencies for Malmo:
 RUN sudo yum install -y \
     git \
@@ -52,12 +48,9 @@ RUN sudo yum install -y \
     ffmpeg \
     ffmpeg-devel \
     gcc-c++ \
-    lua \
-    lua-devel \
     bzip2-devel \
     python34-tkinter \
     wget \
-    luarocks \
     software-properties-common \
     xpra \
 	libgl1-mesa-dri \
@@ -86,31 +79,31 @@ WORKDIR /home/malmo
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-#COPY ./boost_1_65_0.tar.gz /home/malmo/boost
 RUN echo "using python : 3.4 : /usr/bin/python3 : /usr/include/python3.4m : /usr/lib ;" > /home/malmo/user-config.jam
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.65.0/boost_1_65_0.tar.gz
-RUN tar xvf boost_1_65_0.tar.gz
-WORKDIR /home/malmo/boost/boost_1_65_0
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz
+RUN tar xvf boost_1_66_0.tar.gz
+WORKDIR /home/malmo/boost/boost_1_66_0
 RUN ./bootstrap.sh --prefix=.
 RUN ./b2 link=static cxxflags=-fPIC install
+
+# CMAKE:
+RUN mkdir /home/malmo/cmake
+WORKDIR /home/malmo/cmake
+RUN wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz
+RUN tar xvf cmake-3.11.0.tar.gz
+WORKDIR /home/malmo/cmake/cmake-3.11.0
+RUN ./bootstrap
+RUN make -j4
+RUN sudo make install
 
 # XSD:
 RUN wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm
 RUN sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm
 
-# LUABIND:
-RUN git clone https://github.com/rpavlik/luabind.git /home/malmo/rpavlik-luabind
-WORKDIR /home/malmo/rpavlik-luabind
-RUN mkdir build
-WORKDIR /home/malmo/rpavlik-luabind/build
-RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DCMAKE_BUILD_TYPE=Release ..
-RUN make
-
 RUN sudo pip3 install future && sudo pip3 install pillow && sudo pip3 install matplotlib
-RUN sudo luarocks install luasocket
 
 RUN sudo yum update -y && sudo yum -y install dos2unix
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0", "-python", "3.4"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
