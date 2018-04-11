@@ -18,15 +18,11 @@
 // --------------------------------------------------------------------------------------------------
 
 // Local:
-#include "FindSchemaFile.h"
 #include "MissionInitSpec.h"
 
 // Boost:
-#include <boost/make_shared.hpp>
 #include <boost/preprocessor/stringize.hpp>
-
-// Schemas:
-using namespace malmo::schemas;
+#include <boost/property_tree/xml_parser.hpp>
 
 // STL:
 #include <sstream>
@@ -37,195 +33,160 @@ namespace malmo
     MissionInitSpec::MissionInitSpec( const MissionSpec& mission_spec, std::string unique_experiment_id, int role )
     {
         // construct a default MissionInit using the provided MissionSpec
-        const string client_IP_address = "127.0.0.1";
-        const int client_commands_port = 0;
-        const string agent_IP_address = "127.0.0.1";
-        const int agent_mission_control_port = 0;
-        const int agent_video_port = 0;
-        const int agent_depth_port = 0;
-        const int agent_luminance_port = 0;
-        const int agent_colourmap_port = 0;
-        const int agent_observations_port = 0;
-        const int agent_rewards_port = 0;
 
-        /* NOXSDGEN
-        ClientAgentConnection cac(
-              client_IP_address 
-            , default_client_mission_control_port
-            , client_commands_port
-            , agent_IP_address
-            , agent_mission_control_port
-            , agent_video_port
-            , agent_depth_port
-            , agent_colourmap_port
-            , agent_luminance_port
-            , agent_observations_port
-            , agent_rewards_port
-            );
-        this->mission_init = boost::make_shared<MissionInit>(
-              *mission_spec.mission
-            , unique_experiment_id
-            , role
-            , cac
-            );
-        this->mission_init->PlatformVersion(BOOST_PP_STRINGIZE(MALMO_VERSION));
-        */
+        this->mission_init.client_agent_connection.client_ip_address = "127.0.0.1";
+        this->mission_init.client_agent_connection.client_mission_control_port = default_client_mission_control_port;
+        this->mission_init.client_agent_connection.client_commands_port = 0;
+        this->mission_init.client_agent_connection.agent_ip_address = "127.0.0.1";
+        this->mission_init.client_agent_connection.agent_mission_control_port = 0;
+        this->mission_init.client_agent_connection.agent_video_port = 0;
+        this->mission_init.client_agent_connection.agent_depth_port = 0;
+        this->mission_init.client_agent_connection.agent_colour_map_port = 0;
+        this->mission_init.client_agent_connection.agent_lumunance_port = 0;
+        this->mission_init.client_agent_connection.agent_observations_port = 0;
+        this->mission_init.client_agent_connection.agent_rewards_port = 0;
+
+        this->mission_init.client_role = role;
+        this->mission_init.experiment_uid = unique_experiment_id;
+        this->mission_init.mission = mission_spec.mission.get_child("Mission");
+        this->mission_init.mission.erase("<xmlattr>");
+
+        mission_init.platform_version = BOOST_PP_STRINGIZE(MALMO_VERSION);
     }
 
     MissionInitSpec::MissionInitSpec(const std::string& xml, bool validate)
     {
-        /* NOXSDGEN
-        xml_schema::properties props;
-        props.schema_location(xml_namespace, FindSchemaFile("MissionInit.xsd"));
-
-        xml_schema::flags flags = xml_schema::flags::dont_initialize;
-        if( !validate )
-            flags = flags | xml_schema::flags::dont_validate;
-
-        istringstream iss(xml);
-        this->mission_init = MissionInit_(iss, flags, props);
-        */
+        mission_init.parse(xml);
     }
 
     std::string MissionInitSpec::getAsXML( bool prettyPrint ) const
     { 
-        std::ostringstream oss;
-        /* NOXSDGEN
-        xml_schema::namespace_infomap map;
-        map[""].name = xml_namespace;
-        map[""].schema = "MissionInit.xsd";
-        
-        xml_schema::flags flags = xml_schema::flags::dont_initialize;
-        if( !prettyPrint )
-            flags = flags | xml_schema::flags::dont_pretty_print;
-
-        MissionInit_( oss, *this->mission_init, map, "UTF-8", flags );
-        */
-        return oss.str();
+        return mission_init.toXml();
     }
 
     std::string MissionInitSpec::getExperimentID() const
     {
-        return this->mission_init->ExperimentUID();
+        return this->mission_init.experiment_uid;
     }
 
     std::string MissionInitSpec::getClientAddress() const
     {
-        return this->mission_init->ClientAgentConnection().ClientIPAddress();
+        return this->mission_init.client_agent_connection.client_ip_address;
     }
     
     void MissionInitSpec::setClientAddress(std::string address)
     {
-        this->mission_init->ClientAgentConnection().ClientIPAddress() = address;
+        this->mission_init.client_agent_connection.client_ip_address = address;
     }
     
     int MissionInitSpec::getClientMissionControlPort() const
     {
-        return this->mission_init->ClientAgentConnection().ClientMissionControlPort();
+        return this->mission_init.client_agent_connection.client_mission_control_port;
     }
     
     void MissionInitSpec::setClientMissionControlPort(int port)
     {
-        this->mission_init->ClientAgentConnection().ClientMissionControlPort() = port;
+        this->mission_init.client_agent_connection.client_mission_control_port = port;
     }
     
     int MissionInitSpec::getClientCommandsPort() const
     {
-        return this->mission_init->ClientAgentConnection().ClientCommandsPort();
+        return this->mission_init.client_agent_connection.client_commands_port;
     }
     
     void MissionInitSpec::setClientCommandsPort(int port)
     {
-        this->mission_init->ClientAgentConnection().ClientCommandsPort() = port;
+        this->mission_init.client_agent_connection.client_commands_port = port;
     }
     
     std::string MissionInitSpec::getAgentAddress() const
     {
-        return this->mission_init->ClientAgentConnection().AgentIPAddress();
+        return this->mission_init.client_agent_connection.agent_ip_address;
     }
     
     void MissionInitSpec::setAgentAddress(std::string address)
     {
-        this->mission_init->ClientAgentConnection().AgentIPAddress() = address;
+        this->mission_init.client_agent_connection.agent_ip_address = address;
     }
     
     int MissionInitSpec::getAgentMissionControlPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentMissionControlPort();
+        return this->mission_init.client_agent_connection.agent_mission_control_port;
     }
     
     void MissionInitSpec::setAgentMissionControlPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentMissionControlPort() = port;
+        this->mission_init.client_agent_connection.agent_mission_control_port = port;
     }
     
     int MissionInitSpec::getAgentVideoPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentVideoPort();
+        return this->mission_init.client_agent_connection.agent_video_port;
     }
     
     int MissionInitSpec::getAgentDepthPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentDepthPort();
+        return this->mission_init.client_agent_connection.agent_depth_port;
     }
 
     int MissionInitSpec::getAgentLuminancePort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentLuminancePort();
+        return this->mission_init.client_agent_connection.agent_lumunance_port;
     }
 
     int MissionInitSpec::getAgentColourMapPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentColourMapPort();
+        return this->mission_init.client_agent_connection.agent_colour_map_port;
     }
 
     void MissionInitSpec::setAgentVideoPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentVideoPort() = port;
+        this->mission_init.client_agent_connection.agent_video_port = port;
     }
     
     void MissionInitSpec::setAgentDepthPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentDepthPort() = port;
+        this->mission_init.client_agent_connection.agent_depth_port = port;
     }
 
     void MissionInitSpec::setAgentLuminancePort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentLuminancePort() = port;
+        this->mission_init.client_agent_connection.agent_lumunance_port = port;
     }
 
     void MissionInitSpec::setAgentColourMapPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentColourMapPort() = port;
+        this->mission_init.client_agent_connection.agent_colour_map_port = port;
     }
 
     int MissionInitSpec::getAgentObservationsPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentObservationsPort();
+        return this->mission_init.client_agent_connection.agent_observations_port;
     }
     
     void MissionInitSpec::setAgentObservationsPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentObservationsPort() = port;
+        this->mission_init.client_agent_connection.agent_observations_port = port;
     }
     
     int MissionInitSpec::getAgentRewardsPort() const
     {
-        return this->mission_init->ClientAgentConnection().AgentRewardsPort();
+        return this->mission_init.client_agent_connection.agent_rewards_port;
     }
     
     void MissionInitSpec::setAgentRewardsPort(int port)
     {
-        this->mission_init->ClientAgentConnection().AgentRewardsPort() = port;
+        this->mission_init.client_agent_connection.agent_rewards_port = port;
     }
     
     bool MissionInitSpec::hasMinecraftServerInformation() const
     {
-        return this->mission_init->MinecraftServerConnection().present();
+        return this->mission_init.minecraft_server.connection_address || this->mission_init.minecraft_server.connection_port;
     }
 
     void MissionInitSpec::setMinecraftServerInformation(const std::string& address, int port)
     {
-        this->mission_init->MinecraftServerConnection() = MinecraftServerConnection( address, port );
+        this->mission_init.minecraft_server.connection_address = address;
+        this->mission_init.minecraft_server.connection_port = port;
     }
 }

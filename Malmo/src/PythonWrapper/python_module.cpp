@@ -57,11 +57,11 @@ void parsePythonList( ArgumentParser* p, const boost::python::list& list )
     p->parse( listToStrings( list ) );
 }
 
-// Make sure we get all of the useful information from xml_schema::exception
-void translateXMLSchemaException(xml_schema::exception const& e)
+// Make sure we get all of the useful information from std::exception
+void translateXMLStdException(std::exception const& e)
 {
     std::ostringstream oss;
-    oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
+    oss << "Caught std::exception: " << e.what() << "\n";
     PyErr_SetString(PyExc_RuntimeError, oss.str().c_str() );
 }
 
@@ -377,6 +377,6 @@ BOOST_PYTHON_MODULE(MalmoPython)
     class_< std::vector< std::string > >( "StringVector" )
         .def( vector_indexing_suite< std::vector< std::string >, true >() )
     ;
-    register_exception_translator<xml_schema::exception>(&translateXMLSchemaException);
+    register_exception_translator<std::exception>(&translateXMLStdException);
     register_exception_translator<MissionException>(&translateMissionException);
 }

@@ -68,11 +68,11 @@ void parseLuaTable( ArgumentParser* p, const luabind::object& args )
     p->parse( argTableToStrings( args ) );
 }
 
-// Make sure we get all of the useful information from xml_schema::exception
-void translateXMLSchemaException(lua_State* L, xml_schema::exception const& e)
+// Make sure we get all of the useful information from std::exception
+void translateXMLStdException(lua_State* L, std::exception const& e)
 {
     std::ostringstream oss;
-    oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
+    oss << "Caught std::exception: " << e.what() << "\n";
     lua_pushstring(L, oss.str().c_str());
 }
 
@@ -502,7 +502,7 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
         def("getTorchTensorFromPixels", &getTorchTensorFromPixels)
       #endif
     ];
-    register_exception_handler<xml_schema::exception>(&translateXMLSchemaException);
+    register_exception_handler<std:exception>(&translateStdException);
     register_exception_handler<MissionException>(&translateMissionException);
     return 0;
 }

@@ -23,8 +23,11 @@ set( SOURCES
    ClientConnection.cpp
    ClientInfo.cpp
    ClientPool.cpp
-   FindSchemaFile.cpp
    Logger.cpp
+   FindSchemaFile.cpp
+   RewardXML.cpp
+   MissionInitXML.cpp
+   MissionEndedXML.cpp
    MissionInitSpec.cpp
    MissionRecord.cpp
    MissionRecordSpec.cpp
@@ -49,8 +52,12 @@ set( HEADERS
    ClientConnection.h
    ClientInfo.h
    ClientPool.h
-   FindSchemaFile.h
    Logger.h
+   FindSchemaFile.h
+   XMLParseException.h
+   RewardXML.h
+   MissionInitXML.h
+   MissionEndedXML.h
    MissionInitSpec.h
    MissionRecord.h
    MissionRecordSpec.h

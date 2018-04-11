@@ -21,7 +21,7 @@
 #define _MISSIONSPEC_H_
 
 // Boost:
-#include <boost/shared_ptr.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 // STL:
 #include <string>
@@ -355,6 +355,11 @@ namespace malmo
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
         private:
         
+            boost::optional<int> getRoleValue(int role, std::string videoType, char what) const;
+            void addVerbToCommandType(std::string verb, std::string commandType);
+
+            boost::property_tree::ptree mission;
+
             friend class MissionInitSpec;
     };
 }

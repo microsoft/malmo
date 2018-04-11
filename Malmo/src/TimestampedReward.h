@@ -26,6 +26,8 @@
 // STL:
 #include <map>
 
+#include "RewardXML.h"
+
 namespace malmo
 {
     //! A map of int:double storing a value on each dimension, with an attached timestamp saying when it was collected.
@@ -43,13 +45,10 @@ namespace malmo
 
             //! Constructs from a simple string.
             TimestampedReward& createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string);
-
+            
             //! Constructs from an XML node element.
-            // NOXSDGEN TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
-            
-            //! Sets the values stored in this reward to be those from the specified XML structure.
-            // NOXSDGEN void setValuesFromRewardStructure(const schemas::Reward& reward);
-            
+            TimestampedReward(boost::posix_time::ptime timestamp, const RewardXML& reward);
+
             //! Formats as an XML string.
             //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
             //! \returns The reward as an XML string.
@@ -79,7 +78,7 @@ namespace malmo
         
         private:
 
-            std::map<int,double> values;
+            RewardXML reward;
     };
 }
 
