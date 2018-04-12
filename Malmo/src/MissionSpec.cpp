@@ -107,29 +107,75 @@ namespace malmo
         mission.put("Mission.ServerSection.ServerInitialConditions.Time.AllowPassageOfTime", allowTimeToPass);
     }
 
+    boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
+        auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+        if (drawing_decorator == boost::none) {
+            mission.put("Mission.ServerSection.ServerHandlers.DrawingDecorator", "");
+            drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+        }
+        return drawing_decorator.get();
+    }
+
     void MissionSpec::drawBlock(int x, int y, int z, const string& blockType)
     {
-        throw runtime_error("Agent XML API not implemented (1)");
+        auto& drawing_decorator = getDrawingDecorator();
+        boost::property_tree::ptree block;
+        block.put("<xmlattr>.type", blockType);
+        block.put("<xmlattr>.x", x);
+        block.put("<xmlattr>.y", y);
+        block.put("<xmlattr>.z", z);
+        drawing_decorator.add_child("DrawBlock", block);
     }
 
     void MissionSpec::drawCuboid(int x1, int y1, int z1, int x2, int y2, int z2, const std::string& blockType)
     {
-        throw runtime_error("Agent XML API not implemented (2)");
+        auto& drawing_decorator = getDrawingDecorator();
+        boost::property_tree::ptree cuboid;
+        cuboid.put("<xmlattr>.type", blockType);
+        cuboid.put("<xmlattr>.x1", x1);
+        cuboid.put("<xmlattr>.y1", y1);
+        cuboid.put("<xmlattr>.z1", z1);
+        cuboid.put("<xmlattr>.x2", x2);
+        cuboid.put("<xmlattr>.y2", y2);
+        cuboid.put("<xmlattr>.z2", z2);
+        drawing_decorator.add_child("DrawCuboid", cuboid);
     }
 
     void MissionSpec::drawItem(int x, int y, int z, const std::string& itemType)
     {
-        throw runtime_error("Agent XML API not implemented (3)");
+        auto& drawing_decorator = getDrawingDecorator();
+        boost::property_tree::ptree item;
+        item.put("<xmlattr>.type", itemType);
+        item.put("<xmlattr>.x", x);
+        item.put("<xmlattr>.y", y);
+        item.put("<xmlattr>.z", z);
+        drawing_decorator.add_child("DrawItem", item);
     }
 
     void MissionSpec::drawSphere(int x, int y, int z, int radius, const std::string& blockType)
     {
-        throw runtime_error("Agent XML API not implemented (4)");
+        auto& drawing_decorator = getDrawingDecorator();
+        boost::property_tree::ptree sphere;
+        sphere.put("<xmlattr>.type", blockType);
+        sphere.put("<xmlattr>.x", x);
+        sphere.put("<xmlattr>.y", y);
+        sphere.put("<xmlattr>.z", z);
+        sphere.put("<xmlattr>.radius", radius);
+        drawing_decorator.add_child("DrawSphere", sphere);
     }
 
     void MissionSpec::drawLine(int x1, int y1, int z1, int x2, int y2, int z2, const std::string& blockType)
     {
-        throw runtime_error("Agent XML API not implemented (5)");
+        auto& drawing_decorator = getDrawingDecorator();
+        boost::property_tree::ptree sphere;
+        sphere.put("<xmlattr>.type", blockType);
+        sphere.put("<xmlattr>.x1", x1);
+        sphere.put("<xmlattr>.y1", y1);
+        sphere.put("<xmlattr>.z1", z1);
+        sphere.put("<xmlattr>.x2", x2);
+        sphere.put("<xmlattr>.y2", y2);
+        sphere.put("<xmlattr>.z2", z2);
+        drawing_decorator.add_child("DrawLine", sphere);
     }
     
     // ------------------ settings for the agents --------------------------------
@@ -495,8 +541,6 @@ namespace malmo
     
     vector<string> MissionSpec::getAllowedCommands(int role,const string& command_handler) const
     {
-        throw runtime_error("Agent XML API not implemented (19)");
-
         vector<string> allowed_commands;
 
         const boost::property_tree::ptree& m = mission.get_child("Mission");
@@ -526,7 +570,7 @@ namespace malmo
                         if (t == boost::none || t.get() != "allow-list") {
                             for (auto& c : e.second) {
                                 if (c.first == "Command") {
-                                    allowed_commands.erase(std::remove(allowed_commands.begin, allowed_commands.end, c.second.data()), allowed_commands.end);
+                                    allowed_commands.erase(std::remove(allowed_commands.begin(), allowed_commands.end(), c.second.data()), allowed_commands.end());
                                 }
                             }
                         }

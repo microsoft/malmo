@@ -357,6 +357,7 @@ namespace malmo
         
             boost::optional<int> getRoleValue(int role, std::string videoType, char what) const;
             void addVerbToCommandType(std::string verb, std::string commandType);
+            boost::property_tree::ptree& getDrawingDecorator();
 
             boost::property_tree::ptree mission;
 
