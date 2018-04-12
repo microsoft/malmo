@@ -25,15 +25,22 @@
 #include <boost/property_tree/xml_parser.hpp>
 
 // STL:
-#include <algorithm>
-#include <sstream>
-#include <stdexcept>
 #include <iostream>
 using namespace std;
 
 namespace malmo
 {
     const int MillisecondsInOneSecond = 1000;
+
+    const std::vector<std::string> MissionSpec::all_continuous_movement_commands = { "jump", "move", "pitch", "strafe", "turn", "crouch", "attack", "use" };
+    const std::vector<std::string> MissionSpec::all_absolute_movement_commands = { "tpx", "tpy", "tpz", "tp", "setYaw", "setPitch" };
+    const std::vector<std::string> MissionSpec::all_discrete_movement_commands = { "move", "jumpmove", "strafe", "jumpstrafe", "turn", "movenorth", "moveeast", "movesouth", "movewest", "jumpnorth", "jumpeast", "jumpsouth", "jumpwest", "jump", "look", "attack", "use", "jumpuse" };
+    const std::vector<std::string> MissionSpec::all_inventory_commands = { "swapInventoryItems", "combineInventoryItems", "discardCurrentItem", "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
+    const std::vector<std::string> MissionSpec::all_simplecraft_commands = { "craft" };
+    const std::vector<std::string> MissionSpec::all_chat_commands = { "chat" };
+    const std::vector<std::string> MissionSpec::all_mission_quit_commands = { "quit" };
+    const std::vector<std::string> MissionSpec::all_human_level_commands = { "forward", "left", "right", "jump", "sneak", "sprint", "inventory", "swapHands", "drop", "use", "attack", "moveMouse", "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
+
 
     MissionSpec::MissionSpec()
     {
@@ -306,6 +313,7 @@ namespace malmo
             agent_handlers.get().erase("ContinuousMovementCommands");
             agent_handlers.get().erase("DiscreteMovementCommands");
             agent_handlers.get().erase("AbsoluteMovementCommands");
+            agent_handlers.get().erase("SimpleCraftCommands");
             agent_handlers.get().erase("ChatCommands");
             agent_handlers.get().erase("MissionQuitCommands");
         }
@@ -359,7 +367,7 @@ namespace malmo
     void MissionSpec::addVerbToCommandType(std::string verb, std::string commandType) {
         auto& commands = mission.get_child_optional(commandType);
         if (commands == boost::none) {
-            allowAllContinuousMovementCommands();
+            mission.put(commandType, "");
             commands = mission.get_child_optional(commandType);
         }
 
@@ -369,14 +377,14 @@ namespace malmo
                 auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
                 if (t != boost::none && t.get() == "allow-list") {
                     for (auto& c : e.second) {
-                        if (c.first == "Command" && 
+                        if (c.first == "command" && 
                             verb == c.second.data()) {
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
-                        e.second.put("Command", verb);
+                        e.second.add("command", verb);
                         found = true;
                     }
                     break;
@@ -390,7 +398,8 @@ namespace malmo
         if (!found) {
             boost::property_tree::ptree ml;
             ml.put("<xmlattr>.type", "allow-list");
-            ml.put("Command", verb);
+            ml.put("command", verb);
+            commands.get().add_child("ModifierList", ml);
         }
     }
 
@@ -506,28 +515,28 @@ namespace malmo
             if (role-- == 0) {
                 vector<string> command_handlers;
 
-                if (e.second.get_child_optional("ContinuousMovement"))
+                if (e.second.get_child_optional("AgentHandlers.ContinuousMovementCommands"))
                     command_handlers.push_back("ContinuousMovement");
 
-                if (e.second.get_child_optional("AbsoluteMovement"))
+                if (e.second.get_child_optional("AgentHandlers.AbsoluteMovementCommands"))
                     command_handlers.push_back("AbsoluteMovement");
 
-                if (e.second.get_child_optional("DiscreteMovement"))
+                if (e.second.get_child_optional("AgentHandlers.DiscreteMovementCommands"))
                     command_handlers.push_back("DiscreteMovement");
 
-                if (e.second.get_child_optional("Inventory"))
+                if (e.second.get_child_optional("AgentHandlers.InventoryCommands"))
                     command_handlers.push_back("Inventory");
 
-                if (e.second.get_child_optional("Chat"))
+                if (e.second.get_child_optional("AgentHandlers.ChatCommands"))
                     command_handlers.push_back("Chat");
 
-                if (e.second.get_child_optional("SimpleCraft"))
+                if (e.second.get_child_optional("AgentHandlers.SimpleCraftCommands"))
                     command_handlers.push_back("SimpleCraft");
 
-                if (e.second.get_child_optional("MissionQuit"))
+                if (e.second.get_child_optional("AgentHandlers.MissionQuitCommands"))
                     command_handlers.push_back("MissionQuit");
 
-                if (e.second.get_child_optional("HumanLevel"))
+                if (e.second.get_child_optional("AgentHandlers.HumanLevelCommands"))
                     command_handlers.push_back("HumanLevel");
 
                 return command_handlers;
@@ -549,27 +558,60 @@ namespace malmo
                 continue;
 
             if (role-- == 0) {
-                auto& commands = e.second.get_child("AgentHandlers." + command_handler);
+                auto& commands = e.second.get_child_optional("AgentHandlers." + command_handler + "Commands");
+                if (commands == boost::none)
+                    return allowed_commands;
 
+                bool explicit_allow = false;
                 // Collect all allowed verbs first and then remove any that are denied.
-                for (auto& ml : commands) {
+                for (auto& ml : commands.get()) {
                     if (ml.first == "ModifierList") {
-                        auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
+                        auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
                         if (t != boost::none && t.get() == "allow-list") {
-                            for (auto& c : e.second) {
-                                if (c.first == "Command") {
+                            explicit_allow = true;
+                            for (auto& c : ml.second) {
+                                if (c.first == "command") {
                                     allowed_commands.push_back(c.second.data());
                                 }
                             }
                         }
                     }
+                } 
+                if (!explicit_allow) {
+                    // Command defaulting.
+                    if (command_handler == "ContinuousMovement") {
+                        allowed_commands = all_continuous_movement_commands;
+                    }
+                    else if (command_handler == "AbsoluteMovement") {
+                        allowed_commands = all_absolute_movement_commands;
+                    }
+                    else if (command_handler == "DiscreteMovement") {
+                        allowed_commands = all_discrete_movement_commands;
+                    }
+                    else if (command_handler == "Inventory") {
+                        allowed_commands = all_inventory_commands;
+                    }
+                    else if (command_handler == "SimpleCraft") {
+                        allowed_commands = all_simplecraft_commands;
+                    }
+                    else if (command_handler == "Chat") {
+                        allowed_commands = all_chat_commands;
+                    }
+                    else if (command_handler == "MissionQuit") {
+                        allowed_commands = all_mission_quit_commands;
+                    }
+                    else if (command_handler == "HumanLevel") {
+                        allowed_commands = all_human_level_commands;
+                    }
+                    else
+                        throw runtime_error("Unknown command handler");
                 }
-                for (auto& ml : commands) {
+                for (auto& ml : commands.get()) {
                     if (ml.first == "ModifierList") {
-                        auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
+                        auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
                         if (t == boost::none || t.get() != "allow-list") {
-                            for (auto& c : e.second) {
-                                if (c.first == "Command") {
+                            for (auto& c : ml.second) {
+                                if (c.first == "command") {
                                     allowed_commands.erase(std::remove(allowed_commands.begin(), allowed_commands.end(), c.second.data()), allowed_commands.end());
                                 }
                             }

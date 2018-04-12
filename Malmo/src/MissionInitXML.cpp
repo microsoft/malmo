@@ -1,6 +1,7 @@
 
 #include "MissionInitXML.h"
 #include "XMLParseException.h"
+
 // STL:
 #include <exception>
 #include <iostream>
@@ -78,9 +79,6 @@ namespace malmo {
 
         std::string xml_str = oss.str();
         xml_str.erase(std::remove(xml_str.begin(), xml_str.end(), '\n'), xml_str.end());
-
-        std::cout << "------ toXML mission init -----" << std::endl;
-        std::cout << xml_str << std::endl;
 
         return xml_str;
     }

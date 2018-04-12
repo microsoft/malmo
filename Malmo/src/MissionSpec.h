@@ -353,6 +353,7 @@ namespace malmo
             std::vector<std::string> getAllowedCommands(int role,const std::string& command_handler) const;
 
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
+            friend class MissionInitSpec;
         private:
         
             boost::optional<int> getRoleValue(int role, std::string videoType, char what) const;
@@ -361,7 +362,14 @@ namespace malmo
 
             boost::property_tree::ptree mission;
 
-            friend class MissionInitSpec;
+            static const std::vector<std::string> all_continuous_movement_commands;
+            static const std::vector<std::string> all_absolute_movement_commands;
+            static const std::vector<std::string> all_discrete_movement_commands;
+            static const std::vector<std::string> all_inventory_commands;
+            static const std::vector<std::string> all_simplecraft_commands;
+            static const std::vector<std::string> all_chat_commands;
+            static const std::vector<std::string> all_mission_quit_commands;
+            static const std::vector<std::string> all_human_level_commands;
     };
 }
 

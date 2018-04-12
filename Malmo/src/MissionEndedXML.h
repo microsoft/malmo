@@ -2,10 +2,9 @@
 #define _MISSIONENDEDXML_H_
 
 // STL:
-#include <cstdlib>
+#include <string>
 
 // Boost:
-#include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 #include "RewardXML.h"

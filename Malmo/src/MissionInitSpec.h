@@ -26,9 +26,6 @@
 #include "Logger.h"
 #include "MissionInitXML.h"
 
-// Boost:
-#include <boost/shared_ptr.hpp>
-
 namespace malmo
 {
     //! Specifies a mission to be run together with the IP addresses and ports of the agents and Mod instances to run it on.

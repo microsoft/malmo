@@ -2,10 +2,9 @@
 #define _MISSIONINITXML_H_
 
 // STL:
-#include <cstdlib>
+#include <string>
 
 // Boost:
-#include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 namespace malmo {
