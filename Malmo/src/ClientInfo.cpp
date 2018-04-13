@@ -33,15 +33,22 @@ namespace malmo{
     {
     }
 
-    ClientInfo::ClientInfo(const std::string& ip_address, int port)
+    ClientInfo::ClientInfo(const std::string& ip_address, int control_port)
         : ip_address(ip_address)
-        , port(port)
+        , control_port(control_port)
+    {
+    }
+
+    ClientInfo::ClientInfo(const std::string& ip_address, int control_port, int command_port)
+        : ip_address(ip_address)
+        , control_port(control_port)
+        , command_port(command_port)
     {
     }
 
     std::ostream& operator<<(std::ostream& os, const ClientInfo& ci)
     {
-        os << "ClientInfo: " << ci.ip_address << ":" << ci.port;
+        os << "ClientInfo: " << ci.ip_address << ":" << ci.control_port << ":" << ci.command_port;
         return os;
     }
 }

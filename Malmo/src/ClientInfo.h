@@ -41,14 +41,23 @@ namespace malmo
 
         //! Constructs a ClientInfo at the specified address listening on the specified port.
         //! \param ip_address The IP address of the client.
-        //! \param port The number of the client port.
-        ClientInfo(const std::string& ip_address, int port);
+        //! \param control_port The number of the client mission control port.
+        ClientInfo(const std::string& ip_address, int control_port);
+
+        //! Constructs a ClientInfo at the specified address listening on the specified port.
+        //! \param ip_address The IP address of the client.
+        //! \param control_port The number of the client mission control port.
+        //! \param command_port The number of the client mission command port.
+        ClientInfo(const std::string& ip_address, int control_port, int command_port);
 
         //! The IP address of the client.
         std::string ip_address;
 
-        //! The port of the client.
-        int port;
+        //! The control port of the client. Defaults to the default client mission control port.
+        int control_port;
+
+        //! The command port of the client. Default of 0 causes client to dynamically allocate one.
+        int command_port;
 
         friend std::ostream& operator<<(std::ostream& os, const ClientInfo& ci);
     };

@@ -505,10 +505,12 @@ struct ClientInfo {
 public:
     ClientInfo();
     ClientInfo(const std::string& ip_address);
-    ClientInfo(const std::string& ip_address, int channel);
+    ClientInfo(const std::string& ip_address, int control_port);
+    ClientInfo(const std::string& ip_address, int control_port, int command_port);
 
     std::string ip_address;
-    int port;
+    int control_port;
+    int command_port;
 };
 
 class ClientPool {

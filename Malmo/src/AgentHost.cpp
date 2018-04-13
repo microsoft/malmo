@@ -141,11 +141,11 @@ namespace malmo
 
     bool AgentHost::killClient(const ClientInfo& client)
     {
-        LOGINFO(LT("Sending kill command to "), client.ip_address, LT(":"), client.port);
+        LOGINFO(LT("Sending kill command to "), client.ip_address, LT(":"), client.control_port);
         std::string reply;
         try
         {
-            reply = SendStringAndGetShortReply(this->io_service, client.ip_address, client.port, "MALMO_KILL_CLIENT\n", false);
+            reply = SendStringAndGetShortReply(this->io_service, client.ip_address, client.control_port, "MALMO_KILL_CLIENT\n", false);
         }
         catch (std::exception& e)
         {
@@ -325,10 +325,10 @@ namespace malmo
         std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":20000:" + this->current_mission_init->getExperimentID() + +"\n";
         for (const ClientInfo& item : client_pool.clients)
         {
-            LOGINFO(LT("Sending reservation request to "), item.ip_address, LT(":"), item.port);
+            LOGINFO(LT("Sending reservation request to "), item.ip_address, LT(":"), item.control_port);
             try
             {
-                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
+                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
             }
             catch (std::exception&)
             {
@@ -353,15 +353,15 @@ namespace malmo
             // No - release the clients we already reserved.
             for (const ClientInfo& item : reservedClients.clients)
             {
-                LOGINFO(LT("Cancelling reservation request with "), item.ip_address, LT(":"), item.port);
+                LOGINFO(LT("Cancelling reservation request with "), item.ip_address, LT(":"), item.control_port);
                 try
                 {
-                    reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, "MALMO_CANCEL_REQUEST\n", false);
+                    reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, "MALMO_CANCEL_REQUEST\n", false);
                 }
                 catch (std::exception&)
                 {
                     // This is not expected, and probably means something bad has happened.
-                    LOGERROR(LT("Failed to cancel reservation request with "), item.ip_address, LT(":"), item.port);
+                    LOGERROR(LT("Failed to cancel reservation request with "), item.ip_address, LT(":"), item.control_port);
                     continue;
                 }
                 LOGINFO(LT("Cancelling reservation, received reply from "), item.ip_address, LT(": "), reply);
@@ -380,10 +380,10 @@ namespace malmo
 
         for (const ClientInfo& item : client_pool.clients)
         {
-            LOGINFO(LT("Sending find server request to "), item.ip_address, LT(":"), item.port);
+            LOGINFO(LT("Sending find server request to "), item.ip_address, LT(":"), item.control_port);
             try
             {
-                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.port, request, false);
+                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
             }
             catch (std::exception&)
             {
@@ -436,16 +436,17 @@ namespace malmo
         {
             const ClientInfo& item = client_pool.clients[(i + this->current_role) % num_clients];
             this->current_mission_init->setClientAddress( item.ip_address );
-            this->current_mission_init->setClientMissionControlPort( item.port );
+            this->current_mission_init->setClientMissionControlPort( item.control_port );
+            this->current_mission_init->setClientCommandsPort( item.command_port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
 
-            LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.port);
+            LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.control_port);
             try 
             {
-                reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.port, mission_init_xml, false );
+                reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.control_port, mission_init_xml, false );
             }
             catch( std::exception& ) {
-                LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.port);
+                LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.control_port);
                 // This is expected quite often - client is likely not running.
                 continue;
             }

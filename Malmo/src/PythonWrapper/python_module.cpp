@@ -308,9 +308,11 @@ BOOST_PYTHON_MODULE(MalmoPython)
     ;
     class_< ClientInfo >("ClientInfo", init<>())
         .def(init<const std::string &>())
-        .def(init<const std::string &, int>())
+        .def(init<const std::string &, int>()) // address & control_port
+        .def(init<const std::string &, int, int>()) // address, control port and command port
         .def_readonly("ip_address",     &ClientInfo::ip_address)
-        .def_readonly("port",           &ClientInfo::port)
+        .def_readonly("control_port",           &ClientInfo::control_port)
+        .def_readonly("command_port",           &ClientInfo::command_port)
         .def(self_ns::str(self_ns::self))
     ;
     class_< ClientPool >("ClientPool", init<>())
