@@ -43,8 +43,8 @@ namespace malmo {
 
         mission = xml.get_child("MissionInit.Mission");
         experiment_uid = xml.get<std::string>("MissionInit.ExperimentUID");
-        minecraft_server.connection_address = xml.get_optional<std::string>("MissionInit.MincraftServerConnection.<xmlattr>.address");
-        minecraft_server.connection_port = xml.get_optional<int>("MissionInit.MincraftServerConnection.<xmlattr>.port");
+        minecraft_server.connection_address = xml.get_optional<std::string>("MissionInit.MinecraftServerConnection.<xmlattr>.address");
+        minecraft_server.connection_port = xml.get_optional<int>("MissionInit.MinecraftServerConnection.<xmlattr>.port");
         client_role = xml.get<int>("MissionInit.ClientRole");
         schema_version = xml.get<std::string>("MissionInit.<xmlattr>.SchemaVersion");
         platform_version = xml.get<std::string>("MissionInit.<xmlattr>.PlatformVersion");
@@ -74,9 +74,9 @@ namespace malmo {
         xml.get_child("MissionInit").put_child("Mission", mission);
         xml.put<std::string>("MissionInit.ExperimentUID", experiment_uid);
         if (minecraft_server.connection_address)
-            xml.put("MissionInit.MincraftServerConnection.<xmlattr>.address", minecraft_server.connection_address);
+            xml.put("MissionInit.MinecraftServerConnection.<xmlattr>.address", minecraft_server.connection_address);
         if (minecraft_server.connection_port)
-            xml.put("MissionInit.MincraftServerConnection.<xmlattr>.port", minecraft_server.connection_port);
+            xml.put("MissionInit.MinecraftServerConnection.<xmlattr>.port", minecraft_server.connection_port);
 
         xml.put<int>("MissionInit.ClientRole", client_role);
 
