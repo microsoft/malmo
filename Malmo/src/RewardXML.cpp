@@ -7,7 +7,6 @@
 
 // Boost:
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 
 namespace malmo {
 
@@ -27,7 +26,7 @@ namespace malmo {
     }
 
     void RewardXML::parse_rewards(boost::property_tree::ptree& reward_element) {
-        BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, reward_element) {
+        for (boost::property_tree::ptree::value_type const& v : reward_element) {
             if (v.first == "Value") {
                 int dimension = v.second.get<int>("<xmlattr>.dimension");
                 double value = v.second.get<double>("<xmlattr>.value");

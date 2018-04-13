@@ -8,7 +8,6 @@
 // Boost:
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 
 namespace malmo {
 
@@ -33,7 +32,7 @@ namespace malmo {
         }
         else have_rewards = false;
 
-        BOOST_FOREACH(boost::property_tree::ptree::value_type const& v, xml.get_child("MissionEnded.MissionDiagnostics")) {
+        for (boost::property_tree::ptree::value_type const& v : xml.get_child("MissionEnded.MissionDiagnostics")) {
             if (v.first == "VideoData") {
                 VideoDataAttributes attributes;
 
