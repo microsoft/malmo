@@ -41,6 +41,7 @@ namespace malmo
     const std::vector<std::string> MissionSpec::all_mission_quit_commands = { "quit" };
     const std::vector<std::string> MissionSpec::all_human_level_commands = { "forward", "left", "right", "jump", "sneak", "sprint", "inventory", "swapHands", "drop", "use", "attack", "moveMouse", "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
 
+    const std::string MissionSpec::MALMO_NAMESPACE = "http://ProjectMalmo.microsoft.com";
 
     MissionSpec::MissionSpec()
     {
@@ -57,6 +58,14 @@ namespace malmo
     {
         std::istringstream is(xml);
         boost::property_tree::read_xml(is, mission);
+
+        if (validate) {
+            // Agent side schema validation is lacking but Minecraft client will perform full validation (which is not optional).
+            auto& xmlns = mission.get_optional<string>("Mission.<xmlattr>.xmlns");
+            if (xmlns == boost::none || MALMO_NAMESPACE != xmlns.get()) {
+                throw runtime_error("MissionSpec is invalid (namespace)");
+            }
+        }
     }
 
     std::string MissionSpec::getAsXML( bool prettyPrint ) const
@@ -66,7 +75,8 @@ namespace malmo
         write_xml(oss, mission);
 
         std::string xml = oss.str();
-        xml.erase(std::remove(xml.begin(), xml.end(), '\n'), xml.end());
+        if (!prettyPrint) 
+            xml.erase(std::remove(xml.begin(), xml.end(), '\n'), xml.end());
         return xml;
     }
     
@@ -437,12 +447,12 @@ namespace malmo
                 case 'h':
                     return boost::optional<int>(v.get().get<int>("Height"));
                 case 'c': {
-                    // Default want_depth attribute to true.
+                    // Default want_depth attribute to false.
                     auto& want_depth = v.get().get_optional<string>("<xmlattr>.want_depth");
                     if (want_depth) {
-                        return want_depth.get() != "false" && want_depth.get() != "0";
+                        return boost::optional<int>(want_depth.get() == "true" || want_depth.get() == "1");
                     }
-                    return boost::optional<int>(1);
+                    return boost::optional<int>(0);
                 }
                 default:
                     throw runtime_error("Invalid video attribute");

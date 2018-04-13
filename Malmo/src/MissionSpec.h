@@ -354,6 +354,9 @@ namespace malmo
 
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
             friend class MissionInitSpec;
+
+            static const std::string MALMO_NAMESPACE;
+
         private:
         
             boost::optional<int> getRoleValue(int role, std::string videoType, char what) const;

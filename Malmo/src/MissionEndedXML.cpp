@@ -1,4 +1,5 @@
 #include "MissionEndedXML.h"
+#include "MissionSpec.h"
 #include "XMLParseException.h"
 
 // STL:
@@ -50,6 +51,9 @@ namespace malmo {
         std::ostringstream oss;
 
         boost::property_tree::ptree xml;
+
+        xml.put("MissionEnded.<xmlattr>.xmlns", MissionSpec::MALMO_NAMESPACE);
+        xml.put("MissionEnded.<xmlattr>.xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         if (schema_version)
             xml.put("MissionEnded.<xmlattr>.SchemaVersion", schema_version);
         xml.put("MissionEnded.Status", status);
