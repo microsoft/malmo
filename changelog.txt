@@ -1,3 +1,8 @@
+0.35.0
+-------------------
+New: Now possible for agent to select the Minecraft client's command port using 
+an additional ClientInfo constructor when static port allocation is required.
+
 0.34.0
 -------------------
 New: Can now record video streams as individual frames rather than video.

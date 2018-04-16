@@ -39,7 +39,7 @@ Check that typing `python` works in a command prompt. You may need to add e.g. `
 
 ### 5. Install the Java SE Development Kit (JDK): ###
 
-Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download the latest 64-bit version 
+Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download a 64-bit version of Java 7 or 8 (Malmo doesn't currently support Java 9 or above)
 e.g. `jdk-8u77-windows-x64.exe`
 
 Run the downloaded file to install the JDK. Make a note of the install location.
