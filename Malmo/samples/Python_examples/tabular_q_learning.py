@@ -312,7 +312,7 @@ try:
 except KeyError:
     print("MALMO_XSD_PATH not set? Check environment.")
     exit(1)
-mission_file = os.path.abspath(os.path.join(schema_dir, '..', 'sample_missions', 'cliff_walking_1.xml'))
+mission_file = os.path.abspath(os.path.join(schema_dir, '..', 'Sample_missions', 'cliff_walking_1.xml'))
 
 # add some args
 agent_host.addOptionalStringArgument('mission_file',
