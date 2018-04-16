@@ -17,14 +17,14 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef _REWARD_H_
-#define _REWARD_H_
+#ifndef _REWARDXML_H_
+#define _REWARDXML_H_
 
 // STL:
-#include <cstdlib>
+#include <map>
+#include <iostream>
 
 // Boost:
-#include <boost/thread.hpp>
 #include <boost/property_tree/ptree.hpp>
 
 namespace malmo

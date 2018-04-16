@@ -22,6 +22,7 @@
 
 // STL:
 #include <string>
+#include <vector>
 
 // Boost:
 #include <boost/property_tree/ptree.hpp>

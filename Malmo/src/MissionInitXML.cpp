@@ -19,6 +19,7 @@
 
 #include "MissionInitXML.h"
 #include "XMLParseException.h"
+#include "MissionSpec.h"
 
 // STL:
 #include <exception>
@@ -26,7 +27,6 @@
 
 // Boost:
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string/trim.hpp>
 
 namespace malmo {
@@ -75,10 +75,11 @@ namespace malmo {
 
         boost::property_tree::ptree xml;
        
-        xml.put("MissionInit.<xmlattr>.xmlns", "http://ProjectMalmo.microsoft.com");
-        xml.put("MissionInit.<xmlattr>.xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        xml.put("MissionInit.<xmlattr>.xmlns", MissionSpec::MALMO_NAMESPACE);
+        xml.put("MissionInit.<xmlattr>.xmlns:xsi", MissionSpec::XMLNS_XSI);
         xml.put<std::string>("MissionInit.<xmlattr>.SchemaVersion", schema_version);
         xml.put<std::string>("MissionInit.<xmlattr>.PlatformVersion", platform_version);
+
         xml.get_child("MissionInit").put_child("Mission", mission);
         xml.put<std::string>("MissionInit.ExperimentUID", experiment_uid);
         if (minecraft_server.connection_address)
@@ -106,7 +107,6 @@ namespace malmo {
         std::string xml_str = oss.str();
         xml_str.erase(std::remove(xml_str.begin(), xml_str.end(), '\n'), xml_str.end());
 
-        std::cout << "MISSION INIT @@@@ " << xml_str << std::endl;
         return xml_str;
     }
 }

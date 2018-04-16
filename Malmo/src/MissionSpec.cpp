@@ -34,13 +34,17 @@ namespace malmo
 
     const std::vector<std::string> MissionSpec::all_continuous_movement_commands = { "jump", "move", "pitch", "strafe", "turn", "crouch", "attack", "use" };
     const std::vector<std::string> MissionSpec::all_absolute_movement_commands = { "tpx", "tpy", "tpz", "tp", "setYaw", "setPitch" };
-    const std::vector<std::string> MissionSpec::all_discrete_movement_commands = { "move", "jumpmove", "strafe", "jumpstrafe", "turn", "movenorth", "moveeast", "movesouth", "movewest", "jumpnorth", "jumpeast", "jumpsouth", "jumpwest", "jump", "look", "attack", "use", "jumpuse" };
-    const std::vector<std::string> MissionSpec::all_inventory_commands = { "swapInventoryItems", "combineInventoryItems", "discardCurrentItem", "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
+    const std::vector<std::string> MissionSpec::all_discrete_movement_commands = { "move", "jumpmove", "strafe", "jumpstrafe", "turn", "movenorth", "moveeast", "movesouth", "movewest", 
+        "jumpnorth", "jumpeast", "jumpsouth", "jumpwest", "jump", "look", "attack", "use", "jumpuse" };
+    const std::vector<std::string> MissionSpec::all_inventory_commands = { "swapInventoryItems", "combineInventoryItems", "discardCurrentItem", 
+        "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
     const std::vector<std::string> MissionSpec::all_simplecraft_commands = { "craft" };
     const std::vector<std::string> MissionSpec::all_chat_commands = { "chat" };
     const std::vector<std::string> MissionSpec::all_mission_quit_commands = { "quit" };
-    const std::vector<std::string> MissionSpec::all_human_level_commands = { "forward", "left", "right", "jump", "sneak", "sprint", "inventory", "swapHands", "drop", "use", "attack", "moveMouse", "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
+    const std::vector<std::string> MissionSpec::all_human_level_commands = { "forward", "left", "right", "jump", "sneak", "sprint", "inventory", "swapHands", "drop", "use", "attack", "moveMouse", 
+        "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
 
+    const std::string MissionSpec::XMLNS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     const std::string MissionSpec::MALMO_NAMESPACE = "http://ProjectMalmo.microsoft.com";
 
     MissionSpec::MissionSpec()
@@ -122,15 +126,6 @@ namespace malmo
     {
         mission.put("Mission.ServerSection.ServerInitialConditions.Time.StartTime", t);
         mission.put("Mission.ServerSection.ServerInitialConditions.Time.AllowPassageOfTime", allowTimeToPass);
-    }
-
-    boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
-        auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
-        if (drawing_decorator == boost::none) {
-            mission.put("Mission.ServerSection.ServerHandlers.DrawingDecorator", "");
-            drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
-        }
-        return drawing_decorator.get();
     }
 
     void MissionSpec::drawBlock(int x, int y, int z, const string& blockType)
@@ -262,8 +257,9 @@ namespace malmo
     void MissionSpec::setViewpoint(int viewpoint)
     {
         auto& v = mission.get_child_optional("Mission.AgentSection.AgentHandlers.VideoProducer");
-        if (v)
+        if (v) {
             mission.put("Mission.AgentSection.AgentHandlers.VideoProducer.<xmlattr>.viewpoint", viewpoint);
+        }
     }
 
     void MissionSpec::rewardForReachingPosition(float x, float y, float z, float amount, float tolerance)
@@ -374,45 +370,6 @@ namespace malmo
         mission.put("Mission.AgentSection.AgentHandlers.ChatCommands", "");
     }
 
-    void MissionSpec::addVerbToCommandType(std::string verb, std::string commandType) {
-        auto& commands = mission.get_child_optional(commandType);
-        if (commands == boost::none) {
-            mission.put(commandType, "");
-            commands = mission.get_child_optional(commandType);
-        }
-
-        bool found = false;
-        for (auto& e : commands.get()) { 
-            if (e.first == "ModifierList") {
-                auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
-                if (t != boost::none && t.get() == "allow-list") {
-                    for (auto& c : e.second) {
-                        if (c.first == "command" && 
-                            verb == c.second.data()) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        e.second.add("command", verb);
-                        found = true;
-                    }
-                    break;
-                }
-                else {
-                    // Found deny list.
-                    throw runtime_error("Sorry, can't add command verb when deny-list present.");
-                }
-            }
-        }
-        if (!found) {
-            boost::property_tree::ptree ml;
-            ml.put("<xmlattr>.type", "allow-list");
-            ml.put("command", verb);
-            commands.get().add_child("ModifierList", ml);
-        }
-    }
-
     // ------------------------------- information ---------------------------------------------------
     
     string MissionSpec::getSummary() const
@@ -426,40 +383,6 @@ namespace malmo
         for (auto& e : mission.get_child("Mission"))
             if (e.first == "AgentSection") i++;
         return i;
-    }
-    
-    boost::optional<int> MissionSpec::getRoleValue(int role, std::string videoType, char what) const {
-        const boost::property_tree::ptree& m = mission.get_child("Mission");
-        for (auto& e : m) {
-            if (e.first != "AgentSection") 
-                continue;
-            
-            if (role-- == 0) {
-                auto& v = e.second.get_child_optional(videoType);
-                if (v == boost::none) {
-                    return boost::optional<int>();
-                }
-                switch (what) {
-                case 'x':
-                    return boost::optional<int>(0);
-                case 'w':
-                    return boost::optional<int>(v.get().get<int>("Width"));
-                case 'h':
-                    return boost::optional<int>(v.get().get<int>("Height"));
-                case 'c': {
-                    // Default want_depth attribute to false.
-                    auto& want_depth = v.get().get_optional<string>("<xmlattr>.want_depth");
-                    if (want_depth) {
-                        return boost::optional<int>(want_depth.get() == "true" || want_depth.get() == "1");
-                    }
-                    return boost::optional<int>(0);
-                }
-                default:
-                    throw runtime_error("Invalid video attribute");
-                }
-            }
-        }
-        throw runtime_error("No such role in agent section");
     }
 
     bool MissionSpec::isVideoRequested(int role) const
@@ -554,8 +477,6 @@ namespace malmo
             }
         }
 
-        vector<string> command_handlers;
-     
         throw runtime_error("No such role in agent section");
     }
     
@@ -636,6 +557,88 @@ namespace malmo
     }
     
     // ---------------------------- private functions -----------------------------------------------
+
+    boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
+        auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+        if (drawing_decorator == boost::none) {
+            mission.put("Mission.ServerSection.ServerHandlers.DrawingDecorator", "");
+            drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+        }
+        return drawing_decorator.get();
+    }
+
+    boost::optional<int> MissionSpec::getRoleValue(int role, std::string videoType, char what) const {
+        const boost::property_tree::ptree& m = mission.get_child("Mission");
+        for (auto& e : m) {
+            if (e.first != "AgentSection")
+                continue;
+
+            if (role-- == 0) {
+                auto& v = e.second.get_child_optional(videoType);
+                if (v == boost::none) {
+                    return boost::optional<int>();
+                }
+                switch (what) {
+                case 'x':
+                    return boost::optional<int>(0);
+                case 'w':
+                    return boost::optional<int>(v.get().get<int>("Width"));
+                case 'h':
+                    return boost::optional<int>(v.get().get<int>("Height"));
+                case 'c': {
+                    // Default want_depth attribute to false.
+                    auto& want_depth = v.get().get_optional<string>("<xmlattr>.want_depth");
+                    if (want_depth) {
+                        return boost::optional<int>(want_depth.get() == "true" || want_depth.get() == "1");
+                    }
+                    return boost::optional<int>(0);
+                }
+                default:
+                    throw runtime_error("Invalid video attribute");
+                }
+            }
+        }
+        throw runtime_error("No such role in agent section");
+    }
+
+    void MissionSpec::addVerbToCommandType(std::string verb, std::string commandType) {
+        auto& commands = mission.get_child_optional(commandType);
+        if (commands == boost::none) {
+            mission.put(commandType, "");
+            commands = mission.get_child_optional(commandType);
+        }
+
+        bool found = false;
+        for (auto& e : commands.get()) {
+            if (e.first == "ModifierList") {
+                auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
+                if (t != boost::none && t.get() == "allow-list") {
+                    for (auto& c : e.second) {
+                        if (c.first == "command" &&
+                            verb == c.second.data()) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        e.second.add("command", verb);
+                        found = true;
+                    }
+                    break;
+                }
+                else {
+                    // Found deny list.
+                    throw runtime_error("Sorry, can't add command verb when deny-list present.");
+                }
+            }
+        }
+        if (!found) {
+            boost::property_tree::ptree ml;
+            ml.put("<xmlattr>.type", "allow-list");
+            ml.put("command", verb);
+            commands.get().add_child("ModifierList", ml);
+        }
+    }
 
     std::ostream& operator<<(std::ostream& os, const MissionSpec& ms)
     {

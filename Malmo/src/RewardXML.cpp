@@ -39,7 +39,6 @@ namespace malmo {
         boost::property_tree::read_xml(is, xml);
 
         auto rewardElement = xml.get_child("Reward");
-
         parse_rewards(rewardElement);
     }
 
