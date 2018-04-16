@@ -27,6 +27,7 @@
 // Boost:
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 namespace malmo {
 
@@ -43,7 +44,14 @@ namespace malmo {
 
         mission = xml.get_child("MissionInit.Mission");
         experiment_uid = xml.get<std::string>("MissionInit.ExperimentUID");
-        minecraft_server.connection_address = xml.get_optional<std::string>("MissionInit.MinecraftServerConnection.<xmlattr>.address");
+        auto& address_element = xml.get_optional<std::string>("MissionInit.MinecraftServerConnection.<xmlattr>.address");
+        if (address_element) {
+            minecraft_server.connection_address = boost::algorithm::trim_copy(address_element.get());
+        }
+        else {
+            minecraft_server.connection_address = boost::optional<std::string>();
+        }
+
         minecraft_server.connection_port = xml.get_optional<int>("MissionInit.MinecraftServerConnection.<xmlattr>.port");
         client_role = xml.get<int>("MissionInit.ClientRole");
         schema_version = xml.get<std::string>("MissionInit.<xmlattr>.SchemaVersion");
@@ -98,6 +106,7 @@ namespace malmo {
         std::string xml_str = oss.str();
         xml_str.erase(std::remove(xml_str.begin(), xml_str.end(), '\n'), xml_str.end());
 
+        std::cout << "MISSION INIT @@@@ " << xml_str << std::endl;
         return xml_str;
     }
 }

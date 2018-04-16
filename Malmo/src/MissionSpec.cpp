@@ -486,7 +486,7 @@ namespace malmo
     {
         auto w = getRoleValue(role, "AgentHandlers.VideoProducer", 'w');
         if (w) return w.get();
-        w = getRoleValue(role, "AgentHandlers.DeptProducer", 'w');
+        w = getRoleValue(role, "AgentHandlers.DepthProducer", 'w');
         if (w) return w.get();
         w = getRoleValue(role, "AgentHandlers.LuminanceProducer", 'w');
         if (w) return w.get();
@@ -499,12 +499,13 @@ namespace malmo
     {
         auto h = getRoleValue(role, "AgentHandlers.VideoProducer", 'h');
         if (h) return h.get();
-        h = getRoleValue(role, "AgentHandlers.DeptProducer", 'h');
+        h = getRoleValue(role, "AgentHandlers.DepthProducer", 'h');
         if (h) return h.get();
         h = getRoleValue(role, "AgentHandlers.LuminanceProducer", 'h');
         if (h) return h.get();
         h = getRoleValue(role, "AgentHandlers.ColourMapProducer", 'h');
         if (h) return h.get();
+
         throw runtime_error("MissionInitSpec::getVideoHeight : video has not been requested for this role");
     }
 

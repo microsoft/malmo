@@ -521,7 +521,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         if (msc == null)
                             reply("MALMONOSERVERYET", dos); // Mission might be starting up.
                         else
-                            reply("MALMOS" + msc.getAddress() + ":" + msc.getPort(), dos);
+                            reply("MALMOS" + msc.getAddress().trim() + ":" + msc.getPort(), dos);
                     }
                     else
                     {
@@ -1053,7 +1053,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // Multi-agent mission, we should be joining a server.
                 // (Unless we are already on the correct server.)
-                String address = currentMissionInit().getMinecraftServerConnection().getAddress();
+                String address = currentMissionInit().getMinecraftServerConnection().getAddress().trim();
                 int port = currentMissionInit().getMinecraftServerConnection().getPort();
                 String targetIP = address + ":" + port;
                 System.out.println("We should be joining " + targetIP);

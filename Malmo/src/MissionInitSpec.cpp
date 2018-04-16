@@ -23,6 +23,7 @@
 // Boost:
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/algorithm/string.hpp>
 
 // STL:
 #include <sstream>
@@ -76,6 +77,7 @@ namespace malmo
     
     void MissionInitSpec::setClientAddress(std::string address)
     {
+        boost::algorithm::trim(address);
         this->mission_init.client_agent_connection.client_ip_address = address;
     }
     
@@ -106,6 +108,7 @@ namespace malmo
     
     void MissionInitSpec::setAgentAddress(std::string address)
     {
+        boost::algorithm::trim(address);
         this->mission_init.client_agent_connection.agent_ip_address = address;
     }
     
@@ -186,7 +189,7 @@ namespace malmo
 
     void MissionInitSpec::setMinecraftServerInformation(const std::string& address, int port)
     {
-        this->mission_init.minecraft_server.connection_address = address;
+        this->mission_init.minecraft_server.connection_address = boost::algorithm::trim_copy(address);
         this->mission_init.minecraft_server.connection_port = port;
     }
 }
