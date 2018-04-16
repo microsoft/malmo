@@ -36,7 +36,6 @@ namespace malmo {
     }
 
     void MissionInitXML::parse(std::string xml_text) {
-
         boost::property_tree::ptree xml;
 
         std::istringstream is(xml_text);
@@ -72,7 +71,6 @@ namespace malmo {
 
     std::string MissionInitXML::toXml() const {
         std::ostringstream oss;
-
         boost::property_tree::ptree xml;
        
         xml.put("MissionInit.<xmlattr>.xmlns", MissionSpec::MALMO_NAMESPACE);

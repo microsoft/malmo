@@ -65,11 +65,9 @@ namespace malmo {
         boost::property_tree::ptree mission;
 
         std::string experiment_uid;
-
-        MineCraftServer minecraft_server;
-
         int client_role;
 
+        MineCraftServer minecraft_server;
         ClientAgentConnection client_agent_connection;
     };
 }

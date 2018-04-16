@@ -619,7 +619,6 @@ namespace malmo
             
             try {
                 MissionEndedXML mission_ended(xml.text);
-
                 const std::string status = mission_ended.getStatus();
 
                 if (status != MissionEndedXML::ENDED && status != MissionEndedXML::PLAYER_DIED) {
@@ -631,7 +630,7 @@ namespace malmo
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    const RewardXML reward = mission_ended.getReward();
+                    const RewardXML& reward = mission_ended.getReward();
 
                     if (reward.size() != 0) {
                         TimestampedReward final_reward(xml.timestamp, reward);

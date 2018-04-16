@@ -21,13 +21,13 @@
 #define _XMLPARSEEXCEPTION_H_
 
 // STL:
-#include <cstdlib>
+#include <string>
 
 namespace malmo {
 
     class XMLParseException : std::exception {
     public:
-        XMLParseException(const std::string msg) {
+        XMLParseException(const std::string& msg) {
             this->msg = msg;
         }
 

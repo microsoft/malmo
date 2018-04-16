@@ -59,9 +59,7 @@ namespace malmo {
         };
 
         const std::string& getStatus() { return status; }
-
         const std::string& getHumanReadableStatus() { return human_readable_status;  }
-
         const RewardXML& getReward() { return reward;  }
 
         std::vector<VideoDataAttributes>& videoDataAttributes() { return video_data_attributes;  }
