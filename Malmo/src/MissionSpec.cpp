@@ -65,7 +65,7 @@ namespace malmo
 
         if (validate) {
             // Agent side schema validation is lacking but Minecraft client will perform full validation (which is not optional).
-            auto& xmlns = mission.get_optional<string>("Mission.<xmlattr>.xmlns");
+            const auto& xmlns = mission.get_optional<string>("Mission.<xmlattr>.xmlns");
             if (xmlns == boost::none || MALMO_NAMESPACE != xmlns.get()) {
                 throw runtime_error("MissionSpec is invalid (namespace)");
             }
@@ -104,17 +104,17 @@ namespace malmo
 
     void MissionSpec::setWorldSeed(const std::string& seed)
     {
-        auto& default_wg = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DefaultWorldGenerator");
+        const auto& default_wg = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DefaultWorldGenerator");
         if (default_wg)
             default_wg.get().put("<xmlattr>.seed", seed);
-        auto& flat_wg = mission.get_child_optional("Mission.ServerSection.ServerHandlers.FlatWorldGenerator");
+        const auto& flat_wg = mission.get_child_optional("Mission.ServerSection.ServerHandlers.FlatWorldGenerator");
         if (flat_wg)
             flat_wg.get().put("<xmlattr>.seed", seed);
     }
 
     void MissionSpec::forceWorldReset()
     {
-        auto& parent = mission.get_child_optional("Mission.ServerSection.ServerHandlers");
+        const auto& parent = mission.get_child_optional("Mission.ServerSection.ServerHandlers");
         if (parent) {
             parent.get().erase("FlatWorldGenerator");
             parent.get().erase("FileWorldGenerator");
@@ -256,7 +256,7 @@ namespace malmo
     
     void MissionSpec::setViewpoint(int viewpoint)
     {
-        auto& v = mission.get_child_optional("Mission.AgentSection.AgentHandlers.VideoProducer");
+        const auto& v = mission.get_child_optional("Mission.AgentSection.AgentHandlers.VideoProducer");
         if (v) {
             mission.put("Mission.AgentSection.AgentHandlers.VideoProducer.<xmlattr>.viewpoint", viewpoint);
         }
@@ -314,7 +314,7 @@ namespace malmo
     
     void MissionSpec::removeAllCommandHandlers()
     {
-        auto& agent_handlers = mission.get_child_optional("Mission.AgentSection.AgentHandlers");
+        const auto& agent_handlers = mission.get_child_optional("Mission.AgentSection.AgentHandlers");
         if (agent_handlers) {
             agent_handlers.get().erase("ContinuousMovementCommands");
             agent_handlers.get().erase("DiscreteMovementCommands");
@@ -490,7 +490,7 @@ namespace malmo
                 continue;
 
             if (role-- == 0) {
-                auto& commands = e.second.get_child_optional("AgentHandlers." + command_handler + "Commands");
+                const auto& commands = e.second.get_child_optional("AgentHandlers." + command_handler + "Commands");
                 if (commands == boost::none)
                     return allowed_commands;
 
@@ -498,7 +498,7 @@ namespace malmo
                 // Collect all allowed verbs first and then remove any that are denied.
                 for (auto& ml : commands.get()) {
                     if (ml.first == "ModifierList") {
-                        auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
+                        const auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
                         if (t != boost::none && t.get() == "allow-list") {
                             explicit_allow = true;
                             for (auto& c : ml.second) {
@@ -540,7 +540,7 @@ namespace malmo
                 }
                 for (auto& ml : commands.get()) {
                     if (ml.first == "ModifierList") {
-                        auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
+                        const auto& t = ml.second.get_optional<std::string>("<xmlattr>.type");
                         if (t == boost::none || t.get() != "allow-list") {
                             for (auto& c : ml.second) {
                                 if (c.first == "command") {
@@ -559,10 +559,10 @@ namespace malmo
     // ---------------------------- private functions -----------------------------------------------
 
     boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
-        auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+        const auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
         if (drawing_decorator == boost::none) {
             mission.put("Mission.ServerSection.ServerHandlers.DrawingDecorator", "");
-            drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
+            return mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator").get();
         }
         return drawing_decorator.get();
     }
@@ -574,7 +574,7 @@ namespace malmo
                 continue;
 
             if (role-- == 0) {
-                auto& v = e.second.get_child_optional(videoType);
+                const auto& v = e.second.get_child_optional(videoType);
                 if (v == boost::none) {
                     return boost::optional<int>();
                 }
@@ -587,7 +587,7 @@ namespace malmo
                     return boost::optional<int>(v.get().get<int>("Height"));
                 case 'c': {
                     // Default want_depth attribute to false.
-                    auto& want_depth = v.get().get_optional<string>("<xmlattr>.want_depth");
+                    const auto& want_depth = v.get().get_optional<string>("<xmlattr>.want_depth");
                     if (want_depth) {
                         return boost::optional<int>(want_depth.get() == "true" || want_depth.get() == "1");
                     }
@@ -602,16 +602,15 @@ namespace malmo
     }
 
     void MissionSpec::addVerbToCommandType(std::string verb, std::string commandType) {
-        auto& commands = mission.get_child_optional(commandType);
-        if (commands == boost::none) {
+        const auto& c = mission.get_child_optional(commandType);
+        if (c == boost::none) {
             mission.put(commandType, "");
-            commands = mission.get_child_optional(commandType);
         }
-
+        boost::property_tree::ptree& commands = mission.get_child(commandType);
         bool found = false;
-        for (auto& e : commands.get()) {
+        for (auto& e : commands) {
             if (e.first == "ModifierList") {
-                auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
+                const auto& t = e.second.get_optional<std::string>("<xmlattr>.type");
                 if (t != boost::none && t.get() == "allow-list") {
                     for (auto& c : e.second) {
                         if (c.first == "command" &&
@@ -636,7 +635,7 @@ namespace malmo
             boost::property_tree::ptree ml;
             ml.put("<xmlattr>.type", "allow-list");
             ml.put("command", verb);
-            commands.get().add_child("ModifierList", ml);
+            commands.add_child("ModifierList", ml);
         }
     }
 

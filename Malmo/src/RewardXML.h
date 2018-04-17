@@ -29,6 +29,8 @@
 
 namespace malmo
 {
+    class TimestampedReward;
+
     class RewardXML {
     public:
 

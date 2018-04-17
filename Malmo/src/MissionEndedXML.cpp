@@ -40,7 +40,7 @@ namespace malmo {
         status = xml.get<std::string>("MissionEnded.Status");
         human_readable_status = xml.get<std::string>("MissionEnded.HumanReadableStatus");
 
-        auto& reward_element = xml.get_child_optional("MissionEnded.Reward");
+        const auto& reward_element = xml.get_child_optional("MissionEnded.Reward");
         if (reward_element) {
             have_rewards = true;
             reward.parse_rewards(reward_element.get());

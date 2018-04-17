@@ -43,7 +43,7 @@ namespace malmo {
 
         mission = xml.get_child("MissionInit.Mission");
         experiment_uid = xml.get<std::string>("MissionInit.ExperimentUID");
-        auto& address_element = xml.get_optional<std::string>("MissionInit.MinecraftServerConnection.<xmlattr>.address");
+        const auto& address_element = xml.get_optional<std::string>("MissionInit.MinecraftServerConnection.<xmlattr>.address");
         if (address_element) {
             minecraft_server.connection_address = boost::algorithm::trim_copy(address_element.get());
         }
