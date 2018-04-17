@@ -59,11 +59,12 @@ a machine for network use these TCP ports should be open.
 ----
 
 ## Launch an agent: ##
+from the ```Malmo``` directory
 
 #### Running a Python agent: ####
 
 ```
-cd Python_Examples
+cd samples/Python_Examples
 python run_mission.py
 ```
 
@@ -72,20 +73,20 @@ On MacOSX we currently only support the system python, so please use `/usr/bin/p
 #### Running a Lua agent: (Linux only) ####
 
 ```
-cd Lua_Examples
+cd samples/Lua_Examples
 lua run_mission.lua
 ```
 
 #### Running a Torch agent: (Linux only) ####
 
 ```
-cd Torch_Examples
+cd samples/Torch_Examples
 th run_mission.lua
 ```
 
 #### Running a C++ agent: ####
 
-`cd Cpp_Examples`
+`cd samples/Cpp_Examples`
 
 To run the pre-built sample:
 
@@ -103,7 +104,7 @@ To build the sample yourself:
 
 To run the pre-built sample:
 
-`cd CSharp_Examples`  
+`cd samples\CSharp_Examples`  
 `CSharpExamples_RunMission.exe` (on Windows)  
 `mono CSharpExamples_RunMission.exe` (on Linux or MacOSX)
 
@@ -111,7 +112,7 @@ To build the sample yourself, open CSharp_Examples/RunMission.csproj in Visual S
 
 Or from the command-line:
 
-`cd CSharp_Examples`
+`cd samples\CSharp_Examples`
 
 Then, on Windows:  
 ```
