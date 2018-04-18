@@ -30,19 +30,30 @@ namespace malmo {
 
     class MissionInitXML {
     public:
-        MissionInitXML() {}
+        MissionInitXML();
         MissionInitXML(std::string xml_text);
 
         void parse(std::string xml_text);
         
         std::string toXml() const;
 
-        struct MineCraftServer {
+        struct MinecraftServer {
+
             boost::optional<std::string> connection_address;
             boost::optional<int> connection_port;
         };
 
         struct ClientAgentConnection {
+
+            ClientAgentConnection() {
+                client_mission_control_port = 0;
+                client_commands_port = 0;
+                agent_mission_control_port = 0;
+                agent_video_port = agent_depth_port = agent_lumunance_port = 0;
+                agent_observations_port = agent_rewards_port =  0;
+                agent_colour_map_port = 0;
+            }
+
             std::string client_ip_address;
             int client_mission_control_port;
             int client_commands_port;
@@ -67,7 +78,7 @@ namespace malmo {
         std::string experiment_uid;
         int client_role;
 
-        MineCraftServer minecraft_server;
+        MinecraftServer minecraft_server;
         ClientAgentConnection client_agent_connection;
     };
 }

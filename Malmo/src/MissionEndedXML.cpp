@@ -41,15 +41,13 @@ namespace malmo {
         human_readable_status = xml.get<std::string>("MissionEnded.HumanReadableStatus");
 
         const auto& reward_element = xml.get_child_optional("MissionEnded.Reward");
-        if (reward_element) {
-            have_rewards = true;
+        have_rewards = reward_element != boost::none;
+        if (have_rewards) {
             reward.parse_rewards(reward_element.get());
-
             if (reward.size() == 0) {
                 throw XMLParseException("Reward must have at least one value");
             }
         }
-        else have_rewards = false;
 
         for (boost::property_tree::ptree::value_type const& v : xml.get_child("MissionEnded.MissionDiagnostics")) {
             if (v.first == "VideoData") {

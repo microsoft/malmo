@@ -52,6 +52,9 @@ namespace malmo {
         std::string toXml() const;
 
         struct VideoDataAttributes {
+
+            VideoDataAttributes() : frames_sent(0) {}
+
             std::string frame_type;
             int frames_sent;
             boost::optional<int> frames_received;

@@ -31,6 +31,9 @@
 
 namespace malmo {
 
+    MissionInitXML::MissionInitXML(): client_role(0) {
+    }
+
     MissionInitXML::MissionInitXML(std::string xml_text) {
         parse(xml_text);
     }
