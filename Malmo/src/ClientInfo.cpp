@@ -36,7 +36,7 @@ namespace malmo{
     ClientInfo::ClientInfo(const std::string& ip_address, int control_port)
         : ip_address(ip_address)
         , control_port(control_port)
-        , control_port(0)
+        , command_port(0)
     {
     }
 
