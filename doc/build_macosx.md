@@ -15,7 +15,6 @@ These instructions were tested on MacOSX 10.11.1 (El Capitan).
   sudo brew cask install java
   brew install xsd
   brew unlink xsd
-  brew install mono
   brew link --overwrite xsd
   ```
 

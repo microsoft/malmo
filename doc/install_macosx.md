@@ -4,7 +4,7 @@
     
 2. Install dependencies:
     1. `brew install boost --with-python`
-    2. `brew install boost-python ffmpeg xerces-c mono`
+    2. `brew install boost-python ffmpeg xerces-c`
     3. `sudo brew cask install java`
 
 3. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).

@@ -14,7 +14,7 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 3. Launch Minecraft with our Mod installed. Instructions below.
 
-4. Launch one of our sample agents, as Python, Lua, C#, C++ or Java. Instructions below.
+4. Launch one of our sample agents, as Python, C#, C++ or Java. Instructions below.
 
 5. Follow the [Tutorial](https://github.com/Microsoft/malmo/blob/master/Malmo/samples/Python_examples/Tutorial.pdf) 
 
@@ -69,20 +69,6 @@ python run_mission.py
 
 On MacOSX we currently only support the system python, so please use `/usr/bin/python run_mission.py` if not the default. 
 
-#### Running a Lua agent: (Linux only) ####
-
-```
-cd Lua_Examples
-lua run_mission.lua
-```
-
-#### Running a Torch agent: (Linux only) ####
-
-```
-cd Torch_Examples
-th run_mission.lua
-```
-
 #### Running a C++ agent: ####
 
 `cd Cpp_Examples`
@@ -105,7 +91,6 @@ To run the pre-built sample:
 
 `cd CSharp_Examples`  
 `CSharpExamples_RunMission.exe` (on Windows)  
-`mono CSharpExamples_RunMission.exe` (on Linux or MacOSX)
 
 To build the sample yourself, open CSharp_Examples/RunMission.csproj in Visual Studio or MonoDevelop.
 
@@ -117,12 +102,6 @@ Then, on Windows:
 ```
 msbuild RunMission.csproj /p:Platform=x64
 bin\x64\Debug\CSharpExamples_RunMission.exe
-```
-
-On Linux or MacOSX:  
-```
-xbuild RunMission.csproj /p:Platform=x64
-mono bin/x64/Debug/CSharpExamples_RunMission.exe
 ```
 
 #### Running a Java agent: ####

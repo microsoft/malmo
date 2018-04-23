@@ -1,9 +1,8 @@
 ## Build on Linux: ##
 
 1. If installing in a virtual machine:
-    1. Bear in mind that Torch doesn't support Debian at the moment. Ubuntu (latest) is recommended.
-    2. Choose the 32- or 64-bit OS version that you want to target. If you don't know, use 64-bit.
-    3. Provide at least 4GB of memory and 20GB of virtual disk space.
+    1. Choose the 32- or 64-bit OS version that you want to target. If you don't know, use 64-bit.
+    2. Provide at least 4GB of memory and 20GB of virtual disk space.
 
 2. Install dependencies.
     1. On Ubuntu 15.10:  
@@ -61,16 +60,17 @@
         
         `sudo yum install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig  xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ lua lua-devel bzip2-devel tkinter python-pillow-tk`
 
-
-4. Install Torch: (if supported by your platform)
-    1. Follow the instructions at http://torch.ch/docs/getting-started.html
-    2. Test: `th`
-
-5. Install Mono: (if not Fedora or Arch Linux)
-    1. The Mono Project has an excellent [Getting Started](http://www.mono-project.com/docs/) guide, please read it.
-    2. For the impatient, Linux details are [here](http://www.mono-project.com/docs/getting-started/install/linux/)
-    
-6. On Debian 7 only: Build Boost
+3. Install CMake
+   1. `mkdir cmake`
+   2. `cd cmake`
+   3. `wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz`
+   4. `tar xvf cmake-3.11.0.tar.gz`
+   5. `cd cmake-3.11.0`
+   6. `./bootstrap`
+   7. `make -j4`
+   8. `sudo make install`
+ 
+4. On Debian 7 only: Build Boost
     1. `mkdir ~/boost`
     2. `cd ~/boost`
     3. `wget http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.gz`
@@ -79,7 +79,7 @@
     6. `./bootstrap.sh --prefix=.`
     7. `./b2 link=static cxxflags=-fPIC install`
 
-7. On Debian 7, CentOS 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD: 
+5. On Debian 7, CentOS 7 and Ubuntu 14.04 only: Install CodeSynthesis XSD: 
     1. For Debian and Ubuntu:
        - `wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd_4.0.0-1_amd64.deb`  
          - (Use `http://codesynthesis.com/download/xsd/4.0/linux-gnu/i686/xsd_4.0.0-1_i386.deb` if installing on a 32 bit machine)  
@@ -93,25 +93,7 @@
     This step is needed because we require xsd version 4.0.  
     (When mono-devel is updated, you will need to manually remove then reinstall xsd as above, because of the package conflicts.)
      
-8. Install Luabind:
-    1. `git clone https://github.com/rpavlik/luabind.git ~/rpavlik-luabind`
-    2. `cd rpavlik-luabind`
-    3. `mkdir build`
-    4. `cd build`
-    5. `cmake -DCMAKE_BUILD_TYPE=Release ..`  
-       On Debian 7 only:  
-       `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_60_0/include -DCMAKE_BUILD_TYPE=Release ..`
-       On Arch Linux only:
-       `cmake -DLUA_INCLUDE_DIR=/usr/include/lua5.1/ -DCMAKE_BUILD_TYPE=Release ..`
-    6. `make`
-    7. Test: `ctest`  
-       (A few of the tests fail currently but this doesn't seem to affect us.)
-       
-9. Install Lua dependencies:
-    1. `sudo apt-get install luarocks`
-    2. `sudo luarocks install luasocket`
-
-10. Install ALE: (optional - skip this if you don't want to provide ALE support)
+6. Install ALE: (optional - skip this if you don't want to provide ALE support)
     1. `git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git ~/ALE`
     2. If you want a GUI, you need to install SDL:  
        `sudo apt-get install libsdl1.2-dev` (`sudo dnf install SDL-devel zlib-devel` on Fedora, `sudo pacman -S sdl zlib` on Arch Linux)
@@ -126,11 +108,11 @@
        
     **Note:** To include ALE in your malmo build, add `-DINCLUDE_ALE=ON` to your cmake command in step 10. If you stored your ALE directory somewhere other than ~/ALE, also add `-DROOT_ALE_DIR=/path/to/your/ALE`
        
-11. Install necessary Python dependencies:
+7. Install necessary Python dependencies:
     1. pip install future
     2. pip install pillow
 
-12. Build Malmo:
+8. Build Malmo:
     1. `git clone https://github.com/Microsoft/malmo.git ~/MalmoPlatform`
     2. `wget https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4087cf6120856c5f701bd336b/xs3p.xsl -P ~/MalmoPlatform/Schemas`
     3. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` to your `~/.bashrc` and do `source ~/.bashrc`

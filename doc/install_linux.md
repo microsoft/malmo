@@ -28,30 +28,7 @@ On Fedora 23:
 
 `sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat tkinter python-pillow-tk`
 
-### 2. Optional: Install Torch: ###
-
-If you don't want to use Malmo from Torch then you can skip this step.
-
-Follow the instructions at http://torch.ch/docs/getting-started.html
-
-Check that typing `th` works.
-
-### 3. Optional: Install Lua dependencies: ###
-
-If you don't want to use Malmo from Lua/Torch then you can skip this step.
-
-Ensure you have luarocks installed:
-`sudo apt-get install luarocks`
-Install required dependencies:
-`sudo luarocks install luasocket`
-
-### 4. Optional: Install Mono: (if not on Fedora) ###
-
-If you don't want to use Malmo from C# then you can skip this step.
-
-Follow the instructions here: http://www.mono-project.com/docs/getting-started/install/linux/
-
-### 5. Optional: Install ALE: ###
+### 2. Optional: Install ALE: ###
 
 If you want to use the Atari Learning Environment as an alternative back-end to Minecraft, you need a build that includes "_withALE"
 and will need to install ALE as described here. If you don't want to use ALE then use a build that doesn't have "_withALE".
@@ -78,13 +55,13 @@ Then:
 Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc
 `source ~/.bashrc`
 
-### 6. Set the MALMO_XSD_PATH to the location of the schemas: ###
+### 3. Set the MALMO_XSD_PATH to the location of the schemas: ###
 
 1. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).
 2. Add `export MALMO_XSD_PATH=~/MalmoPlatform/Schemas` (or your Schemas location) to your `~/.bashrc` and do `source ~/.bashrc`
 3. When you update Malmo you will need to update the MALMO_XSD_PATH too.
 
-### 7. Optional: Install required Python modules: ###
+### 4. Optional: Install required Python modules: ###
 
 If you want to use the python samples, you will need:
        
