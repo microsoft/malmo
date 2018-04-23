@@ -2,6 +2,10 @@
 -------------------
 New: Now possible for agent to select the Minecraft client's command port using 
 an additional ClientInfo constructor when static port allocation is required.
+New: C# is now built on Windows using modern CMake.
+Chg: Removed support for Mone.
+Chg: Removed support for Torch.
+Chg: Removed Support for Lua.
 
 0.34.0
 -------------------
