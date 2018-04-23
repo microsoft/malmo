@@ -109,8 +109,8 @@ function Install-Ffmpeg
     if ($env:path -notmatch "ffmpeg")
     {
         Display-Heading "Installing ffmpeg"
-        Download-File "http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z" ($env:HOMEPATH + "\temp\ffmpeg.7z")
-        & 'C:\Program Files\7-Zip\7z.exe' x .\temp\ffmpeg.7z -oC:\ffmpeg | Out-Host
+        Download-File "http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip" ($env:HOMEPATH + "\temp\ffmpeg.zip")
+        & 'C:\Program Files\7-Zip\7z.exe' x .\temp\ffmpeg.zip -oC:\ffmpeg | Out-Host
         if ($?)
         {
             cp -r C:\ffmpeg\ffmpeg-latest-win64-static\* C:\ffmpeg
