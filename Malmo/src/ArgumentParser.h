@@ -46,9 +46,8 @@ namespace malmo
         void parseArgs(int argc, const char** argv);
 
         //! Parses a list of strings. Throws std::exception if parsing fails.
-        /*! In C++: takes a std::vector<std::string>.
-            In Python: takes a list of strings.
-            In Lua: takes a table of strings. */
+        //! In C++: takes a std::vector<std::string>.
+        //! In Python: takes a list of strings.
         //! \param args The arguments to parse.
         void parse(const std::vector< std::string >& args);
 
