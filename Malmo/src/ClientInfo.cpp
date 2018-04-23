@@ -24,24 +24,32 @@
 namespace malmo{
 
     ClientInfo::ClientInfo()
-        : ClientInfo("", 0)
+        : ClientInfo("", 0, 0)
     {
     }
 
     ClientInfo::ClientInfo(const std::string& ip_address)
-        : ClientInfo(ip_address, default_client_mission_control_port)
+        : ClientInfo(ip_address, default_client_mission_control_port, 0)
     {
     }
 
-    ClientInfo::ClientInfo(const std::string& ip_address, int port)
+    ClientInfo::ClientInfo(const std::string& ip_address, int control_port)
         : ip_address(ip_address)
-        , port(port)
+        , control_port(control_port)
+        , control_port(0)
+    {
+    }
+
+    ClientInfo::ClientInfo(const std::string& ip_address, int control_port, int command_port)
+        : ip_address(ip_address)
+        , control_port(control_port)
+        , command_port(command_port)
     {
     }
 
     std::ostream& operator<<(std::ostream& os, const ClientInfo& ci)
     {
-        os << "ClientInfo: " << ci.ip_address << ":" << ci.port;
+        os << "ClientInfo: " << ci.ip_address << ":" << ci.control_port << ":" << ci.command_port;
         return os;
     }
 }

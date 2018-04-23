@@ -79,6 +79,8 @@ def GetMissionXML( agent_host, seed, include_beacon ):
             <ServerHandlers>
                 <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
                 <DrawingDecorator>
+                    <DrawCuboid x1="-2" y1="225" z1="-2" x2="41" y2="225" z2="41" type="stone" variant="smooth_granite"/>
+                    <DrawCuboid x1="-2" y1="226" z1="-2" x2="41" y2="226" z2="41" type="air"/>
                     <DrawCuboid x1="-1" y1="226" z1="-1" x2="40" y2="226" z2="40" type="purpur_block"/>
                 </DrawingDecorator>
                 <MazeDecorator>
