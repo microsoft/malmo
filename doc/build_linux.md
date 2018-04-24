@@ -7,7 +7,7 @@
 2. Install dependencies.
     1. On Ubuntu 15.10:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
@@ -15,7 +15,7 @@
          
     2. On Ubuntu 14.04:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk libbz2-dev`  
+         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk libbz2-dev`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -23,7 +23,7 @@
          
     3. On Debian 8:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -31,7 +31,7 @@
          
     4. On Debian 7:  
     
-         `sudo apt-get install build-essential git cmake cmake-qt-gui libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git libbz2-dev python2.7-dev lua5.1 liblua5.1-0-dev openjdk-7-jdk swig libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/`  
          
@@ -43,11 +43,11 @@
 
         `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-        `sudo dnf install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat tkinter python-pillow-tk`
+        `sudo dnf install git boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ mono-devel compat-lua compat-lua-devel lua-socket-compat tkinter python-pillow-tk`
     
     6. On Arch Linux:
 
-        `sudo pacman -S --needed git cmake python2 tk jdk8-openjdk swig xsd xerces-c doxygen libxslt ffmpeg gcc mono lua51 lua51-socket `
+        `sudo pacman -S --needed git python2 tk jdk8-openjdk swig xsd xerces-c doxygen libxslt ffmpeg gcc mono lua51 lua51-socket `
 
         Install the following AUR packages:
         `luabind-rpavlik-git boost-build torch7-git torch7-trepl-git`
@@ -58,11 +58,11 @@
         `sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro`  
         `sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm` (for ffmpeg)
         
-        `sudo yum install git cmake cmake-gui boost-devel python-devel java-1.8.0-openjdk-devel swig  xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ lua lua-devel bzip2-devel tkinter python-pillow-tk`
+        `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig  xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ lua lua-devel bzip2-devel tkinter python-pillow-tk`
 
 3. Install CMake
-   1. `mkdir cmake`
-   2. `cd cmake`
+   1. `mkdir ~/cmake`
+   2. `cd ~/cmake`
    3. `wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz`
    4. `tar xvf cmake-3.11.0.tar.gz`
    5. `cd cmake-3.11.0`
@@ -73,9 +73,9 @@
 4. On Debian 7 only: Build Boost
     1. `mkdir ~/boost`
     2. `cd ~/boost`
-    3. `wget http://sourceforge.net/projects/boost/files/boost/1.60.0/boost_1_60_0.tar.gz`
-    4. `tar xvf boost_1_60_0.tar.gz`
-    5. `cd boost_1_60_0`
+    3. `wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz`
+    4. `tar xvf boost_1_66_0.tar.gz`
+    5. `cd boost_1_66_0`
     6. `./bootstrap.sh --prefix=.`
     7. `./b2 link=static cxxflags=-fPIC install`
 
