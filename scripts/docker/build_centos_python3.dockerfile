@@ -18,26 +18,30 @@
 # NB if building this on Windows/OSX, make sure Docker has been allowed enough memory - the default 2048Mb is not
 # enough for the gradle Minecraft deobfuscation step.
 
-FROM fedora:26
+FROM centos:7
 
 # Need to install sudo first:
-RUN dnf install -y sudo
+RUN yum install -y sudo epel-release
 
-RUN su -c 'dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+RUN sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
+RUN sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
 
 # Create a user called "malmo", give it sudo access and remove the requirement for a password:
 RUN useradd --create-home --shell /bin/bash --no-log-init --groups wheel malmo
 RUN sudo bash -c 'echo "malmo ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 
+# Add repo for xpra:
+RUN rpm --import "http://winswitch.org/gpg.asc"
+RUN su -c 'curl https://winswitch.org/downloads/CentOS/winswitch.repo | tee /etc/yum.repos.d/winswitch.repo'
 
 # While we are still root, install the necessary dependencies for Malmo:
-RUN sudo dnf install -y \
+RUN sudo yum install -y \
     git \
-    make \
-    python3-devel \
+    cmake \
+    cmake-gui \
+    python34-devel \
     java-1.8.0-openjdk-devel \
     swig \
-    xsd \
     xerces-c-devel \
     doxygen \
     libxslt \
@@ -45,28 +49,37 @@ RUN sudo dnf install -y \
     ffmpeg-devel \
     gcc-c++ \
     bzip2-devel \
-    python3-tkinter \
-    python3-pillow-tk \
+    python34-tkinter \
     wget \
+    software-properties-common \
     xpra \
-	mesa-libGL \
-    python3-pip \
+	libgl1-mesa-dri \
+    make \
+    python34-pip \
     zlib-devel
+
+#    libbz2-dev \
+#	zlib1g-dev
 
 # Note the trailing slash - essential!
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
 RUN echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/" >> /home/malmo/.bashrc
 
+RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+RUN su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
+
 # Switch to the malmo user:
 USER malmo
 WORKDIR /home/malmo
 
+# TORCH not supported on CentOS, so nothing to do here.
+
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
+RUN echo "using python : 3.4 : /usr/bin/python3 : /usr/include/python3.4m : /usr/lib ;" > /home/malmo/user-config.jam
 RUN wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz
 RUN tar xvf boost_1_66_0.tar.gz
-RUN echo "using python : 3.6 : /usr/bin/python3 : /usr/include/python3.6m : /usr/lib ;" > /home/malmo/user-config.jam
 WORKDIR /home/malmo/boost/boost_1_66_0
 RUN ./bootstrap.sh --prefix=.
 RUN ./b2 link=static cxxflags=-fPIC install
@@ -81,8 +94,14 @@ RUN ./bootstrap
 RUN make -j4
 RUN sudo make install
 
-RUN sudo dnf update -y && sudo dnf -y install dos2unix
+# XSD:
+RUN wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm
+RUN sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm
+
+RUN sudo pip3 install future && sudo pip3 install pillow && sudo pip3 install matplotlib
+
+RUN sudo yum update -y && sudo yum -y install dos2unix
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.6"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
