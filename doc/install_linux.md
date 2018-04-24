@@ -4,29 +4,23 @@ For a minimal installation of running a python agent, follow step 1.
 
 ### 1. Install dependencies available from the standard repositories: ###
 
-On Ubuntu 15.10: 
+On Ubuntu 16.04:
 
-`sudo apt-get install libboost-all-dev libpython2.7 openjdk-8-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg python-tk python-imaging-tk`  
-
-`sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
-
-On Ubuntu 14.04 or Debian 8:
-
-`sudo apt-get install libboost-all-dev libpython2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev libav-tools python-tk python-imaging-tk`  
+`sudo apt-get install libboost-all-dev libpython3.5 openjdk-8-jdk libxerces-c3.1 ffmpeg python-tk python-imaging-tk`  
 
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
-On Debian 7:
+On Debian 8:
 
-`sudo apt-get install python2.7 openjdk-7-jdk lua5.1 libxerces-c3.1 liblua5.1-0-dev ffmpeg python-tk python-imaging-tk`  
+`sudo apt-get install libboost-all-dev libpython3.4 openjdk-8-jdk libxerces-c3.1 libav-tools python-tk python-imaging-tk`  
 
 `sudo update-ca-certificates -f` (http://stackoverflow.com/a/29313285/126823)
 
-On Fedora 23:
+On Fedora 26:
 
 `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-`sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono compat-lua lua-socket-compat tkinter python-pillow-tk`
+`sudo dnf install boost python java-1.8.0-openjdk xerces-c ffmpeg mono tkinter python-pillow-tk`
 
 ### 2. Optional: Install ALE: ###
 

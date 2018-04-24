@@ -5,14 +5,14 @@
     2. If you are new to CMake, see [some notes](cmake_readme.md) [(doc link)](@ref md_doc_cmake_readme).
 
 2. Install FFMPEG: 
-    1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
+    1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
     2. Unpack the contents of the zip (bin folder etc.) to `C:\ffmpeg`
     3. Add `C:\ffmpeg\bin` to your `PATH` ([How To](https://support.microsoft.com/en-us/kb/310519))
     4. Check that typing `ffmpeg` at a command prompt works.
 
-3. Install git and Visual Studio and [Python 2.7 (64-bit)](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi) and the JDK (64-bit). Hints:
+3. Install git and Visual Studio and [Python 3.6 (64-bit)](https://www.python.org/ftp/python/3.6.0/python-3.6.0.amd64.exe) and the JDK (64-bit). Hints:
     1. Get the latest Windows git from https://git-scm.com/downloads
-    2. Check that git and msbuild and python are on your path.  
+    2. Check that git and msbuild and python are on your path.
        N.B. MSBuild lives in an odd place: e.g. `C:\Program Files (x86)\MSBuild\12.0\Bin`
     3. Set JAVA_HOME to be the location of the JDK installation, e.g. `C:\Program Files\Java\jdk1.8.0_71`
     4. Add e.g. `C:\Program Files\Java\jdk1.8.0_71\bin` to your PATH variable. ([How To](https://support.microsoft.com/en-us/kb/310519))
