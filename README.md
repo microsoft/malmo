@@ -87,12 +87,12 @@ To build the sample yourself:
 
 #### Running a C# agent: ####
 
-To run the pre-built sample:
+To run the pre-built sample (on Windows):
 
 `cd CSharp_Examples`  
-`CSharpExamples_RunMission.exe` (on Windows)  
+`CSharpExamples_RunMission.exe`
 
-To build the sample yourself, open CSharp_Examples/RunMission.csproj in Visual Studio or MonoDevelop.
+To build the sample yourself, open CSharp_Examples/RunMission.csproj in Visual Studio.
 
 Or from the command-line:
 

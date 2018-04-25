@@ -28,6 +28,14 @@
 
         `sudo dnf install git boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ tkinter python-pillow-tk`
     
+    6. On CentOS 7:
+
+        `sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro`  
+        `sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm` (for ffmpeg)
+        
+        `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ bzip2-devel tkinter python-pillow-tk`
+
+   
 3. Install CMake
    1. `mkdir ~/cmake`
    2. `cd ~/cmake`
