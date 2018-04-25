@@ -8,7 +8,7 @@
 
     1. On Ubuntu 16.04:  
     
-         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev openjdk-8-jdk swig doxygen xsltproc ffmpeg python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`
          
@@ -16,7 +16,7 @@
          
     3. On Debian 8:  
     
-         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev openjdk-8-jdk swig xsdcxx libxerces-c-dev doxygen xsltproc libav-tools python-tk python-imaging-tk`  
+         `sudo apt-get install build-essential git libboost-all-dev libpython2.7-dev openjdk-8-jdk swig doxygen xsltproc libav-tools python-tk python-imaging-tk`  
          
          `export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/`  
          
@@ -26,14 +26,14 @@
 
         `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-        `sudo dnf install git boost-devel python-devel java-1.8.0-openjdk-devel swig xsd xerces-c-devel doxygen libxslt ffmpeg gcc-c++ tkinter python-pillow-tk`
+        `sudo dnf install git boost-devel python-devel java-1.8.0-openjdk-devel swig doxygen libxslt ffmpeg gcc-c++ tkinter python-pillow-tk`
     
     6. On CentOS 7:
 
         `sudo rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro`  
         `sudo rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm` (for ffmpeg)
         
-        `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig xerces-c-devel doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ bzip2-devel tkinter python-pillow-tk`
+        `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ bzip2-devel tkinter python-pillow-tk`
 
    
 3. Install CMake
@@ -46,7 +46,7 @@
    7. `make -j4`
    8. `sudo make install`
  
-4. Build Boost (if newer version required)
+4. Build Boost (if newer version required for your platform which must be 3.8 or greater)
     1. `mkdir ~/boost`
     2. `cd ~/boost`
     3. `wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz`
@@ -62,7 +62,7 @@
     3. `cd ~/ALE`  
        `git checkout ed3431185a527c81e73f2d71c6c2a9eaec6c3f12 .`  
        `cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON -DCMAKE_BUILD_TYPE=RELEASE .`  
-       `make`  
+       `make`
        (If you don't want a GUI, use `-DUSE_SDL=OFF`, or leave it unspecified - it's off by default.)
     4. You will need to put ~/ALE on your LD_LIBRARY_PATH so that Malmo can find libAle.so:  
        Add `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/ALE/` to your ~/.bashrc  
