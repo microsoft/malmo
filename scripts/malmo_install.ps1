@@ -14,6 +14,9 @@ if (-Not (Test-Path .\temp))
     mkdir temp
 }
 
+# Force PowerShell to use TLS 1.2 which is a requirement for some download locations
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # Attempt to get version information from the Malmo properties file.
 # (This file was added in 0.34.0)
 try {
