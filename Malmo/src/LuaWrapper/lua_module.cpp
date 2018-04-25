@@ -38,6 +38,7 @@ using namespace malmo;
 #include <luabind/operator.hpp>
 
 // STL:
+#include <exception>
 #include <sstream>
 
 #ifdef _WINDOWS
@@ -66,14 +67,6 @@ std::vector< std::string > argTableToStrings( const luabind::object& args )
 void parseLuaTable( ArgumentParser* p, const luabind::object& args )
 {
     p->parse( argTableToStrings( args ) );
-}
-
-// Make sure we get all of the useful information from xml_schema::exception
-void translateXMLSchemaException(lua_State* L, xml_schema::exception const& e)
-{
-    std::ostringstream oss;
-    oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
-    lua_pushstring(L, oss.str().c_str());
 }
 
 // We create our own bindings for MissionException, rather than use luabind,
@@ -504,7 +497,6 @@ MODULE_EXPORT int luaopen_libMalmoLua(lua_State* L)
         def("getTorchTensorFromPixels", &getTorchTensorFromPixels)
       #endif
     ];
-    register_exception_handler<xml_schema::exception>(&translateXMLSchemaException);
     register_exception_handler<MissionException>(&translateMissionException);
     return 0;
 }

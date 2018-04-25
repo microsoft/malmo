@@ -17,24 +17,41 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#ifndef _INIT_H_
-#define _INIT_H_
+#ifndef _REWARDXML_H_
+#define _REWARDXML_H_
 
-#include <MissionEnded.h>
+// STL:
+#include <map>
+#include <iostream>
+
+// Boost:
+#include <boost/property_tree/ptree.hpp>
 
 namespace malmo
 {
-    struct initialiser
-    {
-        initialiser()
-        {
-            xercesc::XMLPlatformUtils::Initialize();
+    class TimestampedReward;
+
+    class RewardXML {
+    public:
+
+        RewardXML() {}
+        RewardXML(std::string xml_text);
+
+        std::string toXml() const;
+
+        void parse_rewards(std::string xml_text);
+        void parse_rewards(boost::property_tree::ptree& reward);
+        void add_rewards(boost::property_tree::ptree& reward) const;
+
+        size_t size() const {
+            return reward_values.size();
         }
-        ~initialiser()
-        {
-            xercesc::XMLPlatformUtils::Terminate();
-        }
-        static void initXSD();
+
+        friend class TimestampedReward;
+        friend std::ostream& operator<<(std::ostream& os, const TimestampedReward& tsf);
+
+    private:
+        std::map<int, double> reward_values;
     };
 }
 

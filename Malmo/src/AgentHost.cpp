@@ -21,11 +21,11 @@
 #include "AgentHost.h"
 
 // Local:
-#include "FindSchemaFile.h"
 #include "TCPClient.h"
 #include "WorldState.h"
-#include "Init.h"
 #include "Logger.h"
+#include "MissionEndedXML.h"
+#include "FindSchemaFile.h"
 
 // Boost:
 #include <boost/bind.hpp>
@@ -38,9 +38,6 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
-
-// Schemas:
-#include <MissionEnded.h>
 
 // STL:
 #include <exception>
@@ -63,8 +60,6 @@ namespace malmo
         , observations_policy(LATEST_OBSERVATION_ONLY)
         , current_role( 0 )
     {
-        initialiser::initXSD();
-
         this->addOptionalFlag("help,h", "show description of allowed options");
         this->addOptionalFlag("test",   "run this as an integration test");
 
@@ -301,17 +296,6 @@ namespace malmo
     {
         const bool prettyPrint = false;
         const std::string generated_xml = this->current_mission_init->getAsXML( prettyPrint );
-
-        try {
-            const bool validate = true;
-            MissionInitSpec test_output(generated_xml,validate);
-        }
-        catch (xml_schema::exception& e)
-        {
-            std::ostringstream oss;
-            oss << "Internal error: the XML we generate does not validate: " << e.what() << "\n" << e << "\n" << generated_xml << std::endl;
-            throw std::runtime_error(oss.str());
-        }
 
         return generated_xml;
     }
@@ -626,56 +610,31 @@ namespace malmo
         std::string root_node_name(pt.front().first.data());
 
         if( !this->world_state.is_mission_running && root_node_name == "MissionInit" ) {
-            try {
-                const bool validate = true;
-                this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
-                this->world_state.is_mission_running = true;
-                this->world_state.has_mission_begun = true;
-            }
-            catch (const xml_schema::exception& e) {
-                std::ostringstream oss;
-                oss << "Error parsing MissionInit message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
-                TimestampedString error_message(xml);
-                error_message.text = oss.str();
-                this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-                return;
-            }
+            const bool validate = true;
+            this->current_mission_init = boost::make_shared<MissionInitSpec>(xml.text,validate);
+            this->world_state.is_mission_running = true;
+            this->world_state.has_mission_begun = true;
             this->openCommandsConnection();
         }
         else if( root_node_name == "MissionEnded" ) {
             
             try {
-                const bool validate = true;
-                
-                xml_schema::properties props;
-                props.schema_location(xml_namespace, FindSchemaFile("MissionEnded.xsd"));
+                MissionEndedXML mission_ended(xml.text);
+                const std::string status = mission_ended.getStatus();
 
-                xml_schema::flags flags = xml_schema::flags::dont_initialize;
-                if( !validate )
-                    flags = flags | xml_schema::flags::dont_validate;
-
-                std::istringstream iss(xml.text);
-                std::unique_ptr<malmo::schemas::MissionEnded> mission_ended = malmo::schemas::MissionEnded_(iss, flags, props);
-
-                switch( mission_ended->Status() ) {
-                    case malmo::schemas::MissionResult::ENDED:
-                    case malmo::schemas::MissionResult::PLAYER_DIED:
-                        break;
-                    default: 
-                    {
-                        std::ostringstream oss;
-                        oss << "Mission ended abnormally: " << mission_ended->HumanReadableStatus();
-                        TimestampedString error_message(xml);
-                        error_message.text = oss.str();
-                        this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
-                    }
-                    break;
+                if (status != MissionEndedXML::ENDED && status != MissionEndedXML::PLAYER_DIED) {
+                    std::ostringstream oss;
+                    oss << "Mission ended abnormally: " << mission_ended.getHumanReadableStatus();
+                    TimestampedString error_message(xml);
+                    error_message.text = oss.str();
+                    this->world_state.errors.push_back(boost::make_shared<TimestampedString>(error_message));
                 }
                 
                 if (this->world_state.is_mission_running) {
-                    schemas::MissionEnded::Reward_optional final_reward_optional = mission_ended->Reward();
-                    if( final_reward_optional.present() ) {
-                        TimestampedReward final_reward(xml.timestamp,final_reward_optional.get());
+                    const RewardXML& reward = mission_ended.getReward();
+
+                    if (reward.size() != 0) {
+                        TimestampedReward final_reward(xml.timestamp, reward);
                         this->processReceivedReward(final_reward);
                         this->rewards_server->recordMessage(TimestampedString(xml.timestamp, final_reward.getAsSimpleString()));
                     }
@@ -686,33 +645,28 @@ namespace malmo
 
                 // Add some diagnostics of our own before this gets to the agent:
                 if (this->video_server || this->luminance_server || this->depth_server || this->colourmap_server) {
-                    for (auto &vd : mission_ended->MissionDiagnostics().VideoData()) {
+                    for (auto &vd : mission_ended.videoDataAttributes()) {
                         boost::shared_ptr<VideoServer> vs = 0;
-                        if (vd.frameType() == "VIDEO")
+                        if (vd.frame_type == "VIDEO")
                             vs = this->video_server;
-                        else if (vd.frameType() == "DEPTH_MAP")
+                        else if (vd.frame_type == "DEPTH_MAP")
                             vs = this->depth_server;
-                        else if (vd.frameType() == "LUMINANCE")
+                        else if (vd.frame_type == "LUMINANCE")
                             vs = this->luminance_server;
-                        else if (vd.frameType() == "COLOUR_MAP")
+                        else if (vd.frame_type == "COLOUR_MAP")
                             vs = this->colourmap_server;
                         if (vs) {
-                            vd.framesReceived(vs->receivedFrames());
-                            vd.framesWritten(vs->writtenFrames());
+                            vd.frames_received =  vs->receivedFrames();
+                            vd.frames_written = vs->writtenFrames();
                         }
                     }
-                    std::ostringstream oss;
-                    xml_schema::namespace_infomap map;
-                    map[""].name = xml_namespace;
-                    map[""].schema = "MissionEnded.xsd";
-                    xml_schema::flags flags = xml_schema::flags::dont_initialize;
-                    malmo::schemas::MissionEnded_(oss, *mission_ended, map, "UTF-8", flags);
-                    xml.text = oss.str();
+
+                    xml.text = mission_ended.toXml();
                 }
             }
-            catch (const xml_schema::exception& e) {
+            catch (const std::exception& e) {
                 std::ostringstream oss;
-                oss << "Error parsing MissionEnded message XML: " << e.what() << " : " << e << ":" << xml.text.substr(0, 20) << "...";
+                oss << "Error processing MissionEnded message XML: " << e.what() << " : " << ":" << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
