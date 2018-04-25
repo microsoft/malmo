@@ -34,8 +34,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     libpython3.5-dev \
     openjdk-8-jdk \
     swig \
-    xsdcxx \
-    libxerces-c-dev \
     doxygen \
     xsltproc \
     ffmpeg \

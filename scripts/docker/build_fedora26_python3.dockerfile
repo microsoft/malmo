@@ -37,8 +37,6 @@ RUN sudo dnf install -y \
     python3-devel \
     java-1.8.0-openjdk-devel \
     swig \
-    xsd \
-    xerces-c-devel \
     doxygen \
     libxslt \
     ffmpeg \

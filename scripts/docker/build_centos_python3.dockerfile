@@ -37,12 +37,9 @@ RUN su -c 'curl https://winswitch.org/downloads/CentOS/winswitch.repo | tee /etc
 # While we are still root, install the necessary dependencies for Malmo:
 RUN sudo yum install -y \
     git \
-    cmake \
-    cmake-gui \
     python34-devel \
     java-1.8.0-openjdk-devel \
     swig \
-    xerces-c-devel \
     doxygen \
     libxslt \
     ffmpeg \
@@ -57,8 +54,7 @@ RUN sudo yum install -y \
     make \
     python34-pip \
     zlib-devel
-
-#    libbz2-dev \
+#   libbz2-dev \
 #	zlib1g-dev
 
 # Note the trailing slash - essential!
@@ -93,10 +89,6 @@ WORKDIR /home/malmo/cmake/cmake-3.11.0
 RUN ./bootstrap
 RUN make -j4
 RUN sudo make install
-
-# XSD:
-RUN wget http://www.codesynthesis.com/download/xsd/4.0/linux-gnu/x86_64/xsd-4.0.0-1.x86_64.rpm
-RUN sudo rpm -i --force xsd-4.0.0-1.x86_64.rpm
 
 RUN sudo pip3 install future && sudo pip3 install pillow && sudo pip3 install matplotlib
 

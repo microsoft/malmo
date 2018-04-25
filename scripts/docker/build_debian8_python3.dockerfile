@@ -35,8 +35,6 @@ RUN sudo apt-get update && apt-get install -y --no-install-recommends \
     cmake-qt-gui \
     libpython3.4-dev \
     swig \
-	xsdcxx \
-    libxerces-c-dev \
     doxygen \
     xsltproc \
     libav-tools \
