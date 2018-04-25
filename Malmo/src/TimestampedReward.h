@@ -23,11 +23,10 @@
 // Boost:
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-// Schemas:
-#include <MissionEnded.h>
-
 // STL:
 #include <map>
+
+#include "RewardXML.h"
 
 namespace malmo
 {
@@ -46,13 +45,10 @@ namespace malmo
 
             //! Constructs from a simple string.
             TimestampedReward& createFromSimpleString(boost::posix_time::ptime timestamp, std::string simple_string);
-
+            
             //! Constructs from an XML node element.
-            TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward);
-            
-            //! Sets the values stored in this reward to be those from the specified XML structure.
-            void setValuesFromRewardStructure(const schemas::Reward& reward);
-            
+            TimestampedReward(boost::posix_time::ptime timestamp, const RewardXML& reward);
+
             //! Formats as an XML string.
             //! \param prettyPrint If true, add indentation and newlines to the XML to make it more readable.
             //! \returns The reward as an XML string.
@@ -82,9 +78,7 @@ namespace malmo
         
         private:
 
-            schemas::Reward getAsRewardStructure() const;
-
-            std::map<int,double> values;
+            RewardXML reward;
     };
 }
 

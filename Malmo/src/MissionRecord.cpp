@@ -39,7 +39,7 @@
 
 namespace malmo
 {
-    MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec)
+    MissionRecord::MissionRecord(const MissionRecordSpec& spec) : spec(spec), is_closed(true)
     {
         if (spec.isRecording()) {
             boost::uuids::random_generator gen;

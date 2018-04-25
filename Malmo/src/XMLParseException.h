@@ -17,12 +17,26 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
 
-#include "Init.h"
+#ifndef _XMLPARSEEXCEPTION_H_
+#define _XMLPARSEEXCEPTION_H_
 
-namespace malmo
-{
-    void initialiser::initXSD()
-    {
-        static initialiser init;
-    }
+// STL:
+#include <string>
+
+namespace malmo {
+
+    class XMLParseException : std::exception {
+    public:
+        XMLParseException(const std::string& msg) {
+            this->msg = msg;
+        }
+
+        virtual const char* what() const noexcept {
+            return msg.c_str();
+        }
+    private:
+        std::string msg;
+    };
 }
+#endif
+

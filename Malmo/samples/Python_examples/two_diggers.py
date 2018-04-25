@@ -56,7 +56,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
     </ServerInitialConditions>
     <ServerHandlers>
       <FlatWorldGenerator forceReset="true" generatorString="3;7,220*1,5*3,2;3;,biome_1" seed=""/>
-      <ServerQuitFromTimeUp description="" timeLimitMs="10000"/>
+      <ServerQuitFromTimeUp description="" timeLimitMs="20000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
     </ServerHandlers>
   </ServerSection>
@@ -187,8 +187,8 @@ reward1 = sum(reward.getValue() for reward in world_state1.rewards)
 reward2 = sum(reward.getValue() for reward in world_state2.rewards)
 print('Agent 1 received',reward1)
 print('Agent 2 received',reward2)
-assert reward1 == expected_reward1, 'ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1)
-assert reward2 == expected_reward2, 'ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2)
+assert reward1 == expected_reward1, ('ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1))
+assert reward2 == expected_reward2, ('ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2))
 
 # -- set up another mission, with continuous actions --
 
@@ -209,7 +209,7 @@ xml = '''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
         <DrawBlock type="sand" x="-2" y="227" z="3" />
         <DrawBlock type="sponge" x="1" y="227" z="3" />
       </DrawingDecorator>
-      <ServerQuitFromTimeUp description="" timeLimitMs="10000"/>
+      <ServerQuitFromTimeUp description="" timeLimitMs="20000"/>
       <ServerQuitWhenAnyAgentFinishes description=""/>
     </ServerHandlers>
   </ServerSection>
@@ -288,5 +288,5 @@ reward1 = sum(reward.getValue() for reward in world_state1.rewards)
 reward2 = sum(reward.getValue() for reward in world_state2.rewards)
 print('Agent 1 received',reward1)
 print('Agent 2 received',reward2)
-assert reward1 == expected_reward1, 'ERROR: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1)
-assert reward2 == expected_reward2, 'ERROR: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2)
+assert reward1 == expected_reward1, ('ERROR2: agent 1 should have received a reward of '+str(expected_reward1)+', not '+str(reward1))
+assert reward2 == expected_reward2, ('ERROR2: agent 2 should have received a reward of '+str(expected_reward2)+', not '+str(reward2))

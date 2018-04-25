@@ -112,9 +112,7 @@ else()
 endif()
 
 # suggested install paths - see readme.md
-if( WIN32)
-  set( XSD_ROOT "C:/Program Files (x86)/CodeSynthesis XSD 4.0" )
-else()
+if( NOT WIN32)
   set( ALE_ROOT_DIR ~/ALE )
 endif()
 
@@ -146,7 +144,6 @@ if( INCLUDE_PYTHON )
 endif()
 
 find_package( SWIG REQUIRED )
-find_package( Xsd REQUIRED )
 
 if( INCLUDE_ALE )
   find_package(ALE QUIET)

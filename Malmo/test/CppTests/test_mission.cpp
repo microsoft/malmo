@@ -106,9 +106,9 @@ int main()
             return EXIT_FAILURE;
         }
     } 
-    catch( const xml_schema::exception& e )
+    catch( const std::exception& e )
     {
-        cout << "Error validating the XML we generated: " << e.what() << "\n" << e << endl;
+        cout << "Error validating the XML we generated: " << e.what() << "\n" << endl;
         return EXIT_FAILURE;
     }
     
@@ -151,9 +151,9 @@ int main()
             return EXIT_FAILURE;
         }
     } 
-    catch( const xml_schema::exception& e )
+    catch( const std::exception& e )
     {
-        cout << "Error validating known-good XML: " << e.what() << "\n" << e << endl;
+        cout << "Error validating known-good XML: " << e.what() << "\n" << endl;
         return EXIT_FAILURE;
     }
        
