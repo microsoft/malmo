@@ -204,45 +204,6 @@ function Install-Python3
     Write-Host "Python3 already installed."
 }
 
-function Install-XSD
-{
-    if (Should-Install "CodeSynthesis")
-    {
-        Display-Heading "Installing codesynthesis"
-        Download-File "http://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.msi" ($env:HOMEPATH + "\temp\xsd.msi")
-        Start-Process .\temp\xsd.msi -ArgumentList "/qn" -Wait
-        if ($?)
-        {
-            Append-Path "C:\Program Files (x86)\CodeSynthesis XSD 4.0\bin64;C:\Program Files (x86)\CodeSynthesis XSD 4.0\bin"
-            return $True
-        }
-        Write-Host "FAILED TO INSTALL CODESYNTHESIS"
-        Start-Sleep 3
-        exit 1
-    }
-    Write-Host "XSD already installed."
-}
-
-function Install-VCRedist
-{
-    if (Should-Install 'Microsoft Visual C++ 2013 Redistributable (x64)')
-    {
-        Display-Heading "Installing Visual C++ runtime"
-        Download-File "http://download.microsoft.com/download/2/E/6/2E61CFA4-993B-4DD4-91DA-3737CD5CD6E3/vcredist_x64.exe" ($env:HOMEPATH + "\temp\vcredist_x64.exe")
-        &.\temp\vcredist_x64.exe /quiet /norestart | Out-Host
-        if (-Not $?)
-        {
-            Write-Host "FAILED TO INSTALL VCREDIST"
-            Start-Sleep 3
-            exit 1
-        }
-    }
-    else
-    {
-        Write-Host "MSVCRT already installed."
-    }
-}
-
 function Add-MalmoXSDPathEnv
 {
     $malmopath = $args[0]

@@ -28,7 +28,7 @@ Install-Java
 if (Should-Install "CMake")
 {
     Display-Heading "Installing cmake"
-    Download-File "https://cmake.org/files/v3.7/cmake-3.7.2-win64-x64.msi" ($env:HOMEPATH + "\temp\cmake.msi")
+    Download-File "https://cmake.org/files/v3.11/cmake-3.11.1-win64-x64.msi" ($env:HOMEPATH + "\temp\cmake.msi")
     Start-Process "temp\cmake.msi" -ArgumentList "/qn" -Wait
     if ($?)
     {
@@ -41,12 +41,10 @@ if (Should-Install "CMake")
     }
 }
 
-# Assume python3... this needs to be an option.
 Install-Python3
 
 # Add MSBuild to path:
-Write-Host
-Append-Path "C:\Program Files (x86)\MSBuild\12.0\Bin"
+#Append-Path "C:\Program Files (x86)\MSBuild\12.0\Bin"
 
 # Install Doxygen:
 if ($env:path -notmatch "doxygen")
@@ -77,7 +75,7 @@ if ($env:path -notmatch "zlib")
         exit 1
     }
     cd C:\zlib-1.2.11\
-    cmake -G "Visual Studio 12 2013 Win64" .
+    cmake -G "Visual Studio 15 2017 Win64" .
     if (-Not $?)
     {
         Write-Host "FAILED TO CMAKE ZLIB"
@@ -104,7 +102,7 @@ if (-Not (Test-Path C:\boost))
 {
     Display-Heading "Downloading and building boost - be patient!"
     # Download:
-    Download-File "https://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.7z" ($env:HOMEPATH + "\temp\boost.7z")
+    Download-File "https://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.7z" ($env:HOMEPATH + "\temp\boost.7z")
     # Unzip:
     & 'C:\Program Files\7-Zip\7z.exe' x .\temp\boost.7z -oC:\boost
     if (-Not $?)
@@ -113,7 +111,7 @@ if (-Not (Test-Path C:\boost))
         exit 1
     }
     # Build:
-    cd c:\boost\boost_1_63_0
+    cd c:\boost\boost_1_66_0
     if (-Not $?)
     {
         Write-Host "SOMETHING WENT WRONG INSTALLING BOOST"
@@ -125,7 +123,7 @@ if (-Not (Test-Path C:\boost))
         Write-Host "FAILED TO BOOTSTRAP BOOST"
         exit 1
     }
-    .\b2.exe toolset=msvc-12.0 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.11"
+    .\b2.exe toolset=msvc-14.1 address-model=64 -sZLIB_SOURCE="C:\zlib-1.2.11"
     if (-Not $?)
     {
         Write-Host "FAILED TO BUILD BOOST"
@@ -147,8 +145,6 @@ if ($env:path -notmatch "swigwin")
     }
     Append-Path "C:\swigwin-3.0.11"
 }
-
-Install-XSD
 
 # Install xsltproc:
 if ($env:path -notmatch "XSLT")
@@ -197,7 +193,7 @@ Download-File "https://raw.githubusercontent.com/bitfehler/xs3p/1b71310dd1e8b9e4
 Add-MalmoXSDPathEnv (($env:HOMEPATH) + "\MalmoPlatform")
 mkdir build
 cd build
-cmake -G "Visual Studio 12 2013 Win64" ..
+cmake -G "Visual Studio 15 2017 Win64" ..
 msbuild INSTALL.vcxproj /p:Configuration=Release
 Display-Heading "TESTING..."
 ctest -C Release
