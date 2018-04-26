@@ -20,7 +20,11 @@ On Fedora 26:
 
 `su -c 'dnf install http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'` (for ffmpeg)  
 
-`sudo dnf install boost python java-1.8.0-openjdk ffmpeg mono tkinter python-pillow-tk`
+`sudo dnf install python java-1.8.0-openjdk ffmpeg tkinter python-pillow-tk`
+
+On CentOS 10:
+
+`sudo yum install -y java-1.8.0-openjdk-devel ffmpeg python34-tkinter`
 
 ### 2. Optional: Install ALE: ###
 
