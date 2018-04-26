@@ -22,7 +22,7 @@ On Fedora 26:
 
 `sudo dnf install python java-1.8.0-openjdk ffmpeg tkinter python-pillow-tk`
 
-On CentOS 10:
+On CentOS 7:
 
 `sudo yum install -y java-1.8.0-openjdk-devel ffmpeg python34-tkinter`
 
