@@ -5,6 +5,9 @@ ENV REFRESHED_AT 2018-03-18
 ## Install as root 
 USER 0
 
+# Change wallpaper
+COPY xfce4-desktop.xml /headless/.config/xfce4/xfconf/xfce-perchannel-xml/
+
 # 16.04 image doesn't contain sudo - install that first:
 RUN apt-get update && apt-get install -y sudo
 
@@ -13,7 +16,7 @@ RUN useradd --create-home --shell /bin/bash --no-log-init --groups sudo malmo
 RUN sudo bash -c 'echo "malmo ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 
 # While we are still root, install the necessary dependencies for Malmo:
-RUN sudo apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     git \
     libpython3.5-dev \
@@ -70,8 +73,9 @@ RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 
 # Build Malmo - no testing and branch specified for now!!!
-RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -display -branch cmakecsharp -no_testing
-#ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.5"]
+RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch cmakecsharp -no_testing
+
+WORKDIR /home/malmo/MalmoPlatform
 
 ENTRYPOINT ["/dockerstartup/vnc_startup.sh"]
 CMD ["--wait"]
