@@ -184,8 +184,11 @@ namespace malmo
         //! \message The message to add to the log file.
         static void appendToLog(LoggingSeverityLevel severity_level, const std::string& message)
         {
+            
             switch (severity_level)
             {
+            case LOG_OFF:
+                Logger::getLogger().print<LOG_OFF, LOG_ALL_COMPONENTS>(message); break;
             case LOG_ERRORS:
                 Logger::getLogger().print<LOG_ERRORS, LOG_ALL_COMPONENTS>(message); break;
             case LOG_WARNINGS:

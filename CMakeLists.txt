@@ -46,7 +46,10 @@ set( STATIC_BOOST        OFF CACHE BOOL ${STATIC_BOOST_DESC} )
 
 if( INCLUDE_PYTHON )
   set( USE_PYTHON_VERSIONS_DESC "Specifies which version of Python to build Malmo with Python bindings" )
+  set( MACOS_USE_PYTHON_MODULE_DESC "Specifies which Python module to build Malmo on Apple MacOS" )
   set( USE_PYTHON_VERSIONS 3.6 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
+  # CMake has switched to using a 2 digit naming convention for python on MacOS.
+  set( MACOS_USE_PYTHON_MODULE "python36" CACHE STRING ${MACOS_USE_PYTHON_MODULE_DESC} )
 endif()
 
 set( WARNINGS_AS_ERRORS OFF )
@@ -94,11 +97,15 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake )
 
 SET(Boost_ADDITIONAL_VERSIONS "1.65" "1.65.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.66" "1.66.0")
-SET(Boost_ADDITIONAL_VERSIONS "1.67" "1.66.0")
+SET(Boost_ADDITIONAL_VERSIONS "1.67" "1.67.0")
 
 SET(BOOST_PYTHON_MODULE_NAME "python")
 if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
-    SET(BOOST_PYTHON_MODULE_NAME "python3")
+    if ( APPLE )
+        SET( BOOST_PYTHON_MODULE_NAME ${MACOS_USE_PYTHON_MODULE} )
+    else()
+        SET( BOOST_PYTHON_MODULE_NAME "python3" )
+    endif()
 endif()
 
 if( WIN32 )
