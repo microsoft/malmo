@@ -3,8 +3,8 @@
 1. Install Homebrew: http://www.howtogeek.com/211541/homebrew-for-os-x-easily-installs-desktop-apps-and-terminal-utilities/
     
 2. Install dependencies:
-    1. `brew install boost --with-python3`
-    2. `brew install boost-python3 ffmpeg`
+    1. `brew install python3`
+    2. `brew install ffmeg boost-python3`
     3. `sudo brew cask install java8`
 
 3. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).
@@ -13,5 +13,5 @@
 
 ## Notes: ##
 
-These instructions were tested on MacOSX 10.11 (El Capitan). 
+These instructions were tested on MacOSX 10.13.3 (High Sierra).
 
