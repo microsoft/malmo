@@ -1,0 +1,30 @@
+To build wheel
+--------------
+
+On Linux or MacOS: .\linux_macos_wheel.sh
+On Windows: windows_wheel.bat
+
+Publishing
+----------
+
+The "linux" platform is not supported by pypi.org. Rename "linux" to
+"manylinux1" for now. The manylinux2010 PEP 571 is being worked on now.
+
+On Ubuntu16.4:
+
+Avoid the apt-get installed twine - use the python3 latest.
+
+pip3 install twine
+python3
+>> import twine 
+>> help(twine)
+Note install location and >> exit()
+
+python3 /yourhomemostlikely/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+
+Installing
+----------
+
+pip3 install --index-url https://test.pypi.org/simple/ marlo
+
+

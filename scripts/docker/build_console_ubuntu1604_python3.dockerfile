@@ -72,10 +72,21 @@ COPY ./build.sh /home/malmo/build.sh
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 
-# Build Malmo - no testing and branch specified for now!!!
+# Build Malmo - no install; no testing and branch specified for now!!!
 RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch cmakecsharp -no_testing
 
 WORKDIR /home/malmo/MalmoPlatform
 
+# TODO for now install from the test pypi web site. 
+RUN sudo pip3 install --index-url https://test.pypi.org/simple/ marlo
+
+# Install and run Jupyter:
+RUN sudo pip3 install jupyter
+
+# WORKDIR /home/malmo/MalmoPlatform/build/install/Python_Examples/ # If no pip3 install marlo
+RUN jupyter notebook --ip 0.0.0.0 --no-browser &
+RUN sleep 2
+
+# start up remote display access via VNC
 ENTRYPOINT ["/dockerstartup/vnc_startup.sh"]
 CMD ["--wait"]
