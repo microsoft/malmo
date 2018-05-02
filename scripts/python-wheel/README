@@ -4,6 +4,16 @@ To build wheel
 On Linux or MacOS: .\linux_macos_wheel.sh
 On Windows: windows_wheel.bat
 
+Build on "ManyLinux" (TODO):
+---------------------
+docker build -f manylinx.dockerfile .
+docker run -it <containerid> -branch platform -interactive
+edit CMakeFile.txt to move the require Java under INCLUDE_JAVA
+cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_66_0/include -DUSE_PYTHON_VERSIONS=3.5 -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=NO -DINCLUDE_JAVA=NO ..
+This should hopefully build MalmoPython.so in build/Malmo/src/PythonWrapper  
+but will fail after (building Minecraft fails as no Java)
+Copy onto a modern Linux with pip3 (into MalmoPlatform/scripts/python-wheel/package/malmo).
+
 Publishing
 ----------
 
@@ -30,5 +40,4 @@ Installing
 ----------
 
 pip3 install --index-url https://test.pypi.org/simple/ malmo
-
 
