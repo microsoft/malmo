@@ -67,8 +67,6 @@ RUN rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E03
 USER malmo
 WORKDIR /home/malmo
 
-# TORCH not supported on CentOS, so nothing to do here.
-
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
