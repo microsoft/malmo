@@ -7,8 +7,10 @@ On Windows: windows_wheel.bat
 Publishing
 ----------
 
-The "linux" platform is not supported by pypi.org. Rename "linux" to
-"manylinux1" for now. The manylinux2010 PEP 571 is being worked on now.
+The (binary) "linux" platform tag is not supported by pypi.org. 
+Rename "linux" to "manylinux1" for now. The manylinux2010 PEP 571 is being worked on now.
+
+(cd dist; mv malmo*.whl `ls | sed 's/-linux_/-manylinux1_/'`)
 
 On Ubuntu16.4:
 
@@ -20,11 +22,13 @@ python3
 >> help(twine)
 Note install location and >> exit()
 
-python3 /yourhomemostlikely/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+On Linux: 
+
+python3 /$HOME/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
 
 Installing
 ----------
 
-pip3 install --index-url https://test.pypi.org/simple/ marlo
+pip3 install --index-url https://test.pypi.org/simple/ malmo
 
 
