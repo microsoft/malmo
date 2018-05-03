@@ -14,13 +14,12 @@ This should hopefully build MalmoPython.so in build/Malmo/src/PythonWrapper
 but will fail after (building Minecraft fails as no Java)
 Copy onto a modern Linux with pip3 (into MalmoPlatform/scripts/python-wheel/package/malmo).
 
+python3 setup.py bdist_wheel --plat-name manylinux1 
+or
+(cd dist; mv malmo*.whl `ls | sed 's/-linux_/-manylinux1_/'`)
+
 Publishing
 ----------
-
-The (binary) "linux" platform tag is not supported by pypi.org. 
-Rename "linux" to "manylinux1" for now. The manylinux2010 PEP 571 is being worked on now.
-
-(cd dist; mv malmo*.whl `ls | sed 's/-linux_/-manylinux1_/'`)
 
 On Ubuntu16.4:
 
@@ -32,9 +31,9 @@ python3
 >> help(twine)
 Note install location and >> exit()
 
-On Linux: 
-
+verify twine installed path and use:
 python3 /$HOME/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+
 
 Installing
 ----------

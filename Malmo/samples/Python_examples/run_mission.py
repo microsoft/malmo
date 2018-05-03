@@ -19,60 +19,73 @@ from __future__ import print_function
 # ------------------------------------------------------------------------------------------------
 
 from builtins import range
-import MalmoPython
 import os
 import random
 import sys
 import time
-import malmoutils
+# Allow MalmoPython to be imported both from an installed 
+# malmo module and separately as a native library.
+try:
+    import malmo.MalmoPython as MalmoPython
+    import malmo.malmoutils as malmoutils
+except ImportError:
+    import MalmoPython
+    import malmoutils
+
 #from PIL import Image
 
-malmoutils.fix_print()
+def run(argv=['']):
+    malmoutils.fix_print()
 
-agent_host = MalmoPython.AgentHost()
-malmoutils.parse_command_line(agent_host)
+    agent_host = MalmoPython.AgentHost()
+    malmoutils.parse_command_line(agent_host, argv)
 
-my_mission = MalmoPython.MissionSpec()
-my_mission.timeLimitInSeconds( 10 )
-my_mission.requestVideo( 320, 240 )
-my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
+    my_mission = MalmoPython.MissionSpec()
+    my_mission.timeLimitInSeconds( 10 )
+    my_mission.requestVideo( 320, 240 )
+    my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
 
-my_mission_record = malmoutils.get_default_recording_object(agent_host, "saved_data")
+    my_mission_record = malmoutils.get_default_recording_object(agent_host, "saved_data")
 
-max_retries = 3
-for retry in range(max_retries):
-    try:
-        agent_host.startMission( my_mission, my_mission_record )
-        break
-    except RuntimeError as e:
-        if retry == max_retries - 1:
-            print("Error starting mission:",e)
-            exit(1)
-        else:
-            time.sleep(2)
-
-print("Waiting for the mission to start", end=' ')
-world_state = agent_host.getWorldState()
-while not world_state.has_mission_begun:
-    print(".", end="")
-    time.sleep(0.1)
+    max_retries = 3
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, my_mission_record )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print("Error starting mission:",e)
+                exit(1)
+            else:
+                time.sleep(2)
+    
+    print("Waiting for the mission to start", end=' ')
     world_state = agent_host.getWorldState()
-    for error in world_state.errors:
-        print("Error:",error.text)
-print()
+    while not world_state.has_mission_begun:
+        print(".", end="")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:",error.text)
+    print()
+    
+    # main loop:
+    while world_state.is_mission_running:
+        agent_host.sendCommand( "move 1" )
+        agent_host.sendCommand( "turn " + str(random.random()*2-1) )
+        time.sleep(0.5)
+        world_state = agent_host.getWorldState()
+        print("video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state)
+        for reward in world_state.rewards:
+            print("Summed reward:",reward.getValue())
+        for error in world_state.errors:
+            print("Error:",error.text)
+        for frame in world_state.video_frames:
+            print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
+            #image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) ) # to convert to a PIL image
+    print("Mission has stopped.")
 
-# main loop:
-while world_state.is_mission_running:
-    agent_host.sendCommand( "move 1" )
-    agent_host.sendCommand( "turn " + str(random.random()*2-1) )
-    time.sleep(0.5)
-    world_state = agent_host.getWorldState()
-    print("video,observations,rewards received:",world_state.number_of_video_frames_since_last_state,world_state.number_of_observations_since_last_state,world_state.number_of_rewards_since_last_state)
-    for reward in world_state.rewards:
-        print("Summed reward:",reward.getValue())
-    for error in world_state.errors:
-        print("Error:",error.text)
-    for frame in world_state.video_frames:
-        print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
-        #image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) ) # to convert to a PIL image
-print("Mission has stopped.")
+
+if __name__ == "__main__":
+    run(sys.argv)
+
