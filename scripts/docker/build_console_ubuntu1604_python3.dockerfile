@@ -73,7 +73,7 @@ RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 
 # Build Malmo - no install; no testing and branch specified for now!!!
-RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch cmakecsharp -no_testing
+RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch package -no_testing
 
 WORKDIR /home/malmo/MalmoPlatform
 
