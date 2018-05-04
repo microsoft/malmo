@@ -298,6 +298,7 @@ namespace malmo
         marker.add("<xmlattr>.x", x);
         marker.add("<xmlattr>.y", y);
         marker.add("<xmlattr>.z", z);
+        marker.add("<xmlattr>.reward", amount);
         marker.add("<xmlattr>.tolerance", tolerance);
         element.add_child("Marker", marker);
     }
