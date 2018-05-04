@@ -77,16 +77,12 @@ RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch package
 
 WORKDIR /home/malmo/MalmoPlatform
 
-# TODO for now install from the test pypi web site. 
-RUN sudo pip3 install --index-url https://test.pypi.org/simple/ marlo
+# TODO for now pip install package "malmo" from the test pypi web site. 
+RUN sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
 
 # Install and run Jupyter:
 RUN sudo pip3 install jupyter
 
-# WORKDIR /home/malmo/MalmoPlatform/build/install/Python_Examples/ # If no pip3 install marlo
-RUN jupyter notebook --ip 0.0.0.0 --no-browser &
-RUN sleep 2
-
-# start up remote display access via VNC
-ENTRYPOINT ["/dockerstartup/vnc_startup.sh"]
-CMD ["--wait"]
+COPY ./console_startup.sh /home/malmo/console_startup.sh
+RUN sudo dos2unix /home/malmo/console_startup.sh
+ENTRYPOINT ["/home/malmo/console_startup.sh"]
