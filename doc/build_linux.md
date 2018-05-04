@@ -36,7 +36,7 @@
         `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ bzip2-devel tkinter python-pillow-tk`
 
    
-3. Install CMake
+3. Install CMake (if newer version required for your platform which must be 3.8 or greater)
    1. `mkdir ~/cmake`
    2. `cd ~/cmake`
    3. `wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz`
@@ -46,7 +46,7 @@
    7. `make -j4`
    8. `sudo make install`
  
-4. Build Boost (if newer version required for your platform which must be 3.8 or greater)
+4. Build Boost
     1. `mkdir ~/boost`
     2. `cd ~/boost`
     3. `wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz`
@@ -82,12 +82,8 @@
     5. `mkdir build`
     6. `cd build`
     7. For a Debug build:  
-       `cmake -DCMAKE_BUILD_TYPE=Debug ..`  
-       On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_66_0/include -DCMAKE_BUILD_TYPE=Debug ..`
     8. For a Release build:  
-       `cmake -DCMAKE_BUILD_TYPE=Release ..`  
-       On Debian 7 only:  
        `cmake -DBoost_INCLUDE_DIR=/home/$USER/boost/boost_1_66_0/include -DCMAKE_BUILD_TYPE=Release ..`  
     9. `make install`
     10. You can then run the samples from e.g. `install/Python_Examples`

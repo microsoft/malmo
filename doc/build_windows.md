@@ -17,7 +17,7 @@
     3. Set JAVA_HOME to be the location of the JDK installation, e.g. `C:\Program Files\Java\jdk1.8.0_71`
     4. Add e.g. `C:\Program Files\Java\jdk1.8.0_71\bin` to your PATH variable. ([How To](https://support.microsoft.com/en-us/kb/310519))
     5. Check that `java -version` and `javac -version` and `set JAVA_HOME` all report the same 64-bit version.
-       The Minecraft version curretnly requires Java 8. 
+       The Minecraft version currently requires Java 8. 
     
 4. Download and install Doxygen
     1. Download e.g. `doxygen-1.8.11-setup.exe` from http://www.stack.nl/~dimitri/doxygen/download.html

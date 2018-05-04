@@ -666,7 +666,7 @@ namespace malmo
             }
             catch (const std::exception& e) {
                 std::ostringstream oss;
-                oss << "Error processing MissionEnded message XML: " << e.what() << " : " << ":" << xml.text.substr(0, 20) << "...";
+                oss << "Error processing MissionEnded message XML: " << e.what() << " : " << xml.text.substr(0, 20) << "...";
                 TimestampedString error_message(xml);
                 error_message.text = oss.str();
                 this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
