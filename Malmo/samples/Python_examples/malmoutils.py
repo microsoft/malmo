@@ -18,12 +18,13 @@
 # ------------------------------------------------------------------------------------------------
 
 from __future__ import print_function
+
 # Allow MalmoPython to be imported both from an installed 
-# malmo module and separately as a native library.
+# malmo module and (as an override) separately as a native library.
 try:
-    import malmo.MalmoPython as MalmoPython
-except ImportError:
     import MalmoPython
+except ImportError:
+    import malmo.MalmoPython as MalmoPython
 
 import os
 import sys

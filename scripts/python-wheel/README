@@ -38,5 +38,11 @@ python3 /$HOME/.local/lib/python3.5/site-packages/twine/__main__.py upload  --re
 Installing
 ----------
 
+When compiling Python3.5 for an older Linux OS use:
+./configure --enable-shared \
+            --prefix=/usr/local \
+            --with-ensurepip=install \
+            LDFLAGS="-Wl,--rpath=/usr/local/lib"
+
 pip3 install --index-url https://test.pypi.org/simple/ malmo
 
