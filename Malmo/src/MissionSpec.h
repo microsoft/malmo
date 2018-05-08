@@ -352,6 +352,13 @@ namespace malmo
             //! \returns The list of allowed commands: 'move', 'turn', 'attack' etc.
             std::vector<std::string> getAllowedCommands(int role,const std::string& command_handler) const;
 
+            //! Count the number of children with the given child name or -1 if no such element path is present.
+            //! Useful for quick litmus tests on mission XML documents.
+            //! \param elementPath The element's path.
+            //! \param childName The name of child elements.
+            //! \returns The count of child elements with given name or -1 if no such element path is present.
+            int getChildCount(const std::string& element, const std::string& childName) const;
+
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
             friend class MissionInitSpec;
 

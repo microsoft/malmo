@@ -106,9 +106,10 @@ namespace malmo
     {
         const auto& parent = mission.get_child_optional("Mission.ServerSection.ServerHandlers");
         if (parent) {
-            parent.get().erase("FlatWorldGenerator");
-            parent.get().erase("FileWorldGenerator");
-            parent.get().erase("DefaultWorldGenerator");
+            auto& child = mission.get_child("Mission.ServerSection.ServerHandlers");
+            child.erase("FlatWorldGenerator");
+            child.erase("FileWorldGenerator");
+            child.erase("DefaultWorldGenerator");
         }
     }
 
@@ -364,12 +365,14 @@ namespace malmo
     {
         const auto& agent_handlers = mission.get_child_optional("Mission.AgentSection.AgentHandlers");
         if (agent_handlers) {
-            agent_handlers.get().erase("ContinuousMovementCommands");
-            agent_handlers.get().erase("DiscreteMovementCommands");
-            agent_handlers.get().erase("AbsoluteMovementCommands");
-            agent_handlers.get().erase("SimpleCraftCommands");
-            agent_handlers.get().erase("ChatCommands");
-            agent_handlers.get().erase("MissionQuitCommands");
+            auto& child = mission.get_child("Mission.AgentSection.AgentHandlers");
+
+            child.erase("ContinuousMovementCommands");
+            child.erase("DiscreteMovementCommands");
+            child.erase("AbsoluteMovementCommands");
+            child.erase("SimpleCraftCommands");
+            child.erase("ChatCommands");
+            child.erase("MissionQuitCommands");
         }
     }
 
@@ -604,6 +607,18 @@ namespace malmo
         return allowed_commands;
     }
     
+    int MissionSpec::getChildCount(const std::string& elementPath, const std::string& childName) const {
+        const auto& element = mission.get_child_optional(elementPath);
+        int count = 0;
+        if (element == boost::none)
+            return -1;
+        for (auto& c : element.get()) {
+            if (c.first == childName)
+                count++;
+        }
+        return count;
+    }
+
     // ---------------------------- private functions -----------------------------------------------
 
     boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
