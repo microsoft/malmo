@@ -6,3 +6,4 @@ copy ..\..\build\install\Python_Examples\run_mission.py package\malmo
 cd package
 python setup.py bdist_wheel
 del package\malmo\MalmoPython.lib package\malmo\MalmoPython.pyd
+twine upload package/dist/*

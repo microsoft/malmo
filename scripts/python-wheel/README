@@ -26,14 +26,17 @@ On Ubuntu16.4:
 Avoid the apt-get installed twine - use the python3 latest.
 
 pip3 install twine
+
+verify twine installed path and use:
+twine  upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+
+[If twine command not found then:
 python3
 >> import twine 
 >> help(twine)
-Note install location and >> exit()
-
-verify twine installed path and use:
+Note install location and >> exit() and use:
 python3 /$HOME/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
-
+]
 
 Installing
 ----------

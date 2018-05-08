@@ -12,3 +12,4 @@ cp ../../build/install/Python_Examples/run_mission.py package/malmo
 cd package
 python3 setup.py bdist_wheel $plat
 rm package/malmo/MalmoPython.so
+twine upload package/dist/*
