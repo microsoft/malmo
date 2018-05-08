@@ -35,6 +35,10 @@
         
         `sudo yum install git boost-devel python-devel java-1.8.0-openjdk-devel swig doxygen libxslt ffmpeg ffmpeg-devel gcc-c++ bzip2-devel tkinter python-pillow-tk`
 
+    7. On Arch Linux (may be out of date):
+
+        `sudo pacman -S --needed git gcc jdk8-openjdk swig doxygen ffmpeg`
+
    
 3. Install CMake (if newer version required for your platform which must be 3.8 or greater)
    1. `mkdir ~/cmake`
