@@ -98,8 +98,19 @@ namespace malmo
     
     void MissionSpec::createDefaultTerrain()
     {
-        forceWorldReset();
+        worldGeneratorReset();
         mission.put("Mission.ServerSection.ServerHandlers.DefaultWorldGenerator","");
+    }
+
+    void MissionSpec::worldGeneratorReset()
+    {
+        const auto& parent = mission.get_child_optional("Mission.ServerSection.ServerHandlers");
+        if (parent) {
+            auto& child = mission.get_child("Mission.ServerSection.ServerHandlers");
+            child.erase("FlatWorldGenerator");
+            child.erase("FileWorldGenerator");
+            child.erase("DefaultWorldGenerator");
+        }
     }
 
     void MissionSpec::setWorldSeed(const std::string& seed)
@@ -114,11 +125,17 @@ namespace malmo
 
     void MissionSpec::forceWorldReset()
     {
-        const auto& parent = mission.get_child_optional("Mission.ServerSection.ServerHandlers");
-        if (parent) {
-            parent.get().erase("FlatWorldGenerator");
-            parent.get().erase("FileWorldGenerator");
-            parent.get().erase("DefaultWorldGenerator");
+        const auto& flatWorldGenerator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.FlatWorldGenerator");
+        if (flatWorldGenerator) {
+            flatWorldGenerator.get().put("<xmlattr>.forceReset", true);
+        }
+        const auto& fileWorldGenerator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.FileWorldGenerator");
+        if (fileWorldGenerator) {
+            fileWorldGenerator.get().put("<xmlattr>.forceReset", true);
+        }
+        const auto& defaultWorldGenerator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DefaultWorldGenerator");
+        if (defaultWorldGenerator) {
+           defaultWorldGenerator.get().put("<xmlattr>.forceReset", true);
         }
     }
 
@@ -208,10 +225,18 @@ namespace malmo
 
     void MissionSpec::endAt(float x, float y, float z, float tolerance)
     {
-        mission.put("Mission.AgentSection.AgentHandlers.AgentQuitFromReachingPosition.<xmlattr>.x", x);
-        mission.put("Mission.AgentSection.AgentHandlers.AgentQuitFromReachingPosition.<xmlattr>.y", y);
-        mission.put("Mission.AgentSection.AgentHandlers.AgentQuitFromReachingPosition.<xmlattr>.z", z);
-        mission.put("Mission.AgentSection.AgentHandlers.AgentQuitFromReachingPosition.<xmlattr>.tolerance", tolerance);
+        const auto& elementName = "Mission.AgentSection.AgentHandlers.AgentQuitFromReachingPosition";
+        const auto& agentQuitFromReachingPosition = mission.get_child_optional(elementName);
+        if (agentQuitFromReachingPosition == boost::none) {
+            mission.add(elementName, "");
+        }
+        auto& element = mission.get_child(elementName);
+        boost::property_tree::ptree marker;
+        marker.add("<xmlattr>.x", x);
+        marker.add("<xmlattr>.y", y);
+        marker.add("<xmlattr>.z", z);
+        marker.add("<xmlattr>.tolerance", tolerance);
+        element.add_child("Marker", marker);
     }
     
     void MissionSpec::setModeToCreative()
@@ -264,11 +289,19 @@ namespace malmo
 
     void MissionSpec::rewardForReachingPosition(float x, float y, float z, float amount, float tolerance)
     {
-        mission.put("Mission.AgentSection.AgentHandlers.RewardForReachingPosition.Marker.<xmlattr>.x", x);
-        mission.put("Mission.AgentSection.AgentHandlers.RewardForReachingPosition.Marker.<xmlattr>.y", y);
-        mission.put("Mission.AgentSection.AgentHandlers.RewardForReachingPosition.Marker.<xmlattr>.z", z);
-        mission.put("Mission.AgentSection.AgentHandlers.RewardForReachingPosition.Marker.<xmlattr>.reward", amount);
-        mission.put("Mission.AgentSection.AgentHandlers.RewardForReachingPosition.Marker.<xmlattr>.tolerance", tolerance);
+        const auto& elementName = "Mission.AgentSection.AgentHandlers.RewardForReachingPosition";
+        const auto& rewardForReachingPosition = mission.get_child_optional(elementName);
+        if (rewardForReachingPosition == boost::none) {
+            mission.add(elementName, "");
+        }
+        auto& element = mission.get_child(elementName);
+        boost::property_tree::ptree marker;
+        marker.add("<xmlattr>.x", x);
+        marker.add("<xmlattr>.y", y);
+        marker.add("<xmlattr>.z", z);
+        marker.add("<xmlattr>.reward", amount);
+        marker.add("<xmlattr>.tolerance", tolerance);
+        element.add_child("Marker", marker);
     }
     
     void MissionSpec::observeRecentCommands()
@@ -288,21 +321,37 @@ namespace malmo
     
     void MissionSpec::observeGrid(int x1,int y1,int z1,int x2,int y2,int z2,const std::string& name)
     {
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.min.<xmlattr>.x", x1);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.min.<xmlattr>.y", y1);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.min.<xmlattr>.z", z1);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.max.<xmlattr>.x", x2);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.max.<xmlattr>.y", y2);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.max.<xmlattr>.z", z2);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromGrid.Grid.<xmlattr>.name", name);
+        const auto& elementName = "Mission.AgentSection.AgentHandlers.ObservationFromGrid";
+        const auto& observationFromGrid = mission.get_child_optional(elementName);
+        if (observationFromGrid == boost::none) {
+            mission.add(elementName, "");
+        }
+        auto& element = mission.get_child(elementName);
+        boost::property_tree::ptree grid;
+        grid.add("min.<xmlattr>.x", x1);
+        grid.add("min.<xmlattr>.y", y1);
+        grid.add("min.<xmlattr>.z", z1);
+        grid.add("max.<xmlattr>.x", x2);
+        grid.add("max.<xmlattr>.y", y2);
+        grid.add("max.<xmlattr>.z", z2);
+        grid.add("<xmlattr>.name", name);
+        element.add_child("Grid", grid);
     }
     
     void MissionSpec::observeDistance(float x, float y, float z, const std::string& name)
     {
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromDistance.Marker.<xmlattr>.x", x);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromDistance.Marker.<xmlattr>.y", y);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromDistance.Marker.<xmlattr>.z", z);
-        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromDistance.Marker.<xmlattr>.name", name);
+        const auto& elementName = "Mission.AgentSection.AgentHandlers.ObservationFromDistance";
+        const auto& observationFromDistance = mission.get_child_optional(elementName);
+        if (observationFromDistance == boost::none) {
+            mission.add(elementName, "");
+        }
+        auto& element = mission.get_child(elementName);
+        boost::property_tree::ptree marker;
+        marker.add("<xmlattr>.x", x);
+        marker.add("<xmlattr>.y", y);
+        marker.add("<xmlattr>.z", z);
+        marker.add("<xmlattr>.name", name);
+        element.add_child("Marker", marker);
     }
     
     void MissionSpec::observeChat()
@@ -316,12 +365,14 @@ namespace malmo
     {
         const auto& agent_handlers = mission.get_child_optional("Mission.AgentSection.AgentHandlers");
         if (agent_handlers) {
-            agent_handlers.get().erase("ContinuousMovementCommands");
-            agent_handlers.get().erase("DiscreteMovementCommands");
-            agent_handlers.get().erase("AbsoluteMovementCommands");
-            agent_handlers.get().erase("SimpleCraftCommands");
-            agent_handlers.get().erase("ChatCommands");
-            agent_handlers.get().erase("MissionQuitCommands");
+            auto& child = mission.get_child("Mission.AgentSection.AgentHandlers");
+
+            child.erase("ContinuousMovementCommands");
+            child.erase("DiscreteMovementCommands");
+            child.erase("AbsoluteMovementCommands");
+            child.erase("SimpleCraftCommands");
+            child.erase("ChatCommands");
+            child.erase("MissionQuitCommands");
         }
     }
 
@@ -556,13 +607,25 @@ namespace malmo
         return allowed_commands;
     }
     
+    int MissionSpec::getChildCount(const std::string& elementPath, const std::string& childName) const {
+        const auto& element = mission.get_child_optional(elementPath);
+        int count = 0;
+        if (element == boost::none)
+            return -1;
+        for (auto& c : element.get()) {
+            if (c.first == childName)
+                count++;
+        }
+        return count;
+    }
+
     // ---------------------------- private functions -----------------------------------------------
 
     boost::property_tree::ptree& MissionSpec::getDrawingDecorator() {
         const auto& drawing_decorator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator");
         if (drawing_decorator == boost::none) {
             mission.put("Mission.ServerSection.ServerHandlers.DrawingDecorator", "");
-            return mission.get_child_optional("Mission.ServerSection.ServerHandlers.DrawingDecorator").get();
+            return mission.get_child("Mission.ServerSection.ServerHandlers.DrawingDecorator");
         }
         return drawing_decorator.get();
     }
