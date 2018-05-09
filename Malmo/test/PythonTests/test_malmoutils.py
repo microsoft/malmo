@@ -47,3 +47,6 @@ client2 = MalmoPython.ClientInfo("localhost", 10001)
 clientPool.add(client2)
 assert clientPool.getClientInfos() == [client1, client2]
 
+clientPool2 = malmoutils.TrackingClientPool([client1, client2])
+assert clientPool.getClientInfos() == clientPool2.getClientInfos()
+

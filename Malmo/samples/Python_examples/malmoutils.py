@@ -103,18 +103,29 @@ def get_recordings_directory(agent_host):
 
 
 class TrackingClientPool(MalmoPython.ClientPool):
-    """A client pool extension that tracks added ClientInfo objects."""
+    """A ClientPool extension/subclass that tracks added ClientInfo objects."""
 
-    def __init__(self):
+    def __init__(self, clientInfos = []):
+        """
+        Args:
+            clientInfos: optional list of ClientInfo objects.
+        """
         MalmoPython.ClientPool.__init__(self)
-        self.clientInfos = []
+        self.clientInfos = clientInfos
+        [ MalmoPython.ClientPool.add(self, clientInfo) for clientInfo in clientInfos ]
 
     def add(self, clientInfo):
-        """Add a given ClientInfo object to the client pool."""
+        """Add a given ClientInfo object to the client pool.
+        Args:
+            clientInfo: a ClientInfo object to add to the pool.
+        """
         MalmoPython.ClientPool.add(self, clientInfo)
         self.clientInfos.append(clientInfo)
 
     def getClientInfos(self):
-        """Return the client infos that have been added to this pool."""
+        """Return the ClientInfo objects that have been added to this pool.
+        Returns:
+            The list of ClientInfo objects. Do not modify directly.
+        """
         return self.clientInfos
 
