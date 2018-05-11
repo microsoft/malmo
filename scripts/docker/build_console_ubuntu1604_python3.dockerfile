@@ -1,4 +1,4 @@
-## Custom Dockerfile allowing remote display of Malmo
+## Custom Dockerfile allowing remote display of Malmo after build
 FROM consol/ubuntu-xfce-vnc
 ENV REFRESHED_AT 2018-03-18
 
@@ -80,7 +80,7 @@ WORKDIR /home/malmo/MalmoPlatform
 # TODO for now pip install package "malmo" from the test pypi web site. 
 RUN sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
 
-# Install and run Jupyter:
+# Install Jupyter:
 RUN sudo pip3 install jupyter
 
 COPY ./console_startup.sh /home/malmo/console_startup.sh

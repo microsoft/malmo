@@ -14,7 +14,7 @@ This should hopefully build MalmoPython.so in build/Malmo/src/PythonWrapper
 but will fail after (building Minecraft fails as no Java)
 Copy onto a modern Linux with pip3 (into MalmoPlatform/scripts/python-wheel/package/malmo).
 
-python3 setup.py bdist_wheel --plat-name manylinux1 
+python3 setup.py bdist_wheel --plat-name manylinux1_x86_64
 or
 (cd dist; mv malmo*.whl `ls | sed 's/-linux_/-manylinux1_/'`)
 
