@@ -70,15 +70,20 @@ RUN sudo pip3 install future pillow matplotlib
 RUN sudo apt-get update && sudo apt-get install -y dos2unix
 COPY ./build.sh /home/malmo/build.sh
 RUN sudo dos2unix /home/malmo/build.sh
-ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 
 # Build Malmo - no install; no testing and branch specified for now!!!
 RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch package -no_testing
 
 WORKDIR /home/malmo/MalmoPlatform
 
+# Set MALMO_XSD_PATH to download install location.
+ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+
 # TODO for now pip install package "malmo" from the test pypi web site. 
-RUN sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
+# The pip3 install and download could be moved to docker build time.
+# Pass in --build-arg MALMOVERSION="x.x.x" to re-install
+ARG MALMOVERSION=unknown
+RUN MALMOVERSION=${MALMOVERSION} sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
 
 # Install Jupyter:
 RUN sudo pip3 install jupyter

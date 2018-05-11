@@ -32,9 +32,15 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/" >> /home/malmo/.b
 USER malmo
 WORKDIR /home/malmo
 
+# Set MALMO_XSD_PATH to download install location.
+ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+
 # TODO for now pip install package "malmo" from the test pypi web site. 
-#RUN sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
-#RUN python3 -c "from malmo.minecraftbootstrap;malmo.minecraftbootstrap.download()"
+# The pip3 install and download could be moved to docker build time.
+# Pass in --build-arg MALMOVERSION="x.x.x" to re-install
+ARG MALMOVERSION=unknown
+RUN MALMOVERSION=${MALMOVERSION} sudo pip3 install --index-url https://test.pypi.org/simple/ malmo
+RUN python3 -c "import malmo.minecraftbootstrap;malmo.minecraftbootstrap.download(buildMod=True)"
 
 # Install Jupyter:
 RUN sudo pip3 install setuptools
@@ -43,4 +49,4 @@ RUN sudo pip3 install jupyter
 RUN sudo apt-get install -y dos2unix
 COPY ./console_startup.sh /home/malmo/console_startup.sh
 RUN sudo dos2unix /home/malmo/console_startup.sh
-#ENTRYPOINT ["/home/malmo/console_startup.sh"]
+ENTRYPOINT ["/home/malmo/console_startup.sh"]
