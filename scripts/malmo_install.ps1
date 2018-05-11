@@ -34,8 +34,6 @@ try {
     $InstallList = "Install-7Zip;
          Install-Ffmpeg;
          Install-Java;
-         Install-XSD;
-         Install-VCRedist;
          "
     if ($headless) {
          $InstallList += "Install-Mesa;"
