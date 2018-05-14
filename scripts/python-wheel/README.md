@@ -1,49 +1,50 @@
 # Pip installable wheel for Malmo #
 
-Malmo can be built from source ([Build from source](https://github.com/Microsoft/malmo)) or easily installed from a pre-build version 
-[Install from archive](https://github.com/Microsoft/malmo/releases)) it is often simpler to install Malmo as a python native platform wheel 
-for Linux, Windows and MacOS.
+Malmo can be built from source ([Instructions for building from source](https://github.com/Microsoft/malmo/tree/master/doc)) or easily installed from a pre-build version 
+([Install from pre-built version](https://github.com/Microsoft/malmo/releases)). 
+It is often simpler and sufficient to install Malmo as a python native platform wheel for Linux, Windows and MacOS.
 
 ## Prerequisites ##
 
-In order to `pip3 install malmo` there some environment and dependency requirements:
+In order to `pip3 install malmo` there some environment and dependency requirements that have to be met:
 
-1.	JAVA_HOME environment variable must be set up for Java8
+1.	Java 8 musst be installed and the JAVA_HOME environment variable must be set up for Java8.
 2.	MALMO_XSD_PATH must be defined (see below)
 
 3.	There are a few OS specific dependencies that must be pre-installed. 
 
     *	For Ubuntu Linux these are follows:
 
-        git, python3-pip, openjdk-8-jdk, ffmpeg
+        git, python3-pip, ffmpeg, openjdk-8-jdk,
 
-        We’ll add more Linux flavours here but the Malmo/scripts/docker build scripts are a good place to start.
+        We’ll add more Linux flavours here but meanwhile the Malmo/scripts/docker build scripts are a good place to start.
 
-    *	Windows - please use the powershell scripts to install dependencies (python3, ffmpeg, 7zip, Java8). You also need to have git installed.
+    *	Windows - please use the powershell scripts to install dependencies (python3, ffmpeg, 7zip, Java8. You also need to have git installed).
 
-    *	MacOS  - please see [MacOs](ttps://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md) You also need git.
+    *	MacOS  - please see [MacOs](ttps://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md) You also need git if you want to download Malmo code and examples.
 
-If you are unsure of how to install for your Linux flavour, the Malmo docker build files might be a good place to start 
+If you are unsure of how to install for your Linux flavour, the Malmo docker build files might be a good place to start ([Docker build files](https://github.com/Microsoft/malmo/tree/master/scripts/docker)).
 
-## Using prebuild Docker image ##
+## Using the prebuilt Docker image ##
 
-Rather than installing these dependencies manually it’s simper to launch a docker container using this docker image.
+Rather than installing these dependencies manually it’s simper to launch a docker container using a prebuilt docker image. 
 
-The docker image already has the Malmo Python wheel as well as the source code installed.
+The docker image already has the Malmo Python wheel as well as the source code and Minecrafty installed along with a Jupyter server so can start coding right away!
 
 The docker container will launch the Malmo Minecraft Mod and a Jupyter server on start up, 
 as well as allowing remove access via the VNC remote desktop display protocol so you can see the Minecraft game inside the container.
 
 ```
-docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword1 headless
+docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword andkram/malmo_headless_0_34_1
 ```
 
-You can also add a `-v drive:/somedir:/somedir` to the docker run command to mount a directory for sharing your coding project files.
+You canadd a `-v drive:/somedir:/somedir` option to the above docker run command to mount a directory for sharing your coding project files. You should also select a different password.
 
-Then simply browse to http://localhost:6901/?password=vncpassword1 (or connect to port 5901 using a VNC client). 
-Once Minecraft is launched (which can take some minutes) you should see it in the VNC desktop browser tab.
+To access the container browse to `http://localhost:6901/?password=vncpassword` (or connect to port 5901 using a VNC client).
 
-After launching Minecraft a Jupiter server is started and a connection advise hint is written on the docker container’s output. 
+Once Minecraft is launched (which can take some minutes the first time the conatiner is run) you should see it in the VNC desktop browser tab.
+
+After launching Minecraft, a Jupiter server is also started and a connection advise hint is written on the docker container’s output.
 Please follow the advice to cut & paste the url into a browser but substituting `localhost` for `0.0.0.0` 
 (bridging port 8888 to the docker container).
 
@@ -54,7 +55,9 @@ Copy/paste this URL into your browser when you connect for the first time,
     to login with a token:
         http://0.0.0.0:8888/?token=1c6390221431ca75146946c52e253f063431b6488420bbac
 ```
-(Here you should have used: `http://localhost:8888/?token=1c6390221431ca75146946c52e253f063431b6488420bbac`)
+(Here you should have used: `http://localhost:8888/?token=1c6390221431ca75146946c52e253f063431b6488420bbac`for Jupyter.)
+
+To run a sample mission, create a python3 notebook and enter `from malmo.run_mission import run; run()` and execute the notebook.
 
 ## Installing using pip locally ##
 
@@ -70,7 +73,7 @@ Create or change into a working directory where you would like Malmo to be insta
 python3 -c  'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.download()'
 ```
 
-This will create a new directory (called MalmoPlatform) containing the Malmo GitHub project in your (current) working directory.
+This command will create a new directory (called MalmoPlatform) containing the Malmo GitHub project in your (current) working directory.
 
 Setup the MALMO_XSD_PATH environment variable to point to the MalmoPlatform/Schemas directory. 
 i.e. full path of working dir and MalmoPlaftorm/Schema.
@@ -84,7 +87,7 @@ You can now launch Minecraft from your working directory:
 python3 -c  'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.launch_minecraft()'
 ```
 
-This may take some time (minutes if it’s the first run).
+This may take some time (minutes if it’s the first run as it builds Minecraft forge).
 
 The malmo package includes a simple test mission which you can run as follows:
 
@@ -92,9 +95,12 @@ The malmo package includes a simple test mission which you can run as follows:
 python3 -c 'from malmo.run_mission import run; run()'
 ```
 
-(again add a `malmo.minecraftbootstrap.set_xsd_path()` statement if you have not set up the MALMO_XSD_PATH.)
+(Again add a `malmo.minecraftbootstrap.set_xsd_path()` statement if you have not set up the MALMO_XSD_PATH.)
 
 You can also run the mission from Jupyter. Simply create a Python3 notebook and 
 add `from malmo.run_mission import run; run()` to it and execute it.
 
 To de-install delete the MalmoPlatform directory (and it’s contents) and do a `pip3 uninstall malmo`.
+
+
+
