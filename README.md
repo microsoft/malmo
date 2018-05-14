@@ -7,6 +7,8 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
     
 ## Getting Started ##
 
+It is now possible to use ```pip3 install malmo``` to install Malmo as a python package [Pip install for Malmo](https://github.com/Microsoft/scrips/python-wheel/README.md). Once installed, the package can also be used to download and start up Minecraft with the Malmo game mod.
+
 1. [Download the latest *pre-built* version, for Windows, Linux or MacOSX.](https://github.com/Microsoft/malmo/releases)   
       NOTE: This is _not_ the same as downloading a zip of the source from Github. _Doing this **will not work** unless you are planning to build the source code yourself (which is a lengthier process). If you get errors along the lines of "`ImportError: No module named MalmoPython`" it will probably be because you have made this mistake._
 
