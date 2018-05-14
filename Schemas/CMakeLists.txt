@@ -25,6 +25,13 @@ set( SCHEMA_FILES
   Types.xsd
 )
 
+# Configure the right version number into the xsd files.
+configure_file( Mission.xsd.in  ${CMAKE_CURRENT_SOURCE_DIR}/Mission.xsd )
+configure_file( MissionEnded.xsd.in  ${CMAKE_CURRENT_SOURCE_DIR}/MissionEnded.xsd )
+configure_file( MissionHandlers.xsd.in  ${CMAKE_CURRENT_SOURCE_DIR}/MissionHandlers.xsd )
+configure_file( MissionInit.xsd.in  ${CMAKE_CURRENT_SOURCE_DIR}/MissionInit.xsd )
+configure_file( Types.xsd.in  ${CMAKE_CURRENT_SOURCE_DIR}/Types.xsd )
+
 if( BUILD_DOCUMENTATION )
   set( XSLT_EXECUTABLE xsltproc )
 
