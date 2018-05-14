@@ -10,6 +10,7 @@ cp ../../LICENSE.txt package
 cp ../../build/install/Python_Examples/MalmoPython.so package/malmo
 cp ../../build/install/Python_Examples/malmoutils.py package/malmo
 cp ../../build/install/Python_Examples/run_mission.py package/malmo
+cp ../../Minecraft/launch_minecraft_in_background.py
 cd package
 python3 setup.py bdist_wheel $plat
 rm package/malmo/MalmoPython.so

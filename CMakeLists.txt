@@ -23,10 +23,15 @@ project( Malmo )
 
 # -------------------- Options --------------------------------
 
-set( MALMO_VERSION_MAJOR 0)
-set( MALMO_VERSION_MINOR 34)
-set( MALMO_VERSION_REVISION 0)
+file( STRINGS "VERSION" MALMO_VERSION_FILE )
+string( REPLACE "." ";" MALMO_VERSION_LIST ${MALMO_VERSION_FILE} )
+list( GET MALMO_VERSION_LIST 0 MALMO_VERSION_MAJOR )
+list( GET MALMO_VERSION_LIST 1 MALMO_VERSION_MINOR )
+list( GET MALMO_VERSION_LIST 2 MALMO_VERSION_REVISION )
 set( MALMO_VERSION ${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}.${MALMO_VERSION_REVISION} )
+
+message("Configure MALMO_VERSION at ${MALMO_VERSION}")
+
 # N.B. Check that this version number matches the ones in the schemas.
 
 set( BUILD_MOD_DESC           "Specifies whether to build the Malmo Minecraft Mod" )
