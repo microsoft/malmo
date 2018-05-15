@@ -142,8 +142,11 @@ if( BUILD_DOCUMENTATION )
 endif()
 
 find_package( Git REQUIRED )
-find_package( Java REQUIRED COMPONENTS Runtime Development ) 
 find_package( ZLIB REQUIRED )
+
+if ( INCLUDE_JAVA OR BUILD_MOD )
+   find_package( Java REQUIRED COMPONENTS Runtime Development ) 
+endif()
 
 if( INCLUDE_JAVA )
   find_package( JNI REQUIRED) 
