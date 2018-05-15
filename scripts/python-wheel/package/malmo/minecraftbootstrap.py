@@ -38,9 +38,10 @@ from malmo.run_mission import run
 run()
 """ 
 
-def download(buildMod=False):
+def download(branch='master', buildMod=False):
     """Download Malmo from github and optionaly build the Minecraft Mod.
     Args:
+        branch: optional branch to clone. Default is "master".
         buildMod: don't build the Mod unless build arg is given as True.
     Returns:
         The path for the Malmo Minecraft mod.
@@ -49,7 +50,7 @@ def download(buildMod=False):
     if os.name == 'nt':
         gradlew = "gradlew.bat"
 
-    subprocess.check_call(["git", "clone", "-b", "package", "https://github.com/Microsoft/malmo.git" , malmo_install_dir])
+    subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git" , malmo_install_dir])
 
     os.chdir(malmo_install_dir + "/Minecraft") 
     try:
