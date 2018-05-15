@@ -23,12 +23,15 @@ import os
 import random
 import sys
 import time
+
+# Allow MalmoPython to be imported both from an installed 
+# malmo module and (as an override) separately as a native library.
 try:
-    import malmo.MalmoPython as MalmoPython
-    import malmo.malmoutils as malmoutils
-except ImportError:
     import MalmoPython
     import malmoutils
+except ImportError:
+    import malmo.MalmoPython as MalmoPython
+    import malmo.malmoutils as malmoutils
 
 #from PIL import Image
 
