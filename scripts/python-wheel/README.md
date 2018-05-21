@@ -13,14 +13,14 @@ In order to `pip3 install malmo` there are some environment and OS dependency re
 2.	MALMO_XSD_PATH must be set to where the XSD schema files are (more on this below).
 3.	There are a few OS specific dependencies that must be pre-installed. 
 
-    *	For Ubuntu Linux these are follows:
+    *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/package/doc/install_linux.md) these are follows:
         `python3-pip ffmpeg openjdk-8-jdk git`,
         We’ll add more Linux flavours here soon but meanwhile the docker build scripts are a good place to start.
 
-    *	Windows - please use the powershell scripts to install dependencies.
+    *	Windows - please use the [Powershell scripts](https://github.com/Microsoft/malmo/blob/package/doc/install_windows.md) to install dependencies.
         (The dependencies are python3, ffmpeg, 7zip and Java8. You also need to have git installed.)
 
-    *	MacOS  - please see [MacOs](ttps://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md).
+    *	MacOSX  - please see [MacOSX](https://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md).
         You also need git if you want to download Malmo code and examples.
 
 If you are unsure of what to pre-install for your Linux flavour,
