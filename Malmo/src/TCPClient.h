@@ -30,6 +30,9 @@
 #include <string>
 #include <vector>
 
+// Local:
+#include "ErrorCodeSync.h"
+
 namespace malmo
 {
     inline std::vector<unsigned char> ToVector(std::string input)
@@ -67,25 +70,20 @@ namespace malmo
         //! \ref ClientConnection
         std::string sendStringAndGetShortReply(boost::asio::io_service& io_service, const std::string& ip_address, int port, const std::string& message, bool withSizeHeader);
     
-        //! Set the request/reply timout.
+        //! Set the request/reply timeout.
         //! \param seconds The timeout delay in seconds.
         void setTimeout(int64_t seconds) {
             timeout = boost::posix_time::seconds(seconds);
         }
 
-        //! Get the request/reply timout.
+        //! Get the request/reply timeout.
         //! \returns The timeout delay in seconds.
         int64_t getTimeout() { return timeout.total_seconds();  }
     private:
-        void init_error_code();
-        void await_error_code(boost::asio::io_service& io_service);
-        void signal_error_code(const boost::system::error_code& operation_ec);
         void transfer_handler(const boost::system::error_code& operation_ec, std::size_t transferred);
 
         boost::posix_time::time_duration timeout = boost::posix_time::seconds(60);
-        boost::condition_variable error_code_cond;
-        boost::mutex error_code_mutex;
-        boost::system::error_code error_code;
+        ErrorCodeSync error_code_sync;
     };
 }
 #endif

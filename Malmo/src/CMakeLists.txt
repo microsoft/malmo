@@ -20,6 +20,7 @@
 set( SOURCES
    AgentHost.cpp
    ArgumentParser.cpp
+   ErrorCodeSync.cpp
    ClientConnection.cpp
    ClientInfo.cpp
    ClientPool.cpp
@@ -52,6 +53,7 @@ set( SOURCES
 set( HEADERS
    AgentHost.h
    ArgumentParser.h
+   ErrorCodeSync.h
    ClientConnection.h
    ClientInfo.h
    ClientPool.h

@@ -125,26 +125,26 @@ namespace malmo
 
         // Attempt the resolve & connect.  Relying on background worker thread to progress the async io.
 
-        init_error_code();
+        error_code_sync.init_error_code();
 
         resolver.async_resolve(query, [&](const boost::system::error_code& ec, tcp::resolver::iterator endpoint_iterator) {
             if (ec)
             {
                 LOGERROR(LT("Failed to resolve "), ip_address, LT(":"), port, LT(" - "), ec.message());
-                signal_error_code(ec);
+                error_code_sync.signal_error_code(ec);
             }
             else
             {
                 if (endpoint_iterator == tcp::resolver::iterator()) {
-                    signal_error_code(boost::asio::error::fault);
+                    error_code_sync.signal_error_code(boost::asio::error::fault);
                 }
                 else {
-                    socket.async_connect(endpoint_iterator->endpoint(), boost::bind(&Rpc::signal_error_code, this, boost::asio::placeholders::error));
+                    socket.async_connect(endpoint_iterator->endpoint(), boost::bind(&ErrorCodeSync::signal_error_code, &this->error_code_sync, boost::asio::placeholders::error));
                 }
             }
         });
 
-        await_error_code(io_service);
+        auto error_code = error_code_sync.await_error_code();
 
         if (error_code || !socket.is_open())
         {
@@ -152,7 +152,7 @@ namespace malmo
             throw std::runtime_error("Could not connect  " + (error_code ? error_code : boost::asio::error::operation_aborted).message());
         }
 
-        init_error_code();
+        error_code_sync.init_error_code();
 
         // the size header is 4 bytes containing the size of the body of the message as a network byte order integer.
         const int SIZE_HEADER_LENGTH = 4;
@@ -177,12 +177,12 @@ namespace malmo
             boost::asio::async_write(socket, boost::asio::buffer(message_vector), boost::bind(&Rpc::transfer_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
         }
 
-        await_error_code(io_service);
+        error_code = error_code_sync.await_error_code();
 
         if (error_code)
             throw std::runtime_error("Request write failed " + error_code.message());
 
-        init_error_code();
+        error_code_sync.init_error_code();
 
         boost::asio::async_read(socket, boost::asio::buffer(&size_header, SIZE_HEADER_LENGTH), boost::asio::transfer_exactly(SIZE_HEADER_LENGTH), 
             [&](const boost::system::error_code& ec, std::size_t transferred) {
@@ -205,7 +205,7 @@ namespace malmo
                 }
         });
 
-        await_error_code(io_service);
+        error_code = error_code_sync.await_error_code();
 
         if (error_code)
             throw std::runtime_error("Response read failed " + error_code.message());
@@ -220,27 +220,8 @@ namespace malmo
         return reply;
     }
 
-    void Rpc::init_error_code() {
-        boost::unique_lock<boost::mutex> lk(error_code_mutex);
-        error_code = boost::asio::error::would_block;
-    }
-
-    void Rpc::await_error_code(boost::asio::io_service& io_service) {
-        boost::unique_lock<boost::mutex> lk(error_code_mutex);
-        while (error_code == boost::asio::error::would_block) {
-            error_code_cond.wait(lk);
-        }
-    }
-
-    void Rpc::signal_error_code(const boost::system::error_code& ec) {
-        // Communicate back the error code from the async callback handler.
-        boost::unique_lock<boost::mutex> lk(error_code_mutex);
-        error_code = ec;
-        error_code_cond.notify_one();
-    }
-
     void Rpc::transfer_handler(const boost::system::error_code& ec, std::size_t transferred) {
-        signal_error_code(ec);
+        error_code_sync.signal_error_code(ec);
     }
 }
 
