@@ -81,6 +81,12 @@ namespace malmo
     }
 
     void ClientConnection::process(const boost::system::error_code& error) {
+
+        // Stop deadline timer and release resolve resources.
+        deadline.reset();
+        resolver.release();
+        query.release();
+
         boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
         this->connect_error_code = error;
         this->write();
@@ -102,13 +108,6 @@ namespace malmo
 
     void ClientConnection::write()
     {
-        if (deadline) {
-            // Now safe to release resources used for connect.
-            deadline.reset();
-            resolver.release();
-            query.release();
-        }
-
         if (this->outbox.size() == 0)
             return;
 
