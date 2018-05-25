@@ -422,7 +422,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.missionPoller.stopServer();
         }
 
-        this.missionPoller = new TCPInputPoller(AddressHelper.getMissionControlPortOverride(), AddressHelper.MIN_MISSION_CONTROL_PORT, AddressHelper.MAX_FREE_PORT, "mcp")
+        this.missionPoller = new TCPInputPoller(AddressHelper.getMissionControlPortOverride(), AddressHelper.MIN_MISSION_CONTROL_PORT, AddressHelper.MAX_FREE_PORT, true, "mcp")
         {
             @Override
             public void onError(String error, DataOutputStream dos)

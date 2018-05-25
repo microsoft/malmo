@@ -31,7 +31,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 /** Class which polls for TCP commands in the background, and makes them available via a thread-safe queue.<br>
- * Used for receiving control commands from the Malmo code.
+ * Used for receiving control commands from the Malmo code. By default a client connection is used to service
+ * multiple request / reply interaction which can lead to connections remaining open.
  */
 public class TCPInputPoller extends Thread
 {
@@ -56,6 +57,8 @@ public class TCPInputPoller extends Thread
     private boolean failedToCreate = false;
     private String logname;
     private int connection_count = 0;
+
+    private boolean singleRequestReply = false;
 
     /**
      * Manually add a command to the command queue.<br>
@@ -82,6 +85,7 @@ public class TCPInputPoller extends Thread
 
     /** Create a new TCPInputPoller to sit and await messages on the specified port.
      * @param port port to listen on.
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int port, String logname)
     {
@@ -94,6 +98,7 @@ public class TCPInputPoller extends Thread
      * @param portmin minimum valid port number (inclusive)
      * @param portmax maximum valid port number (inclusive)
      * @param choosePortRandomly if true, choose a free port from the range at random; otherwise choose the next free port in the range.
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int portmin, int portmax, boolean choosePortRandomly, String logname)
     {
@@ -109,6 +114,7 @@ public class TCPInputPoller extends Thread
      * @param requestedPort if non-zero, the specific port to use - otherwise choose a port sequentially from the range.
      * @param portmin minimum valid port number (inclusive)
      * @param portmax maximum valid port number (inclusive)
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int requestedPort, int portmin, int portmax, String logname)
     {
@@ -117,6 +123,18 @@ public class TCPInputPoller extends Thread
         this.portRangeMin = Math.min(portmin,  portmax);
         this.commandQueue = new ArrayList<CommandAndIPAddress>();
         this.logname = logname;
+    }
+
+    /** Create a new TCPInputPoller to sit and await messages on the port which is either specified, or chosen from the range.
+     * @param requestedPort if non-zero, the specific port to use - otherwise choose a port sequentially from the range.
+     * @param portmin minimum valid port number (inclusive)
+     * @param portmax maximum valid port number (inclusive)
+     * @param singleRequestReply process a single request / reply interaction ff true.
+     * @param logname Name used in log messages.
+     */
+    public TCPInputPoller(int requestedPort, int portmin, int portmax, boolean singleRequestReply, String logname) {
+        this(requestedPort, portmin, portmax, logname);
+        this.singleRequestReply = singleRequestReply;
     }
 
     /** Pop the oldest command from our list and return it.
@@ -364,6 +382,10 @@ public class TCPInputPoller extends Thread
                         String originator = address.getHostName();
                         DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
                         poller.commandReceived(command, originator, dos);
+                        if (singleRequestReply) {
+                            this.socket.close();
+                            return;
+                        }
                         sb.setLength(0);
                     }
                     else
