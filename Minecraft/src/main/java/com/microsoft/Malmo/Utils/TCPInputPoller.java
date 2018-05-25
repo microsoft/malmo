@@ -194,9 +194,11 @@ public class TCPInputPoller extends Thread
         {
             Log(Level.INFO, "Attempting to create SocketServer...");
             // If requrestedPortNumber is 0 and we have a range of ports specified, then attempt to allocate a port dynamically from that range.
-            if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1)
-                this.serverSocket = TCPSocket.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
-            else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
+            if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1) {
+                this.serverSocket = TCPUtils.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
+                if (this.serverSocket == null)
+                    throw new Exception("Could not allocate exception from range");
+            } else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
                 this.serverSocket = new ServerSocket(this.requestedPortNumber);	// Use the specified port number
         }
         catch (Exception e)
@@ -326,7 +328,7 @@ public class TCPInputPoller extends Thread
     public class TCPConnectionHandler extends Thread
     {
         private Socket socket;
-        TCPInputPoller poller;
+        private TCPInputPoller poller;
         private String logname;
 
         public TCPConnectionHandler(Socket socket, TCPInputPoller poller, String logname)
@@ -364,7 +366,7 @@ public class TCPInputPoller extends Thread
                         poller.commandReceived(command, originator, dos);
                         sb.setLength(0);
                     }
-                    else 
+                    else
                     {
                         sb.append(c);
                     }

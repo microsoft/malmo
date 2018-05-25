@@ -98,7 +98,7 @@ import com.microsoft.Malmo.Utils.TextureHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
-import com.microsoft.Malmo.Utils.TCPSocket;
+import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
 import com.mojang.authlib.properties.Property;
@@ -131,7 +131,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     protected int integratedServerPort;
     String reservationID = "";   // empty if we are not reserved, otherwise "RESERVED" + the experiment ID we are reserved for.
     long reservationExpirationTime = 0;
-    private TCPSocket missionControlSocket;
+    private TCPSocketChannel missionControlSocket;
 
     private void reserveClient(String id)
     {
@@ -185,7 +185,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }            
     }
 
-    protected TCPSocket getMissionControlSocket() { return this.missionControlSocket; }
+    protected TCPSocketChannel getMissionControlSocket() { return this.missionControlSocket; }
     
     protected void createMissionControlSocket()
     {
@@ -193,14 +193,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         // Set up a TCP connection to the agent:
         ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
         if (this.missionControlSocket == null ||
-            this.missionControlSocket.port != cac.getAgentMissionControlPort() ||
-            this.missionControlSocket.address == null ||
+            this.missionControlSocket.getPort() != cac.getAgentMissionControlPort() ||
+            this.missionControlSocket.getAddress() == null ||
             !this.missionControlSocket.isValid() ||
-            !this.missionControlSocket.address.equals(cac.getAgentIPAddress()))
+            !this.missionControlSocket.getAddress().equals(cac.getAgentIPAddress()))
         {
             if (this.missionControlSocket != null)
                 this.missionControlSocket.close();
-            this.missionControlSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentMissionControlPort(), "mcp");
+            this.missionControlSocket = new TCPSocketChannel(cac.getAgentIPAddress(), cac.getAgentMissionControlPort(), "mcp");
         }
         ls.close();
     }
@@ -546,6 +546,31 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         if (config.getBoolean("replaceable", "runtype", false, "Will be replaced if killed"))
                         {
                             reply("MALMOOK", dos);
+
+                            missionPoller.stopServer();
+
+                            // Give non-hard exit 10 seconds to complete and force a hard exit.
+                            Thread deadMansHandle = new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    for (int i = 10; i > 0; i--) {
+                                        try {
+                                            Thread.sleep(1000);
+                                            System.out.println("Waiting to exit " + i + "...");
+                                        } catch (InterruptedException e) {
+                                            System.out.println("Interrupted " + i + "...");
+                                        }
+                                    }
+
+                                    // Kill it with fire!!!
+                                    System.out.println("Attempting hard exit");
+                                    FMLCommonHandler.instance().exitJava(0, true);
+                                }
+                            });
+
+                            deadMansHandle.setDaemon(true);
+                            deadMansHandle.start();
+
                             // Have to use FMLCommonHandler; direct calls to System.exit() are trapped and denied by the FML code.
                             FMLCommonHandler.instance().exitJava(0, false);
                         }
@@ -1604,8 +1629,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private boolean wantsToQuit = false; // We have decided our mission is at an end
         private List<VideoHook> videoHooks = new ArrayList<VideoHook>();
         private String quitCode = "";
-        private TCPSocket observationSocket = null;
-        private TCPSocket rewardSocket = null;
+        private TCPSocketChannel observationSocket = null;
+        private TCPSocketChannel rewardSocket = null;
         private long lastPingSent = 0;
         private long pingFrequencyMs = 1000;
 
@@ -1800,8 +1825,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void openSockets()
         {
             ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
-            this.observationSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentObservationsPort(), "obs");
-            this.rewardSocket = new TCPSocket(cac.getAgentIPAddress(), cac.getAgentRewardsPort(), "rew");
+            this.observationSocket = new TCPSocketChannel(cac.getAgentIPAddress(), cac.getAgentObservationsPort(), "obs");
+            this.rewardSocket = new TCPSocketChannel(cac.getAgentIPAddress(), cac.getAgentRewardsPort(), "rew");
         }
 
         private void closeSockets()
@@ -2092,9 +2117,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             boolean sentOkay = false;
             if (missionEndedString != null)
             {
-                TCPSocket sender = ClientStateMachine.this.getMissionControlSocket();
-                System.out.println(String.format("Sending mission ended message to %s:%d.", sender.address, sender.port));
+                TCPSocketChannel sender = ClientStateMachine.this.getMissionControlSocket();
+                System.out.println(String.format("Sending mission ended message to %s:%d.", sender.getAddress(), sender.getPort()));
                 sentOkay = sender.sendTCPString(missionEndedString);
+                sender.close();
             }
 
             if (!sentOkay)
