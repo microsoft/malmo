@@ -60,7 +60,7 @@ public class TCPSocketChannel
         Future<Void> connected = this.channel.connect(insockad);
         connected.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
-    
+
     public void close()
     {
         Log(Level.INFO, "Attempting to close channel.");
