@@ -86,7 +86,7 @@ This command will create a new directory (called MalmoPlatform) containing the M
 Please remeber to set up the MALMO_XSD_PATH environment variable to point to the MalmoPlatform/Schemas directory. 
 i.e. full path of working dir and MalmoPlaftorm/Schema.
 
-Alternatively, you could set it in Python temporarily with a `malmo.minecraftbootstrap.set_xsd_path();` statement after the 
+Alternatively, you could set it in Python temporarily with a `malmo.minecraftbootstrap.set_malmo_xsd_path();` statement after the 
 `import malmo.minecraftbootstrap;` module import in the python commands below.
 
 You can now launch Minecraft from your working directory:
@@ -103,7 +103,7 @@ The malmo package includes a simple test mission which you can run as follows:
 python3 -c 'from malmo.run_mission import run; run()'
 ```
 
-(Again, add a `malmo.minecraftbootstrap.set_xsd_path()` statement if you have not set up the MALMO_XSD_PATH.)
+(Again, add a `malmo.minecraftbootstrap.set_malmo_xsd_path()` statement if you have not set up the MALMO_XSD_PATH.)
 
 You can also run the mission from Jupyter. Simply create a Python3 notebook and 
 add `from malmo.run_mission import run; run()` to the notebook and execute it.
