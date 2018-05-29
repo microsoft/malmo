@@ -17,32 +17,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-set( PYTHON_TEST_SOURCES
-  test_wrapping.py
-  test_argument_parser.py
-  test_agent_host.py
-  test_mission.py
-  test_parameter_set.py
-  test_malmoutils.py
-)
+'''Tests malmoutils.'''
 
-if ( ALE_FOUND )
-  set( PYTHON_TEST_SOURCES
-    ${PYTHON_TEST_SOURCES}
-    test_ALE_built.py
-  )
-endif()
+import MalmoPython
+import malmoutils
 
-foreach( file ${PYTHON_TEST_SOURCES} )
+agentHost = MalmoPython.AgentHost()
 
-  get_filename_component( test_name "${file}" NAME_WE )
-  set( test_name "PythonTests_${test_name}" )
-  
-  add_test(NAME ${test_name}
-    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-  )
-  set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
-  
-endforeach()
+# See if we can parse our extended command line.
+malmoutils.parse_command_line(agentHost)
+
+# As we are not recording our video xml should be an empty string.
+assert malmoutils.get_video_xml(agentHost) == ''
+
+# Test that we can get a default recording spec.
+assert type(malmoutils.get_default_recording_object(agentHost, "test")) == MalmoPython.MissionRecordSpec
+
+# Default recordings directory is ''.
+assert malmoutils.get_recordings_directory(agentHost) == ''
+
+# Test that a TrackingClientPool can indeed track some added ClientInfo objects.
+
+clientPool = malmoutils.TrackingClientPool()
+assert clientPool.getClientInfos() == []
+client1 = MalmoPython.ClientInfo("localhost", 10000)
+clientPool.add(client1)
+assert clientPool.getClientInfos() == [client1]
+client2 = MalmoPython.ClientInfo("localhost", 10001)
+clientPool.add(client2)
+assert clientPool.getClientInfos() == [client1, client2]
+
+clientPool2 = malmoutils.TrackingClientPool([client1, client2])
+assert clientPool.getClientInfos() == clientPool2.getClientInfos()
 
