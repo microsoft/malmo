@@ -22,8 +22,6 @@
 
 // Boost:
 #include <boost/asio/io_service.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
 // STL:

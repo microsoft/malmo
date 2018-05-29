@@ -18,21 +18,27 @@ public class TCPSocketChannel
     private int port;
     private String logname;
 
+    /**
+     * Create a TCPSocketChannel that is blocking but times out connects and writes.
+     * @param address The address to connect to.
+     * @param port The port to connect to.
+     * @param logname A name to use for logging.
+     */
     public TCPSocketChannel(String address, int port, String logname) {
         this.address = address;
         this.port = port;
         this.logname = logname;
 
         try {
-            connect();
+            connectWithTimeout();
         } catch (IOException e) {
-            Log(Level.SEVERE, "Failed to connect AsynchronousSocketChannel: " + e);
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
         } catch (ExecutionException e) {
-            Log(Level.SEVERE, "Failed to connect AsynchronousSocketChannel: " + e);
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
         } catch (InterruptedException e) {
-            Log(Level.SEVERE, "Failed to connect AsynchronousSocketChannel: " + e);
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
         } catch (TimeoutException e) {
-            Log(Level.SEVERE, "AsynchronousSocketChannel connect timed out: " + e);
+            Log(Level.SEVERE, "AsynchronousSocketChannel connectWithTimeout timed out: " + e);
         }
     }
 
@@ -53,11 +59,11 @@ public class TCPSocketChannel
         TCPUtils.SysLog(level, "<-" + this.logname + "(" + this.address + ":" + this.port + ") " + message);
     }
 
-    private void connect() throws  IOException, ExecutionException, InterruptedException, TimeoutException {
-        InetSocketAddress insockad = new InetSocketAddress(address, port);
-        Log(Level.INFO, "Attempting to open SocketChannel with InetSocketAddress: " + insockad);
+    private void connectWithTimeout() throws  IOException, ExecutionException, InterruptedException, TimeoutException {
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
+        Log(Level.INFO, "Attempting to open SocketChannel with InetSocketAddress: " + inetSocketAddress);
         this.channel = AsynchronousSocketChannel.open();
-        Future<Void> connected = this.channel.connect(insockad);
+        Future<Void> connected = this.channel.connect(inetSocketAddress);
         connected.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
 
@@ -80,21 +86,19 @@ public class TCPSocketChannel
     /**
      * Send string over TCP to the specified address via the specified port, including a header.
      *
-     * @param message   string to be sent over TCP
+     * @param message string to be sent over TCP
      * @return true if message was successfully sent
      */
     public boolean sendTCPString(String message)
     {
-        Log(Level.FINE, "About to send: " + message);
-        byte[] bytes = message.getBytes();
-        return sendTCPBytes(bytes, 0);
+        return sendTCPString(message, 0);
     }
 
     /**
      * Send string over TCP to the specified address via the specified port, including a header.
      *
-     * @param message   string to be sent over TCP
-     * @param retries   number of times to retry in event of failure
+     * @param message string to be sent over TCP
+     * @param retries number of times to retry in event of failure
      * @return true if message was successfully sent
      */
     public boolean sendTCPString(String message, int retries)
@@ -107,7 +111,7 @@ public class TCPSocketChannel
     /**
      * Send byte buffer over TCP, including a length header.
      *
-     * @param buffer    the bytes to send
+     * @param buffer the bytes to send
      * @return true if the message was sent successfully
      */
     public boolean sendTCPBytes(byte[] buffer)
@@ -118,8 +122,8 @@ public class TCPSocketChannel
     /**
      * Send byte buffer over TCP, including a length header.
      *
-     * @param bytes    the bytes to send
-     * @param retries   number of times to retry in event of failure
+     * @param bytes the bytes to send
+     * @param retries number of times to retry in event of failure
      * @return true if the message was sent successfully
      */
     public boolean sendTCPBytes(byte[] bytes, int retries) {
@@ -138,9 +142,9 @@ public class TCPSocketChannel
             SysLog(Level.SEVERE, "Failed to send TCP bytes " + (retries > 0? " retrying " : "") + ": " + e);
             try { channel.close(); } catch (IOException ioe) {}
 
-            if (retries> 0) {
+            if (retries > 0) {
                 try {
-                    connect();
+                    connectWithTimeout();
                 } catch (Exception connectException) {
                     SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
                     return false;

@@ -41,6 +41,11 @@ namespace malmo
     ClientConnection::ClientConnection(boost::asio::io_service& io_service, std::string address, int port)
         : io_service(io_service)
     {
+        // DEBUG FAKE 
+        // std::cout << "CONNECT SIT DOWN" << std::endl;
+        // std::this_thread::sleep_for(std::chrono::seconds(1000));
+
+
         LOGTRACE(LT("Creating ClientConnection to "), address, LT(":"), port);
 
         resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(new boost::asio::ip::tcp::resolver(io_service));
@@ -87,6 +92,7 @@ namespace malmo
         resolver.release();
         query.release();
 
+        // Record error code and start processing writes.
         boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
         this->connect_error_code = error;
         this->write();
@@ -131,8 +137,7 @@ namespace malmo
         );
     }
 
-    void ClientConnection::wrote(const boost::system::error_code& error,
-        size_t bytes_transferred)
+    void ClientConnection::wrote(const boost::system::error_code& error, size_t bytes_transferred)
     {
         if (error)
         {

@@ -22,7 +22,6 @@
 #include "Logger.h"
 
 // Boost:
-#include <boost/predef.h>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
@@ -123,7 +122,7 @@ namespace malmo
             }
         });
 
-        // Attempt the resolve & connect.  Relying on background worker thread to progress the async io.
+        // Attempt the resolve & connect. Relying on background worker thread to progress the async io.
 
         error_code_sync.init_error_code();
 

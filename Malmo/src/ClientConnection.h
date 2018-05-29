@@ -58,8 +58,7 @@ namespace malmo
 
         void write();
 
-        void wrote(const boost::system::error_code& error,
-            size_t bytes_transferred);
+        void wrote(const boost::system::error_code& error, size_t bytes_transferred);
 
         void process(const boost::system::error_code& error);
 

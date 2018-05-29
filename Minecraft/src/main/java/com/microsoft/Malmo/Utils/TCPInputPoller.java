@@ -32,7 +32,8 @@ import java.util.logging.Level;
 
 /** Class which polls for TCP commands in the background, and makes them available via a thread-safe queue.<br>
  * Used for receiving control commands from the Malmo code. By default a client connection is used to service
- * multiple request / reply interaction which can lead to connections remaining open.
+ * multiple request / reply interaction which can lead to connections remaining open. Use constructor with
+ * singleRequestRerply set to false if only one interaction is to be served.
  */
 public class TCPInputPoller extends Thread
 {
@@ -215,7 +216,7 @@ public class TCPInputPoller extends Thread
             if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1) {
                 this.serverSocket = TCPUtils.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
                 if (this.serverSocket == null)
-                    throw new Exception("Could not allocate exception from range");
+                    throw new Exception("Could not allocate port from range.");
             } else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
                 this.serverSocket = new ServerSocket(this.requestedPortNumber);	// Use the specified port number
         }
@@ -383,6 +384,7 @@ public class TCPInputPoller extends Thread
                         DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
                         poller.commandReceived(command, originator, dos);
                         if (singleRequestReply) {
+                            // Stop handling the connection after one interaction.
                             this.socket.close();
                             return;
                         }
