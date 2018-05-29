@@ -28,85 +28,117 @@
 
 namespace malmo
 {
-    boost::shared_ptr< ClientConnection > ClientConnection::create( boost::asio::io_service& io_service, std::string address, int port )
+    boost::shared_ptr<ClientConnection> ClientConnection::create(boost::asio::io_service& io_service, std::string address, int port)
     {
-        return boost::shared_ptr< ClientConnection >(new ClientConnection( io_service, address, port ) );
-    }
-    
-    void ClientConnection::send( std::string message )
-    {
-        //LOGTRACE(LT("Request to send "), message, LT(" to "), this->)
-        this->io_service.post( boost::bind( &ClientConnection::writeImpl, shared_from_this(), message ) );
+        return boost::shared_ptr<ClientConnection>(new ClientConnection(io_service, address, port));
     }
 
-    ClientConnection::ClientConnection( boost::asio::io_service& io_service, std::string address, int port )
-        : io_service( io_service )
+    void ClientConnection::send(std::string message)
     {
+        this->io_service.post(boost::bind(&ClientConnection::writeImpl, shared_from_this(), message));
+    }
+
+    ClientConnection::ClientConnection(boost::asio::io_service& io_service, std::string address, int port)
+        : io_service(io_service)
+    {
+        // DEBUG FAKE 
+        // std::cout << "CONNECT SIT DOWN" << std::endl;
+        // std::this_thread::sleep_for(std::chrono::seconds(1000));
+
+
         LOGTRACE(LT("Creating ClientConnection to "), address, LT(":"), port);
-        // connect the socket to the requested endpoint
-        boost::asio::ip::tcp::resolver resolver( io_service );
-        boost::asio::ip::tcp::resolver::query query( address, std::to_string( port ) );
-        boost::system::error_code ec;
-        boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve( query, ec );
-        if (ec)
-            LOGERROR(LT("Failed to resolve endpoint "), address, LT(":"), port, LT(" - "), ec.message());
-        try
-        {
-            this->socket = std::unique_ptr< boost::asio::ip::tcp::socket >(new boost::asio::ip::tcp::socket(io_service));
-            boost::asio::ip::tcp::resolver::iterator connected_endpoint = boost::asio::connect(*this->socket, endpoint_iterator);
-            LOGFINE(LT("Connected - "), connected_endpoint->service_name(), LT(" - "), connected_endpoint->host_name());
-        }
-        catch (boost::system::system_error e)
-        {
-            LOGERROR(LT("Failed to connect to "), address, LT(":"), port, LT(" - "), e.code().message());
-        }
+
+        resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(new boost::asio::ip::tcp::resolver(io_service));
+        query = std::unique_ptr<boost::asio::ip::tcp::resolver::query>(new boost::asio::ip::tcp::resolver::query(address, std::to_string(port)));
+
+        socket = std::unique_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(io_service));
+        deadline = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(io_service, boost::posix_time::seconds(60)));
+
+        deadline->async_wait([&](const boost::system::error_code& ec) {
+            if (!ec)
+            {
+                LOGERROR(LT("Client communication connect timeout."));
+                boost::system::error_code ignored_ec;
+                socket->close(ignored_ec);
+            }
+        });
+
+        connect_error_code = boost::asio::error::would_block;
+
+        resolver->async_resolve(*query, [&](const boost::system::error_code& ec, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
+            if (ec || endpoint_iterator == boost::asio::ip::tcp::resolver::iterator())
+            {
+                LOGERROR(LT("Failed to resolve "), address, LT(":"), port, LT(" - "), ec.message());
+                process(ec);
+            }
+            else
+            {
+                socket->async_connect(endpoint_iterator->endpoint(), [&](const boost::system::error_code& ec) {
+                    LOGTRACE(LT("ClientConnection connected to "), address, LT(":"), port);
+                    process(ec);
+                });
+            }
+        });
     }
-    
+
     ClientConnection::~ClientConnection()
-    {        
+    {
     }
-        
-    void ClientConnection::writeImpl( std::string message )
+
+    void ClientConnection::process(const boost::system::error_code& error) {
+
+        // Stop deadline timer and release resolve resources.
+        deadline.reset();
+        resolver.release();
+        query.release();
+
+        // Record error code and start processing writes.
+        boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
+        this->connect_error_code = error;
+        this->write();
+    }
+
+    void ClientConnection::writeImpl(std::string message)
     {
         boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
 
         if (message.back() != '\n')
             message += '\n';
-        this->outbox.push_back( message );
-        if ( this->outbox.size() > 1 ) {
-            // outstanding write
-            boost::system::error_code ec;
-            LOGTRACE(LT("Backlog writing to "), this->socket->remote_endpoint(ec), LT(" - "), this->outbox.size(), LT(" items awaiting send"));
-            if (ec)
-                LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
+        this->outbox.push_back(message);
+
+        // Initiate async write(s) if we are not waiting to be connected and queue was empty.
+        if (connect_error_code != boost::asio::error::would_block && this->outbox.size() == 1) {
+            this->write();
+        }
+    }
+
+    void ClientConnection::write()
+    {
+        if (this->outbox.size() == 0)
+            return;
+
+        if (connect_error_code) {
+            LOGERROR(LT("Client connection with error (on write): "), connect_error_code.message());
+            this->outbox.clear();
             return;
         }
 
-        this->write();
-    }
-    
-    void ClientConnection::write()
-    {
         const std::string& message = this->outbox.front();
-        boost::system::error_code ec;
-        LOGFINE(LT("About to async_write "), message, LT(" to "), this->socket->remote_endpoint(ec));
-        if (ec)
-            LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
+
         boost::asio::async_write(
             *this->socket,
-            boost::asio::buffer( message ),
+            boost::asio::buffer(message),
             boost::bind(
                 &ClientConnection::wrote,
                 shared_from_this(),
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred
-            ) 
+            )
         );
     }
 
-    void ClientConnection::wrote( const boost::system::error_code& error,
-                                  size_t bytes_transferred )
-    {        
+    void ClientConnection::wrote(const boost::system::error_code& error, size_t bytes_transferred)
+    {
         if (error)
         {
             boost::system::error_code ec;
@@ -123,8 +155,8 @@ namespace malmo
             boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
             this->outbox.pop_front();
         }
-        if( !this->outbox.empty() )
-            this->write();  
+        if (!this->outbox.empty())
+            this->write();
     }
 }
 

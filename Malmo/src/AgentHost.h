@@ -31,6 +31,7 @@
 #include "VideoServer.h"
 #include "WorldState.h"
 #include "Logger.h"
+#include "TCPClient.h"
 
 // Boost:
 #include <boost/thread.hpp>
@@ -217,6 +218,8 @@ namespace malmo
             boost::shared_ptr<MissionInitSpec> current_mission_init;
             boost::shared_ptr<MissionRecord> current_mission_record;
             int current_role;
+
+            Rpc rpc;
     };
 
 }

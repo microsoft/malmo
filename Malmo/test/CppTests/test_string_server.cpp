@@ -47,6 +47,8 @@ void onMessageReceived( TimestampedString message )
     num_messages_received++;
 }
 
+Rpc rpc;
+
 bool testStringServer( bool withReply )
 {
     num_messages_received = 0;
@@ -67,7 +69,7 @@ bool testStringServer( bool withReply )
     std::cout << "Sending messages.." << std::endl;
     for( int i = 0; i < num_messages_sent; i++ ) {
         if( withReply ) {
-            std::string reply = SendStringAndGetShortReply(io_service, "127.0.0.1", server.getPort(), expected_message, true);
+            std::string reply = rpc.sendStringAndGetShortReply(io_service, "127.0.0.1", server.getPort(), expected_message, true);
             if( reply != expected_reply ) {
                 std::cout << "Unexpected reply." << std::endl;
                 return false;

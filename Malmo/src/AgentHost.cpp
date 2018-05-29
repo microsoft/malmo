@@ -140,7 +140,7 @@ namespace malmo
         std::string reply;
         try
         {
-            reply = SendStringAndGetShortReply(this->io_service, client.ip_address, client.control_port, "MALMO_KILL_CLIENT\n", false);
+            reply = rpc.sendStringAndGetShortReply(this->io_service, client.ip_address, client.control_port, "MALMO_KILL_CLIENT\n", false);
         }
         catch (std::exception& e)
         {
@@ -312,7 +312,7 @@ namespace malmo
             LOGINFO(LT("Sending reservation request to "), item.ip_address, LT(":"), item.control_port);
             try
             {
-                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
+                reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
             }
             catch (std::exception&)
             {
@@ -340,7 +340,7 @@ namespace malmo
                 LOGINFO(LT("Cancelling reservation request with "), item.ip_address, LT(":"), item.control_port);
                 try
                 {
-                    reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, "MALMO_CANCEL_REQUEST\n", false);
+                    reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, "MALMO_CANCEL_REQUEST\n", false);
                 }
                 catch (std::exception&)
                 {
@@ -367,7 +367,7 @@ namespace malmo
             LOGINFO(LT("Sending find server request to "), item.ip_address, LT(":"), item.control_port);
             try
             {
-                reply = SendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
+                reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
             }
             catch (std::exception&)
             {
@@ -427,7 +427,7 @@ namespace malmo
             LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.control_port);
             try 
             {
-                reply = SendStringAndGetShortReply( this->io_service, item.ip_address, item.control_port, mission_init_xml, false );
+                reply = rpc.sendStringAndGetShortReply( this->io_service, item.ip_address, item.control_port, mission_init_xml, false );
             }
             catch( std::exception& ) {
                 LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.control_port);
