@@ -70,7 +70,7 @@ namespace malmo
     
         //! Set the request/reply timeout.
         //! \param seconds The timeout delay in seconds.
-        void setTimeout(int64_t seconds) {
+        void setTimeout(long seconds) {
             timeout = boost::posix_time::seconds(seconds);
         }
 

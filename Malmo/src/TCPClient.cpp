@@ -101,7 +101,7 @@ namespace malmo
 
     std::string Rpc::sendStringAndGetShortReply(boost::asio::io_service& io_service, const std::string& ip_address, int port, const std::string& message, bool withSizeHeader)
     {
-        const int MAX_PACKET_LENGTH = 1024;
+        const u_long MAX_PACKET_LENGTH = 1024;
         unsigned char data[MAX_PACKET_LENGTH + 1];
         std::vector<unsigned char> message_vector(message.begin(), message.end());
 
@@ -153,7 +153,7 @@ namespace malmo
 
         error_code_sync.init_error_code();
 
-        // the size header is 4 bytes containing the size of the body of the message as a network byte order integer.
+        // The size header is 4 bytes containing the size of the body of the message as a network byte order integer.
         const int SIZE_HEADER_LENGTH = 4;
         u_long size_header;
 
@@ -172,7 +172,8 @@ namespace malmo
                 }
             });
         }
-        else {
+        else 
+        {
             boost::asio::async_write(socket, boost::asio::buffer(message_vector), boost::bind(&Rpc::transfer_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
         }
 
@@ -188,9 +189,9 @@ namespace malmo
                 if (!ec) {
                     size_header = ntohl(size_header);
 
-                    if (size_header < 0 || size_header > MAX_PACKET_LENGTH)
+                    if (size_header > MAX_PACKET_LENGTH)
                     {
-                        LOGERROR(LT("Packet length of "), size_header, LT(" received from "), ip_address, LT(":"), port, LT(" less than 0 or exceeds maximum allowed."));
+                        LOGERROR(LT("Packet length of "), size_header, LT(" received from "), ip_address, LT(":"), port, LT(" exceeds maximum allowed."));
                         transfer_handler(boost::asio::error::fault, transferred);
                     }
                     else

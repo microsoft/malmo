@@ -113,7 +113,7 @@ struct ptime_to_python_datetime
         std::int64_t fracsecs = td.fractional_seconds();
         std::int64_t usecs = (resolution > 1000000) ? fracsecs / (resolution / 1000000) : fracsecs * (1000000 / resolution);
 
-        return PyDateTime_FromDateAndTime((int)date.year(), (int)date.month(), (int)date.day(), td.hours(), td.minutes(), td.seconds(), (int)usecs);
+        return PyDateTime_FromDateAndTime((int)date.year(), (int)date.month(), (int)date.day(), (int)td.hours(), (int)td.minutes(), (int)td.seconds(), (int)usecs);
     }
 };
 
