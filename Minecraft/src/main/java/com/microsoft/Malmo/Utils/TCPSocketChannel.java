@@ -2,6 +2,7 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -139,17 +140,22 @@ public class TCPSocketChannel
             bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         } catch (Exception e) {
-            SysLog(Level.SEVERE, "Failed to send TCP bytes " + (retries > 0? " retrying " : "") + ": " + e);
-            try { channel.close(); } catch (IOException ioe) {}
-
-            if (retries > 0) {
+            SysLog(Level.SEVERE, "Failed to send TCP bytes" + (retries > 0 && e instanceof SocketException ? " -- retrying " : "") + ": " + e);
+            if (e instanceof SocketException) {
                 try {
-                    connectWithTimeout();
-                } catch (Exception connectException) {
-                    SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
-                    return false;
+                    channel.close();
+                } catch (IOException ioe) {
                 }
-                return sendTCPBytes(bytes, retries - 1);
+
+                if (retries > 0) {
+                    try {
+                        connectWithTimeout();
+                    } catch (Exception connectException) {
+                        SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
+                        return false;
+                    }
+                    return sendTCPBytes(bytes, retries - 1);
+                }
             }
             return false;
         }

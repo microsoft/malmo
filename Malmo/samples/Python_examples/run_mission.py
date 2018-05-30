@@ -79,7 +79,6 @@ def run(argv=['']):
 
     for retry in range(max_retries):
         try:
-            # agent_host.startMission(my_mission, my_mission_record)
             agent_host.startMission(my_mission, pool, my_mission_record, 0, experiment_id)
             break
         except RuntimeError as e:
