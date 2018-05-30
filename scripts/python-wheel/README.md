@@ -10,7 +10,7 @@ However, it is often even simpler and sufficient to install Malmo as a python na
 In order to `pip3 install malmo` there are some environment and OS dependency requirements that have to be met:
 
 1.	Java 8 musst be installed and the JAVA_HOME environment variable must be set up for Java8.
-2. [git] (https://git-scm.com/) should be installed and on your shell path.
+2.  [git](https://git-scm.com/) should be installed and on your shell path.
 3.	MALMO_XSD_PATH must be set to where the XSD schema files are (more on this below).
 4.	There are a few OS specific dependencies that must be pre-installed. 
 
