@@ -140,23 +140,23 @@ public class TCPSocketChannel
             bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         } catch (Exception e) {
-            SysLog(Level.SEVERE, "Failed to send TCP bytes" + (retries > 0 && e instanceof SocketException ? " -- retrying " : "") + ": " + e);
-            if (e instanceof SocketException) {
-                try {
-                    channel.close();
-                } catch (IOException ioe) {
-                }
+            SysLog(Level.SEVERE, "Failed to send TCP bytes" + (retries > 0 ? " -- retrying " : "") + ": " + e);
 
-                if (retries > 0) {
-                    try {
-                        connectWithTimeout();
-                    } catch (Exception connectException) {
-                        SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
-                        return false;
-                    }
-                    return sendTCPBytes(bytes, retries - 1);
-                }
+            try {
+                channel.close();
+            } catch (IOException ioe) {
             }
+
+            if (retries > 0) {
+                try {
+                    connectWithTimeout();
+                } catch (Exception connectException) {
+                    SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
+                    return false;
+                }
+                return sendTCPBytes(bytes, retries - 1);
+            }
+
             return false;
         }
         return true;
