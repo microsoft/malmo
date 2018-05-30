@@ -71,13 +71,13 @@ RUN sudo apt-get update && sudo apt-get install -y dos2unix
 COPY ./build.sh /home/malmo/build.sh
 RUN sudo dos2unix /home/malmo/build.sh
 
-# Build Malmo - no install; no testing and branch specified for now!!!
-RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch package -no_testing
-
-WORKDIR /home/malmo/MalmoPlatform
-
 # Set MALMO_XSD_PATH to download install location.
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
+
+# Build Malmo - no install; no testing and branch specified for now!!!
+RUN /home/malmo/build.sh -boost 1_66_0 -python 3.5 -with_display -branch malmorel -no_testing
+
+WORKDIR /home/malmo/MalmoPlatform
 
 # TODO for now pip install package "malmo" from the test pypi web site. 
 # The pip3 install and download could be moved to docker build time.
