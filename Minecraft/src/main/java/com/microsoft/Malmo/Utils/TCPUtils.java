@@ -70,7 +70,8 @@ public class TCPUtils
         }
     }
 
-    public static final int DEFAULT_SOCKET_TIMEOUT_MS = 10000;
+    public static final int DEFAULT_SOCKET_TIMEOUT_MS = 30000;
+
     private static Logger logger = Logger.getLogger("com.microsoft.Malmo.TCPUtils");
     private static FileHandler filehandler = null;
     private static boolean logging = false;

@@ -153,7 +153,7 @@ namespace malmo
 
         error_code_sync.init_error_code();
 
-        // the size header is 4 bytes containing the size of the body of the message as a network byte order integer.
+        // The size header is 4 bytes containing the size of the body of the message as a network byte order integer.
         const int SIZE_HEADER_LENGTH = 4;
         u_long size_header;
 
@@ -172,7 +172,8 @@ namespace malmo
                 }
             });
         }
-        else {
+        else 
+        {
             boost::asio::async_write(socket, boost::asio::buffer(message_vector), boost::bind(&Rpc::transfer_handler, this, boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
         }
 
