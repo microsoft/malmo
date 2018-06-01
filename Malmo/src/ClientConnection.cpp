@@ -41,31 +41,26 @@ namespace malmo
     ClientConnection::ClientConnection(boost::asio::io_service& io_service, std::string address, int port)
         : io_service(io_service)
     {
-        // DEBUG FAKE 
-        // std::cout << "CONNECT SIT DOWN" << std::endl;
-        // std::this_thread::sleep_for(std::chrono::seconds(1000));
-
-
         LOGTRACE(LT("Creating ClientConnection to "), address, LT(":"), port);
 
-        resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(new boost::asio::ip::tcp::resolver(io_service));
-        query = std::unique_ptr<boost::asio::ip::tcp::resolver::query>(new boost::asio::ip::tcp::resolver::query(address, std::to_string(port)));
+        this->resolver = std::unique_ptr<boost::asio::ip::tcp::resolver>(new boost::asio::ip::tcp::resolver(io_service));
+        this->query = std::unique_ptr<boost::asio::ip::tcp::resolver::query>(new boost::asio::ip::tcp::resolver::query(address, std::to_string(port)));
 
-        socket = std::unique_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(io_service));
-        deadline = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(io_service, boost::posix_time::seconds(60)));
+        this->socket = std::unique_ptr<boost::asio::ip::tcp::socket>(new boost::asio::ip::tcp::socket(io_service));
+        this->deadline = std::unique_ptr<boost::asio::deadline_timer>(new boost::asio::deadline_timer(io_service, this->timeout));
 
-        deadline->async_wait([&](const boost::system::error_code& ec) {
+        this->deadline->async_wait([&](const boost::system::error_code& ec) {
             if (!ec)
             {
                 LOGERROR(LT("Client communication connect timeout."));
                 boost::system::error_code ignored_ec;
-                socket->close(ignored_ec);
+                this->socket->close(ignored_ec);
             }
         });
 
-        connect_error_code = boost::asio::error::would_block;
+        this->connect_error_code = boost::asio::error::would_block;
 
-        resolver->async_resolve(*query, [&](const boost::system::error_code& ec, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
+        this->resolver->async_resolve(*query, [&](const boost::system::error_code& ec, boost::asio::ip::tcp::resolver::iterator endpoint_iterator) {
             if (ec || endpoint_iterator == boost::asio::ip::tcp::resolver::iterator())
             {
                 LOGERROR(LT("Failed to resolve "), address, LT(":"), port, LT(" - "), ec.message());
@@ -73,7 +68,7 @@ namespace malmo
             }
             else
             {
-                socket->async_connect(endpoint_iterator->endpoint(), [&](const boost::system::error_code& ec) {
+                this->socket->async_connect(endpoint_iterator->endpoint(), [&](const boost::system::error_code& ec) {
                     LOGTRACE(LT("ClientConnection connected to "), address, LT(":"), port);
                     process(ec);
                 });

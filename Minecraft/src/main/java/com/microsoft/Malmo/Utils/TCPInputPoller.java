@@ -33,7 +33,7 @@ import java.util.logging.Level;
 /** Class which polls for TCP commands in the background, and makes them available via a thread-safe queue.<br>
  * Used for receiving control commands from the Malmo code. By default a client connection is used to service
  * multiple request / reply interaction which can lead to connections remaining open. Use constructor with
- * singleRequestRerply set to false if only one interaction is to be served.
+ * singleRequestReply set to false if only one interaction is to be served.
  */
 public class TCPInputPoller extends Thread
 {

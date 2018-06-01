@@ -10,7 +10,7 @@ However, it is often even simpler and sufficient to install Malmo as a python na
 In order to `pip3 install malmo` there are some environment and OS dependency requirements that have to be met:
 
 1.	Java 8 musst be installed and the JAVA_HOME environment variable must be set up for Java8.
-2.  [git](https://git-scm.com/) should be installed and on your shell path.
+2.  [git](https://git-scm.com/) should be installed and on your shell search path.
 3.	MALMO_XSD_PATH must be set to where the XSD schema files are (more on this below).
 4.	There are a few OS specific dependencies that must be pre-installed. 
 
@@ -41,7 +41,7 @@ and is set up to allow remote access via the
 so that you are able to see the Minecraft game running inside the container.
 
 ```
-docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword andkram/malmo_headless_0_34_1
+docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword andkram/malmo_0_35_0
 ```
 
 You can add a `-v drive:/somedir:/somedir` option to the above docker run command to mount a directory 

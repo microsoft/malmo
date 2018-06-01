@@ -51,6 +51,16 @@ namespace malmo
 
         ~ClientConnection();
 
+        //! Set the request/reply timeout.
+        //! \param seconds The timeout delay in seconds.
+        void setTimeout(long seconds) {
+            timeout = boost::posix_time::seconds(seconds);
+        }
+
+        //! Get the request/reply timeout.
+        //! \returns The timeout delay in seconds.
+        int64_t getTimeout() { return timeout.total_seconds(); }
+
     private:
         ClientConnection(boost::asio::io_service& io_service, std::string address, int port);
 
@@ -61,6 +71,8 @@ namespace malmo
         void wrote(const boost::system::error_code& error, size_t bytes_transferred);
 
         void process(const boost::system::error_code& error);
+
+        boost::posix_time::time_duration timeout = boost::posix_time::seconds(60);
 
         boost::asio::io_service& io_service;
 
