@@ -8,6 +8,7 @@ New: C# is now built on Windows using modern CMake.
 Chg: Removed support for Mono.
 Chg: Removed support for Torch.
 Chg: Removed Support for Lua.
+New: Exposed ClientPool clients C++ vector member as Python iterable.
 
 0.34.0
 -------------------

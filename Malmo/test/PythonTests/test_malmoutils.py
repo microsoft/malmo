@@ -36,17 +36,18 @@ assert type(malmoutils.get_default_recording_object(agentHost, "test")) == Malmo
 # Default recordings directory is ''.
 assert malmoutils.get_recordings_directory(agentHost) == ''
 
-# Test that a TrackingClientPool can indeed track some added ClientInfo objects.
+def clientInfos(cp):
+    return [(c.ip_address, c.control_port, c.command_port) for c in cp.clients]
 
-clientPool = malmoutils.TrackingClientPool()
-assert clientPool.getClientInfos() == []
-client1 = MalmoPython.ClientInfo("localhost", 10000)
+# Test adding some client infos to a client pool.
+clientPool = MalmoPython.ClientPool()
+assert len(clientPool.clients) == 0
+c1 = ("localhost", 10000, 0)
+client1 = MalmoPython.ClientInfo(*c1)
 clientPool.add(client1)
-assert clientPool.getClientInfos() == [client1]
-client2 = MalmoPython.ClientInfo("localhost", 10001)
+assert clientInfos(clientPool) == [c1]
+c2 = ("127.0.0.1", 10001, 20001)
+client2 = MalmoPython.ClientInfo(*c2)
 clientPool.add(client2)
-assert clientPool.getClientInfos() == [client1, client2]
-
-clientPool2 = malmoutils.TrackingClientPool([client1, client2])
-assert clientPool.getClientInfos() == clientPool2.getClientInfos()
+assert clientInfos(clientPool) == [c1, c2]
 
