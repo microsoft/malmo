@@ -124,4 +124,4 @@ ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 
 USER malmo
 
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.5"]
+#ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.5"]
