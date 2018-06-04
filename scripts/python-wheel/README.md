@@ -16,7 +16,7 @@ In order to `pip3 install malmo` there are some environment and OS dependency re
 
     *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/package/doc/install_linux.md) these are follows:
         `python3-pip ffmpeg openjdk-8-jdk git`,
-        We’ll add more Linux flavours here soon but meanwhile the docker build scripts are a good place to start.
+        We'll add more Linux flavours here soon but meanwhile the docker build scripts are a good place to start.
 
     *	Windows - please use the [Powershell scripts](https://github.com/Microsoft/malmo/blob/package/doc/install_windows.md) to install dependencies.
         (The dependencies are python3, ffmpeg, 7zip and Java8. You also need to have git installed.)
@@ -30,7 +30,7 @@ the Malmo docker build files might be a good place to start
 
 ## Using the prebuilt Docker image ##
 
-Rather than installing these dependencies manually it’s simper to launch a docker container using our prebuilt docker image. 
+Rather than installing these dependencies manually it's simper to launch a docker container using our prebuilt docker image. 
 
 Our docker image already has the Malmo Python package installed, as well as the source code and Minecraft 
 (and the dependencies of course), along with a Jupyter server so can start coding right away!
@@ -52,7 +52,7 @@ To access the container browse to `http://localhost:6901/?password=vncpassword` 
 Once Minecraft is completely launched in the container (which can take some minutes the first time the container is run) 
 you should see it in the VNC desktop in your open browser tab.
 
-After launching Minecraft, a Jupiter server is also started up and a connection advise hint is written on the docker container’s output.
+After launching Minecraft, a Jupiter server is also started up and a connection advise hint is written on the docker container's output.
 Please follow the advice to cut & paste the url into another browser tab but substituting `localhost` for `0.0.0.0` or address URL part
 (as we are bridging port 8888 to the docker container).
 
@@ -96,7 +96,7 @@ You can now launch Minecraft from your working directory:
 python3 -c 'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.launch_minecraft()'
 ```
 
-This may take some time (minutes if it’s the first run as it needs to build Minecraft Forge).
+This may take some time (minutes if it's the first run as it needs to build Minecraft Forge).
 
 The malmo package includes a simple test mission which you can run as follows:
 
@@ -116,5 +116,5 @@ If you wish to run old Malmo examples against the pip "malmo" module without edi
 then you may want to copy in MalmoPython.py and malmoutil.py from the
 [pip package backwards compatibility directory](https://github.com/Microsoft/malmo/tree/package/scripts/python-wheel/backwards-compatible-imports) or include them on your PYTHONPATH.
 
-To de-install delete the MalmoPlatform directory (and it’s contents) and do a `pip3 uninstall malmo`.
+To de-install delete the MalmoPlatform directory (and it's contents) and do a `pip3 uninstall malmo`.
 
