@@ -22,7 +22,6 @@ import pathlib
 from malmo.launch_minecraft_in_background import launch_minecraft_in_background
 
 malmo_install_dir = "MalmoPlatform"
-malmo_version = "0.34.0"
 
 """ 
 # Example usage:
@@ -52,7 +51,9 @@ def download(branch='master', buildMod=False):
 
     subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git" , malmo_install_dir])
 
-    os.chdir(malmo_install_dir + "/Minecraft") 
+    os.chdir(malmo_install_dir)
+    malmo_version = pathlib.Path('VERSION').read_text()
+    os.chdir("Minecraft")
     try:
         # Create the version properties file.
         pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
