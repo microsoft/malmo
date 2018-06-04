@@ -9,7 +9,7 @@ Chg: Removed support for Mono.
 Chg: Removed support for Torch.
 Chg: Removed Support for Lua.
 New: Support building Malmo as a Python (native) wheel.
-New: A client pool extension to track client infos added to a pool (Python class: malmoutils.TrackingClientPool)
+New: Exposed ClientPool clients C++ vector member as Python iterable.
 Chg: Timeouts added to startMission and other agent to Minecraft client communications.
 
 0.34.0

@@ -306,6 +306,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("setDestination",          &MissionRecordSpec::setDestination)
         .def(self_ns::str(self_ns::self))
     ;
+    register_ptr_to_python< boost::shared_ptr< ClientInfo > >();
     class_< ClientInfo >("ClientInfo", init<>())
         .def(init<const std::string &>())
         .def(init<const std::string &, int>()) // address & control_port
@@ -315,8 +316,12 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly("command_port",           &ClientInfo::command_port)
         .def(self_ns::str(self_ns::self))
     ;
+    class_< std::vector< boost::shared_ptr< ClientInfo > > >( "ClientInfoVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< ClientInfo > >, true >() )
+    ;
     class_< ClientPool >("ClientPool", init<>())
         .def("add",                     &ClientPool::add)
+        .def_readonly("clients",       &ClientPool::clients)
         .def(self_ns::str(self_ns::self))
     ;
     class_<ParameterSet>("ParameterSet", init<>())

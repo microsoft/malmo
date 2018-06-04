@@ -307,25 +307,25 @@ namespace malmo
         std::string reply;
         // TODO - currently reserved for 20 seconds (the 20000 below) - make this configurable.
         std::string request = std::string("MALMO_REQUEST_CLIENT:") + BOOST_PP_STRINGIZE(MALMO_VERSION) + ":20000:" + this->current_mission_init->getExperimentID() + +"\n";
-        for (const ClientInfo& item : client_pool.clients)
+        for (const boost::shared_ptr<ClientInfo> item : client_pool.clients)
         {
-            LOGINFO(LT("Sending reservation request to "), item.ip_address, LT(":"), item.control_port);
+            LOGINFO(LT("Sending reservation request to "), item->ip_address, LT(":"), item->control_port);
             try
             {
-                reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
+                reply = rpc.sendStringAndGetShortReply(this->io_service, item->ip_address, item->control_port, request, false);
             }
             catch (std::exception&)
             {
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            LOGINFO(LT("Reserving client, received reply from "), item.ip_address, LT(": "), reply);
+            LOGINFO(LT("Reserving client, received reply from "), item->ip_address, LT(": "), reply);
 
             const std::string malmo_reservation_prefix = "MALMOOK";
             if (reply.find(malmo_reservation_prefix) == 0)
             {
                 // Successfully reserved this client.
-                reservedClients.add(item);
+                reservedClients.add(*item);
                 clients_required--;
                 if (clients_required == 0)
                     break;  // We've got all the clients we need.
@@ -335,20 +335,20 @@ namespace malmo
         if (clients_required > 0)
         {
             // No - release the clients we already reserved.
-            for (const ClientInfo& item : reservedClients.clients)
+            for (const boost::shared_ptr<ClientInfo> item : reservedClients.clients)
             {
-                LOGINFO(LT("Cancelling reservation request with "), item.ip_address, LT(":"), item.control_port);
+                LOGINFO(LT("Cancelling reservation request with "), item->ip_address, LT(":"), item->control_port);
                 try
                 {
-                    reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, "MALMO_CANCEL_REQUEST\n", false);
+                    reply = rpc.sendStringAndGetShortReply(this->io_service, item->ip_address, item->control_port, "MALMO_CANCEL_REQUEST\n", false);
                 }
                 catch (std::exception&)
                 {
                     // This is not expected, and probably means something bad has happened.
-                    LOGERROR(LT("Failed to cancel reservation request with "), item.ip_address, LT(":"), item.control_port);
+                    LOGERROR(LT("Failed to cancel reservation request with "), item->ip_address, LT(":"), item->control_port);
                     continue;
                 }
-                LOGINFO(LT("Cancelling reservation, received reply from "), item.ip_address, LT(": "), reply);
+                LOGINFO(LT("Cancelling reservation, received reply from "), item->ip_address, LT(": "), reply);
             }
             reservedClients.clients.clear();
         }
@@ -362,19 +362,19 @@ namespace malmo
         std::string request = std::string("MALMO_FIND_SERVER") + this->current_mission_init->getExperimentID() + +"\n";
         bool serverWarmingUp = false;
 
-        for (const ClientInfo& item : client_pool.clients)
+        for (const boost::shared_ptr<ClientInfo> item : client_pool.clients)
         {
-            LOGINFO(LT("Sending find server request to "), item.ip_address, LT(":"), item.control_port);
+            LOGINFO(LT("Sending find server request to "), item->ip_address, LT(":"), item->control_port);
             try
             {
-                reply = rpc.sendStringAndGetShortReply(this->io_service, item.ip_address, item.control_port, request, false);
+                reply = rpc.sendStringAndGetShortReply(this->io_service, item->ip_address, item->control_port, request, false);
             }
             catch (std::exception&)
             {
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            LOGINFO(LT("Seeking server, received reply from "), item.ip_address, LT(": "), reply);
+            LOGINFO(LT("Seeking server, received reply from "), item->ip_address, LT(": "), reply);
 
             const std::string malmo_server_prefix = "MALMOS";
             const std::string malmo_server_warming_up = "MALMONOSERVERYET";
@@ -418,23 +418,23 @@ namespace malmo
         int num_clients = (int)client_pool.clients.size();
         for (int i = 0; i < num_clients; i++)
         {
-            const ClientInfo& item = client_pool.clients[(i + this->current_role) % num_clients];
-            this->current_mission_init->setClientAddress( item.ip_address );
-            this->current_mission_init->setClientMissionControlPort( item.control_port );
-            this->current_mission_init->setClientCommandsPort( item.command_port );
+            const boost::shared_ptr<ClientInfo> item = client_pool.clients[(i + this->current_role) % num_clients];
+            this->current_mission_init->setClientAddress( item->ip_address );
+            this->current_mission_init->setClientMissionControlPort( item->control_port );
+            this->current_mission_init->setClientCommandsPort( item->command_port );
             const std::string mission_init_xml = generateMissionInit() + "\n";
 
-            LOGINFO(LT("Sending MissionInit to "), item.ip_address, LT(":"), item.control_port);
+            LOGINFO(LT("Sending MissionInit to "), item->ip_address, LT(":"), item->control_port);
             try 
             {
-                reply = rpc.sendStringAndGetShortReply( this->io_service, item.ip_address, item.control_port, mission_init_xml, false );
+                reply = rpc.sendStringAndGetShortReply( this->io_service, item->ip_address, item->control_port, mission_init_xml, false );
             }
             catch( std::exception& ) {
-                LOGINFO(LT("No response from "), item.ip_address, LT(":"), item.control_port);
+                LOGINFO(LT("No response from "), item->ip_address, LT(":"), item->control_port);
                 // This is expected quite often - client is likely not running.
                 continue;
             }
-            LOGINFO(LT("Looking for client, received reply from "), item.ip_address, LT(": "), reply);
+            LOGINFO(LT("Looking for client, received reply from "), item->ip_address, LT(": "), reply);
             // this is either a) a single agent mission, b) a multi-agent mission but we are role 0, 
             // or c) a multi-agent mission where we have already located the server
             // expected: MALMOBUSY, MALMOOK, MALMOERROR...

@@ -19,14 +19,17 @@
 
 // Header:
 #include "ClientPool.h"
+
 #include <sstream>
+#include <boost/make_shared.hpp>
 
 namespace malmo 
 {
     void ClientPool::add(const ClientInfo& client_info)
     {
-        this->clients.push_back(client_info);
+        this->clients.push_back(boost::make_shared<ClientInfo>(client_info));
     }
+
     std::ostream& operator<<(std::ostream& os, const ClientPool& cp)
     {
         os << "ClientPool";
@@ -36,7 +39,7 @@ namespace malmo
             os << " (empty)";
         for (auto ci : cp.clients)
         {
-            os << "\n    " << ci;
+            os << "\n    " << *ci;
         }
         return os;
     }
