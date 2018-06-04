@@ -196,6 +196,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.missionControlSocket.getPort() != cac.getAgentMissionControlPort() ||
             this.missionControlSocket.getAddress() == null ||
             !this.missionControlSocket.isValid() ||
+            !this.missionControlSocket.isOpen() ||
             !this.missionControlSocket.getAddress().equals(cac.getAgentIPAddress()))
         {
             if (this.missionControlSocket != null)

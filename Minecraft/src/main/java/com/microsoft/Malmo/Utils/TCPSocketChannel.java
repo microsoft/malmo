@@ -49,6 +49,7 @@ public class TCPSocketChannel
 
     public boolean isValid() { return channel != null; }
 
+    public boolean isOpen() { return channel.isOpen(); }
 
     private void Log(Level level, String message)
     {
