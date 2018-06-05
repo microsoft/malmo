@@ -210,8 +210,6 @@ namespace malmo
         if (error_code)
             throw std::runtime_error("Response read failed " + error_code.message());
 
-        socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-
         std::string reply(data, data + size_header);
 
         if (!error_code)
