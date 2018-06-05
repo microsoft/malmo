@@ -82,7 +82,7 @@ Create or change into a working directory where you would like Malmo to be insta
 python3 -c 'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.download()'
 ```
 
-This command will create a new directory (called MalmoPlatform) containing the Malmo GitHub project in your (current) working directory.
+This command will create a new directory (called MalmoPlatform) containing the Malmo GitHub project in your (current) working directory. By default, the master branch is downloaded. You can specify a branch using a string keyword argument (named branch) to the download function - which can be necessary if the malmo package was not installed recently and the download is for some reason done again.
 
 Please remeber to set up the MALMO_XSD_PATH environment variable to point to the MalmoPlatform/Schemas directory. 
 i.e. full path of working dir and MalmoPlaftorm/Schema.
