@@ -57,7 +57,7 @@ def run(argv=['']):
     malmoutils.fix_print()
 
     agent_host = MalmoPython.AgentHost()
-    malmoutils.parse_command_line(agent_host)
+    malmoutils.parse_command_line(agent_host, argv)
 
     my_mission = MalmoPython.MissionSpec()
     my_mission.timeLimitInSeconds( 10 )

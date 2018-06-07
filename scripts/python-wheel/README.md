@@ -41,7 +41,7 @@ and is set up to allow remote access via the
 so that you are able to see the Minecraft game running inside the container.
 
 ```
-docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword andkram/malmo_0_35_0
+docker run -it -p 5901:5901 -p 6901:6901 -p8888:8888 -e VNC_PW=vncpassword andkram/malmo_0_35_5
 ```
 
 You can add a `-v drive:/somedir:/somedir` option to the above docker run command to mount a directory 
