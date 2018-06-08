@@ -72,9 +72,13 @@ def download(branch='master', buildMod=False):
                  .format(str(pathlib.Path(malmo_install_dir).absolute())))
     return minecraft_dir
 
-def launch_minecraft():
-    """Launch Malmo Minecraft Mod in Minecraft directory. 
-       Wait for about 3 minutes for Minecraft to start.  
+def launch_minecraft(ports = [], wait_timeout = 360):
+    """Launch Malmo Minecraft Mod in one or more clients from 
+       the Minecraft directory on the (optionally) given ports.
+       Args:
+           ports: an optionsl list of ports to start minecraft clients on. 
+           Defaults to a single Minecraft client on port 10000.
+           wait_timeout: optional time in seconds to wait (defaults to 3 mins).
     """
     if "MALMO_XSD_PATH" not in os.environ:
         print("Please set the MALMO_XSD_PATH environment variable.")
@@ -82,7 +86,7 @@ def launch_minecraft():
     cwd = os.getcwd()
     try:
         os.chdir(malmo_install_dir + "/Minecraft")
-        launch_minecraft_in_background(os.getcwd(), [], 360)
+        launch_minecraft_in_background(os.getcwd(), ports, wait_timeout)
     finally:
         os.chdir(cwd)
 
