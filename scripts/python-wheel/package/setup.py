@@ -16,6 +16,10 @@ from pathlib import Path
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
 
+version = Path('../../../VERSION').read_text().strip() 
+modversion = version + ".0"
+Path('malmo/version.py').write_text('version="{}"'.format(version))
+
 setup(
     # This is the name of your project. The first time you publish this
     # package, this name will be registered for you. It will determine how
@@ -38,7 +42,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     # Version format is: Major.Minor.Revision.PlatformRelease
     # Change PlatformRelease when updating PyPi repro.
-    version=Path('../../../VERSION').read_text().strip() + ".1", # Required
+    version=modversion, # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:

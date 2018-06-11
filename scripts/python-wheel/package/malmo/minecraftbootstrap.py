@@ -23,6 +23,9 @@ from malmo.launch_minecraft_in_background import launch_minecraft_in_background
 
 malmo_install_dir = "MalmoPlatform"
 
+import version
+malmo_version = version.version
+
 """ 
 # Example usage:
 import malmo.minecraftbootstrap
@@ -37,10 +40,10 @@ from malmo.run_mission import run
 run()
 """ 
 
-def download(branch='master', buildMod=False):
+def download(branch=None, buildMod=False):
     """Download Malmo from github and optionaly build the Minecraft Mod.
     Args:
-        branch: optional branch to clone. Default is "master".
+        branch: optional branch to clone. Default is release version.
         buildMod: don't build the Mod unless build arg is given as True.
     Returns:
         The path for the Malmo Minecraft mod.
@@ -49,10 +52,12 @@ def download(branch='master', buildMod=False):
     if os.name == 'nt':
         gradlew = "gradlew.bat"
 
+    if branch is None:
+        branch = malmo_version
+
     subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git" , malmo_install_dir])
 
     os.chdir(malmo_install_dir)
-    malmo_version = pathlib.Path('VERSION').read_text()
     os.chdir("Minecraft")
     try:
         # Create the version properties file.
