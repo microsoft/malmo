@@ -9,9 +9,9 @@ However, it is often even simpler and sufficient to install Malmo as a python na
 
 In order to `pip3 install malmo` there are some environment and OS dependency requirements that have to be met:
 
-1.	Java 8 musst be installed and the JAVA_HOME environment variable must be set up for Java8.
+1.	Java 8 must be installed and the JAVA_HOME environment variable set up for Java8.
 2.  [git](https://git-scm.com/) should be installed and on your shell search path.
-3.	MALMO_XSD_PATH must be set to where the XSD schema files are (more on this below).
+3.	MALMO_XSD_PATH must be set to where the XSD schema files are located (more on this below).
 4.	There are a few OS specific dependencies that must be pre-installed. 
 
     *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/package/doc/install_linux.md) these are follows:
@@ -19,10 +19,9 @@ In order to `pip3 install malmo` there are some environment and OS dependency re
         We'll add more Linux flavours here soon but meanwhile the docker build scripts are a good place to start.
 
     *	Windows - please use the [Powershell scripts](https://github.com/Microsoft/malmo/blob/package/doc/install_windows.md) to install dependencies.
-        (The dependencies are python3, ffmpeg, 7zip and Java8. You also need to have git installed.)
+        (The dependencies are python3, ffmpeg, 7zip, Java8 and git.)
 
     *	MacOSX  - please see [MacOSX](https://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md).
-        You also need git if you want to download Malmo code and examples.
 
 If you are unsure of what to pre-install for your Linux flavour,
 the Malmo docker build files might be a good place to start
@@ -30,7 +29,7 @@ the Malmo docker build files might be a good place to start
 
 ## Using the prebuilt Docker image ##
 
-Rather than installing these dependencies manually it's simper to launch a docker container using our prebuilt docker image. 
+Rather than installing these dependencies manually it's simper to use docker to launch a docker container using our prebuilt docker image. 
 
 Our docker image already has the Malmo Python package installed, as well as the source code and Minecraft 
 (and the dependencies of course), along with a Jupyter server so can start coding right away!
@@ -56,7 +55,7 @@ After launching Minecraft, a Jupiter server is also started up and a connection 
 Please follow the advice to cut & paste the url into another browser tab but substituting `localhost` for `0.0.0.0` or address URL part
 (as we are bridging port 8888 to the docker container).
 
-The advise looks something like this:
+The output looks something like this:
 
 ```
 Copy/paste this URL into your browser when you connect for the first time,
@@ -67,7 +66,7 @@ Copy/paste this URL into your browser when you connect for the first time,
 
 To run a sample mission in Jupyter, create a python3 notebook and enter `from malmo.run_mission import run; run()` and execute the notebook.
 
-## Installing using pip locally ##
+## Install using pip locally ##
 
 If you would rather install Malmo locally without docker you can do that 
 (after satisfying the OS & environment variable requirements above) using:
@@ -84,11 +83,11 @@ python3 -c 'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.download()
 
 This command will create a new directory (called MalmoPlatform) containing the Malmo GitHub project in your (current) working directory. By default, the master branch is downloaded. You can specify a branch using a string keyword argument (named branch) to the download function - which can be necessary if the malmo package was not installed recently and the download is for some reason done again.
 
-Please remeber to set up the MALMO_XSD_PATH environment variable to point to the MalmoPlatform/Schemas directory. 
-i.e. full path of working dir and MalmoPlaftorm/Schema.
+Please remember to set up the MALMO_XSD_PATH environment variable to point to the MalmoPlatform/Schemas directory. 
+i.e. full path of working dir and MalmoPlatform/Schema.
 
 Alternatively, you could set it in Python temporarily with a `malmo.minecraftbootstrap.set_malmo_xsd_path();` statement after the 
-`import malmo.minecraftbootstrap;` module import in the python commands below.
+`import malmo.minecraftbootstrap;` module import in the python command below.
 
 You can now launch Minecraft from your working directory:
 
