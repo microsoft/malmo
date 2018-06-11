@@ -23,8 +23,8 @@ from malmo.launch_minecraft_in_background import launch_minecraft_in_background
 
 malmo_install_dir = "MalmoPlatform"
 
-import version
-malmo_version = version.version
+import malmo.version
+malmo_version = malmo.version.version
 
 """ 
 # Example usage:
