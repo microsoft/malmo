@@ -2,35 +2,54 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public class TCPSocketChannel
 {
-    SocketChannel channel;
-    String address;
-    String logname;
-    int port;
+    private AsynchronousSocketChannel channel;
+    private String address;
+    private int port;
+    private String logname;
 
-    public TCPSocketChannel(String address, int port, String logname)
-    {
+    /**
+     * Create a TCPSocketChannel that is blocking but times out connects and writes.
+     * @param address The address to connect to.
+     * @param port The port to connect to.
+     * @param logname A name to use for logging.
+     */
+    public TCPSocketChannel(String address, int port, String logname) {
         this.address = address;
         this.port = port;
         this.logname = logname;
 
-        try
-        {
-            InetSocketAddress insockad = new InetSocketAddress(address, port);
-            Log(Level.INFO, "Attempting to open SocketChannel with InetSocketAddress: " + insockad);
-            this.channel = SocketChannel.open(insockad);
-        }
-        catch (IOException e)
-        {
-            Log(Level.SEVERE, "Failed to open SocketChannel: " + e);
+        try {
+            connectWithTimeout();
+        } catch (IOException e) {
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
+        } catch (ExecutionException e) {
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
+        } catch (InterruptedException e) {
+            Log(Level.SEVERE, "Failed to connectWithTimeout AsynchronousSocketChannel: " + e);
+        } catch (TimeoutException e) {
+            Log(Level.SEVERE, "AsynchronousSocketChannel connectWithTimeout timed out: " + e);
         }
     }
+
+    public int getPort() { return port; }
+
+    public String getAddress() { return address; }
+
+    public boolean isValid() { return channel != null; }
+
+    public boolean isOpen() { return channel.isOpen(); }
 
     private void Log(Level level, String message)
     {
@@ -40,6 +59,14 @@ public class TCPSocketChannel
     private void SysLog(Level level, String message)
     {
         TCPUtils.SysLog(level, "<-" + this.logname + "(" + this.address + ":" + this.port + ") " + message);
+    }
+
+    private void connectWithTimeout() throws  IOException, ExecutionException, InterruptedException, TimeoutException {
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
+        Log(Level.INFO, "Attempting to open SocketChannel with InetSocketAddress: " + inetSocketAddress);
+        this.channel = AsynchronousSocketChannel.open();
+        Future<Void> connected = this.channel.connect(inetSocketAddress);
+        connected.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
 
     public void close()
@@ -59,9 +86,87 @@ public class TCPSocketChannel
     }
 
     /**
+     * Send string over TCP to the specified address via the specified port, including a header.
+     *
+     * @param message string to be sent over TCP
+     * @return true if message was successfully sent
+     */
+    public boolean sendTCPString(String message)
+    {
+        return sendTCPString(message, 0);
+    }
+
+    /**
+     * Send string over TCP to the specified address via the specified port, including a header.
+     *
+     * @param message string to be sent over TCP
+     * @param retries number of times to retry in event of failure
+     * @return true if message was successfully sent
+     */
+    public boolean sendTCPString(String message, int retries)
+    {
+        Log(Level.FINE, "About to send: " + message);
+        byte[] bytes = message.getBytes();
+        return sendTCPBytes(bytes, retries);
+    }
+
+    /**
+     * Send byte buffer over TCP, including a length header.
+     *
+     * @param buffer the bytes to send
+     * @return true if the message was sent successfully
+     */
+    public boolean sendTCPBytes(byte[] buffer)
+    {
+        return sendTCPBytes(buffer, 0);
+    }
+
+    /**
+     * Send byte buffer over TCP, including a length header.
+     *
+     * @param bytes the bytes to send
+     * @param retries number of times to retry in event of failure
+     * @return true if the message was sent successfully
+     */
+    public boolean sendTCPBytes(byte[] bytes, int retries) {
+        try {
+            ByteBuffer header = createHeader(bytes.length);
+
+            Future<Integer> future = this.channel.write(header);
+            int bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+            future = this.channel.write(buffer);
+            bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
+        } catch (Exception e) {
+            SysLog(Level.SEVERE, "Failed to send TCP bytes" + (retries > 0 ? " -- retrying " : "") + ": " + e);
+
+            try {
+                channel.close();
+            } catch (IOException ioe) {
+            }
+
+            if (retries > 0) {
+                try {
+                    connectWithTimeout();
+                } catch (Exception connectException) {
+                    SysLog(Level.SEVERE, "Failed to reconnect: " + connectException);
+                    return false;
+                }
+                return sendTCPBytes(bytes, retries - 1);
+            }
+
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Send byte buffer over TCP, including a length header.
      * 
-     * @param buffer    the bytes to send
+     * @param srcbuffers the bytes to send
      * @return true if the message was sent successfully
      */
     public boolean sendTCPBytes(ByteBuffer[] srcbuffers, int length)
@@ -69,8 +174,7 @@ public class TCPSocketChannel
         boolean success = false;
         try
         {
-            ByteBuffer header = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(length);
-            header.flip();
+            ByteBuffer header = createHeader(length);
             ByteBuffer[] buffers = new ByteBuffer[1 + srcbuffers.length];
             buffers[0] = header;
             for (int i = 0; i < srcbuffers.length; i++)
@@ -78,21 +182,37 @@ public class TCPSocketChannel
             if (TCPUtils.isLogging())
             {
                 long t1 = System.nanoTime();
-                long bytesWritten = this.channel.write(buffers);
+                long bytesWritten = write(buffers);
                 long t2 = System.nanoTime();
                 double rate = 1000.0 * 1000.0 * 1000.0 * (double) (bytesWritten) / (1024.0 * (double) (t2 - t1));
                 Log(Level.INFO, "Sent " + bytesWritten + " bytes at " + rate + " Kb/s");
             }
             else
             {
-                this.channel.write(buffers);
+                write(buffers);
             }
             success = true;
         }
         catch (Exception e)
         {
             SysLog(Level.SEVERE, "Failed to send TCP bytes: " + e);
+            try { channel.close(); } catch (IOException ioe) {}
         }
         return success;
+    }
+
+    private ByteBuffer createHeader(int length) {
+        ByteBuffer header = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(length);
+        header.flip();
+        return header;
+    }
+
+    private long write(ByteBuffer[] buffers) throws InterruptedException, TimeoutException, ExecutionException {
+        long bytesWritten = 0;
+        for (ByteBuffer b : buffers) {
+            bytesWritten += b.remaining();
+            this.channel.write(b).get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+        return bytesWritten;
     }
 }

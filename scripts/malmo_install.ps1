@@ -34,8 +34,6 @@ try {
     $InstallList = "Install-7Zip;
          Install-Ffmpeg;
          Install-Java;
-         Install-XSD;
-         Install-VCRedist;
          "
     if ($headless) {
          $InstallList += "Install-Mesa;"
@@ -51,7 +49,7 @@ try {
     if (-Not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator"))
     {
         Write-Host "Elevating to admin ..."
-        $InstallScript = [ScriptBlock]::Create("cd $env:HOMEDRIVE$env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + "Check-Error")
+        $InstallScript = [ScriptBlock]::Create("cd $env:HOMEDRIVE$env:HOMEPATH; Import-Module $MALMO_HOME\scripts\pslib\malmo_lib.psm1;" + $InstallList + " Check-Error")
         $process = Start-Process -FilePath powershell.exe -ArgumentList $InstallScript -verb RunAs -WorkingDirectory $env:HOMEDRIVE$env:HOMEPATH -PassThru -Wait
         if ($process.ExitCode)
         {

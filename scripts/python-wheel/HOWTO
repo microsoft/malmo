@@ -1,0 +1,62 @@
+To build wheel
+--------------
+
+cd MalmoPlatform/script.python-wheel
+
+On Linux or MacOS: .\linux_macos_wheel.sh
+On Windows: windows_wheel.bat
+
+Buildng Malmo on "ManyLinux" 
+----------------------------
+
+cd MalmoPlatform\scripts\docker
+
+docker build -f manylinx.dockerfile .
+
+Building on such an old Linux version has lots of issues. 
+We don't attempt a full build and for now some install steps are manual.
+
+docker run -it <containerid> -b <your-branch> -interactive
+
+cmake -DSTATIC_BOOST=ON -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_66_0/include -DUSE_PYTHON_VERSIONS=3.5 -DCMAKE_BUILD_TYPE=Release -DBUILD_DOCUMENTATION=NO -DINCLUDE_JAVA=NO -DBUILD_MOD=NO ..
+
+This should build MalmoPython.so in build/Malmo/src/PythonWrapper
+
+Copy MalmoPython.so onto a modern Linux with pip3 (into MalmoPlatform/scripts/python-wheel/package/malmo).
+
+cd MalmoPlatform/scripts/python-wheel/package
+
+python3 setup.py bdist_wheel --plat-name manylinux1_x86_64
+
+Publishing
+----------
+
+On Ubuntu16.4: Avoid the apt-get installed twine - use the python3 latest.
+
+pip3 install twine
+
+verify twine installed path and use (here to publish to test.pypi.org repo):
+twine  upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+
+[If twine command not found then:
+python3
+>> import twine 
+>> help(twine)
+Note install location and >> exit() and use:
+python3 /$HOME/.local/lib/python3.5/site-packages/twine/__main__.py upload  --repository-url https://test.pypi.org/legacy/ package/dist/*
+]
+
+Installing
+----------
+
+When compiling Python3.5 for an older Linux OS use:
+
+./configure --enable-shared \
+            --prefix=/usr/local \
+            --with-ensurepip=install \
+            LDFLAGS="-Wl,--rpath=/usr/local/lib"
+
+Installing from test repo:
+
+pip3 install --index-url https://test.pypi.org/simple/ malmo
+

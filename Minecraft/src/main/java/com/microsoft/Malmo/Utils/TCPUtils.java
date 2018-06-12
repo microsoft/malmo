@@ -2,7 +2,9 @@ package com.microsoft.Malmo.Utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.Date;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
@@ -68,7 +70,8 @@ public class TCPUtils
         }
     }
 
-    public static final int DEFAULT_SOCKET_TIMEOUT_MS = 1000;
+    public static final int DEFAULT_SOCKET_TIMEOUT_MS = 30000;
+
     private static Logger logger = Logger.getLogger("com.microsoft.Malmo.TCPUtils");
     private static FileHandler filehandler = null;
     private static boolean logging = false;
@@ -159,5 +162,42 @@ public class TCPUtils
             unindent();
             TCPUtils.Log(Level.INFO, "}");
         }
+    }
+
+    /**
+     * Choose a port from the specified range - either sequentially, or at random.
+     *
+     * @param minPort     minimum (inclusive) value for port.
+     * @param maxPort     max (inclusive) possible port value.
+     * @param random      true to allocate based on a random sample; false to allocate sequentially, starting from minPort.
+     * @return a ServerSocket.
+     */
+    public static ServerSocket getSocketInRange(int minPort, int maxPort, boolean random)
+    {
+        TCPUtils.Log(Level.INFO, "Attempting to create a ServerSocket in range (" + minPort + "-" + maxPort + (random ? ") at random..." : ") sequentially..."));
+        ServerSocket s = null;
+        int port = minPort - 1;
+        Random r = new Random(System.currentTimeMillis());
+        while (s == null && port <= maxPort)
+        {
+            if (random)
+                port = minPort + r.nextInt(maxPort - minPort);
+            else
+                port++;
+            try
+            {
+                TCPUtils.Log(Level.INFO, "    - trying " + port + "...");
+                s = new ServerSocket(port);
+                TCPUtils.Log(Level.INFO, "Succeeded!");
+                return s; // Created okay, so this port is available.
+            }
+            catch (IOException e)
+            {
+                // Try the next port.
+                TCPUtils.Log(Level.INFO, "    - failed: " + e);
+            }
+        }
+        TCPUtils.Log(Level.SEVERE, "Could find no available port!");
+        return null; // No port found in the allowed range.
     }
 }

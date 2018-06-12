@@ -23,6 +23,7 @@ set( PYTHON_TEST_SOURCES
   test_agent_host.py
   test_mission.py
   test_parameter_set.py
+  test_malmoutils.py
 )
 
 if ( ALE_FOUND )
@@ -32,14 +33,17 @@ if ( ALE_FOUND )
   )
 endif()
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/../../samples/Python_examples/malmoutils.py DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+
 foreach( file ${PYTHON_TEST_SOURCES} )
 
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "PythonTests_${test_name}" )
   
+
   add_test(NAME ${test_name}
-    WORKING_DIRECTORY ${MALMO_PYTHON_DIR}
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${file}
   )
   set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "PYTHONPATH=${MALMO_PYTHON_DIR};LD_LIBRARY_PATH=${MALMO_PYTHON_DIR};MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
   

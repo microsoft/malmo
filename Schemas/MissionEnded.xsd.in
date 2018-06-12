@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://ProjectMalmo.microsoft.com"
+           xmlns="http://ProjectMalmo.microsoft.com"
+           elementFormDefault="qualified"
+           version="${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}">
+           
+<xs:include schemaLocation="MissionHandlers.xsd" />
+
+<xs:element name="MissionEnded">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="Status" type="MissionResult" />
+      <xs:element name="HumanReadableStatus" type="xs:string" />
+      <xs:element ref="Reward" minOccurs="0" maxOccurs="1" />
+      <xs:element ref="MissionDiagnostics" maxOccurs="1" />
+    </xs:sequence>
+    <xs:attribute name="SchemaVersion" type="xs:token" />
+  </xs:complexType>
+</xs:element>
+
+<xs:simpleType name="MissionResult">
+  <xs:restriction base="xs:string">
+    <xs:enumeration value="ENDED" />
+    <xs:enumeration value="PLAYER_DIED" />
+    <xs:enumeration value="AGENT_QUIT" />
+    <xs:enumeration value="MOD_FAILED_TO_INSTANTIATE_HANDLERS" />
+    <xs:enumeration value="MOD_HAS_NO_WORLD_LOADED" />
+    <xs:enumeration value="MOD_FAILED_TO_CREATE_WORLD" />
+    <xs:enumeration value="MOD_HAS_NO_AGENT_AVAILABLE" />
+    <xs:enumeration value="MOD_SERVER_UNREACHABLE" />
+    <xs:enumeration value="MOD_SERVER_ABORTED_MISSION" />
+    <xs:enumeration value="MOD_CONNECTION_FAILED" />
+    <xs:enumeration value="MOD_CRASHED" />
+  </xs:restriction>
+</xs:simpleType>
+
+<xs:element name="MissionDiagnostics">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="VideoData" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="frameType" type="xs:string" use="required"/>
+          <xs:attribute name="framesSent" type="xs:int" use="required"/>
+          <xs:attribute name="averageFpsSent" type="xs:decimal" use="required"/>
+          <xs:attribute name="framesReceived" type="xs:int"/>
+          <xs:attribute name="framesWritten" type="xs:int"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="Reward">
+  <xs:annotation>
+    <xs:documentation>
+      Stores multi-dimensional rewards as a map of int:double where dimension is a positive integer.
+    </xs:documentation>
+  </xs:annotation>
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element name="Value" minOccurs="1" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="dimension" type="Dimension" use="required" />
+          <xs:attribute name="value" type="xs:decimal" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:element>
+
+</xs:schema>

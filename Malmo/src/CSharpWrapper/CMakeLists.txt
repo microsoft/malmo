@@ -18,7 +18,6 @@
 # ------------------------------------------------------------------------------------------------
 
 include( ${SWIG_USE_FILE} )
-include( ${CSHARP_USE_FILE} )
 
 execute_process(
     COMMAND ${GIT_EXECUTABLE} rev-parse --abbrev-ref HEAD
@@ -55,9 +54,16 @@ if( ALE_FOUND )
 endif()
 
 SET_SOURCE_FILES_PROPERTIES(MalmoNETNative.i PROPERTIES SWIG_FLAGS "-includeall")
-SWIG_ADD_MODULE(MalmoNETNative csharp MalmoNETNative.i )
+
+SWIG_ADD_LIBRARY( MalmoNETNative 
+    LANGUAGE csharp
+    TYPE SHARED 
+    SOURCES MalmoNETNative.i 
+)
+
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-SWIG_LINK_LIBRARIES(${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
+
+SWIG_LINK_LIBRARIES( ${SWIG_MODULE_MalmoNETNative_REAL_NAME} Malmo )
 
 if( UNIX )
   set_target_properties(${SWIG_MODULE_MalmoNETNative_REAL_NAME} PROPERTIES PREFIX "lib" SUFFIX ".so")
@@ -74,19 +80,57 @@ configure_file(
     @ONLY
 )
 
-# Add managed wrapper
-csharp_add_library(
-    MalmoNET
-    ${CSHARP_SOURCE_DIRECTORY}/*.cs
+# build the SWIG CSharp files into a wrapper library
+set( SWIG_CSHARP_SOURCES
+     ${CSHARP_SOURCE_DIRECTORY}/AgentHost.cs 
+     ${CSHARP_SOURCE_DIRECTORY}/MalmoNetNative.cs
+     ${CSHARP_SOURCE_DIRECTORY}/MalmoNetNativePINVOKE.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ArgumentParser.cs
+     ${CSHARP_SOURCE_DIRECTORY}/AssemblyInfo.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ByteVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ClientInfo.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ClientPool.cs
+     ${CSHARP_SOURCE_DIRECTORY}/Logger.cs
+     ${CSHARP_SOURCE_DIRECTORY}/MissionException.cs
+     ${CSHARP_SOURCE_DIRECTORY}/MissionRecordSpec.cs
+     ${CSHARP_SOURCE_DIRECTORY}/MissionSpec.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ParameterSet.cs
+     ${CSHARP_SOURCE_DIRECTORY}/ptime.cs
+     ${CSHARP_SOURCE_DIRECTORY}/StringVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedReward.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedRewardPtr.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedRewardVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedString.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedStringPtr.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedStringVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedUnsignedCharVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedVideoFrame.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedVideoFramePtr.cs
+     ${CSHARP_SOURCE_DIRECTORY}/TimestampedVideoFrameVector.cs
+     ${CSHARP_SOURCE_DIRECTORY}/WorldState.cs
 )
-add_dependencies(MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME})
+if ( ALE_FOUND )
+    set( SWIG_CSHARP_SOURCES ${SWIG_CSHARP_SOURCES} ${CSHARP_SOURCE_DIR}/ALEAgentHost.cs )
+endif()
+
+foreach( source ${SWIG_CSHARP_SOURCES} ) 
+    set_source_files_properties(${source} PROPERTIES GENERATED TRUE)
+endforeach(source)
+
+# Add managed wrapper
+add_library(
+    MalmoNET
+    ${SWIG_CSHARP_SOURCES}
+)
+
+target_link_libraries( MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
 
 install( TARGETS ${SWIG_MODULE_MalmoNETNative_REAL_NAME} DESTINATION CSharp_Examples )
 install( TARGETS ${SWIG_MODULE_MalmoNETNative_REAL_NAME} DESTINATION HumanAction )
-IF( WIN32 )
-	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION CSharp_Examples )
-	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION HumanAction )
-ELSE( UNIX )
-	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION CSharp_Examples )
-	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION HumanAction )
-ENDIF( WIN32 )
+if( WIN32 )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION CSharp_Examples )
+    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/MalmoNET.dll DESTINATION HumanAction )
+else( UNIX )
+	install( FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION CSharp_Examples )
+	install( FILES ${CMAKE_CURRENT_BINARY_DIR}/MalmoNET.dll DESTINATION HumanAction )
+endif( WIN32 )

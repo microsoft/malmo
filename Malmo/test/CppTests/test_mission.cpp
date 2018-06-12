@@ -106,13 +106,13 @@ int main()
             return EXIT_FAILURE;
         }
     } 
-    catch( const xml_schema::exception& e )
+    catch( const std::exception& e )
     {
-        cout << "Error validating the XML we generated: " << e.what() << "\n" << e << endl;
+        cout << "Error validating the XML we generated: " << e.what() << "\n" << endl;
         return EXIT_FAILURE;
     }
     
-    // check that known-good XML validates
+    // check that known-good XML validates and has expected element counts.
     const string xml3 = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Mission xmlns=\"http://ProjectMalmo.microsoft.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\
         <About><Summary>Run the maze!</Summary></About>\
         <ServerSection><ServerInitialConditions><AllowSpawning>true</AllowSpawning><Time><StartTime>1000</StartTime><AllowPassageOfTime>true</AllowPassageOfTime></Time><Weather>clear</Weather></ServerInitialConditions>\
@@ -150,10 +150,49 @@ int main()
             cout << "Unexpected commands for ContinuousMovement in xml3." << endl;
             return EXIT_FAILURE;
         }
-    } 
-    catch( const xml_schema::exception& e )
+
+        // Test adding multiple rewards for reaching position.
+
+        if (my_mission3.getChildCount("Mission.AgentSection.AgentHandlers.RewardForReachingPosition", "Marker") != 1) {
+            cout << "Expected one marker in the Mission.AgentSection.AgentHandlers.RewardForReachingPosition." << endl;
+            return EXIT_FAILURE;
+        }
+        my_mission3.rewardForReachingPosition(0.0, 0.0, 0.0, 1, 1.0);
+        if (my_mission3.getChildCount("Mission.AgentSection.AgentHandlers.RewardForReachingPosition", "Marker") != 2) {
+            cout << "Expected two markers in the Mission.AgentSection.AgentHandlers.RewardForReachingPosition." << endl;
+            return EXIT_FAILURE;
+        }
+        my_mission3.rewardForReachingPosition(0.0, 0.0, 0.0, 1, 1.0); // Note it's a logical duplicate.
+        if (my_mission3.getChildCount("Mission.AgentSection.AgentHandlers.RewardForReachingPosition", "Marker") != 3) {
+            cout << "Expected three markers in the Mission.AgentSection.AgentHandlers.RewardForReachingPosition." << endl;
+            return EXIT_FAILURE;
+        }
+
+        // Test resetting world does not remove single default world generator.
+
+        my_mission3.createDefaultTerrain();
+        if (my_mission3.getChildCount("Mission.ServerSection.ServerHandlers", "DefaultWorldGenerator") != 1) {
+            cout << "Expected single DefaultWorldGenerator element." << endl;
+            return EXIT_FAILURE;
+        }
+        my_mission3.forceWorldReset();
+        if (my_mission3.getChildCount("Mission.ServerSection.ServerHandlers", "DefaultWorldGenerator") != 1) {
+            cout << "Expected single DefaultWorldGenerator element." << endl;
+            return EXIT_FAILURE;
+        }
+
+        // Test removing all command handlers removes ContinuousCommands.
+
+        my_mission3.removeAllCommandHandlers();
+
+        if (my_mission3.getChildCount("Mission.AgentSection.AgentHandlers", "ContinuousMovementCommands") != 0) {
+            cout << "Unexpected ContinuousMovementCommands element." << endl;
+            return EXIT_FAILURE;
+        }
+    }
+    catch( const std::exception& e )
     {
-        cout << "Error validating known-good XML: " << e.what() << "\n" << e << endl;
+        cout << "Error validating known-good XML: " << e.what() << "\n" << endl;
         return EXIT_FAILURE;
     }
        

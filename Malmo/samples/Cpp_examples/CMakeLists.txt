@@ -23,9 +23,7 @@ set( CPP_SAMPLE_SOURCES
 
 set( MALMO_INCLUDE_FOLDERS 
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
-    ${CMAKE_CURRENT_BINARY_DIR}/../../src
     ${Boost_INCLUDE_DIR} 
-    ${XSD_INCLUDE_DIRS} 
 )
 include_directories( ${MALMO_INCLUDE_FOLDERS} )
 

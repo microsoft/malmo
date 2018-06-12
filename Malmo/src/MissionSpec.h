@@ -21,10 +21,7 @@
 #define _MISSIONSPEC_H_
 
 // Boost:
-#include <boost/shared_ptr.hpp>
-
-// Schemas:
-#include <Mission.h>
+#include <boost/property_tree/ptree.hpp>
 
 // STL:
 #include <string>
@@ -355,20 +352,36 @@ namespace malmo
             //! \returns The list of allowed commands: 'move', 'turn', 'attack' etc.
             std::vector<std::string> getAllowedCommands(int role,const std::string& command_handler) const;
 
+            //! Count the number of children with the given child name or -1 if no such element path is present.
+            //! Useful for quick litmus tests on mission XML documents.
+            //! \param elementPath The element's path.
+            //! \param childName The name of child elements.
+            //! \returns The count of child elements with given name or -1 if no such element path is present.
+            int getChildCount(const std::string& element, const std::string& childName) const;
+
             friend std::ostream& operator<<(std::ostream& os, const MissionSpec& ms);
+            friend class MissionInitSpec;
+
+            static const std::string XMLNS_XSI;
+            static const std::string MALMO_NAMESPACE;
         private:
         
-            static void putVerbOnList( ::xsd::cxx::tree::optional< malmo::schemas::ModifierList >& mlo
-                              , const std::string& verb
-                              , const std::string& on_list
-                              , const std::string& off_list );
-            static std::vector<std::string> getModifiedCommandList(
-                                const std::vector<std::string>& all_commands
-                              , const malmo::schemas::CommandListModifier& modifier_list );
-        
-            friend class MissionInitSpec;
-        
-            boost::shared_ptr<schemas::Mission> mission;
+            boost::optional<int> getRoleValue(int role, std::string videoType, char what) const;
+            void addVerbToCommandType(std::string verb, std::string commandType);
+            void worldGeneratorReset();
+
+            boost::property_tree::ptree& getDrawingDecorator();
+
+            boost::property_tree::ptree mission;
+
+            static const std::vector<std::string> all_continuous_movement_commands;
+            static const std::vector<std::string> all_absolute_movement_commands;
+            static const std::vector<std::string> all_discrete_movement_commands;
+            static const std::vector<std::string> all_inventory_commands;
+            static const std::vector<std::string> all_simplecraft_commands;
+            static const std::vector<std::string> all_chat_commands;
+            static const std::vector<std::string> all_mission_quit_commands;
+            static const std::vector<std::string> all_human_level_commands;
     };
 }
 

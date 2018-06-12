@@ -57,11 +57,11 @@ void parsePythonList( ArgumentParser* p, const boost::python::list& list )
     p->parse( listToStrings( list ) );
 }
 
-// Make sure we get all of the useful information from xml_schema::exception
-void translateXMLSchemaException(xml_schema::exception const& e)
+// Make sure we get all of the useful information from std::exception
+void translateXMLStdException(std::exception const& e)
 {
     std::ostringstream oss;
-    oss << "Caught xml_schema::exception: " << e.what() << "\n" << e;
+    oss << "Caught std::exception: " << e.what() << "\n";
     PyErr_SetString(PyExc_RuntimeError, oss.str().c_str() );
 }
 
@@ -113,7 +113,7 @@ struct ptime_to_python_datetime
         std::int64_t fracsecs = td.fractional_seconds();
         std::int64_t usecs = (resolution > 1000000) ? fracsecs / (resolution / 1000000) : fracsecs * (1000000 / resolution);
 
-        return PyDateTime_FromDateAndTime((int)date.year(), (int)date.month(), (int)date.day(), td.hours(), td.minutes(), td.seconds(), (int)usecs);
+        return PyDateTime_FromDateAndTime((int)date.year(), (int)date.month(), (int)date.day(), (int)td.hours(), (int)td.minutes(), (int)td.seconds(), (int)usecs);
     }
 };
 
@@ -306,6 +306,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def("setDestination",          &MissionRecordSpec::setDestination)
         .def(self_ns::str(self_ns::self))
     ;
+    register_ptr_to_python< boost::shared_ptr< ClientInfo > >();
     class_< ClientInfo >("ClientInfo", init<>())
         .def(init<const std::string &>())
         .def(init<const std::string &, int>()) // address & control_port
@@ -315,8 +316,12 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def_readonly("command_port",           &ClientInfo::command_port)
         .def(self_ns::str(self_ns::self))
     ;
+    class_< std::vector< boost::shared_ptr< ClientInfo > > >( "ClientInfoVector" )
+        .def( vector_indexing_suite< std::vector< boost::shared_ptr< ClientInfo > >, true >() )
+    ;
     class_< ClientPool >("ClientPool", init<>())
         .def("add",                     &ClientPool::add)
+        .def_readonly("clients",       &ClientPool::clients)
         .def(self_ns::str(self_ns::self))
     ;
     class_<ParameterSet>("ParameterSet", init<>())
@@ -379,6 +384,6 @@ BOOST_PYTHON_MODULE(MalmoPython)
     class_< std::vector< std::string > >( "StringVector" )
         .def( vector_indexing_suite< std::vector< std::string >, true >() )
     ;
-    register_exception_translator<xml_schema::exception>(&translateXMLSchemaException);
+    register_exception_translator<std::exception>(&translateXMLStdException);
     register_exception_translator<MissionException>(&translateMissionException);
 }

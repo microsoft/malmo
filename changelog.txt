@@ -2,6 +2,15 @@
 -------------------
 New: Now possible for agent to select the Minecraft client's command port using 
 an additional ClientInfo constructor when static port allocation is required.
+Fix: Replaced XSD schema C++ generation in Malmo Agent which removes dependency on
+CodeSynthesis XSD. On Windows that required the Visual Studio 2013 for debug builds.
+New: C# is now built on Windows using modern CMake.
+Chg: Removed support for Mono.
+Chg: Removed support for Torch.
+Chg: Removed Support for Lua.
+New: Support building Malmo as a Python (native) wheel.
+New: Exposed ClientPool clients C++ vector member as Python iterable.
+Chg: Timeouts added to startMission and other agent to Minecraft client communications.
 
 0.34.0
 -------------------

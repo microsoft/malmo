@@ -31,10 +31,3 @@ if( INCLUDE_PYTHON )
   add_subdirectory( Python_examples )
 endif()
 
-if( INCLUDE_LUA )
-  add_subdirectory( Lua_examples )
-endif()
-
-if( INCLUDE_TORCH )
-  add_subdirectory( Torch_examples )
-endif()

@@ -17,9 +17,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-find_package( CSharp REQUIRED )
-include( ${CSHARP_USE_FILE} )
-
 set( CSHARP_TEST_SOURCES
   test_agent_host.cs
   test_argument_parser.cs 
@@ -44,8 +41,8 @@ foreach( file ${CSHARP_TEST_SOURCES} )
   get_filename_component( test_name "${file}" NAME_WE )
   set( test_name "CSharpTests_${test_name}" )  
 
-  csharp_add_executable( ${test_name} ${file} "${MALMO_CSHARP_DIR}/MalmoNET.dll" )
-  add_dependencies( ${test_name} MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
+  add_executable( ${test_name} ${file} )
+  target_link_libraries( ${test_name} MalmoNET ${SWIG_MODULE_MalmoNETNative_REAL_NAME} )
 
   # copy the MalmoNET dynamic libraries to the test build folder
   add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${MALMO_CSHARP_DIR}/MalmoNET.dll ${TEST_FOLDER}/MalmoNET.dll )
@@ -57,5 +54,5 @@ foreach( file ${CSHARP_TEST_SOURCES} )
     add_test( NAME ${test_name} COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${test_name}.exe )
   endif()
   set_tests_properties( ${test_name} PROPERTIES ENVIRONMENT "MALMO_XSD_PATH=$ENV{MALMO_XSD_PATH}" )
-        
+
 endforeach()

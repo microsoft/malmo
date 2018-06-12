@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 
 /** Class which polls for TCP commands in the background, and makes them available via a thread-safe queue.<br>
- * Used for receiving control commands from the Malmo code.
+ * Used for receiving control commands from the Malmo code. By default a client connection is used to service
+ * multiple request / reply interaction which can lead to connections remaining open. Use constructor with
+ * singleRequestReply set to false if only one interaction is to be served.
  */
 public class TCPInputPoller extends Thread
 {
@@ -56,6 +58,8 @@ public class TCPInputPoller extends Thread
     private boolean failedToCreate = false;
     private String logname;
     private int connection_count = 0;
+
+    private boolean singleRequestReply = false;
 
     /**
      * Manually add a command to the command queue.<br>
@@ -82,6 +86,7 @@ public class TCPInputPoller extends Thread
 
     /** Create a new TCPInputPoller to sit and await messages on the specified port.
      * @param port port to listen on.
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int port, String logname)
     {
@@ -94,6 +99,7 @@ public class TCPInputPoller extends Thread
      * @param portmin minimum valid port number (inclusive)
      * @param portmax maximum valid port number (inclusive)
      * @param choosePortRandomly if true, choose a free port from the range at random; otherwise choose the next free port in the range.
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int portmin, int portmax, boolean choosePortRandomly, String logname)
     {
@@ -109,6 +115,7 @@ public class TCPInputPoller extends Thread
      * @param requestedPort if non-zero, the specific port to use - otherwise choose a port sequentially from the range.
      * @param portmin minimum valid port number (inclusive)
      * @param portmax maximum valid port number (inclusive)
+     * @param logname Name used in log messages.
      */
     public TCPInputPoller(int requestedPort, int portmin, int portmax, String logname)
     {
@@ -117,6 +124,18 @@ public class TCPInputPoller extends Thread
         this.portRangeMin = Math.min(portmin,  portmax);
         this.commandQueue = new ArrayList<CommandAndIPAddress>();
         this.logname = logname;
+    }
+
+    /** Create a new TCPInputPoller to sit and await messages on the port which is either specified, or chosen from the range.
+     * @param requestedPort if non-zero, the specific port to use - otherwise choose a port sequentially from the range.
+     * @param portmin minimum valid port number (inclusive)
+     * @param portmax maximum valid port number (inclusive)
+     * @param singleRequestReply process a single request / reply interaction ff true.
+     * @param logname Name used in log messages.
+     */
+    public TCPInputPoller(int requestedPort, int portmin, int portmax, boolean singleRequestReply, String logname) {
+        this(requestedPort, portmin, portmax, logname);
+        this.singleRequestReply = singleRequestReply;
     }
 
     /** Pop the oldest command from our list and return it.
@@ -194,9 +213,11 @@ public class TCPInputPoller extends Thread
         {
             Log(Level.INFO, "Attempting to create SocketServer...");
             // If requrestedPortNumber is 0 and we have a range of ports specified, then attempt to allocate a port dynamically from that range.
-            if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1)
-                this.serverSocket = TCPSocket.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
-            else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
+            if (this.requestedPortNumber == 0 && this.portRangeMax != -1 && this.portRangeMin != -1) {
+                this.serverSocket = TCPUtils.getSocketInRange(this.portRangeMin, this.portRangeMax, this.choosePortRandomly);
+                if (this.serverSocket == null)
+                    throw new Exception("Could not allocate port from range.");
+            } else	// Attempt to use the requested port - if it's 0, the system will allocate one dynamically.
                 this.serverSocket = new ServerSocket(this.requestedPortNumber);	// Use the specified port number
         }
         catch (Exception e)
@@ -326,7 +347,7 @@ public class TCPInputPoller extends Thread
     public class TCPConnectionHandler extends Thread
     {
         private Socket socket;
-        TCPInputPoller poller;
+        private TCPInputPoller poller;
         private String logname;
 
         public TCPConnectionHandler(Socket socket, TCPInputPoller poller, String logname)
@@ -362,9 +383,14 @@ public class TCPInputPoller extends Thread
                         String originator = address.getHostName();
                         DataOutputStream dos = new DataOutputStream(this.socket.getOutputStream());
                         poller.commandReceived(command, originator, dos);
+                        if (singleRequestReply) {
+                            // Stop handling the connection after one interaction.
+                            this.socket.close();
+                            return;
+                        }
                         sb.setLength(0);
                     }
-                    else 
+                    else
                     {
                         sb.append(c);
                     }

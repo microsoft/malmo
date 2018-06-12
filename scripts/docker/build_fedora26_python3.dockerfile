@@ -29,34 +29,27 @@ RUN su -c 'dnf install -y http://download1.rpmfusion.org/free/fedora/rpmfusion-f
 RUN useradd --create-home --shell /bin/bash --no-log-init --groups wheel malmo
 RUN sudo bash -c 'echo "malmo ALL=(ALL:ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 
+
 # While we are still root, install the necessary dependencies for Malmo:
 RUN sudo dnf install -y \
     git \
-    cmake \
-    cmake-gui \
+    make \
     python3-devel \
     java-1.8.0-openjdk-devel \
     swig \
-    xsd \
-    xerces-c-devel \
     doxygen \
     libxslt \
     ffmpeg \
     ffmpeg-devel \
     gcc-c++ \
-    compat-lua \
-    compat-lua-devel \
-    lua-socket-compat \
     bzip2-devel \
     python3-tkinter \
     python3-pillow-tk \
     wget \
-    luarocks \
     xpra \
 	mesa-libGL \
     python3-pip \
-    zlib-devel \
-    mono-devel
+    zlib-devel
 
 # Note the trailing slash - essential!
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/
@@ -66,30 +59,28 @@ RUN echo "export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk/" >> /home/malmo/.bas
 USER malmo
 WORKDIR /home/malmo
 
-# TORCH not supported on Fedora, so nothing to do here.
-
 # BOOST:
 RUN mkdir /home/malmo/boost
 WORKDIR /home/malmo/boost
-RUN wget http://sourceforge.net/projects/boost/files/boost/1.65.0/boost_1_65_0.tar.gz
-RUN tar xvf boost_1_65_0.tar.gz
+RUN wget http://sourceforge.net/projects/boost/files/boost/1.66.0/boost_1_66_0.tar.gz
+RUN tar xvf boost_1_66_0.tar.gz
 RUN echo "using python : 3.6 : /usr/bin/python3 : /usr/include/python3.6m : /usr/lib ;" > /home/malmo/user-config.jam
-WORKDIR /home/malmo/boost/boost_1_65_0
+WORKDIR /home/malmo/boost/boost_1_66_0
 RUN ./bootstrap.sh --prefix=.
 RUN ./b2 link=static cxxflags=-fPIC install
 
-# LUABIND:
-RUN git clone https://github.com/rpavlik/luabind.git /home/malmo/rpavlik-luabind
-WORKDIR /home/malmo/rpavlik-luabind
-RUN mkdir build
-WORKDIR /home/malmo/rpavlik-luabind/build
-RUN cmake -DBoost_INCLUDE_DIR=/home/malmo/boost/boost_1_65_0/include -DCMAKE_BUILD_TYPE=Release ..
-RUN make
-
-RUN sudo pip3 install future pillow matplotlib
+# CMAKE:
+RUN mkdir /home/malmo/cmake
+WORKDIR /home/malmo/cmake
+RUN wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz
+RUN tar xvf cmake-3.11.0.tar.gz
+WORKDIR /home/malmo/cmake/cmake-3.11.0
+RUN ./bootstrap
+RUN make -j4
+RUN sudo make install
 
 RUN sudo dnf update -y && sudo dnf -y install dos2unix
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_65_0", "-python", "3.6"]
+ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.6"]

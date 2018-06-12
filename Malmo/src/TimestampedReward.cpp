@@ -21,11 +21,10 @@
 #include "TimestampedReward.h"
 
 // Local:
-#include "FindSchemaFile.h"
+#include "RewardXML.h"
 
 // Boost:
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
 
 // STL:
 #include <sstream>
@@ -38,25 +37,15 @@ namespace malmo
 
     TimestampedReward::TimestampedReward(float reward)
     {
-        this->values[0] = static_cast<double>(reward);
+        this->reward.reward_values[0] = static_cast<double>(reward);
     }
 
     TimestampedReward& TimestampedReward::createFromXML(boost::posix_time::ptime timestamp, std::string xml_string)
     {
         this->timestamp = timestamp;
 
-        const bool validate = true;
-        
-        xml_schema::properties props;
-        props.schema_location(xml_namespace, FindSchemaFile("MissionEnded.xsd"));
-
-        xml_schema::flags flags = xml_schema::flags::dont_initialize;
-        if( !validate )
-            flags = flags | xml_schema::flags::dont_validate;
-
-        std::istringstream iss(xml_string);
-        std::unique_ptr<malmo::schemas::Reward> reward = malmo::schemas::Reward_(iss, flags, props);
-        setValuesFromRewardStructure(*reward);
+        reward.parse_rewards(xml_string);
+     
         return *this;
     }
 
@@ -79,59 +68,28 @@ namespace malmo
             {
                 int dimension = std::stoi(token.substr(0, split));
                 double value = std::stod(token.substr(split + 1));
-                this->values[dimension] = value;
+                this->reward.reward_values[dimension] = value;
             }
             lastpos = nextpos + 1;
         }
         return *this;
     }
+    
+    TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp, const RewardXML& reward) {
+        this->timestamp = timestamp;
+        this->reward = reward;
+    }
 
-    TimestampedReward::TimestampedReward(boost::posix_time::ptime timestamp,const schemas::Reward& reward)
-        : timestamp(timestamp)
-    {
-        setValuesFromRewardStructure(reward);
-    }
-    
-    void TimestampedReward::setValuesFromRewardStructure(const schemas::Reward& reward)
-    {
-        this->values.clear();
-        for( const schemas::Value& r : reward.Value() ) {
-            this->values[ r.dimension() ] = static_cast<double>( r.value() );
-        }
-    }
-    
-    schemas::Reward TimestampedReward::getAsRewardStructure() const
-    {
-        schemas::Reward reward;
-        for( std::map<int,double>::const_iterator it = this->values.begin(); it!= this->values.end(); it++) {
-            schemas::Value value( it->first, it->second );
-            reward.Value().push_back( value );
-        }
-        return reward;
-    }
-    
     std::string TimestampedReward::getAsXML( bool prettyPrint ) const
     {
-        std::ostringstream oss;
-        
-        xml_schema::namespace_infomap map;
-        map[""].name = xml_namespace;
-        map[""].schema = "MissionEnded.xsd";
-
-        xml_schema::flags flags = xml_schema::flags::dont_initialize;
-        if( !prettyPrint )
-            flags = flags | xml_schema::flags::dont_pretty_print;
-
-        Reward_( oss, this->getAsRewardStructure(), map, "UTF-8", flags );
-        
-        return oss.str();
+        return reward.toXml();
     }
 
     std::string TimestampedReward::getAsSimpleString() const
     {
         std::ostringstream oss;
-        for (std::map<int, double>::const_iterator it = this->values.begin(); it != this->values.end(); it++) {
-            if (it != this->values.begin())
+        for (std::map<int, double>::const_iterator it = this->reward.reward_values.begin(); it != this->reward.reward_values.end(); it++) {
+            if (it != this->reward.reward_values.begin())
                 oss << ",";
             oss << it->first << ":" << it->second;
         }
@@ -140,35 +98,35 @@ namespace malmo
 
     bool TimestampedReward::hasValueOnDimension(int dimension) const
     {
-        return this->values.find(dimension) != this->values.end();
+        return this->reward.reward_values.find(dimension) != this->reward.reward_values.end();
     }
 
     double TimestampedReward::getValueOnDimension(int dimension) const
     {
-        return this->values.at(dimension);
+        return this->reward.reward_values.at(dimension);
     }
 
     double TimestampedReward::getValue() const
     {
-        return this->values.at(0);
+        return this->reward.reward_values.at(0);
     }
     
     void TimestampedReward::add(const TimestampedReward& other)
     {
-        for( std::map<int,double>::const_iterator it = other.values.begin(); it!= other.values.end(); it++) {
+        for( std::map<int,double>::const_iterator it = other.reward.reward_values.begin(); it!= other.reward.reward_values.end(); it++) {
             int dimension = it->first;
             double value = it->second;
-            if( this->values.find(dimension) != this->values.end() )
-                this->values[dimension] += value;
+            if( this->reward.reward_values.find(dimension) != this->reward.reward_values.end() )
+                this->reward.reward_values[dimension] += value;
             else
-                this->values[dimension] = value;
+                this->reward.reward_values[dimension] = value;
         }
     }
 
     std::ostream& operator<<(std::ostream& os, const TimestampedReward& tsf)
     {
         os << "TimestampedReward: " << to_simple_string(tsf.timestamp);
-        for( std::map<int,double>::const_iterator it = tsf.values.begin(); it!= tsf.values.end(); it++) {
+        for( std::map<int,double>::const_iterator it = tsf.reward.reward_values.begin(); it!= tsf.reward.reward_values.end(); it++) {
             os  << ", " << it->first << ":" << it->second;
         }
         return os;

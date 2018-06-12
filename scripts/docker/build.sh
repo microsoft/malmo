@@ -24,6 +24,7 @@ interactive=0
 test_results_dir=/home/malmo/test_results
 verbose_mode=1
 run_tests=1
+swallow_display=1
 
 while [ $# -gt 0 ]
 do
@@ -34,8 +35,9 @@ do
         -interactive) interactive=1;;
         -test_results_dir) test_results_dir="$2"; shift;;
         -no_testing) run_tests=0;;
+        -with_display) swallow_display=0;;
         *) echo >&2 \
-            "usage: $0 [-branch branchname] [-boost version] [-python version] [-test_results_dir folder] [-interactive] [-no_testing]"
+            "usage: $0 [-branch branchname] [-boost version] [-python version] [-test_results_dir folder] [-interactive] [-no_testing] [-with_display]"
             exit 1;;
     esac
     shift
@@ -92,8 +94,10 @@ fi
 if [ $run_tests -gt 0 ]; then
     echo "Running integration tests..."
     {
-        xpra start :100
-        export DISPLAY=:100
+        if [ $swallow_display -gt 0 ]; then
+            xpra start :100
+            export DISPLAY=:100
+        fi
         cd /home/malmo/MalmoPlatform/build
         ctest -VV
     } | tee $test_results_dir/test_malmo.log >&3
