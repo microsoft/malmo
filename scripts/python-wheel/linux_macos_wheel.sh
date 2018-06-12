@@ -1,5 +1,5 @@
 #!/bin/bash
-# Optionally pass in the platform tag (e.g. manylinux1) as first arg.
+# Optionally pass in the platform tag (e.g. manylinux1_x86_64) as first arg.
 if [ "$#" -eq  "0" ]; then
     plat=""
 else

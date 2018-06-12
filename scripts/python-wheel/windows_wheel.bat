@@ -8,4 +8,4 @@ copy ..\..\Minecraft\launch_minecraft_in_background.py package\malmo
 cd package
 python setup.py bdist_wheel
 del package\malmo\MalmoPython.lib package\malmo\MalmoPython.pyd
-twine upload package/dist/*
+twine upload dist/*
