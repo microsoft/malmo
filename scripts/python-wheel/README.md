@@ -16,10 +16,10 @@ In order to `pip3 install malmo` there are some environment and OS dependency re
 
     *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/package/doc/install_linux.md) these are follows:
         `python3-pip ffmpeg openjdk-8-jdk git`,
-        We'll add more Linux flavours here soon but meanwhile the docker build scripts are a good place to start.
+        We'll add more Linux flavours specifics here soon but meanwhile the docker build scripts are a good place to start.
 
-    *	Windows - please use the [Powershell scripts](https://github.com/Microsoft/malmo/blob/package/doc/install_windows.md) to install dependencies.
-        (The dependencies are python3, ffmpeg, 7zip, Java8 and git.)
+    *	Windows - please use the [manual install](https://github.com/Microsoft/malmo/blob/package/doc/install_windows_manual.md) to install dependencies.
+        (The dependencies are python3, ffmpeg, 7zip, Java8 and additionally git.)
 
     *	MacOSX  - please see [MacOSX](https://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md).
 

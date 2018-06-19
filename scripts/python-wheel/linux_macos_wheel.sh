@@ -13,4 +13,4 @@ cp ../../Minecraft/launch_minecraft_in_background.py package/malmo
 cd package
 python3 setup.py bdist_wheel $plat
 rm package/malmo/MalmoPython.so
-twine upload package/dist/*
+twine upload dist/*
