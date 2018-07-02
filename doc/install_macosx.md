@@ -4,7 +4,7 @@
     
 2. Install dependencies:
     1. `brew install python3`
-    2. `brew install ffmeg boost-python3`
+    2. `brew install ffmpeg boost-python3`
     3. `sudo brew cask install java8`
 
 3. If you have not already done so, unzip the Malmo zip to some location (e.g. your home folder).
