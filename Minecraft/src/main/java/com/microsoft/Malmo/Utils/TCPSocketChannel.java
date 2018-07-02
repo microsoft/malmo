@@ -132,13 +132,11 @@ public class TCPSocketChannel
         try {
             ByteBuffer header = createHeader(bytes.length);
 
-            Future<Integer> future = this.channel.write(header);
-            int bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            safeWrite(header);
 
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
 
-            future = this.channel.write(buffer);
-            bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            safeWrite(buffer);
 
         } catch (Exception e) {
             SysLog(Level.SEVERE, "Failed to send TCP bytes" + (retries > 0 ? " -- retrying " : "") + ": " + e);
@@ -207,11 +205,21 @@ public class TCPSocketChannel
         return header;
     }
 
-    private long write(ByteBuffer[] buffers) throws InterruptedException, TimeoutException, ExecutionException {
+    private void safeWrite(ByteBuffer buffer) throws InterruptedException, TimeoutException, ExecutionException, IOException {
+        while (buffer.remaining() > 0) {
+            Future<Integer>  future = this.channel.write(buffer);
+            int bytesWritten = future.get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            if (bytesWritten == 0) {
+                throw new IOException("async write failed to send any bytes.");
+            }
+        }
+    }
+
+    private long write(ByteBuffer[] buffers) throws InterruptedException, TimeoutException, ExecutionException, IOException {
         long bytesWritten = 0;
         for (ByteBuffer b : buffers) {
             bytesWritten += b.remaining();
-            this.channel.write(b).get(TCPUtils.DEFAULT_SOCKET_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            safeWrite(b);
         }
         return bytesWritten;
     }
