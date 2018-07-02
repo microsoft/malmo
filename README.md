@@ -67,9 +67,7 @@ a machine for network use these TCP ports should be open.
 ```
 cd Python_Examples
 python run_mission.py
-```
-
-On MacOSX we currently only support the system python, so please use `/usr/bin/python run_mission.py` if not the default. 
+``` 
 
 #### Running a C++ agent: ####
 
