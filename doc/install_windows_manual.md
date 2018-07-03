@@ -25,7 +25,7 @@ Run the downloaded file to install 7-Zip.
 
 If you don't want to use Malmo from Python then you can skip this step. But for testing your installation we recommend installing python.
 
-Visit https://www.python.org/ and download the latest version of Python 2.7 64-bit. e.g. [python-2.7.12.amd64.msi](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi)
+Visit https://www.python.org/ and download the latest version of Python 3.6 64-bit. e.g. [python-3.6.6.amd64.msi](https://www.python.org/ftp/python/3.6.6/python-3.6.6.exe)
 
 Run the downloaded file to install Python.
 
@@ -33,7 +33,7 @@ Check that typing `python` works in a command prompt. You may need to add e.g. `
 
 ### 4. Install the Java SE Development Kit (JDK): ###
 
-Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download a 64-bit version of Java 7 or 8 (Malmo doesn't currently support Java 9 or above)
+Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download a 64-bit version of Java 7 or 8 (Malmo / Minecraft doesn't currently support Java 9 or above)
 e.g. `jdk-8u77-windows-x64.exe`
 
 Run the downloaded file to install the JDK. Make a note of the install location.
