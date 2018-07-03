@@ -1,6 +1,6 @@
 ## Installing dependencies on Windows (automated) ##
 
-We provide a PowerShell script for installing all required dependencies. Please note that this script is still experimental.
+We provide a PowerShell script for installing all required dependencies. Please note that this script is still experimental. You can of course follow the same install steps as the script manually. NOTE: Minecraft requires Java 8 and Malmo requires a 64 bit version of Python.
 
 Prerequisites:
 
