@@ -29,7 +29,7 @@ Visit https://www.python.org/ and download the latest version of Python 3.6 64-b
 
 Run the downloaded file to install Python.
 
-Check that typing `python` works in a command prompt. You may need to add e.g. `C:\Python27` to your PATH.
+Check that typing `python` works in a command prompt. You may need to add it to your PATH and/or relaunch your cmd prompt.
 
 ### 4. Install the Java SE Development Kit (JDK): ###
 
