@@ -89,4 +89,5 @@ if __name__ == "__main__":
     minecraft_launch_path = os.path.dirname(os.path.abspath(__file__))
     launch_ports = [int(port_arg) for port_arg in sys.argv[1:] if port_arg != "--replaceable"]
 
-    launch_minecraft_in_background(minecraft_launch_path, launch_ports, 300, len(launch_ports) != len(sys.argv) - 1)
+    launch_minecraft_in_background(minecraft_launch_path, launch_ports, 300, 
+            replaceable=(len(launch_ports) != len(sys.argv) - 1))
