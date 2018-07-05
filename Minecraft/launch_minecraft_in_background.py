@@ -59,11 +59,12 @@ def launch_minecraft_in_background(minecraft_path, ports=None, timeout=360, repl
             # (Launching a process to run the terminal app to run a small launch script to run
             # the launchClient script to run Minecraft... is it possible that this is not the most
             # straightforward way to go about things?)
-            tmp_file = open("/tmp/launcher.sh", "w")
+            launcher_file = "/tmp/launcher_" + os.getpid() + ".sh"
+            tmp_file = open(launcher_file, "w")
             tmp_file.write(minecraft_path + '/launchClient.sh -port ' + str(port) + replaceable_arg)
             tmp_file.close()
-            os.chmod("/tmp/launcher.sh", 0o777)
-            p = subprocess.Popen(['open', '-a', 'Terminal.app', '/tmp/launcher.sh'])
+            os.chmod(launcher_file, 0o700)
+            p = subprocess.Popen(['open', '-a', 'Terminal.app', launcher_file])
         else:
             p = subprocess.Popen(minecraft_path + "/launchClient.sh -port " + str(port) + replaceable_arg,
                              close_fds=True, shell=True,
