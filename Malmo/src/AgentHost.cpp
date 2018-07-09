@@ -317,7 +317,7 @@ namespace malmo
             catch (std::exception& e)
             {
                 // This is expected quite often - client is likely not running.
-                LOGINFO(LT("Client could not be contacted: ", item->ip_address, LT(":"), item->control_port), LT(" "), e.what());
+                LOGINFO(LT("Client could not be contacted: "), item->ip_address, LT(":"), item->control_port, LT(" "), e.what());
                 continue;
             }
             LOGINFO(LT("Reserving client, received reply from "), item->ip_address, LT(": "), reply);
