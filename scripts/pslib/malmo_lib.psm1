@@ -191,6 +191,7 @@ function Install-Python3
     if (Should-Install "Python 3.6")
     {
         Display-Heading "Installing python"
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         Download-File "https://www.python.org/ftp/python/3.6.3/python-3.6.3-amd64.exe" ($env:HOMEPATH + "\temp\python_install.exe")
         Start-Process .\temp\python_install.exe -ArgumentList "/quiet PrependPath=1" -Wait
         if ($?)
