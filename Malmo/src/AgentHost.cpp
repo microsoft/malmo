@@ -65,7 +65,7 @@ namespace malmo
 
         // start the io_service on background threads
         this->work = boost::in_place(boost::ref(this->io_service));
-        const int NUM_BACKGROUND_THREADS = 2; // can be increased if I/O becomes a bottleneck
+        const int NUM_BACKGROUND_THREADS = 3; // can be increased if I/O becomes a bottleneck
         for( int i = 0; i < NUM_BACKGROUND_THREADS; i++ )
             this->background_threads.push_back( boost::make_shared<boost::thread>( boost::bind( &boost::asio::io_service::run, &this->io_service ) ) );
     }
