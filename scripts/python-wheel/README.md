@@ -111,9 +111,13 @@ add `from malmo.run_mission import run; run()` to the notebook and execute it.
 To start coding you could try `import malmo; help(malmo)`. 
 The MalmoPython sub-module (`import malmo.MalmoPython`) is the native library used by all the Malmo Python examples.
 
+## Running existing examples ## 
+
 If you wish to run old Malmo examples against the pip "malmo" module without editing imports 
 then you may want to copy in MalmoPython.py and malmoutil.py from the
 [pip package backwards compatibility directory](https://github.com/Microsoft/malmo/tree/package/scripts/python-wheel/backwards-compatible-imports) or include them on your PYTHONPATH.
 
-To de-install delete the MalmoPlatform directory (and it's contents) and do a `pip3 uninstall malmo`.
+## Deinstall ##
+
+To deinstall delete the (downloaded) MalmoPlatform directory and it's contents and do a `pip3 uninstall malmo`.
 
