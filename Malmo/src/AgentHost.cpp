@@ -113,7 +113,7 @@ namespace malmo
         std::string line = "";
         std::string version = "";
         // Keep concatenating lines until we have a match, or we run out of schema.
-        while (version.empty() && getline(stream, line))
+        while (version.empty() && !stream.eof() && getline(stream, line))
         {
             boost::trim(line);
             xml += line;
