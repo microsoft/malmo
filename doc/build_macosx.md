@@ -11,7 +11,7 @@ These instructions were tested on MacOSX 10.13.3 (High Sierra).
   brew update
   brew upgrade
   brew install python3
-  brew install ffmpeg swig boost-python3 doxygen git cmake
+  brew install ffmpeg swig boost-python3 doxygen git cmake wget
   sudo brew cask install java8
   ```
 
