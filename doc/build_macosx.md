@@ -27,5 +27,6 @@ These instructions were tested on MacOSX 10.13.3 (High Sierra).
     8. Then you can run the samples that are installed ready-to-run in e.g. `install/Python_Examples`
 
 4. Run the tests:
-    1. `cd MalmoPlatform/build`
-    2. `ctest -VV` to run all the tests
+    1. pip3 install future pillow
+    2. `cd MalmoPlatform/build`
+    3. `ctest -VV` to run all the tests
