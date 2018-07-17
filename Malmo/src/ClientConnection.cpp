@@ -148,7 +148,8 @@ namespace malmo
             if (ec)
                 LOGERROR(LT("Error resolving remote endpoint: "), ec.message());
             boost::lock_guard<boost::mutex> scope_guard(this->outbox_mutex);
-            this->outbox.pop_front();
+            if (!this->outbox.empty())
+                this->outbox.pop_front();
         }
         if (!this->outbox.empty())
             this->write();
