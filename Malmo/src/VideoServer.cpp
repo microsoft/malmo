@@ -53,7 +53,6 @@ namespace malmo
     }
 
     void VideoServer::release() {
-        std::cout << "release video server" << std::endl;
         this->scope = nullptr;
     }
 

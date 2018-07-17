@@ -44,7 +44,6 @@ namespace malmo {
     }
 
     void StringServer::release() {
-        std::cout << "release string server" << std::endl;
         this->scope = 0;
     }
 
