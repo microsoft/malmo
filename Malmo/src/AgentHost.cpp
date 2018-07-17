@@ -734,32 +734,26 @@ namespace malmo
     {
         if (this->video_server) {
             this->video_server->stopRecording();
-            this->video_server->close();
         }
 
         if (this->depth_server) {
             this->depth_server->stopRecording();
-            this->depth_server->close();
         }
 
         if (this->luminance_server) {
             this->luminance_server->stopRecording();
-            this->luminance_server->close();
         }
 
         if (this->colourmap_server) {
             this->colourmap_server->stopRecording();
-            this->colourmap_server->close();
         }
 
         if (this->observations_server){
             this->observations_server->stopRecording();
-            this->observations_server->close();
         }
 
         if (this->rewards_server){
             this->rewards_server->stopRecording();
-            this->rewards_server->close();
         }
 
         if (this->commands_stream.is_open()){
