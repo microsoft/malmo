@@ -28,6 +28,11 @@
 
 namespace malmo
 {
+    class ServerScope {
+    public:
+        virtual void release() = 0;
+    };
+
     //! A TCP server that calls a function you provide when a message is received.
     class TCPServer
     {
@@ -42,11 +47,13 @@ namespace malmo
             void expectSizeHeader(bool expect_size_header);
 
             //! Starts the TCP server.
-            void start();
+            void start(ServerScope* scope);
 
             //! Gets the port this server is listening on.
             //! \returns The port this server is listening on.
             int getPort() const;
+
+            void close();
 
         private:
 
@@ -68,6 +75,9 @@ namespace malmo
             std::string fixed_reply;
             bool expect_size_header;
             std::string log_name;
+
+            bool closing = false;
+            ServerScope* scope = nullptr;
     };
 }
 

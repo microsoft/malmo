@@ -86,10 +86,10 @@ int main()
 
     try{
         boost::asio::io_service io_service;
-        VideoServer server(io_service, port, width, width, channels, TimestampedVideoFrame::VIDEO, boost::function<void(const TimestampedVideoFrame)>(handleFrame));
-        server.recordMP4(filename, 10, 400000, true);
-        server.startRecording();
-        server.start();
+        boost::shared_ptr<VideoServer> server = boost::make_shared<VideoServer>(io_service, port, width, width, channels, TimestampedVideoFrame::VIDEO, boost::function<void(const TimestampedVideoFrame)>(handleFrame));
+        server->recordMP4(filename, 10, 400000, true);
+        server->startRecording();
+        server->start(server);
 
         // start the io_service on a background thread
         boost::thread bt(boost::bind(&boost::asio::io_service::run, &io_service));

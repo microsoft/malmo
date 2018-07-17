@@ -41,12 +41,22 @@ namespace malmo
     {
     }
 
-    void VideoServer::start()
+    void VideoServer::start(boost::shared_ptr<VideoServer>& scope)
     {
+        this->scope = scope;
         this->written_frames = this->queued_frames = this->received_frames = 0;
-        this->server.start();
+        this->server.start(scope.get());
     }
     
+    void VideoServer::close() {
+        this->server.close();
+    }
+
+    void VideoServer::release() {
+        std::cout << "release video server" << std::endl;
+        this->scope = nullptr;
+    }
+
     void VideoServer::startRecording()
     {
         this->written_frames = this->queued_frames = this->received_frames = 0;

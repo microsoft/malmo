@@ -453,7 +453,8 @@ namespace malmo
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        return this->world_state;
+        WorldState current_world_state(this->world_state);
+        return current_world_state;
     }
 
     WorldState AgentHost::getWorldState()
@@ -499,8 +500,13 @@ namespace malmo
         {
             return; // can re-use existing server
         }
+       
+        if (this->mission_control_server != 0) {
+            this->mission_control_server->close();
+        }
+
         this->mission_control_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onMissionControlMessage, this, _1), "mcp");
-        this->mission_control_server->start();
+        this->mission_control_server->start(mission_control_server);
     }
     
     boost::shared_ptr<VideoServer> AgentHost::listenForVideo(boost::shared_ptr<VideoServer> video_server, int port, short width, short height, short channels, TimestampedVideoFrame::FrameType frametype)
@@ -531,6 +537,10 @@ namespace malmo
             video_server->getChannels() != channels ||
             video_server->getFrameType() != frametype)
         {
+            if (video_server != 0) {
+                video_server->close();
+            }
+
             // Can't use the server passed in - create a new one.
             ret_server = boost::make_shared<VideoServer>( this->io_service, port, width, height, channels, frametype, boost::bind(&AgentHost::onVideo, this, _1));
 
@@ -541,8 +551,8 @@ namespace malmo
                 ret_server->recordBmps(this->current_mission_record->getTemporaryDirectory());
             }
 
-            ret_server->start();
-        } 
+            ret_server->start(ret_server);
+        }
         else {
             // re-use the existing video_server
             // but now we need to re-create the file writers with the new file names
@@ -563,8 +573,12 @@ namespace malmo
     {
         if( !this->rewards_server || ( port != 0 && this->rewards_server->getPort() != port ) )
         {
+            if (rewards_server != nullptr) {
+                rewards_server->close();
+            }
+
             this->rewards_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onReward, this, _1), "rew");
-            this->rewards_server->start();
+            this->rewards_server->start(rewards_server);
         }
             
         if (this->current_mission_record->isRecordingRewards()){
@@ -576,8 +590,12 @@ namespace malmo
     {
         if( !this->observations_server || ( port != 0 && this->observations_server->getPort() != port ) ) 
         {
+            if (observations_server != nullptr) {
+                observations_server->close();
+            }
+
             this->observations_server = boost::make_shared<StringServer>(this->io_service, port, boost::bind(&AgentHost::onObservation, this, _1), "obs");
-            this->observations_server->start();
+            this->observations_server->start(observations_server);
         }
 
         if (this->current_mission_record->isRecordingObservations()){
@@ -716,26 +734,32 @@ namespace malmo
     {
         if (this->video_server) {
             this->video_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->depth_server) {
             this->depth_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->luminance_server) {
             this->luminance_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->colourmap_server) {
             this->colourmap_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->observations_server){
             this->observations_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->rewards_server){
             this->rewards_server->stopRecording();
+            this->video_server->close();
         }
 
         if (this->commands_stream.is_open()){
