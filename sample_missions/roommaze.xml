@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://ProjectMalmo.microsoft.com Mission.xsd">
+
+  <About>
+    <Summary>4x4 Room Navigation task</Summary>
+  </About>
+  
+  <ModSettings>
+    <MsPerTick>10</MsPerTick>
+    <PrioritiseOffscreenRendering> true </PrioritiseOffscreenRendering>
+  </ModSettings>
+
+  <ServerSection>
+    <ServerInitialConditions>
+      <Time>
+        <StartTime>6000</StartTime>
+        <AllowPassageOfTime>false</AllowPassageOfTime>
+      </Time>
+      <Weather>clear</Weather>
+      <AllowSpawning> false </AllowSpawning>
+    </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;22,4,13;1;village"/>
+      <DrawingDecorator>
+        <DrawCuboid  type="cobblestone" x1="-1" x2="4" y1="3" y2="3" z1="4" z2="-1"/>
+        <DrawCuboid  type="cobblestone" x1="5" x2="5" y1="3" y2="6" z1="4" z2="-1"/>
+        <DrawCuboid  type="cobblestone" x1="0" x2="0" y1="3" y2="6" z1="4" z2="-1"/>
+        <DrawCuboid  type="cobblestone" x1="2" x2="4" y1="3" y2="6" z1="4" z2="4"/>
+        <DrawCuboid  type="diamond_block" x1="-1" x2="3" y1="3" y2="6" z1="-1" z2="-1"/>
+        <DrawCuboid  type="cobblestone" x1="4" x2="4" y1="3" y2="6" z1="-2" z2="-2"/>
+        <DrawCuboid  type="cobblestone" x1="1" x2="1" y1="3" y2="6" z1="5" z2="5"/>
+        <DrawCuboid  type="air" x1="1" x2="4" y1="4" y2="6" z1="3" z2="0"/>
+        <DrawCuboid  type="air" x1="4" x2="4" y1="4" y2="6" z1="-1" z2="-1"/>
+        <DrawCuboid  type="air" x1="1" x2="1" y1="4" y2="6" z1="4" z2="4"/>
+        <DrawCuboid  type="glass" x1="-1" x2="5" y1="7" y2="7" z1="5" z2="-1"/>
+        <DrawBlock  type="gold_block" x="1" y="3" z="4"/>
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>"Bot"</Name>
+    <AgentStart>
+      <Placement x="4.5" y="4" z="-0.5" pitch="30" yaw="0"/>
+    </AgentStart>
+    <AgentHandlers>
+      <ObservationFromFullStats/>
+      <DiscreteMovementCommands/>
+      <RewardForTouchingBlockType>
+        <Block reward="-1.0" type="lava" behaviour="onceOnly"/>
+        <Block reward="-1.0" type="obsidian" behaviour="onceOnly"/>
+        <Block reward="1.0" type="gold_block" behaviour="oncePerBlock"/>
+      </RewardForTouchingBlockType>
+      <RewardForSendingCommand reward="-.01" />
+      <AgentQuitFromTouchingBlockType>
+        <Block type="lava" />
+        <Block type="obsidian" />
+        <Block type="gold_block" />
+      </AgentQuitFromTouchingBlockType>
+      <AgentQuitFromReachingCommandQuota total="80" description="command_quota_reached"/>
+    </AgentHandlers>
+  </AgentSection>
+
+</Mission>
