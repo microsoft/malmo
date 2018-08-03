@@ -14,11 +14,11 @@ In order to `pip3 install malmo` there are some environment and OS dependency re
 3.	MALMO_XSD_PATH must be set to where the XSD schema files are located (more on this below).
 4.	There are a few OS specific dependencies that must be pre-installed. 
 
-    *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/package/doc/install_linux.md) these are follows:
+    *	For [Ubuntu Linux](https://github.com/Microsoft/malmo/blob/master/doc/install_linux.md) these are follows:
         `python3-pip ffmpeg openjdk-8-jdk git`,
         We'll add more Linux flavours specifics here soon but meanwhile the docker build scripts are a good place to start.
 
-    *	Windows - please use the [manual install](https://github.com/Microsoft/malmo/blob/package/doc/install_windows_manual.md) to install dependencies.
+    *	Windows - please use the [manual install](https://github.com/Microsoft/malmo/blob/master/doc/install_windows_manual.md) to install dependencies.
         (The dependencies are python3, ffmpeg, 7zip, Java8 and additionally git.)
 
     *	MacOSX  - please see [MacOSX](https://github.com/Microsoft/malmo/blob/master/doc/install_macosx.md).
@@ -115,7 +115,7 @@ The MalmoPython sub-module (`import malmo.MalmoPython`) is the native library us
 
 If you wish to run old Malmo examples against the pip "malmo" module without editing imports 
 then you may want to copy in MalmoPython.py and malmoutil.py from the
-[pip package backwards compatibility directory](https://github.com/Microsoft/malmo/tree/package/scripts/python-wheel/backwards-compatible-imports) or include them on your PYTHONPATH.
+[pip package backwards compatibility directory](https://github.com/Microsoft/malmo/tree/master/scripts/python-wheel/backwards-compatible-imports) or include them on your PYTHONPATH.
 
 ## Deinstall ##
 
