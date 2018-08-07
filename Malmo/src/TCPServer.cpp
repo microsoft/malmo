@@ -104,13 +104,15 @@ namespace malmo
         boost::shared_ptr<TCPConnection> new_connection,
         const boost::system::error_code& error)
     {
+        // On closing or on error release scope of async io processing which can be us. 
+        
         if (!error)
         {
             if (this->closing)
             {
                 new_connection.get()->getSocket().close();
                 if (this->scope != nullptr) 
-                    this->scope->release(); // Release scope which can be self.
+                    this->scope->release();
             }
             else {
                 new_connection->read();
@@ -121,15 +123,15 @@ namespace malmo
                 else
                 {
                     if (this->scope != nullptr)
-                        this->scope->release(); // Release scope which can be self.
+                        this->scope->release();
                 }
             }
         }
         else
         {
             LOGERROR(LT("TCPServer::handleAccept("), this->log_name, LT(") - "), error.message());
-            if (closing && scope != nullptr) {
-                scope->release();
+            if (this->scope != nullptr) {
+                this->scope->release(); 
             }
         }
     }
