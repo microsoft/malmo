@@ -453,7 +453,7 @@ namespace malmo
     {
         boost::lock_guard<boost::mutex> scope_guard(this->world_state_mutex);
 
-        WorldState current_world_state(this->world_state);
+        WorldState current_world_state(this->world_state); // Copy while holding lock.
         return current_world_state;
     }
 

@@ -109,8 +109,8 @@ namespace malmo
             if (this->closing)
             {
                 new_connection.get()->getSocket().close();
-                if (scope != nullptr) 
-                    scope->release();
+                if (this->scope != nullptr) 
+                    this->scope->release(); // Release scope which can be self.
             }
             else {
                 new_connection->read();
@@ -120,8 +120,8 @@ namespace malmo
                 }
                 else
                 {
-                    if (scope != nullptr)
-                        scope->release();
+                    if (this->scope != nullptr)
+                        this->scope->release(); // Release scope which can be self.
                 }
             }
         }
