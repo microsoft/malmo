@@ -54,11 +54,17 @@ namespace malmo
         }
     }
 
-    void TCPServer::start()
+    void TCPServer::start(ServerScope* scope)
     {
+        this->scope = scope;
         this->startAccept();
     }
-    
+
+    void TCPServer::close() {
+        this->closing = true;
+        this->acceptor->close();
+    }
+
     void TCPServer::confirmWithFixedReply(std::string reply)
     {
         this->confirm_with_fixed_reply = true;
@@ -72,9 +78,14 @@ namespace malmo
 
     void TCPServer::startAccept()
     {
+        boost::function<void(const TimestampedUnsignedCharVector) > deliverMsgIfNotClosed = [this](const TimestampedUnsignedCharVector msg) {
+            if (!this->closing)
+                this->onMessageReceived(msg);
+        };
+
         boost::shared_ptr<TCPConnection> new_connection = TCPConnection::create(
             this->acceptor->get_io_service(),
-            this->onMessageReceived,
+            deliverMsgIfNotClosed,
             this->expect_size_header,
             this->log_name
         );
@@ -89,17 +100,40 @@ namespace malmo
             boost::asio::placeholders::error));
     }
     
-    void TCPServer::handleAccept( 
+    void TCPServer::handleAccept(
         boost::shared_ptr<TCPConnection> new_connection,
         const boost::system::error_code& error)
     {
+        // On closing or on error release scope of async io processing which can be us. 
+        
         if (!error)
         {
-            new_connection->read();
-            this->startAccept();
+            if (this->closing)
+            {
+                new_connection.get()->getSocket().close();
+                if (this->scope != nullptr) 
+                    this->scope->release();
+            }
+            else {
+                new_connection->read();
+                if (!this->closing)
+                {
+                    this->startAccept();
+                }
+                else
+                {
+                    if (this->scope != nullptr)
+                        this->scope->release();
+                }
+            }
         }
         else
+        {
             LOGERROR(LT("TCPServer::handleAccept("), this->log_name, LT(") - "), error.message());
+            if (this->scope != nullptr) {
+                this->scope->release(); 
+            }
+        }
     }
 
     int TCPServer::getPort() const

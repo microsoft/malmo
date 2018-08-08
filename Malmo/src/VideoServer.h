@@ -27,6 +27,7 @@
 
 // Boost:
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 
 // STL:
 #include <vector>
@@ -35,7 +36,7 @@
 namespace malmo
 {
     //! A TCP server that receives video frames of a size specified beforehand and can optionally persist to file.
-    class VideoServer 
+    class VideoServer : ServerScope
     {
         public:
 
@@ -72,13 +73,19 @@ namespace malmo
             void startRecording();
 
             //! Starts the video server.
-            void start();
+            void start(boost::shared_ptr<VideoServer>& scope);
 
             std::size_t receivedFrames() const { return this->received_frames; }
             std::size_t writtenFrames() const { return this->written_frames; }
             std::size_t queuedFrames() const { return this->queued_frames; }
 
+            void close();
+
+            virtual void release();
+
         private:
+
+            boost::shared_ptr<VideoServer> scope;
 
             void handleMessage( const TimestampedUnsignedCharVector message );
             
