@@ -1,3 +1,7 @@
+0.36.0
+-------------------
+Fixes for MacOS stability problems.
+
 0.35.0
 -------------------
 New: Now possible for agent to select the Minecraft client's command port using 

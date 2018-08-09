@@ -27,6 +27,7 @@
 // Boost:
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 
 // STL:
 #include <fstream>
@@ -36,7 +37,7 @@
 namespace malmo
 {
     //! A TCP server that receives strings and can optionally persist to file.
-    class StringServer
+    class StringServer : ServerScope
     {
         public:
 
@@ -57,7 +58,12 @@ namespace malmo
             void recordMessage(const TimestampedString message);
 
             //! Starts the string server.
-            void start();
+
+            void start(boost::shared_ptr<StringServer>& scope);
+
+            virtual void release();
+
+            void close();
 
         private:
 
@@ -67,6 +73,8 @@ namespace malmo
             TCPServer server;
             std::ofstream writer;
             boost::mutex write_mutex;
+
+            boost::shared_ptr<StringServer> scope = nullptr;
     };
 }
 

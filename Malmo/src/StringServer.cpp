@@ -24,6 +24,8 @@
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <iostream>
+
 namespace malmo {
     StringServer::StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string, const std::string& log_name)
         : handle_string(handle_string)
@@ -31,9 +33,18 @@ namespace malmo {
     {
     }
 
-    void StringServer::start()
+    void StringServer::start(boost::shared_ptr<StringServer>& scope)
     {
-        this->server.start();
+        this->scope = scope;
+        this->server.start(scope.get());
+    }
+
+    void StringServer::close() {
+        this->server.close();
+    }
+
+    void StringServer::release() {
+        this->scope = 0;
     }
 
     StringServer& StringServer::record(std::string path)

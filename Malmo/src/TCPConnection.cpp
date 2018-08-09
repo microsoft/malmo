@@ -141,32 +141,59 @@ namespace malmo
         else
             LOGERROR(LT("TCPConnection("), this->log_name, LT(")::handle_read_line("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes_transferred: "), bytes_transferred, LT(" - ERROR: "), error.message());
     }
-    
+
     void TCPConnection::processMessage()
     {
         LOGFINE(LT("TCPConnection("), this->log_name, LT(")::processMessage("), safe_local_endpoint(), LT("/"), safe_remote_endpoint(), LT(") - bytes received: "), this->body_buffer.size());
 
-        if( this->confirm_with_fixed_reply )
-            sendReply();
-        this->onMessageReceived( TimestampedUnsignedCharVector( boost::posix_time::microsec_clock::universal_time(), 
-                                                                this->body_buffer ) );
-        this->read();
+        if (this->confirm_with_fixed_reply)
+        {
+            reply();
+        }
+        else
+        {
+            deliverMessage();
+        }
     }
 
-    void TCPConnection::sendReply() 
+    void TCPConnection::reply()
     {
         const int REPLY_SIZE_HEADER_LENGTH = 4;
-        boost::system::error_code ec;
-        u_long reply_size_header = htonl((u_long)this->fixed_reply.size());
-        size_t bytes_written = boost::asio::write(this->socket, boost::asio::buffer(&reply_size_header, REPLY_SIZE_HEADER_LENGTH), ec);
-        if (bytes_written != REPLY_SIZE_HEADER_LENGTH || ec)
-            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::sendReply - ONLY SENT "), bytes_written, LT(" BYTES: "), ec.message());
+        this->reply_size_header = htonl((u_long)this->fixed_reply.size());
 
-        bytes_written = boost::asio::write( this->socket, boost::asio::buffer(this->fixed_reply), boost::asio::transfer_all(), ec );
-        if (ec)
-            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::sendReply - failed to send body of message: "), ec.message());
+        // Send header and continue after with response body.
+        boost::asio::async_write(this->socket, boost::asio::buffer(&this->reply_size_header, REPLY_SIZE_HEADER_LENGTH), boost::bind(&TCPConnection::transferredHeader, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+    }
+
+    void TCPConnection::transferredHeader(const boost::system::error_code& error, std::size_t bytes_transferred) {
+        if (!error)
+        {
+            // Send body and continue after with message delivery.
+            boost::asio::async_write(this->socket, boost::asio::buffer(this->fixed_reply), boost::bind(&TCPConnection::transferredBody, shared_from_this(), boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
+        }
         else
-            LOGFINE(LT("TCPConnection("), this->log_name, LT(")::sendReply sent "), bytes_written, LT(" bytes"));
+        {
+            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::transferredHeader - failed to send header of message: "), error.message());
+        }
+    }
+
+    void TCPConnection::transferredBody(const boost::system::error_code& error, std::size_t bytes_transferred) {
+        if (!error)
+        {
+            LOGFINE(LT("TCPConnection("), this->log_name, LT(")::transferredBody sent "), bytes_transferred, LT(" bytes"));
+
+            this->deliverMessage();
+        }
+        else
+        {
+            LOGERROR(LT("TCPConnection("), this->log_name, LT(")::transferredBody - failed to send body of message: "), error.message());
+        }
+    }
+
+    void TCPConnection::deliverMessage()
+    {
+        this->onMessageReceived(TimestampedUnsignedCharVector(boost::posix_time::microsec_clock::universal_time(), this->body_buffer));
+        this->read(); // Continue on with reading of next request message.
     }
 
     TCPConnection::TCPConnection(boost::asio::io_service& io_service, boost::function<void(const TimestampedUnsignedCharVector) > callback, bool expect_size_header, const std::string& log_name)

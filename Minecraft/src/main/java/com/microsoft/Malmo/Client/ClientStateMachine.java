@@ -433,6 +433,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     dos.writeInt(error.length());
                     dos.writeBytes(error);
+                    dos.flush();
                 }
                 catch (IOException e)
                 {
@@ -446,6 +447,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     dos.writeInt(reply.length());
                     dos.writeBytes(reply);
+                    dos.flush();
                 }
                 catch (IOException e)
                 {

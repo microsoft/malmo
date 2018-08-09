@@ -149,14 +149,14 @@ int runAgentHost(std::string filename)
   
     boost::asio::io_service io_service;
     
-    StringServer clientMissionControlServer(io_service, client_info.control_port, handleControlMessages, "test_mission_control");
-    clientMissionControlServer.confirmWithFixedReply( "MALMOOK" );
-    clientMissionControlServer.expectSizeHeader(false);
-    clientMissionControlServer.start();
+    boost::shared_ptr<StringServer> clientMissionControlServer = boost::make_shared<StringServer>(io_service, client_info.control_port, handleControlMessages, "test_mission_control");
+    clientMissionControlServer->confirmWithFixedReply( "MALMOOK" );
+    clientMissionControlServer->expectSizeHeader(false);
+    clientMissionControlServer->start(clientMissionControlServer);
     
-    StringServer clientCommandsServer( io_service, commands_port, handleCommandMessages, "test_commands");
-    clientCommandsServer.expectSizeHeader(false);
-    clientCommandsServer.start();
+    boost::shared_ptr<StringServer> clientCommandsServer = boost::make_shared<StringServer>( io_service, commands_port, handleCommandMessages, "test_commands");
+    clientCommandsServer->expectSizeHeader(false);
+    clientCommandsServer->start(clientCommandsServer);
 
     boost::thread bt(boost::bind(&boost::asio::io_service::run, &io_service));
 

@@ -64,8 +64,13 @@ namespace malmo
             void handle_read_line( const boost::system::error_code& error, size_t bytes_transferred );
 
             size_t getSizeFromHeader();
+
             void processMessage();
-            void sendReply();
+            void reply();
+            void deliverMessage();
+
+            void transferredHeader(const boost::system::error_code& ec, std::size_t transferred);
+            void transferredBody(const boost::system::error_code& ec, std::size_t transferred);
 
         private:
 
@@ -84,6 +89,7 @@ namespace malmo
             std::string fixed_reply;
             bool expect_size_header;
             std::string log_name;
+            u_long reply_size_header;
     };
 }
 

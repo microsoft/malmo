@@ -41,12 +41,22 @@ namespace malmo
     {
     }
 
-    void VideoServer::start()
+    // Start the server within a scope that is used to control sharing from async io calls.
+    void VideoServer::start(boost::shared_ptr<VideoServer>& scope)
     {
+        this->scope = scope;
         this->written_frames = this->queued_frames = this->received_frames = 0;
-        this->server.start();
+        this->server.start(scope.get());
     }
     
+    void VideoServer::close() {
+        this->server.close();
+    }
+
+    void VideoServer::release() {
+        this->scope = nullptr;
+    }
+
     void VideoServer::startRecording()
     {
         this->written_frames = this->queued_frames = this->received_frames = 0;
