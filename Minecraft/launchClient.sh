@@ -5,12 +5,14 @@ cd "$(dirname "$0")"
 
 replaceable=0
 port=0
+scorepolicy=0
 
 while [ $# -gt 0 ]
 do
     case "$1" in
         -replaceable) replaceable=1;;
         -port) port="$2"; shift;;
+        -scorepolicy) scorepolicy="$2"; shift;;
         *) echo >&2 \
             "usage: $0 [-replaceable] [-port 10123]"
             exit 1;;
@@ -28,6 +30,11 @@ if [ \( $port -lt 0 \) -o \( $port -gt 65535 \) ]; then
     exit 1
 fi
 
+if ! [[ $scorepolicy =~ ^-?[0-9]+$ ]]; then
+    echo "Score policy should be numeric"
+    exit 1
+fi
+
 # Now write the configuration file
 if [ ! -d "run/config" ]; then
   mkdir run/config
@@ -37,6 +44,9 @@ echo "# Configuration file
 
 malmoports {
   I:portOverride=$port
+}
+malmoscore {
+  I:policy=$scorepolicy
 }
 " > run/config/malmomodCLIENT.cfg
 
