@@ -38,8 +38,9 @@ ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
 # TODO for now pip install package "malmo" from the test pypi web site. 
 # Pass in --build-arg MALMOVERSION="x.x.x" to re-install
 ARG MALMOVERSION=unknown
-RUN MALMOVERSION=${MALMOVERSION} sudo pip3 install --index-url https://test.pypi.org/simple/ "malmo==0.35.6"
-RUN python3 -c "import malmo.minecraftbootstrap;malmo.minecraftbootstrap.download(buildMod=True, branch='malmorel')"
+#RUN MALMOVERSION=${MALMOVERSION} sudo pip3 install --index-url https://test.pypi.org/simple/ "malmo"
+RUN MALMOVERSION=${MALMOVERSION} sudo pip3 install "malmo==0.36.0"
+RUN python3 -c "import malmo.minecraftbootstrap;malmo.minecraftbootstrap.download(buildMod=True)"
 
 # Install Jupyter:
 RUN sudo pip3 install setuptools
