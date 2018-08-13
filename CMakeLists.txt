@@ -113,10 +113,10 @@ if( WIN32 )
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
   add_definitions(-DBOOST_ALL_NO_LIB=1)  # Turn off auto-linking, creates problems when linking boost statically
 else()
+  SET(Boost_USE_STATIC_LIBS ${STATIC_BOOST})
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
   set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
   find_package( Threads REQUIRED )
-  SET(Boost_USE_STATIC_LIBS ${STATIC_BOOST})
 endif()
 
 # suggested install paths - see readme.md
