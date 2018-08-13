@@ -1,3 +1,5 @@
+New: Support for scoring missions.
+
 0.36.0
 -------------------
 Fixes for MacOS stability problems.
