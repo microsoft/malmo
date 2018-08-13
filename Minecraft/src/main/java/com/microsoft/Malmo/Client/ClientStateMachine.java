@@ -88,14 +88,12 @@ import com.microsoft.Malmo.Schemas.MissionDiagnostics;
 import com.microsoft.Malmo.Schemas.MissionEnded;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.MissionResult;
-import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.ModSettings;
 import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
-import com.microsoft.Malmo.Utils.ScoreHelper;
 import com.microsoft.Malmo.Utils.TextureHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
@@ -849,7 +847,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return;
 
             Minecraft.getMinecraft().mcProfiler.startSection("malmoDecodeMissionInit");
-
             MissionInitResult missionInitResult = decodeMissionInit(missionMessage);
             Minecraft.getMinecraft().mcProfiler.endSection();
 
@@ -859,9 +856,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionInit.getClientAgentConnection().setAgentIPAddress(comip.ipAddress);
                 System.out.println("Mission received: " + missionInit.getMission().getAbout().getSummary());
                 csMachine.currentMissionInit = missionInit;
-
-                ScoreHelper.logMissionInit(missionInit);
-
                 ClientStateMachine.this.createMissionControlSocket();
                 // Move on to next state:
                 episodeHasCompleted(ClientState.CREATING_HANDLERS);
@@ -1887,7 +1881,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     String strReward = reward.getAsSimpleString();
                     Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPReward");
-                    ScoreHelper.logReward(strReward);
                     if (this.rewardSocket.sendTCPString(strReward))
                     {
                         this.failedTCPRewardSendCount = 0; // Reset the count of consecutive TCP failures.
@@ -2119,17 +2112,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 missionEndedString = SchemaHelper.serialiseObject(missionEnded, MissionEnded.class);
-                if (ScoreHelper.isScoring()) {
-                    Reward reward = missionEnded.getReward();
-                    if (reward == null) {
-                        reward = new Reward();
-                    }
-                    ScoreHelper.logMissionEndRewards(reward);
-                }
             }
             catch (JAXBException e)
             {
-                TCPUtils.Log(Level.SEVERE, "Failed mission end XML serialization: " + e);
             }
 
             boolean sentOkay = false;
