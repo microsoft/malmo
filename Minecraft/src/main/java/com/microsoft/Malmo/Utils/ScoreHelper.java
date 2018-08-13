@@ -68,7 +68,7 @@ public class ScoreHelper
             setLogging(Level.INFO);
         }
         if (logging)
-            log("<ScoreInit><Policy>" + scoringPolicy + "</Policy></ScoreInit>");
+            log("Score policy is " + scoringPolicy);
     }
 
     public static boolean isScoring() { return scoringPolicy > 0; }
@@ -90,12 +90,12 @@ public class ScoreHelper
         List<AgentSection> agents = missionInit.getMission().getAgentSection();
         String agentName = agents.get(missionInit.getClientRole()).getName();
 
-        StringBuffer message = new StringBuffer("<MissionInit><MissionDigest>");
+        StringBuffer message = new StringBuffer("<MissionInitDigest>");
         message.append(hash);
-        message.append("</MissionDigest>");
+        message.append("</MissionInitDigest>");
         message.append("<AgentName>");
         message.append(agentName);
-        message.append("</AgentName></MissionInit>");
+        message.append("</AgentName>");
         if (scoringPolicy == TOTAL_WITH_MISSION_XML)
             message.append(missionXml);
         log(message.toString());
