@@ -24,14 +24,11 @@ import com.microsoft.Malmo.MalmoMod;
 
 import java.io.File;
 import java.util.List;
-
-import java.io.IOException;
 import java.util.Date;
 
+import java.util.logging.*;
 import java.util.logging.Level;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.apache.commons.lang3.time.DateFormatUtils;
 import javax.xml.bind.JAXBException;
 import java.security.MessageDigest;
@@ -40,7 +37,6 @@ import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.Mission;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.Reward;
-import com.microsoft.Malmo.Utils.SchemaHelper;
 
 /** Class that helps to centralise optional logging of mission rewards.<br>
  */
@@ -54,7 +50,7 @@ public class ScoreHelper
     private static int scoringPolicy = DEFAULT_NO_SCORING;
 
     private static Logger logger = Logger.getLogger("com.microsoft.Malmo.Scoring");
-    private static FileHandler filehandler = null;
+    private static Handler handler = null;
     private static boolean logging = false;
     private static Level loggingLevel;
 
@@ -65,7 +61,8 @@ public class ScoreHelper
     {
         scoringPolicy = configs.get(MalmoMod.SCORING_CONFIGS, "policy", DEFAULT_NO_SCORING).getInt();
         if (scoringPolicy > 0) {
-            setLogging(Level.INFO);
+            String customLogHandler = configs.get(MalmoMod.SCORING_CONFIGS, "handler", "").getString();
+            setLogging(Level.INFO, customLogHandler);
         }
         if (logging)
             log("<ScoreInit><Policy>" + scoringPolicy + "</Policy></ScoreInit>");
@@ -136,23 +133,35 @@ public class ScoreHelper
         logger.log(Level.INFO, message);
     }
 
-    private static void setLogging(Level level)
+    private static void setLogging(Level level, String customLogHandler)
     {
         logging = true;
-        if (filehandler == null)
+        if (handler == null)
         {
-            try
-            {
-                Date d = new Date();
-                String filename = "Score" + DateFormatUtils.format(d, "yyyy-MM-dd HH-mm-ss") + ".log";
-                filehandler = new FileHandler("logs" + File.separator + filename);
+            if (customLogHandler != null && customLogHandler != "") {
+                // Custom handler.
+                System.out.println("Custom score handler " + customLogHandler);
+                try {
+                    Class handlerClass = Class.forName(customLogHandler);
+                    handler = (Handler) handlerClass.newInstance();
+                } catch (Exception e) {
+                    System.out.println("Failed to create custom score log " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    Date d = new Date();
+                    String filename = "Score" + DateFormatUtils.format(d, "yyyy-MM-dd HH-mm-ss") + ".log";
+                    handler = new FileHandler("logs" + File.separator + filename);
+                } catch (Exception e) {
+                    System.out.println("Failed to create file score log " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
-            catch (Exception e)
-            {
-                e.printStackTrace();
+            if (handler != null) {
+                logger.setUseParentHandlers(false); // Don't flood the parent log.
+                logger.addHandler(handler);
             }
-            logger.setUseParentHandlers(false); // Don't flood the parent log.
-            logger.addHandler(filehandler);
         }
         logger.setLevel(level);
         loggingLevel = level;
