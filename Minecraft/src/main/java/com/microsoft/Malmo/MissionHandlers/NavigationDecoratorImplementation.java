@@ -40,9 +40,21 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	@Override
 	public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
-		originX = nparams.getOrigin().getXCoordinate().doubleValue();
-		originY = nparams.getOrigin().getYCoordinate().doubleValue();
-		originZ = nparams.getOrigin().getZCoordinate().doubleValue();
+		if (nparams.getOrigin().getXCoordinate() != null)
+			originX = nparams.getOrigin().getXCoordinate().doubleValue();
+		else
+			originX = world.getSpawnPoint().getX();
+		
+		if (nparams.getOrigin().getYCoordinate() != null)
+			originY = nparams.getOrigin().getYCoordinate().doubleValue();
+		else
+			originY = world.getSpawnPoint().getY();
+		
+		if (nparams.getOrigin().getZCoordinate() != null)
+			originZ = nparams.getOrigin().getZCoordinate().doubleValue();
+		else
+			originZ = world.getSpawnPoint().getZ();
+		
 		radius = nparams.getRadius().doubleValue();
 		//discoveryRadius = nparams.getDiscoveryRadius().doubleValue();
 		randomizedRadius = nparams.getRandomizedCompassRadius().doubleValue();
