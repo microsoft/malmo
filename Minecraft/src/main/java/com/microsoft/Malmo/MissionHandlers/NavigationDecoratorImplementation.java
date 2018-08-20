@@ -27,8 +27,7 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	private double originX, originY, originZ;
 	private double radius;
-	//private double discoveryRadius;
-	private double randomizedRadius;
+	private double minDist, maxDist;
 
 	@Override
 	public boolean parseParameters(Object params) {
@@ -40,34 +39,34 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	@Override
 	public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
-		if (nparams.getOrigin().getXCoordinate() != null)
-			originX = nparams.getOrigin().getXCoordinate().doubleValue();
+		if (nparams.getRandomPlacementProperties().getOrigin().getX() != null)
+			originX = nparams.getRandomPlacementProperties().getOrigin().getX().doubleValue();
 		else
 			originX = world.getSpawnPoint().getX();
-		
-		if (nparams.getOrigin().getYCoordinate() != null)
-			originY = nparams.getOrigin().getYCoordinate().doubleValue();
+
+		if (nparams.getRandomPlacementProperties().getOrigin().getY() != null)
+			originY = nparams.getRandomPlacementProperties().getOrigin().getY().doubleValue();
 		else
 			originY = world.getSpawnPoint().getY();
-		
-		if (nparams.getOrigin().getZCoordinate() != null)
-			originZ = nparams.getOrigin().getZCoordinate().doubleValue();
+
+		if (nparams.getRandomPlacementProperties().getOrigin().getZ() != null)
+			originZ = nparams.getRandomPlacementProperties().getOrigin().getZ().doubleValue();
 		else
 			originZ = world.getSpawnPoint().getZ();
-		
-		radius = nparams.getRadius().doubleValue();
-		//discoveryRadius = nparams.getDiscoveryRadius().doubleValue();
-		randomizedRadius = nparams.getRandomizedCompassRadius().doubleValue();
+
+		radius = nparams.getRandomPlacementProperties().getRadius().doubleValue();
+		minDist = nparams.getMinRandomizedDistance().doubleValue();
+		maxDist = nparams.getMaxRandomizedDistance().doubleValue();
 
 		double placementX = 0, placementY = 0, placementZ = 0;
 
-		if (nparams.getPlacement() == "surface") {
+		if (nparams.getRandomPlacementProperties().getPlacement() == "surface") {
 			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
 					+ originZ;
 			BlockPos pos = world.getHeight(new BlockPos(placementX, 0, placementZ));
 			placementY = pos.getY();
-		} else if (nparams.getPlacement() == "circle") {
+		} else if (nparams.getRandomPlacementProperties().getPlacement() == "circle") {
 			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
 			placementY = originY;
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
@@ -79,17 +78,20 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 					* Math.sqrt((radius * radius) - (placementX * placementX) - (placementY * placementY)) + originZ;
 		}
 
-		IBlockState state = MinecraftTypeHelper.ParseBlockType(nparams.getBlock().value());
+		IBlockState state = MinecraftTypeHelper
+				.ParseBlockType(nparams.getRandomPlacementProperties().getBlock().value());
 		world.setBlockState(new BlockPos(placementX, placementY, placementZ), state);
 
 		// Set compass location to the block
 		double xDel = 0, yDel = 0, zDel = 0;
 		if (nparams.isRandomizeCompassLocation()) {
-			// Set some error
-			xDel = (Math.random() - 0.5) * 2 * randomizedRadius;
-			yDel = (Math.random() - 0.5) * 2 * Math.sqrt((randomizedRadius * randomizedRadius) - (xDel * xDel));
-			zDel = (Math.random() > 0.5 ? -1 : 1)
-					* Math.sqrt((randomizedRadius * randomizedRadius) - (xDel * xDel) - (yDel * yDel));
+			double dist = 0;
+			do {
+				xDel = (Math.random() - 0.5) * 2 * maxDist;
+				yDel = (Math.random() - 0.5) * 2 * maxDist;
+				zDel = (Math.random() - 0.5) * 2 * maxDist;
+				dist = Math.sqrt(xDel * xDel + yDel * yDel + zDel * zDel);
+			} while (dist <= maxDist && dist >= minDist);
 		}
 
 		// Set compass logic
