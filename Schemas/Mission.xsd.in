@@ -342,6 +342,7 @@
             <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
             <xs:element ref="ObservationFromHuman" minOccurs="0"/>
             <xs:element ref="ObservationFromSystem" minOccurs="0"/>
+            <xs:element ref="ObservationFromCompass" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
             <xs:element ref="DepthProducer" minOccurs="0"/>
@@ -441,6 +442,7 @@
                     <xs:element ref="SnakeDecorator"  />
                     <xs:element ref="MovingTargetDecorator" />
                     <xs:element ref="BuildBattleDecorator" />
+                    <xs:element ref="NavigationDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>

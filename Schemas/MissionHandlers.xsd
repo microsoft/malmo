@@ -967,6 +967,8 @@
                 <xs:annotation>
                     <xs:documentation>
                         Specifies the origin point or spawn point in the Minecraft world.
+                        
+                        If omitted, set to the world spawn point.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -977,7 +979,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="block" type="BlockType" minOccurs="0" maxOccurs="1">
+            <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         Specifies the block type of the block to be randomly placed.

@@ -26,6 +26,7 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 	private NavigationDecorator nparams;
 
 	private double originX, originY, originZ;
+	private double placementX, placementY, placementZ;
 	private double radius;
 	private double minDist, maxDist;
 
@@ -39,17 +40,17 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	@Override
 	public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
-		if (nparams.getRandomPlacementProperties().getOrigin().getX() != null)
+		if (nparams.getRandomPlacementProperties().getOrigin() != null)
 			originX = nparams.getRandomPlacementProperties().getOrigin().getX().doubleValue();
 		else
 			originX = world.getSpawnPoint().getX();
 
-		if (nparams.getRandomPlacementProperties().getOrigin().getY() != null)
+		if (nparams.getRandomPlacementProperties().getOrigin() != null)
 			originY = nparams.getRandomPlacementProperties().getOrigin().getY().doubleValue();
 		else
 			originY = world.getSpawnPoint().getY();
 
-		if (nparams.getRandomPlacementProperties().getOrigin().getZ() != null)
+		if (nparams.getRandomPlacementProperties().getOrigin() != null)
 			originZ = nparams.getRandomPlacementProperties().getOrigin().getZ().doubleValue();
 		else
 			originZ = world.getSpawnPoint().getZ();
@@ -58,24 +59,36 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 		minDist = nparams.getMinRandomizedDistance().doubleValue();
 		maxDist = nparams.getMaxRandomizedDistance().doubleValue();
 
-		double placementX = 0, placementY = 0, placementZ = 0;
+		placementX = 0;
+		placementY = 0;
+		placementZ = 0;
 
-		if (nparams.getRandomPlacementProperties().getPlacement() == "surface") {
-			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
-			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
-					+ originZ;
-			BlockPos pos = world.getHeight(new BlockPos(placementX, 0, placementZ));
-			placementY = pos.getY();
-		} else if (nparams.getRandomPlacementProperties().getPlacement() == "circle") {
-			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
+		if (nparams.getRandomPlacementProperties().getPlacement().equals("surface")) {
+			placementX = ((Math.random() - 0.5) * 2 * radius);
+			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
+
+			// Change center to origin now
+			placementX += originX;
+			placementZ += originZ;
+			placementY = world.getTopSolidOrLiquidBlock(new BlockPos(placementX, 0, placementZ)).getY();
+		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("circle")) {
+			placementX = ((Math.random() - 0.5) * 2 * radius);
 			placementY = originY;
-			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
-					+ originZ;
+			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
+
+			// Change center to origin now
+			placementX += originX;
+			placementZ += originZ;
 		} else {
-			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
-			placementY = (Math.random() - 0.5) * 2 * Math.sqrt((radius * radius) - (placementX * placementX)) + originY;
+			placementX = ((Math.random() - 0.5) * 2 * radius);
+			placementY = (Math.random() - 0.5) * 2 * Math.sqrt((radius * radius) - (placementX * placementX));
 			placementZ = (Math.random() > 0.5 ? -1 : 1)
-					* Math.sqrt((radius * radius) - (placementX * placementX) - (placementY * placementY)) + originZ;
+					* Math.sqrt((radius * radius) - (placementX * placementX) - (placementY * placementY));
+
+			// Change center to origin now
+			placementX += originX;
+			placementY += originY;
+			placementZ += originZ;
 		}
 
 		IBlockState state = MinecraftTypeHelper
@@ -94,10 +107,9 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			} while (dist <= maxDist && dist >= minDist);
 		}
 
-		// Set compass logic
-		// Since compasses point to world spawn, point at world spawn
-		world.setSpawnPoint(new BlockPos(placementX + xDel, placementY + yDel, placementZ + zDel));
-		Minecraft.getMinecraft().player.setSpawnPoint(new BlockPos(originX, originY, originZ), true);
+		placementX += xDel;
+		placementY += yDel;
+		placementZ += zDel;
 	}
 
 	@Override
@@ -107,6 +119,12 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	@Override
 	public void update(World world) {
+		if (Minecraft.getMinecraft().player != null) {
+			BlockPos spawn = Minecraft.getMinecraft().player.world.getSpawnPoint();
+			if (spawn.getX() != (int) placementX && spawn.getY() != (int) placementY
+					&& spawn.getZ() != (int) placementZ)
+				Minecraft.getMinecraft().player.world.setSpawnPoint(new BlockPos(placementX, placementY, placementZ));
+		}
 	}
 
 	@Override
@@ -125,5 +143,4 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 	@Override
 	public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots) {
 	}
-
 }
