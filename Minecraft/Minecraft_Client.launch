@@ -1,12 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/Minecraft"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="4"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="GradleStart"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Minecraft"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DFORGE_FORCE_FRAME_RECALC=true -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin"/>
-</launchConfiguration>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication"><stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="GradleStart"/><stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Minecraft"/><stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="/Users/caydencodel/git/inference/Minecraft/run"/><stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value=" -DFORGE_FORCE_FRAME_RECALC=true"/></launchConfiguration>
