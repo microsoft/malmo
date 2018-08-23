@@ -2032,6 +2032,8 @@
                 - relative-z: the relative z coordinate value of the player to the compass, null if not set
 
                 - offset: the number of degrees the agent is facing away from the direction the compass is pointing
+                
+                - normalized-offset: the number of degrees the agent is facing away, with the agent considered 0 degrees
 
                 - distance: the distance from the agent's location to the compass's location
             </xs:documentation>
