@@ -1059,6 +1059,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
 
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            boolean completedWithErrors = false;
+
             if (agents.size() > 1 && currentMissionInit().getClientRole() != 0)
             {
                 // We are waiting to join an out-of-process server. Need to pay attention to what happens -
@@ -1072,10 +1074,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     String msg = "Unable to connect to Minecraft server in multi-agent mission.";
                     TCPUtils.Log(Level.SEVERE, msg);
                     episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CONNECT_TO_SERVER, msg);
+                    completedWithErrors = true;
                 }
             }
 
-            if (totalTicks > WAIT_MAX_TICKS)
+            if (!completedWithErrors && totalTicks > WAIT_MAX_TICKS)
             {
                 String msg = "Too long waiting for server episode to start.";
                 TCPUtils.Log(Level.SEVERE, msg);
