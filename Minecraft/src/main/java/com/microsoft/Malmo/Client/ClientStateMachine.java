@@ -317,8 +317,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         case ERROR_LOST_NETWORK_CONNECTION: // run-on deliberate
         case ERROR_CANNOT_CONNECT_TO_SERVER:
             return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, false, true); // No point trying to inform the server - we can't reach it anyway!
-        case ERROR_TIMED_OUT_WAITING_FOR_EPISODE:
-            return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, true, true);
         case MISSION_ABORTED:
             return new MissionEndedEpisode(this, MissionResult.MOD_SERVER_ABORTED_MISSION, true, false, true);  // Don't inform the server - it already knows (we're acting on its notification)
         case WAITING_FOR_SERVER_MISSION_END:
@@ -958,10 +956,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
      */
     public class WaitingForServerEpisode extends ConfigAwareStateEpisode
     {
-        final int WAIT_MAX_TICKS = 1000;
         String agentName;
         int ticksUntilNextPing = 0;
-        int totalTicks = 0;
         boolean waitingForChunk = false;
         boolean waitingForPlayer = true;
 
@@ -1024,9 +1020,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 else
                     return;
             }
-
-            totalTicks++;
-
             if (ticksUntilNextPing == 0)
             {
                 // Tell the server what our agent name is.
@@ -1071,26 +1064,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Disconnected screen appears when something has gone wrong.
                     // Would be nice to grab the reason from the screen, but it's a private member.
                     // (Can always use reflection, but it's so inelegant.)
-                    String msg = "Unable to connect to Minecraft server in multi-agent mission.";
-                    TCPUtils.Log(Level.SEVERE, msg);
-                    episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CONNECT_TO_SERVER, msg);
-                    completedWithErrors = true;
+                    episodeHasCompletedWithErrors(ClientState.ERROR_CANNOT_CONNECT_TO_SERVER, "Unable to connect to Minecraft server in multi-agent mission.");
                 }
-            }
-
-            if (!completedWithErrors && totalTicks > WAIT_MAX_TICKS)
-            {
-                String msg = "Too long waiting for server episode to start.";
-                TCPUtils.Log(Level.SEVERE, msg);
-                episodeHasCompletedWithErrors(ClientState.ERROR_TIMED_OUT_WAITING_FOR_EPISODE, msg);
             }
         }
 
         @Override
         protected void execute() throws Exception
         {
-            totalTicks = 0;
-
             Minecraft.getMinecraft().displayGuiScreen(null); // Clear any menu screen that might confuse things.
             // Get our name from the Mission:
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
@@ -1141,8 +1122,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
-
-                System.out.println("Integrated server port: " + ClientStateMachine.this.integratedServerPort);
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
                 msc.setAddress(address);
                 currentMissionInit().setMinecraftServerConnection(msc);
