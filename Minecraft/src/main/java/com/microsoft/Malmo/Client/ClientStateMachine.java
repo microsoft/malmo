@@ -958,7 +958,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
      */
     public class WaitingForServerEpisode extends ConfigAwareStateEpisode
     {
-        final int WAIT_MAX_TICKS = 1000;
+        final int WAIT_MAX_TICKS = 2000; // About 1 minute in server ticks.
         String agentName;
         int ticksUntilNextPing = 0;
         int totalTicks = 0;
@@ -1142,7 +1142,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
 
-                System.out.println("Integrated server port: " + ClientStateMachine.this.integratedServerPort);
+                TCPUtils.Log(Level.INFO,"Integrated server port: " + ClientStateMachine.this.integratedServerPort);
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
                 msc.setAddress(address);
                 currentMissionInit().setMinecraftServerConnection(msc);
