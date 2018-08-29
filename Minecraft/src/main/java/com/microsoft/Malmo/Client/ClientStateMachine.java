@@ -958,7 +958,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
      */
     public class WaitingForServerEpisode extends ConfigAwareStateEpisode
     {
-        final int WAIT_MAX_TICKS = 2000; // About 1 minute in server ticks.
+        final int WAIT_MAX_TICKS = 2000; // Over 1 minute and a half in client ticks.
         String agentName;
         int ticksUntilNextPing = 0;
         int totalTicks = 0;
