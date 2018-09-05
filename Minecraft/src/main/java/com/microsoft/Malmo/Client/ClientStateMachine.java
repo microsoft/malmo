@@ -114,6 +114,7 @@ import com.mojang.authlib.properties.Property;
 public class ClientStateMachine extends StateMachine implements IMalmoMessageListener
 {
     private static final int WAIT_MAX_TICKS = 2000; // Over 1 minute and a half in client ticks.
+    private static final int VIDEO_MAX_WAIT = 90 * 1000; // Max wait for video in ms.
     private static final String MISSING_MCP_PORT_ERROR = "no_mcp";
     private static final String INFO_MCP_PORT = "info_mcp";
     private static final String INFO_RESERVE_STATUS = "info_reservation";
@@ -311,8 +312,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return new MissionEndedEpisode(this, MissionResult.MOD_HAS_NO_WORLD_LOADED, true, true, true);
             case ERROR_CANNOT_CREATE_WORLD:
                 return new MissionEndedEpisode(this, MissionResult.MOD_FAILED_TO_CREATE_WORLD, true, true, true);
-            case ERROR_CANNOT_START_AGENT: // run-on deliberate
+            case ERROR_CANNOT_START_AGENT: // run-ons deliberate
             case ERROR_LOST_AGENT:
+            case ERROR_LOST_VIDEO:
                 return new MissionEndedEpisode(this, MissionResult.MOD_HAS_NO_AGENT_AVAILABLE, true, true, false);
             case ERROR_LOST_NETWORK_CONNECTION: // run-on deliberate
             case ERROR_CANNOT_CONNECT_TO_SERVER:
@@ -1698,7 +1700,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
      * This state is ended by the death of the player or by the IWantToQuit
      * handler, or by the server declaring the mission is over.
      */
-    public class MissionRunningEpisode extends ConfigAwareStateEpisode
+    public class MissionRunningEpisode extends ConfigAwareStateEpisode implements VideoProducedObserver
     {
         public static final int FailedTCPSendCountTolerance = 3; // Number of TCP timeouts before we cancel the mission
 
@@ -1721,8 +1723,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private long lastPingSent = 0;
         private long pingFrequencyMs = 1000;
 
+        private long frameTimestamp = 0;
+
+        public void frameProduced() {
+            this.frameTimestamp = System.currentTimeMillis();
+        }
+
         protected void onMissionStarted()
         {
+            frameTimestamp = 0;
+
             // Open our communication channels:
             openSockets();
 
@@ -1751,7 +1761,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 VideoHook hook = new VideoHook();
                 this.videoHooks.add(hook);
-                hook.start(currentMissionInit(), videoProducer);
+                frameProduced();
+                hook.start(currentMissionInit(), videoProducer, this);
             }
 
             // Make sure we have mouse control:
@@ -1840,6 +1851,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         this.wantsToQuit = true;
                         this.quitCode = MalmoMod.AGENT_UNRESPONSIVE_CODE;
                     }
+                }
+            }
+
+            if (this.frameTimestamp != 0 && (System.currentTimeMillis() - this.frameTimestamp >  VIDEO_MAX_WAIT)) {
+                System.out.println("No video produced recently. Aborting mission.");
+                if (!this.serverHasFiredStartingPistol)
+                    onMissionEnded(ClientState.ERROR_LOST_VIDEO, "No video produced recently.");
+                else
+                {
+                    System.out.println("Error - not receiving video.");
+                    this.wantsToQuit = true;
+                    this.quitCode = MalmoMod.VIDEO_UNRESPONSIVE_CODE;
                 }
             }
 
