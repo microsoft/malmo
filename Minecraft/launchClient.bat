@@ -28,7 +28,7 @@ setlocal enableDelayedExpansion
 ::
 :: The order of the definitions is not important.
 ::
-set "options=-port:0 -replaceable:"
+set "options=-port:0 -replaceable: -env:"
 
 :: Set the default option values
 for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
@@ -75,6 +75,11 @@ echo.
 echo malmoports {
 echo I:portOverride=!-port!
 echo }
+if "!-env!"=="true" (
+    echo envtype {
+    echo B:env=!-env!
+    echo }
+    )
 if "!-replaceable!"=="true" (
     echo runtype {
     echo B:replaceable=!-replaceable!

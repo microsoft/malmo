@@ -273,7 +273,7 @@ public class TCPInputPoller extends Thread
         }
     }
 
-    protected void commandReceived(String command, String ipOriginator, DataOutputStream dos)
+    public void commandReceived(String command, String ipOriginator, DataOutputStream dos)
     {
         synchronized(this)
         {

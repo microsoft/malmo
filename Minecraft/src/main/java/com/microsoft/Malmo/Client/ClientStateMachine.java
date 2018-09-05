@@ -125,6 +125,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     private ScreenHelper screenHelper = new ScreenHelper();
     protected MalmoModClient inputController;
 
+    // Env service:
+    protected MalmoEnvServer envServer;
+
     // Socket stuff:
     protected TCPInputPoller missionPoller;
     protected TCPInputPoller controlInputPoller;
@@ -591,7 +594,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 else
                 {
                     // See if we've been sent a MissionInit message:
+
                     MissionInitResult missionInitResult = decodeMissionInit(command);
+
                     if (missionInitResult.wasMissionInit && missionInitResult.missionInit == null)
                     {
                         // Got sent a duff MissionInit xml - pass back the JAXB/SAXB errors.
@@ -625,14 +630,34 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         }
                     }
                 }
+
                 return keepProcessing;
             }
         };
 
-        this.missionPoller.start();
+        int mcPort = 0;
+        if (MalmoEnvServer.isEnv()) {
+            // Start up new "Env" service instead of Malmo AgentHost api.
+            System.out.println("***** Start MalmoEnvServer on port " + AddressHelper.getMissionControlPortOverride());
+            this.envServer = new MalmoEnvServer(AddressHelper.getMissionControlPortOverride(), this.missionPoller);
+            Thread thread = new Thread("MalmoEnvServer") {
+                public void run() {
+                    try {
+                        envServer.serve();
+                    } catch (IOException ioe) {
+                        System.out.println("MalmoEnvServer exist on " + ioe);
+                    }
+                }
+            };
+            thread.start();
+        } else {
+            // "Legacy" AgentHost api.
+            this.missionPoller.start();
+            mcPort = ClientStateMachine.this.missionPoller.getPortBlocking();
+        }
 
         // Tell the address helper what the actual port is:
-        AddressHelper.setMissionControlPort(ClientStateMachine.this.missionPoller.getPortBlocking());
+        AddressHelper.setMissionControlPort(mcPort);
         if (AddressHelper.getMissionControlPort() == -1)
         {
             // Failed to create a mission control port - nothing will work!
@@ -667,6 +692,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected boolean pingAgent(boolean abortIfFailed)
         {
+            if (AddressHelper.getMissionControlPort() == 0) {
+                if (envServer != null) {
+                    // TODO MalmoEnvServer - ping
+                }
+                return true;
+            }
+
             boolean sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ping/>", 1);
             if (!sentOkay)
             {
@@ -1020,6 +1052,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 else
                     return;
             }
+
             if (ticksUntilNextPing == 0)
             {
                 // Tell the server what our agent name is.
@@ -1052,15 +1085,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
 
             List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
-            boolean completedWithErrors = false;
-
+            
             if (agents.size() > 1 && currentMissionInit().getClientRole() != 0)
             {
                 // We are waiting to join an out-of-process server. Need to pay attention to what happens -
                 // if we can't join, for any reason, we should abort the mission.
                 GuiScreen screen = Minecraft.getMinecraft().currentScreen;
-                if (screen != null && screen instanceof GuiDisconnected)
-                {
+                if (screen != null && screen instanceof GuiDisconnected) {
                     // Disconnected screen appears when something has gone wrong.
                     // Would be nice to grab the reason from the screen, but it's a private member.
                     // (Can always use reflection, but it's so inelegant.)
@@ -1122,8 +1153,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     String portstr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set to true to stop spam kicks.
                     ClientStateMachine.this.integratedServerPort = Integer.valueOf(portstr);
                 }
+
+                TCPUtils.Log(Level.INFO,"Integrated server port: " + ClientStateMachine.this.integratedServerPort);
                 msc.setPort(ClientStateMachine.this.integratedServerPort);
                 msc.setAddress(address);
+
+                if (envServer != null) {
+                    envServer.notifyIntegrationServerStarted(ClientStateMachine.this.integratedServerPort);
+                }
                 currentMissionInit().setMinecraftServerConnection(msc);
             }
         }
@@ -1207,7 +1244,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 xml = SchemaHelper.serialiseObject(currentMissionInit(), MissionInit.class);
-                sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml, 1);
+                if (AddressHelper.getMissionControlPort() == 0) {
+                    if (envServer != null) {
+                        // TODO MalmoEnvServer <- Running
+                    }
+                    sentOkay = true;
+                } else {
+                    sentOkay = ClientStateMachine.this.getMissionControlSocket().sendTCPString(xml, 1);
+                }
             }
             catch (JAXBException e)
             {
@@ -1669,7 +1713,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 VideoHook hook = new VideoHook();
                 this.videoHooks.add(hook);
-                hook.start(currentMissionInit(), videoProducer);
+                hook.start(currentMissionInit(), videoProducer, envServer);
             }
 
             // Make sure we have mouse control:
@@ -1859,17 +1903,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (data != null && data.length() > 2 && cac != null) // An empty json string will be "{}" (length 2) - don't send these.
             {
-                // Bung the whole shebang off via TCP:
-                if (this.observationSocket.sendTCPString(data))
-                {
-                    this.failedTCPObservationSendCount = 0;
-                }
-                else
-                {
-                    // Failed to send observation message.
-                    this.failedTCPObservationSendCount++;
-                    TCPUtils.Log(Level.WARNING, "Observation signal delivery failure count at " + this.failedTCPObservationSendCount);
-                    ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed observation signal", TextCategory.TXT_CLIENT_WARNING, 5000);
+                if (AddressHelper.getMissionControlPort() == 0) {
+                    // TODO MalmoEnvServer - observation
+                } else {
+                    // Bung the whole shebang off via TCP:
+                    if (this.observationSocket.sendTCPString(data)) {
+                        this.failedTCPObservationSendCount = 0;
+                    } else {
+                        // Failed to send observation message.
+                        this.failedTCPObservationSendCount++;
+                        TCPUtils.Log(Level.WARNING, "Observation signal delivery failure count at " + this.failedTCPObservationSendCount);
+                        ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed observation signal", TextCategory.TXT_CLIENT_WARNING, 5000);
+                    }
                 }
             }
 
@@ -1883,18 +1928,23 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     String strReward = reward.getAsSimpleString();
                     Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPReward");
-                    if (this.rewardSocket.sendTCPString(strReward))
-                    {
-                        this.failedTCPRewardSendCount = 0; // Reset the count of consecutive TCP failures.
-                    }
-                    else
-                    {
-                        // Failed to send TCP message - probably because the agent has quit under our feet.
-                        // (This happens a lot when developing a Python agent - the developer has no easy way to quit
-                        // the agent cleanly, so tends to kill the process.)
-                        this.failedTCPRewardSendCount++;
-                        TCPUtils.Log(Level.WARNING, "Reward signal delivery failure count at " + this.failedTCPRewardSendCount);
-                        ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed reward signal", TextCategory.TXT_CLIENT_WARNING, 5000);
+
+                    if (AddressHelper.getMissionControlPort() == 0) {
+                        // TODO MalmoEnvServer - reward
+                        if (envServer != null) {
+                            envServer.addRewards(reward.getRewardTotal());
+                        }
+                    } else {
+                        if (this.rewardSocket.sendTCPString(strReward)) {
+                            this.failedTCPRewardSendCount = 0; // Reset the count of consecutive TCP failures.
+                        } else {
+                            // Failed to send TCP message - probably because the agent has quit under our feet.
+                            // (This happens a lot when developing a Python agent - the developer has no easy way to quit
+                            // the agent cleanly, so tends to kill the process.)
+                            this.failedTCPRewardSendCount++;
+                            TCPUtils.Log(Level.WARNING, "Reward signal delivery failure count at " + this.failedTCPRewardSendCount);
+                            ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed reward signal", TextCategory.TXT_CLIENT_WARNING, 5000);
+                        }
                     }
                 }
             }
@@ -1927,18 +1977,27 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void checkForControlCommand()
         {
             Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandHandling");
-            String command = "";
+            String command;
             boolean quitHandlerFired = false;
             IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
 
-            command = ClientStateMachine.this.controlInputPoller.getCommand();
+            if (envServer != null) {
+                command = envServer.getCommand();
+            } else {
+                command = ClientStateMachine.this.controlInputPoller.getCommand();
+            }
             while (command != null && command.length() > 0 && !quitHandlerFired)
             {
+                System.out.println("Act on " + command);
                 // Pass the command to our various control overrides:
                 Minecraft.getMinecraft().mcProfiler.startSection("malmoCommandAct");
                 boolean handled = handleCommand(command);
                 // Get the next command:
-                command = ClientStateMachine.this.controlInputPoller.getCommand();
+                if (envServer != null) {
+                    command = envServer.getCommand();
+                } else {
+                    command = ClientStateMachine.this.controlInputPoller.getCommand();
+                }
                 // If there *is* another command (commands came in faster than one per client tick),
                 // then we should check our quit producer before deciding whether to execute it.
                 Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandRecheckQuitHandlers");
@@ -2093,6 +2152,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionEnded.setHumanReadableStatus(report);
                 if (!ClientStateMachine.this.finalReward.isEmpty())
                 {
+                    if (envServer != null) {
+                        envServer.addRewards(ClientStateMachine.this.finalReward.getRewardTotal());
+                    }
                     missionEnded.setReward(ClientStateMachine.this.finalReward.getAsReward());
                     ClientStateMachine.this.finalReward.clear();
                 }
@@ -2122,10 +2184,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             boolean sentOkay = false;
             if (missionEndedString != null)
             {
-                TCPSocketChannel sender = ClientStateMachine.this.getMissionControlSocket();
-                System.out.println(String.format("Sending mission ended message to %s:%d.", sender.getAddress(), sender.getPort()));
-                sentOkay = sender.sendTCPString(missionEndedString);
-                sender.close();
+                if (AddressHelper.getMissionControlPort() == 0) {
+                    sentOkay = true;
+                    if (envServer != null) {
+                        envServer.endMission();
+                    }
+                } else {
+                    TCPSocketChannel sender = ClientStateMachine.this.getMissionControlSocket();
+                    System.out.println(String.format("Sending mission ended message to %s:%d.", sender.getAddress(), sender.getPort()));
+                    sentOkay = sender.sendTCPString(missionEndedString);
+                    sender.close();
+                }
             }
 
             if (!sentOkay)
