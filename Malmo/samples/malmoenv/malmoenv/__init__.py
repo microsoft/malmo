@@ -122,6 +122,18 @@ class Env:
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
+    def exit(self):
+        """Use carefully to cause the service to exit (and hopefully restart).
+            Likely to throw communication errors so use carefully.
+        """
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((self.server, self.port))
+
+        comms.send_message(sock, ("<Exit>" + self._get_token() + "</Exit>").encode())
+        reply = comms.recv_message(sock)
+        ok, = struct.unpack('!I', reply)
+        return ok != 0
+
     def close(self):
         if self.clientsocket:
             self.clientsocket.close()

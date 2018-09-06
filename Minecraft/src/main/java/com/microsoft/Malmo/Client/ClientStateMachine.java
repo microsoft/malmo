@@ -554,31 +554,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                             reply("MALMOOK", dos);
 
                             missionPoller.stopServer();
-
-                            // Give non-hard exit 10 seconds to complete and force a hard exit.
-                            Thread deadMansHandle = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    for (int i = 10; i > 0; i--) {
-                                        try {
-                                            Thread.sleep(1000);
-                                            System.out.println("Waiting to exit " + i + "...");
-                                        } catch (InterruptedException e) {
-                                            System.out.println("Interrupted " + i + "...");
-                                        }
-                                    }
-
-                                    // Kill it with fire!!!
-                                    System.out.println("Attempting hard exit");
-                                    FMLCommonHandler.instance().exitJava(0, true);
-                                }
-                            });
-
-                            deadMansHandle.setDaemon(true);
-                            deadMansHandle.start();
-
-                            // Have to use FMLCommonHandler; direct calls to System.exit() are trapped and denied by the FML code.
-                            FMLCommonHandler.instance().exitJava(0, false);
+                            exitJava();
                         }
                         else
                         {
@@ -673,6 +649,33 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         ClientStateMachine.this.getScreenHelper().clearFragment(INFO_MCP_PORT);
         if (AddressHelper.getMissionControlPort() != -1)
             ClientStateMachine.this.getScreenHelper().addFragment("MCP: " + AddressHelper.getMissionControlPort(), TextCategory.TXT_INFO, INFO_MCP_PORT);
+    }
+
+    public static void exitJava() {
+        // Give non-hard exit 10 seconds to complete and force a hard exit.
+        Thread deadMansHandle = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 10; i > 0; i--) {
+                    try {
+                        Thread.sleep(1000);
+                        System.out.println("Waiting to exit " + i + "...");
+                    } catch (InterruptedException e) {
+                        System.out.println("Interrupted " + i + "...");
+                    }
+                }
+
+                // Kill it with fire!!!
+                System.out.println("Attempting hard exit");
+                FMLCommonHandler.instance().exitJava(0, true);
+            }
+        });
+
+        deadMansHandle.setDaemon(true);
+        deadMansHandle.start();
+
+        // Have to use FMLCommonHandler; direct calls to System.exit() are trapped and denied by the FML code.
+        FMLCommonHandler.instance().exitJava(0, false);
     }
 
     // ---------------------------------------------------------------------------------------------------------

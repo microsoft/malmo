@@ -46,6 +46,6 @@ for i in range(args.rounds):
         print("reward: " + str(reward))
         print("done: " + str(done))
         print("obs: " + str(obs))
-        time.sleep(1)
+        time.sleep(.05)
 
 env.close()

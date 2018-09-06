@@ -288,7 +288,7 @@ public class VideoHook {
                 success = true;
 
                 if (envServer != null) {
-                    // Write the frame data into a newly allocated buffer:
+                    // Write the obs data into a newly allocated buffer:
                     byte[] data = new byte[size];
                     this.buffer.clear();
                     this.videoProducer.getFrame(this.missionInit, this.buffer);
