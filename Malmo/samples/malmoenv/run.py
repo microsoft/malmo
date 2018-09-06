@@ -21,31 +21,40 @@ import malmoenv
 import argparse
 from pathlib import Path
 import time
+import uuid
 
-parser = argparse.ArgumentParser(description='malmovnv test')
-parser.add_argument('--mission_init', type=str, default="agentSingleInit.xml", help='the mission init xml')
-parser.add_argument('--port', type=int, default="9000", help='the mission server port')
-parser.add_argument('--rounds', type=int, default="1", help='the number of resets to perform - default is 1')
-parser.add_argument('--episode', type=int, default="0", help='the start episode - default is 0')
-args = parser.parse_args()
+if __name__ == '__main__':
 
-xml = Path(args.mission_init).read_text()
-env = malmoenv.make()
+    parser = argparse.ArgumentParser(description='malmovnv test')
+    parser.add_argument('--mission_init', type=str, default='agentSingle.xml', help='the mission init xml')
+    parser.add_argument('--port', type=int, default=9000, help='the mission server port')
+    parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
+    parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
+    parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
+    parser.add_argument('--experimentUId', type=str, default=None,
+                        help="the experiment's unique id. Generated if not specified")
+    args = parser.parse_args()
 
-env.init(xml, args.port, episode=args.episode)
+    if args.experimentUId is None:
+        args.experimentUId = str(uuid.uuid4())
 
-for i in range(args.rounds):
-    print("reset " + str(i))
-    obs = env.reset()
+    xml = Path(args.mission_init).read_text()
+    env = malmoenv.make()
 
-    done = False
-    while not done:
-        action = env.action_space.sample()
+    env.init(xml, args.port, args.role, args.experimentUId, episode=args.episode)
 
-        obs, reward, done, info = env.step(action)
-        print("reward: " + str(reward))
-        print("done: " + str(done))
-        print("obs: " + str(obs))
-        time.sleep(.05)
+    for i in range(args.rounds):
+        print("reset " + str(i))
+        obs = env.reset()
 
-env.close()
+        done = False
+        while not done:
+            action = env.action_space.sample()
+
+            obs, reward, done, info = env.step(action)
+            print("reward: " + str(reward))
+            print("done: " + str(done))
+            print("obs: " + str(obs))
+            time.sleep(.05)
+
+    env.close()

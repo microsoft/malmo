@@ -24,6 +24,8 @@ import time
 import random
 import numpy as np
 from malmoenv import comms
+import uuid
+
 
 class ActionSpace:
     # TODO create commands from mission xml.
@@ -41,24 +43,25 @@ class Env:
 
     def __init__(self, actions=None):
         if actions is None:
-            actions = ["move 1", "move -1", "turn 1", "turn -1"]
+            actions = ['move 1', 'move -1', 'turn 1', 'turn -1']
         self.action_space = ActionSpace(actions)
         self.xml = None
 
         self.integratedServerPort = 0
-        self.expId = None
+        self.expUId = None
         self.role = 0
         self.agentCount = 0
         self.resets = 0
-        self.ns = "{http://ProjectMalmo.microsoft.com}"
+        self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.clientsocket = None
-        self.server = "localhost"  # The game server
+        self.server = 'localhost'  # The game server
         self.port = 9000  # The game port
         self.server2 = self.server  # optional server for agent
         self.port2 = self.port + self.role  # optional port for agent
         self.turnKey = ""
 
     def reset(self):
+        """gym api reset"""
         self.resets += 1
         if self.role != 0:
             self._find_server()
@@ -68,14 +71,25 @@ class Env:
             self.clientsocket.connect((self.server2, self.port2))
         self._init_mission()
 
-    def init(self, xml, port, server=None, server2=None, port2=None, episode=0):
+    def init(self, xml, port, server=None, server2=None, port2=None, role=0, exp_uid=None, episode=0):
         """"Initialize a Malmo environment.
-        XML is a <MissionInit> containing the <Mission>"""
+            xml - the mission xml.
+            port - the MalmoEnv service's port.
+            server - the MalmoEnv service address. Default is localhost.
+            server2 - the MalmoEnv service address for given role if not 0.
+            port2 - the MalmoEnv service port for given role if not 0.
+            role - the agent role (0..N-1) for missions with N agents. Defaults to 0.
+            exp_uid - the experiment's unique identifier. Generated if not given
+            episode - the "reset" start count for experiment re-starts. Defaults to 0.
+        """
         self.xml = etree.fromstring(xml)
-        self.role = int(self.xml.find(self.ns + "ClientRole").text)
+        self.role = role
+        if exp_uid is None:
+            self.expUId = str(uuid.uuid4())
+        else:
+            self.expUId = exp_uid
         print("role " + str(self.role))
-        self.expId = self.xml.find(self.ns + "ExperimentUID").text
-        print("envId " + str(self.expId))
+        print("expUId " + str(self.expUId))
         self.port = port
         if server is not None:
             self.server = server
@@ -87,17 +101,49 @@ class Env:
             self.port2 = port2
         else:
             self.port2 = self.port + self.role
-        self.agentCount = len(self.xml.findall(self.ns + "Mission/" + self.ns + "AgentSection"))
-        e = self.xml.find(self.ns + "MinecraftServerConnection")
-        if e is not None:
-            e.attrib['port'] = "0"
+        self.agentCount = len(self.xml.findall(self.ns + 'AgentSection'))
+        print("agent count " + str(self.agentCount))
+
         self.resets = episode
         self.turnKey = ""
-        # print(xml)
+
+        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    SchemaVersion="" PlatformVersion="0.36.0">
+   <ExperimentUID></ExperimentUID>
+   <ClientRole>0</ClientRole>
+   <ClientAgentConnection>
+      <ClientIPAddress>127.0.0.1</ClientIPAddress>
+      <ClientMissionControlPort>0</ClientMissionControlPort>
+      <ClientCommandsPort>0</ClientCommandsPort>
+      <AgentIPAddress>127.0.0.1</AgentIPAddress>
+      <AgentMissionControlPort>0</AgentMissionControlPort>
+      <AgentVideoPort>0</AgentVideoPort>
+      <AgentDepthPort>0</AgentDepthPort>
+      <AgentLuminancePort>0</AgentLuminancePort>
+      <AgentObservationsPort>0</AgentObservationsPort>
+      <AgentRewardsPort>0</AgentRewardsPort>
+      <AgentColourMapPort>0</AgentColourMapPort>
+   </ClientAgentConnection>
+</MissionInit>""")
+        e.insert(0, self.xml)
+        self.xml = e
+        self.xml.find(self.ns + 'ClientRole').text = str(self.role)
+        self.xml.find(self.ns + 'ExperimentUID').text = self.expUId
+        if self.role != 0 and self.agentCount > 1:
+            e = etree.Element(self.ns + 'MinecraftServerConnection',
+                              attrib={'address': self.server,
+                                      'port': str(0)
+                                      })
+            self.xml.insert(2, e)
+        # print(etree.tostring(self.xml))
 
     def step(self, action):
+        """gym api step"""
         obs = None
         done = False
+        reward = None
+        info = None
         while not done and (obs is None or len(obs) == 0):
             comms.send_message(self.clientsocket, ("<Step>" + self.action_space.get(action) + "</Step>").encode())
             comms.send_message(self.clientsocket, self.turnKey.encode())
@@ -152,7 +198,7 @@ class Env:
         sock.close()
         print("found port " + str(port))
         self.integratedServerPort = port
-        e = self.xml.find(self.ns + "MinecraftServerConnection")
+        e = self.xml.find(self.ns + 'MinecraftServerConnection')
         if e is not None:
             e.attrib['port'] = str(self.integratedServerPort)
 
@@ -172,7 +218,7 @@ class Env:
                 time.sleep(1)
 
     def _get_token(self):
-        return self.expId + ":" + str(self.role) + ":" + str(self.resets)
+        return self.expUId + ":" + str(self.role) + ":" + str(self.resets)
 
 
 def make():
