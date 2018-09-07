@@ -5,7 +5,7 @@ We provide a PowerShell script for installing all required dependencies. Please 
 Prerequisites:
 
 - Download the current pre-built release for Windows from https://github.com/Microsoft/malmo/releases (for example: `Malmo-0.35.6-Windows-64bit_Python3.6.zip`)
-- Extract the contents to a directory (for example `$env:HOMEPATH\Malmo-0.35.6-Windows-64bit_Python3.6`)
+- Extract the contents to a directory (for example `$env:HOMEPATH\Malmo-0.35.6-Windows-64bit_Python3.6`). NOTE: the directory path should not contain spaces or non-ascii characters.
 
 Steps:
 
