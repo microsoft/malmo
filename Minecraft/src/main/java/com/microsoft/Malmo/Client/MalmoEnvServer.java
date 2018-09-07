@@ -34,6 +34,7 @@ public class MalmoEnvServer {
         boolean done = false;
         double reward = 0.0;
         byte[] ops = null;
+        String turnKey = "";
 
         LinkedList<String> commands = new LinkedList<String>();
     }
@@ -236,6 +237,7 @@ public class MalmoEnvServer {
 
         missionState.missionInit = command;
         missionState.done = false;
+        missionState.turnKey = "";
         missionState.token = myToken;
         missionState.experimentId = experimentId;
         missionState.agentCount = agentCount;
@@ -271,22 +273,24 @@ public class MalmoEnvServer {
         return false;
     }
 
+    private static final int stepTagLength = "<step>".length();
+
     // Handler for <Step> messages.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
-        String actionCommand = command.substring(6, command.length() - 7);
-
-        System.out.println("Command (step action): " + actionCommand);
+        String actionCommand = command.substring(stepTagLength, command.length() - (stepTagLength + 1));
+        // System.out.println("Command (step action): " + actionCommand);
 
         int hdr;
-        byte[] turnKey;// Read the turn key.
+        byte[] stepTurnKey;
         hdr = din.readInt();
-        turnKey = new byte[hdr];
-        din.readFully(turnKey);
+        stepTurnKey = new byte[hdr];
+        din.readFully(stepTurnKey);
 
         DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
         double reward;
         boolean done;
         byte[] obs;
+        byte[] currentTurnKey;
 
         lock.lock();
         try {
@@ -301,8 +305,16 @@ public class MalmoEnvServer {
             missionState.ops = null;
 
             done = missionState.done;
+            currentTurnKey = missionState.turnKey.getBytes();
+
             if (!done && obs.length > 0) {
-                missionState.commands.add(actionCommand);
+                if (stepTurnKey.length > 0) {
+                    // TODO There is no check that stepTurnKey is still current. In any case:
+                    // The step turn key may be stale when picked up from the command queue.
+                    missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                } else {
+                    missionState.commands.add(actionCommand);
+                }
             }
         } finally {
             lock.unlock();
@@ -315,9 +327,8 @@ public class MalmoEnvServer {
         dout.writeDouble(reward);
         dout.writeInt(done ? 1 : 0);
 
-        turnKey = "".getBytes(); // TODO get turn key
-        dout.writeInt(turnKey.length);
-        dout.write(turnKey);
+        dout.writeInt(currentTurnKey.length);
+        dout.write(currentTurnKey);
         dout.flush();
     }
 
@@ -328,7 +339,6 @@ public class MalmoEnvServer {
         lock.lock();
         try {
             String token = command.substring(6, command.length() - 7);
-
             // System.out.println("Find? " + token);
 
             // Purge previous token.
@@ -413,6 +423,7 @@ public class MalmoEnvServer {
         try {
             missionState.done = true;
             missionState.missionInit = null;
+            missionState.turnKey = "";
 
             if (missionState.token != null) {
                 initTokens.remove(missionState.token);
@@ -423,6 +434,23 @@ public class MalmoEnvServer {
             }
         } finally {
             lock.unlock();
+        }
+    }
+
+    public void observation(String obs) {
+        // Parsing obs as JSON would be slower but less fragile than extracting the turn_key using string search.
+        String pattern = "\"turn_key\":\"";
+        int i = obs.indexOf(pattern);
+        if (i != -1) {
+            String turnKey = obs.substring(i + pattern.length(), obs.length() - 1);
+            turnKey = turnKey.substring(0, turnKey.indexOf("\""));
+            // System.out.println("Observation turn key: " + turnKey);
+            lock.lock();
+            try {
+                missionState.turnKey = turnKey;
+            } finally {
+                lock.unlock();
+            }
         }
     }
 
@@ -463,7 +491,7 @@ public class MalmoEnvServer {
         // Place tokens for other agents to find.
         for (int i = 1; i < agentCount; i++) {
             String tokenForAgent = experimentId + ":" + i + ":" + reset;
-            System.out.println("add token " + tokenForAgent);
+            // System.out.println("Add token " + tokenForAgent);
             initTokens.put(tokenForAgent, integratedServerPort);
         }
     }

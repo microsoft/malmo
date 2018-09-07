@@ -1907,7 +1907,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (data != null && data.length() > 2 && cac != null) // An empty json string will be "{}" (length 2) - don't send these.
             {
                 if (AddressHelper.getMissionControlPort() == 0) {
-                    // TODO MalmoEnvServer - observation
+                    if (envServer != null) {
+                        envServer.observation(data);
+                    }
                 } else {
                     // Bung the whole shebang off via TCP:
                     if (this.observationSocket.sendTCPString(data)) {

@@ -58,7 +58,8 @@ class Env:
         self.port = 9000  # The game port
         self.server2 = self.server  # optional server for agent
         self.port2 = self.port + self.role  # optional port for agent
-        self.turnKey = ""
+        self.turn_key = ""
+        self.expUId = ""
 
     def reset(self):
         """gym api reset"""
@@ -105,7 +106,7 @@ class Env:
         print("agent count " + str(self.agentCount))
 
         self.resets = episode
-        self.turnKey = ""
+        self.turn_key = ""
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -144,15 +145,21 @@ class Env:
         done = False
         reward = None
         info = None
-        while not done and (obs is None or len(obs) == 0):
+        turn = True
+        while not done and ((obs is None or len(obs) == 0) or turn):
             comms.send_message(self.clientsocket, ("<Step>" + self.action_space.get(action) + "</Step>").encode())
-            comms.send_message(self.clientsocket, self.turnKey.encode())
+            comms.send_message(self.clientsocket, self.turn_key.encode())
             obs = comms.recv_message(self.clientsocket)
             reply = comms.recv_message(self.clientsocket)
             reward, done = struct.unpack('!dI', reply)
-            self.turnKey = comms.recv_message(self.clientsocket).decode('utf-8')
+            turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
+            if turn_key != "":
+                turn = self.turn_key == turn_key
+            else:
+                turn = False
+            self.turn_key = turn_key
             info = None
-            if obs is None or len(obs) == 0:
+            if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
 
@@ -213,7 +220,7 @@ class Env:
 
             reply = comms.recv_message(self.clientsocket)
             ok, = struct.unpack('!I', reply)
-            self.turnkey = comms.recv_message(self.clientsocket).decode('utf-8')
+            self.turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
             if ok != 1:
                 time.sleep(1)
 

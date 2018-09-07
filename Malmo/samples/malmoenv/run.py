@@ -28,6 +28,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='malmovnv test')
     parser.add_argument('--mission', type=str, default='agentSingle.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
+    parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) the agent's mission port")
     parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     xml = Path(args.mission).read_text()
     env = malmoenv.make()
 
-    env.init(xml, args.port, role=args.role, exp_uid=args.experimentUniqueId, episode=args.episode)
+    env.init(xml, args.port, port2=args.port2, role=args.role, exp_uid=args.experimentUniqueId, episode=args.episode)
 
     for i in range(args.rounds):
         print("reset " + str(i))
@@ -52,6 +53,7 @@ if __name__ == '__main__':
             print("reward: " + str(reward))
             print("done: " + str(done))
             print("obs: " + str(obs))
+            # time.sleep(3)
             time.sleep(.05)
 
     env.close()
