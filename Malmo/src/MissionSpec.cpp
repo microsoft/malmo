@@ -93,7 +93,7 @@ namespace malmo
 
     void MissionSpec::timeLimitInSeconds(float s)
     {
-        mission.put("Mission.ServerSection.ServerHandlers.ServerQuitFromTimeUp.<xmlattr>.timeLimitMs", s);
+        mission.put("Mission.ServerSection.ServerHandlers.ServerQuitFromTimeUp.<xmlattr>.timeLimitMs", s * MillisecondsInOneSecond);
     }
     
     void MissionSpec::createDefaultTerrain()
