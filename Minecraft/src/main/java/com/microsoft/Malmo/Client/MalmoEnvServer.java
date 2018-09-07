@@ -155,7 +155,7 @@ public class MalmoEnvServer {
         int hdr;
         byte[] data;// Read the token.
         hdr = din.readInt();
-        System.out.println("Hdr2 " + hdr);
+        // System.out.println("Hdr2 " + hdr);
         data = new byte[hdr];
         din.readFully(data);
         String id = new String(data, utf8);
@@ -186,14 +186,14 @@ public class MalmoEnvServer {
                 if (!initTokens.containsKey(myToken)) {
                     System.out.println("(Pre)Start " + role + " reset " + reset);
 
-                    initTokens.put(myToken, 0);
                     started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
+                    if (started)
+                        initTokens.put(myToken, 0);
                 }
 
                 // Check that all previous tokens have been consumed. If not don't proceed to mission.
                 for (int i = 1; i < agentCount; i++) {
                     String tokenForAgent = experimentId + ":" + i + ":" + (reset - 1);
-                    System.out.println("check " + tokenForAgent);
                     if (initTokens.containsKey(tokenForAgent)) {
                         System.out.println("Mission init blocked on Unconsumed " + tokenForAgent);
                         allTokensConsumed = false;
@@ -204,8 +204,8 @@ public class MalmoEnvServer {
 
                 if (allTokensConsumed && !initTokens.containsKey(myToken)) {
                     // TODO if start after all consumed (move pre-start to here):
-                    // initTokens.put(myToken, 0);
                     // started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
+                    // if (started) initTokens.put(myToken, 0);
                 }
             } else {
                 System.out.println("Start " + role + " reset " + reset);

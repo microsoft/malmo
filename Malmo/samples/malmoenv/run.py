@@ -21,27 +21,24 @@ import malmoenv
 import argparse
 from pathlib import Path
 import time
-import uuid
+
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='malmovnv test')
-    parser.add_argument('--mission_init', type=str, default='agentSingle.xml', help='the mission init xml')
+    parser.add_argument('--mission', type=str, default='agentSingle.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
-    parser.add_argument('--experimentUId', type=str, default=None,
+    parser.add_argument('--experimentUniqueId', type=str, default=None,
                         help="the experiment's unique id. Generated if not specified")
     args = parser.parse_args()
 
-    if args.experimentUId is None:
-        args.experimentUId = str(uuid.uuid4())
-
-    xml = Path(args.mission_init).read_text()
+    xml = Path(args.mission).read_text()
     env = malmoenv.make()
 
-    env.init(xml, args.port, args.role, args.experimentUId, episode=args.episode)
+    env.init(xml, args.port, role=args.role, exp_uid=args.experimentUniqueId, episode=args.episode)
 
     for i in range(args.rounds):
         print("reset " + str(i))
