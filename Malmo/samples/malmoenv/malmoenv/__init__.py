@@ -24,11 +24,11 @@ import time
 import random
 import numpy as np
 from malmoenv import comms
+from malmoenv.commands import CommandParser
 import uuid
 
 
 class ActionSpace:
-    # TODO create commands from mission xml.
     def __init__(self, actions):
         self.actions = actions
 
@@ -40,13 +40,10 @@ class ActionSpace:
 
 
 class Env:
-
-    def __init__(self, actions=None):
-        if actions is None:
-            actions = ['move 1', 'move -1', 'turn 1', 'turn -1']
-        self.action_space = ActionSpace(actions)
+    """Malmo "Env" open ai gym compatible API"""
+    def __init__(self):
+        self.action_space = None
         self.xml = None
-
         self.integratedServerPort = 0
         self.expUId = None
         self.role = 0
@@ -61,18 +58,10 @@ class Env:
         self.turn_key = ""
         self.expUId = ""
 
-    def reset(self):
-        """gym api reset"""
-        self.resets += 1
-        if self.role != 0:
-            self._find_server()
-        if not self.clientsocket:
-            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("connect " + self.server2 + ":" + str(self.port2))
-            self.clientsocket.connect((self.server2, self.port2))
-        self._init_mission()
-
-    def init(self, xml, port, server=None, server2=None, port2=None, role=0, exp_uid=None, episode=0):
+    def init(self, xml, port,
+             server=None, server2=None, port2=None,
+             role=0, exp_uid=None, episode=0,
+             action_filter=None):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -83,6 +72,8 @@ class Env:
             exp_uid - the experiment's unique identifier. Generated if not given
             episode - the "reset" start count for experiment re-starts. Defaults to 0.
         """
+        if action_filter is None:
+            action_filter = {"move", "turn", "use", "attack"}
         self.xml = etree.fromstring(xml)
         self.role = role
         if exp_uid is None:
@@ -90,7 +81,13 @@ class Env:
         else:
             self.expUId = exp_uid
         print("role " + str(self.role))
-        print("expUId " + str(self.expUId))
+
+        command_parser = CommandParser(action_filter)
+        commands = command_parser.get_commands_from_xml(self.xml, self.role)
+        actions = command_parser.get_actions(commands)
+        print(actions)
+        self.action_space = ActionSpace(actions)
+
         self.port = port
         if server is not None:
             self.server = server
@@ -103,7 +100,7 @@ class Env:
         else:
             self.port2 = self.port + self.role
         self.agentCount = len(self.xml.findall(self.ns + 'AgentSection'))
-        print("agent count " + str(self.agentCount))
+        # print("agent count " + str(self.agentCount))
 
         self.resets = episode
         self.turn_key = ""
@@ -139,6 +136,17 @@ class Env:
             self.xml.insert(2, e)
         # print(etree.tostring(self.xml))
 
+    def reset(self):
+        """gym api reset"""
+        self.resets += 1
+        if self.role != 0:
+            self._find_server()
+        if not self.clientsocket:
+            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print("connect " + self.server2 + ":" + str(self.port2))
+            self.clientsocket.connect((self.server2, self.port2))
+        self._init_mission()
+
     def step(self, action):
         """gym api step"""
         obs = None
@@ -152,18 +160,25 @@ class Env:
             obs = comms.recv_message(self.clientsocket)
             reply = comms.recv_message(self.clientsocket)
             reward, done = struct.unpack('!dI', reply)
+            info = comms.recv_message(self.clientsocket).decode('utf-8')
+
             turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
             if turn_key != "":
                 turn = self.turn_key == turn_key
             else:
                 turn = False
             self.turn_key = turn_key
-            info = None
+
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
 
         return obs, reward, done, info
+
+    def close(self):
+        """gym api step"""
+        if self.clientsocket:
+            self.clientsocket.close()
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
@@ -186,10 +201,6 @@ class Env:
         reply = comms.recv_message(sock)
         ok, = struct.unpack('!I', reply)
         return ok != 0
-
-    def close(self):
-        if self.clientsocket:
-            self.clientsocket.close()
 
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.Hashtable;
@@ -33,8 +35,9 @@ public class MalmoEnvServer {
         // Env state:
         boolean done = false;
         double reward = 0.0;
-        byte[] ops = null;
+        byte[] obs = null;
         String turnKey = "";
+        String info = "";
 
         LinkedList<String> commands = new LinkedList<String>();
     }
@@ -42,12 +45,13 @@ public class MalmoEnvServer {
     private static boolean envPolicy = false;
 
     private Lock lock = new ReentrantLock();
-    // private Condition cond = lock.newCondition();
+    private Condition cond = lock.newCondition();
 
     private MissionState missionState = new MissionState();
 
     private Hashtable<String, Integer> initTokens = new Hashtable<String, Integer>();
 
+    static final long COND_WAIT_SECONDS = 3; // Max wait in seconds before timing out (and replying to RPC).
     static final int BYTES_INT = 4;
     static final int BYTES_DOUBLE = 8;
     private static final Charset utf8 = Charset.forName("UTF-8");
@@ -156,11 +160,10 @@ public class MalmoEnvServer {
         int hdr;
         byte[] data;// Read the token.
         hdr = din.readInt();
-        // System.out.println("Hdr2 " + hdr);
         data = new byte[hdr];
         din.readFully(data);
         String id = new String(data, utf8);
-        System.out.println(id);
+        System.out.println("Mission Init" + id);
 
         String[] token = id.split(":");
 
@@ -168,8 +171,6 @@ public class MalmoEnvServer {
         int role = Integer.parseInt(token[1]);
         int reset = Integer.parseInt(token[2]);
         int agentCount = Integer.parseInt(token[3]);
-
-        // System.out.println(experimentId + ":" + role + ":" + reset);
 
         port = -1;
         boolean allTokensConsumed = true;
@@ -190,23 +191,25 @@ public class MalmoEnvServer {
                     started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
                     if (started)
                         initTokens.put(myToken, 0);
+                } else {
+                    started = true; // Pre-started previously.
                 }
 
                 // Check that all previous tokens have been consumed. If not don't proceed to mission.
-                for (int i = 1; i < agentCount; i++) {
-                    String tokenForAgent = experimentId + ":" + i + ":" + (reset - 1);
-                    if (initTokens.containsKey(tokenForAgent)) {
-                        System.out.println("Mission init blocked on Unconsumed " + tokenForAgent);
-                        allTokensConsumed = false;
-                    }
-                }
 
-                // TODO could wait locally while not allTokensConsumed.
+                allTokensConsumed = areAllTokensConsumed(experimentId, reset, agentCount);
+                if (!allTokensConsumed) {
+                    try {
+                        cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
+                    } catch (InterruptedException ie) {
+                    }
+                    allTokensConsumed = areAllTokensConsumed(experimentId, reset, agentCount);
+                }
 
                 if (allTokensConsumed && !initTokens.containsKey(myToken)) {
                     // TODO if start after all consumed (move pre-start to here):
                     // started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
-                    // if (started) initTokens.put(myToken, 0);
+                    // if (started) { initTokens.put(myToken, 0); cond.signalAll(); }
                 }
             } else {
                 System.out.println("Start " + role + " reset " + reset);
@@ -228,12 +231,25 @@ public class MalmoEnvServer {
         dout.flush();
     }
 
+    private boolean areAllTokensConsumed(String experimentId, int reset, int agentCount) {
+        boolean allTokensConsumed = true;
+        for (int i = 1; i < agentCount; i++) {
+            String tokenForAgent = experimentId + ":" + i + ":" + (reset - 1);
+            if (initTokens.containsKey(tokenForAgent)) {
+                System.out.println("Mission init - Unconsumed " + tokenForAgent);
+                allTokensConsumed = false;
+            }
+        }
+        return allTokensConsumed;
+    }
+
     private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken) {
 
         // Clear out mission state
         missionState.reward = 0.0;
         missionState.commands.clear();
-        missionState.ops = null;
+        missionState.obs = null;
+        missionState.info = "";
 
         missionState.missionInit = command;
         missionState.done = false;
@@ -247,7 +263,7 @@ public class MalmoEnvServer {
     }
 
     private boolean startUpMission(String command, String ipOriginator) {
-        System.out.println("start up mission");
+        // System.out.println("Start up mission");
         if (missionPoller == null)
             return false;
 
@@ -290,19 +306,30 @@ public class MalmoEnvServer {
         double reward;
         boolean done;
         byte[] obs;
+        String info;
         byte[] currentTurnKey;
 
         lock.lock();
         try {
-            if (missionState.ops != null) {
-                obs = missionState.ops;
+            // Get the current observation. If none wait for a short time.
+            if (missionState.obs != null) {
+                obs = missionState.obs;
             } else {
+                try {
+                    cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
+                } catch (InterruptedException ie) {
+                }
+                obs = missionState.obs;
+            }
+            if (obs == null) {
                 obs = new byte[0];
             }
 
             reward = missionState.reward;
             missionState.reward = 0.0;
-            missionState.ops = null;
+            info = missionState.info;
+            missionState.info = "";
+            missionState.obs = null;
 
             done = missionState.done;
             currentTurnKey = missionState.turnKey.getBytes();
@@ -327,6 +354,10 @@ public class MalmoEnvServer {
         dout.writeDouble(reward);
         dout.writeInt(done ? 1 : 0);
 
+        byte[] infoBytes = info.getBytes(utf8);
+        dout.writeInt(infoBytes.length);
+        dout.write(infoBytes);
+
         dout.writeInt(currentTurnKey.length);
         dout.write(currentTurnKey);
         dout.flush();
@@ -348,16 +379,24 @@ public class MalmoEnvServer {
             int reset = Integer.parseInt(tokenSplits[2]);
 
             String previousToken = experimentId + ":" + role + ":" + (reset - 1);
-            // System.out.println("Purge " + previousToken);
             initTokens.remove(previousToken);
+            cond.signalAll();
 
-            // Check for next token.
+            // Check for next token. Wait for a short time if not already produced.
             port = initTokens.get(token);
             if (port == null) {
-                port = 0;
-                // TODO could wait a while but not forever.
-                System.out.println("Role " + role + " reset " + reset + " waiting for token.");
-            } else {
+                try {
+                    cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
+                } catch (InterruptedException ie) {
+                }
+                port = initTokens.get(token);
+                if (port == null) {
+                    port = 0;
+                    System.out.println("Role " + role + " reset " + reset + " waiting for token.");
+                }
+            }
+
+            if (port != 0) {
                 System.out.println("Found " + port);
             }
         } finally {
@@ -431,26 +470,31 @@ public class MalmoEnvServer {
                 missionState.experimentId = null;
                 missionState.agentCount = 0;
                 missionState.reset = 0;
+
+                cond.signalAll();
             }
         } finally {
             lock.unlock();
         }
     }
 
-    public void observation(String obs) {
+    // Record a Malmo "observation" json - as the env info since an environment "obs" is a video frame.
+    public void observation(String info) {
         // Parsing obs as JSON would be slower but less fragile than extracting the turn_key using string search.
         String pattern = "\"turn_key\":\"";
-        int i = obs.indexOf(pattern);
+        int i = info.indexOf(pattern);
+        String turnKey = "";
         if (i != -1) {
-            String turnKey = obs.substring(i + pattern.length(), obs.length() - 1);
+            turnKey = info.substring(i + pattern.length(), info.length() - 1);
             turnKey = turnKey.substring(0, turnKey.indexOf("\""));
             // System.out.println("Observation turn key: " + turnKey);
-            lock.lock();
-            try {
-                missionState.turnKey = turnKey;
-            } finally {
-                lock.unlock();
-            }
+        }
+        lock.lock();
+        try {
+            missionState.turnKey = turnKey;
+            missionState.info = info; // TODO Info could be costly to send as quite long or could contain restricted info. Make recording configurable.
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -466,7 +510,8 @@ public class MalmoEnvServer {
     public void addFrame(byte[] frame) {
         lock.lock();
         try {
-            missionState.ops = frame; // Replaces current. TODO track skipped frames.
+            missionState.obs = frame; // Replaces current. TODO track skipped frames.
+            cond.signalAll();
         } finally {
             lock.unlock();
         }
@@ -478,6 +523,7 @@ public class MalmoEnvServer {
             if (missionState.token != null) {
                 System.out.println("Integration server start up - token: " + missionState.token);
                 addTokens(integrationServerPort, missionState.token, missionState.experimentId, missionState.agentCount, missionState.reset);
+                cond.signalAll();
             } else {
                 System.out.println("No mission token on integration server start up!");
             }
