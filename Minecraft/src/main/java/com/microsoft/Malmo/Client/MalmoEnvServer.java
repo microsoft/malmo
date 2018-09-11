@@ -123,6 +123,10 @@ public class MalmoEnvServer {
 
                                     exit(command, socket);
 
+                                } else if (command.startsWith("<Close")) {
+
+                                    close(command, socket);
+
                                 } else if (command.startsWith("<Echo")) {
                                     command = "<Echo>" + command + "</Echo>";
                                     data = command.getBytes(utf8);
@@ -289,7 +293,7 @@ public class MalmoEnvServer {
         return false;
     }
 
-    private static final int stepTagLength = "<step>".length();
+    private static final int stepTagLength = "<Step>".length();
 
     // Handler for <Step> messages.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
@@ -303,18 +307,17 @@ public class MalmoEnvServer {
         din.readFully(stepTurnKey);
 
         DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
-        double reward;
+        double reward = 0.0;
         boolean done;
         byte[] obs;
-        String info;
+        String info = "";
         byte[] currentTurnKey;
 
         lock.lock();
         try {
             // Get the current observation. If none wait for a short time.
-            if (missionState.obs != null) {
-                obs = missionState.obs;
-            } else {
+            obs = missionState.obs;
+            if (obs == null) {
                 try {
                     cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
                 } catch (InterruptedException ie) {
@@ -325,23 +328,32 @@ public class MalmoEnvServer {
                 obs = new byte[0];
             }
 
-            reward = missionState.reward;
-            missionState.reward = 0.0;
-            info = missionState.info;
-            missionState.info = "";
-            missionState.obs = null;
+            // If done or we have new observation and it's our turn then submit command and pick up rewards.
 
             done = missionState.done;
             currentTurnKey = missionState.turnKey.getBytes();
+            boolean outOfTurn = false;
 
             if (!done && obs.length > 0) {
-                if (stepTurnKey.length > 0) {
-                    // TODO There is no check that stepTurnKey is still current. In any case:
-                    // The step turn key may be stale when picked up from the command queue.
-                    missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                if (missionState.turnKey.length() > 0) {
+                    if (!missionState.turnKey.equals(stepTurnKey)) {
+                        // The step turn key may later still be stale when picked up from the command queue.
+                        missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                    } else {
+                        outOfTurn = true;
+                    }
                 } else {
                     missionState.commands.add(actionCommand);
                 }
+            }
+
+            if (done || (obs.length > 0 && !outOfTurn)) {
+                // Pick up rewards.
+                reward = missionState.reward;
+                missionState.reward = 0.0;
+                info = missionState.info;
+                missionState.info = "";
+                missionState.obs = null;
             }
         } finally {
             lock.unlock();
@@ -364,12 +376,15 @@ public class MalmoEnvServer {
     }
 
     // Handler for <Find> messages - used by non-zero roles to discover integrated server port from primary (role 0) service.
+
+    private final static int findTagLength = "<Find>".length();
+
     private void find(String command, Socket socket) throws IOException {
 
         Integer port;
         lock.lock();
         try {
-            String token = command.substring(6, command.length() - 7);
+            String token = command.substring(findTagLength, command.length() - (findTagLength + 1));
             // System.out.println("Find? " + token);
 
             // Purge previous token.
@@ -414,6 +429,26 @@ public class MalmoEnvServer {
         lock.lock();
         try {
             initTokens = new Hashtable<String, Integer>();
+
+            DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+            dout.writeInt(BYTES_INT);
+            dout.writeInt(1);
+            dout.flush();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private final static int closeTagLength = "<Close>".length();
+
+    // Handler for <Close> messages.
+    private void close(String command, Socket socket) throws IOException {
+        lock.lock();
+        try {
+            String token = command.substring(closeTagLength, command.length() - (closeTagLength + 1));
+            System.out.println("Close after " + token);
+
+            initTokens.remove(token);
 
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);

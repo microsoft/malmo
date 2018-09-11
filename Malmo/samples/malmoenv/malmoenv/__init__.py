@@ -29,6 +29,7 @@ import uuid
 
 
 class ActionSpace:
+    """Malmo commands as gym action space"""
     def __init__(self, actions):
         self.actions = actions
 
@@ -37,6 +38,9 @@ class ActionSpace:
 
     def get(self, action):
         return self.actions[action]
+
+    def __len__(self):
+        return len(self.actions)
 
 
 class Env:
@@ -176,7 +180,16 @@ class Env:
         return obs, reward, done, info
 
     def close(self):
-        """gym api step"""
+        """gym api close"""
+        # Purge last token from head node.
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((self.server, self.port))
+
+        comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
+        reply = comms.recv_message(sock)
+        ok, = struct.unpack('!I', reply)
+
+        sock.close()
         if self.clientsocket:
             self.clientsocket.close()
 
