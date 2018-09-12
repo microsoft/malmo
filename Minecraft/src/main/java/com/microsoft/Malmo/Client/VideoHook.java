@@ -269,6 +269,9 @@ public class VideoHook {
 
         long time_before_ns = System.nanoTime();
 
+        if (observer != null)
+            observer.frameProduced();
+
         if (time_before_ns < retry_time_ns)
             return;
 
@@ -313,14 +316,10 @@ public class VideoHook {
             System.out.format(e.getMessage());
         }
         
-        if (!success)
-        {
+        if (!success) {
             System.out.format("Failed to send frame - will retry in %d seconds\n", RETRY_GAP_NS / 1000000000L);
             retry_time_ns = time_before_ns + RETRY_GAP_NS;
             this.failedTCPSendCount++;
-        } else {
-            if (observer != null)
-                observer.frameProduced();
         }
     }
 

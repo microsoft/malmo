@@ -322,7 +322,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_START: // run-ons deliberate
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_PAUSE:
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_CLOSE:
-            case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_END:
             case ERROR_TIMED_OUT_WAITING_FOR_MISSION_END:
             case ERROR_TIMED_OUT_WAITING_FOR_WORLD_CREATE:
                 return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, true, true);
@@ -1685,12 +1684,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 episodeHasCompleted(ClientState.MISSION_ABORTED);
 
-            if (++totalTicks > WAIT_MAX_TICKS)
-            {
-                String msg = "Too long waiting for server to end episode.";
-                TCPUtils.Log(Level.SEVERE, msg);
-                episodeHasCompletedWithErrors(ClientState.ERROR_TIMED_OUT_WAITING_FOR_EPISODE_END, msg);
-            }
+            ++totalTicks;
         }
     }
 
