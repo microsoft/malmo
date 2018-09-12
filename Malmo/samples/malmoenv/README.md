@@ -1,3 +1,6 @@
+cd Minecraft
+echo "malmomod.version=0.36.0" > ./src/main/resources/version.properties
+
 SingleAgent (in different cmd prompt/shells):
 launchClient.bat -port 9000 -env
 python run.py --mission agentSingle.xml --port 9000 --rounds 1
