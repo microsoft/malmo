@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -312,6 +313,7 @@ public class MalmoEnvServer {
         byte[] obs;
         String info = "";
         byte[] currentTurnKey;
+        byte[] nextTurnKey;
 
         lock.lock();
         try {
@@ -332,18 +334,31 @@ public class MalmoEnvServer {
 
             done = missionState.done;
             currentTurnKey = missionState.turnKey.getBytes();
-            boolean outOfTurn = false;
+            boolean outOfTurn = true;
+            nextTurnKey = currentTurnKey;
 
             if (!done && obs.length > 0) {
-                if (missionState.turnKey.length() > 0) {
-                    if (!missionState.turnKey.equals(stepTurnKey)) {
-                        // The step turn key may later still be stale when picked up from the command queue.
-                        missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                // CurrentKey   StepKey     Action (WithKey)    nextTurnKey     outOfTurn
+                // ""           ""          Y                   Current         N
+                // ""           X           N                   Step            Y
+                // X            0           N                   Current         Y
+                // X            X           Y (WK)              Current         N
+                // X            Y           N                   Current         Y
+                if (currentTurnKey.length == 0) {
+                    if (stepTurnKey.length == 0) {
+                        missionState.commands.add(actionCommand);
+                        outOfTurn = false;
                     } else {
-                        outOfTurn = true;
+                        nextTurnKey = stepTurnKey;
                     }
                 } else {
-                    missionState.commands.add(actionCommand);
+                    if (stepTurnKey.length != 0) {
+                        if (Arrays.equals(currentTurnKey, stepTurnKey)) {
+                            // The step turn key may later still be stale when picked up from the command queue.
+                            missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                            outOfTurn = false;
+                        }
+                    }
                 }
             }
 
@@ -370,8 +385,8 @@ public class MalmoEnvServer {
         dout.writeInt(infoBytes.length);
         dout.write(infoBytes);
 
-        dout.writeInt(currentTurnKey.length);
-        dout.write(currentTurnKey);
+        dout.writeInt(nextTurnKey.length);
+        dout.write(nextTurnKey);
         dout.flush();
     }
 
