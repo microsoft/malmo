@@ -128,6 +128,10 @@ public class MalmoEnvServer {
 
                                     close(command, socket);
 
+                                }  else if (command.startsWith("<Status")) {
+
+                                    status(command, socket);
+
                                 } else if (command.startsWith("<Echo")) {
                                     command = "<Echo>" + command + "</Echo>";
                                     data = command.getBytes(utf8);
@@ -468,6 +472,23 @@ public class MalmoEnvServer {
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
             dout.writeInt(1);
+            dout.flush();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    // Handler for <Status> messages.
+    private void status(String command, Socket socket) throws IOException {
+        lock.lock();
+        try {
+            String status = "{}"; // TODO Possibly something more interesting to report.
+            DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+
+            byte[] statusBytes = status.getBytes(utf8);
+            dout.writeInt(statusBytes.length);
+            dout.write(statusBytes);
+
             dout.flush();
         } finally {
             lock.unlock();

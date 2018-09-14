@@ -32,6 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
+    parser.add_argument('--resync', type=int, default=0, help='exit and re-sync on every N - default 0 meaning never')
     parser.add_argument('--experimentUniqueId', type=str, default=None,
                         help="the experiment's unique id. Generated if not specified")
     args = parser.parse_args()
@@ -39,7 +40,8 @@ if __name__ == '__main__':
     xml = Path(args.mission).read_text()
     env = malmoenv.make()
 
-    env.init(xml, args.port, port2=args.port2, role=args.role, exp_uid=args.experimentUniqueId, episode=args.episode)
+    env.init(xml, args.port, port2=args.port2, role=args.role, exp_uid=args.experimentUniqueId,
+             episode=args.episode, resync=args.resync)
 
     for i in range(args.rounds):
         print("reset " + str(i))

@@ -27,6 +27,7 @@ from malmoenv import comms
 from malmoenv.commands import CommandParser
 import uuid
 import gym.spaces
+from malmoenv.comms import retry
 
 
 class ActionSpace(gym.spaces.Discrete):
@@ -68,13 +69,14 @@ class Env:
         self.port = 9000  # The game port
         self.server2 = self.server  # optional server for agent
         self.port2 = self.port + self.role  # optional port for agent
+        self.resync_period = 0
         self.turn_key = ""
         self.exp_uid = ""
 
     def init(self, xml, port,
              server=None, server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
-             action_filter=None):
+             action_filter=None, resync=0):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -114,6 +116,7 @@ class Env:
             self.port2 = self.port + self.role
         self.agent_count = len(self.xml.findall(self.ns + 'AgentSection'))
         # print("agent count " + str(self.agent_count))
+        self.resync_period = resync
 
         self.resets = episode
         self.turn_key = ""
@@ -159,6 +162,9 @@ class Env:
     def reset(self):
         """gym api reset"""
         self.resets += 1
+        if self.resync_period > 0 and self.resets % self.resync_period == 0:
+            self._exit_resync()
+
         if self.role != 0:
             self._find_server()
         if not self.clientsocket:
@@ -211,7 +217,7 @@ class Env:
         comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
         reply = comms.recv_message(sock)
         ok, = struct.unpack('!I', reply)
-
+        assert ok
         sock.close()
         if self.clientsocket:
             self.clientsocket.close()
@@ -223,21 +229,71 @@ class Env:
 
         comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
         reply = comms.recv_message(sock)
+        sock.close()
         ok, = struct.unpack('!I', reply)
         return ok != 0
+
+    def status(self, head):
+        """Get status from server.
+        head - Ping the the head node if True.
+        """
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if head:
+            sock.connect((self.server, self.port))
+        else:
+            sock.connect((self.server2, self.port2))
+
+        comms.send_message(sock, ("<Status>" + "</Status>").encode())
+        status = comms.recv_message(sock).decode('utf-8')
+        sock.close()
+        return status
 
     def exit(self):
         """Use carefully to cause the service to exit (and hopefully restart).
             Likely to throw communication errors so use carefully.
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server, self.port))
+        sock.connect((self.server2, self.port2))
 
         comms.send_message(sock, ("<Exit>" + self._get_token() + "</Exit>").encode())
         reply = comms.recv_message(sock)
+        sock.close()
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
+    def resync(self):
+        """make sure we can ping the head and assigned node.
+        Possibly after an env.exit();"""
+        success = 0
+        for head in [True, False]:
+            for _ in range(18):
+                try:
+                    self.status(head)
+                    success += 1
+                    break
+                except Exception:
+                    time.sleep(10)
+                    pass
+        if success != 2:
+            raise IOError("Failed to contact service " + ("head" if success == 0 else ""))
+
+    def _exit_resync(self):
+        print("********** force exit & resync **********")
+        try:
+            self.clientsocket.close()
+            self.clientsocket = None
+            try:
+                self.exit()
+            except Exception:
+                pass
+            print("Pause for exit(s) ...")
+            time.sleep(60)
+        except (socket.error, ConnectionError):
+            pass
+        self.resync()
+        print("resync'ed")
+
+    @retry
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))

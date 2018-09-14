@@ -19,6 +19,28 @@
 
 import struct
 import socket
+import functools
+import time
+
+retry_count = 9
+retry_timeout = 10
+
+
+def retry(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        retry_exc = None
+        for i in range(retry_count):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if retry_exc is None:
+                    retry_exc = e
+                if i < retry_count - 1:
+                    print("Pause before retry on " + str(e))
+                    time.sleep(retry_timeout)
+        raise retry_exc
+    return wrapper
 
 
 def send_message(sock, data):
