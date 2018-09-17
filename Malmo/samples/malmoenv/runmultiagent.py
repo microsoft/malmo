@@ -21,7 +21,9 @@ import malmoenv
 import argparse
 from pathlib import Path
 import time
-
+from lxml import etree
+from threading import Thread
+import threading
 
 if __name__ == '__main__':
 
@@ -31,31 +33,42 @@ if __name__ == '__main__':
     parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) the agent's mission port")
     parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
-    parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
     parser.add_argument('--resync', type=int, default=0, help='exit and re-sync on every N - default 0 meaning never')
     parser.add_argument('--experimentUniqueId', type=str, default='test1',
                         help="the experiment's unique id. Generated if not specified")
     args = parser.parse_args()
 
     xml = Path(args.mission).read_text()
-    env = malmoenv.make()
 
-    env.init(xml, args.port, port2=args.port2, role=args.role, exp_uid=args.experimentUniqueId,
-             episode=args.episode, resync=args.resync)
+    mission = etree.fromstring(xml)
+    number_of_agents = len(mission.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
 
-    for i in range(args.rounds):
-        print("reset " + str(i))
-        obs = env.reset()
+    print("number of agents: " + str(number_of_agents))
 
-        done = False
-        while not done:
-            action = env.action_space.sample()
+    def run(role):
+        print("role " + str(role))
+        env = malmoenv.make()
+        env.init(xml, args.port, port2=(args.port + role), role=role, exp_uid=args.experimentUniqueId,
+                 episode=args.episode, resync=args.resync)
 
-            obs, reward, done, info = env.step(action)
-            print("reward: " + str(reward))
-            print("done: " + str(done))
-            print("obs: " + str(obs))
-            # time.sleep(3)
-            time.sleep(.05)
+        for r in range(args.rounds):
+            print("reset " + str(r))
+            env.reset()
 
-    env.close()
+            done = False
+            while not done:
+                action = env.action_space.sample()
+
+                obs, reward, done, info = env.step(action)
+                print("reward: " + str(reward))
+                print("done: " + str(done))
+                print("obs: " + str(obs))
+                # time.sleep(3)
+                time.sleep(.05)
+
+        env.close()
+
+    threads = [Thread(target=run, args=(i,)) for i in range(number_of_agents)]
+
+    [t.start() for t in threads]
+    [t.join() for t in threads]
