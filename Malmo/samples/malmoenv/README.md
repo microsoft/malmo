@@ -10,18 +10,23 @@ Minecraft is used as a coordinator to allow all agents to rendezvous on mission 
 ## Examples: ##
 
 `cd Minecraft`
+
 `echo "malmomod.version=0.36.0" > ./src/main/resources/version.properties`
 
 A single agent example mission (run each command in different cmd prompt/shells):
 
 `launchClient.bat -port 9000 -env`
+
 `python3 run.py --mission missions/mobchase_single_agent.xml --port 9000 --episodes 1`
 
 A two agent example mission (run each command in different cmd prompt/shells):
 
 `launchClient.bat -port 9000 -env`
+
 `launchClient.bat -port 9001 -env`
+
 `python3 run.py --mission missions/mobchase_two_agents.xml --port 9000 --episodes 1 --role 0 --experimentUniqueId "test1"`
+
 `python3 run.py --mission missions/mobchase_two_agents.xml --port 9000 --port2 9001 --episodes 1 --role 1  --experimentUniqueId "test1"`
 
 ## Multi-threaded example: ##
