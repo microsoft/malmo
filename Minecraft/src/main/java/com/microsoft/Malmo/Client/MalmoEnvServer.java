@@ -1,6 +1,8 @@
 package com.microsoft.Malmo.Client;
 
 import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
+import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import net.minecraftforge.common.config.Configuration;
 import java.io.*;
@@ -22,9 +24,9 @@ import java.util.LinkedList;
 /**
  * MalmoEnvServer - multi-agent supporting OpenAI gym "environment" server.
  */
-public class MalmoEnvServer {
+public class MalmoEnvServer implements IWantToQuit {
 
-    private class MissionState {
+    private class EnvState {
 
         // Mission parameters:
         String missionInit = null;
@@ -32,6 +34,7 @@ public class MalmoEnvServer {
         String experimentId = null;
         int agentCount = 0;
         int reset = 0;
+        boolean quit = false;
 
         // Env state:
         boolean done = false;
@@ -48,7 +51,7 @@ public class MalmoEnvServer {
     private Lock lock = new ReentrantLock();
     private Condition cond = lock.newCondition();
 
-    private MissionState missionState = new MissionState();
+    private EnvState envState = new EnvState();
 
     private Hashtable<String, Integer> initTokens = new Hashtable<String, Integer>();
 
@@ -119,6 +122,10 @@ public class MalmoEnvServer {
                                 } else if (command.startsWith("<Step")) {
 
                                     step(command, socket, din);
+
+                                }  else if (command.startsWith("<Quit")) {
+
+                                    quit(command, socket);
 
                                 } else if (command.startsWith("<Exit")) {
 
@@ -255,18 +262,19 @@ public class MalmoEnvServer {
     private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken) {
 
         // Clear out mission state
-        missionState.reward = 0.0;
-        missionState.commands.clear();
-        missionState.obs = null;
-        missionState.info = "";
+        envState.reward = 0.0;
+        envState.commands.clear();
+        envState.obs = null;
+        envState.info = "";
 
-        missionState.missionInit = command;
-        missionState.done = false;
-        missionState.turnKey = "";
-        missionState.token = myToken;
-        missionState.experimentId = experimentId;
-        missionState.agentCount = agentCount;
-        missionState.reset = reset;
+        envState.missionInit = command;
+        envState.done = false;
+        envState.quit = false;
+        envState.turnKey = "";
+        envState.token = myToken;
+        envState.experimentId = experimentId;
+        envState.agentCount = agentCount;
+        envState.reset = reset;
 
         return startUpMission(command, ipOriginator);
     }
@@ -322,13 +330,13 @@ public class MalmoEnvServer {
         lock.lock();
         try {
             // Get the current observation. If none wait for a short time.
-            obs = missionState.obs;
+            obs = envState.obs;
             if (obs == null) {
                 try {
                     cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
                 } catch (InterruptedException ie) {
                 }
-                obs = missionState.obs;
+                obs = envState.obs;
             }
             if (obs == null) {
                 obs = new byte[0];
@@ -336,8 +344,8 @@ public class MalmoEnvServer {
 
             // If done or we have new observation and it's our turn then submit command and pick up rewards.
 
-            done = missionState.done;
-            currentTurnKey = missionState.turnKey.getBytes();
+            done = envState.done;
+            currentTurnKey = envState.turnKey.getBytes();
             boolean outOfTurn = true;
             nextTurnKey = currentTurnKey;
 
@@ -350,7 +358,7 @@ public class MalmoEnvServer {
                 // X            Y           N                   Current         Y
                 if (currentTurnKey.length == 0) {
                     if (stepTurnKey.length == 0) {
-                        missionState.commands.add(actionCommand);
+                        envState.commands.add(actionCommand);
                         outOfTurn = false;
                     } else {
                         nextTurnKey = stepTurnKey;
@@ -359,7 +367,7 @@ public class MalmoEnvServer {
                     if (stepTurnKey.length != 0) {
                         if (Arrays.equals(currentTurnKey, stepTurnKey)) {
                             // The step turn key may later still be stale when picked up from the command queue.
-                            missionState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                            envState.commands.add(new String(stepTurnKey) + " " + actionCommand);
                             outOfTurn = false;
                         }
                     }
@@ -368,11 +376,11 @@ public class MalmoEnvServer {
 
             if (done || (obs.length > 0 && !outOfTurn)) {
                 // Pick up rewards.
-                reward = missionState.reward;
-                missionState.reward = 0.0;
-                info = missionState.info;
-                missionState.info = "";
-                missionState.obs = null;
+                reward = envState.reward;
+                envState.reward = 0.0;
+                info = envState.info;
+                envState.info = "";
+                envState.obs = null;
             }
         } finally {
             lock.unlock();
@@ -458,6 +466,21 @@ public class MalmoEnvServer {
         }
     }
 
+    // Handler for <Quit> (quit mission) messages.
+    private void quit(String command, Socket socket) throws IOException {
+        lock.lock();
+        try {
+            if (!envState.done)
+                envState.quit = true;
+            DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+            dout.writeInt(BYTES_INT);
+            dout.writeInt(envState.done ? 1 :0);
+            dout.flush();
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private final static int closeTagLength = "<Close>".length();
 
     // Handler for <Close> messages.
@@ -518,7 +541,7 @@ public class MalmoEnvServer {
     public String getCommand() {
         lock.lock();
         try {
-            String command = missionState.commands.poll();
+            String command = envState.commands.poll();
             if (command == null)
                 return "";
             else
@@ -531,16 +554,17 @@ public class MalmoEnvServer {
     public void endMission() {
         lock.lock();
         try {
-            missionState.done = true;
-            missionState.missionInit = null;
-            missionState.turnKey = "";
+            envState.done = true;
+            envState.quit = false;
+            envState.missionInit = null;
+            envState.turnKey = "";
 
-            if (missionState.token != null) {
-                initTokens.remove(missionState.token);
-                missionState.token = null;
-                missionState.experimentId = null;
-                missionState.agentCount = 0;
-                missionState.reset = 0;
+            if (envState.token != null) {
+                initTokens.remove(envState.token);
+                envState.token = null;
+                envState.experimentId = null;
+                envState.agentCount = 0;
+                envState.reset = 0;
 
                 cond.signalAll();
             }
@@ -562,8 +586,8 @@ public class MalmoEnvServer {
         }
         lock.lock();
         try {
-            missionState.turnKey = turnKey;
-            missionState.info = info; // TODO Info could be costly to send as quite long or could contain restricted info. Make recording configurable.
+            envState.turnKey = turnKey;
+            envState.info = info; // TODO Info could be costly to send as quite long or could contain restricted info. Make recording configurable.
         } finally {
             lock.unlock();
         }
@@ -572,7 +596,7 @@ public class MalmoEnvServer {
     public void addRewards(double rewards) {
         lock.lock();
         try {
-            missionState.reward += rewards;
+            envState.reward += rewards;
         } finally {
             lock.unlock();
         }
@@ -581,7 +605,7 @@ public class MalmoEnvServer {
     public void addFrame(byte[] frame) {
         lock.lock();
         try {
-            missionState.obs = frame; // Replaces current. TODO track skipped frames.
+            envState.obs = frame; // Replaces current. TODO track skipped frames.
             cond.signalAll();
         } finally {
             lock.unlock();
@@ -591,9 +615,9 @@ public class MalmoEnvServer {
     public void notifyIntegrationServerStarted(int integrationServerPort) {
         lock.lock();
         try {
-            if (missionState.token != null) {
-                System.out.println("Integration server start up - token: " + missionState.token);
-                addTokens(integrationServerPort, missionState.token, missionState.experimentId, missionState.agentCount, missionState.reset);
+            if (envState.token != null) {
+                System.out.println("Integration server start up - token: " + envState.token);
+                addTokens(integrationServerPort, envState.token, envState.experimentId, envState.agentCount, envState.reset);
                 cond.signalAll();
             } else {
                 System.out.println("No mission token on integration server start up!");
@@ -611,5 +635,30 @@ public class MalmoEnvServer {
             // System.out.println("Add token " + tokenForAgent);
             initTokens.put(tokenForAgent, integratedServerPort);
         }
+    }
+
+    // IWantToQuit implementation.
+
+    @Override
+    public boolean doIWantToQuit(MissionInit missionInit) {
+        lock.lock();
+        try {
+           return envState.quit;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public void prepare(MissionInit missionInit) {
+    }
+
+    @Override
+    public void cleanup() {
+    }
+
+    @Override
+    public String getOutcome() {
+        return "Env quit";
     }
 }

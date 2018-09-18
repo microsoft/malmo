@@ -72,6 +72,7 @@ class Env:
         self.resync_period = 0
         self.turn_key = ""
         self.exp_uid = ""
+        self.done = True
 
     def init(self, xml, port,
              server=None, server2=None, port2=None,
@@ -120,6 +121,7 @@ class Env:
 
         self.resets = episode
         self.turn_key = ""
+        self.done = True
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -165,6 +167,11 @@ class Env:
         if self.resync_period > 0 and self.resets % self.resync_period == 0:
             self._exit_resync()
 
+        while not self.done:
+            self.done = self._quit_episode()
+            if not self.done:
+                time.sleep(0.1)
+
         if self.role != 0:
             self._find_server()
         if not self.clientsocket:
@@ -172,6 +179,13 @@ class Env:
             print("connect " + self.server2 + ":" + str(self.port2))
             self.clientsocket.connect((self.server2, self.port2))
         self._init_mission()
+        self.done = False
+
+    def _quit_episode(self):
+        comms.send_message(self.clientsocket, "<Quit></Quit>".encode())
+        reply = comms.recv_message(self.clientsocket)
+        ok, = struct.unpack('!I', reply)
+        return ok != 0
 
     def render(self):
         """gym api render"""
@@ -183,16 +197,15 @@ class Env:
     def step(self, action):
         """gym api step"""
         obs = None
-        done = False
         reward = None
         info = None
         turn = True
-        while not done and ((obs is None or len(obs) == 0) or turn):
+        while not self.done and ((obs is None or len(obs) == 0) or turn):
             comms.send_message(self.clientsocket, ("<Step>" + self.action_space.get(action) + "</Step>").encode())
             comms.send_message(self.clientsocket, self.turn_key.encode())
             obs = comms.recv_message(self.clientsocket)
             reply = comms.recv_message(self.clientsocket)
-            reward, done = struct.unpack('!dI', reply)
+            reward, self.done = struct.unpack('!dI', reply)
             info = comms.recv_message(self.clientsocket).decode('utf-8')
 
             turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
@@ -206,7 +219,7 @@ class Env:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
 
-        return obs, reward, done, info
+        return obs, reward, self.done, info
 
     def close(self):
         """gym api close"""

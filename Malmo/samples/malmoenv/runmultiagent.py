@@ -31,7 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) the agent's mission port")
-    parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
+    parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--resync', type=int, default=0, help='exit and re-sync on every N - default 0 meaning never')
     parser.add_argument('--experimentUniqueId', type=str, default='test1',
@@ -51,7 +51,7 @@ if __name__ == '__main__':
         env.init(xml, args.port, port2=(args.port + role), role=role, exp_uid=args.experimentUniqueId,
                  episode=args.episode, resync=args.resync)
 
-        for r in range(args.rounds):
+        for r in range(args.episodes):
             print("reset " + str(r))
             env.reset()
 

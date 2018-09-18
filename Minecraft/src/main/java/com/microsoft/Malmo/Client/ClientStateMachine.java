@@ -932,6 +932,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             try
             {
                 ClientStateMachine.this.missionBehaviour = MissionBehaviour.createAgentHandlersFromMissionInit(currentMissionInit());
+                if (envServer != null) {
+                    ClientStateMachine.this.missionBehaviour.addQuitProducer(envServer);
+                }
             }
             catch (Exception e)
             {

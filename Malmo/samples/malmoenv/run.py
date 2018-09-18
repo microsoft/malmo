@@ -29,9 +29,10 @@ if __name__ == '__main__':
     parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) the agent's mission port")
-    parser.add_argument('--rounds', type=int, default=1, help='the number of resets to perform - default is 1')
+    parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
+    parser.add_argument('--episodemaxsteps', type=int, default=0, help='max number of steps per episode')
     parser.add_argument('--resync', type=int, default=0, help='exit and re-sync on every N - default 0 meaning never')
     parser.add_argument('--experimentUniqueId', type=str, default='test1',
                         help="the experiment's unique id. Generated if not specified")
@@ -43,15 +44,17 @@ if __name__ == '__main__':
     env.init(xml, args.port, port2=args.port2, role=args.role, exp_uid=args.experimentUniqueId,
              episode=args.episode, resync=args.resync)
 
-    for i in range(args.rounds):
+    for i in range(args.episodes):
         print("reset " + str(i))
         obs = env.reset()
 
+        steps = 0
         done = False
-        while not done:
+        while not done and (args.episodemaxsteps <= 0 or steps < args.episodemaxsteps):
             action = env.action_space.sample()
 
             obs, reward, done, info = env.step(action)
+            steps += 1
             print("reward: " + str(reward))
             print("done: " + str(done))
             print("obs: " + str(obs))
