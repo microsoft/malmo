@@ -31,4 +31,4 @@ A two agent example mission (run each command in different cmd prompt/shells):
 
 ## Multi-threaded example: ##
 
-`python3 python runmultiagent.py --mission missions\`
+`python3 python runmultiagent.py --mission missions/mobchase_....xml`
