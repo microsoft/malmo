@@ -1,0 +1,52 @@
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <About>
+        <Summary>Run the maze!</Summary>
+    </About>
+    <ModSettings>
+        <MsPerTick> 50 </MsPerTick>
+        <PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
+    </ModSettings>    
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <AllowSpawning>false</AllowSpawning>
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
+            <MazeDecorator>
+                <SizeAndPosition length="19" width="19" scale="3" yOrigin="225" zOrigin="0" height="180"/>
+                <GapProbability variance="0.4">0.5</GapProbability>
+                <Seed>4711</Seed>
+                <MaterialSeed>4711</MaterialSeed>
+                <AllowDiagonalMovement>false</AllowDiagonalMovement>
+                <StartBlock fixedToEdge="true" type="emerald_block" height="1"/>
+                <EndBlock fixedToEdge="true" type="redstone_block lapis_block" height="12"/>
+                <PathBlock type="stained_glass" colour="WHITE ORANGE MAGENTA LIGHT_BLUE YELLOW LIME PINK GRAY SILVER CYAN PURPLE BLUE BROWN GREEN RED BLACK" height="1"/>
+                <FloorBlock type="glowstone"/>
+                <GapBlock type="stone" height="2"/>
+                <AddQuitProducer description="finished maze"/>
+                <AddNavigationObservations/>
+            </MazeDecorator>
+            <ServerQuitFromTimeUp timeLimitMs="45000"/>
+            <ServerQuitWhenAnyAgentFinishes />
+        </ServerHandlers>
+    </ServerSection>
+    <AgentSection mode="Survival">
+        <Name>Agent1</Name>
+        <AgentStart>
+            <Placement x="-204" y="81" z="217"/>
+        </AgentStart>
+        <AgentHandlers>
+            <VideoProducer want_depth="false">
+               <Width>320</Width>
+               <Height>240</Height>
+             </VideoProducer>
+            <ContinuousMovementCommands turnSpeedDegs="840">
+                <ModifierList type="deny-list"> <!-- Example deny-list: prevent agent from strafing -->
+                    <command>strafe</command>
+                </ModifierList>
+            </ContinuousMovementCommands>
+            <MissionQuitCommands/>
+            </AgentHandlers>
+    </AgentSection>
+</Mission>    
