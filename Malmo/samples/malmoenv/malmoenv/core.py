@@ -96,12 +96,13 @@ class Env:
             self.exp_uid = str(uuid.uuid4())
         else:
             self.exp_uid = exp_uid
-        print("role " + str(self.role))
+        # print("role " + str(self.role))
 
         command_parser = CommandParser(action_filter)
         commands = command_parser.get_commands_from_xml(self.xml, self.role)
         actions = command_parser.get_actions(commands)
-        print(actions)
+        if self.role == 0:
+            print(actions)
         self.action_space = ActionSpace(actions)
 
         self.port = port
@@ -157,7 +158,7 @@ class Env:
         video_producer = video_producers[self.role]
         width = int(video_producer.find(self.ns + 'Width').text)
         height = int(video_producer.find(self.ns + 'Height').text)
-        print(str(width) + "x" + str(height))
+        # print(str(width) + "x" + str(height))
         self.observation_space = ObservationSpace(width, height)
         # print(etree.tostring(self.xml))
 
@@ -319,7 +320,7 @@ class Env:
             if port == 0:
                 time.sleep(1)
         sock.close()
-        print("found port " + str(port))
+        # print("found port " + str(port))
         self.integratedServerPort = port
         e = self.xml.find(self.ns + 'MinecraftServerConnection')
         if e is not None:

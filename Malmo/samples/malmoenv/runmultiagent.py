@@ -46,23 +46,26 @@ if __name__ == '__main__':
     print("number of agents: " + str(number_of_agents))
 
     def run(role):
-        print("role " + str(role))
         env = malmoenv.make()
         env.init(xml, args.port, port2=(args.port + role), role=role, exp_uid=args.experimentUniqueId,
                  episode=args.episode, resync=args.resync)
 
+        def log(message):
+            print('[' + str(role) + '] ' + message)
+
         for r in range(args.episodes):
-            print("reset " + str(r))
+            log("reset " + str(r))
             env.reset()
 
             done = False
             while not done:
                 action = env.action_space.sample()
-
+                log("action: " + str(action))
                 obs, reward, done, info = env.step(action)
-                print("reward: " + str(reward))
-                print("done: " + str(done))
-                print("obs: " + str(obs))
+                log("reward: " + str(reward))
+                # log("done: " + str(done))
+                # log("info: " + str(info))
+                log(" obs: " + str(obs))
                 # time.sleep(3)
                 time.sleep(.05)
 

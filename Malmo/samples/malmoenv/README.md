@@ -8,11 +8,18 @@ coordinator to allow all agents to rendezvous on mission (re)starts (i.e. on env
 
 ## Examples: ##
 
-To prepare Minecraft (after cloning this repository):
+Install dependencies:
+
+Java8 JDK, python3, git
+
+`pip install gym lxml numpy pillow`
+
+To prepare Minecraft (after cloning this repository with 
+`git clone -b malmoenv https://github.com/Microsoft/malmo.git`):
 
 `cd Minecraft`
 
-`echo "malmomod.version=0.36.0" > ./src/main/resources/version.properties`
+`echo "malmomod.version=0.36.0"> ./src/main/resources/version.properties` (On Windows drop the double quotes)
 
 Running a single agent example mission (run each command in different cmd prompt/shells):
 
@@ -32,6 +39,6 @@ A two agent example mission (run each command in different cmd prompt/shells):
 
 `python3 run.py --mission missions/mobchase_two_agents.xml --port 9000 --port2 9001 --episodes 1 --role 1  --experimentUniqueId "test1"`
 
-## Multi-threaded example: ##
+## Running multi-threaded multi-agent examples: ##
 
-`python3 python runmultiagent.py --mission missions/mobchase_....xml`
+`python3 python runmultiagent.py --mission missions/....xml`
