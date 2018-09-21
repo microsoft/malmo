@@ -42,3 +42,16 @@ A two agent example mission (run each command in different cmd prompt/shells):
 ## Running multi-threaded multi-agent examples: ##
 
 `python3 python runmultiagent.py --mission missions/....xml`
+
+## Installing with pip ##
+
+If you install with `pip3 install malmoenv` then you can download the Minecraft mod 
+(assuming you have git on the command line) with: 
+
+`python3 -c "import malmoenv.bootstrap();malmoenv.bootstrap.download()`
+
+The sample missions will be in ./MalmoPlatform/Malmo/samples/malmoenv/missions.
+
+`malmoenv.bootstrap.launchMinecraft(10000)` can be used to start up the Malmo Minecraft Mod 
+listening for MalmoEnv connections on port 10000 after downloading Malmo.
+
