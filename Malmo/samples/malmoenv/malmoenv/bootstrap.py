@@ -32,13 +32,14 @@ def download(branch=None, build=True, installdir="MalmoPlatform", version="0.36.
     Returns:
         The path for the Malmo Minecraft mod.
     """
-    gradlew = "./gradlew"
+    gradlew = './gradlew'
     if os.name == 'nt':
-        gradlew = "gradlew.bat"
+        gradlew = 'gradlew.bat'
 
     if branch is None:
         branch = "malmoenv"  # TODO change to release version i.e. branch = version
 
+    cwd = os.getcwd()
     subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git", installdir])
     os.chdir(installdir)
     os.chdir("Minecraft")
@@ -51,5 +52,28 @@ def download(branch=None, build=True, installdir="MalmoPlatform", version="0.36.
                                    "-x", "test", "--stacktrace", "-Pversion={}".format(version)])
         minecraft_dir = os.getcwd()
     finally:
-        os.chdir("../..")
+        os.chdir(cwd)
     return minecraft_dir
+
+
+def launchMinecraft(port, installdir="MalmoPlatform", replaceable=False):
+    """Launch Minecraft listening for malmoenv connections.
+    Args:
+        port - the TCP port to listen on.
+        installdir: the install dir name. Defaults to MalmoPlatform.
+        Must be same as given (or defaulted) in download call if used.
+        replaceable: whether or not to automatically restart Minecraft (default is false).
+    """
+    launch_script = 'launchClient.sh'
+    if os.name == 'nt':
+        launch_script = 'launchClient.bat'
+    cwd = os.getcwd()
+    try:
+        os.chdir(installdir)
+        os.chdir("Minecraft")
+        cmd = [launch_script, '-port', str(port),'-env']
+        if replaceable:
+            cmd.append('-replaceable')
+    finally:
+        subprocess.check_call(cmd)
+        os.chdir(cwd)
