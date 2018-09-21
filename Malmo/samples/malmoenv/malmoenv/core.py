@@ -73,11 +73,12 @@ class Env:
         self.turn_key = ""
         self.exp_uid = ""
         self.done = True
+        self.step_options = 0
 
     def init(self, xml, port,
              server=None, server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
-             action_filter=None, resync=0):
+             action_filter=None, resync=0, step_options=0):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -87,6 +88,7 @@ class Env:
             role - the agent role (0..N-1) for missions with N agents. Defaults to 0.
             exp_uid - the experiment's unique identifier. Generated if not given
             episode - the "reset" start count for experiment re-starts. Defaults to 0.
+            step_options - encode withTurnKey and withInfo. Defaults to 0 (both included in messages).
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
@@ -122,6 +124,7 @@ class Env:
 
         self.resets = episode
         self.turn_key = ""
+        self.step_options = step_options
         self.done = True
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
@@ -201,15 +204,23 @@ class Env:
         reward = None
         info = None
         turn = True
+        withturnkey = self.step_options < 2
+        withinfo = self.step_options == 0 or self.step_options == 2
+
         while not self.done and ((obs is None or len(obs) == 0) or turn):
-            comms.send_message(self.clientsocket, ("<Step>" + self.action_space.get(action) + "</Step>").encode())
-            comms.send_message(self.clientsocket, self.turn_key.encode())
+            step_message = "<Step" + str(self.step_options) + ">" + \
+                           self.action_space.get(action) + \
+                           "</Step" + str(self.step_options) + " >"
+            comms.send_message(self.clientsocket, step_message.encode())
+            if withturnkey:
+                comms.send_message(self.clientsocket, self.turn_key.encode())
             obs = comms.recv_message(self.clientsocket)
             reply = comms.recv_message(self.clientsocket)
             reward, self.done = struct.unpack('!dI', reply)
-            info = comms.recv_message(self.clientsocket).decode('utf-8')
+            if withinfo:
+                info = comms.recv_message(self.clientsocket).decode('utf-8')
 
-            turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
+            turn_key = comms.recv_message(self.clientsocket).decode('utf-8') if withturnkey else ""
             if turn_key != "":
                 turn = self.turn_key == turn_key
             else:

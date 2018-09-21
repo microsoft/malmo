@@ -155,6 +155,7 @@ public class MalmoEnvServer implements IWantToQuit {
                         } catch (IOException ioe) {
                             System.out.println("MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
+                                setWantToQuit();
                                 socket.close();
                             } catch (IOException ioe2) {
                             }
@@ -259,7 +260,7 @@ public class MalmoEnvServer implements IWantToQuit {
         return allTokensConsumed;
     }
 
-    private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken) {
+    private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken) throws IOException {
 
         // Clear out mission state
         envState.reward = 0.0;
@@ -279,7 +280,7 @@ public class MalmoEnvServer implements IWantToQuit {
         return startUpMission(command, ipOriginator);
     }
 
-    private boolean startUpMission(String command, String ipOriginator) {
+    private boolean startUpMission(String command, String ipOriginator) throws IOException {
         // System.out.println("Start up mission");
         if (missionPoller == null)
             return false;
@@ -288,36 +289,42 @@ public class MalmoEnvServer implements IWantToQuit {
         DataOutputStream dos = new DataOutputStream(baos);
 
         missionPoller.commandReceived(command, ipOriginator, dos);
-        try {
-            dos.flush();
-            byte[] reply = baos.toByteArray();
-            ByteArrayInputStream bais = new ByteArrayInputStream(reply);
-            DataInputStream dis = new DataInputStream(bais);
-            int hdr = dis.readInt();
-            byte[] replyBytes = new byte[hdr];
-            dis.readFully(replyBytes);
-            System.out.println("start up reply " + new String(replyBytes));
-            if (new String(replyBytes).equals("MALMOOK")) {
-                System.out.println("MalmoEnvServer Mission starting ...");
-                return true;
-            }
-        } catch (IOException ioe) {
+
+        dos.flush();
+        byte[] reply = baos.toByteArray();
+        ByteArrayInputStream bais = new ByteArrayInputStream(reply);
+        DataInputStream dis = new DataInputStream(bais);
+        int hdr = dis.readInt();
+        byte[] replyBytes = new byte[hdr];
+        dis.readFully(replyBytes);
+        System.out.println("start up reply " + new String(replyBytes));
+        if (new String(replyBytes).equals("MALMOOK")) {
+            System.out.println("MalmoEnvServer Mission starting ...");
+            return true;
         }
         return false;
     }
 
-    private static final int stepTagLength = "<Step>".length();
+    private static final int stepTagLength = "<Step_>".length(); // Step with option code.
 
-    // Handler for <Step> messages.
+    // Handler for <Step_> messages. Single digit option code _ specifies if turnkey and info are included in message.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
-        String actionCommand = command.substring(stepTagLength, command.length() - (stepTagLength + 1));
-        // System.out.println("Command (step action): " + actionCommand);
+        String actionCommand = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
 
-        int hdr;
+        int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
+        boolean withTurnkey = options < 2;
+        boolean withInfo = options == 0 || options == 2;
+        // System.out.println("Command (step action): " + actionCommand + " options " + options);
+
         byte[] stepTurnKey;
-        hdr = din.readInt();
-        stepTurnKey = new byte[hdr];
-        din.readFully(stepTurnKey);
+        if (withTurnkey) {
+            int hdr;
+            hdr = din.readInt();
+            stepTurnKey = new byte[hdr];
+            din.readFully(stepTurnKey);
+        } else {
+            stepTurnKey = new byte[0];
+        }
 
         DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
         double reward = 0.0;
@@ -393,12 +400,16 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.writeDouble(reward);
         dout.writeInt(done ? 1 : 0);
 
-        byte[] infoBytes = info.getBytes(utf8);
-        dout.writeInt(infoBytes.length);
-        dout.write(infoBytes);
+        if (withInfo) {
+            byte[] infoBytes = info.getBytes(utf8);
+            dout.writeInt(infoBytes.length);
+            dout.write(infoBytes);
+        }
 
-        dout.writeInt(nextTurnKey.length);
-        dout.write(nextTurnKey);
+        if (withTurnkey) {
+            dout.writeInt(nextTurnKey.length);
+            dout.write(nextTurnKey);
+        }
         dout.flush();
     }
 
@@ -644,6 +655,15 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
            return envState.quit;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private void setWantToQuit() {
+        lock.lock();
+        try {
+            envState.quit = true;
         } finally {
             lock.unlock();
         }
