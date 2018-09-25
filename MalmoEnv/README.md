@@ -25,7 +25,7 @@ Running a single agent example mission (run each command in different cmd prompt
 
 `./launchClient.sh -port 9000 -env` or `launchClient.bat -port 9000 -env`
 
-(In another shell) `cd Malmo/samples/malmoenv`
+(In another shell) `cd MalmoEnv`
 
 `python3 run.py --mission missions/mobchase_single_agent.xml --port 9000 --episodes 1`
 
@@ -50,7 +50,7 @@ If you install with `pip3 install malmoenv` then you can download the Minecraft 
 
 `python3 -c "import malmoenv.bootstrap();malmoenv.bootstrap.download()`
 
-The sample missions will be in ./MalmoPlatform/Malmo/samples/malmoenv/missions.
+The sample missions will be in ./MalmoPlatform/MalmoEnv/missions.
 
 `malmoenv.bootstrap.launchMinecraft(10000)` can be used to start up the Malmo Minecraft Mod 
 listening for MalmoEnv connections on port 10000 after downloading Malmo.
