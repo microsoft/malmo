@@ -9,7 +9,7 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 ### NEW ###
 
-MamloEnv implements an Open AI "gym" - like environment directly in Python (one to one in a side-car pattern with Java Minecraft). If you only need this functionallity or are interested in trying it out then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/malmoenv): 
+MamloEnv implements an Open AI "gym" - like environment directly in Python (one to one in a side-car pattern with Java Minecraft). If you only need this functionallity or are interested in trying it out then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/malmoenv). 
 
 Note: The Marlo competition (for now) uses the original Malmo with it's native code implementation. 
 

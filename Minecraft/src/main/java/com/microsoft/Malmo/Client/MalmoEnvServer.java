@@ -356,7 +356,7 @@ public class MalmoEnvServer implements IWantToQuit {
             boolean outOfTurn = true;
             nextTurnKey = currentTurnKey;
 
-            if (!done && obs.length > 0) {
+            if (!done && obs.length > 0 && actionCommand != "") {
                 // CurrentKey   StepKey     Action (WithKey)    nextTurnKey     outOfTurn
                 // ""           ""          Y                   Current         N
                 // ""           X           N                   Step            Y

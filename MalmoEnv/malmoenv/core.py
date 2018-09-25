@@ -30,6 +30,12 @@ import gym.spaces
 from malmoenv.comms import retry
 
 
+class StringActionSpace(gym.Space):
+    @staticmethod
+    def get(action):
+        return action
+
+
 class ActionSpace(gym.spaces.Discrete):
     """Malmo commands as gym action space"""
     def __init__(self, actions):
@@ -78,7 +84,7 @@ class Env:
     def init(self, xml, port,
              server=None, server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0):
+             action_filter=None, resync=0, step_options=0, action_space=None):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -105,7 +111,10 @@ class Env:
         actions = command_parser.get_actions(commands)
         if self.role == 0:
             print(actions)
-        self.action_space = ActionSpace(actions)
+        if action_space:
+            self.action_space = action_space
+        else:
+            self.action_space = ActionSpace(actions)
 
         self.port = port
         if server is not None:

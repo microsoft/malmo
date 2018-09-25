@@ -106,7 +106,28 @@ class CommandParser:
                     actions.append(verb + " 0")
                 else:
                     raise CommandHandlerException("Invalid continuous command")
-
+            elif type == 'HumanLevel':
+                if verb == 'moveMouse':
+                    actions.append('mouseMove 0 0')
+                elif verb in {'forward', 'back', 'left', 'right'}:
+                    actions.append(verb + ' 1')
+                    actions.append(verb + ' 0')
+                else:
+                    actions.append(verb)
+            elif type == 'MissionQuit':
+                if verb != 'quit':
+                    raise CommandHandlerException("Invalid quit command")
+                actions.append(verb)
+            elif type == 'Chat':
+                if verb != 'chat':
+                    raise CommandHandlerException("Invalid chat command")
+                actions.append(verb)
+            elif type == 'SimpleCraft':
+                if verb != 'craft':
+                    raise CommandHandlerException("Invalid craft command")
+                actions.append(verb)
+            elif type == 'AbsoluteMovement' or 'Inventory':
+                actions.append(verb)
         return actions
 
     def _command_hander(self, handlers, turnbased, commands):
@@ -160,6 +181,17 @@ class CommandParser:
                 allow = [(command_type, turnbased, c) for c in CommandParser.all_continuous]
             elif command_type == CommandParser.absoluteMovementCommands:
                 allow = [(command_type, turnbased, c) for c in CommandParser.all_absolute]
+            elif command_type == CommandParser.humanLevelCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_human_level]
+            elif command_type == CommandParser.simpleCraftCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_simplecraft]
+            elif command_type == CommandParser.missionQuitCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.missionQuitCommands]
+            elif command_type == CommandParser.chatCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_chat]
+            elif command_type == CommandParser.inventoryCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_inventory]
+
         # Remove all denied.
         for d in deny:
             while d in allow:
