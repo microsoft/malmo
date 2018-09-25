@@ -35,6 +35,8 @@ A two agent example mission (run each command in different cmd prompt/shells):
 
 `./launchClient.sh -port 9001 -env`
 
+The run script is given two ports - the first for the coordinator and a second for the other agent's Minecraft:
+
 `python3 run.py --mission missions/mobchase_two_agents.xml --port 9000 --episodes 1 --role 0 --experimentUniqueId "test1"`
 
 `python3 run.py --mission missions/mobchase_two_agents.xml --port 9000 --port2 9001 --episodes 1 --role 1  --experimentUniqueId "test1"`

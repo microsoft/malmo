@@ -1,3 +1,6 @@
+-------------------
+New: MalmoEnv - A Python only Open AI "gym"-like Environment for Malmo.
+
 0.36.0
 -------------------
 Fixes for MacOS stability problems.
