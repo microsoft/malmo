@@ -342,6 +342,7 @@
             <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
             <xs:element ref="ObservationFromHuman" minOccurs="0"/>
             <xs:element ref="ObservationFromSystem" minOccurs="0"/>
+            <xs:element ref="ObservationFromCompass" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
             <xs:element ref="DepthProducer" minOccurs="0"/>
@@ -352,6 +353,7 @@
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />
             <xs:element ref="RewardForSendingMatchingChatMessage" minOccurs="0" />
             <xs:element ref="RewardForCollectingItem" minOccurs="0" />
+            <xs:element ref="RewardForCraftingItem" minOccurs="0" />
             <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
             <xs:element ref="RewardForReachingPosition" minOccurs="0"/>
             <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
@@ -375,6 +377,7 @@
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCraftingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
             <xs:element ref="AgentQuitFromCatchingMob" minOccurs="0" />
         </xs:all>
@@ -427,6 +430,7 @@
                     <xs:element ref="FlatWorldGenerator" />
                     <xs:element ref="FileWorldGenerator" />
                     <xs:element ref="DefaultWorldGenerator" />
+                    <xs:element ref="BiomeGenerator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
@@ -441,6 +445,7 @@
                     <xs:element ref="SnakeDecorator"  />
                     <xs:element ref="MovingTargetDecorator" />
                     <xs:element ref="BuildBattleDecorator" />
+                    <xs:element ref="NavigationDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
