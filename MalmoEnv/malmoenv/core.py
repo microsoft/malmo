@@ -31,8 +31,7 @@ from malmoenv.comms import retry
 
 
 class StringActionSpace(gym.Space):
-    @staticmethod
-    def get(action):
+    def __getitem__(self, action):
         return action
 
 
@@ -45,7 +44,7 @@ class ActionSpace(gym.spaces.Discrete):
     def sample(self):
         return random.randint(1, len(self.actions)) - 1
 
-    def get(self, action):
+    def __getitem__(self, action):
         return self.actions[action]
 
     def __len__(self):
@@ -218,7 +217,7 @@ class Env:
 
         while not self.done and ((obs is None or len(obs) == 0) or turn):
             step_message = "<Step" + str(self.step_options) + ">" + \
-                           self.action_space.get(action) + \
+                           self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"
             comms.send_message(self.clientsocket, step_message.encode())
             if withturnkey:
