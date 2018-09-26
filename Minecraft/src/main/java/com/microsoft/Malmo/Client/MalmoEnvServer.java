@@ -96,6 +96,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
                 Thread thread = new Thread("EnvServerSocketHandler") {
                     public void run() {
+                        boolean running = false;
                         try {
                             while (true) {
                                 DataInputStream din = new DataInputStream(socket.getInputStream());
@@ -117,7 +118,8 @@ public class MalmoEnvServer implements IWantToQuit {
 
                                 } else if (command.startsWith("<MissionInit")) {
 
-                                    missionInit(din, command, socket);
+                                    if (missionInit(din, command, socket))
+                                        running = true;
 
                                 } else if (command.startsWith("<Step")) {
 
@@ -155,7 +157,10 @@ public class MalmoEnvServer implements IWantToQuit {
                         } catch (IOException ioe) {
                             System.out.println("MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
-                                setWantToQuit();
+                                if (running) {
+                                    System.out.println("Want to quit on disconnect.");
+                                    setWantToQuit();
+                                }
                                 socket.close();
                             } catch (IOException ioe2) {
                             }
@@ -170,7 +175,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     // Handler for <MissionInit> messages.
-    private void missionInit(DataInputStream din, String command, Socket socket) throws IOException {
+    private boolean missionInit(DataInputStream din, String command, Socket socket) throws IOException {
 
         String ipOriginator = socket.getInetAddress().getHostName();
 
@@ -246,6 +251,8 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.writeInt(turnKey.length);
         dout.write(turnKey);
         dout.flush();
+
+        return allTokensConsumed && started;
     }
 
     private boolean areAllTokensConsumed(String experimentId, int reset, int agentCount) {
