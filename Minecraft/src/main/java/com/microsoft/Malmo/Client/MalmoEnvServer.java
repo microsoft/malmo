@@ -605,7 +605,7 @@ public class MalmoEnvServer implements IWantToQuit {
         }
         lock.lock();
         try {
-            if (envState.turnKey != turnKey) {
+            if (envState.turnKey.equals(turnKey)) {
                 System.out.println("Update TK: " + turnKey);
             }
             envState.turnKey = turnKey;
