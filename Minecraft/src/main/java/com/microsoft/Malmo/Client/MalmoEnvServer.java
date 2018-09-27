@@ -370,6 +370,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 // X            0           N                   Current         Y
                 // X            X           Y (WK)              Current         N
                 // X            Y           N                   Current         Y
+                // System.out.println("current TK " + envState.turnKey + " step TK " + new String(stepTurnKey));
                 if (currentTurnKey.length == 0) {
                     if (stepTurnKey.length == 0) {
                         envState.commands.add(actionCommand);
@@ -430,7 +431,7 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             String token = command.substring(findTagLength, command.length() - (findTagLength + 1));
-            // System.out.println("Find? " + token);
+            System.out.println("Find token? " + token);
 
             // Purge previous token.
             String[] tokenSplits = token.split(":");
@@ -604,6 +605,9 @@ public class MalmoEnvServer implements IWantToQuit {
         }
         lock.lock();
         try {
+            if (envState.turnKey != turnKey) {
+                System.out.println("Update TK: " + turnKey);
+            }
             envState.turnKey = turnKey;
             envState.info = info; // TODO Info could be costly to send as quite long or could contain restricted info. Make recording configurable.
         } finally {

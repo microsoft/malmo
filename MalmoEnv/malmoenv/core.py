@@ -97,6 +97,10 @@ class Env:
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
+        if not xml.startswith('<Mission'):
+            i = xml.index("<Mission")
+            xml = xml[i:]
+
         self.xml = etree.fromstring(xml)
         self.role = role
         if exp_uid is None:
@@ -127,6 +131,9 @@ class Env:
         else:
             self.port2 = self.port + self.role
         self.agent_count = len(self.xml.findall(self.ns + 'AgentSection'))
+        if self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None:
+            print("turn based")
+            self.turn_key = 'xxakwasherexx'
         # print("agent count " + str(self.agent_count))
         self.resync_period = resync
 
@@ -229,11 +236,12 @@ class Env:
                 info = comms.recv_message(self.clientsocket).decode('utf-8')
 
             turn_key = comms.recv_message(self.clientsocket).decode('utf-8') if withturnkey else ""
+            # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
             if turn_key != "":
                 turn = self.turn_key == turn_key
+                self.turn_key = turn_key
             else:
                 turn = False
-            self.turn_key = turn_key
 
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
