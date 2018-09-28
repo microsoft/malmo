@@ -26,6 +26,8 @@ import java.util.LinkedList;
  */
 public class MalmoEnvServer implements IWantToQuit {
 
+    private static String hello = "<MalmoEnv0.1"; // Initial message encodes version compatibility.
+
     private class EnvState {
 
         // Mission parameters:
@@ -98,6 +100,8 @@ public class MalmoEnvServer implements IWantToQuit {
                     public void run() {
                         boolean running = false;
                         try {
+                            checkHello(socket);
+
                             while (true) {
                                 DataInputStream din = new DataInputStream(socket.getInputStream());
                                 int hdr = din.readInt();
@@ -172,6 +176,17 @@ public class MalmoEnvServer implements IWantToQuit {
                 TCPUtils.Log(Level.SEVERE, "MalmoEnv service exits on " + ioe);
             }
         }
+    }
+
+    private void checkHello(Socket socket) throws IOException {
+        DataInputStream din = new DataInputStream(socket.getInputStream());
+        int hdr = din.readInt();
+        if (hdr <= 0 || hdr > hello.length() + 8) // Version number may be longer in future.
+            throw new IOException("Hello header length is invalid");
+        byte[] data = new byte[hdr];
+        din.readFully(data);
+        if (!new String(data).startsWith(hello))
+            throw new IOException("Invalid protocol or version");
     }
 
     // Handler for <MissionInit> messages.
@@ -340,6 +355,7 @@ public class MalmoEnvServer implements IWantToQuit {
         String info = "";
         byte[] currentTurnKey;
         byte[] nextTurnKey;
+        boolean sent = false;
 
         lock.lock();
         try {
@@ -375,6 +391,7 @@ public class MalmoEnvServer implements IWantToQuit {
                     if (stepTurnKey.length == 0) {
                         envState.commands.add(actionCommand);
                         outOfTurn = false;
+                        sent = true;
                     } else {
                         nextTurnKey = stepTurnKey;
                     }
@@ -384,6 +401,7 @@ public class MalmoEnvServer implements IWantToQuit {
                             // The step turn key may later still be stale when picked up from the command queue.
                             envState.commands.add(new String(stepTurnKey) + " " + actionCommand);
                             outOfTurn = false;
+                            sent = true;
                         }
                     }
                 }
@@ -404,9 +422,10 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.writeInt(obs.length);
         dout.write(obs);
 
-        dout.writeInt(BYTES_INT + BYTES_DOUBLE);
+        dout.writeInt(BYTES_DOUBLE + 2);
         dout.writeDouble(reward);
-        dout.writeInt(done ? 1 : 0);
+        dout.writeByte(done ? 1 : 0);
+        dout.writeByte(sent ? 1 : 0);
 
         if (withInfo) {
             byte[] infoBytes = info.getBytes(utf8);
@@ -605,11 +624,11 @@ public class MalmoEnvServer implements IWantToQuit {
         }
         lock.lock();
         try {
-            if (envState.turnKey.equals(turnKey)) {
-                System.out.println("Update TK: " + turnKey);
+            if (!envState.turnKey.equals(turnKey)) {
+                System.out.println("Update TK: [" + turnKey + "][" + turnKey + "]");
             }
             envState.turnKey = turnKey;
-            envState.info = info; // TODO Info could be costly to send as quite long or could contain restricted info. Make recording configurable.
+            envState.info = info; // TODO There is no way to wait on next valid Info.
         } finally {
             lock.unlock();
         }

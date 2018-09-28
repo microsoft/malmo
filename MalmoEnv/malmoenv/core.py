@@ -180,6 +180,10 @@ class Env:
         self.observation_space = ObservationSpace(width, height)
         # print(etree.tostring(self.xml))
 
+    @staticmethod
+    def _hello(sock):
+        comms.send_message(sock, "<MalmoEnv0.1.0/>".encode())
+
     def reset(self):
         """gym api reset"""
         self.resets += 1
@@ -197,6 +201,7 @@ class Env:
             self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print("connect " + self.server2 + ":" + str(self.port2))
             self.clientsocket.connect((self.server2, self.port2))
+            self._hello(self.clientsocket)
         self._init_mission()
         self.done = False
 
@@ -231,14 +236,17 @@ class Env:
                 comms.send_message(self.clientsocket, self.turn_key.encode())
             obs = comms.recv_message(self.clientsocket)
             reply = comms.recv_message(self.clientsocket)
-            reward, self.done = struct.unpack('!dI', reply)
+            reward, done, sent = struct.unpack('!dbb', reply)
+            self.done = done == 1
             if withinfo:
                 info = comms.recv_message(self.clientsocket).decode('utf-8')
 
             turn_key = comms.recv_message(self.clientsocket).decode('utf-8') if withturnkey else ""
             # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
             if turn_key != "":
-                turn = self.turn_key == turn_key
+                if sent != 0:
+                    turn = False
+                # Were done turns if: turn = self.turn_key == turn_key
                 self.turn_key = turn_key
             else:
                 turn = False
@@ -254,6 +262,7 @@ class Env:
         # Purge last token from head node.
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))
+        self._hello(sock)
 
         comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
         reply = comms.recv_message(sock)
@@ -267,6 +276,7 @@ class Env:
         """Use carefully to reset the episode count to 0."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))
+        self._hello(sock)
 
         comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
         reply = comms.recv_message(sock)
@@ -283,6 +293,7 @@ class Env:
             sock.connect((self.server, self.port))
         else:
             sock.connect((self.server2, self.port2))
+        self._hello(sock)
 
         comms.send_message(sock, ("<Status>" + "</Status>").encode())
         status = comms.recv_message(sock).decode('utf-8')
@@ -295,6 +306,7 @@ class Env:
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server2, self.port2))
+        self._hello(sock)
 
         comms.send_message(sock, ("<Exit>" + self._get_token() + "</Exit>").encode())
         reply = comms.recv_message(sock)
@@ -338,6 +350,7 @@ class Env:
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))
+        self._hello(sock)
 
         port = 0
         while port == 0:
