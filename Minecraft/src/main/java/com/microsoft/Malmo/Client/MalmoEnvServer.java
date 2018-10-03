@@ -323,7 +323,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
     // Handler for <Step_> messages. Single digit option code _ specifies if turnkey and info are included in message.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
-        String actionCommand = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
+        String actions = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
 
         int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
         boolean withTurnkey = options < 2;
@@ -371,7 +371,7 @@ public class MalmoEnvServer implements IWantToQuit {
             boolean outOfTurn = true;
             nextTurnKey = currentTurnKey;
 
-            if (!done && obs.length > 0 && actionCommand != "") {
+            if (!done && obs.length > 0 && actions != "") {
                 // CurrentKey   StepKey     Action (WithKey)    nextTurnKey     outOfTurn
                 // ""           ""          Y                   Current         N
                 // ""           X           N                   Step            Y
@@ -382,7 +382,15 @@ public class MalmoEnvServer implements IWantToQuit {
                 // TCPUtils.Log(Level.FINE, "current TK " + envState.turnKey + " step TK " + new String(stepTurnKey));
                 if (currentTurnKey.length == 0) {
                     if (stepTurnKey.length == 0) {
-                        envState.commands.add(actionCommand);
+                        if (actions.contains("\n")) {
+                            String[] cmds = actions.split("\\n");
+                            for(String cmd : cmds) {
+                                envState.commands.add(cmd);
+                            }
+                        } else {
+                            if (!actions.isEmpty())
+                                envState.commands.add(actions);
+                        }
                         outOfTurn = false;
                         sent = true;
                     } else {
@@ -392,7 +400,7 @@ public class MalmoEnvServer implements IWantToQuit {
                     if (stepTurnKey.length != 0) {
                         if (Arrays.equals(currentTurnKey, stepTurnKey)) {
                             // The step turn key may later still be stale when picked up from the command queue.
-                            envState.commands.add(new String(stepTurnKey) + " " + actionCommand);
+                            envState.commands.add(new String(stepTurnKey) + " " + actions);
                             outOfTurn = false;
                             sent = true;
                         }
