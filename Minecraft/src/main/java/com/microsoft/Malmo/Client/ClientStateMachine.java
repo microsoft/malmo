@@ -704,9 +704,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected boolean pingAgent(boolean abortIfFailed)
         {
             if (AddressHelper.getMissionControlPort() == 0) {
-                if (envServer != null) {
-                    // TODO MalmoEnvServer - ping
-                }
+                // MalmoEnvServer has no server to client ping.
                 return true;
             }
 
