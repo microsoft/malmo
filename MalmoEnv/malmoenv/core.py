@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------
-# Copyright (c) 2016 Microsoft Corporation
+# Copyright (c) 2018 Microsoft Corporation
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -31,7 +31,10 @@ from malmoenv.comms import retry
 from malmoenv.version import malmo_version
 
 
-class StringActionSpace(gym.Space):
+class StringActionSpace(gym.spaces.Discrete):
+    def __init__(self):
+        pass
+
     """Malmo actions as their strings."""
     def __getitem__(self, action):
         return action
@@ -62,7 +65,7 @@ class VisualObservationSpace(gym.spaces.Box):
 
 
 class Env:
-    """Malmo "Env" open ai gym compatible API"""
+    """Malmo "Env" open ai gym compatible environment API"""
     def __init__(self):
         self.action_space = None
         self.observation_space = None
@@ -72,7 +75,7 @@ class Env:
         self.agent_count = 0
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
-        self.clientsocket = None
+        self.client_socket = None
         self.server = 'localhost'  # The game server
         self.port = 9000  # The game port
         self.server2 = self.server  # optional server for agent
@@ -83,8 +86,8 @@ class Env:
         self.done = True
         self.step_options = 0
 
-    def init(self, xml, port,
-             server=None, server2=None, port2=None,
+    def init(self, xml, port, server=None,
+             server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
              action_filter=None, resync=0, step_options=0, action_space=None):
         """"Initialize a Malmo environment.
@@ -96,7 +99,8 @@ class Env:
             role - the agent role (0..N-1) for missions with N agents. Defaults to 0.
             exp_uid - the experiment's unique identifier. Generated if not given
             episode - the "reset" start count for experiment re-starts. Defaults to 0.
-            step_options - encode withTurnKey and withInfo. Defaults to 0 (both included in messages).
+            action_filter - an optional list of valid actions.
+            step_options - encodes withTurnKey and withInfo in step messages. Defaults to 0 (both included).
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
@@ -200,17 +204,17 @@ class Env:
 
         if self.role != 0:
             self._find_server()
-        if not self.clientsocket:
-            self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if not self.client_socket:
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print("connect " + self.server2 + ":" + str(self.port2))
-            self.clientsocket.connect((self.server2, self.port2))
-            self._hello(self.clientsocket)
+            self.client_socket.connect((self.server2, self.port2))
+            self._hello(self.client_socket)
         self._init_mission()
         self.done = False
 
     def _quit_episode(self):
-        comms.send_message(self.clientsocket, "<Quit></Quit>".encode())
-        reply = comms.recv_message(self.clientsocket)
+        comms.send_message(self.client_socket, "<Quit></Quit>".encode())
+        reply = comms.recv_message(self.client_socket)
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
@@ -234,17 +238,17 @@ class Env:
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"
-            comms.send_message(self.clientsocket, step_message.encode())
+            comms.send_message(self.client_socket, step_message.encode())
             if withturnkey:
-                comms.send_message(self.clientsocket, self.turn_key.encode())
-            obs = comms.recv_message(self.clientsocket)
-            reply = comms.recv_message(self.clientsocket)
+                comms.send_message(self.client_socket, self.turn_key.encode())
+            obs = comms.recv_message(self.client_socket)
+            reply = comms.recv_message(self.client_socket)
             reward, done, sent = struct.unpack('!dbb', reply)
             self.done = done == 1
             if withinfo:
-                info = comms.recv_message(self.clientsocket).decode('utf-8')
+                info = comms.recv_message(self.client_socket).decode('utf-8')
 
-            turn_key = comms.recv_message(self.clientsocket).decode('utf-8') if withturnkey else ""
+            turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
             # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
             if turn_key != "":
                 if sent != 0:
@@ -272,8 +276,8 @@ class Env:
         ok, = struct.unpack('!I', reply)
         assert ok
         sock.close()
-        if self.clientsocket:
-            self.clientsocket.close()
+        if self.client_socket:
+            self.client_socket.close()
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
@@ -319,7 +323,7 @@ class Env:
 
     def resync(self):
         """make sure we can ping the head and assigned node.
-        Possibly after an env.exit();"""
+        Possibly after an env.exit()"""
         success = 0
         for head in [True, False]:
             for _ in range(18):
@@ -327,27 +331,31 @@ class Env:
                     self.status(head)
                     success += 1
                     break
-                except Exception:
+                except Exception as e:
+                    _logRetry(e)
                     time.sleep(10)
-                    pass
+
         if success != 2:
             raise IOError("Failed to contact service " + ("head" if success == 0 else ""))
 
     def _exit_resync(self):
         print("********** force exit & resync **********")
         try:
-            self.clientsocket.close()
-            self.clientsocket = None
+            self.client_socket.close()
+            self.client_socket = None
             try:
                 self.exit()
-            except Exception:
-                pass
+            except Exception as e:
+                _logRetry(e)
             print("Pause for exit(s) ...")
             time.sleep(60)
         except (socket.error, ConnectionError):
             pass
         self.resync()
         print("resync'ed")
+
+    def _log_retry(self):
+        pass
 
     @retry
     def _find_server(self):
@@ -375,12 +383,12 @@ class Env:
             xml = etree.tostring(self.xml)
             token = (self._get_token() + ":" + str(self.agent_count)).encode()
             # print(xml.decode())
-            comms.send_message(self.clientsocket, xml)
-            comms.send_message(self.clientsocket, token)
+            comms.send_message(self.client_socket, xml)
+            comms.send_message(self.client_socket, token)
 
-            reply = comms.recv_message(self.clientsocket)
+            reply = comms.recv_message(self.client_socket)
             ok, = struct.unpack('!I', reply)
-            self.turn_key = comms.recv_message(self.clientsocket).decode('utf-8')
+            self.turn_key = comms.recv_message(self.client_socket).decode('utf-8')
             if ok != 1:
                 time.sleep(1)
 

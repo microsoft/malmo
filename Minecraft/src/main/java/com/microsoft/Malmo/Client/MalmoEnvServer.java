@@ -22,7 +22,7 @@ import java.util.LinkedList;
 
 
 /**
- * MalmoEnvServer - multi-agent supporting OpenAI gym "environment" server.
+ * MalmoEnvServer - service supporting OpenAI gym "environment" for multi-agent Malmo missions.
  */
 public class MalmoEnvServer implements IWantToQuit {
 
@@ -81,7 +81,6 @@ public class MalmoEnvServer implements IWantToQuit {
     static public void update(Configuration configs)
     {
         envPolicy = configs.get(MalmoMod.ENV_CONFIGS, "env", "false").getBoolean();
-        System.out.println("read env policy " + envPolicy);
     }
 
     public static boolean isEnv() {
@@ -107,18 +106,20 @@ public class MalmoEnvServer implements IWantToQuit {
                             while (true) {
                                 DataInputStream din = new DataInputStream(socket.getInputStream());
                                 int hdr = din.readInt();
-                                // System.out.println("Hdr " + hdr);
                                 byte[] data = new byte[hdr];
                                 din.readFully(data);
 
                                 String command = new String(data, utf8);
 
-                                if (command.startsWith("<Init")) {
+                                if (command.startsWith("<Step")) {
+
+                                    step(command, socket, din);
+
+                                } else if (command.startsWith("<Init")) {
 
                                     init(command, socket);
 
-                                }
-                                if (command.startsWith("<Find")) {
+                                } else if (command.startsWith("<Find")) {
 
                                     find(command, socket);
 
@@ -127,11 +128,7 @@ public class MalmoEnvServer implements IWantToQuit {
                                     if (missionInit(din, command, socket))
                                         running = true;
 
-                                } else if (command.startsWith("<Step")) {
-
-                                    step(command, socket, din);
-
-                                }  else if (command.startsWith("<Quit")) {
+                                } else if (command.startsWith("<Quit")) {
 
                                     quit(command, socket);
 
@@ -161,10 +158,10 @@ public class MalmoEnvServer implements IWantToQuit {
                                 }
                             }
                         } catch (IOException ioe) {
-                            System.out.println("MalmoEnv socket error: " + ioe + " (can be on disconnect)");
+                            TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
                                 if (running) {
-                                    System.out.println("Want to quit on disconnect.");
+                                    TCPUtils.Log(Level.INFO,"Want to quit on disconnect.");
                                     setWantToQuit();
                                 }
                                 socket.close();
@@ -183,12 +180,12 @@ public class MalmoEnvServer implements IWantToQuit {
     private void checkHello(Socket socket) throws IOException {
         DataInputStream din = new DataInputStream(socket.getInputStream());
         int hdr = din.readInt();
-        if (hdr <= 0 || hdr > hello.length() + 8) // Version number may be longer in future.
-            throw new IOException("Hello header length is invalid");
+        if (hdr <= 0 || hdr > hello.length() + 8) // Version number may be somewhat longer in future.
+            throw new IOException("MalmoEnv hello header length is invalid");
         byte[] data = new byte[hdr];
         din.readFully(data);
         if (!new String(data).startsWith(hello + version))
-            throw new IOException("Invalid protocol or version - expected " + hello + version);
+            throw new IOException("MalmoEnv invalid protocol or version - expected " + hello + version);
     }
 
     // Handler for <MissionInit> messages.
@@ -197,15 +194,15 @@ public class MalmoEnvServer implements IWantToQuit {
         String ipOriginator = socket.getInetAddress().getHostName();
 
         int hdr;
-        byte[] data;// Read the token.
+        byte[] data;
         hdr = din.readInt();
         data = new byte[hdr];
         din.readFully(data);
         String id = new String(data, utf8);
-        System.out.println("Mission Init" + id);
+
+        TCPUtils.Log(Level.INFO,"Mission Init" + id);
 
         String[] token = id.split(":");
-
         String experimentId = token[0];
         int role = Integer.parseInt(token[1]);
         int reset = Integer.parseInt(token[2]);
@@ -220,12 +217,11 @@ public class MalmoEnvServer implements IWantToQuit {
             if (role == 0) {
 
                 String previousToken = experimentId + ":0:" + (reset - 1);
-                // System.out.println("Purge own " + previousToken);
                 initTokens.remove(previousToken);
 
                 String myToken = experimentId + ":0:" + reset;
                 if (!initTokens.containsKey(myToken)) {
-                    System.out.println("(Pre)Start " + role + " reset " + reset);
+                    TCPUtils.Log(Level.INFO,"(Pre)Start " + role + " reset " + reset);
 
                     started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
                     if (started)
@@ -244,14 +240,8 @@ public class MalmoEnvServer implements IWantToQuit {
                     }
                     allTokensConsumed = areAllTokensConsumed(experimentId, reset, agentCount);
                 }
-
-                if (allTokensConsumed && !initTokens.containsKey(myToken)) {
-                    // TODO if start after all consumed (move pre-start to here):
-                    // started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken);
-                    // if (started) { initTokens.put(myToken, 0); cond.signalAll(); }
-                }
             } else {
-                System.out.println("Start " + role + " reset " + reset);
+                TCPUtils.Log(Level.INFO, "Start " + role + " reset " + reset);
 
                 started = startUp(command, ipOriginator, experimentId, reset, agentCount, experimentId + ":" + role + ":" + reset);
             }
@@ -264,7 +254,7 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.writeInt(allTokensConsumed && started ? 1 : 0);
         dout.flush();
 
-        byte[] turnKey = "".getBytes(); // TODO get initial turn key
+        byte[] turnKey = "".getBytes();
         dout.writeInt(turnKey.length);
         dout.write(turnKey);
         dout.flush();
@@ -277,7 +267,7 @@ public class MalmoEnvServer implements IWantToQuit {
         for (int i = 1; i < agentCount; i++) {
             String tokenForAgent = experimentId + ":" + i + ":" + (reset - 1);
             if (initTokens.containsKey(tokenForAgent)) {
-                System.out.println("Mission init - Unconsumed " + tokenForAgent);
+                TCPUtils.Log(Level.FINE,"Mission init - unconsumed " + tokenForAgent);
                 allTokensConsumed = false;
             }
         }
@@ -305,7 +295,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     private boolean startUpMission(String command, String ipOriginator) throws IOException {
-        // System.out.println("Start up mission");
+
         if (missionPoller == null)
             return false;
 
@@ -321,9 +311,9 @@ public class MalmoEnvServer implements IWantToQuit {
         int hdr = dis.readInt();
         byte[] replyBytes = new byte[hdr];
         dis.readFully(replyBytes);
-        System.out.println("start up reply " + new String(replyBytes));
+
         if (new String(replyBytes).equals("MALMOOK")) {
-            System.out.println("MalmoEnvServer Mission starting ...");
+            TCPUtils.Log(Level.INFO, "MalmoEnvServer Mission starting ...");
             return true;
         }
         return false;
@@ -338,7 +328,7 @@ public class MalmoEnvServer implements IWantToQuit {
         int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
         boolean withTurnkey = options < 2;
         boolean withInfo = options == 0 || options == 2;
-        // System.out.println("Command (step action): " + actionCommand + " options " + options);
+        // TCPUtils.Log(Level.FINE,"Command (step action): " + actionCommand + " options " + options);
 
         byte[] stepTurnKey;
         if (withTurnkey) {
@@ -388,7 +378,8 @@ public class MalmoEnvServer implements IWantToQuit {
                 // X            0           N                   Current         Y
                 // X            X           Y (WK)              Current         N
                 // X            Y           N                   Current         Y
-                // System.out.println("current TK " + envState.turnKey + " step TK " + new String(stepTurnKey));
+
+                // TCPUtils.Log(Level.FINE, "current TK " + envState.turnKey + " step TK " + new String(stepTurnKey));
                 if (currentTurnKey.length == 0) {
                     if (stepTurnKey.length == 0) {
                         envState.commands.add(actionCommand);
@@ -452,7 +443,7 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             String token = command.substring(findTagLength, command.length() - (findTagLength + 1));
-            System.out.println("Find token? " + token);
+            TCPUtils.Log(Level.INFO, "Find token? " + token);
 
             // Purge previous token.
             String[] tokenSplits = token.split(":");
@@ -474,12 +465,8 @@ public class MalmoEnvServer implements IWantToQuit {
                 port = initTokens.get(token);
                 if (port == null) {
                     port = 0;
-                    System.out.println("Role " + role + " reset " + reset + " waiting for token.");
+                    TCPUtils.Log(Level.INFO,"Role " + role + " reset " + reset + " waiting for token.");
                 }
-            }
-
-            if (port != 0) {
-                System.out.println("Found " + port);
             }
         } finally {
             lock.unlock();
@@ -528,7 +515,6 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             String token = command.substring(closeTagLength, command.length() - (closeTagLength + 1));
-            System.out.println("Close after " + token);
 
             initTokens.remove(token);
 
@@ -545,7 +531,7 @@ public class MalmoEnvServer implements IWantToQuit {
     private void status(String command, Socket socket) throws IOException {
         lock.lock();
         try {
-            String status = "{}"; // TODO Possibly something more interesting to report.
+            String status = "{}"; // TODO Possibly have something more interesting to report.
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
 
             byte[] statusBytes = status.getBytes(utf8);
@@ -622,12 +608,12 @@ public class MalmoEnvServer implements IWantToQuit {
         if (i != -1) {
             turnKey = info.substring(i + pattern.length(), info.length() - 1);
             turnKey = turnKey.substring(0, turnKey.indexOf("\""));
-            // System.out.println("Observation turn key: " + turnKey);
+            // TCPUtils.Log(Level.FINE, "Observation turn key: " + turnKey);
         }
         lock.lock();
         try {
             if (!envState.turnKey.equals(turnKey)) {
-                System.out.println("Update TK: [" + turnKey + "][" + turnKey + "]");
+                // TCPUtils.Log(Level.FINE,"Update TK: [" + turnKey + "][" + turnKey + "]");
             }
             envState.turnKey = turnKey;
             envState.info = info; // TODO There is no way to wait on next valid Info.
@@ -648,7 +634,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public void addFrame(byte[] frame) {
         lock.lock();
         try {
-            envState.obs = frame; // Replaces current. TODO track skipped frames.
+            envState.obs = frame; // Replaces current.
             cond.signalAll();
         } finally {
             lock.unlock();
@@ -659,11 +645,11 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             if (envState.token != null) {
-                System.out.println("Integration server start up - token: " + envState.token);
+                TCPUtils.Log(Level.INFO,"Integration server start up - token: " + envState.token);
                 addTokens(integrationServerPort, envState.token, envState.experimentId, envState.agentCount, envState.reset);
                 cond.signalAll();
             } else {
-                System.out.println("No mission token on integration server start up!");
+                TCPUtils.Log(Level.WARNING,"No mission token on integration server start up!");
             }
         } finally {
             lock.unlock();
@@ -675,7 +661,6 @@ public class MalmoEnvServer implements IWantToQuit {
         // Place tokens for other agents to find.
         for (int i = 1; i < agentCount; i++) {
             String tokenForAgent = experimentId + ":" + i + ":" + reset;
-            // System.out.println("Add token " + tokenForAgent);
             initTokens.put(tokenForAgent, integratedServerPort);
         }
     }

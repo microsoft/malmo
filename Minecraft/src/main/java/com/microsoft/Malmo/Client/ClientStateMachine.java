@@ -2093,7 +2093,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             while (command != null && command.length() > 0 && !quitHandlerFired)
             {
-                System.out.println("Act on " + command);
+                // TCPUtil.Log(Level.FINE, System.out.println("Act on " + command);
                 // Pass the command to our various control overrides:
                 Minecraft.getMinecraft().mcProfiler.startSection("malmoCommandAct");
                 boolean handled = handleCommand(command);

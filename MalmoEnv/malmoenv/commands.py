@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------
-# Copyright (c) 2016 Microsoft Corporation
+# Copyright (c) 2018 Microsoft Corporation
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -57,6 +57,8 @@ class CommandParser:
                        "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9"]
 
     def __init__(self, action_filter=None):
+        if action_filter is None:
+            action_filter = []
         self.action_filter = action_filter
         pass
 
@@ -84,7 +86,7 @@ class CommandParser:
         """Get parameterized actions from command list based on command type and verb."""
         actions = []
         for type, turn_based, verb in commands:
-            if verb not in self.action_filter:
+            if len(self.action_filter) != 0 and verb not in self.action_filter:
                 continue
             if type == 'DiscreteMovement':
                 if verb in {"move", "turn", "look",
@@ -199,7 +201,7 @@ class CommandParser:
             while d in allow:
                 allow.remove(d)
         # Restrict to (optional) competition commands.
-        if self.action_filter:
+        if len(self.action_filter) > 0:
             filtered = [(command_type, turnbased, c) for c in self.action_filter]
             return [a for a in allow if a in filtered]
         else:

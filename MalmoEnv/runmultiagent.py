@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------------------------
-# Copyright (c) 2016 Microsoft Corporation
+# Copyright (c) 2018 Microsoft Corporation
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -34,20 +34,19 @@ if __name__ == '__main__':
     parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--resync', type=int, default=0, help='exit and re-sync on every N - default 0 meaning never')
-    parser.add_argument('--experimentUniqueId', type=str, default='test1',
-                        help="the experiment's unique id. Generated if not specified")
+    parser.add_argument('--experimentUniqueId', type=str, default='test1', help="the experiment's unique id.")
     args = parser.parse_args()
 
     xml = Path(args.mission).read_text()
 
     mission = etree.fromstring(xml)
     number_of_agents = len(mission.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
-
     print("number of agents: " + str(number_of_agents))
 
     def run(role):
         env = malmoenv.make()
-        env.init(xml, args.port, port2=(args.port + role), role=role, exp_uid=args.experimentUniqueId,
+        env.init(xml, args.port, port2=(args.port + role), role=role,
+                 exp_uid=args.experimentUniqueId,
                  episode=args.episode, resync=args.resync)
 
         def log(message):
@@ -66,7 +65,7 @@ if __name__ == '__main__':
                 # log("done: " + str(done))
                 # log("info: " + str(info))
                 log(" obs: " + str(obs))
-                # time.sleep(3)
+
                 time.sleep(.05)
 
         env.close()
