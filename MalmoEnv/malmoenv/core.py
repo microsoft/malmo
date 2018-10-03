@@ -32,12 +32,13 @@ from malmoenv.version import malmo_version
 
 
 class StringActionSpace(gym.Space):
+    """Malmo actions as their strings."""
     def __getitem__(self, action):
         return action
 
 
 class ActionSpace(gym.spaces.Discrete):
-    """Malmo commands as gym action space"""
+    """Malmo actions as gym action space"""
     def __init__(self, actions):
         self.actions = actions
         gym.spaces.Discrete.__init__(self, len(self.actions))
@@ -52,7 +53,8 @@ class ActionSpace(gym.spaces.Discrete):
         return len(self.actions)
 
 
-class ObservationSpace(gym.spaces.Box):
+class VisualObservationSpace(gym.spaces.Box):
+    """Space for visual observations."""
     def __init__(self, width, height):
         gym.spaces.Box.__init__(self,
                                 low=np.iinfo(np.int32).max, high=np.iinfo(np.int32).max,
@@ -178,7 +180,7 @@ class Env:
         width = int(video_producer.find(self.ns + 'Width').text)
         height = int(video_producer.find(self.ns + 'Height').text)
         # print(str(width) + "x" + str(height))
-        self.observation_space = ObservationSpace(width, height)
+        self.observation_space = VisualObservationSpace(width, height)
         # print(etree.tostring(self.xml))
 
     @staticmethod

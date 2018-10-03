@@ -72,6 +72,7 @@ class CommandParser:
         return self.get_commands_from_xml(mission, role)
 
     def get_commands_from_xml(self, mission, role):
+        """Get commands from etree"""
         handlers = mission.findall(CommandParser.ns + "AgentSection" + "/" + CommandParser.ns + "AgentHandlers")
         if len(handlers) <= role:
             raise CommandHandlerException("Not enough agents sections in XML")
@@ -80,6 +81,7 @@ class CommandParser:
         return commands
 
     def get_actions(self, commands):
+        """Get parameterized actions from command list based on command type and verb."""
         actions = []
         for type, turn_based, verb in commands:
             if verb not in self.action_filter:
@@ -215,7 +217,6 @@ def main():
     role = args.role
 
     print(xml_file)
-    # All commands restricted to competition set:
     action_filter = ["turn", "move", "use", "attack"]
     c = CommandParser(action_filter)
     command_list = c.get_commands_from_file(xml_file, role)

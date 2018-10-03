@@ -66,29 +66,3 @@ def recvall(sock, count):
         buf += newbuf
         count -= len(newbuf)
     return buf
-
-
-def server():
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.bind(('localhost', 9000))
-    serversocket.listen(5)  # become a server socket, maximum 5 connections
-
-    while True:
-        connection, address = serversocket.accept()
-         
-        while True:
-            data = recv_message(connection)
-            if not data:
-                break
-            print(data)
-            reply = ("<Echo>" + data.decode() + "<\Echo>").encode()
-            send_message(connection, reply)
-    
-
-def client():
-    clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    clientsocket.connect(('localhost', 9000))
-
-    send_message(clientsocket, "<Echo>Hello!</Echo>".encode())
-    data = recv_message(clientsocket)
-    print(data.decode())
