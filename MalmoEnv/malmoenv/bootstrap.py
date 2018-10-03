@@ -20,8 +20,10 @@ import os
 import subprocess
 import pathlib
 
+from malmoenv.version import malmo_version
 
-def download(branch=None, build=True, installdir="MalmoPlatform", version="0.36.0"):
+
+def download(branch=None, build=True, installdir="MalmoPlatform", version=malmo_version):
     """Download Malmo from github and build (by default) the Minecraft Mod.
        Example usage: import malmoenv.bootstrap; malmoenv.bootstrap.download()
     Args:
@@ -37,7 +39,7 @@ def download(branch=None, build=True, installdir="MalmoPlatform", version="0.36.
         gradlew = 'gradlew.bat'
 
     if branch is None:
-        branch = "malmoenv"  # TODO change to release version i.e. branch = version
+        branch = malmo_version
 
     cwd = os.getcwd()
     subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git", installdir])

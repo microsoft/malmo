@@ -623,7 +623,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         if (MalmoEnvServer.isEnv()) {
             // Start up new "Env" service instead of Malmo AgentHost api.
             System.out.println("***** Start MalmoEnvServer on port " + AddressHelper.getMissionControlPortOverride());
-            this.envServer = new MalmoEnvServer(AddressHelper.getMissionControlPortOverride(), this.missionPoller);
+            this.envServer = new MalmoEnvServer(Loader.instance().activeModContainer().getVersion(), AddressHelper.getMissionControlPortOverride(), this.missionPoller);
             Thread thread = new Thread("MalmoEnvServer") {
                 public void run() {
                     try {

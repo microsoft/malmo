@@ -26,7 +26,7 @@ import java.util.LinkedList;
  */
 public class MalmoEnvServer implements IWantToQuit {
 
-    private static String hello = "<MalmoEnv0.1"; // Initial message encodes version compatibility.
+    private static String hello = "<MalmoEnv" ;
 
     private class EnvState {
 
@@ -64,13 +64,15 @@ public class MalmoEnvServer implements IWantToQuit {
 
     private int port;
     private TCPInputPoller missionPoller; // Used for command parsing and not actual communication.
+    private String version;
 
     /***
      * Malmo "Env" service.
      * @param port the port the service listens on.
      * @param missionPoller for plugging into existing comms handling.
      */
-    public MalmoEnvServer(int port, TCPInputPoller missionPoller) {
+    public MalmoEnvServer(String version, int port, TCPInputPoller missionPoller) {
+        this.version = version;
         this.missionPoller = missionPoller;
         this.port = port;
     }
@@ -185,8 +187,8 @@ public class MalmoEnvServer implements IWantToQuit {
             throw new IOException("Hello header length is invalid");
         byte[] data = new byte[hdr];
         din.readFully(data);
-        if (!new String(data).startsWith(hello))
-            throw new IOException("Invalid protocol or version");
+        if (!new String(data).startsWith(hello + version))
+            throw new IOException("Invalid protocol or version - expected " + hello + version);
     }
 
     // Handler for <MissionInit> messages.

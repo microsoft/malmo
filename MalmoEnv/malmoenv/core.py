@@ -28,6 +28,7 @@ from malmoenv.commands import CommandParser
 import uuid
 import gym.spaces
 from malmoenv.comms import retry
+from malmoenv.version import malmo_version
 
 
 class StringActionSpace(gym.Space):
@@ -182,7 +183,7 @@ class Env:
 
     @staticmethod
     def _hello(sock):
-        comms.send_message(sock, "<MalmoEnv0.1.0/>".encode())
+        comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
 
     def reset(self):
         """gym api reset"""
