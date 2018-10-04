@@ -234,7 +234,9 @@ class Env:
         withturnkey = self.step_options < 2
         withinfo = self.step_options == 0 or self.step_options == 2
 
-        while not self.done and ((obs is None or len(obs) == 0) or turn):
+        while not self.done and \
+                ((obs is None or len(obs) == 0) or
+                 (withinfo and info is None) or turn):
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"

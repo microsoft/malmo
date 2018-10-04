@@ -412,8 +412,22 @@ public class MalmoEnvServer implements IWantToQuit {
                 // Pick up rewards.
                 reward = envState.reward;
                 envState.reward = 0.0;
-                info = envState.info;
-                envState.info = "";
+                if (withInfo) {
+                    info = envState.info;
+                    envState.info = "";
+                    if (info.isEmpty()) {
+                        try {
+                            cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
+                        } catch (InterruptedException ie) {
+                        }
+                        info = envState.info;
+                        envState.info = "";
+                        if (envState.obs != null && envState.obs != obs) {
+                            // Later observation.
+                            obs = envState.obs;
+                        }
+                    }
+                }
                 envState.obs = null;
             }
         } finally {
@@ -624,7 +638,8 @@ public class MalmoEnvServer implements IWantToQuit {
                 // TCPUtils.Log(Level.FINE,"Update TK: [" + turnKey + "][" + turnKey + "]");
             }
             envState.turnKey = turnKey;
-            envState.info = info; // TODO There is no way to wait on next valid Info.
+            envState.info = info;
+            cond.signalAll();
         } finally {
             lock.unlock();
         }
