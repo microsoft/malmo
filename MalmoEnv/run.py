@@ -29,7 +29,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='malmovnv test')
     parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
-    parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent and role <> 0) the agent's mission port")
+    parser.add_argument('--server', type=str, default='127.0.0.1', help='the mission server DNS or IP address')
+    parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) role N's mission port")
+    parser.add_argument('--server2', type=str, default=None, help="(Multi-agent) role N's server DNS or IP")
     parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
@@ -39,11 +41,16 @@ if __name__ == '__main__':
                                                               'Default is 0 meaning never')
     parser.add_argument('--experimentUniqueId', type=str, default='test1', help="the experiment's unique id.")
     args = parser.parse_args()
+    if args.server2 is None:
+        args.server2 = args.server
 
     xml = Path(args.mission).read_text()
     env = malmoenv.make()
 
-    env.init(xml, args.port, port2=args.port2, role=args.role,
+    env.init(xml, args.port,
+             server=args.server,
+             server2=args.server2, port2=args.port2,
+             role=args.role,
              exp_uid=args.experimentUniqueId,
              episode=args.episode, resync=args.resync)
 
