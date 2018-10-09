@@ -115,6 +115,10 @@ public class MalmoEnvServer implements IWantToQuit {
 
                                     step(command, socket, din);
 
+                                } else if (command.startsWith("<Peek")) {
+
+                                    peek(command, socket, din);
+
                                 } else if (command.startsWith("<Init")) {
 
                                     init(command, socket);
@@ -351,18 +355,8 @@ public class MalmoEnvServer implements IWantToQuit {
 
         lock.lock();
         try {
-            // Get the current observation. If none wait for a short time.
-            obs = envState.obs;
-            if (obs == null) {
-                try {
-                    cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
-                } catch (InterruptedException ie) {
-                }
-                obs = envState.obs;
-            }
-            if (obs == null) {
-                obs = new byte[0];
-            }
+
+            obs = getObservation();
 
             // If done or we have new observation and it's our turn then submit command and pick up rewards.
 
@@ -453,6 +447,46 @@ public class MalmoEnvServer implements IWantToQuit {
             dout.write(nextTurnKey);
         }
         dout.flush();
+    }
+
+    // Handler for <Peek> messages.
+    private void peek(String command, Socket socket, DataInputStream din) throws IOException {
+
+        DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
+        byte[] obs;
+        boolean done;
+
+        lock.lock();
+        try {
+            obs = getObservation();
+            done = envState.done;
+        } finally {
+            lock.unlock();
+        }
+
+        dout.writeInt(obs.length);
+        dout.write(obs);
+
+        dout.writeInt(1);
+        dout.writeByte(done ? 1 : 0);
+
+        dout.flush();
+    }
+
+    // Get the current observation. If none wait for a short time.
+    private byte[] getObservation() {
+        byte[] obs = envState.obs;
+        if (obs == null) {
+            try {
+                cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
+            } catch (InterruptedException ie) {
+            }
+            obs = envState.obs;
+        }
+        if (obs == null) {
+            obs = new byte[0];
+        }
+        return obs;
     }
 
     // Handler for <Find> messages - used by non-zero roles to discover integrated server port from primary (role 0) service.

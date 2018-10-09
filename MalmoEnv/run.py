@@ -37,8 +37,8 @@ if __name__ == '__main__':
     parser.add_argument('--role', type=int, default=0, help='the agent role - defaults to 0')
     parser.add_argument('--episodemaxsteps', type=int, default=0, help='max number of steps per episode')
     parser.add_argument('--saveimagesteps', type=int, default=0, help='save an image every N steps')
-    parser.add_argument('--resync', type=int, default=0, help='exit and re-sync every N resets.'
-                                                              'Default is 0 meaning never')
+    parser.add_argument('--resync', type=int, default=0, help='exit and re-sync every N resets'
+                                                              ' - default is 0 meaning never.')
     parser.add_argument('--experimentUniqueId', type=str, default='test1', help="the experiment's unique id.")
     args = parser.parse_args()
     if args.server2 is None:
@@ -70,9 +70,9 @@ if __name__ == '__main__':
             print("obs: " + str(obs))
             # print("info" + info)
             if args.saveimagesteps > 0 and steps % args.saveimagesteps == 0:
-                w, h = env.observation_space.shape
-                img = Image.fromarray(obs.reshape(h, w, 3))
-                img.save('image' + args.role + '_' + str(steps) + '.png')
+                w, h, d = env.observation_space.shape
+                img = Image.fromarray(obs.reshape(h, w, d))
+                img.save('image' + str(args.role) + '_' + str(steps) + '.png')
 
             time.sleep(.05)
 

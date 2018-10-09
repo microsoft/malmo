@@ -57,11 +57,13 @@ class ActionSpace(gym.spaces.Discrete):
 
 
 class VisualObservationSpace(gym.spaces.Box):
-    """Space for visual observations."""
-    def __init__(self, width, height):
+    """Space for visual observations: width x height x depth as a flat array.
+    Where depth is 3 or 4 if encoding scene depth.
+    """
+    def __init__(self, width, height, depth):
         gym.spaces.Box.__init__(self,
-                                low=np.iinfo(np.int32).max, high=np.iinfo(np.int32).max,
-                                shape=(width, height), dtype=np.int32)
+                                low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
+                                shape=(width, height, depth), dtype=np.int8)
 
 
 class Env:
@@ -85,6 +87,9 @@ class Env:
         self.exp_uid = ""
         self.done = True
         self.step_options = 0
+        self.width = 0
+        self.height = 0
+        self.depth = 0
 
     def init(self, xml, port, server=None,
              server2=None, port2=None,
@@ -181,10 +186,12 @@ class Env:
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
         video_producer = video_producers[self.role]
-        width = int(video_producer.find(self.ns + 'Width').text)
-        height = int(video_producer.find(self.ns + 'Height').text)
-        # print(str(width) + "x" + str(height))
-        self.observation_space = VisualObservationSpace(width, height)
+        self.width = int(video_producer.find(self.ns + 'Width').text)
+        self.height = int(video_producer.find(self.ns + 'Height').text)
+        want_depth = video_producer.attrib["want_depth"]
+        self.depth = 4 if want_depth is not None and (want_depth == "true" or want_depth == "1") else 3
+        # print(str(self.width) + "x" + str(self.height) + "x" + str(self.depth))
+        self.observation_space = VisualObservationSpace(self.width, self.height, self.depth)
         # print(etree.tostring(self.xml))
 
     @staticmethod
@@ -211,6 +218,24 @@ class Env:
             self._hello(self.client_socket)
         self._init_mission()
         self.done = False
+        return self._peek_obs()
+
+    def _peek_obs(self):
+        done = self.done
+        obs = None
+        while not done and (obs is None or len(obs) == 0):
+            peek_message = "<Peek/>"
+            comms.send_message(self.client_socket, peek_message.encode())
+            obs = comms.recv_message(self.client_socket)
+            reply = comms.recv_message(self.client_socket)
+            done = struct.unpack('!b', reply)
+            self.done = done == 1
+            if obs is None or len(obs) == 0:
+                time.sleep(0.1)
+            obs = np.frombuffer(obs, dtype=np.uint8)
+        if obs is None:
+            obs = np.zeros((self.width, self.height, self.depth), dtype=np.int8)
+        return obs
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit></Quit>".encode())
