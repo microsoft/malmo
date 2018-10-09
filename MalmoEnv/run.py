@@ -70,7 +70,7 @@ if __name__ == '__main__':
             print("obs: " + str(obs))
             # print("info" + info)
             if args.saveimagesteps > 0 and steps % args.saveimagesteps == 0:
-                w, h, d = env.observation_space.shape
+                h, w, d = env.observation_space.shape
                 img = Image.fromarray(obs.reshape(h, w, d))
                 img.save('image' + str(args.role) + '_' + str(steps) + '.png')
 

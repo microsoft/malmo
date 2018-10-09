@@ -63,7 +63,7 @@ class VisualObservationSpace(gym.spaces.Box):
     def __init__(self, width, height, depth):
         gym.spaces.Box.__init__(self,
                                 low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
-                                shape=(width, height, depth), dtype=np.int8)
+                                shape=(height, width, depth), dtype=np.int8)
 
 
 class Env:
