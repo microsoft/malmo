@@ -221,20 +221,20 @@ class Env:
         return self._peek_obs()
 
     def _peek_obs(self):
-        done = self.done
         obs = None
-        while not done and (obs is None or len(obs) == 0):
+        while not self.done and (obs is None or len(obs) == 0):
             peek_message = "<Peek/>"
             comms.send_message(self.client_socket, peek_message.encode())
             obs = comms.recv_message(self.client_socket)
             reply = comms.recv_message(self.client_socket)
-            done = struct.unpack('!b', reply)
+            done, = struct.unpack('!b', reply)
             self.done = done == 1
             if obs is None or len(obs) == 0:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
-        if obs is None:
-            obs = np.zeros((self.width, self.height, self.depth), dtype=np.int8)
+
+        if obs is None or len(obs) == 0:
+            obs = np.zeros((self.height, self.width, self.depth), dtype=np.int8)
         return obs
 
     def _quit_episode(self):
