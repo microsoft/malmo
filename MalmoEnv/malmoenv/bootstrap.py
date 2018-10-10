@@ -23,45 +23,51 @@ import pathlib
 from malmoenv.version import malmo_version
 
 
-def download(branch=None, build=True, installdir="MalmoPlatform", version=malmo_version):
+def download(branch=None, build=True, installdir="MalmoPlatform"):
     """Download Malmo from github and build (by default) the Minecraft Mod.
        Example usage: import malmoenv.bootstrap; malmoenv.bootstrap.download()
     Args:
         branch: optional branch to clone. TODO Default is release version.
         build: build the Mod unless build arg is given as False.
         installdir: the install dir name. Defaults to MalmoPlatform.
-        version: the malmo version. Testing only.
     Returns:
         The path for the Malmo Minecraft mod.
     """
-    gradlew = './gradlew'
-    if os.name == 'nt':
-        gradlew = 'gradlew.bat'
 
     if branch is None:
         branch = malmo_version
 
-    cwd = os.getcwd()
     subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/Microsoft/malmo.git", installdir])
+
+    return setup(build=build, installdir=installdir)
+
+
+def setup(build=True, installdir="MalmoPlatform"):
+
+    gradlew = './gradlew'
+    if os.name == 'nt':
+        gradlew = 'gradlew.bat'
+
+    cwd = os.getcwd()
     os.chdir(installdir)
     os.chdir("Minecraft")
     try:
         # Create the version properties file.
-        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(version))
+        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
         # Optionally do a test build.
         if build:
             subprocess.check_call([gradlew, "setupDecompWorkspace", "build", "testClasses",
-                                   "-x", "test", "--stacktrace", "-Pversion={}".format(version)])
+                                   "-x", "test", "--stacktrace", "-Pversion={}".format(malmo_version)])
         minecraft_dir = os.getcwd()
     finally:
         os.chdir(cwd)
     return minecraft_dir
 
 
-def launchMinecraft(port, installdir="MalmoPlatform", replaceable=False):
+def launch_minecraft(port, installdir="MalmoPlatform", replaceable=False):
     """Launch Minecraft listening for malmoenv connections.
     Args:
-        port - the TCP port to listen on.
+        port:  the TCP port to listen on.
         installdir: the install dir name. Defaults to MalmoPlatform.
         Must be same as given (or defaulted) in download call if used.
         replaceable: whether or not to automatically restart Minecraft (default is false).
@@ -70,12 +76,12 @@ def launchMinecraft(port, installdir="MalmoPlatform", replaceable=False):
     if os.name == 'nt':
         launch_script = 'launchClient.bat'
     cwd = os.getcwd()
+    os.chdir(installdir)
+    os.chdir("Minecraft")
     try:
-        os.chdir(installdir)
-        os.chdir("Minecraft")
-        cmd = [launch_script, '-port', str(port),'-env']
+        cmd = [launch_script, '-port', str(port), '-env']
         if replaceable:
             cmd.append('-replaceable')
-    finally:
         subprocess.check_call(cmd)
+    finally:
         os.chdir(cwd)
