@@ -359,11 +359,11 @@ class Env:
                     success += 1
                     break
                 except Exception as e:
-                    _logRetry(e)
+                    self._log_retry(e)
                     time.sleep(10)
 
         if success != 2:
-            raise IOError("Failed to contact service " + ("head" if success == 0 else ""))
+            raise IOError("Failed to contact service" + (" head" if success == 0 else ""))
 
     def _exit_resync(self):
         print("********** force exit & resync **********")
@@ -373,7 +373,7 @@ class Env:
             try:
                 self.exit()
             except Exception as e:
-                _logRetry(e)
+                self._log_retry(e)
             print("Pause for exit(s) ...")
             time.sleep(60)
         except (socket.error, ConnectionError):
@@ -381,7 +381,7 @@ class Env:
         self.resync()
         print("resync'ed")
 
-    def _log_retry(self):
+    def _log_retry(self, exn):
         pass
 
     @retry
