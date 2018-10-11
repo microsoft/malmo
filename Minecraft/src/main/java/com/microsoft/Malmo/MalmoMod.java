@@ -68,6 +68,7 @@ import com.microsoft.Malmo.MissionHandlers.SimpleCraftCommandsImplementation;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Server.MalmoModServer;
 import com.microsoft.Malmo.Utils.AddressHelper;
+import com.microsoft.Malmo.Utils.ScoreHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
@@ -79,6 +80,7 @@ public class MalmoMod
     public static final String SOCKET_CONFIGS = "malmoports";
     public static final String DIAGNOSTIC_CONFIGS = "malmodiags";
     public static final String AUTHENTICATION_CONFIGS = "malmologins";
+    public static final String SCORING_CONFIGS = "malmoscore";
     public static final String AGENT_DEAD_QUIT_CODE = "MALMO_AGENT_DIED";
     public static final String AGENT_UNRESPONSIVE_CODE = "MALMO_AGENT_NOT_RESPONDING";
     public static final String VIDEO_UNRESPONSIVE_CODE = "MALMO_VIDEO_NOT_RESPONDING";
@@ -119,6 +121,7 @@ public class MalmoMod
         this.permanentConfig.load();
 
         AddressHelper.update(this.sessionConfig);
+        ScoreHelper.update(this.sessionConfig);
         ScreenHelper.update(this.permanentConfig);
         TCPUtils.update(this.permanentConfig);
 
