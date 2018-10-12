@@ -2033,7 +2033,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPReward");
 
                     if (AddressHelper.getMissionControlPort() == 0) {
-                        // TODO MalmoEnvServer - reward
+                        // MalmoEnvServer - reward
                         if (envServer != null) {
                             envServer.addRewards(reward.getRewardTotal());
                         }
