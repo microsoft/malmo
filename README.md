@@ -7,24 +7,31 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
     
 ## Getting Started ##
 
-It is now possible to use ```pip3 install malmo``` to install Malmo as a python package: [Pip install for Malmo](https://github.com/Microsoft/malmo/blob/master/scripts/python-wheel/README.md). Once installed, the malmo Python module can be used to download source and examples and start up Minecraft with the Malmo game mod. Alternatively, a pre-built version of Malmo can be installed as follows:
+प्रोजेक्ट माल्मो मार्टक्राफ्ट के शीर्ष पर बने आर्टिफिशियल इंटेलिजेंस प्रयोग और शोध के लिए एक मंच है। हमारा उद्देश्य इस अनूठे माहौल द्वारा प्रस्तुत चुनौतीपूर्ण नई समस्याओं में अनुसंधान की एक नई पीढ़ी को प्रेरित करना है।
 
-1. [Download the latest *pre-built* version, for Windows, Linux or MacOSX.](https://github.com/Microsoft/malmo/releases)   
-      NOTE: This is _not_ the same as downloading a zip of the source from Github. _Doing this **will not work** unless you are planning to build the source code yourself (which is a lengthier process). If you get errors along the lines of "`ImportError: No module named MalmoPython`" it will probably be because you have made this mistake._
+[! [Https://gitter.im/Microsoft/malmo] पर चैट में शामिल हों (https://badges.gitter.im/Microsoft/malmo.svg) ](https://gitter.im/Microsoft/malmo? utm_source = बैज और utm_medium = बैज और utm_campaign = pr-badge और utm_content = बैज) [! [स्थिति बनाएं] (https://travis-ci.org/Microsoft/malmo.svg?branch=master)] (https://travis-ci.org / माइक्रोसॉफ्ट / माल्मो) [! [लाइसेंस] (https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)] (https://github.com/Microsoft/malmo/blob /master/LICENSE.txt)
+----
+    
+## शुरू करना ##
 
-2. Install the dependencies for your OS: [Windows](doc/install_windows.md), [Linux](doc/install_linux.md), [MacOSX](doc/install_macosx.md).
+माल्मो को पाइथन पैकेज के रूप में स्थापित करने के लिए अब `` `pip3 इंस्टॉल माल्मो``` का उपयोग करना संभव है: [माल्मो के लिए पिप इंस्टॉल करें] (https://github.com/Microsoft/malmo/blob/master/scripts/python- पहिया / README.md)। एक बार इंस्टॉल हो जाने पर, माल्मो पायथन मॉड्यूल का उपयोग स्रोत और उदाहरण डाउनलोड करने और माल्मो गेम मोड के साथ Minecraft शुरू करने के लिए किया जा सकता है। वैकल्पिक रूप से, माल्मो का पूर्व-निर्मित संस्करण निम्नानुसार स्थापित किया जा सकता है:
 
-3. Launch Minecraft with our Mod installed. Instructions below.
+1. [विंडोज, लिनक्स या मैकोज़क्स के लिए नवीनतम * प्री-बिल्ट * संस्करण डाउनलोड करें।] (Https://github.com/Microsoft/malmo/releases)
+      नोट: यह _not_ है जो गितूब से स्रोत के ज़िप को डाउनलोड करने जैसा ही है। यह ** ** कार्य नहीं करेगा ** जब तक आप स्रोत कोड स्वयं बनाने की योजना बना रहे हैं (जो एक लंबी प्रक्रिया है)। यदि आपको "आयात त्रुटि: माल्मोपीथन नामक कोई मॉड्यूल नहीं है" के रूप में त्रुटियां मिलती हैं, तो शायद यह इसलिए होगा क्योंकि आपने यह गलती की है ._
 
-4. Launch one of our sample agents, as Python, C#, C++ or Java. Instructions below.
+2. अपने ओएस के लिए निर्भरता स्थापित करें: [विंडोज़] (डॉक्टर / install_windows.md), [लिनक्स] (डॉक्टर / install_linux.md), [मैकोज़क्स] (डॉक्टर / install_macosx.md)।
 
-5. Follow the [Tutorial](https://github.com/Microsoft/malmo/blob/master/Malmo/samples/Python_examples/Tutorial.pdf) 
+3. हमारे मॉड स्थापित के साथ Minecraft लॉन्च करें। नीचे निर्देश।
 
-6. Explore the [Documentation](http://microsoft.github.io/malmo/). This is also available in the readme.html in the release zip.
+4. पाइथन, सी #, सी ++ या जावा के रूप में हमारे नमूना एजेंटों में से एक लॉन्च करें। नीचे निर्देश।
 
-7. Read the [Blog](http://microsoft.github.io/malmo/blog) for more information.
+5. [ट्यूटोरियल] का पालन करें (https://github.com/Microsoft/malmo/blob/master/Malmo/samples/Python_examples/Tutorial.pdf)
 
-If you want to build from source then see the build instructions for your OS: [Windows](doc/build_windows.md), [Linux](doc/build_linux.md), [MacOSX](doc/build_macosx.md).
+6. [दस्तावेज़ीकरण] का अन्वेषण करें (http://microsoft.github.io/malmo/)। यह रिलीज ज़िप में readme.html में भी उपलब्ध है।
+
+7. अधिक जानकारी के लिए [ब्लॉग] (http://microsoft.github.io/malmo/blog) पढ़ें।
+
+यदि आप स्रोत से निर्माण करना चाहते हैं तो अपने ओएस के लिए निर्माण निर्देश देखें: [विंडोज़] (डॉक्टर / build_windows.md), [लिनक्स] (डॉक्टर / build_linux.md), [मैकोज़क्स] (डॉक्टर / build_macosx.md)।
 
 ----
 
