@@ -86,7 +86,7 @@ class Env:
         self.turn_key = ""
         self.exp_uid = ""
         self.done = True
-        self.step_options = 0
+        self.step_options = None
         self.width = 0
         self.height = 0
         self.depth = 0
@@ -105,7 +105,7 @@ class Env:
             exp_uid - the experiment's unique identifier. Generated if not given
             episode - the "reset" start count for experiment re-starts. Defaults to 0.
             action_filter - an optional list of valid actions.
-            step_options - encodes withTurnKey and withInfo in step messages. Defaults to 0 (both included).
+            step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included.
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
@@ -143,16 +143,19 @@ class Env:
         else:
             self.port2 = self.port + self.role
         self.agent_count = len(self.xml.findall(self.ns + 'AgentSection'))
-        if self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None:
-            print("turn based")
-            self.turn_key = 'xxakwasherexx'
+        turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
+        if turn_based:
+            self.turn_key = 'AKWasHere'
+        else:
+            self.turn_key = ""
+        if step_options is None:
+            self.step_options = 0 if not turn_based else 2
+        else:
+            self.step_options = step_options
+        self.done = True
         # print("agent count " + str(self.agent_count))
         self.resync_period = resync
-
         self.resets = episode
-        self.turn_key = ""
-        self.step_options = step_options
-        self.done = True
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
