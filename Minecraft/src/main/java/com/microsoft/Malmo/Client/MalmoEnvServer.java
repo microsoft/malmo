@@ -1,3 +1,22 @@
+// --------------------------------------------------------------------------------------------------
+//  Copyright (c) 2016 Microsoft Corporation
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+//  associated documentation files (the "Software"), to deal in the Software without restriction,
+//  including without limitation the rights to use, copy, modify, merge, publish, distribute,
+//  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all copies or
+//  substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+//  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+//  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// --------------------------------------------------------------------------------------------------
+
 package com.microsoft.Malmo.Client;
 
 import com.microsoft.Malmo.MalmoMod;
@@ -38,17 +57,20 @@ public class MalmoEnvServer implements IWantToQuit {
         int reset = 0;
         boolean quit = false;
 
-        // Env state:
+        // OpenAI gym state:
         boolean done = false;
         double reward = 0.0;
         byte[] obs = null;
-        String turnKey = "";
         String info = "";
 
+        // Actions (with optional turn key)
+        String turnKey = "";
         LinkedList<String> commands = new LinkedList<String>();
     }
 
-    private static boolean envPolicy = false;
+    private static boolean envPolicy = false; // Are we configured by config policy?
+
+    // Synchronize on EnvState
 
     private Lock lock = new ReentrantLock();
     private Condition cond = lock.newCondition();
@@ -61,6 +83,8 @@ public class MalmoEnvServer implements IWantToQuit {
     static final int BYTES_INT = 4;
     static final int BYTES_DOUBLE = 8;
     private static final Charset utf8 = Charset.forName("UTF-8");
+
+    // Service uses a single per-environment client connection - initiated by the remote environment.
 
     private int port;
     private TCPInputPoller missionPoller; // Used for command parsing and not actual communication.
@@ -78,8 +102,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     /** Initialize malmo env configuration. For now either on or "legacy" AgentHost protocol.*/
-    static public void update(Configuration configs)
-    {
+    static public void update(Configuration configs) {
         envPolicy = configs.get(MalmoMod.ENV_CONFIGS, "env", "false").getBoolean();
     }
 
@@ -92,6 +115,7 @@ public class MalmoEnvServer implements IWantToQuit {
      * @throws IOException
      */
     public void serve() throws IOException {
+
         ServerSocket serverSocket = new ServerSocket(port);
         while (true) {
             try {
@@ -158,7 +182,7 @@ public class MalmoEnvServer implements IWantToQuit {
                                     dout.write(data, 0, hdr);
                                     dout.flush();
                                 } else {
-                                    throw new IOException("Unknown command");
+                                    throw new IOException("Unknown env service command");
                                 }
                             }
                         } catch (IOException ioe) {
@@ -185,7 +209,7 @@ public class MalmoEnvServer implements IWantToQuit {
         DataInputStream din = new DataInputStream(socket.getInputStream());
         int hdr = din.readInt();
         if (hdr <= 0 || hdr > hello.length() + 8) // Version number may be somewhat longer in future.
-            throw new IOException("MalmoEnv hello header length is invalid");
+            throw new IOException("Invalid MalmoEnv hello header length");
         byte[] data = new byte[hdr];
         din.readFully(data);
         if (!new String(data).startsWith(hello + version))
@@ -325,10 +349,10 @@ public class MalmoEnvServer implements IWantToQuit {
 
     private static final int stepTagLength = "<Step_>".length(); // Step with option code.
 
-    // Handler for <Step_> messages. Single digit option code _ specifies if turnkey and info are included in message.
+    // Handler for <Step_> messages. Single digit option code after _ specifies if turnkey and info are included in message.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
-        String actions = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
 
+        String actions = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
         int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
         boolean withTurnkey = options < 2;
         boolean withInfo = options == 0 || options == 2;
@@ -356,11 +380,12 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
 
-            obs = getObservation();
+            done = envState.done;
+
+            obs = getObservation(done);
 
             // If done or we have new observation and it's our turn then submit command and pick up rewards.
 
-            done = envState.done;
             currentTurnKey = envState.turnKey.getBytes();
             boolean outOfTurn = true;
             nextTurnKey = currentTurnKey;
@@ -409,7 +434,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 if (withInfo) {
                     info = envState.info;
                     envState.info = "";
-                    if (info.isEmpty()) {
+                    if (info.isEmpty() && !done) {
                         try {
                             cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
                         } catch (InterruptedException ie) {
@@ -458,7 +483,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
         lock.lock();
         try {
-            obs = getObservation();
+            obs = getObservation(false);
             done = envState.done;
         } finally {
             lock.unlock();
@@ -473,10 +498,10 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.flush();
     }
 
-    // Get the current observation. If none wait for a short time.
-    private byte[] getObservation() {
+    // Get the current observation. If none and not done wait for a short time.
+    private byte[] getObservation(boolean done) {
         byte[] obs = envState.obs;
-        if (obs == null) {
+        if (obs == null && !done) {
             try {
                 cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
             } catch (InterruptedException ie) {
@@ -618,7 +643,7 @@ public class MalmoEnvServer implements IWantToQuit {
         }
     }
 
-    // Malmo client methods:
+    // Malmo client state machine interface methods:
 
     public String getCommand() {
         lock.lock();
