@@ -164,24 +164,25 @@ class Env:
         self.resets = episode
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-    SchemaVersion="" PlatformVersion="0.36.0">
-   <ExperimentUID></ExperimentUID>
-   <ClientRole>0</ClientRole>
-   <ClientAgentConnection>
-      <ClientIPAddress>127.0.0.1</ClientIPAddress>
-      <ClientMissionControlPort>0</ClientMissionControlPort>
-      <ClientCommandsPort>0</ClientCommandsPort>
-      <AgentIPAddress>127.0.0.1</AgentIPAddress>
-      <AgentMissionControlPort>0</AgentMissionControlPort>
-      <AgentVideoPort>0</AgentVideoPort>
-      <AgentDepthPort>0</AgentDepthPort>
-      <AgentLuminancePort>0</AgentLuminancePort>
-      <AgentObservationsPort>0</AgentObservationsPort>
-      <AgentRewardsPort>0</AgentRewardsPort>
-      <AgentColourMapPort>0</AgentColourMapPort>
-   </ClientAgentConnection>
-</MissionInit>""")
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+                                SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
+                             """>
+                                <ExperimentUID></ExperimentUID>
+                                <ClientRole>0</ClientRole>
+                                <ClientAgentConnection>
+                                    <ClientIPAddress>127.0.0.1</ClientIPAddress>
+                                    <ClientMissionControlPort>0</ClientMissionControlPort>
+                                    <ClientCommandsPort>0</ClientCommandsPort>
+                                    <AgentIPAddress>127.0.0.1</AgentIPAddress>
+                                    <AgentMissionControlPort>0</AgentMissionControlPort>
+                                    <AgentVideoPort>0</AgentVideoPort>
+                                    <AgentDepthPort>0</AgentDepthPort>
+                                    <AgentLuminancePort>0</AgentLuminancePort>
+                                    <AgentObservationsPort>0</AgentObservationsPort>
+                                    <AgentRewardsPort>0</AgentRewardsPort>
+                                    <AgentColourMapPort>0</AgentColourMapPort>
+                                    </ClientAgentConnection>
+                                </MissionInit>""")
         e.insert(0, self.xml)
         self.xml = e
         self.xml.find(self.ns + 'ClientRole').text = str(self.role)

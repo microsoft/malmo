@@ -1,1 +1,1 @@
-malmo_version="0.36.0"
+malmo_version="0.37.0"
