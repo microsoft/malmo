@@ -1,0 +1,242 @@
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SchemaVersion="">
+      <About>
+         <Summary>Catch the Pig?</Summary>
+      </About>
+      <ModSettings>
+         <MsPerTick>50</MsPerTick>
+      </ModSettings>
+      <ServerSection>
+         <ServerInitialConditions>
+            <Time>
+               <StartTime>6000</StartTime>
+               <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+         </ServerInitialConditions>
+         <ServerHandlers>
+            <FlatWorldGenerator generatorString="3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village" forceReset="true" />
+            <DrawingDecorator>
+               <!-- Tricks to clean the map before drawing (avoid entity duplication on the map) -->
+               <!-- coordinates for cuboid are inclusive -->
+               <DrawCuboid type="air" x1="-20" x2="20" y1="4" y2="40" z1="-24" z2="24" />
+               <DrawBlock type="fence" x="0" y="4" z="2" />
+               <DrawBlock type="water" x="0" y="3" z="2" />
+               <DrawBlock type="fence" x="0" y="4" z="3" />
+               <DrawBlock type="water" x="0" y="3" z="3" />
+               <DrawBlock type="fence" x="0" y="4" z="4" />
+               <DrawBlock type="water" x="0" y="3" z="4" />
+               <DrawBlock type="fence" x="1" y="4" z="1" />
+               <DrawBlock type="water" x="1" y="3" z="1" />
+               <DrawBlock type="fence" x="1" y="4" z="2" />
+               <DrawBlock type="water" x="1" y="3" z="2" />
+               <DrawBlock type="bone_block" x="1" y="3" z="3" />
+               <DrawBlock type="fence" x="1" y="4" z="4" />
+               <DrawBlock type="water" x="1" y="3" z="4" />
+               <DrawBlock type="fence" x="1" y="4" z="5" />
+               <DrawBlock type="water" x="1" y="3" z="5" />
+               <DrawBlock type="fence" x="1" y="4" z="6" />
+               <DrawBlock type="water" x="1" y="3" z="6" />
+               <DrawBlock type="fence" x="1" y="4" z="7" />
+               <DrawBlock type="water" x="1" y="3" z="7" />
+               <DrawBlock type="fence" x="1" y="4" z="8" />
+               <DrawBlock type="water" x="1" y="3" z="8" />
+               <DrawBlock type="fence" x="1" y="4" z="9" />
+               <DrawBlock type="water" x="1" y="3" z="9" />
+               <DrawBlock type="fence" x="1" y="4" z="10" />
+               <DrawBlock type="water" x="1" y="3" z="10" />
+               <DrawBlock type="fence" x="2" y="4" z="1" />
+               <DrawBlock type="water" x="2" y="3" z="1" />
+               <DrawBlock type="fence" x="2" y="4" z="4" />
+               <DrawBlock type="water" x="2" y="3" z="4" />
+               <DrawBlock type="fence" x="2" y="4" z="6" />
+               <DrawBlock type="water" x="2" y="3" z="6" />
+               <DrawBlock type="fence" x="2" y="4" z="10" />
+               <DrawBlock type="water" x="2" y="3" z="10" />
+               <DrawBlock type="fence" x="3" y="4" z="1" />
+               <DrawBlock type="water" x="3" y="3" z="1" />
+               <DrawBlock type="fence" x="3" y="4" z="2" />
+               <DrawBlock type="water" x="3" y="3" z="2" />
+               <DrawBlock type="fence" x="3" y="4" z="10" />
+               <DrawBlock type="water" x="3" y="3" z="10" />
+               <DrawBlock type="fence" x="4" y="4" z="0" />
+               <DrawBlock type="water" x="4" y="3" z="0" />
+               <DrawBlock type="fence" x="4" y="4" z="1" />
+               <DrawBlock type="water" x="4" y="3" z="1" />
+               <DrawBlock type="fence" x="4" y="4" z="8" />
+               <DrawBlock type="water" x="4" y="3" z="8" />
+               <DrawBlock type="fence" x="4" y="4" z="10" />
+               <DrawBlock type="water" x="4" y="3" z="10" />
+               <DrawBlock type="fence" x="5" y="4" z="0" />
+               <DrawBlock type="water" x="5" y="3" z="0" />
+               <DrawBlock type="bone_block" x="5" y="3" z="1" />
+               <DrawBlock type="fence" x="5" y="4" z="10" />
+               <DrawBlock type="water" x="5" y="3" z="10" />
+               <DrawBlock type="fence" x="6" y="4" z="0" />
+               <DrawBlock type="water" x="6" y="3" z="0" />
+               <DrawBlock type="fence" x="6" y="4" z="1" />
+               <DrawBlock type="water" x="6" y="3" z="1" />
+               <DrawBlock type="fence" x="6" y="4" z="5" />
+               <DrawBlock type="water" x="6" y="3" z="5" />
+               <DrawBlock type="fence" x="6" y="4" z="7" />
+               <DrawBlock type="water" x="6" y="3" z="7" />
+               <DrawBlock type="fence" x="6" y="4" z="10" />
+               <DrawBlock type="water" x="6" y="3" z="10" />
+               <DrawBlock type="fence" x="7" y="4" z="1" />
+               <DrawBlock type="water" x="7" y="3" z="1" />
+               <DrawBlock type="fence" x="7" y="4" z="10" />
+               <DrawBlock type="water" x="7" y="3" z="10" />
+               <DrawBlock type="fence" x="8" y="4" z="1" />
+               <DrawBlock type="water" x="8" y="3" z="1" />
+               <DrawBlock type="fence" x="8" y="4" z="2" />
+               <DrawBlock type="water" x="8" y="3" z="2" />
+               <DrawBlock type="fence" x="8" y="4" z="3" />
+               <DrawBlock type="water" x="8" y="3" z="3" />
+               <DrawBlock type="fence" x="8" y="4" z="4" />
+               <DrawBlock type="water" x="8" y="3" z="4" />
+               <DrawBlock type="fence" x="8" y="4" z="5" />
+               <DrawBlock type="water" x="8" y="3" z="5" />
+               <DrawBlock type="fence" x="8" y="4" z="6" />
+               <DrawBlock type="water" x="8" y="3" z="6" />
+               <DrawBlock type="fence" x="8" y="4" z="7" />
+               <DrawBlock type="water" x="8" y="3" z="7" />
+               <DrawBlock type="fence" x="8" y="4" z="8" />
+               <DrawBlock type="water" x="8" y="3" z="8" />
+               <DrawBlock type="fence" x="8" y="4" z="9" />
+               <DrawBlock type="water" x="8" y="3" z="9" />
+               <DrawBlock type="fence" x="8" y="4" z="10" />
+               <DrawBlock type="water" x="8" y="3" z="10" />
+               <!-- Mobs -->
+               <DrawEntity type="Chicken" x="2.5" y="4" z="8.5" />
+            </DrawingDecorator>
+            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="1000000" />
+            <ServerQuitWhenAnyAgentFinishes />
+         </ServerHandlers>
+      </ServerSection>
+      <AgentSection mode="Survival">
+         <Name>Agent0</Name>
+         <AgentStart>
+            <Placement pitch="30" x="5.5" y="4" yaw="90" z="5.5" />
+            <Inventory>
+               <InventoryBlock quantity="1" slot="39" type="diamond_helmet" />
+            </Inventory>
+         </AgentStart>
+         <AgentHandlers>
+            <TurnBasedCommands requestedPosition="1">
+               <DiscreteMovementCommands>
+                  <ModifierList type="deny-list">
+                     <command>attack</command>
+                  </ModifierList>
+               </DiscreteMovementCommands>
+            </TurnBasedCommands>
+            <ObservationFromNearbyEntities>
+               <Range name="entities" xrange="8" yrange="2" zrange="6" />
+            </ObservationFromNearbyEntities>
+            <ObservationFromGrid>
+               <Grid absoluteCoords="true" name="board">
+                  <min x="0" y="3" z="0" />
+                  <max x="10" y="3" z="10" />
+               </Grid>
+            </ObservationFromGrid>
+            <ObservationFromFullStats />
+            <RewardForSendingCommand reward="-0.02" />
+            <RewardForTouchingBlockType>
+               <Block behaviour="onceOnly" reward="0.2" type="bone_block" />
+            </RewardForTouchingBlockType>
+            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50" />
+            <AgentQuitFromTouchingBlockType>
+               <Block description="Agent0_defaulted" type="bone_block" />
+            </AgentQuitFromTouchingBlockType>
+            <VideoProducer want_depth="false">
+               <Width>800</Width>
+               <Height>600</Height>
+            </VideoProducer>
+         </AgentHandlers>
+      </AgentSection>
+      <AgentSection mode="Survival">
+         <Name>Agent1</Name>
+         <AgentStart>
+            <Placement pitch="30" x="6.5" y="4" yaw="0" z="8.5" />
+            <Inventory>
+               <InventoryBlock quantity="1" slot="39" type="iron_helmet" />
+            </Inventory>
+         </AgentStart>
+         <AgentHandlers>
+            <TurnBasedCommands requestedPosition="2">
+               <DiscreteMovementCommands>
+                  <ModifierList type="deny-list">
+                     <command>attack</command>
+                  </ModifierList>
+               </DiscreteMovementCommands>
+            </TurnBasedCommands>
+            <ObservationFromNearbyEntities>
+               <Range name="entities" xrange="8" yrange="2" zrange="6" />
+            </ObservationFromNearbyEntities>
+            <ObservationFromGrid>
+               <Grid absoluteCoords="true" name="board">
+                  <min x="0" y="3" z="0" />
+                  <max x="10" y="3" z="10" />
+               </Grid>
+            </ObservationFromGrid>
+            <ObservationFromFullStats />
+            <RewardForSendingCommand reward="-0.02" />
+            <RewardForTouchingBlockType>
+               <Block behaviour="onceOnly" reward="0.2" type="bone_block" />
+            </RewardForTouchingBlockType>
+            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50" />
+            <AgentQuitFromTouchingBlockType>
+               <Block description="Agent1_defaulted" type="bone_block" />
+            </AgentQuitFromTouchingBlockType>
+            <AgentQuitFromCatchingMob>
+               <Mob description="caught_the_Chicken" global="true" type="Chicken" />
+            </AgentQuitFromCatchingMob>
+            <VideoProducer want_depth="false">
+               <Width>640</Width>
+               <Height>480</Height>
+            </VideoProducer>
+         </AgentHandlers>
+      </AgentSection>
+      <AgentSection mode="Survival">
+         <Name>Agent2</Name>
+         <AgentStart>
+            <Placement pitch="30" x="3.5" y="4" yaw="0" z="6.5" />
+            <Inventory>
+               <InventoryBlock quantity="1" slot="39" type="leather_helmet" />
+            </Inventory>
+         </AgentStart>
+         <AgentHandlers>
+            <TurnBasedCommands requestedPosition="2">
+               <DiscreteMovementCommands>
+                  <ModifierList type="deny-list">
+                     <command>attack</command>
+                  </ModifierList>
+               </DiscreteMovementCommands>
+            </TurnBasedCommands>
+            <ObservationFromNearbyEntities>
+               <Range name="entities" xrange="8" yrange="2" zrange="6" />
+            </ObservationFromNearbyEntities>
+            <ObservationFromGrid>
+               <Grid absoluteCoords="true" name="board">
+                  <min x="0" y="3" z="0" />
+                  <max x="10" y="3" z="10" />
+               </Grid>
+            </ObservationFromGrid>
+            <ObservationFromFullStats />
+            <RewardForSendingCommand reward="-0.02" />
+            <RewardForTouchingBlockType>
+               <Block behaviour="onceOnly" reward="0.2" type="bone_block" />
+            </RewardForTouchingBlockType>
+            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50" />
+            <AgentQuitFromTouchingBlockType>
+               <Block description="Agent1_defaulted" type="bone_block" />
+            </AgentQuitFromTouchingBlockType>
+            <AgentQuitFromCatchingMob>
+               <Mob description="caught_the_Chicken" global="true" type="Chicken" />
+            </AgentQuitFromCatchingMob>
+            <VideoProducer want_depth="false">
+               <Width>640</Width>
+               <Height>480</Height>
+            </VideoProducer>
+         </AgentHandlers>
+      </AgentSection>
+</Mission>

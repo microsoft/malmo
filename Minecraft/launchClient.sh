@@ -6,6 +6,7 @@ cd "$(dirname "$0")"
 replaceable=0
 port=0
 scorepolicy=0
+env=0
 
 while [ $# -gt 0 ]
 do
@@ -13,8 +14,9 @@ do
         -replaceable) replaceable=1;;
         -port) port="$2"; shift;;
         -scorepolicy) scorepolicy="$2"; shift;;
+        -env) env=1;;
         *) echo >&2 \
-            "usage: $0 [-replaceable] [-port 10123]"
+            "usage: $0 [-replaceable] [-port 10000] [-scorepolicy 0123] [-env]"
             exit 1;;
     esac
     shift
@@ -53,6 +55,13 @@ malmoscore {
 if [ $replaceable -gt 0 ]; then
     echo "runtype {
   B:replaceable=true
+}
+" >> run/config/malmomodCLIENT.cfg
+fi
+
+if [ $env -gt 0 ]; then
+    echo "envtype {
+  B:env=true
 }
 " >> run/config/malmomodCLIENT.cfg
 fi

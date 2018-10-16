@@ -140,6 +140,19 @@ public class MultidimensionalReward {
         }
         return rewardString;
     }
+
+    /**
+     * Get the total rewards from all dimensions, each of which may be positive or negative.
+     * @return The total rewards.
+     */
+    public double getRewardTotal() {
+        double rewards = 0.0;
+        for (Map.Entry<Integer, Float> entry : this.map.entrySet()) {
+            rewards += entry.getValue();
+        }
+        return rewards;
+    }
+
     /**
      * Resets the storage to empty.
      */
