@@ -32,10 +32,10 @@ from malmoenv.version import malmo_version
 
 
 class StringActionSpace(gym.spaces.Discrete):
+    """Malmo actions as their strings."""
     def __init__(self):
         pass
 
-    """Malmo actions as their strings."""
     def __getitem__(self, action):
         return action
 
@@ -65,6 +65,9 @@ class VisualObservationSpace(gym.spaces.Box):
                                 low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
                                 shape=(height, width, depth), dtype=np.int8)
 
+class EnvException(Exception):
+    def __init__(self, message):
+        super(EnvException, self).__init__(message)
 
 class Env:
     """Malmo "Env" open ai gym compatible environment API"""
@@ -78,10 +81,10 @@ class Env:
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
-        self.server = 'localhost'  # The game server
-        self.port = 9000  # The game port
-        self.server2 = self.server  # optional server for agent
-        self.port2 = self.port + self.role  # optional port for agent
+        self.server = 'localhost'  # The mission server
+        self.port = 9000  # The mission server port
+        self.server2 = self.server  # optional server for agent (role <> 0)
+        self.port2 = self.port + self.role  # optional server port for agent
         self.resync_period = 0
         self.turn_key = ""
         self.exp_uid = ""
@@ -102,15 +105,18 @@ class Env:
             server2 - the MalmoEnv service address for given role if not 0.
             port2 - the MalmoEnv service port for given role if not 0.
             role - the agent role (0..N-1) for missions with N agents. Defaults to 0.
-            exp_uid - the experiment's unique identifier. Generated if not given
+            exp_uid - the experiment's unique identifier. Generated if not given.
             episode - the "reset" start count for experiment re-starts. Defaults to 0.
-            action_filter - an optional list of valid actions.
-            step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included.
+            action_filter - an optional list of valid actions to filter by. Defaults to simple commands.
+            step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included,
+            turn if required.
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
         if not xml.startswith('<Mission'):
             i = xml.index("<Mission")
+            if i == -1:
+                raise EnvException("Mission xml must contain <Mission> tag.")
             xml = xml[i:]
 
         self.xml = etree.fromstring(xml)
@@ -119,13 +125,12 @@ class Env:
             self.exp_uid = str(uuid.uuid4())
         else:
             self.exp_uid = exp_uid
-        # print("role " + str(self.role))
 
         command_parser = CommandParser(action_filter)
         commands = command_parser.get_commands_from_xml(self.xml, self.role)
         actions = command_parser.get_actions(commands)
-        if self.role == 0:
-            print(actions)
+        # print("role " + str(self.role) + " actions " + str(actions)
+
         if action_space:
             self.action_space = action_space
         else:
@@ -142,6 +147,7 @@ class Env:
             self.port2 = port2
         else:
             self.port2 = self.port + self.role
+
         self.agent_count = len(self.xml.findall(self.ns + 'AgentSection'))
         turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
         if turn_based:
@@ -153,7 +159,7 @@ class Env:
         else:
             self.step_options = step_options
         self.done = True
-        # print("agent count " + str(self.agent_count))
+        # print("agent count " + str(self.agent_count) + " turn based  " + turn_based)
         self.resync_period = resync
         self.resets = episode
 
@@ -186,6 +192,7 @@ class Env:
                                       'port': str(0)
                                       })
             self.xml.insert(2, e)
+
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
         video_producer = video_producers[self.role]
@@ -216,7 +223,7 @@ class Env:
             self._find_server()
         if not self.client_socket:
             self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("connect " + self.server2 + ":" + str(self.port2))
+            # print("connect " + self.server2 + ":" + str(self.port2))
             self.client_socket.connect((self.server2, self.port2))
             self._hello(self.client_socket)
         self._init_mission()
@@ -241,7 +248,7 @@ class Env:
         return obs
 
     def _quit_episode(self):
-        comms.send_message(self.client_socket, "<Quit></Quit>".encode())
+        comms.send_message(self.client_socket, "<Quit/>".encode())
         reply = comms.recv_message(self.client_socket)
         ok, = struct.unpack('!I', reply)
         return ok != 0
@@ -283,7 +290,7 @@ class Env:
             if turn_key != "":
                 if sent != 0:
                     turn = False
-                # Were done turns if: turn = self.turn_key == turn_key
+                # Done turns if: turn = self.turn_key == turn_key
                 self.turn_key = turn_key
             else:
                 turn = False
@@ -296,7 +303,7 @@ class Env:
 
     def close(self):
         """gym api close"""
-        # Purge last token from head node.
+        # Purge last token from head node with <Close> message.
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))
         self._hello(sock)
@@ -332,14 +339,14 @@ class Env:
             sock.connect((self.server2, self.port2))
         self._hello(sock)
 
-        comms.send_message(sock, ("<Status>" + "</Status>").encode())
+        comms.send_message(sock, "<Status/>".encode())
         status = comms.recv_message(sock).decode('utf-8')
         sock.close()
         return status
 
     def exit(self):
         """Use carefully to cause the service to exit (and hopefully restart).
-            Likely to throw communication errors so use carefully.
+        Likely to throw communication errors so wrap in exception handler.
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server2, self.port2))
@@ -366,7 +373,7 @@ class Env:
                     time.sleep(10)
 
         if success != 2:
-            raise IOError("Failed to contact service" + (" head" if success == 0 else ""))
+            raise EnvException("Failed to contact service" + (" head" if success == 0 else ""))
 
     def _exit_resync(self):
         print("********** force exit & resync **********")
@@ -385,7 +392,7 @@ class Env:
         print("resync'ed")
 
     def _log_retry(self, exn):
-        pass
+        pass  # Keeping pylint happy
 
     @retry
     def _find_server(self):
@@ -401,7 +408,7 @@ class Env:
             if port == 0:
                 time.sleep(1)
         sock.close()
-        # print("found port " + str(port))
+        # print("Found mission integrated server port " + str(port))
         self.integratedServerPort = port
         e = self.xml.find(self.ns + 'MinecraftServerConnection')
         if e is not None:
