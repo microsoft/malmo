@@ -176,6 +176,43 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="BiomeGenerator">
+      <xs:annotation>
+          <xs:documentation>
+              Generates a survival world with the specified biome.
+          </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+          <xs:attribute name="biome" use="optional" type="xs:int">
+              <xs:annotation>
+                  <xs:documentation>
+                      The biome type for the world. Each chunk will be loaded with the biome specified.
+
+                      If left blank, the world will be a normal survival world.
+
+                      Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+              <xs:annotation>
+                  <xs:documentation>
+                      Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
+                      Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+              <xs:annotation>
+                  <xs:documentation>
+                      Set this to true to force the world data files to be deleted after the mission is done.
+                      Enabling this setting prevents the disk being filled with old worlds.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:attribute>
+      </xs:complexType>
+  </xs:element>
+
   <!--============================================= WORLD DECORATORS ==============================================-->
 
   <xs:simpleType name="BlockList">
@@ -917,6 +954,111 @@
         </xs:element>
       </xs:all>
     </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="RandomPlacement">
+      <xs:all>
+          <xs:annotation>
+              <xs:documentation>
+                  Helps specify where random blocks should be placed in the world.
+              </xs:documentation>
+          </xs:annotation>
+          <xs:element name="origin" type="Pos" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                  <xs:documentation>
+                      Specifies the origin point or spawn point in the Minecraft world.
+                      
+                      If omitted, set to the world spawn point.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+          <xs:element name="radius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                  <xs:documentation>
+                      Specifies the radius of the circle around which the block may be randomly placed.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+          <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
+              <xs:annotation>
+                  <xs:documentation>
+                      Specifies the block type of the block to be randomly placed.
+                  </xs:documentation>
+              </xs:annotation>
+          </xs:element>
+          <xs:element name="placement" minOccurs="0" maxOccurs="1">
+              <xs:simpleType>
+                  <xs:annotation>
+                      <xs:documentation>
+                          Specifies the placement behavior of the block. Default is "surface."
+
+                          String of "sphere" will place equally randomly in a sphere of radius specified.
+
+                          String of "circle" will place randomly in a circle at the y-coordinate specified.
+
+                          String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
+                      </xs:documentation>
+                  </xs:annotation>
+                  <xs:restriction base="xs:string">
+                      <xs:enumeration value="sphere"/>
+                      <xs:enumeration value="circle"/>
+                      <xs:enumeration value="surface"/>
+                  </xs:restriction>
+              </xs:simpleType>
+          </xs:element>
+      </xs:all>
+  </xs:complexType>
+
+  <xs:element name="NavigationDecorator">
+      <xs:annotation>
+          <xs:documentation>
+              Adds a specified block to the world and sets compass to that block.
+
+              Block is placed randomly along a radius around the origin specified.
+
+              Can force the block to appear at the highest available y-value.
+           </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+          <xs:all>
+              <xs:element name="randomPlacementProperties" type="RandomPlacement">
+                  <xs:annotation>
+                      <xs:documentation>
+                          Properties for placing a block in the world randomly.
+                      </xs:documentation>
+                  </xs:annotation>
+              </xs:element>
+              <xs:element name="randomizeCompassLocation" type="xs:boolean" minOccurs="1" maxOccurs="1">
+                  <xs:annotation>
+                      <xs:documentation>
+                          Sets whether or not the compass location should be randomized within a certain radius.
+
+                          If false, will set the compass location to the block that was randomly placed.
+
+                          If true, will set the compass location to a random spot within the radius specified below.
+                      </xs:documentation>
+                  </xs:annotation>
+              </xs:element>
+              <xs:element name="minRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0">
+                  <xs:annotation>
+                      <xs:documentation>
+                          The minimum distance a randomized compass location must be from the block that was randomly placed.
+                          
+                          If omitted, set to 0 blocks.
+                      </xs:documentation>
+                  </xs:annotation>
+              </xs:element>
+              <xs:element name="maxRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
+                  <xs:annotation>
+                      <xs:documentation>
+                          The maximum distance a randomized compass location must be from the block that was randomly placed.
+                          
+                          If omitted, set to 8 blocks.
+                      </xs:documentation>
+                  </xs:annotation>
+              </xs:element>
+          </xs:all>
+      </xs:complexType>
   </xs:element>
 
   <!--============================================== QUIT PRODUCERS ===============================================-->
@@ -1866,6 +2008,37 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType/>
+  </xs:element>
+  
+  <xs:element name="ObservationFromCompass">
+      <xs:annotation>
+         <xs:documentation>
+             When present, the Mod will return observations that detail how the agent is facing and what position the agent is in with respect to a compass.
+
+             A JSON element will be returned for the compass in the agent's inventory. The JSON will contain the following
+
+             - set: boolean on whether the compass is set
+
+             - compass-x: the x coordinate value of the set compass, null if not set
+
+             - compass-y: the y coordinate value of the set compass, null if not set
+
+             - compass-z: the z coordinate value of the set compass, null if not set
+
+             - relative-x: the relative x coordinate value of the player to the compass, null if not set
+
+             - relative-y: the relative y coordinate value of the player to the compass, null if not set
+
+             - relative-z: the relative z coordinate value of the player to the compass, null if not set
+
+             - offset: the number of degrees the agent is facing away from the direction the compass is pointing
+                
+             - normalized-offset: the number of degrees the agent is facing away, with the agent considered 0 degrees
+
+             - distance: the distance from the agent's location to the compass's location
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType/>
   </xs:element>
 
   <!--============================================= REWARD PRODUCERS ==============================================-->
