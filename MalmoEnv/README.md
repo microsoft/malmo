@@ -2,7 +2,7 @@
 
 MalmoEnv is an OpenAI "gym" like Python Environment for Malmo/Minecraft, directly implemented Python to Java Minecraft.
 
-A python "env" is created and used to run an agent in a Malmo mission. Each env has a remote Minecraft instance
+A python "gym env" is created and used to run an agent in a Malmo mission. Each env has a remote Minecraft instance
 associated to it (by DNS name or IP and Port). For multi-agent missions, the first agent's (role 0) Minecraft 
 client instance is used as a coordinator to allow all agents to rendezvous on mission starts (i.e. on env resets).
 
