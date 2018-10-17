@@ -43,6 +43,7 @@ def download(branch=None, build=True, installdir="MalmoPlatform"):
 
 
 def setup(build=True, installdir="MalmoPlatform"):
+    """Set up Minecraft for use with the MalmoEnv gym environment"""
 
     gradlew = './gradlew'
     if os.name == 'nt':
