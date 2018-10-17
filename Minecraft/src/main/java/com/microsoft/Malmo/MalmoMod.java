@@ -71,12 +71,15 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
+import com.microsoft.Malmo.Client.MalmoEnvServer;
+
 
 @Mod(modid = MalmoMod.MODID, guiFactory = "com.microsoft.Malmo.MalmoModGuiOptions")
 public class MalmoMod
 {
     public static final String MODID = "malmomod";
     public static final String SOCKET_CONFIGS = "malmoports";
+    public static final String ENV_CONFIGS = "envtype";
     public static final String DIAGNOSTIC_CONFIGS = "malmodiags";
     public static final String AUTHENTICATION_CONFIGS = "malmologins";
     public static final String AGENT_DEAD_QUIT_CODE = "MALMO_AGENT_DIED";
@@ -121,6 +124,7 @@ public class MalmoMod
         AddressHelper.update(this.sessionConfig);
         ScreenHelper.update(this.permanentConfig);
         TCPUtils.update(this.permanentConfig);
+        MalmoEnvServer.update(this.sessionConfig);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("Malmo");
         network.registerMessage(ObservationFromFullStatsImplementation.FullStatsRequestMessageHandler.class, ObservationFromFullStatsImplementation.FullStatsRequestMessage.class, 1, Side.SERVER);

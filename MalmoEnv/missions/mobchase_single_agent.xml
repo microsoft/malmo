@@ -1,0 +1,147 @@
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <About>
+         <Summary>Catch the Mob</Summary>
+      </About>
+      <ModSettings>
+         <MsPerTick>5</MsPerTick>
+      </ModSettings>
+      <ServerSection>
+         <ServerInitialConditions>
+            <Time>
+               <StartTime>0</StartTime>
+               <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+         </ServerInitialConditions>
+         <ServerHandlers>
+            <FlatWorldGenerator generatorString="3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village" forceReset="true" />
+            <DrawingDecorator>
+               <!-- Tricks to clean the map before drawing (avoid entity duplication on the map) -->
+               <!-- coordinates for cuboid are inclusive -->
+               <DrawCuboid type="air" x1="-24" x2="24" y1="4" y2="40" z1="-20" z2="20" />
+               <!-- Draw world -->
+               <DrawBlock type="spruce_fence" x="0" y="4" z="4" />
+               <DrawBlock type="clay" x="0" y="3" z="4" />
+               <DrawBlock type="spruce_fence" x="0" y="4" z="5" />
+               <DrawBlock type="clay" x="0" y="3" z="5" />
+               <DrawBlock type="spruce_fence" x="0" y="4" z="6" />
+               <DrawBlock type="clay" x="0" y="3" z="6" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="1" />
+               <DrawBlock type="clay" x="1" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="2" />
+               <DrawBlock type="clay" x="1" y="3" z="2" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="3" />
+               <DrawBlock type="clay" x="1" y="3" z="3" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="4" />
+               <DrawBlock type="clay" x="1" y="3" z="4" />
+               <DrawBlock type="brick_block" x="1" y="3" z="5" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="6" />
+               <DrawBlock type="clay" x="1" y="3" z="6" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="7" />
+               <DrawBlock type="clay" x="1" y="3" z="7" />
+               <DrawBlock type="spruce_fence" x="1" y="4" z="8" />
+               <DrawBlock type="clay" x="1" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="2" y="4" z="1" />
+               <DrawBlock type="clay" x="2" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="2" y="4" z="8" />
+               <DrawBlock type="clay" x="2" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="3" y="4" z="1" />
+               <DrawBlock type="clay" x="3" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="3" y="4" z="6" />
+               <DrawBlock type="clay" x="3" y="3" z="6" />
+               <DrawBlock type="spruce_fence" x="3" y="4" z="8" />
+               <DrawBlock type="clay" x="3" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="4" y="4" z="1" />
+               <DrawBlock type="clay" x="4" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="4" y="4" z="8" />
+               <DrawBlock type="clay" x="4" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="5" y="4" z="1" />
+               <DrawBlock type="clay" x="5" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="5" y="4" z="6" />
+               <DrawBlock type="clay" x="5" y="3" z="6" />
+               <DrawBlock type="spruce_fence" x="5" y="4" z="8" />
+               <DrawBlock type="clay" x="5" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="6" y="4" z="1" />
+               <DrawBlock type="clay" x="6" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="6" y="4" z="8" />
+               <DrawBlock type="clay" x="6" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="7" y="4" z="1" />
+               <DrawBlock type="clay" x="7" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="7" y="4" z="8" />
+               <DrawBlock type="clay" x="7" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="8" y="4" z="1" />
+               <DrawBlock type="clay" x="8" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="8" y="4" z="3" />
+               <DrawBlock type="clay" x="8" y="3" z="3" />
+               <DrawBlock type="spruce_fence" x="8" y="4" z="5" />
+               <DrawBlock type="clay" x="8" y="3" z="5" />
+               <DrawBlock type="spruce_fence" x="8" y="4" z="8" />
+               <DrawBlock type="clay" x="8" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="9" y="4" z="1" />
+               <DrawBlock type="clay" x="9" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="9" y="4" z="8" />
+               <DrawBlock type="clay" x="9" y="3" z="8" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="1" />
+               <DrawBlock type="clay" x="10" y="3" z="1" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="2" />
+               <DrawBlock type="clay" x="10" y="3" z="2" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="3" />
+               <DrawBlock type="clay" x="10" y="3" z="3" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="4" />
+               <DrawBlock type="clay" x="10" y="3" z="4" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="5" />
+               <DrawBlock type="clay" x="10" y="3" z="5" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="6" />
+               <DrawBlock type="clay" x="10" y="3" z="6" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="7" />
+               <DrawBlock type="clay" x="10" y="3" z="7" />
+               <DrawBlock type="spruce_fence" x="10" y="4" z="8" />
+               <DrawBlock type="clay" x="10" y="3" z="8" />
+               <!-- Mobs -->
+               <DrawEntity type="Pig" x="6.5" y="4" z="8.5" />
+               <DrawEntity type="Chicken" x="3.5" y="4" z="5.5" />
+            </DrawingDecorator>
+            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="1000000" />
+            <ServerQuitWhenAnyAgentFinishes />
+         </ServerHandlers>
+      </ServerSection>
+      <AgentSection mode="Survival">
+         <Name>Agent0</Name>
+         <AgentStart>
+            <Placement pitch="30" x="4.5" y="4" yaw="270" z="2.5" />
+            <Inventory>
+               <InventoryBlock quantity="1" slot="39" type="diamond_helmet" />
+            </Inventory>
+         </AgentStart>
+         <AgentHandlers>
+            <DiscreteMovementCommands>
+               <ModifierList type="deny-list">
+                  <command>attack</command>
+               </ModifierList>
+            </DiscreteMovementCommands>
+            <ObservationFromNearbyEntities>
+               <Range name="entities" xrange="8" yrange="2" zrange="6" />
+            </ObservationFromNearbyEntities>
+            <ObservationFromGrid>
+               <Grid absoluteCoords="true" name="board">
+                  <min x="0" y="3" z="0" />
+                  <max x="10" y="3" z="10" />
+               </Grid>
+            </ObservationFromGrid>
+            <ObservationFromFullStats />
+            <RewardForSendingCommand reward="-1" />
+            <RewardForTouchingBlockType>
+               <Block behaviour="onceOnly" reward="5" type="brick_block" />
+            </RewardForTouchingBlockType>
+            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="100" />
+            <AgentQuitFromTouchingBlockType>
+               <Block description="Agent0_defaulted" type="brick_block" />
+            </AgentQuitFromTouchingBlockType>
+            <VideoProducer want_depth="false">
+               <Width>800</Width>
+               <Height>600</Height>
+            </VideoProducer>
+         </AgentHandlers>
+      </AgentSection>
+</Mission>

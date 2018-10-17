@@ -22,7 +22,7 @@ public class TCPSocketChannel
     /**
      * Create a TCPSocketChannel that is blocking but times out connects and writes.
      * @param address The address to connect to.
-     * @param port The port to connect to.
+     * @param port The port to connect to. 0 value means don't open.
      * @param logname A name to use for logging.
      */
     public TCPSocketChannel(String address, int port, String logname) {
@@ -62,6 +62,8 @@ public class TCPSocketChannel
     }
 
     private void connectWithTimeout() throws  IOException, ExecutionException, InterruptedException, TimeoutException {
+        if (port == 0)
+            return;
         InetSocketAddress inetSocketAddress = new InetSocketAddress(address, port);
         Log(Level.INFO, "Attempting to open SocketChannel with InetSocketAddress: " + inetSocketAddress);
         this.channel = AsynchronousSocketChannel.open();
