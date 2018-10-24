@@ -28,11 +28,13 @@ import java.nio.ByteOrder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import net.minecraftforge.client.event.RenderHandEvent;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -90,9 +92,9 @@ public class VideoHook {
      * Object which maintains our connection to the agent.
      */
     private TCPSocketChannel connection = null;
-    
+
     private int renderWidth;
-    
+
     private int renderHeight;
 
     ByteBuffer buffer = null;
@@ -132,18 +134,18 @@ public class VideoHook {
         int agentPort = 0;
         switch (videoProducer.getVideoType())
         {
-        case LUMINANCE:
-            agentPort = cac.getAgentLuminancePort();
-            break;
-        case DEPTH_MAP:
-            agentPort = cac.getAgentDepthPort();
-            break;
-        case VIDEO:
-            agentPort = cac.getAgentVideoPort();
-            break;
-        case COLOUR_MAP:
-            agentPort = cac.getAgentColourMapPort();
-            break;
+            case LUMINANCE:
+                agentPort = cac.getAgentLuminancePort();
+                break;
+            case DEPTH_MAP:
+                agentPort = cac.getAgentDepthPort();
+                break;
+            case VIDEO:
+                agentPort = cac.getAgentVideoPort();
+                break;
+            case COLOUR_MAP:
+                agentPort = cac.getAgentColourMapPort();
+                break;
         }
 
         this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
@@ -159,18 +161,18 @@ public class VideoHook {
         }
         this.isRunning = true;
     }
-    
+
     /**
      * Resizes the window and the Minecraft rendering if necessary. Set renderWidth and renderHeight first.
      */
     private void resizeIfNeeded()
     {
         // resize the window if we need to
-        int oldRenderWidth = Display.getWidth(); 
+        int oldRenderWidth = Display.getWidth();
         int oldRenderHeight = Display.getHeight();
         if( this.renderWidth == oldRenderWidth && this.renderHeight == oldRenderHeight )
             return;
-        
+
         try {
             int old_x = Display.getX();
             int old_y = Display.getY();
@@ -228,7 +230,7 @@ public class VideoHook {
 
     /**
      * Called before and after the rendering of the world.
-     * 
+     *
      * @param event
      *            Contains information about the event.
      */
@@ -241,16 +243,21 @@ public class VideoHook {
             resizeIfNeeded();
         }
     }
-    
+
     /**
      * Called when the world has been rendered but not yet the GUI or player hand.
-     * 
+     *
      * @param event
      *            Contains information about the event (not used).
      */
     @SubscribeEvent
-    public void postRender(RenderWorldLastEvent event)
+    public void postRender(RenderGameOverlayEvent.Pre event)
     {
+
+        if(event.getType() != RenderGameOverlayEvent.ElementType.ALL)
+            return;
+        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
+
         // Check that the video producer and frame type match - eg if this is a colourmap frame, then
         // only the colourmap videoproducer needs to do anything.
         boolean colourmapFrame = TextureHelper.colourmapFrame;
@@ -300,17 +307,17 @@ public class VideoHook {
                 this.failedTCPSendCount = 0;    // Reset count of failed sends.
                 this.timeOfLastFrame = System.currentTimeMillis();
                 if (this.timeOfFirstFrame == 0)
-                	this.timeOfFirstFrame = this.timeOfLastFrame;
+                    this.timeOfFirstFrame = this.timeOfLastFrame;
                 this.framesSent++;
-	            //            System.out.format("Total: %.2fms; collecting took %.2fms; sending %d bytes took %.2fms\n", ms_send + ms_render, ms_render, size, ms_send);
-	            //            System.out.println("Collect: " + ms_render + "; Send: " + ms_send);
+                //            System.out.format("Total: %.2fms; collecting took %.2fms; sending %d bytes took %.2fms\n", ms_send + ms_render, ms_render, size, ms_send);
+                //            System.out.println("Collect: " + ms_render + "; Send: " + ms_send);
             }
         }
         catch (Exception e)
         {
             System.out.format(e.getMessage());
         }
-        
+
         if (!success)
         {
             System.out.format("Failed to send frame - will retry in %d seconds\n", RETRY_GAP_NS / 1000000000L);
