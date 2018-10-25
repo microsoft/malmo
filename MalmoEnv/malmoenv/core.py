@@ -34,7 +34,7 @@ from malmoenv.version import malmo_version
 class StringActionSpace(gym.spaces.Discrete):
     """Malmo actions as their strings."""
     def __init__(self):
-        pass
+        gym.spaces.Discrete.__init__(self, 1)
 
     def __getitem__(self, action):
         return action
@@ -65,9 +65,11 @@ class VisualObservationSpace(gym.spaces.Box):
                                 low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
                                 shape=(height, width, depth), dtype=np.int8)
 
+
 class EnvException(Exception):
     def __init__(self, message):
         super(EnvException, self).__init__(message)
+
 
 class Env:
     """Malmo "Env" open ai gym compatible environment API"""
