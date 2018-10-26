@@ -471,8 +471,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             @Override
             public boolean onCommand(String command, String ipFrom, DataOutputStream dos)
             {
-                System.out.println("Received from " + ipFrom + ":");
-                System.out.println(command.substring(0, Math.min(command.length(), 1024)));
+                System.out.println("Received from " + ipFrom + ":" +
+                                    command.substring(0, Math.min(command.length(), 1024)));
                 boolean keepProcessing = false;
 
                 // Possible commands:

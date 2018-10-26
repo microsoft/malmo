@@ -47,18 +47,15 @@ public abstract class StateEpisode
     
     /** Called to kick off the episode - should be no need for subclasses to override.
      */
-    public void start()
-    {
+    public void start() {
         this.isLive = true; // This episode is now active.
-        try
-        {
-			execute();
-		}
-        catch (Exception e)
-        {
-        	System.out.println(e);
-        	// TODO... what?
-		}
+        try {
+            execute();
+        } catch (Exception e) {
+            System.out.println("State start - exception: " + e);
+            e.printStackTrace();
+            // TODO... what?
+        }
     }
 
 	/** Called after the episode has been retired - use this to clean up any resources.

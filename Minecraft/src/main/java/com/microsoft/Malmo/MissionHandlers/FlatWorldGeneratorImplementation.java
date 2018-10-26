@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldType;
@@ -65,10 +66,17 @@ public class FlatWorldGeneratorImplementation extends HandlerBase implements IWo
     	if (this.fwparams != null && this.fwparams.isForceReset())
     	    return true;
     	
-        if (Minecraft.getMinecraft().world == null && world == null)
+        if (Minecraft.getMinecraft().world == null || world == null)
             return true;    // Definitely need to create a world if there isn't one in existence!
-        
-        String genOptions = world.getWorldInfo().getGeneratorOptions();
+
+        WorldInfo worldInfo =  world.getWorldInfo();
+        if (worldInfo == null)
+            return true;
+
+        String genOptions = worldInfo.getGeneratorOptions();
+        if (genOptions == null)
+            return true;
+
         if (!genOptions.equals(this.fwparams.getGeneratorString()))
             return true;    // Generation doesn't match, so recreate.
         
