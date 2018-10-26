@@ -348,7 +348,7 @@ class Env:
         return status
 
     def exit(self):
-        """Use carefully to cause the service to exit (and hopefully restart).
+        """Use carefully to cause the Minecraft service to exit (and hopefully restart).
         Likely to throw communication errors so wrap in exception handler.
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -378,11 +378,13 @@ class Env:
         if success != 2:
             raise EnvException("Failed to contact service" + (" head" if success == 0 else ""))
 
-    def _exit_resync(self):
-        print("********** force exit & resync **********")
+    def exit_resync(self):
+        """Exit the current Minecraft and wait for new one to replace it."""
+        print("********** exit & resync **********")
         try:
-            self.client_socket.close()
-            self.client_socket = None
+            if self.client_socket:
+                self.client_socket.close()
+                self.client_socket = None
             try:
                 self.exit()
             except Exception as e:
@@ -392,7 +394,6 @@ class Env:
         except (socket.error, ConnectionError):
             pass
         self.resync()
-        print("resync'ed")
 
     def _log_retry(self, exn):
         pass  # Keeping pylint happy
