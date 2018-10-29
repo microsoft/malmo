@@ -71,6 +71,14 @@ class EnvException(Exception):
         super(EnvException, self).__init__(message)
 
 
+class MissionInitException(Exception):
+    def __init__(self, message):
+        super(MissionInitException, self).__init__(message)
+
+
+PEEK_MAX_WAIT = 60 * 3
+
+
 class Env:
     """Malmo "Env" open ai gym compatible environment API"""
     def __init__(self):
@@ -115,6 +123,7 @@ class Env:
         """
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
+
         if not xml.startswith('<Mission'):
             i = xml.index("<Mission")
             if i == -1:
@@ -222,6 +231,10 @@ class Env:
             if not self.done:
                 time.sleep(0.1)
 
+        return self._start_up()
+
+    @retry
+    def _start_up(self):
         if self.role != 0:
             self._find_server()
         if not self.client_socket:
@@ -235,6 +248,7 @@ class Env:
 
     def _peek_obs(self):
         obs = None
+        start_time = time.time()
         while not self.done and (obs is None or len(obs) == 0):
             peek_message = "<Peek/>"
             comms.send_message(self.client_socket, peek_message.encode())
@@ -243,7 +257,12 @@ class Env:
             done, = struct.unpack('!b', reply)
             self.done = done == 1
             if obs is None or len(obs) == 0:
+                if time.time() - start_time > PEEK_MAX_WAIT:
+                    self.client_socket.close()
+                    self.client_socket = None
+                    raise MissionInitException('Too long waiting for first observation')
                 time.sleep(0.1)
+
             obs = np.frombuffer(obs, dtype=np.uint8)
 
         if obs is None or len(obs) == 0:
@@ -318,6 +337,7 @@ class Env:
         sock.close()
         if self.client_socket:
             self.client_socket.close()
+            self.client_socket = None
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
@@ -398,7 +418,6 @@ class Env:
     def _log_retry(self, exn):
         pass  # Keeping pylint happy
 
-    @retry
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.server, self.port))
