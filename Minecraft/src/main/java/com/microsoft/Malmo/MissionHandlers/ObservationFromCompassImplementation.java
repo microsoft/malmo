@@ -35,7 +35,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  * @author Cayden Codel, Carnegie Mellon University
  */
 public class ObservationFromCompassImplementation extends HandlerBase implements IObservationProducer {
-	
+
 	@Override
 	public void writeObservationsToJSON(JsonObject json, MissionInit missionInit) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
@@ -56,7 +56,7 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 			json.addProperty("set", true);
 
 			// Get world spawn, which is what the compass points at
-			BlockPos spawn = player.world.getSpawnPoint();
+			BlockPos spawn = Minecraft.getMinecraft().world.getSpawnPoint();
 			json.addProperty("compass-x", spawn.getX());
 			json.addProperty("compass-y", spawn.getY());
 			json.addProperty("compass-z", spawn.getZ());
@@ -69,17 +69,18 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 
 			double dx = (playerLoc.getX() - spawn.getX());
 			double dz = (playerLoc.getZ() - spawn.getZ());
-			double idealYaw = ((Math.atan2(dz, dx) + Math.PI) * 180.0 / Math.PI);
+			double idealYaw = (Math.atan2(dz, dx) * 180.0 / Math.PI) - 90;
 			double playerYaw = player.rotationYaw;
+
+			// Find shortest angular distance between the two, preserving sign:
 			double difference = idealYaw - playerYaw;
-			
-			if (difference < 0)
+			while (difference < -180)
 				difference += 360;
-			if (difference > 360)
+			while (difference > 180)
 				difference -= 360;
-			
+			// Normalise:
+			difference /= 180.0;
 			json.addProperty("offset", difference);
-			json.addProperty("normalized-offset", difference - 180);
 			json.addProperty("distance", playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ()));
 		}
 

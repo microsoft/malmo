@@ -28,7 +28,6 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.WorldTypeEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -47,16 +46,11 @@ import com.microsoft.Malmo.Utils.MapFileHelper;
 public class BiomeGeneratorImplementation extends HandlerBase implements IWorldGenerator {
 	BiomeGenerator bparams;
 
-	// Register the event with the Forge Bus
-	public BiomeGeneratorImplementation() {
-		MinecraftForge.TERRAIN_GEN_BUS.register(this);
-	}
-
 	/**
 	 * Keeps a constant biome given an id number
 	 * 
-	 * @author Cayden Codel, Carnegie Mellon University Some contributions from
-	 *         teamrtg with the LonelyBiome mod
+	 * @author Cayden Codel, Carnegie Mellon University
+	 * Some contributions from teamrtg with the LonelyBiome mod
 	 *
 	 */
 	private class GenLayerConstant extends GenLayer {
@@ -79,10 +73,8 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 		}
 	}
 
-	// Make sure that the biome is one type with an event on biome gen
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onBiomeGenInit(WorldTypeEvent.InitBiomeGens event) {
-		// Negative one is flag value for normal world gen
 		if (bparams.getBiome() == -1)
 			return;
 		GenLayer[] replacement = new GenLayer[2];

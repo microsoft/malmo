@@ -70,7 +70,7 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			// Change center to origin now
 			placementX += originX;
 			placementZ += originZ;
-			placementY = world.getTopSolidOrLiquidBlock(new BlockPos(placementX, 0, placementZ)).getY() - 1;
+			placementY = world.getTopSolidOrLiquidBlock(new BlockPos(placementX, 0, placementZ)).getY();
 		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("circle")) {
 			placementX = ((Math.random() - 0.5) * 2 * radius);
 			placementY = originY;
@@ -96,17 +96,19 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 		world.setBlockState(new BlockPos(placementX, placementY, placementZ), state);
 
 		// Set compass location to the block
-		double xDel = 0, zDel = 0;
+		double xDel = 0, yDel = 0, zDel = 0;
 		if (nparams.isRandomizeCompassLocation()) {
 			double dist = 0;
 			do {
 				xDel = (Math.random() - 0.5) * 2 * maxDist;
+				yDel = (Math.random() - 0.5) * 2 * maxDist;
 				zDel = (Math.random() - 0.5) * 2 * maxDist;
-				dist = Math.sqrt(xDel * xDel + zDel * zDel);
+				dist = Math.sqrt(xDel * xDel + yDel * yDel + zDel * zDel);
 			} while (dist <= maxDist && dist >= minDist);
 		}
 
 		placementX += xDel;
+		placementY += yDel;
 		placementZ += zDel;
 	}
 

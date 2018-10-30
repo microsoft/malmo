@@ -196,9 +196,6 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 
-# Mac DS_Store
-.DS_Store
-
 # Eclipse/Java files
 *.class
 .classpath

@@ -428,7 +428,6 @@
                     <xs:element ref="FlatWorldGenerator" />
                     <xs:element ref="FileWorldGenerator" />
                     <xs:element ref="DefaultWorldGenerator" />
-                    <xs:element ref="BiomeGenerator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
