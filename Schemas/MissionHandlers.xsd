@@ -967,7 +967,7 @@
                 <xs:annotation>
                     <xs:documentation>
                         Specifies the origin point or spawn point in the Minecraft world.
-
+                        
                         If omitted, set to the world spawn point.
                     </xs:documentation>
                 </xs:annotation>
@@ -1043,7 +1043,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             The minimum distance a randomized compass location must be from the block that was randomly placed.
-
+                            
                             If omitted, set to 0 blocks.
                         </xs:documentation>
                     </xs:annotation>
@@ -1052,7 +1052,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             The maximum distance a randomized compass location must be from the block that was randomly placed.
-
+                            
                             If omitted, set to 8 blocks.
                         </xs:documentation>
                     </xs:annotation>
@@ -1638,7 +1638,6 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
                 <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:complexContent>
@@ -2033,7 +2032,7 @@
                 - relative-z: the relative z coordinate value of the player to the compass, null if not set
 
                 - offset: the number of degrees the agent is facing away from the direction the compass is pointing
-
+                
                 - normalized-offset: the number of degrees the agent is facing away, with the agent considered 0 degrees
 
                 - distance: the distance from the agent's location to the compass's location
@@ -2107,14 +2106,12 @@
 
     <xs:complexType name="BlockSpec">
         <xs:attribute name="type" use="required" type="BlockList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
 
     <xs:complexType name="BlockOrItemSpec">
         <xs:attribute name="type" use="required" type="BlockOrItemList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" default="1" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
@@ -2213,25 +2210,6 @@
                 <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="RewardForCraftingItem">
-        <xs:annotation>
-            <xs:documentation>
-                Sends a reward when the agent crafts a specific item.
-
-                If Sparse is set to true, will only give full reward on crafting of entire amount.
-
-                Otherwise, will give the reward amount notated for each item crafted up to the amount noted.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Item" type="BlockOrItemSpecWithReward" />
-            </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="false" />
-            <xs:attributeGroup ref="RewardProducerAttributes" />
         </xs:complexType>
     </xs:element>
 
@@ -2485,19 +2463,6 @@
         <xs:annotation>
             <xs:documentation>
                 When this is included the agent's mission will end when they collect (or craft) a specified item.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
-            </xs:choice>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="AgentQuitFromCraftingItem">
-        <xs:annotation>
-            <xs:documentation>
-                When this is included the agent's mission will end when they craft a specified item.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>

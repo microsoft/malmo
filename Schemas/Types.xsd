@@ -131,6 +131,7 @@
         <xs:enumeration value="sign" />
         <xs:enumeration value="wooden_door" />
         <xs:enumeration value="bucket" />
+        <xs:enumeration value="bucket" />
         <xs:enumeration value="water_bucket" />
         <xs:enumeration value="lava_bucket" />
         <xs:enumeration value="minecart" />
