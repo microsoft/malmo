@@ -152,7 +152,7 @@
                         The biome type for the world. Each chunk will be loaded with the biome specified.
 
                         If left blank, the world will be a normal survival world.
-
+                        
                         Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
                     </xs:documentation>
                 </xs:annotation>
@@ -956,58 +956,73 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="RandomPlacement">
-        <xs:all>
-            <xs:annotation>
-                <xs:documentation>
-                    Helps specify where random blocks should be placed in the world.
-                </xs:documentation>
-            </xs:annotation>
-            <xs:element name="origin" type="Pos" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        Specifies the origin point or spawn point in the Minecraft world.
-                        
-                        If omitted, set to the world spawn point.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="radius" type="xs:decimal" minOccurs="1" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        Specifies the radius of the circle around which the block may be randomly placed.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
-                        Specifies the block type of the block to be randomly placed.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="placement" minOccurs="0" maxOccurs="1">
-                <xs:simpleType>
+    <xs:element name="RandomPlacementDecorator">
+        <xs:annotation>
+            <xs:documentation>
+                Adds a specified block to the world.
+
+                Block is placed randomly along a radius around the origin specified. TEST.
+
+                Can force the block to appear at the highest available y-value.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="origin" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            Specifies the placement behavior of the block. Default is "surface."
+                            Specifies the origin of the circle around which the block may be randomly placed.
 
-                            String of "sphere" will place equally randomly in a sphere of radius specified.
+                            If omitted, the origin is set to be the world spawn point.
 
-                            String of "circle" will place randomly in a circle at the y-coordinate specified.
-
-                            String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
+                            If any coordinate is omitted, the coordinate is set to the corresponding value of the world spawn.
                         </xs:documentation>
                     </xs:annotation>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="sphere"/>
-                        <xs:enumeration value="circle"/>
-                        <xs:enumeration value="surface"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-        </xs:all>
-    </xs:complexType>
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="xCoordinate" type="xs:decimal"/>
+                            <xs:element name="yCoordinate" type="xs:decimal"/>
+                            <xs:element name="zCoordinate" type="xs:decimal"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="radius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Specifies the radius of the circle around which the block may be randomly placed.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Specifies the block type of the block to be randomly placed.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="placement" minOccurs="0" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies the placement behavior of the block. Default is "surface."
+
+                                String of "sphere" will place equally randomly in a sphere of radius specified.
+
+                                String of "circle" will place randomly in a circle at the y-coordinate specified.
+
+                                String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="sphere"/>
+                            <xs:enumeration value="circle"/>
+                            <xs:enumeration value="surface"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="NavigationDecorator">
         <xs:annotation>
@@ -1021,10 +1036,62 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="randomPlacementProperties" type="RandomPlacement">
+                <xs:element name="origin" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            Properties for placing a block in the world randomly.
+                            Specifies the origin of the circle around which the block may be randomly placed.
+
+                            If omitted, the origin is set to be the world spawn point.
+
+                            If any coordinate is omitted, the coordinate is set to the corresponding value of the world spawn.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="xCoordinate" type="xs:decimal"/>
+                            <xs:element name="yCoordinate" type="xs:decimal"/>
+                            <xs:element name="zCoordinate" type="xs:decimal"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="radius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Specifies the radius of the circle around which the block may be randomly placed.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="block" type="BlockType" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Specifies the block type of the block to be randomly placed.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="placement" minOccurs="0" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:annotation>
+                            <xs:documentation>
+                                Specifies the placement behavior of the block. Default is "surface."
+
+                                String of "sphere" will place equally randomly in a sphere of radius specified.
+
+                                String of "circle" will place randomly in a circle at the y-coordinate specified.
+
+                                String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="sphere"/>
+                            <xs:enumeration value="circle"/>
+                            <xs:enumeration value="surface"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="discoveryRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="4">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Sets the discovery radius for reward. If the agent is within the radius of the block that was randomly placed, the agent gets a reward for "touching" the block.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -1039,21 +1106,10 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
-                <xs:element name="minRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0">
+                <xs:element name="randomizedCompassRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
                     <xs:annotation>
                         <xs:documentation>
-                            The minimum distance a randomized compass location must be from the block that was randomly placed.
-                            
-                            If omitted, set to 0 blocks.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="maxRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
-                    <xs:annotation>
-                        <xs:documentation>
-                            The maximum distance a randomized compass location must be from the block that was randomly placed.
-                            
-                            If omitted, set to 8 blocks.
+                            Sets the randomization radius for the compass around the block that was randomly placed, if enabled.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -2024,12 +2080,6 @@
                 - compass-y: the y coordinate value of the set compass, null if not set
 
                 - compass-z: the z coordinate value of the set compass, null if not set
-
-                - relative-x: the relative x coordinate value of the player to the compass, null if not set
-
-                - relative-y: the relative y coordinate value of the player to the compass, null if not set
-
-                - relative-z: the relative z coordinate value of the player to the compass, null if not set
 
                 - offset: the number of degrees the agent is facing away from the direction the compass is pointing
 

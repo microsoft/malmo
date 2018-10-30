@@ -4,70 +4,60 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.world.World;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
+
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.NavigationDecorator;
+import com.microsoft.Malmo.Schemas.RandomPlacementDecorator;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+public class RandomPlacementDecoratorImplementation extends HandlerBase implements IWorldDecorator {
 
-/**
- * Creates a decorator that sets a random block and then points all compasses
- * towards the block.
- * 
- * @author Cayden Codel, Carnegie Mellon University
- *
- */
-public class NavigationDecoratorImplementation extends HandlerBase implements IWorldDecorator {
-
-	private NavigationDecorator nparams;
+	private RandomPlacementDecorator rparams;
 
 	private double originX, originY, originZ;
 	private double radius;
-	//private double discoveryRadius;
-	private double randomizedRadius;
 
 	@Override
 	public boolean parseParameters(Object params) {
-		if (params == null || !(params instanceof NavigationDecorator))
+		if (params == null || !(params instanceof RandomPlacementDecorator))
 			return false;
-		this.nparams = (NavigationDecorator) params;
+		this.rparams = (RandomPlacementDecorator) params;
 		return true;
 	}
 
 	@Override
 	public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
-		if (nparams.getOrigin().getXCoordinate() != null)
-			originX = nparams.getOrigin().getXCoordinate().doubleValue();
+		if (rparams.getOrigin().getXCoordinate() != null)
+			originX = rparams.getOrigin().getXCoordinate().doubleValue();
 		else
 			originX = world.getSpawnPoint().getX();
 		
-		if (nparams.getOrigin().getYCoordinate() != null)
-			originY = nparams.getOrigin().getYCoordinate().doubleValue();
+		if (rparams.getOrigin().getYCoordinate() != null)
+			originY = rparams.getOrigin().getYCoordinate().doubleValue();
 		else
 			originY = world.getSpawnPoint().getY();
 		
-		if (nparams.getOrigin().getZCoordinate() != null)
-			originZ = nparams.getOrigin().getZCoordinate().doubleValue();
+		if (rparams.getOrigin().getZCoordinate() != null)
+			originZ = rparams.getOrigin().getZCoordinate().doubleValue();
 		else
 			originZ = world.getSpawnPoint().getZ();
 		
-		radius = nparams.getRadius().doubleValue();
-		//discoveryRadius = nparams.getDiscoveryRadius().doubleValue();
-		randomizedRadius = nparams.getRandomizedCompassRadius().doubleValue();
+		originY = rparams.getOrigin().getYCoordinate().doubleValue();
+		originZ = rparams.getOrigin().getZCoordinate().doubleValue();
+		radius = rparams.getRadius().doubleValue();
 
 		double placementX = 0, placementY = 0, placementZ = 0;
 
-		if (nparams.getPlacement() == "surface") {
+		if (rparams.getPlacement() == "surface") {
 			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
 					+ originZ;
 			BlockPos pos = world.getHeight(new BlockPos(placementX, 0, placementZ));
 			placementY = pos.getY();
-		} else if (nparams.getPlacement() == "circle") {
+		} else if (rparams.getPlacement() == "circle") {
 			placementX = ((Math.random() - 0.5) * 2 * radius) + originX;
 			placementY = originY;
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX))
@@ -79,23 +69,8 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 					* Math.sqrt((radius * radius) - (placementX * placementX) - (placementY * placementY)) + originZ;
 		}
 
-		IBlockState state = MinecraftTypeHelper.ParseBlockType(nparams.getBlock().value());
+		IBlockState state = MinecraftTypeHelper.ParseBlockType(rparams.getBlock().value());
 		world.setBlockState(new BlockPos(placementX, placementY, placementZ), state);
-
-		// Set compass location to the block
-		double xDel = 0, yDel = 0, zDel = 0;
-		if (nparams.isRandomizeCompassLocation()) {
-			// Set some error
-			xDel = (Math.random() - 0.5) * 2 * randomizedRadius;
-			yDel = (Math.random() - 0.5) * 2 * Math.sqrt((randomizedRadius * randomizedRadius) - (xDel * xDel));
-			zDel = (Math.random() > 0.5 ? -1 : 1)
-					* Math.sqrt((randomizedRadius * randomizedRadius) - (xDel * xDel) - (yDel * yDel));
-		}
-
-		// Set compass logic
-		// Since compasses point to world spawn, point at world spawn
-		world.setSpawnPoint(new BlockPos(placementX + xDel, placementY + yDel, placementZ + zDel));
-		Minecraft.getMinecraft().player.setSpawnPoint(new BlockPos(originX, originY, originZ), true);
 	}
 
 	@Override
@@ -122,6 +97,6 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 
 	@Override
 	public void getTurnParticipants(ArrayList<String> participants, ArrayList<Integer> participantSlots) {
-	}
 
+	}
 }

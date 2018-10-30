@@ -63,16 +63,13 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 
 			BlockPos playerLoc = player.getPosition();
 
-			json.addProperty("relative-x", spawn.getX() - playerLoc.getX());
-			json.addProperty("relative-y", spawn.getY() - playerLoc.getY());
-			json.addProperty("relative-z", spawn.getZ() - playerLoc.getZ());
-
 			double dx = (playerLoc.getX() - spawn.getX());
 			double dz = (playerLoc.getZ() - spawn.getZ());
 			double idealYaw = (Math.atan2(dz, dx) * 180.0 / Math.PI) - 90;
 			double playerYaw = player.rotationYaw;
 
-			// Find shortest angular distance between the two, preserving sign:
+			// Find shortest angular distance between the two yaws, preserving
+			// sign:
 			double difference = idealYaw - playerYaw;
 			while (difference < -180)
 				difference += 360;
