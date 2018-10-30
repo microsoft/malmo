@@ -2107,14 +2107,14 @@
 
     <xs:complexType name="BlockSpec">
         <xs:attribute name="type" use="required" type="BlockList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" default="2368" />
+        <xs:attribute name="amount" use="optional" type="xs:int" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
 
     <xs:complexType name="BlockOrItemSpec">
         <xs:attribute name="type" use="required" type="BlockOrItemList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" default="2368" />
+        <xs:attribute name="amount" use="optional" type="xs:int" default="1" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
