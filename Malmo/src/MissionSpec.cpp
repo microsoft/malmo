@@ -370,7 +370,7 @@ namespace malmo
     {
         mission.put("Mission.AgentSection.AgentHandlers.ObservationFromCompass", "");
     }
-    
+
     // ------------------ settings for the agents : command handlers --------------------------------
     
     void MissionSpec::removeAllCommandHandlers()
@@ -435,7 +435,7 @@ namespace malmo
     {
         mission.put("Mission.AgentSection.AgentHandlers.ChatCommands", "");
     }
-    
+
     void MissionSpec::allowAllPlaceCommands()
     {
         mission.put("Mission.AgentSection.AgentHandlers.PlaceCommands", "");
@@ -537,13 +537,13 @@ namespace malmo
 
                 if (e.second.get_child_optional("AgentHandlers.SimpleCraftCommands"))
                     command_handlers.push_back("SimpleCraft");
-                
+
                 if (e.second.get_child_optional("AgentHandlers.NearbyCraftCommands"))
                     command_handlers.push_back("NearbyCraft");
-                
+
                 if (e.second.get_child_optional("AgentHandlers.NearbySmeltCommands"))
                     command_handlers.push_back("NearbySmelt");
-                
+
                 if (e.second.get_child_optional("AgentHandlers.PlaceCommands"))
                     command_handlers.push_back("Place");
 
