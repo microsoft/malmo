@@ -242,6 +242,9 @@ namespace malmo
             //! Asks for chat messages to be included in the observations.
             void observeChat();
             
+            //! Asks for compass information to be included in the observations.
+            void observeCompass();
+            
             // -------------------- settings for the agents : command handlers -------------------------
 
             //! Remove any existing command handlers from the mission specification. Use with other functions to add exactly the command handlers you want.

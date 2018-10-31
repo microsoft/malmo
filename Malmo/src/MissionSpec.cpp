@@ -359,6 +359,11 @@ namespace malmo
         mission.put("Mission.AgentSection.AgentHandlers.ObservationFromChat", "");
     }
     
+    void MissionSpec::observeCompass()
+    {
+        mission.put("mission.AgentSection.AgentHandlers.ObservationFromCompass", "");
+    }
+    
     // ------------------ settings for the agents : command handlers --------------------------------
     
     void MissionSpec::removeAllCommandHandlers()
