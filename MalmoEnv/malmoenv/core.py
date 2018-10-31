@@ -162,7 +162,7 @@ class Env:
         self.agent_count = len(self.xml.findall(self.ns + 'AgentSection'))
         turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
         if turn_based:
-            self.turn_key = 'AKWasHere'
+            self.turn_key = 'AKWozEre'
         else:
             self.turn_key = ""
         if step_options is None:
@@ -326,16 +326,19 @@ class Env:
 
     def close(self):
         """gym api close"""
-        # Purge last token from head node with <Close> message.
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server, self.port))
-        self._hello(sock)
+        try:
+            # Purge last token from head node with <Close> message.
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((self.server, self.port))
+            self._hello(sock)
 
-        comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
-        reply = comms.recv_message(sock)
-        ok, = struct.unpack('!I', reply)
-        assert ok
-        sock.close()
+            comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
+            reply = comms.recv_message(sock)
+            ok, = struct.unpack('!I', reply)
+            assert ok
+            sock.close()
+        except Exception as e:
+            self._log_error(e)
         if self.client_socket:
             self.client_socket.close()
             self.client_socket = None
@@ -393,7 +396,7 @@ class Env:
                     success += 1
                     break
                 except Exception as e:
-                    self._log_retry(e)
+                    self._log_error(e)
                     time.sleep(10)
 
         if success != 2:
@@ -409,14 +412,14 @@ class Env:
             try:
                 self.exit()
             except Exception as e:
-                self._log_retry(e)
+                self._log_error(e)
             print("Pause for exit(s) ...")
             time.sleep(60)
         except (socket.error, ConnectionError):
             pass
         self.resync()
 
-    def _log_retry(self, exn):
+    def _log_error(self, exn):
         pass  # Keeping pylint happy
 
     def _find_server(self):
