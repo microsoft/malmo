@@ -76,7 +76,7 @@ class MissionInitException(Exception):
         super(MissionInitException, self).__init__(message)
 
 
-PEEK_MAX_WAIT = 60 * 3
+MAX_WAIT = 60 * 3
 
 
 class Env:
@@ -222,8 +222,8 @@ class Env:
 
     def reset(self):
         """gym api reset"""
-        self.resets += 1
-        if self.resync_period > 0 and self.resets % self.resync_period == 0:
+
+        if self.resync_period > 0 and (self.resets + 1) % self.resync_period == 0:
             self._exit_resync()
 
         while not self.done:
@@ -235,6 +235,7 @@ class Env:
 
     @retry
     def _start_up(self):
+        self.resets += 1
         if self.role != 0:
             self._find_server()
         if not self.client_socket:
@@ -257,10 +258,10 @@ class Env:
             done, = struct.unpack('!b', reply)
             self.done = done == 1
             if obs is None or len(obs) == 0:
-                if time.time() - start_time > PEEK_MAX_WAIT:
+                if time.time() - start_time > MAX_WAIT:
                     self.client_socket.close()
                     self.client_socket = None
-                    raise MissionInitException('Too long waiting for first observation')
+                    raise MissionInitException('too long waiting for first observation')
                 time.sleep(0.1)
 
             obs = np.frombuffer(obs, dtype=np.uint8)
@@ -423,12 +424,17 @@ class Env:
         sock.connect((self.server, self.port))
         self._hello(sock)
 
+        start_time = time.time()
         port = 0
         while port == 0:
             comms.send_message(sock, ("<Find>" + self._get_token() + "</Find>").encode())
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
             if port == 0:
+                if time.time() - start_time > MAX_WAIT:
+                    self.client_socket.close()
+                    self.client_socket = None
+                    raise MissionInitException('too long finding mission to join')
                 time.sleep(1)
         sock.close()
         # print("Found mission integrated server port " + str(port))
