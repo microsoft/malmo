@@ -35,7 +35,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
  * @author Cayden Codel, Carnegie Mellon University
  */
 public class ObservationFromCompassImplementation extends HandlerBase implements IObservationProducer {
-	
+
 	@Override
 	public void writeObservationsToJSON(JsonObject json, MissionInit missionInit) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
@@ -62,7 +62,6 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 			json.addProperty("compass-z", spawn.getZ());
 
 			BlockPos playerLoc = player.getPosition();
-
 			json.addProperty("relative-x", spawn.getX() - playerLoc.getX());
 			json.addProperty("relative-y", spawn.getY() - playerLoc.getY());
 			json.addProperty("relative-z", spawn.getZ() - playerLoc.getZ());
@@ -72,12 +71,12 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 			double idealYaw = ((Math.atan2(dz, dx) + Math.PI) * 180.0 / Math.PI);
 			double playerYaw = player.rotationYaw;
 			double difference = idealYaw - playerYaw;
-			
+
 			if (difference < 0)
 				difference += 360;
 			if (difference > 360)
 				difference -= 360;
-			
+
 			json.addProperty("offset", difference);
 			json.addProperty("normalized-offset", difference - 180);
 			json.addProperty("distance", playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ()));
