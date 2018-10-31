@@ -167,6 +167,7 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
+.DS_Store
 
 # RIA/Silverlight projects
 Generated_Code/

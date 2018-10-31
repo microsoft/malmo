@@ -139,6 +139,43 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="BiomeGenerator">
+        <xs:annotation>
+            <xs:documentation>
+                Generates a survival world with the specified biome.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="biome" use="optional" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>
+                        The biome type for the world. Each chunk will be loaded with the biome specified.
+
+                        If left blank, the world will be a normal survival world.
+
+                        Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
+                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+                <xs:annotation>
+                    <xs:documentation>
+                        Set this to true to force the world data files to be deleted after the mission is done.
+                        Enabling this setting prevents the disk being filled with old worlds.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
     <xs:element name="FileWorldGenerator">
         <xs:annotation>
             <xs:documentation>
@@ -161,43 +198,6 @@
                 <xs:annotation>
                     <xs:documentation>
                         Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename).
-                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
-                <xs:annotation>
-                    <xs:documentation>
-                        Set this to true to force the world data files to be deleted after the mission is done.
-                        Enabling this setting prevents the disk being filled with old worlds.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="BiomeGenerator">
-        <xs:annotation>
-            <xs:documentation>
-                Generates a survival world with the specified biome.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:attribute name="biome" use="optional" type="xs:int">
-                <xs:annotation>
-                    <xs:documentation>
-                        The biome type for the world. Each chunk will be loaded with the biome specified.
-                        
-                        If left blank, the world will be a normal survival world.
-                        
-                        Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
-                <xs:annotation>
-                    <xs:documentation>
-                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
                         Force reloading is slow, but will guarantee that no world changes will carry over between missions.
                     </xs:documentation>
                 </xs:annotation>
@@ -1032,7 +1032,9 @@
                     <xs:annotation>
                         <xs:documentation>
                             Sets whether or not the compass location should be randomized within a certain radius.
+
                             If false, will set the compass location to the block that was randomly placed.
+
                             If true, will set the compass location to a random spot within the radius specified below.
                         </xs:documentation>
                     </xs:annotation>
@@ -1636,6 +1638,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
+                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
                 <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:complexContent>
@@ -2008,7 +2011,6 @@
         <xs:complexType/>
     </xs:element>
 
-
     <xs:element name="ObservationFromCompass">
         <xs:annotation>
             <xs:documentation>
@@ -2105,12 +2107,14 @@
 
     <xs:complexType name="BlockSpec">
         <xs:attribute name="type" use="required" type="BlockList" />
+        <xs:attribute name="amount" use="optional" type="xs:int" default="2368" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
 
     <xs:complexType name="BlockOrItemSpec">
         <xs:attribute name="type" use="required" type="BlockOrItemList" />
+        <xs:attribute name="amount" use="optional" type="xs:int" default="2368" />
         <xs:attribute name="variant" use="optional" type="VariantList" />
         <xs:attribute name="colour" use="optional" type="ColourList" />
     </xs:complexType>
@@ -2209,6 +2213,25 @@
                 <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="RewardForCraftingItem">
+        <xs:annotation>
+            <xs:documentation>
+                Sends a reward when the agent crafts a specific item.
+
+                If Sparse is set to true, will only give full reward on crafting of entire amount.
+
+                Otherwise, will give the reward amount notated for each item crafted up to the amount noted.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithReward" />
+            </xs:choice>
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="false" />
+            <xs:attributeGroup ref="RewardProducerAttributes" />
         </xs:complexType>
     </xs:element>
 
@@ -2462,6 +2485,19 @@
         <xs:annotation>
             <xs:documentation>
                 When this is included the agent's mission will end when they collect (or craft) a specified item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AgentQuitFromCraftingItem">
+        <xs:annotation>
+            <xs:documentation>
+                When this is included the agent's mission will end when they craft a specified item.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
