@@ -16,7 +16,7 @@ Run the downloaded file to install 7-Zip.
 
 ### 2. Install FFMPEG: ###
 
-1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.7z) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
+1. Download [64-bit Static](http://ffmpeg.zeranoe.com/builds/win64/static/ffmpeg-latest-win64-static.zip) from [Zeranoe](http://ffmpeg.zeranoe.com/builds/).
 2. Unpack the contents of the zip (bin folder etc.) to `C:\ffmpeg`
 3. Add `C:\ffmpeg\bin` to your `PATH` ([How To](https://support.microsoft.com/en-us/kb/310519))
 4. Check that typing `ffmpeg` at a command prompt works.

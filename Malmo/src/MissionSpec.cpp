@@ -93,7 +93,7 @@ namespace malmo
 
     void MissionSpec::timeLimitInSeconds(float s)
     {
-        mission.put("Mission.ServerSection.ServerHandlers.ServerQuitFromTimeUp.<xmlattr>.timeLimitMs", s);
+        mission.put("Mission.ServerSection.ServerHandlers.ServerQuitFromTimeUp.<xmlattr>.timeLimitMs", s * MillisecondsInOneSecond);
     }
     
     void MissionSpec::createDefaultTerrain()
@@ -357,6 +357,11 @@ namespace malmo
     void MissionSpec::observeChat()
     {
         mission.put("Mission.AgentSection.AgentHandlers.ObservationFromChat", "");
+    }
+    
+    void MissionSpec::observeCompass()
+    {
+        mission.put("mission.AgentSection.AgentHandlers.ObservationFromCompass", "");
     }
     
     // ------------------ settings for the agents : command handlers --------------------------------
