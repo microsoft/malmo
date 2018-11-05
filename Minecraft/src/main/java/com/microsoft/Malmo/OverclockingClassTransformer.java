@@ -39,7 +39,7 @@ public class OverclockingClassTransformer implements IClassTransformer
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
         if (transformedName.startsWith("net.minecraft.client.entity"))
-            System.out.println(transformedName);
+            System.out.println("Transformed Name: " + transformedName);
         boolean isObfuscated = !name.equals(transformedName);
         if (transformedName.equals("net.minecraft.server.MinecraftServer"))
             return transform(basicClass, isObfuscated, transformType.SERVER);
