@@ -87,10 +87,11 @@ RUN ./bootstrap
 RUN make -j4
 RUN sudo make install
 
-RUN sudo pip3 install future && sudo pip3 install pillow && sudo pip3 install matplotlib
+RUN sudo pip3 install future pillow
+RUN sudo pip3 install matplotlib==2.2.3
 
 RUN sudo yum update -y && sudo yum -y install dos2unix
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
+#ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
