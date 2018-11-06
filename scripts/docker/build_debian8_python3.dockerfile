@@ -83,9 +83,10 @@ RUN sudo make install
 
 # Dependencies for matplotlib:
 RUN sudo apt-get update && sudo apt-get install -y unzip libfreetype6-dev pkg-config libpng12-dev dos2unix
-RUN sudo pip3 install future pillow matplotlib
+RUN sudo pip3 install future pillow 
+RUN sudo pip3 install matplotlib==2.2.3
 
 COPY ./build.sh /home/malmo
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
+#ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.4"]
