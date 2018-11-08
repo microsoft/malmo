@@ -154,18 +154,15 @@ abstract public class StateMachine
     {
     	if (Thread.currentThread() == this.homeThread)
     	{
-    	    IState state = null;
 		    // Check the state queue to see if we need to carry out a transition:
 		    synchronized(this.stateQueue)
 		    {
 		        if (this.stateQueue.size() > 0)
 		        {
-		            state = this.stateQueue.remove(0);
+		            IState state = this.stateQueue.remove(0);
+		            setState(state);   // Transition to the next state.
 		        }
 		    }
-		    if (state != null) {
-                setState(state);   // Transition to the next state.
-            }
     	}
     }
 
