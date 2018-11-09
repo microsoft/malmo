@@ -390,7 +390,7 @@ class Env:
         Possibly after an env.exit()"""
         success = 0
         for head in [True, False]:
-            for _ in range(18):
+            for _ in range(30):
                 try:
                     self.status(head)
                     success += 1
