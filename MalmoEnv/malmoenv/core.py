@@ -435,8 +435,9 @@ class Env:
             port, = struct.unpack('!I', reply)
             if port == 0:
                 if time.time() - start_time > MAX_WAIT:
-                    self.client_socket.close()
-                    self.client_socket = None
+                    if self.client_socket:
+                        self.client_socket.close()
+                        self.client_socket = None
                     raise MissionInitException('too long finding mission to join')
                 time.sleep(1)
         sock.close()
