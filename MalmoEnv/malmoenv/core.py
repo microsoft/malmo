@@ -316,7 +316,7 @@ class Env:
                 # Done turns if: turn = self.turn_key == turn_key
                 self.turn_key = turn_key
             else:
-                turn = False
+                turn = sent != 0
 
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)

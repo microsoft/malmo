@@ -62,16 +62,18 @@ if __name__ == '__main__':
         for r in range(args.episodes):
             log("reset " + str(r))
             env.reset()
+            steps = 0
 
             done = False
             while not done:
+                steps += 1
                 action = env.action_space.sample()
-                log("action: " + str(action))
+                log(str(steps) + " action: " + str(action))
                 obs, reward, done, info = env.step(action)
-                log("reward: " + str(reward))
+                # log("reward: " + str(reward))
                 # log("done: " + str(done))
                 # log("info: " + str(info))
-                log(" obs: " + str(obs))
+                # log(" obs: " + str(obs))
 
                 time.sleep(.05)
 
