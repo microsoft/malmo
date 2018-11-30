@@ -150,20 +150,19 @@ abstract public class StateMachine
     /** Call this regularly to give the state machine a chance to transition to the next state.<br>
      * Must be called from the home thread.
      */
-    public void updateState()
-    {
-    	if (Thread.currentThread() == this.homeThread)
-    	{
-		    // Check the state queue to see if we need to carry out a transition:
-		    synchronized(this.stateQueue)
-		    {
-		        if (this.stateQueue.size() > 0)
-		        {
-		            IState state = this.stateQueue.remove(0);
-		            setState(state);   // Transition to the next state.
-		        }
-		    }
-    	}
+    public void updateState() {
+        if (Thread.currentThread() == this.homeThread) {
+            IState state = null;
+            // Check the state queue to see if we need to carry out a transition:
+            synchronized (this.stateQueue) {
+                if (this.stateQueue.size() > 0) {
+                    state = this.stateQueue.remove(0);
+                }
+            }
+            if (state != null) {
+                setState(state);   // Transition to the next state.
+            }
+        }
     }
 
     /** Used mainly for diagnostics - override to return a human-readable name for your state machine.
