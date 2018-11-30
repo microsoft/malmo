@@ -316,7 +316,7 @@ class Env:
                 # Done turns if: turn = self.turn_key == turn_key
                 self.turn_key = turn_key
             else:
-                turn = False
+                turn = sent != 0
 
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
@@ -390,7 +390,7 @@ class Env:
         Possibly after an env.exit()"""
         success = 0
         for head in [True, False]:
-            for _ in range(18):
+            for _ in range(30):
                 try:
                     self.status(head)
                     success += 1
@@ -435,8 +435,9 @@ class Env:
             port, = struct.unpack('!I', reply)
             if port == 0:
                 if time.time() - start_time > MAX_WAIT:
-                    self.client_socket.close()
-                    self.client_socket = None
+                    if self.client_socket:
+                        self.client_socket.close()
+                        self.client_socket = None
                     raise MissionInitException('too long finding mission to join')
                 time.sleep(1)
         sock.close()
