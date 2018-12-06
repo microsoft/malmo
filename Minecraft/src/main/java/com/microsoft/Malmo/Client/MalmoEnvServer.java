@@ -342,9 +342,13 @@ public class MalmoEnvServer implements IWantToQuit {
         byte[] replyBytes = new byte[hdr];
         dis.readFully(replyBytes);
 
-        if (new String(replyBytes).equals("MALMOOK")) {
+        String replyStr = new String(replyBytes);
+        if (replyStr.equals("MALMOOK")) {
             TCPUtils.Log(Level.INFO, "MalmoEnvServer Mission starting ...");
             return true;
+        } else if (replyStr.equals("MALMOBUSY")) {
+            TCPUtils.Log(Level.INFO, "MalmoEnvServer Busy - I want to quit");
+            this.envState.quit = true;
         }
         return false;
     }
