@@ -79,36 +79,49 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase
 	}
 
 	private void checkForMatch(ItemStack is) {
+		//System.out.println("Checking for match on " + is.getItem().getUnlocalizedName());
 		int savedCrafted = getCraftedItemCount(is);
+		//System.out.println("Previous saved amount is " + savedCrafted);
 		if (is != null && is.getItem() != null) {
 			for (ItemMatcher matcher : this.matchers) {
 				if (matcher.matches(is)) {
 					if (!params.isSparse()) {
 						if (savedCrafted != 0 && savedCrafted < matcher.matchSpec.getAmount()) {
 							for (int i = savedCrafted; i < matcher.matchSpec.getAmount()
-									&& i - savedCrafted < is.getCount(); i++)
+									&& i - savedCrafted < is.getCount(); i++) {
+								//System.out.println("Sparse, had nonzero saved crafted amount, giving a reward of "
+								//		+ ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue());
 								this.adjustAndDistributeReward(
 										((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
 										params.getDimension(),
 										((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+							}
 
 						} else if (savedCrafted != 0 && savedCrafted >= matcher.matchSpec.getAmount()) {
 							// Do nothing
+							//System.out
+							//		.println("Sparse, had nonzero saved crafted amount, but not enough new for reward");
 						} else {
-							for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++)
+							for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++) {
+								//System.out.println("Had zero saved crafted amount, giving a reward of "
+								//		+ ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue());
 								this.adjustAndDistributeReward(
 										((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
 										params.getDimension(),
 										((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+							}
 
 						}
 					} else {
 						if (savedCrafted < matcher.matchSpec.getAmount()
-								&& savedCrafted + is.getCount() >= matcher.matchSpec.getAmount())
+								&& savedCrafted + is.getCount() >= matcher.matchSpec.getAmount()) {
+							//System.out.println("Not sparse, giving a reward of "
+							//		+ ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue());
 							this.adjustAndDistributeReward(
 									((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
 									params.getDimension(),
 									((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+						}
 					}
 				}
 			}

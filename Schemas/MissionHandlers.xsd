@@ -2506,6 +2506,19 @@
             </xs:choice>
         </xs:complexType>
     </xs:element>
+    
+    <xs:element name="AgentQuitFromPossessingItem">
+        <xs:annotation>
+            <xs:documentation>
+                When this is included the agent's mission will end when they possess the specified item in their inventory all at once.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
 
     <xs:simpleType name="MobList">
         <xs:list itemType="EntityTypes"/>

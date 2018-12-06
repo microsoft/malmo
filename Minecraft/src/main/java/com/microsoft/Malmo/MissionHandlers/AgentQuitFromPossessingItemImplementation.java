@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -14,12 +15,12 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.AgentQuitFromCraftingItemImplementation.ItemQuitMatcher;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
 import com.microsoft.Malmo.MissionHandlers.RewardForItemBase.ItemMatcher;
-import com.microsoft.Malmo.Schemas.AgentQuitFromCollectingItem;
+import com.microsoft.Malmo.Schemas.AgentQuitFromPossessingItem;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
-public class AgentQuitFromCollectingItemImplementation extends HandlerBase implements IWantToQuit {
-	AgentQuitFromCollectingItem params;
+public class AgentQuitFromPossessingItemImplementation extends HandlerBase implements IWantToQuit {
+	AgentQuitFromPossessingItem params;
 	private HashMap<String, Integer> collectedItems;
 	List<ItemQuitMatcher> matchers;
 	String quitCode = "";
@@ -41,10 +42,10 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 
 	@Override
 	public boolean parseParameters(Object params) {
-		if (params == null || !(params instanceof AgentQuitFromCollectingItem))
+		if (params == null || !(params instanceof AgentQuitFromPossessingItem))
 			return false;
 
-		this.params = (AgentQuitFromCollectingItem) params;
+		this.params = (AgentQuitFromPossessingItem) params;
 		this.matchers = new ArrayList<ItemQuitMatcher>();
 		for (BlockOrItemSpecWithDescription bs : this.params.getItem())
 			this.matchers.add(new ItemQuitMatcher(bs));
@@ -94,6 +95,14 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 		callCraft = !callCraft;
 	}
 
+	@SubscribeEvent
+	public void onItemToss(ItemTossEvent event) {
+		if (event.getEntityItem() != null && event.getEntityItem().getEntityItem() != null) {
+			ItemStack stack = event.getEntityItem().getEntityItem();
+			removeCollectedItem(stack);
+		}
+	}
+
 	private boolean getVariant(ItemStack is) {
 		for (ItemMatcher matcher : matchers) {
 			if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
@@ -119,7 +128,7 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 
 	}
 
-	private void addCollectedItemCount(ItemStack is) {
+	private void addCollectedItem(ItemStack is) {
 		boolean variant = getVariant(is);
 
 		if (variant) {
@@ -130,6 +139,20 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 			int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
 					: collectedItems.get(is.getItem().getUnlocalizedName()));
 			collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+		}
+	}
+
+	private void removeCollectedItem(ItemStack is) {
+		boolean variant = getVariant(is);
+
+		if (variant) {
+			int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+					: collectedItems.get(is.getUnlocalizedName()));
+			collectedItems.put(is.getUnlocalizedName(), Integer.max(0, prev - is.getCount()));
+		} else {
+			int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
+					: collectedItems.get(is.getItem().getUnlocalizedName()));
+			collectedItems.put(is.getItem().getUnlocalizedName(), Integer.max(0, prev - is.getCount()));
 		}
 	}
 
@@ -150,7 +173,7 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 				}
 			}
 
-			addCollectedItemCount(is);
+			addCollectedItem(is);
 		}
 	}
 }
