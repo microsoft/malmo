@@ -1598,6 +1598,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 Minecraft.getMinecraft().loadWorld((WorldClient) null);
                 // Must display the GUI or Minecraft will attempt to access a non-existent player in the client tick.
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
+
+                Thread.sleep(10000);
             }
         }
 
