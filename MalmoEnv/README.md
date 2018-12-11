@@ -17,7 +17,7 @@ Java8 JDK, python3, git
 `pip install gym lxml numpy pillow`
 
 To prepare Minecraft (after cloning this repository with 
-`git clone -b malmoenv https://github.com/Microsoft/malmo.git`):
+`git clone https://github.com/Microsoft/malmo.git`):
 
 `cd Minecraft`
 
