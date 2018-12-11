@@ -14,20 +14,20 @@ Install dependencies:
 
 Java8 JDK, python3, git
 
-`pip install gym lxml numpy pillow`
+`pip3 install gym lxml numpy pillow`
 
 To prepare Minecraft (after cloning this repository with 
 `git clone https://github.com/Microsoft/malmo.git`):
 
-`cd Minecraft`
+`cd malmo/Minecraft`
 
-`(echo -n "malmo.version=" && cat ../VERSION) > ./src/main/resources/version.properties` 
+`(echo -n "malmomod.version=" && cat ../VERSION) > ./src/main/resources/version.properties` 
 
 Running a single agent example mission (run each command in different cmd prompt/shells):
 
 `./launchClient.sh -port 9000 -env` or (On Windows) `launchClient.bat -port 9000 -env`
 
-(In another shell) `cd MalmoEnv` optionally run `python3 setup.py install`
+(In another shell) `cd malmo/MalmoEnv` optionally run `python3 setup.py install`
 
 `python3 run.py --mission missions/mobchase_single_agent.xml --port 9000 --episodes 10`
 
