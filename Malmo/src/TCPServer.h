@@ -60,7 +60,6 @@ namespace malmo
             virtual void startAccept();
 
             void handleAccept(
-                boost::shared_ptr<TCPConnection> new_connection,
                 const boost::system::error_code& error
             );
 
@@ -71,6 +70,7 @@ namespace malmo
             
             boost::function<void(const TimestampedUnsignedCharVector) > onMessageReceived;
             
+            boost::shared_ptr<TCPConnection> connection;
             bool confirm_with_fixed_reply;
             std::string fixed_reply;
             bool expect_size_header;
