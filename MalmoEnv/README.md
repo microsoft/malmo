@@ -14,20 +14,20 @@ Install dependencies:
 
 Java8 JDK, python3, git
 
-`pip install gym lxml numpy pillow`
+`pip3 install gym lxml numpy pillow`
 
 To prepare Minecraft (after cloning this repository with 
-`git clone -b malmoenv https://github.com/Microsoft/malmo.git`):
+`git clone https://github.com/Microsoft/malmo.git`):
 
-`cd Minecraft`
+`cd malmo/Minecraft`
 
-`(echo -n "malmo.version=" && cat ../VERSION) > ./src/main/resources/version.properties` 
+`(echo -n "malmomod.version=" && cat ../VERSION) > ./src/main/resources/version.properties` 
 
 Running a single agent example mission (run each command in different cmd prompt/shells):
 
 `./launchClient.sh -port 9000 -env` or (On Windows) `launchClient.bat -port 9000 -env`
 
-(In another shell) `cd MalmoEnv` optionally run `python3 setup.py install`
+(In another shell) `cd malmo/MalmoEnv` optionally run `python3 setup.py install`
 
 `python3 run.py --mission missions/mobchase_single_agent.xml --port 9000 --episodes 10`
 
@@ -53,10 +53,13 @@ In the two agent case, running each agent in it's own shell, the run script (for
 If you install with `pip3 install malmoenv` then you can download the Minecraft mod 
 (assuming you have git available from the command line) with: 
 
-`python3 -c "import malmoenv.bootstrap();malmoenv.bootstrap.download()`
+`python3 -c "import malmoenv.bootstrap;malmoenv.bootstrap.download()`
 
-The sample missions will be in ./MalmoPlatform/MalmoEnv/missions.
+The sample missions will be doqwnloaded to ./MalmoPlatform/MalmoEnv/missions.
 
-`malmoenv.bootstrap.launchMinecraft(9000)` can be used to start up the Malmo Minecraft Mod 
+`python3 -c "malmoenv.bootstrap.launch_minecraft(9000)"` can be used to start up the Malmo Minecraft Mod 
 listening for MalmoEnv connections on port 9000 after downloading Malmo.
+
+To test: `cd MalmoPlatform\MalmoEnv; python3 runmultiagent.py --mission missions/mobchase_single_agent.xml`
+
 

@@ -73,7 +73,7 @@ def launch_minecraft(port, installdir="MalmoPlatform", replaceable=False):
         Must be same as given (or defaulted) in download call if used.
         replaceable: whether or not to automatically restart Minecraft (default is false).
     """
-    launch_script = 'launchClient.sh'
+    launch_script = './launchClient.sh'
     if os.name == 'nt':
         launch_script = 'launchClient.bat'
     cwd = os.getcwd()
