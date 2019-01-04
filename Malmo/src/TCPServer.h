@@ -59,9 +59,7 @@ namespace malmo
 
             virtual void startAccept();
 
-            void handleAccept(
-                const boost::system::error_code& error
-            );
+            void handleAccept(const boost::system::error_code& error);
 
             void bindToPort(boost::asio::io_service& io_service, int port);
             void bindToRandomPortInRange(boost::asio::io_service& io_service, int port_min, int port_max);

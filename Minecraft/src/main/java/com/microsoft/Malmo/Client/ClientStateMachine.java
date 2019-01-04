@@ -1600,6 +1600,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Must display the GUI or Minecraft will attempt to access a non-existent player in the client tick.
                 Minecraft.getMinecraft().displayGuiScreen(new GuiMainMenu());
 
+                // Allow shutdown messages to flow through.
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException ie) {

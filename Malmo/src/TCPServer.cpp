@@ -25,7 +25,6 @@
 #include <boost/bind.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/make_shared.hpp>
-#include <boost/thread/thread.hpp>
 using boost::asio::ip::tcp;
 
 // STL:
@@ -67,7 +66,6 @@ namespace malmo
         if (this->connection != nullptr) {
             this->connection.get()->getSocket().close();
         }
-        // Allow time to drain: boost::this_thread::sleep(boost::posix_time::seconds(1));
     }
 
     void TCPServer::confirmWithFixedReply(std::string reply)
