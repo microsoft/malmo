@@ -29,18 +29,21 @@
 namespace malmo {
     StringServer::StringServer(boost::asio::io_service& io_service, int port, const boost::function<void(const TimestampedString string_message)> handle_string, const std::string& log_name)
         : handle_string(handle_string)
-        , server(io_service, port, boost::bind(&StringServer::handleMessage, this, _1), log_name)
+        , io_service(io_service)
+        , port(port)
+        , log_name(log_name)
     {
     }
 
     void StringServer::start(boost::shared_ptr<StringServer>& scope)
     {
+        this->server = boost::make_shared<TCPServer>(this->io_service, this->port, boost::bind(&StringServer::handleMessage, scope, _1), this->log_name);
         this->scope = scope;
-        this->server.start(scope.get());
+        this->server->start(scope.get());
     }
 
     void StringServer::close() {
-        this->server.close();
+        this->server->close();
     }
 
     void StringServer::release() {
@@ -60,13 +63,13 @@ namespace malmo {
     
     StringServer& StringServer::confirmWithFixedReply(std::string reply)
     {
-        this->server.confirmWithFixedReply(reply);
+        this->server->confirmWithFixedReply(reply);
         return *this;
     }
     
     StringServer& StringServer::expectSizeHeader(bool expect_size_header)
     {
-        this->server.expectSizeHeader(expect_size_header);
+        this->server->expectSizeHeader(expect_size_header);
         return *this;
     }
 
@@ -91,7 +94,7 @@ namespace malmo {
 
     int StringServer::getPort() const
     {
-        return this->server.getPort();
+        return this->server->getPort();
     }
 
     void StringServer::recordMessage(const TimestampedString string_message)
