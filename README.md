@@ -29,7 +29,7 @@ Note: The Marlo competition (for now) uses the original Malmo "AgentHost" api wi
 
 ### Malmo as a native Python wheel ###
 
-On common Windows, MacOs and Linux variants it is possible to use ```pip3 install malmo``` to install Malmo as a python with native code package: [Pip install for Malmo](https://github.com/Microsoft/malmo/blob/master/scripts/python-wheel/README.md). Once installed, the malmo Python module can be used to download source and examples and start up Minecraft with the Malmo game mod. 
+On common Windows, MacOSX and Linux variants it is possible to use ```pip3 install malmo``` to install Malmo as a python with native code package: [Pip install for Malmo](https://github.com/Microsoft/malmo/blob/master/scripts/python-wheel/README.md). Once installed, the malmo Python module can be used to download source and examples and start up Minecraft with the Malmo game mod. 
 
 Alternatively, a pre-built version of Malmo can be installed as follows:
 
