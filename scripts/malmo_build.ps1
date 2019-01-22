@@ -22,8 +22,6 @@ if (Should-Install "Git version")
     }
 }
 
-Install-Java
-
 # Install CMake:
 if (Should-Install "CMake")
 {
