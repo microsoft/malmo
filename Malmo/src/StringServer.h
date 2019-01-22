@@ -70,7 +70,10 @@ namespace malmo
             void handleMessage(const TimestampedUnsignedCharVector message);
 
             boost::function<void(const TimestampedString string_message)> handle_string;
-            TCPServer server;
+            boost::asio::io_service& io_service;
+            int port;
+            const std::string log_name;
+            boost::shared_ptr<TCPServer> server;
             std::ofstream writer;
             boost::mutex write_mutex;
 
