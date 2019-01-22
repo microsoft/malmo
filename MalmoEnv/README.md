@@ -55,7 +55,7 @@ If you install with `pip3 install malmoenv` then you can download the Minecraft 
 
 `python3 -c "import malmoenv.bootstrap; malmoenv.bootstrap.download()"`
 
-The sample missions will be doqwnloaded to ./MalmoPlatform/MalmoEnv/missions.
+The sample missions will be downloaded to ./MalmoPlatform/MalmoEnv/missions.
 
 `python3 -c "import malmoenv.bootstrap; malmoenv.bootstrap.launch_minecraft(9000)"` can be used to start up the Malmo Minecraft Mod 
 listening for MalmoEnv connections on port 9000 after downloading Malmo.
