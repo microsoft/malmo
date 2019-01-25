@@ -1,9 +1,9 @@
 ## Installing dependencies on Windows (automated) ##
 
-We provide a PowerShell script for installing all required dependencies. Please note that this script is still experimental. You can of course follow the same install steps as the script manually. NOTE: Minecraft requires Java 8 and Malmo requires a 64 bit version of Python.
+We provide a PowerShell script for installing required dependencies, except for Java 8. Please note that this script is still experimental. You can of course follow the same install steps as the script manually. NOTE: Minecraft requires Java 8 and Malmo requires a 64 bit version of Python 3.
 
 Prerequisites:
-
+- Install OpenJDK Java 8 ([OpenJDK](https://openjdk.java.net/)).
 - Download the current pre-built release for Windows from https://github.com/Microsoft/malmo/releases (for example: `Malmo-0.35.6-Windows-64bit_Python3.6.zip`)
 - Extract the contents to a directory (for example `$env:HOMEPATH\Malmo-0.35.6-Windows-64bit_Python3.6`). NOTE: the directory path should not contain spaces or non-ascii characters.
 
