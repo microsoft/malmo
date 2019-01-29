@@ -239,10 +239,11 @@ class Env:
         if self.role != 0:
             self._find_server()
         if not self.client_socket:
-            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             # print("connect " + self.server2 + ":" + str(self.port2))
-            self.client_socket.connect((self.server2, self.port2))
-            self._hello(self.client_socket)
+            sock.connect((self.server2, self.port2))
+            self._hello(sock)
+            self.client_socket = sock  # Now retries will use connected socket.
         self._init_mission()
         self.done = False
         return self._peek_obs()
@@ -302,6 +303,7 @@ class Env:
             if withturnkey:
                 comms.send_message(self.client_socket, self.turn_key.encode())
             obs = comms.recv_message(self.client_socket)
+
             reply = comms.recv_message(self.client_socket)
             reward, done, sent = struct.unpack('!dbb', reply)
             self.done = done == 1
@@ -316,7 +318,7 @@ class Env:
                 # Done turns if: turn = self.turn_key == turn_key
                 self.turn_key = turn_key
             else:
-                turn = sent != 0
+                turn = sent == 0
 
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
