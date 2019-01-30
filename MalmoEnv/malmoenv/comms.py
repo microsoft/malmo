@@ -22,7 +22,7 @@ import socket
 import functools
 import time
 
-retry_count = 9
+retry_count = 20
 retry_timeout = 10
 
 
