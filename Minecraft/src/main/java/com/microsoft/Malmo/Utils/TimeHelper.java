@@ -26,8 +26,10 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.Timer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -37,13 +39,17 @@ import net.minecraftforge.fml.relauncher.Side;
  * If the game is overclocked, this is no longer true, but generally it still makes sense to deal with a simple multiple of game ticks,
  * so we leave MillisecondsPerWorldTick unchanged.
  */
+
+@Mod.EventBusSubscriber
 public class TimeHelper
 {
     public final static float MillisecondsPerWorldTick = 50.0f;
     public final static float MillisecondsPerSecond = 1000.0f;
+    private static Boolean paused = false;  //If ticking should be paused.
     public static long serverTickLength = 50;
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
+    private static float currentTicksPerSecond = 0;
 
     /** Provide a means to measure the frequency of an event, over a rolling window.
      */
@@ -132,37 +138,38 @@ public class TimeHelper
     
     static public boolean setMinecraftClientClockSpeed(float ticksPerSecond)
     {
-        boolean devEnv = (Boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-        // We need to know, because the member name will either be obfuscated or not.
-        String timerMemberName = devEnv ? "timer" : "field_71428_T";
-        // NOTE: obfuscated name may need updating if Forge changes - search for "timer" in Malmo\Minecraft\build\tasklogs\retromapSources.log
-        Field timer;
-        try
-        {
-            timer = Minecraft.class.getDeclaredField(timerMemberName);
-            timer.setAccessible(true);
-            timer.set(Minecraft.getMinecraft(), new Timer(ticksPerSecond));
-            return true;
-        }
-        catch (SecurityException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IllegalArgumentException e)
-        {
-            e.printStackTrace();
-        }
-        catch (NoSuchFieldException e)
-        {
-            e.printStackTrace();
-        }
+        // * NOTE: In Minecraft 1.12 this changes; tickLength is the main mechanism 
+        // for advancing ticks.
+        Minecraft.getMinecraft().timer = new PauseTimer( new Timer(ticksPerSecond));
+        
         return false;
     }
+
+    static public void pause(){
+        System.out.println("Pausing");
+        paused = true;
+    }
     
+    @SubscribeEvent
+    public static  void pauseClientTickHander(ClientTickEvent e){
+        if(e.phase == Phase.START){
+            Minecraft.getMinecraft().isGamePaused = paused || Minecraft.getMinecraft().isGamePaused();
+        }
+    }
+
+    @SubscribeEvent
+    public static void unpauseOnShutdown(net.minecraftforge.event.world.WorldEvent.Unload e){
+        unpause();
+    }
+
+    static public void unpause(){
+        System.out.println("Unpausing");
+        paused = false;
+    }
+
+    static public Boolean isPaused(){
+        return paused;
+    }
     static public void updateDisplay()
     {
         long timeNow = System.currentTimeMillis();

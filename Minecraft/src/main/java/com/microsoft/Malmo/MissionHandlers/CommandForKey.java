@@ -337,7 +337,7 @@ public class CommandForKey extends CommandBase
             }
         }
         // Newer versions of MC have changed the way they map from key value to KeyBinding, so we
-        // *also* need to fiddle with the static KeyBinding HASH map:
+        // *also* need to fiddle with the static KeyBinding HASH map:_
         Field[] kbfields = KeyBinding.class.getDeclaredFields();
         for (Field f : kbfields)
         {

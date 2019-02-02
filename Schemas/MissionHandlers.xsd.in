@@ -1773,6 +1773,17 @@
         </xs:complexType>
     </xs:element>
 
+
+
+
+    <xs:element name="PauseCommand">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the Mod will accept the pause command for payusing missions.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
     <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
     <xs:element name="ObservationFromRecentCommands">
@@ -2073,6 +2084,8 @@
         </xs:annotation>
         <xs:complexType/>
     </xs:element>
+
+
 
     <!--============================================= REWARD PRODUCERS ==============================================-->
 

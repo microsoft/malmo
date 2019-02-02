@@ -1798,6 +1798,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Return Minecraft speed to "normal":
             TimeHelper.setMinecraftClientClockSpeed(20);
             TimeHelper.displayGranularityMs = 0;
+            TimeHelper.unpause();
 
             ClientStateMachine.this.missionQuitCode = this.quitCode;
             if (errorReport != null)

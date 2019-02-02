@@ -371,6 +371,7 @@
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>
             <xs:element ref="TurnBasedCommands" minOccurs="0"/>
             <xs:element ref="HumanLevelCommands" minOccurs="0"/>
+            <xs:element ref="PauseCommand" minOccurs="0"/>
             <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands, and add to TurnBasedApplicableCommandHandlers (below) if appropriate --> 
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0" />

@@ -1,0 +1,14 @@
+{
+    "required": true,
+    "package": "com.microsoft.Malmo.Mixins",
+    "mixins": [
+      "MixinMinecraftServerRun"
+    ],
+    "server": [
+    ],
+    "client": [
+    ],
+    "compatibilityLevel": "JAVA_8",
+    "minVersion": "0.6.11",
+    "refmap": "mixins.replaymod.refmap.json"
+  }
