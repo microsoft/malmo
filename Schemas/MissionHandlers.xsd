@@ -2638,6 +2638,39 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:simpleType name="RewardDensityForDistanceTraveledToCompassTarget">
+        <xs:annotation>
+            <xs:documentation>
+                Reward type for {{{RewardForDistanceTraveledToCompassTarget}}}:
+
+                - {{{PER_TICK}}} - reward the distance traveled twards compass target each tick
+
+                - {{{PER_TICK_ACCUMULATED}}} - the reward will be adjusted by the delta at each tick, and the current total sent. E.G. If the agent moves forward to the target and then back to start the reward will be 0
+
+                - {{{MISSION_END}}} - the reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PER_TICK"/>
+            <xs:enumeration value="PER_TICK_ACCUMULATED"/>
+            <xs:enumeration value="MISSION_END"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="RewardForDistanceTraveledToCompassTarget">
+        <xs:annotation>
+            <xs:documentation>
+                Reward that is dependent on distance to compass target. Can be received per tick, or just once at the end.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
+            <xs:attribute name="rewardPerBlock" type="xs:decimal" use="required"/>
+            <xs:attribute name="density" type="RewardDensityForDistanceTraveledToCompassTarget" use="required"/>
+            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+        </xs:complexType>
+    </xs:element>
+
     <xs:complexType name="MobWithDescriptionAndReward">
         <xs:complexContent>
             <xs:extension base="MobWithDescription">

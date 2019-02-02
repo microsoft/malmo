@@ -28,6 +28,14 @@ import net.minecraft.util.math.BlockPos;
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemCompass;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.util.NonNullList;
+import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.util.ResourceLocation;
+
+
 
 /**
  * Creates observations from a compass in the agent's inventory.
@@ -37,50 +45,59 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 public class ObservationFromCompassImplementation extends HandlerBase implements IObservationProducer {
 
 	@Override
-	public void writeObservationsToJSON(JsonObject json, MissionInit missionInit) {
+	public void writeObservationsToJSON(JsonObject compassJson, MissionInit missionInit) {
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		if (player == null)
 			return;
 
-		InventoryPlayer inventory = player.inventory;
+		Minecraft mc = Minecraft.getMinecraft();
+		ItemStack compassStack = null;
+		boolean hasCompass = false, hasHotbarCompass = false, hasMainHandCompass = false, hasOffHandCompass = false;
 
-		boolean flag = false;
-		for (int i = 0; i < 41; i++)
-			if (inventory.getStackInSlot(i).getItem() instanceof ItemCompass)
-				flag = true;
+		// If player has a compass use that one (there is randomness in compass needle)
 
-		// If there isn't a compass in the player's inventory, can't do anything
-		if (!flag)
-			json.addProperty("set", false);
-		else {
-			json.addProperty("set", true);
-
-			// Get world spawn, which is what the compass points at
-			BlockPos spawn = player.world.getSpawnPoint();
-			json.addProperty("compass-x", spawn.getX());
-			json.addProperty("compass-y", spawn.getY());
-			json.addProperty("compass-z", spawn.getZ());
-
-			BlockPos playerLoc = player.getPosition();
-			json.addProperty("relative-x", spawn.getX() - playerLoc.getX());
-			json.addProperty("relative-y", spawn.getY() - playerLoc.getY());
-			json.addProperty("relative-z", spawn.getZ() - playerLoc.getZ());
-
-			double dx = (playerLoc.getX() - spawn.getX());
-			double dz = (playerLoc.getZ() - spawn.getZ());
-			double idealYaw = ((Math.atan2(dz, dx) + Math.PI) * 180.0 / Math.PI);
-			double playerYaw = player.rotationYaw;
-			double difference = idealYaw - playerYaw;
-
-			if (difference < 0)
-				difference += 360;
-			if (difference > 360)
-				difference -= 360;
-
-			json.addProperty("offset", difference);
-			json.addProperty("normalized-offset", difference - 180);
-			json.addProperty("distance", playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ()));
+		// Offhand compass
+		for (ItemStack itemStack : mc.player.inventory.offHandInventory) {
+			if (itemStack.getItem() instanceof ItemCompass) {
+				compassStack = itemStack;
+				hasCompass = true;
+				hasOffHandCompass = true;
+				break;
+			}
 		}
+		// Main Inventory compass ( overrides offhand compass iff player is holding main hand compass)
+		int invSlot = 0;
+		for (ItemStack itemStack : mc.player.inventory.mainInventory) {
+			if (itemStack.getItem() instanceof ItemCompass) {
+				compassStack = compassStack == null ? itemStack : compassStack;
+				hasCompass = true;
+				if (invSlot < InventoryPlayer.getHotbarSize()) {
+					hasHotbarCompass = true;
+				}
+				if (invSlot == mc.player.inventory.currentItem) {
+					hasMainHandCompass = true;
+					compassStack = itemStack;
+				}
+				invSlot += 1;
+			}
+		}
+		if (!hasCompass) {
+			compassStack = new ItemStack(new ItemCompass());
+		}
+
+		IItemPropertyGetter angleGetter = compassStack.getItem().getPropertyGetter(new ResourceLocation("angle"));
+		float angle = angleGetter.apply(compassStack, mc.world, mc.player);
+		compassJson.addProperty("angle", angle); // Current compass angle [0 - 1]
+		compassJson.addProperty("hasCompass", hasCompass); // Player has compass in main inv or offhand
+		compassJson.addProperty("hasHotbarCompass", hasHotbarCompass); // Player has compass in HOTBAR
+		compassJson.addProperty("hasActiveCompass", hasMainHandCompass || hasOffHandCompass); // Player is holding a
+																							  // visible compass
+		compassJson.addProperty("hasMainHandCompass", hasMainHandCompass); // Player is holding a compass
+		compassJson.addProperty("hasOffHandCompass", hasOffHandCompass); // Player is holding an offhand compass
+
+		BlockPos spawn = mc.player.world.getSpawnPoint(); // Add distance observation in blocks (not vanilla!)
+		compassJson.addProperty("distance",
+				mc.player.getPosition().getDistance(spawn.getX(), spawn.getY(), spawn.getZ()));
 	}
 
 	@Override
