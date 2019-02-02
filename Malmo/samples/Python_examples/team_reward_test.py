@@ -77,7 +77,7 @@ def safeStartMission(agent_host, my_mission, my_client_pool, my_mission_record, 
                     print("Will wait and retry.", max_attempts - used_attempts, "attempts left.")
                     time.sleep(2)
             else:
-                print("Other error:", e.message)
+                print("Other error: ", str(e))
                 print("Waiting will not help here - bailing immediately.")
                 exit(1)
         if used_attempts == max_attempts:

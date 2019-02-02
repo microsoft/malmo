@@ -84,4 +84,4 @@ RUN sudo apt-get update && sudo apt-get install -y dos2unix
 COPY ./build.sh /home/malmo/build.sh
 RUN sudo dos2unix /home/malmo/build.sh
 ENV MALMO_XSD_PATH=/home/malmo/MalmoPlatform/Schemas
-ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.5"]
+#ENTRYPOINT ["/home/malmo/build.sh", "-boost", "1_66_0", "-python", "3.5"]

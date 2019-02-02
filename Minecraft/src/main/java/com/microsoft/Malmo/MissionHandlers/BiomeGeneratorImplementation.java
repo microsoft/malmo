@@ -16,9 +16,11 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // --------------------------------------------------------------------------------------------------
+
 package com.microsoft.Malmo.MissionHandlers;
 
 import java.util.Random;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
@@ -67,9 +69,11 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 		@Override
 		public int[] getInts(int par1, int par2, int par3, int par4) {
 			int[] aint2 = IntCache.getIntCache(par3 * par4);
+
 			for (int i = 0; i < aint2.length; i++) {
 				aint2[i] = value;
 			}
+
 			return aint2;
 		}
 	}
@@ -117,12 +121,15 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 	public boolean shouldCreateWorld(MissionInit missionInit, World world) {
 		if (this.bparams != null && this.bparams.isForceReset())
 			return true;
+
 		if (Minecraft.getMinecraft().world == null || world == null)
 			return true; // Definitely need to create a world if there isn't one
-							// in existence!
+		                 // in existence!
+
 		String genOptions = world.getWorldInfo().getGeneratorOptions();
 		if (genOptions != null && !genOptions.isEmpty())
 			return true; // Biome generator has no generator options.
+
 		return false;
 	}
 
@@ -130,4 +137,5 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 	public String getErrorDetails() {
 		return ""; // Don't currently have any error exit points.
 	}
+
 }

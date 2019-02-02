@@ -63,6 +63,9 @@ namespace malmo
     void TCPServer::close() {
         this->closing = true;
         this->acceptor->close();
+        if (this->connection != nullptr) {
+            this->connection.get()->getSocket().close();
+        }
     }
 
     void TCPServer::confirmWithFixedReply(std::string reply)
@@ -83,26 +86,25 @@ namespace malmo
                 this->onMessageReceived(msg);
         };
 
-        boost::shared_ptr<TCPConnection> new_connection = TCPConnection::create(
+        this->connection = TCPConnection::create(
             this->acceptor->get_io_service(),
             deliverMsgIfNotClosed,
             this->expect_size_header,
             this->log_name
         );
-            
-        if( this->confirm_with_fixed_reply )
-            new_connection->confirmWithFixedReply( this->fixed_reply );
 
-        this->acceptor->async_accept(new_connection->getSocket(),
-            boost::bind(&TCPServer::handleAccept,
-            this,
-            new_connection,
-            boost::asio::placeholders::error));
+        if (this->confirm_with_fixed_reply)
+            this->connection->confirmWithFixedReply(this->fixed_reply);
+
+        if (!this->closing) {
+            this->acceptor->async_accept(this->connection->getSocket(),
+                boost::bind(&TCPServer::handleAccept,
+                this,
+                boost::asio::placeholders::error));
+        }
     }
     
-    void TCPServer::handleAccept(
-        boost::shared_ptr<TCPConnection> new_connection,
-        const boost::system::error_code& error)
+    void TCPServer::handleAccept(const boost::system::error_code& error)
     {
         // On closing or on error release scope of async io processing which can be us. 
         
@@ -110,18 +112,19 @@ namespace malmo
         {
             if (this->closing)
             {
-                new_connection.get()->getSocket().close();
+                this->connection.get()->getSocket().close();
                 if (this->scope != nullptr) 
                     this->scope->release();
             }
             else {
-                new_connection->read();
+                this->connection->read();
                 if (!this->closing)
                 {
                     this->startAccept();
                 }
                 else
                 {
+                    this->connection.get()->getSocket().close();
                     if (this->scope != nullptr)
                         this->scope->release();
                 }

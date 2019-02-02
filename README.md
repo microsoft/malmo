@@ -7,7 +7,31 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
     
 ## Getting Started ##
 
-It is now possible to use ```pip3 install malmo``` to install Malmo as a python package: [Pip install for Malmo](https://github.com/Microsoft/malmo/blob/master/scripts/python-wheel/README.md). Once installed, the malmo Python module can be used to download source and examples and start up Minecraft with the Malmo game mod. Alternatively, a pre-built version of Malmo can be installed as follows:
+### *** NEW  *** ###
+
+MamloEnv implements an Open AI "gym"-like environment directly in Python (one to one in a side-car like pattern with Java Minecraft). If you only need this functionallity or are interested in trying it out then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/master/MalmoEnv). Otherwise either install the "Malmo native wheel" (if available for your platform) or a binary release (more below). The build has been simplified with less required dependencies so building Malmo yourself is always an option!
+
+Advantages:
+    
+1. No native code - you don't have to build or install platform dependent code.
+2. A single network connection is used to run missions. No dynamic ports means it's more virtualization friendly.
+3. A simpler multi-agent coordination protocol. 
+One Minecraft client instance, one single port is used to start missions.
+4. Less impedance miss-match with the gym api.
+
+Disadvantages:
+
+1. The existing Malmo examples are not supported (as API used is different). 
+Marlo envs should work with this [port](https://github.com/AndKram/marLo/tree/malmoenv).
+2. The API is more limited (e.g. selecting video options) - can edit mission xml directly.
+
+Note: The Marlo competition (for now) uses the original Malmo "AgentHost" api with it's native code implementation. 
+
+### Malmo as a native Python wheel ###
+
+On common Windows, MacOSX and Linux variants it is possible to use ```pip3 install malmo``` to install Malmo as a python with native code package: [Pip install for Malmo](https://github.com/Microsoft/malmo/blob/master/scripts/python-wheel/README.md). Once installed, the malmo Python module can be used to download source and examples and start up Minecraft with the Malmo game mod. 
+
+Alternatively, a pre-built version of Malmo can be installed as follows:
 
 1. [Download the latest *pre-built* version, for Windows, Linux or MacOSX.](https://github.com/Microsoft/malmo/releases)   
       NOTE: This is _not_ the same as downloading a zip of the source from Github. _Doing this **will not work** unless you are planning to build the source code yourself (which is a lengthier process). If you get errors along the lines of "`ImportError: No module named MalmoPython`" it will probably be because you have made this mistake._

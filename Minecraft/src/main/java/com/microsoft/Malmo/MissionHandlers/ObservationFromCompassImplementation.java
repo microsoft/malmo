@@ -34,7 +34,6 @@ import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.util.ResourceLocation;
 
 
-
 /**
  * Creates observations from a compass in the agent's inventory.
  * 

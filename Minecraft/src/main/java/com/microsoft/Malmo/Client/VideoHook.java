@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.microsoft.Malmo.Utils.AddressHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
@@ -49,6 +50,7 @@ import com.microsoft.Malmo.Schemas.MissionDiagnostics.VideoData;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TextureHelper;
+
 
 /**
  * Register this class on the MinecraftForge.EVENT_BUS to intercept video
@@ -107,10 +109,12 @@ public class VideoHook {
     private long framesSent = 0;
     private VideoProducedObserver observer;
 
+    private MalmoEnvServer envServer = null;
+
     /**
      * Resize the rendering and start sending video over TCP.
      */
-    public void start(MissionInit missionInit, IVideoProducer videoProducer, VideoProducedObserver observer)
+    public void start(MissionInit missionInit, IVideoProducer videoProducer, VideoProducedObserver observer, MalmoEnvServer envServer)
     {
         if (videoProducer == null)
         {
@@ -121,6 +125,7 @@ public class VideoHook {
         this.missionInit = missionInit;
         this.videoProducer = videoProducer;
         this.observer = observer;
+        this.envServer = envServer;
         this.buffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
         this.headerbuffer = ByteBuffer.allocate(20).order(ByteOrder.BIG_ENDIAN);
         this.renderWidth = videoProducer.getWidth();
@@ -284,26 +289,47 @@ public class VideoHook {
 
         boolean success = false;
 
+        long time_after_render_ns;
+
         try
         {
             int size = this.videoProducer.getRequiredBufferSize();
-            // Get buffer ready for writing to:
-            this.buffer.clear();
-            this.headerbuffer.clear();
-            // Write the pos data:
-            this.headerbuffer.putFloat(x);
-            this.headerbuffer.putFloat(y);
-            this.headerbuffer.putFloat(z);
-            this.headerbuffer.putFloat(yaw);
-            this.headerbuffer.putFloat(pitch);
-            // Write the frame data:
-            this.videoProducer.getFrame(this.missionInit, this.buffer);
-            // The buffer gets flipped by getFrame(), but we need to flip our header buffer ourselves:
-            this.headerbuffer.flip();
-            ByteBuffer[] buffers = {this.headerbuffer, this.buffer};
 
-            long time_after_render_ns = System.nanoTime();
-            success = this.connection.sendTCPBytes(buffers, size + POS_HEADER_SIZE);
+            if (AddressHelper.getMissionControlPort() == 0) {
+                success = true;
+
+                if (envServer != null) {
+                    // Write the obs data into a newly allocated buffer:
+                    byte[] data = new byte[size];
+                    this.buffer.clear();
+                    this.videoProducer.getFrame(this.missionInit, this.buffer);
+                    this.buffer.get(data); // Avoiding copy not simple as data is kept & written to a stream later.
+                    time_after_render_ns = System.nanoTime();
+
+                    envServer.addFrame(data);
+                } else {
+                    time_after_render_ns = System.nanoTime();
+                }
+            } else {
+                // Get buffer ready for writing to:
+                this.buffer.clear();
+                this.headerbuffer.clear();
+                // Write the pos data:
+                this.headerbuffer.putFloat(x);
+                this.headerbuffer.putFloat(y);
+                this.headerbuffer.putFloat(z);
+                this.headerbuffer.putFloat(yaw);
+                this.headerbuffer.putFloat(pitch);
+                // Write the frame data:
+                this.videoProducer.getFrame(this.missionInit, this.buffer);
+                // The buffer gets flipped by getFrame(), but we need to flip our header buffer ourselves:
+                this.headerbuffer.flip();
+                ByteBuffer[] buffers = {this.headerbuffer, this.buffer};
+                time_after_render_ns = System.nanoTime();
+
+                success = this.connection.sendTCPBytes(buffers, size + POS_HEADER_SIZE);
+            }
+
             long time_after_ns = System.nanoTime();
             float ms_send = (time_after_ns - time_after_render_ns) / 1000000.0f;
             float ms_render = (time_after_render_ns - time_before_ns) / 1000000.0f;

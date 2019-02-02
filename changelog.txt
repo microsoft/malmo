@@ -1,3 +1,11 @@
+0.37.0
+-------------------
+Fix: for timeLimitInSeconds.
+Fix: Multi-agent timeouts added.
+New: Log for scoring missions.
+New: malmoenv - python to Java environment for OpenAI gym.
+New: Observations from compass (with Biome world generation).
+
 0.36.0
 -------------------
 Fixes for MacOS stability problems.

@@ -728,6 +728,44 @@ namespace malmo
         this->world_state.is_mission_running = false;
         closeServers();
         closeRecording();
+
+        // Ensure all TCP server ports are closed.
+
+        if (this->video_server) {
+            this->video_server->close();
+            this->video_server = 0;
+        }
+
+        if (this->depth_server) {
+            this->depth_server->close();
+            this->depth_server = 0;
+        }
+
+        if (this->luminance_server) {
+            this->luminance_server->close();
+            this->luminance_server = 0;
+        }
+
+        if (this->colourmap_server) {
+            this->colourmap_server->close ();
+            this->colourmap_server = 0;
+        }
+
+        if (this->observations_server) {
+            this->observations_server->close();
+            this->observations_server = 0;
+        }
+
+        if (this->rewards_server) {
+            this->rewards_server->close();
+            this->rewards_server = 0;
+
+        }
+
+        if (this->mission_control_server) {
+            this->mission_control_server->close();
+            this->mission_control_server = 0;
+        }
     }
 
     void AgentHost::closeServers()

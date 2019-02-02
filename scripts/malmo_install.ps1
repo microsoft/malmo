@@ -33,7 +33,6 @@ try {
     Display-Heading "Checking dependencies"
     $InstallList = "Install-7Zip;
          Install-Ffmpeg;
-         Install-Java;
          "
     if ($headless) {
          $InstallList += "Install-Mesa;"
@@ -60,11 +59,6 @@ try {
     {
         $InstallScript = [ScriptBlock]::Create($InstallList)
         Invoke-Command $InstallScript
-    }
-
-    # catch the case that java was installed in a separate process
-    if (!$env:JAVA_HOME) {
-        [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Process")
     }
 
     # update pythonpath

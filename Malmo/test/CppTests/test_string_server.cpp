@@ -56,9 +56,10 @@ bool testStringServer( bool withReply )
     std::cout << "Starting server.." << std::endl;
     boost::asio::io_service io_service;
     boost::shared_ptr<StringServer> server = boost::make_shared<StringServer>( io_service, 0, onMessageReceived, "test" );
+    server->start(server);
     if( withReply )
         server->confirmWithFixedReply( expected_reply );
-    server->start(server);
+   
     boost::thread bt(boost::bind(&boost::asio::io_service::run, &io_service));
     
     const int num_messages_sent = 100;

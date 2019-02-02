@@ -25,6 +25,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.NavigationDecorator;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
@@ -38,7 +39,9 @@ import net.minecraft.world.World;
  *
  */
 public class NavigationDecoratorImplementation extends HandlerBase implements IWorldDecorator {
+
 	private NavigationDecorator nparams;
+
 	private double originX, originY, originZ;
 	private double placementX, placementY, placementZ;
 	private double radius;
