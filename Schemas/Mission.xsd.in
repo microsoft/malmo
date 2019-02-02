@@ -360,6 +360,7 @@
             <xs:element ref="RewardForTimeTaken" minOccurs="0"/>
             <xs:element ref="RewardForCatchingMob" minOccurs="0"/>
             <xs:element ref="RewardForDamagingEntity" minOccurs="0"/>
+            <xs:element ref="RewardForDistanceTraveledToCompassTarget" minOccurs="0"/>
 
             <xs:element ref="ContinuousMovementCommands" minOccurs="0"/>
             <xs:element ref="AbsoluteMovementCommands" minOccurs="0"/>

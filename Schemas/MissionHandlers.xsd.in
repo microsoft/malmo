@@ -187,9 +187,9 @@
                 <xs:annotation>
                     <xs:documentation>
                         The biome type for the world. Each chunk will be loaded with the biome specified.
-
+                        
                         If left blank, the world will be a normal survival world.
-
+                        
                         Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
                     </xs:documentation>
                 </xs:annotation>
@@ -972,10 +972,17 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="radius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+                        <xs:element name="minRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
-                        Specifies the radius of the circle around which the block may be randomly placed.
+                        Specifies the minumum radius of the circle around which the block may be randomly placed.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="maxRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+                <xs:annotation>
+                    <xs:documentation>
+                        Specifies the maximum radius of the circle around which the block may be randomly placed.
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -1006,6 +1013,33 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
+            <xs:element name="randomizedRadius" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        Sets whether or not the target block radius should be randomized within a certain radius.
+                        If false, will set the default target  radius to the given radius.
+                        If true, will set the default target radius randomly within the bound specified below.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="minRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="10">
+                <xs:annotation>
+                    <xs:documentation>
+                        The minimum distance for a randomly placed target block.
+
+                        If omitted, and randomization of radius enabled, set to 10 blocks.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="maxRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="64">
+                <xs:annotation>
+                    <xs:documentation>
+                        The maximum distance for a randomly placed target block.
+
+                        If omitted, and randomization of radius enabled, set to 64 blocks.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:all>
     </xs:complexType>
 
@@ -1032,9 +1066,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             Sets whether or not the compass location should be randomized within a certain radius.
-
                             If false, will set the compass location to the block that was randomly placed.
-
                             If true, will set the compass location to a random spot within the radius specified below.
                         </xs:documentation>
                     </xs:annotation>
@@ -2010,6 +2042,7 @@
         <xs:complexType/>
     </xs:element>
 
+
     <xs:element name="ObservationFromCompass">
         <xs:annotation>
             <xs:documentation>
@@ -2363,6 +2396,39 @@
             <xs:attribute name="initialReward" type="xs:decimal" use="required"/>
             <xs:attribute name="delta" type="xs:decimal" use="required"/>
             <xs:attribute name="density" type="RewardDensityForTimeTaken" use="required"/>
+            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="RewardDensityForDistanceTraveledToCompassTarget">
+        <xs:annotation>
+            <xs:documentation>
+                Reward type for {{{RewardForDistanceTraveledToCompassTarget}}}:
+
+                - {{{PER_TICK}}} - reward the distance traveled twards compass target each tick
+
+                - {{{PER_TICK_ACCUMULATED}}} - the reward will be adjusted by the delta at each tick, and the current total sent. E.G. If the agent moves forward to the target and then back to start the reward will be 0
+
+                - {{{MISSION_END}}} - the reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PER_TICK"/>
+            <xs:enumeration value="PER_TICK_ACCUMULATED"/>
+            <xs:enumeration value="MISSION_END"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="RewardForDistanceTraveledToCompassTarget">
+        <xs:annotation>
+            <xs:documentation>
+                Reward that is dependent on distance to compass target. Can be received per tick, or just once at the end.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
+            <xs:attribute name="rewardPerBlock" type="xs:decimal" use="required"/>
+            <xs:attribute name="density" type="RewardDensityForDistanceTraveledToCompassTarget" use="required"/>
             <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
         </xs:complexType>
     </xs:element>
