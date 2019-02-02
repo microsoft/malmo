@@ -1,16 +1,38 @@
 // For those who want the bleeding edge
 buildscript {
     repositories {
+
+        maven { url 'https://jitpack.io' }
         jcenter()
+        mavenCentral()
         maven {
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
+        classpath 'org.ow2.asm:asm:6.0'
+        classpath('com.github.SpongePowered:MixinGradle:dcfaf61'){ // 0.6
+            // Because forgegradle requires 6.0 (not -debug-all) while mixingradle depends on 5.0
+            // and putting mixin right here will place it before forge in the class loader
+            exclude group: 'org.ow2.asm', module: 'asm-debug-all'
+        }
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
+// For versions >= 1.8
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
+// For versions < 1.8
+// apply plugin: 'forge'
+
+// ext {
+//     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+//     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.malmo.refmap.json')
+// }
 
 
 // Read the version number from the Mod's version properties file.
@@ -38,8 +60,24 @@ minecraft {
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
+repositories {
+    maven {
+        name = "SpongePowered Repo"
+        url = "http://repo.spongepowered.org/maven/"
+    }
+    maven { url 'https://jitpack.io' }
+}
+
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
 jar {
+
+    manifest {
+        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+                'TweakOrder': '0',
+                'FMLCorePluginContainsFMLMod': 'true',
+                'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
+                'FMLAT': 'malmomod_at.cfg'
+    }
     manifest {
         attributes  'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
                     'FMLCorePluginContainsFMLMod': 'true'
@@ -61,26 +99,10 @@ exec.getOutputs().files.setFrom(file("dummy_value"))
 exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
-    // you may put jars on which you depend on in ./libs
-    // or you may define them like so..
-    //compile "some.group:artifact:version:classifier"
-    //compile "some.group:artifact:version"
-      
-    // real examples
-    //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // the 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    //provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // the deobf configurations:  'deobfCompile' and 'deobfProvided' are the same as the normal compile and provided,
-    // except that these dependencies get remapped to your current MCP mappings
-    //deobfCompile 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-    //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // for more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // compile 'com.github.SpongePowered:Mixin:404f5da' // 0.7.5-SNAPSHOT
+    // ^ mixin doesn't compile on jitpack, so we'll have to depend on the SNAPSHOT and build it manually for reprod
+    //shade group: 'org.apache.commons', name: 'com.springsource.org.apache.commons.codec', version: '1.6.0'
+    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
 
 }
 
@@ -115,10 +137,111 @@ if (JavaVersion.current().isJava8Compatible())
     }
 }
 
+// Mixin stuff.
+
+sourceSets {
+    main {
+        ext.refMap = "mixins.malmomod.refmap.json"
+    }
+}
+
+
+
+task copySrg(type: Copy, dependsOn: 'genSrgs') {
+    from {project.tasks.genSrgs.mcpToSrg}
+    into 'build'
+}
+
+setupDecompWorkspace.dependsOn copySrg
+setupDevWorkspace.dependsOn copySrg
+project.tasks.idea.dependsOn copySrg
+
+
+// Mixin uses multiple HashMaps to generate the refmap.
+// HashMaps are unordered collections and as such do not produce deterministic output.
+// To fix that, we simply sort the refmap json file.
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+compileJava.doLast {
+    File refmapFile =  compileJava.ext.refMapFile 
+    if (refmapFile.exists()) {
+        def ordered
+        ordered = {
+            if (it instanceof Map) {
+                def sorted = new TreeMap(it)
+                sorted.replaceAll { k, v -> ordered(v) }
+                sorted
+            } else if (it instanceof List) {
+                it.replaceAll { v -> ordered(v) }
+            } else {
+                it
+            }
+        }
+        def json = JsonOutput.toJson(ordered(new JsonSlurper().parse(refmapFile)))
+        refmapFile.withWriter { it.write json }
+    }
+}
+
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+
+import org.objectweb.asm.*
+
+import static org.objectweb.asm.Opcodes.ASM5
+
+// MC binaries were complied with a java version that produces invalid class files under certain circumstances
+// This causes setupCIWorkspace to be insufficient for compiling.
+// Related JDK bug: https://bugs.openjdk.java.net/browse/JDK-8066725
+// As a workaround, to use setupCIWorkspace on Drone, we modify the bin jar in-place and remove all parameter annotations.
+// WARNING: This piece of code ignores any and all gradle conventions and will probably fail horribly when run outside
+// of a single-use environment (e.g. Drone). Use setupDecompWorkspace for normal use.
+def annotationWorkaround = {
+    println "Applying RuntimeInvisibleParameterAnnotations workaround..."
+    File jar = getOutJar()
+    File tmp = new File((File) getTemporaryDir(), "workaround.jar")
+    tmp.withOutputStream {
+        new ZipOutputStream(it).withStream { dst ->
+            new ZipFile(jar).withCloseable { src ->
+                src.entries().each {
+                    if (it.name.startsWith("net/minecraft/") && it.name.endsWith(".class")) {
+                        def cw = new ClassWriter(0)
+                        def cv = new ClassVisitor(ASM5, cw) {
+                            @Override
+                            MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                                return new MethodVisitor(ASM5, cv.visitMethod(access, name, desc, signature, exceptions)) {
+                                    @Override
+                                    AnnotationVisitor visitParameterAnnotation(int parameter, String pdesc, boolean visible) {
+                                        return null // Strip all parameter annotations
+                                    }
+                                }
+                            }
+                        }
+                        new ClassReader(src.getInputStream(it)).accept(cv, 0)
+                        dst.putNextEntry(new ZipEntry(it.name))
+                        dst.write(cw.toByteArray())
+                    } else {
+                        dst.putNextEntry(it)
+                        dst.write(src.getInputStream(it).bytes)
+                    }
+                }
+            }
+        }
+    }
+    jar.delete()
+    tmp.renameTo(jar)
+}
+
+tasks.deobfMcMCP.doLast annotationWorkaround
+
+
+
 // -------------- Task 'jaxb' runs xjc to make java files from XSD files --------------------
 
 gradle.projectsEvaluated {
     // compileJava target isn't available until after forge has initialized things
+    compileJava.dependsOn copySrg
     compileJava.dependsOn jaxb
     compileJava.dependsOn copyModToClient
     compileJava.dependsOn copyModToServer
