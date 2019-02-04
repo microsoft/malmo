@@ -258,12 +258,14 @@ public class VideoHook {
      *            Contains information about the event (not used).
      */
     @SubscribeEvent
-    public void postRender(RenderGameOverlayEvent.Pre event)
+    public void postRender(RenderWorldLastEvent event)
     {
+        // WHG: HAND RENDER
+        // To render with hand convert RenderWorldLastEvent to RenderGameOverlayEvent.Pre
+        // Then include the following lines
+        // $ if(event.getType() != RenderGameOverlayEvent.ElementType.ALL)
+        // $    return;
 
-        if(event.getType() != RenderGameOverlayEvent.ElementType.ALL)
-            return;
-        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
 
         // Check that the video producer and frame type match - eg if this is a colourmap frame, then
         // only the colourmap videoproducer needs to do anything.
