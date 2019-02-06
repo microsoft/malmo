@@ -2234,6 +2234,25 @@
             <xs:attributeGroup ref="RewardProducerAttributes" />
         </xs:complexType>
     </xs:element>
+    
+    <xs:element name="RewardForSmeltingItem">
+        <xs:annotation>
+            <xs:documentation>
+                Sends a reward when the agent smelts a specific item.
+
+                If Sparse is set to true, will only give full reward on crafting of entire amount.
+
+                Otherwise, will give the reward amount notated for each item crafted up to the amount noted.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithReward" />
+            </xs:choice>
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="false" />
+            <xs:attributeGroup ref="RewardProducerAttributes" />
+        </xs:complexType>
+    </xs:element>
 
     <xs:element name="RewardForDiscardingItem">
         <xs:annotation>
@@ -2498,6 +2517,19 @@
         <xs:annotation>
             <xs:documentation>
                 When this is included the agent's mission will end when they craft a specified item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="AgentQuitFromSmeltingItem">
+        <xs:annotation>
+            <xs:documentation>
+                When this is included the agent's mission will end when they smelt a specified item.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
