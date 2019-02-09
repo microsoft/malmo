@@ -24,139 +24,139 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
  * specified amounts.
  */
 public class RewardForSmeltingItemImplementation extends RewardForItemBase
-		implements IRewardProducer, IMalmoMessageListener {
+        implements IRewardProducer, IMalmoMessageListener {
 
-	private RewardForSmeltingItem params;
-	private ArrayList<ItemMatcher> matchers;
-	private HashMap<String, Integer> craftedItems;
-	private boolean callSmelt = true;
+    private RewardForSmeltingItem params;
+    private ArrayList<ItemMatcher> matchers;
+    private HashMap<String, Integer> craftedItems;
+    private int callSmelt = 0;
 
-	@SubscribeEvent
-	public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
-		if (callSmelt)
-			checkForMatch(event.smelting);
+    @SubscribeEvent
+    public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
+        if (callSmelt % 4 == 0)
+            checkForMatch(event.smelting);
 
-		callSmelt = !callSmelt;
-	}
+        callSmelt = (callSmelt + 1) % 4;
+    }
 
-	/**
-	 * Checks whether the ItemStack matches a variant stored in the item list. If
-	 * so, returns true, else returns false.
-	 *
-	 * @param is The item stack
-	 * @return If the stack is allowed in the item matchers and has color or
-	 * variants enabled, returns true, else false.
-	 */
-	private boolean getVariant(ItemStack is) {
-		for (ItemMatcher matcher : matchers) {
-			if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
-				if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
-					return true;
-				if (matcher.matchSpec.getVariant() != null && matcher.matchSpec.getVariant().size() > 0)
-					return true;
-			}
-		}
+    /**
+     * Checks whether the ItemStack matches a variant stored in the item list. If
+     * so, returns true, else returns false.
+     *
+     * @param is The item stack
+     * @return If the stack is allowed in the item matchers and has color or
+     * variants enabled, returns true, else false.
+     */
+    private boolean getVariant(ItemStack is) {
+        for (ItemMatcher matcher : matchers) {
+            if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
+                if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
+                    return true;
+                if (matcher.matchSpec.getVariant() != null && matcher.matchSpec.getVariant().size() > 0)
+                    return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private int getSmeltedItemCount(ItemStack is) {
-		boolean variant = getVariant(is);
+    private int getSmeltedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
 
-		if (variant)
-			return (craftedItems.get(is.getUnlocalizedName()) == null) ? 0 : craftedItems.get(is.getUnlocalizedName());
-		else
-			return (craftedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
-					: craftedItems.get(is.getItem().getUnlocalizedName());
-	}
+        if (variant)
+            return (craftedItems.get(is.getUnlocalizedName()) == null) ? 0 : craftedItems.get(is.getUnlocalizedName());
+        else
+            return (craftedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
+                    : craftedItems.get(is.getItem().getUnlocalizedName());
+    }
 
-	private void addSmeltedItemCount(ItemStack is) {
-		boolean variant = getVariant(is);
+    private void addSmeltedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
 
-		int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
-				: craftedItems.get(is.getUnlocalizedName()));
-		if (variant)
-			craftedItems.put(is.getUnlocalizedName(), prev + is.getCount());
-		else
-			craftedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
-	}
+        int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
+                : craftedItems.get(is.getUnlocalizedName()));
+        if (variant)
+            craftedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+        else
+            craftedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+    }
 
-	private void checkForMatch(ItemStack is) {
-		int savedSmelted = getSmeltedItemCount(is);
-		if (is != null) {
-			for (ItemMatcher matcher : this.matchers) {
-				if (matcher.matches(is)) {
-					if (!params.isSparse()) {
-						if (savedSmelted != 0 && savedSmelted < matcher.matchSpec.getAmount()) {
-							for (int i = savedSmelted; i < matcher.matchSpec.getAmount()
-									&& i - savedSmelted < is.getCount(); i++) {
-								this.adjustAndDistributeReward(
-										((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
-										params.getDimension(),
-										((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
-							}
+    private void checkForMatch(ItemStack is) {
+        int savedSmelted = getSmeltedItemCount(is);
+        for (ItemMatcher matcher : this.matchers) {
+            if (matcher.matches(is)) {
+                if (!params.isSparse()) {
+                    if (savedSmelted != 0 && savedSmelted < matcher.matchSpec.getAmount()) {
+                        for (int i = savedSmelted; i < matcher.matchSpec.getAmount()
+                                && i - savedSmelted < is.getCount(); i++) {
+                            this.adjustAndDistributeReward(
+                                    ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
+                                    params.getDimension(),
+                                    ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                        }
 
-						} else if (savedSmelted != 0 && savedSmelted >= matcher.matchSpec.getAmount()) {
-							// Do nothing
-						} else {
-							for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++) {
-								this.adjustAndDistributeReward(
-										((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
-										params.getDimension(),
-										((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
-							}
-						}
-					} else {
-						if (savedSmelted < matcher.matchSpec.getAmount()
-								&& savedSmelted + is.getCount() >= matcher.matchSpec.getAmount()) {
-							this.adjustAndDistributeReward(
-									((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
-									params.getDimension(),
-									((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
-						}
-					}
-				}
-			}
+                    } else if (savedSmelted != 0 && savedSmelted >= matcher.matchSpec.getAmount()) {
+                        // Do nothing
+                    } else {
+                        for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++) {
+                            System.out.println("Giving reward");
+                            this.adjustAndDistributeReward(
+                                    ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
+                                    params.getDimension(),
+                                    ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                        }
+                    }
+                } else {
+                    if (savedSmelted < matcher.matchSpec.getAmount()
+                            && savedSmelted + is.getCount() >= matcher.matchSpec.getAmount()) {
+                        System.out.println("Giving reward");
+                        this.adjustAndDistributeReward(
+                                ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
+                                params.getDimension(),
+                                ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                    }
+                }
+            }
+        }
 
-			addSmeltedItemCount(is);
-		}
-	}
+        addSmeltedItemCount(is);
+    }
 
-	@Override
-	public boolean parseParameters(Object params) {
-		if (!(params instanceof RewardForSmeltingItem))
-			return false;
+    @Override
+    public boolean parseParameters(Object params) {
+        if (!(params instanceof RewardForSmeltingItem))
+            return false;
 
-		matchers = new ArrayList<ItemMatcher>();
+        matchers = new ArrayList<ItemMatcher>();
 
-		this.params = (RewardForSmeltingItem) params;
-		for (BlockOrItemSpecWithReward spec : this.params.getItem())
-			this.matchers.add(new ItemMatcher(spec));
+        this.params = (RewardForSmeltingItem) params;
+        for (BlockOrItemSpecWithReward spec : this.params.getItem())
+            this.matchers.add(new ItemMatcher(spec));
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public void prepare(MissionInit missionInit) {
-		super.prepare(missionInit);
-		MinecraftForge.EVENT_BUS.register(this);
-		MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
-		craftedItems = new HashMap<String, Integer>();
-	}
+    @Override
+    public void prepare(MissionInit missionInit) {
+        super.prepare(missionInit);
+        MinecraftForge.EVENT_BUS.register(this);
+        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
+        craftedItems = new HashMap<String, Integer>();
+    }
 
-	@Override
-	public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
-		super.getReward(missionInit, reward);
-	}
+    @Override
+    public void getReward(MissionInit missionInit, MultidimensionalReward reward) {
+        super.getReward(missionInit, reward);
+    }
 
-	@Override
-	public void cleanup() {
-		super.cleanup();
-		MinecraftForge.EVENT_BUS.unregister(this);
-		MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
-	}
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        MinecraftForge.EVENT_BUS.unregister(this);
+        MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
+    }
 
-	@Override
-	public void onMessage(MalmoMessageType messageType, Map<String, String> data) {
-	}
+    @Override
+    public void onMessage(MalmoMessageType messageType, Map<String, String> data) {
+    }
 }

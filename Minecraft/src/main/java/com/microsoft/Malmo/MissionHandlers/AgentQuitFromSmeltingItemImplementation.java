@@ -27,7 +27,7 @@ public class AgentQuitFromSmeltingItemImplementation extends HandlerBase impleme
     private List<ItemQuitMatcher> matchers;
     private String quitCode = "";
     private boolean wantToQuit = false;
-    private boolean callSmelt = true;
+    private int callSmelt = 0;
 
     public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
         String description;
@@ -77,10 +77,10 @@ public class AgentQuitFromSmeltingItemImplementation extends HandlerBase impleme
 
     @SubscribeEvent
     public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
-        if (callSmelt)
+        if (callSmelt % 4 == 0)
             checkForMatch(event.smelting);
 
-        callSmelt = !callSmelt;
+        callSmelt = (callSmelt + 1) % 4;
     }
 
     /**
@@ -131,22 +131,20 @@ public class AgentQuitFromSmeltingItemImplementation extends HandlerBase impleme
 
     private void checkForMatch(ItemStack is) {
         int savedSmelted = getSmeltedItemCount(is);
-        if (is != null) {
-            for (ItemQuitMatcher matcher : this.matchers) {
-                if (matcher.matches(is)) {
-                    if (savedSmelted != 0) {
-                        if (is.getCount() + savedSmelted >= matcher.matchSpec.getAmount()) {
-                            this.quitCode = matcher.description();
-                            this.wantToQuit = true;
-                        }
-                    } else if (is.getCount() >= matcher.matchSpec.getAmount()) {
+        for (ItemQuitMatcher matcher : this.matchers) {
+            if (matcher.matches(is)) {
+                if (savedSmelted != 0) {
+                    if (is.getCount() + savedSmelted >= matcher.matchSpec.getAmount()) {
                         this.quitCode = matcher.description();
                         this.wantToQuit = true;
                     }
+                } else if (is.getCount() >= matcher.matchSpec.getAmount()) {
+                    this.quitCode = matcher.description();
+                    this.wantToQuit = true;
                 }
             }
-
-            addSmeltedItemCount(is);
         }
+
+        addSmeltedItemCount(is);
     }
 }
