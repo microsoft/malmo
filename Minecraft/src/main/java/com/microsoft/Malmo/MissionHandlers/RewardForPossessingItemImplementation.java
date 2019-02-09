@@ -10,14 +10,19 @@ import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation.LoseItemEvent;
+import com.microsoft.Malmo.Schemas.RewardForPossessingItem;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -27,15 +32,15 @@ import javax.xml.bind.DatatypeConverter;
 /**
  * @author Cayden Codel, Carnegie Mellon University
  * <p>
- * Sends a reward when the agent collected the specified item with
- * specified amounts. Counter is absolute.
+ * Sends a reward when the agent possesses the specified item with
+ * specified amounts. The counter is relative, meaning it goes down if items are placed, lost, or destroyed.
  */
-public class RewardForCollectingItemImplementation extends RewardForItemBase
+public class RewardForPossessingItemImplementation extends RewardForItemBase
         implements IRewardProducer, IMalmoMessageListener {
 
-    private RewardForCollectingItem params;
+    private RewardForPossessingItem params;
     private ArrayList<ItemMatcher> matchers;
-    private HashMap<String, Integer> craftedItems;
+    private HashMap<String, Integer> collectedItems;
 
     @SubscribeEvent
     public void onPickupItem(EntityItemPickupEvent event) {
@@ -50,6 +55,30 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase
     public void onGainItem(GainItemEvent event) {
         if (event.stack != null) {
             accumulateReward(this.params.getDimension(), event.stack);
+        }
+    }
+
+    @SubscribeEvent
+    public void onLoseItem(LoseItemEvent event) {
+        if (event.stack != null)
+            removeCollectedItemCount(event.stack);
+    }
+
+    @SubscribeEvent
+    public void onDropItem(ItemTossEvent event) {
+        removeCollectedItemCount(event.getEntityItem().getEntityItem());
+    }
+
+    @SubscribeEvent
+    public void onDestroyItem(PlayerDestroyItemEvent event) {
+        removeCollectedItemCount(event.getOriginal());
+    }
+
+    @SubscribeEvent
+    public void onBlockPlace(PlaceEvent event) {
+        if (!event.isCanceled() && event.getPlacedBlock() != null) {
+            ItemStack stack = new ItemStack(event.getPlacedBlock().getBlock());
+            removeCollectedItemCount(stack);
         }
     }
 
@@ -78,21 +107,32 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase
         boolean variant = getVariant(is);
 
         if (variant)
-            return (craftedItems.get(is.getUnlocalizedName()) == null) ? 0 : craftedItems.get(is.getUnlocalizedName());
+            return (collectedItems.get(is.getUnlocalizedName()) == null) ? 0 : collectedItems.get(is.getUnlocalizedName());
         else
-            return (craftedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
-                    : craftedItems.get(is.getItem().getUnlocalizedName());
+            return (collectedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
+                    : collectedItems.get(is.getItem().getUnlocalizedName());
     }
 
     private void addCollectedItemCount(ItemStack is) {
         boolean variant = getVariant(is);
 
-        int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
-                : craftedItems.get(is.getUnlocalizedName()));
+        int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+                : collectedItems.get(is.getUnlocalizedName()));
         if (variant)
-            craftedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+            collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
         else
-            craftedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+            collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+    }
+
+    private void removeCollectedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
+
+        int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+                : collectedItems.get(is.getUnlocalizedName()));
+        if (variant)
+            collectedItems.put(is.getUnlocalizedName(), prev - is.getCount());
+        else
+            collectedItems.put(is.getItem().getUnlocalizedName(), prev - is.getCount());
     }
 
     private void checkForMatch(ItemStack is) {
@@ -138,12 +178,12 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase
 
     @Override
     public boolean parseParameters(Object params) {
-        if (!(params instanceof RewardForCollectingItem))
+        if (!(params instanceof RewardForPossessingItem))
             return false;
 
         matchers = new ArrayList<ItemMatcher>();
 
-        this.params = (RewardForCollectingItem) params;
+        this.params = (RewardForPossessingItem) params;
         for (BlockOrItemSpecWithReward spec : this.params.getItem())
             this.matchers.add(new ItemMatcher(spec));
 
@@ -155,7 +195,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase
         super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
         MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
-        craftedItems = new HashMap<String, Integer>();
+        collectedItems = new HashMap<String, Integer>();
     }
 
     @Override

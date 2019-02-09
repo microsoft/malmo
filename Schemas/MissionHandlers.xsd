@@ -2206,12 +2206,36 @@
         <xs:annotation>
             <xs:documentation>
                 Sends a reward when the agent collects a specific item.
+                
+                If Sparse is set to true, will only give full reward on collecting entire amount.
+                
+                Otherwise, will give the reward amount notated for each item collected up to the amount noted.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="RewardForPossessingItem">
+        <xs:annotation>
+            <xs:documentation>
+                Sends a reward when the agent collects a specific item.
+                
+                If Sparse is set to true, will only give full reward on possessing the entire amount.
+                
+                Otherwise, will give the rewards amount notated for each item crafted up to the amount noted.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
+            </xs:choice>
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
             <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
@@ -2230,7 +2254,7 @@
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Item" type="BlockOrItemSpecWithReward" />
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="false" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
             <xs:attributeGroup ref="RewardProducerAttributes" />
         </xs:complexType>
     </xs:element>
@@ -2249,7 +2273,7 @@
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Item" type="BlockOrItemSpecWithReward" />
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="false" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
             <xs:attributeGroup ref="RewardProducerAttributes" />
         </xs:complexType>
     </xs:element>

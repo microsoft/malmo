@@ -10,17 +10,14 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
-import com.microsoft.Malmo.MissionHandlers.RewardForItemBase.ItemMatcher;
 import com.microsoft.Malmo.Schemas.AgentQuitFromCraftingItem;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /**
- * 
  * @author Cayden Codel, Carnegie Mellon University
- * 
- *         Gives agents rewards when items are crafted.
  *
+ *         Gives agents rewards when items are crafted. Handles variants and colors.
  */
 public class AgentQuitFromCraftingItemImplementation extends HandlerBase implements IWantToQuit {
 
@@ -28,8 +25,8 @@ public class AgentQuitFromCraftingItemImplementation extends HandlerBase impleme
 	private HashMap<String, Integer> craftedItems;
 	private List<ItemQuitMatcher> matchers;
 	private String quitCode = "";
-	boolean wantToQuit = false;
-	boolean callCraft = true;
+	private boolean wantToQuit = false;
+	private boolean callCraft = true;
 
 	public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
 		String description;
@@ -46,7 +43,7 @@ public class AgentQuitFromCraftingItemImplementation extends HandlerBase impleme
 
 	@Override
 	public boolean parseParameters(Object params) {
-		if (params == null || !(params instanceof AgentQuitFromCraftingItem))
+		if (!(params instanceof AgentQuitFromCraftingItem))
 			return false;
 
 		this.params = (AgentQuitFromCraftingItem) params;
@@ -85,8 +82,16 @@ public class AgentQuitFromCraftingItemImplementation extends HandlerBase impleme
 		callCraft = !callCraft;
 	}
 
+	/**
+	 * Checks whether the ItemStack matches a variant stored in the item list. If
+	 * so, returns true, else returns false.
+	 *
+	 * @param is The item stack
+	 * @return If the stack is allowed in the item matchers and has color or
+	 * variants enabled, returns true, else false.
+	 */
 	private boolean getVariant(ItemStack is) {
-		for (ItemMatcher matcher : matchers) {
+		for (ItemQuitMatcher matcher : matchers) {
 			if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
 				if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
 					return true;
@@ -106,26 +111,22 @@ public class AgentQuitFromCraftingItemImplementation extends HandlerBase impleme
 		else
 			return (craftedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
 					: craftedItems.get(is.getItem().getUnlocalizedName());
-
 	}
 
 	private void addCraftedItemCount(ItemStack is) {
 		boolean variant = getVariant(is);
 
-		if (variant) {
-			int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
-					: craftedItems.get(is.getUnlocalizedName()));
+		int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
+				: craftedItems.get(is.getUnlocalizedName()));
+		if (variant)
 			craftedItems.put(is.getUnlocalizedName(), prev + is.getCount());
-		} else {
-			int prev = (craftedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-					: craftedItems.get(is.getItem().getUnlocalizedName()));
+		else
 			craftedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
-		}
 	}
 
 	private void checkForMatch(ItemStack is) {
 		int savedCrafted = getCraftedItemCount(is);
-		if (is != null && is.getItem() != null) {
+		if (is != null) {
 			for (ItemQuitMatcher matcher : this.matchers) {
 				if (matcher.matches(is)) {
 					if (savedCrafted != 0) {

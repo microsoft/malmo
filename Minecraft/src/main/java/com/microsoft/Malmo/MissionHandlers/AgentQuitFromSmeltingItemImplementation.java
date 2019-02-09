@@ -16,131 +16,137 @@ import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /**
- * 
  * @author Cayden Codel, Carnegie Mellon University
- * 
- *         Gives agents rewards when items are smelted.
- *
+ * <p>
+ * Gives agents rewards when items are smelted. Handles variants and colors.
  */
 public class AgentQuitFromSmeltingItemImplementation extends HandlerBase implements IWantToQuit {
 
-	private AgentQuitFromSmeltingItem params;
-	private HashMap<String, Integer> smeltedItems;
-	private List<ItemQuitMatcher> matchers;
-	private String quitCode = "";
-	boolean wantToQuit = false;
-	boolean callSmelt = true;
+    private AgentQuitFromSmeltingItem params;
+    private HashMap<String, Integer> smeltedItems;
+    private List<ItemQuitMatcher> matchers;
+    private String quitCode = "";
+    private boolean wantToQuit = false;
+    private boolean callSmelt = true;
 
-	public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
-		String description;
+    public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
+        String description;
 
-		ItemQuitMatcher(BlockOrItemSpecWithDescription spec) {
-			super(spec);
-			this.description = spec.getDescription();
-		}
+        ItemQuitMatcher(BlockOrItemSpecWithDescription spec) {
+            super(spec);
+            this.description = spec.getDescription();
+        }
 
-		String description() {
-			return this.description;
-		}
-	}
+        String description() {
+            return this.description;
+        }
+    }
 
-	@Override
-	public boolean parseParameters(Object params) {
-		if (params == null || !(params instanceof AgentQuitFromSmeltingItem))
-			return false;
+    @Override
+    public boolean parseParameters(Object params) {
+        if (!(params instanceof AgentQuitFromSmeltingItem))
+            return false;
 
-		this.params = (AgentQuitFromSmeltingItem) params;
-		this.matchers = new ArrayList<ItemQuitMatcher>();
-		for (BlockOrItemSpecWithDescription bs : this.params.getItem())
-			this.matchers.add(new ItemQuitMatcher(bs));
-		return true;
-	}
+        this.params = (AgentQuitFromSmeltingItem) params;
+        this.matchers = new ArrayList<ItemQuitMatcher>();
+        for (BlockOrItemSpecWithDescription bs : this.params.getItem())
+            this.matchers.add(new ItemQuitMatcher(bs));
+        return true;
+    }
 
-	@Override
-	public boolean doIWantToQuit(MissionInit missionInit) {
-		return this.wantToQuit;
-	}
+    @Override
+    public boolean doIWantToQuit(MissionInit missionInit) {
+        return this.wantToQuit;
+    }
 
-	@Override
-	public String getOutcome() {
-		return this.quitCode;
-	}
+    @Override
+    public String getOutcome() {
+        return this.quitCode;
+    }
 
-	@Override
-	public void prepare(MissionInit missionInit) {
-		MinecraftForge.EVENT_BUS.register(this);
-		smeltedItems = new HashMap<String, Integer>();
-	}
+    @Override
+    public void prepare(MissionInit missionInit) {
+        MinecraftForge.EVENT_BUS.register(this);
+        smeltedItems = new HashMap<String, Integer>();
+    }
 
-	@Override
-	public void cleanup() {
-		MinecraftForge.EVENT_BUS.unregister(this);
-	}
+    @Override
+    public void cleanup() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
 
-	@SubscribeEvent
-	public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
-		if (callSmelt)
-			checkForMatch(event.smelting);
+    @SubscribeEvent
+    public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
+        if (callSmelt)
+            checkForMatch(event.smelting);
 
-		callSmelt = !callSmelt;
-	}
+        callSmelt = !callSmelt;
+    }
 
-	private boolean getVariant(ItemStack is) {
-		for (ItemMatcher matcher : matchers) {
-			if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
-				if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
-					return true;
-				if (matcher.matchSpec.getVariant() != null && matcher.matchSpec.getVariant().size() > 0)
-					return true;
-			}
-		}
+    /**
+     * Checks whether the ItemStack matches a variant stored in the item list. If
+     * so, returns true, else returns false.
+     *
+     * @param is The item stack
+     * @return If the stack is allowed in the item matchers and has color or
+     * variants enabled, returns true, else false.
+     */
+    private boolean getVariant(ItemStack is) {
+        for (ItemMatcher matcher : matchers) {
+            if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
+                if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
+                    return true;
+                if (matcher.matchSpec.getVariant() != null && matcher.matchSpec.getVariant().size() > 0)
+                    return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private int getSmeltedItemCount(ItemStack is) {
-		boolean variant = getVariant(is);
+    private int getSmeltedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
 
-		if (variant)
-			return (smeltedItems.get(is.getUnlocalizedName()) == null) ? 0 : smeltedItems.get(is.getUnlocalizedName());
-		else
-			return (smeltedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
-					: smeltedItems.get(is.getItem().getUnlocalizedName());
+        if (variant)
+            return (smeltedItems.get(is.getUnlocalizedName()) == null) ? 0 : smeltedItems.get(is.getUnlocalizedName());
+        else
+            return (smeltedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
+                    : smeltedItems.get(is.getItem().getUnlocalizedName());
 
-	}
+    }
 
-	private void addSmeltedItemCount(ItemStack is) {
-		boolean variant = getVariant(is);
+    private void addSmeltedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
 
-		if (variant) {
-			int prev = (smeltedItems.get(is.getUnlocalizedName()) == null ? 0
-					: smeltedItems.get(is.getUnlocalizedName()));
-			smeltedItems.put(is.getUnlocalizedName(), prev + is.getCount());
-		} else {
-			int prev = (smeltedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-					: smeltedItems.get(is.getItem().getUnlocalizedName()));
-			smeltedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
-		}
-	}
+        if (variant) {
+            int prev = (smeltedItems.get(is.getUnlocalizedName()) == null ? 0
+                    : smeltedItems.get(is.getUnlocalizedName()));
+            smeltedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+        } else {
+            int prev = (smeltedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
+                    : smeltedItems.get(is.getItem().getUnlocalizedName()));
+            smeltedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+        }
+    }
 
-	private void checkForMatch(ItemStack is) {
-		int savedSmelted = getSmeltedItemCount(is);
-		if (is != null && is.getItem() != null) {
-			for (ItemQuitMatcher matcher : this.matchers) {
-				if (matcher.matches(is)) {
-					if (savedSmelted != 0) {
-						if (is.getCount() + savedSmelted >= matcher.matchSpec.getAmount()) {
-							this.quitCode = matcher.description();
-							this.wantToQuit = true;
-						}
-					} else if (is.getCount() >= matcher.matchSpec.getAmount()) {
-						this.quitCode = matcher.description();
-						this.wantToQuit = true;
-					}
-				}
-			}
+    private void checkForMatch(ItemStack is) {
+        int savedSmelted = getSmeltedItemCount(is);
+        if (is != null) {
+            for (ItemQuitMatcher matcher : this.matchers) {
+                if (matcher.matches(is)) {
+                    if (savedSmelted != 0) {
+                        if (is.getCount() + savedSmelted >= matcher.matchSpec.getAmount()) {
+                            this.quitCode = matcher.description();
+                            this.wantToQuit = true;
+                        }
+                    } else if (is.getCount() >= matcher.matchSpec.getAmount()) {
+                        this.quitCode = matcher.description();
+                        this.wantToQuit = true;
+                    }
+                }
+            }
 
-			addSmeltedItemCount(is);
-		}
-	}
+            addSmeltedItemCount(is);
+        }
+    }
 }

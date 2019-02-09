@@ -4,28 +4,35 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.microsoft.Malmo.Schemas.AgentQuitFromPossessingItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
-import com.microsoft.Malmo.MissionHandlers.AgentQuitFromCraftingItemImplementation.ItemQuitMatcher;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
-import com.microsoft.Malmo.MissionHandlers.RewardForItemBase.ItemMatcher;
-import com.microsoft.Malmo.Schemas.AgentQuitFromPossessingItem;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation.LoseItemEvent;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
+/**
+ * @author Cayden Codel, Carnegie Mellon University
+ * <p>
+ * Quits the mission when the agent has possessed the right amount of items. The count on the item collection is non-absolute.
+ * <p>
+ * In order to quit the mission, the agent must have the requisite items in its inventory all at one time.
+ */
 public class AgentQuitFromPossessingItemImplementation extends HandlerBase implements IWantToQuit {
-	AgentQuitFromPossessingItem params;
+
+	private AgentQuitFromPossessingItem params;
 	private HashMap<String, Integer> collectedItems;
-	List<ItemQuitMatcher> matchers;
-	String quitCode = "";
-	boolean wantToQuit = false;
-	boolean callCraft = true;
+	private List<ItemQuitMatcher> matchers;
+	private String quitCode = "";
+	private boolean wantToQuit = false;
 
 	public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
 		String description;
@@ -42,7 +49,7 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
 
 	@Override
 	public boolean parseParameters(Object params) {
-		if (params == null || !(params instanceof AgentQuitFromPossessingItem))
+		if (!(params instanceof AgentQuitFromPossessingItem))
 			return false;
 
 		this.params = (AgentQuitFromPossessingItem) params;
@@ -75,36 +82,49 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
 
 	@SubscribeEvent
 	public void onGainItem(GainItemEvent event) {
-		System.out.println("Gained an item: " + event.stack.getUnlocalizedName());
 		checkForMatch(event.stack);
 	}
 
 	@SubscribeEvent
 	public void onPickupItem(EntityItemPickupEvent event) {
-		if (event.getItem() != null && event.getItem().getEntityItem() != null) {
-			ItemStack stack = event.getItem().getEntityItem();
-			checkForMatch(stack);
-		}
+		if (event.getItem() != null)
+			checkForMatch(event.getItem().getEntityItem());
 	}
 
 	@SubscribeEvent
-	public void onItemCraft(PlayerEvent.ItemCraftedEvent event) {
-		if (callCraft)
-			checkForMatch(event.crafting);
-
-		callCraft = !callCraft;
+	public void onLoseItem(LoseItemEvent event) {
+		if (event.stack != null)
+			removeCollectedItemCount(event.stack);
 	}
 
 	@SubscribeEvent
-	public void onItemToss(ItemTossEvent event) {
-		if (event.getEntityItem() != null && event.getEntityItem().getEntityItem() != null) {
-			ItemStack stack = event.getEntityItem().getEntityItem();
-			removeCollectedItem(stack);
+	public void onDropItem(ItemTossEvent event) {
+		removeCollectedItemCount(event.getEntityItem().getEntityItem());
+	}
+
+	@SubscribeEvent
+	public void onDestroyItem(PlayerDestroyItemEvent event) {
+		removeCollectedItemCount(event.getOriginal());
+	}
+
+	@SubscribeEvent
+	public void onBlockPlace(PlaceEvent event) {
+		if (!event.isCanceled() && event.getPlacedBlock() != null) {
+			ItemStack stack = new ItemStack(event.getPlacedBlock().getBlock());
+			removeCollectedItemCount(stack);
 		}
 	}
 
+	/**
+	 * Checks whether the ItemStack matches a variant stored in the item list. If
+	 * so, returns true, else returns false.
+	 *
+	 * @param is The item stack
+	 * @return If the stack is allowed in the item matchers and has color or
+	 * variants enabled, returns true, else false.
+	 */
 	private boolean getVariant(ItemStack is) {
-		for (ItemMatcher matcher : matchers) {
+		for (ItemQuitMatcher matcher : matchers) {
 			if (matcher.allowedItemTypes.contains(is.getItem().getUnlocalizedName())) {
 				if (matcher.matchSpec.getColour() != null && matcher.matchSpec.getColour().size() > 0)
 					return true;
@@ -116,53 +136,46 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
 		return false;
 	}
 
-	private int getCraftedItemCount(ItemStack is) {
+	private void addCollectedItemCount(ItemStack is) {
+		boolean variant = getVariant(is);
+
+		int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+				: collectedItems.get(is.getUnlocalizedName()));
+		if (variant)
+			collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+		else
+			collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+
+	}
+
+	private void removeCollectedItemCount(ItemStack is) {
+		boolean variant = getVariant(is);
+
+		int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+				: collectedItems.get(is.getUnlocalizedName()));
+		if (variant)
+			collectedItems.put(is.getUnlocalizedName(), prev - is.getCount());
+		else
+			collectedItems.put(is.getItem().getUnlocalizedName(), prev - is.getCount());
+	}
+
+	private int getCollectedItemCount(ItemStack is) {
 		boolean variant = getVariant(is);
 
 		if (variant)
-			return (collectedItems.get(is.getUnlocalizedName()) == null) ? 0
-					: collectedItems.get(is.getUnlocalizedName());
+			return (collectedItems.get(is.getUnlocalizedName()) == null) ? 0 : collectedItems.get(is.getUnlocalizedName());
 		else
 			return (collectedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
 					: collectedItems.get(is.getItem().getUnlocalizedName());
-
-	}
-
-	private void addCollectedItem(ItemStack is) {
-		boolean variant = getVariant(is);
-
-		if (variant) {
-			int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
-					: collectedItems.get(is.getUnlocalizedName()));
-			collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
-		} else {
-			int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-					: collectedItems.get(is.getItem().getUnlocalizedName()));
-			collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
-		}
-	}
-
-	private void removeCollectedItem(ItemStack is) {
-		boolean variant = getVariant(is);
-
-		if (variant) {
-			int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
-					: collectedItems.get(is.getUnlocalizedName()));
-			collectedItems.put(is.getUnlocalizedName(), Integer.max(0, prev - is.getCount()));
-		} else {
-			int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-					: collectedItems.get(is.getItem().getUnlocalizedName()));
-			collectedItems.put(is.getItem().getUnlocalizedName(), Integer.max(0, prev - is.getCount()));
-		}
 	}
 
 	private void checkForMatch(ItemStack is) {
-		int savedCrafted = getCraftedItemCount(is);
-		if (is != null && is.getItem() != null) {
+		int savedCollected = getCollectedItemCount(is);
+		if (is != null) {
 			for (ItemQuitMatcher matcher : this.matchers) {
 				if (matcher.matches(is)) {
-					if (savedCrafted != 0) {
-						if (is.getCount() + savedCrafted >= matcher.matchSpec.getAmount()) {
+					if (savedCollected != 0) {
+						if (is.getCount() + savedCollected >= matcher.matchSpec.getAmount()) {
 							this.quitCode = matcher.description();
 							this.wantToQuit = true;
 						}
@@ -173,7 +186,7 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
 				}
 			}
 
-			addCollectedItem(is);
+			addCollectedItemCount(is);
 		}
 	}
 }
