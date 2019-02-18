@@ -897,9 +897,10 @@ namespace malmo
         if( !this->commands_connection ) {
             TimestampedString error_message(
                 boost::posix_time::microsec_clock::universal_time(),
-                "AgentHost::sendCommand : commands connection is not open. Is the mission running?"
+                "AgentHost::sendCommand : commands connection is not open. Attempting to start a new commands connection."
                 );
             this->world_state.errors.push_back( boost::make_shared<TimestampedString>( error_message ) );
+            this->openCommandsConnection();
             return;
         }
 
