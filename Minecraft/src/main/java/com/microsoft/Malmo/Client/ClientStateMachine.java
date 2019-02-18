@@ -955,6 +955,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 // A specific port has been requested, and it's not the one we are currently using,
                 // so we need to recreate our poller.
+                System.out.println("Requested command port is not the same as the input poller port; the port was not free. Stopping server.");
                 ClientStateMachine.this.controlInputPoller.stopServer();
                 ClientStateMachine.this.controlInputPoller = null;
             }
@@ -964,6 +965,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     ClientStateMachine.this.controlInputPoller = new TCPInputPoller(AddressHelper.MIN_FREE_PORT, AddressHelper.MAX_FREE_PORT, true, "com");
                 else
                     ClientStateMachine.this.controlInputPoller = new TCPInputPoller(requestedPort, "com");
+                System.out.println("Starting command server.");
                 ClientStateMachine.this.controlInputPoller.start();
             }
             // Make sure the cac is up-to-date:
