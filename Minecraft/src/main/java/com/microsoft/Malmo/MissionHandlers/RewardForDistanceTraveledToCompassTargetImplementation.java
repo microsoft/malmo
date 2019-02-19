@@ -1,5 +1,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.lang.*;
+
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForDistanceTraveledToCompassTarget;
 
@@ -14,6 +16,7 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
     double previousDistance;
     float totalReward;
     boolean positionInitialized;
+    BlockPos spawn;
 
     @Override
     public boolean parseParameters(Object params)
@@ -25,7 +28,7 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         this.params = (RewardForDistanceTraveledToCompassTarget)params;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        BlockPos spawn = player.world.getSpawnPoint();
+        spawn = player.world.getSpawnPoint();
         BlockPos playerLoc = player.getPosition();
         this.previousDistance = playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ());
 
@@ -41,11 +44,10 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         boolean sendReward = false;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        BlockPos spawn = player.world.getSpawnPoint();
         BlockPos playerLoc = player.getPosition();
 
         double currentDistance = playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ());
-        float delta = -1 * (float)(currentDistance - previousDistance);
+        float delta = (float)(this.previousDistance - currentDistance);
 
         switch (this.params.getDensity()) {
         case MISSION_END:
@@ -65,12 +67,13 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         }
 
         // Avoid sending large rewards as the result of an initial teleport event
-        if(!this.positionInitialized && (delta < -0.0001 || 0.0001 < delta)){
-            this.positionInitialized = true;
+        if(!this.positionInitialized && Math.abs(delta) > 0.0001) {
             this.totalReward = 0;
+        } else {
+            this.positionInitialized = true;
         }
 
-        this.previousDistance = playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ());
+        this.previousDistance = currentDistance;
 
         super.getReward(missionInit, reward);
         if (sendReward)
