@@ -58,11 +58,15 @@ def run(argv=['']):
 
     agent_host = MalmoPython.AgentHost()
     malmoutils.parse_command_line(agent_host, argv)
+    with open('navigation.xml', 'r') as f:
+        print("Loading mission from %s" % 'navigation.xml')
+        mission_xml = f.read()
+        my_mission = MalmoPython.MissionSpec(mission_xml, True)
 
-    my_mission = MalmoPython.MissionSpec()
-    my_mission.timeLimitInSeconds( 10 )
-    my_mission.requestVideo( 320, 240 )
-    my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
+    # my_mission = MalmoPython.MissionSpec()
+    # my_mission.timeLimitInSeconds( 10 )
+    # my_mission.requestVideo( 320, 240 )
+    # my_mission.rewardForReachingPosition( 19.5, 0.0, 19.5, 100.0, 1.1 )
 
     my_mission_record = malmoutils.get_default_recording_object(agent_host, "saved_data")
 
@@ -103,6 +107,7 @@ def run(argv=['']):
     print()
 
     last_delta = time.time()
+    net_reward = 00
     # main loop:
     while world_state.is_mission_running:
         agent_host.sendCommand( "move 1" )
@@ -119,14 +124,17 @@ def run(argv=['']):
                 print("Max delay exceeded for world state change")
                 restart_minecraft(world_state, agent_host, client_info, "world state change")
         for reward in world_state.rewards:
-            print("Summed reward:",reward.getValue())
+            cur_r = reward.getValue()
+            print("Summed reward:",cur_r)
+            net_reward += cur_r
+            print(net_reward)
         for error in world_state.errors:
             print("Error:",error.text)
         for frame in world_state.video_frames:
             print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
             #image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) ) # to convert to a PIL image
     print("Mission has stopped.")
-
+    print("FINAL REWARD: {}".format(net_reward))
 
 if __name__ == "__main__":
     run(sys.argv)
