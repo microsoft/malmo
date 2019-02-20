@@ -17,7 +17,7 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
     double previousDistance;
     float totalReward;
     boolean positionInitialized;
-    BlockPos spawn;
+    BlockPos prevSpawn;
 
     @Override
     public boolean parseParameters(Object params)
@@ -29,9 +29,9 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         this.params = (RewardForDistanceTraveledToCompassTarget)params;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        spawn = player.world.getSpawnPoint();
+        prevSpawn = player.world.getSpawnPoint();
         BlockPos playerLoc = player.getPosition();
-        this.previousDistance = playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ());
+        this.previousDistance = playerLoc.getDistance(prevSpawn.getX(), prevSpawn.getY(), prevSpawn.getZ());
 
         this.totalReward = 0;
         this.positionInitialized = false;
@@ -45,7 +45,7 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         boolean sendReward = false;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        spawn = player.world.getSpawnPoint();
+        BlockPos spawn = player.world.getSpawnPoint();
         Vec3d playerLoc = player.getPositionVector();
         Vec3d spawnPos = new Vec3d(spawn.getX(), spawn.getY(), spawn.getZ());
 
@@ -70,13 +70,14 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         }
 
         // Avoid sending large rewards as the result of an initial teleport event
-        if(!this.positionInitialized && Math.abs(delta) > 0.0001) {
+        if (this.prevSpawn.getX() != spawn.getX() ||
+                this.prevSpawn.getY() != spawn.getY() ||
+                this.prevSpawn.getZ() != spawn.getZ()) {
             this.totalReward = 0;
-        } else {
-            this.positionInitialized = true;
         }
 
         this.previousDistance = currentDistance;
+        this.prevSpawn = spawn;
 
         super.getReward(missionInit, reward);
         if (sendReward)
