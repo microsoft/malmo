@@ -9,6 +9,7 @@ import com.microsoft.Malmo.Schemas.RewardForDistanceTraveledToCompassTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class RewardForDistanceTraveledToCompassTargetImplementation extends RewardBase
 {
@@ -44,9 +45,11 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         boolean sendReward = false;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        BlockPos playerLoc = player.getPosition();
+        spawn = player.world.getSpawnPoint();
+        Vec3d playerLoc = player.getPositionVector();
+        Vec3d spawnPos = new Vec3d(spawn.getX(), spawn.getY(), spawn.getZ());
 
-        double currentDistance = playerLoc.getDistance(spawn.getX(), spawn.getY(), spawn.getZ());
+        double currentDistance = playerLoc.distanceTo(spawnPos);
         float delta = (float)(this.previousDistance - currentDistance);
 
         switch (this.params.getDensity()) {

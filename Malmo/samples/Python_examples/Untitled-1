@@ -1,0 +1,63 @@
+agent_host = MalmoPython.AgentHost()
+try:
+    agent_host.parse( sys.argv )
+except RuntimeError as e:
+    print('ERROR:',e)
+    print(agent_host.getUsage())
+    exit(1)
+if agent_host.receivedArgument("help"):
+    print(agent_host.getUsage())
+    exit(0)
+
+# -- set up the mission -- #
+mission_file = './tutorial_6.xml'
+with open(mission_file, 'r') as f:
+    print("Loading mission from %s" % mission_file)
+    mission_xml = f.read()
+    my_mission = MalmoPython.MissionSpec(mission_xml, True)
+# add 20% holes for interest
+for x in range(1,4):
+    for z in range(1,13):
+        if random.random()<0.1:
+            my_mission.drawBlock( x,45,z,"lava")
+
+max_retries = 3
+
+if agent_host.receivedArgument("test"):
+    num_repeats = 1
+else:
+    num_repeats = 150
+
+cumulative_rewards = []
+for i in range(num_repeats):
+
+    print()
+    print('Repeat %d of %d' % ( i+1, num_repeats ))
+    
+    my_mission_record = MalmoPython.MissionRecordSpec()
+
+    for retry in range(max_retries):
+        try:
+            agent_host.startMission( my_mission, my_mission_record )
+            break
+        except RuntimeError as e:
+            if retry == max_retries - 1:
+                print("Error starting mission:",e)
+                exit(1)
+            else:
+                time.sleep(2.5)
+
+    print("Waiting for the mission to start", end=' ')
+    world_state = agent_host.getWorldState()
+    while not world_state.has_mission_begun:
+        print(".", end="")
+        time.sleep(0.1)
+        world_state = agent_host.getWorldState()
+        for error in world_state.errors:
+            print("Error:",error.text)
+    print()
+
+    # -- run the agent in the world -- #
+    cumulative_reward = agent.run(agent_host)
+    print('Cumulative reward: %d' % cumulative_reward)
+    cumulative_rewards += [ cumulative_reward ]
