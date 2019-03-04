@@ -242,6 +242,9 @@ namespace malmo
             //! Asks for chat messages to be included in the observations.
             void observeChat();
             
+            //! Asks for compass information to be included in the observations.
+            void observeCompass();
+            
             // -------------------- settings for the agents : command handlers -------------------------
 
             //! Remove any existing command handlers from the mission specification. Use with other functions to add exactly the command handlers you want.
@@ -295,6 +298,10 @@ namespace malmo
             //! Adds a chat command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
             //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
             void allowAllChatCommands();
+            
+            //! Adds a place command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
+            //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
+            void allowAllPlaceCommands();
             
             // ------------------------- information --------------------------------------
             
@@ -379,6 +386,8 @@ namespace malmo
             static const std::vector<std::string> all_discrete_movement_commands;
             static const std::vector<std::string> all_inventory_commands;
             static const std::vector<std::string> all_simplecraft_commands;
+            static const std::vector<std::string> all_nearbycraft_commands;
+            static const std::vector<std::string> all_nearbysmelt_commands;
             static const std::vector<std::string> all_chat_commands;
             static const std::vector<std::string> all_mission_quit_commands;
             static const std::vector<std::string> all_human_level_commands;

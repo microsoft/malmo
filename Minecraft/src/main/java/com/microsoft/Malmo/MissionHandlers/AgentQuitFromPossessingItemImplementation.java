@@ -4,25 +4,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.microsoft.Malmo.Schemas.AgentQuitFromPossessingItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
-import com.microsoft.Malmo.Schemas.AgentQuitFromCollectingItem;
+import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation.LoseItemEvent;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithDescription;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 /**
- * Quits the mission when the agent has collected the right amount of items. The count on the item collection is absolute.
+ * @author Cayden Codel, Carnegie Mellon University
+ * <p>
+ * Quits the mission when the agent has possessed the right amount of items. The count on the item collection is non-absolute.
+ * <p>
+ * In order to quit the mission, the agent must have the requisite items in its inventory all at one time.
  */
-public class AgentQuitFromCollectingItemImplementation extends HandlerBase implements IWantToQuit {
-    private AgentQuitFromCollectingItem params;
-    private HashMap<String, Integer> collectedItems;
+public class AgentQuitFromPossessingItemImplementation extends HandlerBase implements IWantToQuit {
+    private AgentQuitFromPossessingItem params;
+    private HashMap<String, Integer> possessedItems;
     private List<ItemQuitMatcher> matchers;
     private String quitCode = "";
     private boolean wantToQuit = false;
@@ -42,10 +50,10 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
 
     @Override
     public boolean parseParameters(Object params) {
-        if (!(params instanceof AgentQuitFromCollectingItem))
+        if (!(params instanceof AgentQuitFromPossessingItem))
             return false;
 
-        this.params = (AgentQuitFromCollectingItem) params;
+        this.params = (AgentQuitFromPossessingItem) params;
         this.matchers = new ArrayList<ItemQuitMatcher>();
         for (BlockOrItemSpecWithDescription bs : this.params.getItem())
             this.matchers.add(new ItemQuitMatcher(bs));
@@ -65,7 +73,7 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
     @Override
     public void prepare(MissionInit missionInit) {
         MinecraftForge.EVENT_BUS.register(this);
-        collectedItems = new HashMap<String, Integer>();
+        possessedItems = new HashMap<String, Integer>();
     }
 
     @Override
@@ -97,6 +105,30 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
             checkForMatch(event.smelting);
     }
 
+    @SubscribeEvent
+    public void onLoseItem(LoseItemEvent event) {
+        if (event.stack != null && event.cause == 0)
+            removeCollectedItemCount(event.stack);
+    }
+
+    @SubscribeEvent
+    public void onDropItem(ItemTossEvent event) {
+        if (event.getPlayer() instanceof EntityPlayerMP)
+            removeCollectedItemCount(event.getEntityItem().getEntityItem());
+    }
+
+    @SubscribeEvent
+    public void onDestroyItem(PlayerDestroyItemEvent event) {
+        if (event.getEntityPlayer() instanceof EntityPlayerMP)
+            removeCollectedItemCount(event.getOriginal());
+    }
+
+    @SubscribeEvent
+    public void onBlockPlace(PlaceEvent event) {
+        if (!event.isCanceled() && event.getPlacedBlock() != null && event.getPlayer() instanceof EntityPlayerMP)
+            removeCollectedItemCount(new ItemStack(event.getPlacedBlock().getBlock()));
+    }
+
     /**
      * Checks whether the ItemStack matches a variant stored in the item list. If
      * so, returns true, else returns false.
@@ -122,13 +154,27 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
         boolean variant = getVariant(is);
 
         if (variant) {
-            int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
-                    : collectedItems.get(is.getUnlocalizedName()));
-            collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+            int prev = (possessedItems.get(is.getUnlocalizedName()) == null ? 0
+                    : possessedItems.get(is.getUnlocalizedName()));
+            possessedItems.put(is.getUnlocalizedName(), prev + is.getCount());
         } else {
-            int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-                    : collectedItems.get(is.getItem().getUnlocalizedName()));
-            collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+            int prev = (possessedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
+                    : possessedItems.get(is.getItem().getUnlocalizedName()));
+            possessedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+        }
+    }
+
+    private void removeCollectedItemCount(ItemStack is) {
+        boolean variant = getVariant(is);
+
+        if (variant) {
+            int prev = (possessedItems.get(is.getUnlocalizedName()) == null ? 0
+                    : possessedItems.get(is.getUnlocalizedName()));
+            possessedItems.put(is.getUnlocalizedName(), prev - is.getCount());
+        } else {
+            int prev = (possessedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
+                    : possessedItems.get(is.getItem().getUnlocalizedName()));
+            possessedItems.put(is.getItem().getUnlocalizedName(), prev - is.getCount());
         }
     }
 
@@ -136,10 +182,10 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
         boolean variant = getVariant(is);
 
         if (variant)
-            return (collectedItems.get(is.getUnlocalizedName()) == null) ? 0 : collectedItems.get(is.getUnlocalizedName());
+            return (possessedItems.get(is.getUnlocalizedName()) == null) ? 0 : possessedItems.get(is.getUnlocalizedName());
         else
-            return (collectedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
-                    : collectedItems.get(is.getItem().getUnlocalizedName());
+            return (possessedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
+                    : possessedItems.get(is.getItem().getUnlocalizedName());
     }
 
     private void checkForMatch(ItemStack is) {

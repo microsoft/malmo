@@ -102,7 +102,7 @@ _NCrunch_*
 AutoTest.Net/
 
 # Web workbench (sass)
-.sass-cache/
+v.sass-cache/
 
 # Installshield output folder
 [Ee]xpress/
@@ -167,6 +167,7 @@ ClientBin/
 *.pfx
 *.publishsettings
 node_modules/
+.DS_Store
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -215,3 +216,9 @@ Schemas/xs3p.xsl
 Minecraft/run/config/malmomodCLIENT.cfg
 Minecraft/Minecraft_Client.launch
 
+.vscode/
+Minecraft/run
+Minecraft/.minecraft
+Minecraft/.minecraftserver
+Malmo/samples/Python_examples/.fuse_hidden*
+Malmo/samples/Python_examples/MalmoPython.so

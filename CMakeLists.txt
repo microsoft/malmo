@@ -51,9 +51,10 @@ set( STATIC_BOOST        ON CACHE BOOL ${STATIC_BOOST_DESC} )
 
 if( INCLUDE_PYTHON )
   set( USE_PYTHON_VERSIONS_DESC "Specifies which version of Python to build Malmo with Python bindings" )
+  set( MACOS_USE_PYTHON_MODULE_DESC "Specifies which Python module to build Malmo on Apple MacOS" )
   set( USE_PYTHON_VERSIONS 3.6 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
-  set( BOOST_PYTHON_NAME_DESC "Specifies which Boost Python module to build Malmo with" )
-  set( BOOST_PYTHON_NAME "python3" CACHE STRING ${BOOST_PYTHON_NAME_DESC} )
+  # Boost has switched to using a 2 digit naming convention for python on MacOS.
+  set( MACOS_USE_PYTHON_MODULE "python37" CACHE STRING ${MACOS_USE_PYTHON_MODULE_DESC} )
 endif()
 
 set( WARNINGS_AS_ERRORS OFF )
@@ -105,18 +106,21 @@ SET(Boost_ADDITIONAL_VERSIONS "1.67" "1.67.0")
 
 SET(BOOST_PYTHON_MODULE_NAME "python")
 if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
-  SET( BOOST_PYTHON_MODULE_NAME ${BOOST_PYTHON_NAME} )
+    if ( APPLE )
+        SET( BOOST_PYTHON_MODULE_NAME ${MACOS_USE_PYTHON_MODULE} )
+    else()
+        SET( BOOST_PYTHON_MODULE_NAME "python3" )
+    endif()
 endif()
 
 if( WIN32 )
   SET(Boost_USE_STATIC_LIBS ON)
-  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
-  add_definitions(-DBOOST_ALL_NO_LIB=1)  # Turn off auto-linking, creates problems when linking boost statically
+  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread zlib REQUIRED )
 else()
-  SET(Boost_USE_STATIC_LIBS ${STATIC_BOOST})
   find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
   set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
   find_package( Threads REQUIRED )
+  SET(Boost_USE_STATIC_LIBS ${STATIC_BOOST})
 endif()
 
 # suggested install paths - see readme.md
