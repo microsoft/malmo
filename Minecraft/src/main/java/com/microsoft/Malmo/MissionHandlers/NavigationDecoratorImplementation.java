@@ -21,7 +21,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.NavigationDecorator;
@@ -35,7 +34,7 @@ import net.minecraft.world.World;
 /**
  * Creates a decorator that sets a random block and then points all compasses
  * towards the block.
- * 
+ *
  * @author Cayden Codel, Carnegie Mellon University
  *
  */
@@ -47,6 +46,7 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 	private double placementX, placementY, placementZ;
 	private double radius;
 	private double minDist, maxDist;
+	private double minRad, maxRad;
 
 	@Override
 	public boolean parseParameters(Object params) {
@@ -62,29 +62,27 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			originX = nparams.getRandomPlacementProperties().getOrigin().getX().doubleValue();
 		else
 			originX = world.getSpawnPoint().getX();
-
 		if (nparams.getRandomPlacementProperties().getOrigin() != null)
 			originY = nparams.getRandomPlacementProperties().getOrigin().getY().doubleValue();
 		else
 			originY = world.getSpawnPoint().getY();
-
 		if (nparams.getRandomPlacementProperties().getOrigin() != null)
 			originZ = nparams.getRandomPlacementProperties().getOrigin().getZ().doubleValue();
 		else
 			originZ = world.getSpawnPoint().getZ();
 
-		radius = nparams.getRandomPlacementProperties().getRadius().doubleValue();
+		maxRad = nparams.getRandomPlacementProperties().getMaxRadius().doubleValue();
+		minRad = nparams.getRandomPlacementProperties().getMinRadius().doubleValue();
+		radius = (int) (Math.random() * (maxRad - minRad) + minRad);
+
 		minDist = nparams.getMinRandomizedDistance().doubleValue();
 		maxDist = nparams.getMaxRandomizedDistance().doubleValue();
-
 		placementX = 0;
 		placementY = 0;
 		placementZ = 0;
-
 		if (nparams.getRandomPlacementProperties().getPlacement().equals("surface")) {
 			placementX = ((Math.random() - 0.5) * 2 * radius);
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
-
 			// Change center to origin now
 			placementX += originX;
 			placementZ += originZ;
@@ -93,7 +91,6 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			placementX = ((Math.random() - 0.5) * 2 * radius);
 			placementY = originY;
 			placementZ = (Math.random() > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
-
 			// Change center to origin now
 			placementX += originX;
 			placementZ += originZ;
@@ -102,17 +99,14 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			placementY = (Math.random() - 0.5) * 2 * Math.sqrt((radius * radius) - (placementX * placementX));
 			placementZ = (Math.random() > 0.5 ? -1 : 1)
 					* Math.sqrt((radius * radius) - (placementX * placementX) - (placementY * placementY));
-
 			// Change center to origin now
 			placementX += originX;
 			placementY += originY;
 			placementZ += originZ;
 		}
-
 		IBlockState state = MinecraftTypeHelper
 				.ParseBlockType(nparams.getRandomPlacementProperties().getBlock().value());
 		world.setBlockState(new BlockPos(placementX, placementY, placementZ), state);
-
 		// Set compass location to the block
 		double xDel = 0, zDel = 0;
 		if (nparams.isRandomizeCompassLocation()) {
@@ -123,7 +117,6 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 				dist = Math.sqrt(xDel * xDel + zDel * zDel);
 			} while (dist <= maxDist && dist >= minDist);
 		}
-
 		placementX += xDel;
 		placementZ += zDel;
 	}
