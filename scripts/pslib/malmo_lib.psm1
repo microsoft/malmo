@@ -129,63 +129,6 @@ function Install-Ffmpeg
     return $True
 }
 
-# Install JAVA:
-function Install-Java
-{
-    if (Should-Install "Java SE Development")
-    {
-        Display-Heading "Installing java"
-        $source = "http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-windows-x64.exe"
-        $destination = ($env:HOMEPATH + "\temp\jdkinstaller.exe")
-        $client = new-object System.Net.WebClient 
-        # Need to do some cookie business to sign the oracle licence agreement:
-        $cookie = "oraclelicense=accept-securebackup-cookie"
-        $client.Headers.Add([System.Net.HttpRequestHeader]::Cookie, $cookie) 
-        # Download Java:
-        $client.downloadFile($source, $destination)
-        if (-Not $?)
-        {
-            Write-Host "FAILED TO DOWNLOAD JAVA"
-            Start-Sleep 3
-            exit 1
-        }
-        # Silently install:
-        .\temp\jdkinstaller.exe /s ADDLOCAL="ToolsFeature,SourceFeature,PublicjreFeature" | Out-Host
-        if ($?)
-        {
-            # Add environment variables:
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Machine")
-            [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk1.8.0_131", "Process")
-            Append-Path "C:\Program Files\Java\jdk1.8.0_131\bin"
-            return $True
-        }
-        Write-Host "FAILED TO INSTALL JAVA"
-        Start-Sleep 3
-        exit 1
-    }
-    Write-Host "Java already installed."
-    return $True
-}
-
-function Install-Python2
-{
-    if (Should-Install "Python 2.7")
-    {
-        Display-Heading "Installing python"
-        Download-File "https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi" ($env:HOMEPATH + "\temp\python_install.msi")
-        Start-Process .\temp\python_install.msi -ArgumentList "/qn" -Wait
-        if ($?)
-        {
-            Append-Path "C:\Python27"
-            return $True
-        }
-        Write-Host "FAILED TO INSTALL PYTHON 2"
-        Start-Sleep 3
-        exit 1
-    }
-    Write-Host "Python2 already installed."
-}
-
 function Install-Python3
 {
     if (Should-Install "Python 3.6")

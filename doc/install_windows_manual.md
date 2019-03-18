@@ -31,28 +31,10 @@ Run the downloaded file to install Python.
 
 Check that typing `python` works in a command prompt. You may need to add it to your PATH and/or relaunch your cmd prompt.
 
-### 4. Install the Java SE Development Kit (JDK): ###
-
-Visit http://www.oracle.com/technetwork/java/javase/downloads/index.html and download a 64-bit version of Java 7 or 8 (Malmo / Minecraft doesn't currently support Java 9 or above)
-e.g. `jdk-8u77-windows-x64.exe`
-
-Run the downloaded file to install the JDK. Make a note of the install location.
-
-Add the bin folder (e.g. `C:\Program Files\Java\jdk1.8.0_77\bin` ) to your PATH ([How To](https://support.microsoft.com/en-us/kb/310519))
-
-Set the JAVA_HOME environment variable to be the location of the JDK:
-
-  * Open the Control Panel: e.g. in Windows 10: right-click on `This PC` in File Explorer and select `Properties`
-  * Navigate to: Control Panel > System and Security > System
-  * Select `Advanced system settings` on the left
-  * Select `Environment variables...`
-  * Under `User variables` select `New...`
-  * Enter `JAVA_HOME` as the varible name
-  * Enter e.g. `C:\Program Files\Java\jdk1.8.0_77` as the variable value. Replace this with the location of your  
-    JDK installation.
-  
-Check that `java -version` and `javac -version` and `set JAVA_HOME` all report the same 64-bit version.
+### 4. Install the Java OpenJDK 8. ###
  
+Please make sure that you have set the JAVA_HOME environment variable to your installation directory.
+
 ### 5. Optional: Install the dotNET runtime: ###
 
 If you don't want to use Malmo from C# then you can skip this step.
