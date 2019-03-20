@@ -39,6 +39,8 @@ namespace malmo
     const std::vector<std::string> MissionSpec::all_inventory_commands = { "swapInventoryItems", "combineInventoryItems", "discardCurrentItem", 
         "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6", "hotbar.7", "hotbar.8", "hotbar.9" };
     const std::vector<std::string> MissionSpec::all_simplecraft_commands = { "craft" };
+    const std::vector<std::string> MissionSpec::all_nearbycraft_commands = { "craftNearby" };
+    const std::vector<std::string> MissionSpec::all_nearbysmelt_commands = { "smeltNearby" };
     const std::vector<std::string> MissionSpec::all_chat_commands = { "chat" };
     const std::vector<std::string> MissionSpec::all_mission_quit_commands = { "quit" };
     const std::vector<std::string> MissionSpec::all_human_level_commands = { "forward", "left", "right", "jump", "sneak", "sprint", "inventory", "swapHands", "drop", "use", "attack", "moveMouse", 
@@ -110,6 +112,7 @@ namespace malmo
             child.erase("FlatWorldGenerator");
             child.erase("FileWorldGenerator");
             child.erase("DefaultWorldGenerator");
+            child.erase("BiomeGenerator");
         }
     }
 
@@ -136,6 +139,10 @@ namespace malmo
         const auto& defaultWorldGenerator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.DefaultWorldGenerator");
         if (defaultWorldGenerator) {
            defaultWorldGenerator.get().put("<xmlattr>.forceReset", true);
+        }
+        const auto& biomeWorldGenerator = mission.get_child_optional("Mission.ServerSection.ServerHandlers.BiomeGenerator");
+        if (biomeWorldGenerator) {
+            biomeWorldGenerator.get().put("<xmlattr>.forceReset", true);
         }
     }
 
@@ -359,6 +366,11 @@ namespace malmo
         mission.put("Mission.AgentSection.AgentHandlers.ObservationFromChat", "");
     }
     
+    void MissionSpec::observeCompass()
+    {
+        mission.put("Mission.AgentSection.AgentHandlers.ObservationFromCompass", "");
+    }
+    
     // ------------------ settings for the agents : command handlers --------------------------------
     
     void MissionSpec::removeAllCommandHandlers()
@@ -371,6 +383,9 @@ namespace malmo
             child.erase("DiscreteMovementCommands");
             child.erase("AbsoluteMovementCommands");
             child.erase("SimpleCraftCommands");
+            child.erase("NearbyCraftCommands");
+            child.erase("NearbySmeltCommands");
+            child.erase("PlaceCommands");
             child.erase("ChatCommands");
             child.erase("MissionQuitCommands");
         }
@@ -415,10 +430,15 @@ namespace malmo
     {
         addVerbToCommandType(verb, "Mission.AgentSection.AgentHandlers.InventoryCommands");
     }
-   
+
     void MissionSpec::allowAllChatCommands()
     {
         mission.put("Mission.AgentSection.AgentHandlers.ChatCommands", "");
+    }
+    
+    void MissionSpec::allowAllPlaceCommands()
+    {
+        mission.put("Mission.AgentSection.AgentHandlers.PlaceCommands", "");
     }
 
     // ------------------------------- information ---------------------------------------------------
@@ -517,6 +537,15 @@ namespace malmo
 
                 if (e.second.get_child_optional("AgentHandlers.SimpleCraftCommands"))
                     command_handlers.push_back("SimpleCraft");
+                
+                if (e.second.get_child_optional("AgentHandlers.NearbyCraftCommands"))
+                    command_handlers.push_back("NearbyCraft");
+                
+                if (e.second.get_child_optional("AgentHandlers.NearbySmeltCommands"))
+                    command_handlers.push_back("NearbySmelt");
+                
+                if (e.second.get_child_optional("AgentHandlers.PlaceCommands"))
+                    command_handlers.push_back("Place");
 
                 if (e.second.get_child_optional("AgentHandlers.MissionQuitCommands"))
                     command_handlers.push_back("MissionQuit");
@@ -576,6 +605,12 @@ namespace malmo
                     }
                     else if (command_handler == "SimpleCraft") {
                         allowed_commands = all_simplecraft_commands;
+                    }
+                    else if (command_handler == "NearbyCraft") {
+                        allowed_commands = all_nearbycraft_commands;
+                    }
+                    else if (command_handler == "NearbySmelt") {
+                        allowed_commands = all_nearbysmelt_commands;
                     }
                     else if (command_handler == "Chat") {
                         allowed_commands = all_chat_commands;
