@@ -37,20 +37,22 @@ namespace malmo
         , written_frames(0)
         , queued_frames(0)
         , transform(TimestampedVideoFrame::REVERSE_SCANLINE)
-        , server( io_service, port, boost::bind( &VideoServer::handleMessage, this, _1 ), "vid" )
+        , io_service(io_service)
+        , port(port)
     {
     }
 
     // Start the server within a scope that is used to control sharing from async io calls.
     void VideoServer::start(boost::shared_ptr<VideoServer>& scope)
     {
+        this->server = boost::make_shared<TCPServer>(this->io_service, this->port, boost::bind(&VideoServer::handleMessage, scope, _1), "vid");
         this->scope = scope;
         this->written_frames = this->queued_frames = this->received_frames = 0;
-        this->server.start(scope.get());
+        this->server->start(scope.get());
     }
     
     void VideoServer::close() {
-        this->server.close();
+        this->server->close();
     }
 
     void VideoServer::release() {
@@ -157,7 +159,7 @@ namespace malmo
     
     int VideoServer::getPort() const
     {
-        return this->server.getPort();
+        return this->server->getPort();
     }
 
     short VideoServer::getWidth() const

@@ -53,13 +53,11 @@ In the two agent case, running each agent in it's own shell, the run script (for
 If you install with `pip3 install malmoenv` then you can download the Minecraft mod 
 (assuming you have git available from the command line) with: 
 
-`python3 -c "import malmoenv.bootstrap;malmoenv.bootstrap.download()`
+`python3 -c "import malmoenv.bootstrap; malmoenv.bootstrap.download()"`
 
-The sample missions will be doqwnloaded to ./MalmoPlatform/MalmoEnv/missions.
+The sample missions will be downloaded to ./MalmoPlatform/MalmoEnv/missions.
 
-`python3 -c "malmoenv.bootstrap.launch_minecraft(9000)"` can be used to start up the Malmo Minecraft Mod 
+`python3 -c "import malmoenv.bootstrap; malmoenv.bootstrap.launch_minecraft(9000)"` can be used to start up the Malmo Minecraft Mod 
 listening for MalmoEnv connections on port 9000 after downloading Malmo.
 
-To test: `cd MalmoPlatform\MalmoEnv; python3 runmultiagent.py --mission missions/mobchase_single_agent.xml`
-
-
+To test: `cd MalmoPlatform/MalmoEnv; python3 runmultiagent.py --mission missions/mobchase_single_agent.xml`

@@ -95,7 +95,9 @@ namespace malmo
             short channels;
             TimestampedVideoFrame::Transform transform;
             TimestampedVideoFrame::FrameType frametype;
-            TCPServer server;
+            boost::shared_ptr<TCPServer> server;
+            boost::asio::io_service& io_service;
+            int port;
             std::vector<std::unique_ptr<IFrameWriter>> writers;
 
             // diagnostics:
