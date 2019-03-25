@@ -353,6 +353,9 @@
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />
             <xs:element ref="RewardForSendingMatchingChatMessage" minOccurs="0" />
             <xs:element ref="RewardForCollectingItem" minOccurs="0" />
+            <xs:element ref="RewardForPossessingItem" minOccurs="0" />
+            <xs:element ref="RewardForCraftingItem" minOccurs="0" />
+            <xs:element ref="RewardForSmeltingItem" minOccurs="0" />
             <xs:element ref="RewardForDiscardingItem" minOccurs="0" />
             <xs:element ref="RewardForReachingPosition" minOccurs="0"/>
             <xs:element ref="RewardForMissionEnd" minOccurs="0"/>
@@ -367,6 +370,9 @@
             <xs:element ref="InventoryCommands" minOccurs="0"/>
             <xs:element ref="ChatCommands" minOccurs="0"/>
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
+            <xs:element ref="NearbyCraftCommands" minOccurs="0"/>
+            <xs:element ref="NearbySmeltCommands" minOccurs="0"/>
+            <xs:element ref="PlaceCommands" minOccurs="0"/>
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>
             <xs:element ref="TurnBasedCommands" minOccurs="0"/>
             <xs:element ref="HumanLevelCommands" minOccurs="0"/>
@@ -376,6 +382,9 @@
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0" />
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0" />
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0" />
+            <xs:element ref="AgentQuitFromPossessingItem" minOccurs="0" />
+            <xs:element ref="AgentQuitFromCraftingItem" minOccurs="0" />
+            <xs:element ref="AgentQuitFromSmeltingItem" minOccurs="0" />
             <xs:element ref="AgentQuitFromReachingCommandQuota" minOccurs="0" />
             <xs:element ref="AgentQuitFromCatchingMob" minOccurs="0" />
         </xs:all>
