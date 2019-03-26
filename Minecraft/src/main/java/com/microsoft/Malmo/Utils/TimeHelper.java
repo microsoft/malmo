@@ -136,7 +136,7 @@ public class TimeHelper
         }
     }
     
-    static public boolean setMinecraftClientClockSpeed(float ticksPerSecond)
+    static public boolean setMinecraftClientClockSpeed(float ticksPerSecond, boolean sync)
     {
         // * NOTE: In Minecraft 1.12 this changes; tickLength is the main mechanism 
         // for advancing ticks.

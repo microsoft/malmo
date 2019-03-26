@@ -1142,6 +1142,7 @@ public class ServerStateMachine extends StateMachine
             ModSettings modsettings = currentMissionInit().getMission().getModSettings();
             if (modsettings != null && modsettings.getMsPerTick() != null)
                 TimeHelper.serverTickLength = (long)(modsettings.getMsPerTick());
+            // TimeHelper.serverTickLength = 5;
                 
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());

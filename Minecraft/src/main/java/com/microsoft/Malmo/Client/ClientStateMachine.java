@@ -1828,9 +1828,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Overclocking:
             ModSettings modsettings = currentMissionInit().getMission().getModSettings();
             if (modsettings != null && modsettings.getMsPerTick() != null)
-                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
+                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick(), false);
             if (modsettings != null && modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
                 TimeHelper.displayGranularityMs = 1000;
+            TimeHelper.unpause();
         }
 
         protected void onMissionEnded(IState nextState, String errorReport)
@@ -1858,7 +1859,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 hook.stop(ClientStateMachine.this.missionEndedData);
 
             // Return Minecraft speed to "normal":
-            TimeHelper.setMinecraftClientClockSpeed(20);
+            TimeHelper.setMinecraftClientClockSpeed(20, false);
             TimeHelper.displayGranularityMs = 0;
             TimeHelper.unpause();
 
