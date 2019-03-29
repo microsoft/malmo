@@ -3,6 +3,7 @@ import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.achievement.GuiAchievement;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
@@ -26,17 +28,17 @@ import net.minecraft.util.Util;
 
 @Mixin(Minecraft.class) 
 public abstract class MixinMinecraftGameloop {
-    @Shadow public final Profiler mcProfiler;
+    @Shadow public  Profiler mcProfiler;
     @Shadow private SoundHandler mcSoundHandler;
     @Shadow public abstract void shutdown();
     @Shadow public boolean isGamePaused;
     @Shadow public WorldClient world;
     @Shadow public Timer timer;
-    @Shadow private final Queue < FutureTask<? >> scheduledTasks;
+    @Shadow public  Queue < FutureTask<? >> scheduledTasks;
     @Shadow public abstract void runTick() throws IOException;
     // TODO: Make public in CFG.
-    @Shadow private abstract void checkGLError(String message);
-    @Shadow private abstract void displayDebugInfo(long elapsedTicksTime);
+    @Shadow public abstract void checkGLError(String message);
+    @Shadow public abstract void displayDebugInfo(long elapsedTicksTime);
     @Shadow public EntityPlayerSP player;
     @Shadow private Framebuffer framebufferMc;
     @Shadow public boolean skipRenderWorld;
@@ -51,12 +53,12 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public abstract boolean  isSingleplayer();
     @Shadow public GuiScreen currentScreen;
     @Shadow private IntegratedServer theIntegratedServer;
-    @Shadow public final FrameTimer frameTimer;
+    @Shadow public  FrameTimer frameTimer;
     /** Time in nanoseconds of when the class is loaded */
     @Shadow long startNanoTime;
     @Shadow private long debugUpdateTime;
     @Shadow public String debug;
-    @Shadow private final Snooper usageSnooper;
+    @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
     
@@ -165,7 +167,7 @@ public abstract class MixinMinecraftGameloop {
         {
             // TODO: Add to CFG and make public.
             Minecraft.debugFPS = this.fpsCounter;
-            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", new Object[] {Integer.valueOf(debugFPS), Integer.valueOf(RenderChunk.renderChunksUpdated), RenderChunk.renderChunksUpdated == 1 ? "" : "s", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : ""});
+            this.debug = String.format("%d fps (%d chunk update%s) T: %s%s%s%s%s", new Object[] {Integer.valueOf(Minecraft.debugFPS), Integer.valueOf(RenderChunk.renderChunksUpdated), RenderChunk.renderChunksUpdated == 1 ? "" : "s", (float)this.gameSettings.limitFramerate == GameSettings.Options.FRAMERATE_LIMIT.getValueMax() ? "inf" : Integer.valueOf(this.gameSettings.limitFramerate), this.gameSettings.enableVsync ? " vsync" : "", this.gameSettings.fancyGraphics ? "" : " fast", this.gameSettings.clouds == 0 ? "" : (this.gameSettings.clouds == 1 ? " fast-clouds" : " fancy-clouds"), OpenGlHelper.useVbo() ? " vbo" : ""});
             RenderChunk.renderChunksUpdated = 0;
             this.debugUpdateTime += 1000L;
             this.fpsCounter = 0;
