@@ -113,27 +113,24 @@ public abstract class MixinMinecraftGameloop {
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
             System.out.println("Ready 2 tick!");
-            // if(this.timer.elapsedTicks > 0){
-            Boolean fuckhead = TimeHelper.SyncManager.requestTick();
-            while(!fuckhead){}
-            if (fuckhead){
 
-                System.out.println("yahsssss " + fuckhead.toString());
-            }
-    
-            // This is where all the synchronous stough happens.
-            
+            // Request a tick to start. TODO: This will be removed. No ticking happens
+            // unless the client says
+            while(!TimeHelper.SyncManager.requestTick()){}
+
+            // Wait for the shouldClientTick to be true!
+            while(!TimeHelper.SyncManager.shouldClientTick()) {}
+            // If we should tick the client, tick the cliebt!
             if(TimeHelper.SyncManager.shouldClientTick()){
 
-                System.out.println("Client Tick completed.");
                 this.runTick();
                 TimeHelper.SyncManager.completeClientTick();
             } 
             else{
             this.timer.renderPartialTicks = f;
             }
-            
-            // while(!TimeHelper.SyncManager.shouldClientSync()){ }
+        
+            // Wait for the server tick to finish.
             while(TimeHelper.SyncManager.isTicking()) {}
 
 
