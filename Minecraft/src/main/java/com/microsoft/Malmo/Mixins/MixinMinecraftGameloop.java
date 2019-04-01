@@ -1,6 +1,10 @@
+package com.microsoft.Malmo.Mixins;
+
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
+
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.glu.GLU;
@@ -12,6 +16,7 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.achievement.GuiAchievement;
+import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,6 +25,7 @@ import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.profiler.Snooper;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.FrameTimer;
@@ -36,7 +42,7 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Timer timer;
     @Shadow public  Queue < FutureTask<? >> scheduledTasks;
     @Shadow public abstract void runTick() throws IOException;
-    // TODO: Make public in CFG.
+
     @Shadow public abstract void checkGLError(String message);
     @Shadow public abstract void displayDebugInfo(long elapsedTicksTime);
     @Shadow public EntityPlayerSP player;
@@ -47,6 +53,11 @@ public abstract class MixinMinecraftGameloop {
     @Shadow long prevFrameTime;
     @Shadow public GuiAchievement guiAchievement;
     @Shadow int displayWidth;
+    @Shadow public PlayerControllerMP playerController;
+    @Shadow private NetworkManager myNetworkManager;
+
+
+    
     @Shadow int displayHeight;
     @Shadow public abstract void updateDisplay();
     @Shadow private int fpsCounter;
@@ -72,9 +83,10 @@ public abstract class MixinMinecraftGameloop {
             this.shutdown();
         }
 
+
+        float f = this.timer.renderPartialTicks;
         if (this.isGamePaused && this.world != null)
         {
-            float f = this.timer.renderPartialTicks;
             this.timer.updateTimer();
             this.timer.renderPartialTicks = f;
         }
@@ -98,10 +110,54 @@ public abstract class MixinMinecraftGameloop {
         long l = System.nanoTime();
         this.mcProfiler.startSection("tick");
 
-        for (int j = 0; j < this.timer.elapsedTicks; ++j)
-        {
-            this.runTick();
+
+        if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
+            // System.out.println("Ready 2 tick!");
+            // if(this.timer.elapsedTicks > 0){
+            Boolean fuckhead = TimeHelper.SyncManager.requestTick();
+            if (fuckhead){
+
+                System.out.println("yahsssss " + fuckhead.toString());
+            }
+    
+            // This is where all the synchronous stough happens.
+            
+            if(TimeHelper.SyncManager.shouldClientTick()){
+
+                System.out.println("Client Tick completed.");
+                this.runTick();
+                TimeHelper.SyncManager.completeClientTick();
+            } 
+            else{
+            this.timer.renderPartialTicks = f;
+            }
+            
+            // while(!TimeHelper.SyncManager.shouldClientSync()){ }
+            // if (TimeHelper.SyncManager.shouldClientSync())
+            // {
+            //     // System.out.println("Should client sync.");
+            //     // TODO: Understand what the fuck is going on with hte flushOutboundQueue.
+            //     // this.playerController.updateController();
+            //     // this.myNetworkManager.processReceivedPackets();
+            //     TimeHelper.SyncManager.completeTick();
+            // }
+         } else{
+            for (int j = 0; j < this.timer.elapsedTicks; ++j)
+            {
+                this.runTick();
+            }
         }
+
+
+        // In Synchronous mode:
+        // Wait for tick.
+        // Tick
+        // Mark tick completed and now run server tick.
+        // Wait for server tick
+        // Process all network handlers for more updates (entity spawning for example)
+        // Now collect all data by sending a should collect data event (make a sync tick over event :))
+        // Then render.
+        // 
 
         this.mcProfiler.endStartSection("preRenderErrors");
         long i1 = System.nanoTime() - l;
@@ -137,7 +193,7 @@ public abstract class MixinMinecraftGameloop {
 
             this.mcProfiler.profilingEnabled = true;
             this.displayDebugInfo(i1);
-        }
+    }
         else
         {
             this.mcProfiler.profilingEnabled = false;

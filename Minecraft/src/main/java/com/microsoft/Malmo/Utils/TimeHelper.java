@@ -50,6 +50,75 @@ public class TimeHelper
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
     private static float currentTicksPerSecond = 0;
+    public static Boolean synchronous = true;
+
+    static public class SyncManager {
+        static Boolean shouldClientTick =false;
+        static Boolean clientTickCompleted = false;
+        static Boolean serverTickCompleted = false;
+        static Boolean serverRunning = false;
+
+        static Boolean isTicking = false;
+        
+        public static Boolean requestTick(){
+            // Build a locking system.
+            if ( ! isTicking) {
+                shouldClientTick = true;
+                isTicking = true;
+                clientTickCompleted = false;
+                serverTickCompleted = false;
+                return true;
+            }
+            else{
+                return false;
+            }
+        } 
+
+        public static synchronized Boolean shouldClientTick(){
+            return shouldClientTick && isTicking;
+        }
+
+
+        public static synchronized Boolean shouldServerTick(){
+            return isTicking && clientTickCompleted && !serverTickCompleted;
+        }
+
+        public static synchronized void setServerRunning(){
+            serverRunning = true;
+        }
+
+        public static synchronized Boolean isServerRunning(){
+            return serverRunning;
+        }
+
+        public static synchronized void serverFinished(){
+            serverRunning =false;
+        }
+
+        public static synchronized Boolean shouldClientSync(){
+            return isTicking && serverTickCompleted;
+        }
+
+        public static synchronized  void completeClientTick(){
+            clientTickCompleted = true;
+            shouldClientTick = false;
+        }
+
+        public static  synchronized void completeServerTick(){
+            serverTickCompleted = true;
+        }
+
+        public static synchronized void completeTick(){
+            isTicking = false;
+            shouldClientTick = false;
+            serverTickCompleted = false;
+            clientTickCompleted = false;
+        }
+
+        public static synchronized Boolean isTicking(){
+            return isTicking;
+        }
+    }
 
     /** Provide a means to measure the frequency of an event, over a rolling window.
      */

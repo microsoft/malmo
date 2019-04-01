@@ -140,6 +140,9 @@ public class MalmoEnvServer implements IWantToQuit {
 
                                     step(command, socket, din);
 
+                                } else if (command.startsWith("<SyncStep")) {
+                                    step(command, socket, din);
+
                                 } else if (command.startsWith("<Peek")) {
 
                                     peek(command, socket, din);

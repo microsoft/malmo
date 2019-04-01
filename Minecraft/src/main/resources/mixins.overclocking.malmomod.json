@@ -2,7 +2,7 @@
     "required": true,
     "package": "com.microsoft.Malmo.Mixins",
     "mixins": [
-      "MixinMinecraftServerRun"
+      "MixinMinecraftServerRun",
       "MixinMinecraftGameloop"
     ],
     "server": [

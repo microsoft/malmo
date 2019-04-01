@@ -62,12 +62,14 @@ public abstract class MixinMinecraftServerRun  {
                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarted();
                 this.currentTime = MinecraftServer.getCurrentTimeMillis();
                 long i = 0L;
+                long numTicks = 0;
                 this.statusResponse.setServerDescription(new TextComponentString(this.motd));
                 this.statusResponse.setVersion(new ServerStatusResponse.Version("1.11.2", 316));
                 this.applyServerIconToResponse(this.statusResponse);
 
                 while (this.serverRunning)
                 {
+                    TimeHelper.SyncManager.setServerRunning();
                     long k = MinecraftServer.getCurrentTimeMillis();
                     long j = k - this.currentTime;
 
@@ -96,16 +98,41 @@ public abstract class MixinMinecraftServerRun  {
                     {
                         // In the future this mixin will allow synchronous stepping of the environment
                         // And the simulator.
-                        while (i > TimeHelper.serverTickLength )
-                        {
-                            i -= TimeHelper.serverTickLength;
-                            if( !TimeHelper.isPaused())  this.tick();
-                        }
 
+                        if (TimeHelper.synchronous){
+                            if(TimeHelper.SyncManager.shouldServerTick() && 
+                            (numTicks > 32 || i > TimeHelper.serverTickLength)
+                            ){
+                                System.out.println("print debugging method of masters.");
+                                this.tick();
+                                System.out.println("pretty good now. ");
+                                System.out.println(numTicks);
+                                numTicks += 1;
+                                TimeHelper.SyncManager.completeServerTick();
+                                // TODO: Once client syncing is implemented,
+                                // Let's remove this compete tick.
+                                TimeHelper.SyncManager.completeTick();
+                                i -= TimeHelper.serverTickLength;
+                            }
+
+                        } else
+                        {
+                            while (i > TimeHelper.serverTickLength )
+                            {
+                                i -= TimeHelper.serverTickLength;
+                                if( !TimeHelper.isPaused()) {
+                                    numTicks += 1;
+                                    this.tick();
+                                } 
+                            }
+
+
+                            Thread.sleep(Math.max(1L, TimeHelper.serverTickLength - i));
+                        }
+                        
                     }
                     
 
-                    Thread.sleep(Math.max(1L, TimeHelper.serverTickLength - i));
                     this.serverIsRunning = true;
                 }
                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopping();
@@ -152,6 +179,7 @@ public abstract class MixinMinecraftServerRun  {
         }
         finally
         {
+            TimeHelper.SyncManager.serverFinished();
             try
             {
                 this.stopServer();
