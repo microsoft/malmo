@@ -112,9 +112,10 @@ public abstract class MixinMinecraftGameloop {
 
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
-            // System.out.println("Ready 2 tick!");
+            System.out.println("Ready 2 tick!");
             // if(this.timer.elapsedTicks > 0){
             Boolean fuckhead = TimeHelper.SyncManager.requestTick();
+            while(!fuckhead){}
             if (fuckhead){
 
                 System.out.println("yahsssss " + fuckhead.toString());
@@ -133,14 +134,9 @@ public abstract class MixinMinecraftGameloop {
             }
             
             // while(!TimeHelper.SyncManager.shouldClientSync()){ }
-            // if (TimeHelper.SyncManager.shouldClientSync())
-            // {
-            //     // System.out.println("Should client sync.");
-            //     // TODO: Understand what the fuck is going on with hte flushOutboundQueue.
-            //     // this.playerController.updateController();
-            //     // this.myNetworkManager.processReceivedPackets();
-            //     TimeHelper.SyncManager.completeTick();
-            // }
+            while(TimeHelper.SyncManager.isTicking()) {}
+
+
          } else{
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
@@ -148,16 +144,6 @@ public abstract class MixinMinecraftGameloop {
             }
         }
 
-
-        // In Synchronous mode:
-        // Wait for tick.
-        // Tick
-        // Mark tick completed and now run server tick.
-        // Wait for server tick
-        // Process all network handlers for more updates (entity spawning for example)
-        // Now collect all data by sending a should collect data event (make a sync tick over event :))
-        // Then render.
-        // 
 
         this.mcProfiler.endStartSection("preRenderErrors");
         long i1 = System.nanoTime() - l;

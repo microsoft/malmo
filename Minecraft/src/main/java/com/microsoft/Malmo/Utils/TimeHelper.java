@@ -83,6 +83,8 @@ public class TimeHelper
             return isTicking && clientTickCompleted && !serverTickCompleted;
         }
 
+
+
         public static synchronized void setServerRunning(){
             serverRunning = true;
         }
