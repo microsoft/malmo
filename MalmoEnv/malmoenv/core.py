@@ -224,7 +224,7 @@ class Env:
         """gym api reset"""
 
         if self.resync_period > 0 and (self.resets + 1) % self.resync_period == 0:
-            self._exit_resync()
+            self.exit_resync()
 
         while not self.done:
             self.done = self._quit_episode()
@@ -453,7 +453,8 @@ class Env:
         ok = 0
         while ok != 1:
             xml = etree.tostring(self.xml)
-            token = (self._get_token() + ":" + str(self.agent_count)).encode()
+            # syncticking always ;))))))))))))))))))))))))))))))))))))))))))))))))))))
+            token = (self._get_token() + ":" + str(self.agent_count) + ":true").encode()
             # print(xml.decode())
             comms.send_message(self.client_socket, xml)
             comms.send_message(self.client_socket, token)

@@ -102,7 +102,7 @@
                <DrawEntity type="Pig" x="6.5" y="4" z="8.5" />
                <DrawEntity type="Chicken" x="3.5" y="4" z="5.5" />
             </DrawingDecorator>
-            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="1000000" />
+            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="100000000" />
             <ServerQuitWhenAnyAgentFinishes />
          </ServerHandlers>
       </ServerSection>
@@ -115,11 +115,8 @@
             </Inventory>
          </AgentStart>
          <AgentHandlers>
-            <DiscreteMovementCommands>
-               <ModifierList type="deny-list">
-                  <command>attack</command>
-               </ModifierList>
-            </DiscreteMovementCommands>
+            <ContinuousMovementCommands>
+            </ContinuousMovementCommands>
             <ObservationFromNearbyEntities>
                <Range name="entities" xrange="8" yrange="2" zrange="6" />
             </ObservationFromNearbyEntities>
@@ -134,13 +131,13 @@
             <RewardForTouchingBlockType>
                <Block behaviour="onceOnly" reward="5" type="brick_block" />
             </RewardForTouchingBlockType>
-            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="100" />
-            <AgentQuitFromTouchingBlockType>
-               <Block description="Agent0_defaulted" type="brick_block" />
-            </AgentQuitFromTouchingBlockType>
+            <!-- <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="100" /> -->
+            <!-- <AgentQuitFromTouchingBlockType> -->
+               <!-- <Block description="Agent0_defaulted" type="brick_block" /> -->
+            <!-- </AgentQuitFromTouchingBlockType> -->
             <VideoProducer want_depth="false">
-               <Width>800</Width>
-               <Height>600</Height>
+               <Width>128</Width>
+               <Height>128</Height>
             </VideoProducer>
          </AgentHandlers>
       </AgentSection>

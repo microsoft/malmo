@@ -61,7 +61,7 @@ if __name__ == '__main__':
         steps = 0
         done = False
         while not done and (args.episodemaxsteps <= 0 or steps < args.episodemaxsteps):
-            action = env.action_space.sample()
+            action = env.action_space.sample()*0
 
             obs, reward, done, info = env.step(action)
             steps += 1
@@ -74,6 +74,6 @@ if __name__ == '__main__':
                 img = Image.fromarray(obs.reshape(h, w, d))
                 img.save('image' + str(args.role) + '_' + str(steps) + '.png')
 
-            time.sleep(.05)
+            # time.sleep(1)
 
     env.close()

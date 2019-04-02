@@ -143,9 +143,6 @@ public class MalmoEnvServer implements IWantToQuit {
 
                                     step(command, socket, din);
 
-                                } else if (command.startsWith("<SyncStep")) {
-                                    step(command, socket, din);
-
                                 } else if (command.startsWith("<Peek")) {
 
                                     peek(command, socket, din);
@@ -578,9 +575,9 @@ public class MalmoEnvServer implements IWantToQuit {
             }
 
             // Now wait to run a tick
-            while(!TimeHelper.SyncManager.requestTick()){}
+            while(!TimeHelper.SyncManager.requestTick()){Thread.yield();}
             // Then wait until the tick is finished
-            while(!TimeHelper.SyncManager.isTicking()){}
+            while(!TimeHelper.SyncManager.isTicking()){Thread.yield();}
             // After which, get the observations.
             obs = getObservation(done);
 
