@@ -98,20 +98,23 @@ public abstract class MixinMinecraftServerRun  {
                     {
                         // In the future this mixin will allow synchronous stepping of the environment
                         // And the simulator.
+                        // TODO: Add provision for when server should close.
+                        /*
+                        What's happening is that the the client stops ticking, 
+                        but server ticks are required to end the game?
+                        It's actually not clear. We could add some debug statements to make sure
+                        that we're not getting stuck in this loop on the serer tick.
 
+                        Todo: investigate how the save and close world button works.
+                        */
                         if (TimeHelper.synchronous){
                             if(TimeHelper.SyncManager.shouldServerTick() && 
                             (numTicks > 32 || i > TimeHelper.serverTickLength)
                             ){
-                                System.out.println("print debugging method of masters.");
                                 this.tick();
-                                System.out.println("pretty good now. ");
                                 System.out.println(numTicks);
                                 numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
-                                // TODO: Once client syncing is implemented,
-                                // Let's remove this compete tick.
-                                TimeHelper.SyncManager.completeTick();
                                 i -= TimeHelper.serverTickLength;
                             }
 

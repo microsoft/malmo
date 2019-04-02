@@ -27,6 +27,7 @@ import net.minecraft.util.Timer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -50,7 +51,7 @@ public class TimeHelper
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
     private static float currentTicksPerSecond = 0;
-    public static Boolean synchronous = true;
+    public static Boolean synchronous = false;
 
     static public class SyncManager {
         static Boolean shouldClientTick =false;
@@ -83,6 +84,9 @@ public class TimeHelper
             return isTicking && clientTickCompleted && !serverTickCompleted;
         }
 
+        public static synchronized Boolean shouldRenderTick(){
+            return isTicking && serverTickCompleted;
+        }
 
 
         public static synchronized void setServerRunning(){
@@ -119,6 +123,18 @@ public class TimeHelper
 
         public static synchronized Boolean isTicking(){
             return isTicking;
+        }
+    }
+
+    static public class  SyncTickEvent extends Event {
+        public TickEvent.Phase pos;
+
+        public SyncTickEvent(TickEvent.Phase poop){
+            this.pos = poop;
+            //We don't need a side since we assume this is 
+            // all happening on a single player client with 
+            // an integrated server, so the Type of CLIENT =>
+            // that the side is CLIENT, as well as the SERVER.
         }
     }
 

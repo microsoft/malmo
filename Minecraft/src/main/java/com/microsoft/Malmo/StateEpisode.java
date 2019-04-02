@@ -19,6 +19,8 @@
 
 package com.microsoft.Malmo;
 
+import com.microsoft.Malmo.Utils.TimeHelper.SyncTickEvent;
+
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -102,4 +104,6 @@ public abstract class StateEpisode
     protected void onConfigChanged(OnConfigChangedEvent event) {}
     /** Subclass should override this to act when the player joins the server.*/
     protected void onPlayerJoinedServer(PlayerLoggedInEvent event) {}
+    /** Subclass shoud overried this to act on synchronized ticking */
+    protected void onSyncTick(SyncTickEvent ev){}
 }

@@ -100,6 +100,7 @@ import com.microsoft.Malmo.Utils.TextureHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TCPInputPoller;
 import com.microsoft.Malmo.Utils.TCPInputPoller.CommandAndIPAddress;
+import com.microsoft.Malmo.Utils.TimeHelper.SyncTickEvent;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
@@ -1832,6 +1833,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (modsettings != null && modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
                 TimeHelper.displayGranularityMs = 1000;
             TimeHelper.unpause();
+            
+            // Synchronization
+            if (envServer != null){
+                TimeHelper.synchronous = envServer.isSynchronous();
+            }
         }
 
         protected void onMissionEnded(IState nextState, String errorReport)
@@ -1851,6 +1857,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 currentMissionBehaviour().commandHandler.setOverriding(false);
                 currentMissionBehaviour().commandHandler.deinstall(currentMissionInit());
             }
+            
 
             // Close our communication channels:
             closeSockets();
@@ -1879,6 +1886,20 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         public void onClientTick(ClientTickEvent event)
         {
+            // If we aren't performing synchronous ticking use the client Tick to handle updates
+            if(!TimeHelper.synchronous){
+                onTick(false, event.phase);
+            }
+        }
+
+        @Override
+        public void onSyncTick(SyncTickEvent ev){
+            // If we are performing synchronous ticking
+            onTick(true, ev.pos);
+        }
+
+        private void onTick(Boolean synchronous, TickEvent.Phase phase){
+
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
@@ -1912,7 +1933,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
-            if (this.frameTimestamp != 0 && (System.currentTimeMillis() - this.frameTimestamp >  VIDEO_MAX_WAIT)) {
+            if (this.frameTimestamp != 0 && (System.currentTimeMillis() - this.frameTimestamp >  VIDEO_MAX_WAIT) && !synchronous) {
                 System.out.println("No video produced recently. Aborting mission.");
                 if (!this.serverHasFiredStartingPistol)
                     onMissionEnded(ClientState.ERROR_LOST_VIDEO, "No video produced recently.");
@@ -1943,8 +1964,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // which is sent once the server's running episode has started.
             if (!this.serverHasFiredStartingPistol)
                 return;
+                
 
-            if (event.phase == Phase.END)
+            // IF we are synchronous let's process the input before the tick otherwise we can do that wack MS shit -_-
+            if(synchronous && phase == Phase.START){
+                checkForControlCommand();
+            }
+            if (phase == Phase.END)
             {
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
@@ -1982,10 +2008,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
                 else
                 {
+                    // If in the case that we are asynchronous, do this 
+                    // wack shit of checking input at the end of a tick...
+                    if(!synchronous){
+
+                        checkForControlCommand();
+                    }
+                    
                     // Send off observation and reward data:
                     sendData();
                     // And see if we have any incoming commands to act upon:
-                    checkForControlCommand();
                 }
             }
         }
@@ -2097,7 +2129,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         /**
          * Check to see if any control instructions have been received and act on them if so.
          */
-        private void checkForControlCommand()
+        public void checkForControlCommand()
         {
             Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandHandling");
             String command;
@@ -2251,6 +2283,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void execute()
         {
             totalTicks = 0;
+            // TODO: MOVE TO SYNCMANGER
+            TimeHelper.synchronous = false;
+            // TimeHelper.SyncManager.flush();
 
             // Get a text report:
             String errorFeedback = ClientStateMachine.this.getErrorDetails();

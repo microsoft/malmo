@@ -11,6 +11,7 @@ import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import akka.actor.FSM.TimeoutMarker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -31,6 +32,8 @@ import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Timer;
 import net.minecraft.util.Util;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 @Mixin(Minecraft.class) 
 public abstract class MixinMinecraftGameloop {
@@ -112,26 +115,26 @@ public abstract class MixinMinecraftGameloop {
 
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
-            System.out.println("Ready 2 tick!");
-
-            // Request a tick to start. TODO: This will be removed. No ticking happens
-            // unless the client says
-            while(!TimeHelper.SyncManager.requestTick()){}
 
             // Wait for the shouldClientTick to be true!
-            while(!TimeHelper.SyncManager.shouldClientTick()) {}
+            while(!TimeHelper.SyncManager.shouldClientTick()) {
+                Thread.yield();
+            }
+
+            MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             // If we should tick the client, tick the cliebt!
             if(TimeHelper.SyncManager.shouldClientTick()){
-
                 this.runTick();
                 TimeHelper.SyncManager.completeClientTick();
             } 
             else{
-            this.timer.renderPartialTicks = f;
+                this.timer.renderPartialTicks = f;
             }
         
             // Wait for the server tick to finish.
-            while(TimeHelper.SyncManager.isTicking()) {}
+            while(TimeHelper.SyncManager.shouldRenderTick()) {
+                Thread.yield();
+            }
 
 
          } else{
@@ -194,6 +197,13 @@ public abstract class MixinMinecraftGameloop {
         GlStateManager.popMatrix();
         this.mcProfiler.startSection("root");
         this.updateDisplay();
+
+        if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning() && TimeHelper.SyncManager.isTicking()){
+            // TODO: Once client syncing is implemented,
+            // Let's remove this compete tick.
+            TimeHelper.SyncManager.completeTick();
+            MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
+        }
         Thread.yield();
         this.checkGLError("Post render");
         ++this.fpsCounter;
