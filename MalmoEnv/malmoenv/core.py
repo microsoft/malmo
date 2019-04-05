@@ -101,6 +101,8 @@ class Env:
         self.done = True
         self.step_options = None
         self.width = 0
+
+        
         self.height = 0
         self.depth = 0
 
@@ -240,6 +242,7 @@ class Env:
             self._find_server()
         if not self.client_socket:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             # print("connect " + self.server2 + ":" + str(self.port2))
             sock.connect((self.server2, self.port2))
             self._hello(sock)
@@ -291,6 +294,7 @@ class Env:
         info = None
         turn = True
         withturnkey = self.step_options < 2
+        print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
 
         while not self.done and \
@@ -299,13 +303,17 @@ class Env:
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"
+            t0 = time.time()
             comms.send_message(self.client_socket, step_message.encode())
+            print("send action {}".format(time.time() - t0)); t0 = time.time()
             if withturnkey:
                 comms.send_message(self.client_socket, self.turn_key.encode())
             obs = comms.recv_message(self.client_socket)
+            print("recieve obs {}".format(time.time() - t0)); t0 = time.time()
 
             reply = comms.recv_message(self.client_socket)
             reward, done, sent = struct.unpack('!dbb', reply)
+            print("recieve reward {}".format(time.time() - t0)); t0 = time.time()
             self.done = done == 1
             if withinfo:
                 info = comms.recv_message(self.client_socket).decode('utf-8')
@@ -320,10 +328,11 @@ class Env:
             else:
                 turn = sent == 0
 
-            if (obs is None or len(obs) == 0) or turn:
-                time.sleep(0.1)
+            # if (obs is None or len(obs) == 0) or turn:
+                # time.sleep(0.1)
+            print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
             obs = np.frombuffer(obs, dtype=np.uint8)
-
+            print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
         return obs, reward, self.done, info
 
     def close(self):

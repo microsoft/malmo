@@ -117,7 +117,6 @@ public class TimeHelper
         }
 
         public static synchronized void completeTick(){
-            System.out.println("sup dug");
             isTicking = false; 
             shouldClientTick = false;
             serverTickCompleted = false;
@@ -254,6 +253,7 @@ public class TimeHelper
 
     @SubscribeEvent
     public static void unpauseOnShutdown(net.minecraftforge.event.world.WorldEvent.Unload e){
+        System.out.println("Unpause on shutdonw");
         unpause();
     }
 

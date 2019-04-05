@@ -136,8 +136,8 @@
                <!-- <Block description="Agent0_defaulted" type="brick_block" /> -->
             <!-- </AgentQuitFromTouchingBlockType> -->
             <VideoProducer want_depth="false">
-               <Width>128</Width>
-               <Height>128</Height>
+               <Width>64</Width>
+               <Height>64</Height>
             </VideoProducer>
          </AgentHandlers>
       </AgentSection>

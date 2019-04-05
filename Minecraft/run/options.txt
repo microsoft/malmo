@@ -3,8 +3,8 @@ mouseSensitivity:0.5
 fov:1.5
 gamma:0.5
 saturation:0.0
-renderDistance:6
-guiScale:0.1
+renderDistance:2
+guiScale:1
 particles:2
 bobView:true
 anaglyph3d:false

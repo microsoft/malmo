@@ -874,12 +874,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         public void onClientTick(TickEvent.ClientTickEvent ev) throws Exception
         {
+
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoHandleMissionCommands");
             checkForMissionCommand();
+            Minecraft.getMinecraft().mcProfiler.endSection();
         }
 
         private void checkForMissionCommand() throws Exception
         {
-            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoHandleMissionCommands");
             if (ClientStateMachine.this.missionPoller == null)
                 return;
 
@@ -889,7 +891,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             String missionMessage = comip.command;
             if (missionMessage == null || missionMessage.length() == 0)
                 return;
-
+            Minecraft.getMinecraft().mcProfiler.endSection();
             Minecraft.getMinecraft().mcProfiler.startSection("malmoDecodeMissionInit");
 
             MissionInitResult missionInitResult = decodeMissionInit(missionMessage);
@@ -1842,8 +1844,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected void onMissionEnded(IState nextState, String errorReport)
         {
-            System.out.println("[client] are we just ending, that's why.. ");
-            System.out.println("[client] beep boop " + errorReport);
             // Tidy up our mission handlers:
             if (currentMissionBehaviour().rewardProducer != null)
                 currentMissionBehaviour().rewardProducer.cleanup();
@@ -1897,17 +1897,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         public void onSyncTick(SyncTickEvent ev){
             // If we are performing synchronous ticking
-
-        System.out.println("[client] syncTickEvent recieved in client state machine. ");
             onTick(true, ev.pos);
-
-            System.out.println("[client] syncTickEvent finished in client state machine. ");
         }
 
         private synchronized void onTick(Boolean synchronous, TickEvent.Phase phase){
-
-            
-            System.out.println("[client] onTick hello. ");
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
@@ -1916,11 +1909,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
             {
                 // Connection has been lost.
-                System.out.println("[client] beeep boop connection lsost. ");
                 onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
             }
 
-            System.out.println("[client] network manager is great, how about you?. ");
             // Check we are still in touch with the agent:
             if (System.currentTimeMillis() > this.lastPingSent + this.pingFrequencyMs)
             {
@@ -1943,9 +1934,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
-            System.out.println("[client] close your eyes if they're already open ");
 
-            System.out.println("[client] doing frame check. ");
             if (this.frameTimestamp != 0 && (System.currentTimeMillis() - this.frameTimestamp >  VIDEO_MAX_WAIT) && !synchronous) {
                 System.out.println("No video produced recently. Aborting mission.");
                 if (!this.serverHasFiredStartingPistol)
@@ -1958,7 +1947,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 }
             }
 
-            System.out.println("[client] hello i am checking 2 see if u died. ");
             // Check here to see whether the player has died or not:
             if (!this.playerDied && Minecraft.getMinecraft().player.isDead)
             {
@@ -1976,21 +1964,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // To guard against this happening, although we are running, we don't act on anything -
             // we don't check for commands, or send observations or rewards - until we get the SERVER_GO signal,
             // which is sent once the server's running episode has started.
-            System.out.println("[client] no one died but did the pistol not fire, i mean for real");
+
             if (!this.serverHasFiredStartingPistol)
                 return;
                 
 
             // IF we are synchronous let's process the input before the tick otherwise we can do that wack MS shit -_-
             if(synchronous && phase == Phase.START){
-                System.out.println("[client] hey i just metu  and in this world its crazy wowt here.. oh");
                 checkForControlCommand();
-                System.out.println("[client] check'd for command position. ");
             }
             if (phase == Phase.END)
-            {
-                System.out.println("[client] its not also the end 2. ");
-                
+            {   
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
                 boolean quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
@@ -2039,7 +2023,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // And see if we have any incoming commands to act upon:
                 }
             }
-            System.out.println("[client] seriously who is waiting right now? why would I be stuck ");
         }
 
         private void openSockets()
@@ -2058,7 +2041,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void sendData()
         {
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
-            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoSendData");
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoSendData");
             // Create the observation data:
             String data = "";
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
@@ -2068,7 +2051,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 currentMissionBehaviour().observationProducer.writeObservationsToJSON(json, currentMissionInit());
                 data = json.toString();
             }
-            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoSendTCPObservations");
+            Minecraft.getMinecraft().mcProfiler.endSection(); //malmogatherjson
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPObservations");
 
             ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
 
@@ -2076,6 +2060,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 if (AddressHelper.getMissionControlPort() == 0) {
                     if (envServer != null) {
+                        // TODO wierd, aren't we doing this? 
                         envServer.observation(data);
                     }
                 } else {
@@ -2090,13 +2075,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     }
                 }
             }
-
-            Minecraft.getMinecraft().mcProfiler.endStartSection("malmoGatherRewardSignal");
+            Minecraft.getMinecraft().mcProfiler.endSection(); //malmotcp
+            Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherRewardSignal");
             // Now create the reward signal:
             if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
             {
                 MultidimensionalReward reward = new MultidimensionalReward();
                 currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(), reward);
+                
                 if (!reward.isEmpty())
                 {
                     String strReward = reward.getAsSimpleString();
@@ -2121,9 +2107,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                             ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed reward signal", TextCategory.TXT_CLIENT_WARNING, 5000);
                         }
                     }
+                    Minecraft.getMinecraft().mcProfiler.endSection(); //sendTCP reward.
                 }
             }
-            Minecraft.getMinecraft().mcProfiler.endSection();
+            Minecraft.getMinecraft().mcProfiler.endSection(); //Gather reward.
+            Minecraft.getMinecraft().mcProfiler.endSection(); //sendData
 
             int maxFailedTCPSendCount = 0;
             for (VideoHook hook : this.videoHooks)
@@ -2151,17 +2139,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
          */
         public void checkForControlCommand()
         {
-            System.out.println("[client] oh hey there big sqirrel im a control command parser. ");
             Minecraft.getMinecraft().mcProfiler.endStartSection("malmoCommandHandling");
             String command;
             boolean quitHandlerFired = false;
             IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
 
             if (envServer != null) {
-
-                System.out.println("[client] getting command from the env server ");
                 command = envServer.getCommand();
-                System.out.println("[client] got em");
             } else {
                 command = ClientStateMachine.this.controlInputPoller.getCommand();
             }
@@ -2171,15 +2155,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Pass the command to our various control overrides:
                 Minecraft.getMinecraft().mcProfiler.startSection("malmoCommandAct");
 
-                System.out.println("[client] handling command " + command);
                 boolean handled = handleCommand(command);
-                System.out.println("[client] command handled");
                 // Get the next command:
                 if (envServer != null) {
-
-                    System.out.println("[client] getting command from the env server ");
                     command = envServer.getCommand();
-                    System.out.println("[client] got em");
                 } else {
                     command = ClientStateMachine.this.controlInputPoller.getCommand();
                 }

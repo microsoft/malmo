@@ -1,6 +1,7 @@
 package com.microsoft.Malmo.Mixins;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
@@ -75,9 +76,11 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
-    
+    private  int numTicksPassed = 0;
+
     private void runGameLoop() throws IOException
     {
+
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
 
@@ -109,44 +112,46 @@ public abstract class MixinMinecraftGameloop {
             }
         }
 
-        this.mcProfiler.endSection();
+        this.mcProfiler.endSection(); //scheduledExecutables
         long l = System.nanoTime();
-        this.mcProfiler.startSection("tick");
+        // this.mcProfiler.startSection("tick");
 
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
+            this.mcProfiler.startSection("waitForTick");
 
-            System.out.println("[client] Waiting for tick ");
             // Wait for the shouldClientTick to be true!
             while(!TimeHelper.SyncManager.shouldClientTick()) {
                 Thread.yield();
             }
+            this.mcProfiler.endSection();
+            this.mcProfiler.startSection("syncTickEvent_pre");
 
-            System.out.println("[client] tick request recieved. ");
 
-            System.out.println("[client] trying to post this event. ");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             // If we should tick the client, tick the cliebt!
+            
+            this.mcProfiler.endSection();
+            this.mcProfiler.startSection("clientTick");
 
-            System.out.println("[client] pre event sent. ");
+
             if(TimeHelper.SyncManager.shouldClientTick()){
                 this.runTick();
 
-            System.out.println("[client] tick ran. Completing tick. ");
                 TimeHelper.SyncManager.completeClientTick();
             } 
             else{
                 this.timer.renderPartialTicks = f;
             }
-        
-            // Wait for the server tick to finish.
+            
+            this.mcProfiler.endSection(); //ClientTick
+            this.mcProfiler.startSection("serverTick");
 
-            System.out.println("[client] Waiting for render tick.. ");
+            // Wait for the server tick to finish.
             while(TimeHelper.SyncManager.shouldRenderTick()) {
                 Thread.yield();
             }
-
-            System.out.println("[client] Render tick ready ");
+            this.mcProfiler.endSection(); //serverTick
 
 
          } else{
@@ -157,11 +162,13 @@ public abstract class MixinMinecraftGameloop {
         }
 
 
-        this.mcProfiler.endStartSection("preRenderErrors");
+        this.mcProfiler.startSection("preRenderErrors");
         long i1 = System.nanoTime() - l;
         this.checkGLError("Pre render");
-        this.mcProfiler.endStartSection("sound");
+        this.mcProfiler.endSection();
+        this.mcProfiler.startSection("sound");
         this.mcSoundHandler.setListener(this.player, this.timer.renderPartialTicks);
+        // this.mcProfiler.endSection();
         this.mcProfiler.endSection();
         this.mcProfiler.startSection("render");
         GlStateManager.pushMatrix();
@@ -169,7 +176,7 @@ public abstract class MixinMinecraftGameloop {
         this.framebufferMc.bindFramebuffer(true);
         this.mcProfiler.startSection("display");
         GlStateManager.enableTexture2D();
-        this.mcProfiler.endSection();
+        this.mcProfiler.endSection(); //display
 
         if (!this.skipRenderWorld)
         {
@@ -180,8 +187,7 @@ public abstract class MixinMinecraftGameloop {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
         }
 
-        this.mcProfiler.endSection();
-
+        this.mcProfiler.endSection(); ///root
         if (this.gameSettings.showDebugInfo && this.gameSettings.showDebugProfilerChart && !this.gameSettings.hideGUI)
         {
             if (!this.mcProfiler.profilingEnabled)
@@ -189,9 +195,10 @@ public abstract class MixinMinecraftGameloop {
                 this.mcProfiler.clearProfiling();
             }
 
-            this.mcProfiler.profilingEnabled = true;
+        this.mcProfiler.profilingEnabled = true;
+
             this.displayDebugInfo(i1);
-    }
+        }
         else
         {
             this.mcProfiler.profilingEnabled = false;
@@ -207,20 +214,27 @@ public abstract class MixinMinecraftGameloop {
         GlStateManager.pushMatrix();
         this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
         GlStateManager.popMatrix();
+
         this.mcProfiler.startSection("root");
         this.updateDisplay();
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning() && TimeHelper.SyncManager.isTicking()){
             // TODO: Once client syncing is implemented,
             // Let's remove this compete tick.
-
-            System.out.println("[client] render tick complete. Completing tick ");
             TimeHelper.SyncManager.completeTick();
 
-            System.out.println("[client] sending sync tick event! ");
-            MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
+            this.mcProfiler.startSection("syncTickEvent_post");
 
-            System.out.println("[client] event processed.. ");
+            MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
+            this.mcProfiler.endSection();
+            // numTicksPassed += 1;
+            // if (numTicksPassed % 100 == 0 ){
+            //     List<Profiler.Result> dat = this.mcProfiler.getProfilingData("root");
+            //     for(int qq = 0; qq < dat.size(); qq++){
+            //         Profiler.Result res = dat.get(qq);
+            //         System.out.println(res.profilerName + " " + res.totalUsePercentage + " "+ res.usePercentage);
+            //     }
+            // } 
         }
         Thread.yield();
         this.checkGLError("Post render");
@@ -253,6 +267,6 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.endSection();
         }
 
-        this.mcProfiler.endSection();
+        this.mcProfiler.endSection(); //root
     }
 }

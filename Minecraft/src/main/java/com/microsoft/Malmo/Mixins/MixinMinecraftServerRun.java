@@ -112,15 +112,10 @@ public abstract class MixinMinecraftServerRun  {
                             if(TimeHelper.SyncManager.shouldServerTick() && 
                             (numTicks > 32 || i > TimeHelper.serverTickLength)
                             ){
-
-                                System.out.println("[server] Server ticking. ");
                                 this.tick();
-                                System.out.println(numTicks);
                                 numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
                                 i -= TimeHelper.serverTickLength;
-
-                                System.out.println("[server] Server tick complete. ");
                             }
 
                         } else

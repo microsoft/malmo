@@ -62,12 +62,15 @@ if __name__ == '__main__':
         done = False
         while not done and (args.episodemaxsteps <= 0 or steps < args.episodemaxsteps):
             action = env.action_space.sample()*0
+            print("===================================\n")
+            t0 = time.time()
 
             obs, reward, done, info = env.step(action)
             steps += 1
-            print("reward: " + str(reward))
+            print("step {}".format(time.time() - t0)); t0 = time.time()
+            # print("reward: " + str(reward))
             # print("done: " + str(done))
-            print("obs: " + str(obs))
+            # print("obs: " + str(obs))
             # print("info" + info)
             if args.saveimagesteps > 0 and steps % args.saveimagesteps == 0:
                 h, w, d = env.observation_space.shape

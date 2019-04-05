@@ -23,6 +23,8 @@ import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPUtils;
+
+import net.minecraft.profiler.Profiler;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 import net.minecraftforge.common.config.Configuration;
@@ -40,12 +42,16 @@ import com.microsoft.Malmo.Utils.TCPInputPoller;
 import java.util.logging.Level;
 
 import java.util.LinkedList;
+import java.util.List;
 
 
 /**
  * MalmoEnvServer - service supporting OpenAI gym "environment" for multi-agent Malmo missions.
  */
 public class MalmoEnvServer implements IWantToQuit {
+    private static Profiler profiler = new Profiler();
+    private static int nsteps = 0;
+    private static boolean debug = false;
 
     private static String hello = "<MalmoEnv" ;
 
@@ -74,7 +80,8 @@ public class MalmoEnvServer implements IWantToQuit {
 
     private static boolean envPolicy = false; // Are we configured by config policy?
 
-    // Synchronize on EnvState
+    // Synchronize on EnvStateasd
+    
 
     private Lock lock = new ReentrantLock();
     private Condition cond = lock.newCondition();
@@ -121,9 +128,13 @@ public class MalmoEnvServer implements IWantToQuit {
     public void serve() throws IOException {
 
         ServerSocket serverSocket = new ServerSocket(port);
+        serverSocket.setPerformancePreferences(0,2,1);
+
+
         while (true) {
             try {
                 final Socket socket = serverSocket.accept();
+                socket.setTcpNoDelay(true);
 
                 Thread thread = new Thread("EnvServerSocketHandler") {
                     public void run() {
@@ -140,8 +151,19 @@ public class MalmoEnvServer implements IWantToQuit {
                                 String command = new String(data, utf8);
 
                                 if (command.startsWith("<Step")) {
-
+                                    
+                                    profiler.startSection("root");
+                                    long start = System.nanoTime();
                                     step(command, socket, din);
+                                    profiler.endSection();
+                                    if (nsteps % 100 == 0 && debug){
+                                        List<Profiler.Result> dat = profiler.getProfilingData("root");
+                                        for(int qq = 0; qq < dat.size(); qq++){
+                                            Profiler.Result res = dat.get(qq);
+                                            System.out.println(res.profilerName + " " + res.totalUsePercentage + " "+ res.usePercentage);
+                                        }
+                                    } 
+
 
                                 } else if (command.startsWith("<Peek")) {
 
@@ -158,19 +180,27 @@ public class MalmoEnvServer implements IWantToQuit {
                                 } else if (command.startsWith("<MissionInit")) {
 
                                     if (missionInit(din, command, socket))
-                                        running = true;
+                                        {
+                                            running = true;
+                                            profiler.profilingEnabled = debug;
+                                        }
 
                                 } else if (command.startsWith("<Quit")) {
 
                                     quit(command, socket);
 
+                                    profiler.profilingEnabled = false;
+
                                 } else if (command.startsWith("<Exit")) {
 
                                     exit(command, socket);
 
+                                    profiler.profilingEnabled = false;
+
                                 } else if (command.startsWith("<Close")) {
 
                                     close(command, socket);
+                                    profiler.profilingEnabled = false;
 
                                 }  else if (command.startsWith("<Status")) {
 
@@ -497,6 +527,8 @@ public class MalmoEnvServer implements IWantToQuit {
 
     private synchronized void stepSync(String command, Socket socket, DataInputStream din) throws IOException 
     {
+        nsteps += 1;
+        profiler.startSection("commandProcessing");
         String actions = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
         int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
         boolean withTurnkey = options < 2;
@@ -572,18 +604,35 @@ public class MalmoEnvServer implements IWantToQuit {
                 }
             }
 
-            lock.unlock();
-            int _x = 0;
-            // Now wait to run a tick
-            while(!TimeHelper.SyncManager.requestTick()){_x+=1; Thread.yield();} 
+            
 
-            _x = 0;
+            lock.unlock();
+            // int _x = 0;
+
+
+            profiler.endSection(); //cmd
+            profiler.startSection("requestTick");
+
+            // Now wait to run a tick
+            while(!TimeHelper.SyncManager.requestTick()){Thread.yield();} 
+
+
+            profiler.endSection();
+            profiler.startSection("waitForTick");
+
             // Then wait until the tick is finished
-            while(!TimeHelper.SyncManager.isTickCompleted()){ _x++; Thread.yield();}
+            while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
             lock.lock();
 
+
+            profiler.endSection();
+            profiler.startSection("getObservation");
             // After which, get the observations.
             obs = getObservation(done);
+
+
+            profiler.endSection();
+            profiler.startSection("getInfo");
             
 
             if (done || (obs.length > 0 && !outOfTurn)) {
@@ -594,7 +643,7 @@ public class MalmoEnvServer implements IWantToQuit {
                     info = envState.info;
                     envState.info = "";
                     if (info.isEmpty() && !done) {
-                        System.out.println("Waiting for info");
+                        // System.out.println("Waiting for info");
                         try {
                             cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
                         } catch (InterruptedException ie) {
@@ -609,10 +658,13 @@ public class MalmoEnvServer implements IWantToQuit {
                 }
                 envState.obs = null;
             }
+            profiler.endSection();
         } finally {
             lock.unlock();
         }
 
+        
+        profiler.startSection("writeObs");
         dout.writeInt(obs.length);
         dout.write(obs);
 
@@ -631,7 +683,11 @@ public class MalmoEnvServer implements IWantToQuit {
             dout.writeInt(nextTurnKey.length);
             dout.write(nextTurnKey);
         }
+
+        profiler.endSection(); //write obs
+        profiler.startSection("flush");
         dout.flush();
+        profiler.endSection(); // flush
     }
     // Handler for <Step_> messages. Single digit option code after _ specifies if turnkey and info are included in message.
     private void step(String command, Socket socket, DataInputStream din) throws IOException {
@@ -738,7 +794,6 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             initTokens = new Hashtable<String, Integer>();
-
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
             dout.writeInt(1);

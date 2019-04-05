@@ -79,20 +79,13 @@ public class EpisodeEventWrapper {
 
     @SubscribeEvent 
     public void onSyncTickEvent(SyncTickEvent ev){
-
-        System.out.println("[client] syncTickEvent recieved. getting lock ");
         this.stateEpisodeLock.readLock().lock();
 
-        System.out.println("[client] syncTickEvent lock recievedd. ");
         if(this.stateEpisode != null && this.stateEpisode.isLive())
         {
-
-        System.out.println("[client] calling state episode syncTick. ");
             this.stateEpisode.onSyncTick(ev);
         }
         this.stateEpisodeLock.readLock().unlock();
-
-        System.out.println("[client] syncTickEvent lock removed. ");
     }
 
     @SubscribeEvent
