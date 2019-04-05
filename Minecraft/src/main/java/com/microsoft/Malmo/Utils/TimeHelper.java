@@ -58,6 +58,7 @@ public class TimeHelper
         static Boolean clientTickCompleted = false;
         static Boolean serverTickCompleted = false;
         static Boolean serverRunning = false;
+        static Boolean tickCompleted = false;
 
         static Boolean isTicking = false;
         
@@ -68,6 +69,7 @@ public class TimeHelper
                 isTicking = true;
                 clientTickCompleted = false;
                 serverTickCompleted = false;
+                tickCompleted = false;
                 return true;
             }
             else{
@@ -115,14 +117,20 @@ public class TimeHelper
         }
 
         public static synchronized void completeTick(){
-            isTicking = false;
+            System.out.println("sup dug");
+            isTicking = false; 
             shouldClientTick = false;
             serverTickCompleted = false;
             clientTickCompleted = false;
+            tickCompleted = true;
         }
 
         public static synchronized Boolean isTicking(){
             return isTicking;
+        }
+
+        public static synchronized Boolean isTickCompleted(){
+            return tickCompleted;
         }
     }
 

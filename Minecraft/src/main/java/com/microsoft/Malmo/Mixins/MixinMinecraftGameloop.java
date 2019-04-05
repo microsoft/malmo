@@ -116,15 +116,23 @@ public abstract class MixinMinecraftGameloop {
 
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning()){
 
+            System.out.println("[client] Waiting for tick ");
             // Wait for the shouldClientTick to be true!
             while(!TimeHelper.SyncManager.shouldClientTick()) {
                 Thread.yield();
             }
 
+            System.out.println("[client] tick request recieved. ");
+
+            System.out.println("[client] trying to post this event. ");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             // If we should tick the client, tick the cliebt!
+
+            System.out.println("[client] pre event sent. ");
             if(TimeHelper.SyncManager.shouldClientTick()){
                 this.runTick();
+
+            System.out.println("[client] tick ran. Completing tick. ");
                 TimeHelper.SyncManager.completeClientTick();
             } 
             else{
@@ -132,9 +140,13 @@ public abstract class MixinMinecraftGameloop {
             }
         
             // Wait for the server tick to finish.
+
+            System.out.println("[client] Waiting for render tick.. ");
             while(TimeHelper.SyncManager.shouldRenderTick()) {
                 Thread.yield();
             }
+
+            System.out.println("[client] Render tick ready ");
 
 
          } else{
@@ -201,8 +213,14 @@ public abstract class MixinMinecraftGameloop {
         if(TimeHelper.synchronous && TimeHelper.SyncManager.isServerRunning() && TimeHelper.SyncManager.isTicking()){
             // TODO: Once client syncing is implemented,
             // Let's remove this compete tick.
+
+            System.out.println("[client] render tick complete. Completing tick ");
             TimeHelper.SyncManager.completeTick();
+
+            System.out.println("[client] sending sync tick event! ");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
+
+            System.out.println("[client] event processed.. ");
         }
         Thread.yield();
         this.checkGLError("Post render");

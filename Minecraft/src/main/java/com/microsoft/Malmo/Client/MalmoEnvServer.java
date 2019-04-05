@@ -495,7 +495,7 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.flush();
     }
 
-    private void stepSync(String command, Socket socket, DataInputStream din) throws IOException 
+    private synchronized void stepSync(String command, Socket socket, DataInputStream din) throws IOException 
     {
         String actions = command.substring(stepTagLength, command.length() - (stepTagLength + 2));
         int options =  Character.getNumericValue(command.charAt(stepTagLength - 2));
@@ -526,8 +526,6 @@ public class MalmoEnvServer implements IWantToQuit {
         try {
 
             done = envState.done;
-
-            obs = getObservation(done);
 
             // If done or we have new observation and it's our turn then submit command and pick up rewards.
 
@@ -574,12 +572,19 @@ public class MalmoEnvServer implements IWantToQuit {
                 }
             }
 
+            lock.unlock();
+            int _x = 0;
             // Now wait to run a tick
-            while(!TimeHelper.SyncManager.requestTick()){Thread.yield();}
+            while(!TimeHelper.SyncManager.requestTick()){_x+=1; Thread.yield();} 
+
+            _x = 0;
             // Then wait until the tick is finished
-            while(!TimeHelper.SyncManager.isTicking()){Thread.yield();}
+            while(!TimeHelper.SyncManager.isTickCompleted()){ _x++; Thread.yield();}
+            lock.lock();
+
             // After which, get the observations.
             obs = getObservation(done);
+            
 
             if (done || (obs.length > 0 && !outOfTurn)) {
                 // Pick up rewards.
@@ -589,6 +594,7 @@ public class MalmoEnvServer implements IWantToQuit {
                     info = envState.info;
                     envState.info = "";
                     if (info.isEmpty() && !done) {
+                        System.out.println("Waiting for info");
                         try {
                             cond.await(COND_WAIT_SECONDS, TimeUnit.SECONDS);
                         } catch (InterruptedException ie) {
