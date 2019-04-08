@@ -1832,14 +1832,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Overclocking:
             ModSettings modsettings = currentMissionInit().getMission().getModSettings();
             if (modsettings != null && modsettings.getMsPerTick() != null)
-                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick(), false);
+                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
             if (modsettings != null && modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
                 TimeHelper.displayGranularityMs = 1000;
             TimeHelper.unpause();
             
             // Synchronization
             if (envServer != null){
-                System.out.println("sssssssssssssssssssssssssssssssssssssssssss sycn to trueeee    ");
                 TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
             }
         }
@@ -1870,7 +1869,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 hook.stop(ClientStateMachine.this.missionEndedData);
 
             // Return Minecraft speed to "normal":
-            TimeHelper.setMinecraftClientClockSpeed(20, false);
+            TimeHelper.setMinecraftClientClockSpeed(20);
             TimeHelper.displayGranularityMs = 0;
             TimeHelper.unpause();
             TimeHelper.SyncManager.setSynchronous(false);
@@ -1912,7 +1911,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if(npc == null){
                 if(this.serverHasFiredStartingPistol){
                     onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed");
-                    System.out.println("why");
                     return;
                 }                
             }
@@ -1964,7 +1962,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             
             if(Minecraft.getMinecraft().world == null){
                 if(this.serverHasFiredStartingPistol){
-                    System.out.println("you're why");
                     onMissionEnded(ClientState.ERROR_NO_WORLD, "No world for client. Must be in main menu");  
                 }
 

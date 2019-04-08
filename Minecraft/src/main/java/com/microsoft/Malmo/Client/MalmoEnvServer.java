@@ -135,7 +135,6 @@ public class MalmoEnvServer implements IWantToQuit {
             try {
                 final Socket socket = serverSocket.accept();
                 socket.setTcpNoDelay(true);
-                System.out.println("STARTING THIS POOPER.");
 
                 Thread thread = new Thread("EnvServerSocketHandler") {
                     public void run() {
@@ -220,7 +219,6 @@ public class MalmoEnvServer implements IWantToQuit {
                                 }
                             }
                         } catch (IOException ioe) {
-                            System.out.println("oooof " + ioe);
                             ioe.printStackTrace();
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
@@ -1002,7 +1000,6 @@ public class MalmoEnvServer implements IWantToQuit {
 
             if(TimeHelper.SyncManager.isSynchronous()){
                 // We want to dsynchronize everything.
-                System.out.println("i'll do it here    ");
                 TimeHelper.SyncManager.setSynchronous(false);
             }
             lock.unlock();
