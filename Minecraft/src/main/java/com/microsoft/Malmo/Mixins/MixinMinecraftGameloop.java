@@ -226,7 +226,7 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
-\
+
         }
         Thread.yield();
         this.checkGLError("Post render");
