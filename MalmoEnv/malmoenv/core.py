@@ -99,6 +99,7 @@ class Env:
         self.turn_key = ""
         self.exp_uid = ""
         self.done = True
+        self.synchronous = False
         self.step_options = None
         self.width = 0
 
@@ -109,7 +110,7 @@ class Env:
     def init(self, xml, port, server=None,
              server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0, action_space=None):
+             action_filter=None, resync=0, step_options=0, action_space=None, synchronous=False):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -123,6 +124,8 @@ class Env:
             step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included,
             turn if required.
         """
+        self.synchronous = synchronous
+
         if action_filter is None:
             action_filter = {"move", "turn", "use", "attack"}
 
@@ -463,7 +466,7 @@ class Env:
         while ok != 1:
             xml = etree.tostring(self.xml)
             # syncticking always ;))))))))))))))))))))))))))))))))))))))))))))))))))))
-            token = (self._get_token() + ":" + str(self.agent_count) + ":true").encode()
+            token = (self._get_token() + ":" + str(self.agent_count) + ":" + str(self.synchronous).lower()).encode()
             # print(xml.decode())
             comms.send_message(self.client_socket, xml)
             comms.send_message(self.client_socket, token)
