@@ -114,8 +114,6 @@ public abstract class MixinMinecraftGameloop {
 
         this.mcProfiler.endSection(); //scheduledExecutables
         long l = System.nanoTime();
-        // this.mcProfiler.startSection("tick");
-
 
         if(
             (TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.isServerRunning() && !this.isGamePaused ) 
@@ -123,14 +121,12 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("waitForTick");
 
             // Wait for the shouldClientTick to be true!
-            System.out.println("wait"); // TODO: REMOVE ===================
             while(!TimeHelper.SyncManager.shouldClientTick()) {
                 Thread.yield();
             }
             this.mcProfiler.endSection();
-            this.mcProfiler.startSection("syncTickEvent_pre");
+            this.mcProfiler.startSection("syncTickEventPre");
 
-            System.out.println("pre"); // TODO: REMOVE ===================
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             this.mcProfiler.endSection();
             this.mcProfiler.startSection("clientTick");
@@ -147,13 +143,11 @@ public abstract class MixinMinecraftGameloop {
             
             this.mcProfiler.endSection(); //ClientTick
             this.mcProfiler.startSection("serverTick");
-            // Wait for the server tick to finish.
 
-            System.out.println("wait for render"); // TODO: REMOVE ===================
+            // Wait for the server tick to finish.
             while(!TimeHelper.SyncManager.shouldRenderTick()) {
                 Thread.yield();
             }
-            System.out.println("render"); // TODO: REMOVE ===================
 
             this.mcProfiler.endSection(); //serverTick
 
@@ -161,7 +155,6 @@ public abstract class MixinMinecraftGameloop {
          } else{
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
-                // System.out.println("normal tick"); // TODO : REMOVE ============================
                 this.runTick();
             }
         }
@@ -228,22 +221,12 @@ public abstract class MixinMinecraftGameloop {
             TimeHelper.SyncManager.isServerRunning() && 
             TimeHelper.SyncManager.shouldRenderTick() &&
             TimeHelper.SyncManager.isTicking()) || TimeHelper.SyncManager.shouldFlush()){
-            // TODO: Once client syncing is implemented,
-            // Let's remove this compete tick.
             TimeHelper.SyncManager.completeTick();
 
-            this.mcProfiler.startSection("syncTickEvent_post");
-            // System.out.println("post"); // TODO: REMOVE ===================
+            this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
-            // numTicksPassed += 1;
-            // if (numTicksPassed % 100 == 0 ){
-            //     List<Profiler.Result> dat = this.mcProfiler.getProfilingData("root");
-            //     for(int qq = 0; qq < dat.size(); qq++){
-            //         Profiler.Result res = dat.get(qq);
-            //         System.out.println(res.profilerName + " " + res.totalUsePercentage + " "+ res.usePercentage);
-            //     }
-            // } 
+\
         }
         Thread.yield();
         this.checkGLError("Post render");

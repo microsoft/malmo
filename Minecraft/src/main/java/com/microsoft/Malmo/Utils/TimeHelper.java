@@ -77,7 +77,6 @@ public class TimeHelper
                 shouldFlush = false;
             }
             else if(value == false && synchronous == true){
-                System.out.println("Desynchronizing");
                 shouldFlush = true;
             }
         }
@@ -134,8 +133,6 @@ public class TimeHelper
 
         public static synchronized void completeTick(){
             if(shouldFlush){
-
-                System.out.println("FLush complete");
                 synchronous = false;
             }
             shouldFlush = false;
@@ -158,8 +155,8 @@ public class TimeHelper
     static public class  SyncTickEvent extends Event {
         public TickEvent.Phase pos;
 
-        public SyncTickEvent(TickEvent.Phase poop){
-            this.pos = poop;
+        public SyncTickEvent(TickEvent.Phase phaseIn){
+            this.pos = phaseIn;
             //We don't need a side since we assume this is 
             // all happening on a single player client with 
             // an integrated server, so the Type of CLIENT =>
@@ -275,7 +272,6 @@ public class TimeHelper
 
     @SubscribeEvent
     public static void unpauseOnShutdown(net.minecraftforge.event.world.WorldEvent.Unload e){
-        System.out.println("Unpause on shutdonw");
         SyncManager.setSynchronous(false);
         unpause();
     }
