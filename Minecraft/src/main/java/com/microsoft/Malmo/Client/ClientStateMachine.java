@@ -42,6 +42,7 @@ import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -1838,7 +1839,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             
             // Synchronization
             if (envServer != null){
-                TimeHelper.synchronous = envServer.isSynchronous();
+                System.out.println("sssssssssssssssssssssssssssssssssssssssssss sycn to trueeee    ");
+                TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
             }
         }
 
@@ -1871,6 +1873,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             TimeHelper.setMinecraftClientClockSpeed(20, false);
             TimeHelper.displayGranularityMs = 0;
             TimeHelper.unpause();
+            TimeHelper.SyncManager.setSynchronous(false);
 
             ClientStateMachine.this.missionQuitCode = this.quitCode;
             if (errorReport != null)
@@ -1889,7 +1892,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         public void onClientTick(ClientTickEvent event)
         {
             // If we aren't performing synchronous ticking use the client Tick to handle updates
-            if(!TimeHelper.synchronous){
+            if(!TimeHelper.SyncManager.isSynchronous()){
                 onTick(false, event.phase);
             }
         }
@@ -1905,11 +1908,22 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (inAbortState())
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
             // Check to see whether we've been kicked from the server.
-            NetworkManager netman = Minecraft.getMinecraft().getConnection().getNetworkManager();
-            if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
-            {
-                // Connection has been lost.
-                onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+            NetHandlerPlayClient npc = Minecraft.getMinecraft().getConnection();
+            if(npc == null){
+                if(this.serverHasFiredStartingPistol){
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed");
+                    System.out.println("why");
+                    return;
+                }                
+            }
+            else{
+                NetworkManager netman = npc.getNetworkManager();
+                if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
+                {
+                    // Connection has been lost.
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+                }
+    
             }
 
             // Check we are still in touch with the agent:
@@ -1924,6 +1938,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 {
                     if (!this.serverHasFiredStartingPistol){
                         onMissionEnded(ClientState.ERROR_LOST_AGENT, "Lost contact with the agent");
+                        return;
                     }
                     else
                     {
@@ -1946,7 +1961,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     this.quitCode = MalmoMod.VIDEO_UNRESPONSIVE_CODE;
                 }
             }
+            
+            if(Minecraft.getMinecraft().world == null){
+                if(this.serverHasFiredStartingPistol){
+                    System.out.println("you're why");
+                    onMissionEnded(ClientState.ERROR_NO_WORLD, "No world for client. Must be in main menu");  
+                }
 
+                return;   
+            
+            }
             // Check here to see whether the player has died or not:
             if (!this.playerDied && Minecraft.getMinecraft().player.isDead)
             {
@@ -2293,7 +2317,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         {
             totalTicks = 0;
             // TODO: MOVE TO SYNCMANGER
-            TimeHelper.synchronous = false;
+            TimeHelper.SyncManager.setSynchronous(false);
             // TimeHelper.SyncManager.flush();
 
             // Get a text report:
@@ -2331,6 +2355,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionEnded.setMissionDiagnostics(ClientStateMachine.this.missionEndedData);	// send our diagnostics
                 ClientStateMachine.this.missionEndedData = new MissionDiagnostics();			// and clear them for the next mission
                 // And send MissionEnded message to the agent to inform it that the mission has ended:
+                System.out.println("inform the agent");
                 sendMissionEnded(missionEnded);
             }
 

@@ -51,18 +51,38 @@ public class TimeHelper
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
     private static float currentTicksPerSecond = 0;
-    public static Boolean synchronous = false;
 
     static public class SyncManager {
+        static Boolean synchronous = false;
         static Boolean shouldClientTick =false;
         static Boolean clientTickCompleted = false;
         static Boolean serverTickCompleted = false;
         static Boolean serverRunning = false;
         static Boolean tickCompleted = false;
+        static Boolean shouldFlush = false;
 
         static Boolean isTicking = false;
+
+        public static synchronized Boolean isSynchronous(){
+            return synchronous;
+        } 
+
+
+        public static synchronized Boolean shouldFlush(){
+            return shouldFlush;
+        }
+        public static synchronized  void setSynchronous(Boolean value){
+            if(value == true){
+                synchronous = value;
+                shouldFlush = false;
+            }
+            else if(value == false && synchronous == true){
+                System.out.println("Desynchronizing");
+                shouldFlush = true;
+            }
+        }
         
-        public static Boolean requestTick(){
+        public static synchronized Boolean requestTick(){
             // Build a locking system.
             if ( ! isTicking) {
                 shouldClientTick = true;
@@ -78,16 +98,16 @@ public class TimeHelper
         } 
 
         public static synchronized Boolean shouldClientTick(){
-            return shouldClientTick && isTicking;
+            return shouldClientTick && isTicking || shouldFlush;
         }
 
 
         public static synchronized Boolean shouldServerTick(){
-            return isTicking && clientTickCompleted && !serverTickCompleted;
+            return isTicking && clientTickCompleted && !serverTickCompleted && !tickCompleted || shouldFlush;
         }
 
         public static synchronized Boolean shouldRenderTick(){
-            return isTicking && serverTickCompleted;
+            return isTicking && (serverTickCompleted || !serverRunning) && clientTickCompleted || shouldFlush;
         }
 
 
@@ -103,10 +123,6 @@ public class TimeHelper
             serverRunning =false;
         }
 
-        public static synchronized Boolean shouldClientSync(){
-            return isTicking && serverTickCompleted;
-        }
-
         public static synchronized  void completeClientTick(){
             clientTickCompleted = true;
             shouldClientTick = false;
@@ -117,6 +133,12 @@ public class TimeHelper
         }
 
         public static synchronized void completeTick(){
+            if(shouldFlush){
+
+                System.out.println("FLush complete");
+                synchronous = false;
+            }
+            shouldFlush = false;
             isTicking = false; 
             shouldClientTick = false;
             serverTickCompleted = false;
@@ -254,6 +276,7 @@ public class TimeHelper
     @SubscribeEvent
     public static void unpauseOnShutdown(net.minecraftforge.event.world.WorldEvent.Unload e){
         System.out.println("Unpause on shutdonw");
+        SyncManager.setSynchronous(false);
         unpause();
     }
 

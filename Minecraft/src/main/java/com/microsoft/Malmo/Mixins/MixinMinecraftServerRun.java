@@ -108,11 +108,15 @@ public abstract class MixinMinecraftServerRun  {
                         Todo: investigate how the save and close world button works.
                         */
 
-                        if (TimeHelper.synchronous){
+                        if (TimeHelper.SyncManager.isSynchronous()){
                             if(TimeHelper.SyncManager.shouldServerTick() && 
                             (numTicks > 32 || i > TimeHelper.serverTickLength)
                             ){
+
+                                // System.out.println("servtick"); // TODO: REMOVE ===================
+                                // System.out.flush(); 
                                 this.tick();
+                                // System.out.println("servtickcompleted"); // TODO: REMOVE ===================
                                 numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
                                 i -= TimeHelper.serverTickLength;

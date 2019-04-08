@@ -102,7 +102,7 @@
                <DrawEntity type="Pig" x="6.5" y="4" z="8.5" />
                <DrawEntity type="Chicken" x="3.5" y="4" z="5.5" />
             </DrawingDecorator>
-            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="100000000" />
+            <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="100000" />
             <ServerQuitWhenAnyAgentFinishes />
          </ServerHandlers>
       </ServerSection>
@@ -136,8 +136,8 @@
                <!-- <Block description="Agent0_defaulted" type="brick_block" /> -->
             <!-- </AgentQuitFromTouchingBlockType> -->
             <VideoProducer want_depth="false">
-               <Width>64</Width>
-               <Height>64</Height>
+               <Width>640</Width>
+               <Height>480</Height>
             </VideoProducer>
          </AgentHandlers>
       </AgentSection>

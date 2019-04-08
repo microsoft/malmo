@@ -135,6 +135,7 @@ public class MalmoEnvServer implements IWantToQuit {
             try {
                 final Socket socket = serverSocket.accept();
                 socket.setTcpNoDelay(true);
+                System.out.println("STARTING THIS POOPER.");
 
                 Thread thread = new Thread("EnvServerSocketHandler") {
                     public void run() {
@@ -182,7 +183,6 @@ public class MalmoEnvServer implements IWantToQuit {
                                     if (missionInit(din, command, socket))
                                         {
                                             running = true;
-                                            profiler.profilingEnabled = debug;
                                         }
 
                                 } else if (command.startsWith("<Quit")) {
@@ -220,6 +220,8 @@ public class MalmoEnvServer implements IWantToQuit {
                                 }
                             }
                         } catch (IOException ioe) {
+                            System.out.println("oooof " + ioe);
+                            ioe.printStackTrace();
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
                                 if (running) {
@@ -614,14 +616,14 @@ public class MalmoEnvServer implements IWantToQuit {
             profiler.startSection("requestTick");
 
             // Now wait to run a tick
-            while(!TimeHelper.SyncManager.requestTick()){Thread.yield();} 
+            while(!TimeHelper.SyncManager.requestTick() && !done  ){Thread.yield();} 
 
 
             profiler.endSection();
             profiler.startSection("waitForTick");
 
             // Then wait until the tick is finished
-            while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
+            while(!TimeHelper.SyncManager.isTickCompleted() && !done ){ Thread.yield();}
             lock.lock();
 
 
@@ -995,10 +997,15 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
             envState.quit = true;
+            
         } finally {
+
+            if(TimeHelper.SyncManager.isSynchronous()){
+                // We want to dsynchronize everything.
+                System.out.println("i'll do it here    ");
+                TimeHelper.SyncManager.setSynchronous(false);
+            }
             lock.unlock();
-            // Desynchronize everything and let shit process if this happens!
-            // TODO
         }
     }
 
