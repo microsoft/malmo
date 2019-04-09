@@ -62,12 +62,14 @@ public abstract class MixinMinecraftServerRun  {
                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarted();
                 this.currentTime = MinecraftServer.getCurrentTimeMillis();
                 long i = 0L;
+                long numTicks = 0;
                 this.statusResponse.setServerDescription(new TextComponentString(this.motd));
                 this.statusResponse.setVersion(new ServerStatusResponse.Version("1.11.2", 316));
                 this.applyServerIconToResponse(this.statusResponse);
 
                 while (this.serverRunning)
                 {
+                    TimeHelper.SyncManager.setServerRunning();
                     long k = MinecraftServer.getCurrentTimeMillis();
                     long j = k - this.currentTime;
 
@@ -96,16 +98,45 @@ public abstract class MixinMinecraftServerRun  {
                     {
                         // In the future this mixin will allow synchronous stepping of the environment
                         // And the simulator.
-                        while (i > TimeHelper.serverTickLength )
-                        {
-                            i -= TimeHelper.serverTickLength;
-                            if( !TimeHelper.isPaused())  this.tick();
-                        }
+                        // TODO: Add provision for when server should close.
+                        /*
+                        What's happening is that the the client stops ticking, 
+                        but server ticks are required to end the game?
+                        It's actually not clear. We could add some debug statements to make sure
+                        that we're not getting stuck in this loop on the serer tick.
 
+                        Todo: investigate how the save and close world button works.
+                        */
+
+                        if (TimeHelper.SyncManager.isSynchronous()){
+                            if(TimeHelper.SyncManager.shouldServerTick() && 
+                            (numTicks > 32 || i > TimeHelper.serverTickLength)
+                            ){
+
+                                this.tick();
+                                numTicks += 1;
+                                TimeHelper.SyncManager.completeServerTick();
+                                i -= TimeHelper.serverTickLength;
+                            }
+
+                        } else
+                        {
+                            while (i > TimeHelper.serverTickLength )
+                            {
+                                i -= TimeHelper.serverTickLength;
+                                if( !TimeHelper.isPaused()) {
+                                    numTicks += 1;
+                                    this.tick();
+                                } 
+                            }
+
+
+                            Thread.sleep(Math.max(1L, TimeHelper.serverTickLength - i));
+                        }
+                        
                     }
                     
 
-                    Thread.sleep(Math.max(1L, TimeHelper.serverTickLength - i));
                     this.serverIsRunning = true;
                 }
                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStopping();
@@ -152,6 +183,7 @@ public abstract class MixinMinecraftServerRun  {
         }
         finally
         {
+            TimeHelper.SyncManager.serverFinished();
             try
             {
                 this.stopServer();

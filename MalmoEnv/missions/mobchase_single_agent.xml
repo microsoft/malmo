@@ -115,11 +115,13 @@
             </Inventory>
          </AgentStart>
          <AgentHandlers>
-            <DiscreteMovementCommands>
+            <!-- <DiscreteMovementCommands>
                <ModifierList type="deny-list">
                   <command>attack</command>
                </ModifierList>
-            </DiscreteMovementCommands>
+            </DiscreteMovementCommands> -->
+            <ContinuousMovementCommands>
+            </ContinuousMovementCommands>
             <ObservationFromNearbyEntities>
                <Range name="entities" xrange="8" yrange="2" zrange="6" />
             </ObservationFromNearbyEntities>
@@ -130,14 +132,10 @@
                </Grid>
             </ObservationFromGrid>
             <ObservationFromFullStats />
-            <RewardForSendingCommand reward="-1" />
+            <RewardForSendingCommand reward="1" />
             <RewardForTouchingBlockType>
-               <Block behaviour="onceOnly" reward="5" type="brick_block" />
+               <Block behaviour="constant" reward="5" type="brick_block" />
             </RewardForTouchingBlockType>
-            <AgentQuitFromReachingCommandQuota description="command_quota_reached" total="100" />
-            <AgentQuitFromTouchingBlockType>
-               <Block description="Agent0_defaulted" type="brick_block" />
-            </AgentQuitFromTouchingBlockType>
             <VideoProducer want_depth="false">
                <Width>800</Width>
                <Height>600</Height>

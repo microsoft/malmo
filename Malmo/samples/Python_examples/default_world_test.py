@@ -65,6 +65,7 @@ def GetMissionXML():
             </AgentStart>
             <AgentHandlers>
                 <ContinuousMovementCommands/>
+                <PauseCommand/>
                 <ObservationFromFullStats/>''' + video_requirements + '''
             </AgentHandlers>
         </AgentSection>
@@ -157,8 +158,22 @@ while world_state.is_mission_running:
             if verb == "wait":  # "wait" isn't a Malmo command - it's just used here to pause execution of our "programme".
                 waitCycles = int(param.strip())
             else:
-                agent_host.sendCommand(command)    # Send the command to Minecraft.
-                
+
+                # agent_host.sendCommand("pause 1")
+                agent_host.sendCommand("move 1")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("move 0")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("move 1")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("move 0")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("move 1")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("move 0")    # Send the command to Minecraft.
+                # time.sleep(1)
+                # agent_host.sendCommand("pause 0")
+                # time.sleep(5)
     if currentSequence == "" and currentSpeed < 50 and waitCycles == 0: # Are we stuck?
         currentSequence = random.choice(commandSequences)   # Choose a random action (or insert your own logic here for choosing more sensibly...)
         print("Stuck! Chosen programme: " + currentSequence)

@@ -21,6 +21,8 @@ package com.microsoft.Malmo;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.microsoft.Malmo.Utils.TimeHelper.SyncTickEvent;
+
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
@@ -71,6 +73,17 @@ public class EpisodeEventWrapper {
         	{
         		// Do what??
         	}
+        }
+        this.stateEpisodeLock.readLock().unlock();
+    }
+
+    @SubscribeEvent 
+    public void onSyncTickEvent(SyncTickEvent ev){
+        this.stateEpisodeLock.readLock().lock();
+
+        if(this.stateEpisode != null && this.stateEpisode.isLive())
+        {
+            this.stateEpisode.onSyncTick(ev);
         }
         this.stateEpisodeLock.readLock().unlock();
     }

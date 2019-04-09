@@ -3,8 +3,8 @@ mouseSensitivity:0.5
 fov:1.5
 gamma:0.5
 saturation:0.0
-renderDistance:6
-guiScale:0.1
+renderDistance:2
+guiScale:1
 particles:2
 bobView:true
 anaglyph3d:false
@@ -89,7 +89,7 @@ key_key.hotbar.9:10
 key_key.toggleMalmo:28
 key_key.handyTestHook:22
 soundCategory_master:0.0
-soundCategory_music:1.0
+soundCategory_music:0.0
 soundCategory_record:1.0
 soundCategory_weather:1.0
 soundCategory_block:1.0
