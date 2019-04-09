@@ -1883,33 +1883,29 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="HumanLevelCommands">
-        <xs:annotation>
-            <xs:documentation>
-                When present, the Mod will accept commands on the level of mouse and keyboard events.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:all>
-                <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
-                    <xs:complexType>
-                        <xs:complexContent>
-                            <xs:restriction base="CommandListModifier">
-                                <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="HumanLevelCommand" minOccurs="0" maxOccurs="unbounded"/>
-                                </xs:choice>
-                            </xs:restriction>
-                        </xs:complexContent>
-                    </xs:complexType>
-                </xs:element>
-            </xs:all>
-        </xs:complexType>
-    </xs:element>
-
-
-
-
-    <xs:element name="PauseCommand">
+  <xs:element name="HumanLevelCommands">
+    <xs:annotation>
+      <xs:documentation>
+        When present, the Mod will accept commands on the level of mouse and keyboard events.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:restriction base="CommandListModifier">
+                <xs:choice maxOccurs="unbounded">
+                  <xs:element name="command" type="HumanLevelCommand" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+              </xs:restriction>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PauseCommand">
         <xs:annotation>
             <xs:documentation>
                 When present, the Mod will accept the pause command for payusing missions.

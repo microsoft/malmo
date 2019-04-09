@@ -17,16 +17,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-import malmoenv
 import argparse
-from pathlib import Path
+import getch
 import time
+from pathlib import Path
+from xmlrpc.client import boolean
+
 from PIL import Image
 
+import malmoenv
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='malmovnv test')
+    parser = argparse.ArgumentParser(description='malmoenv test')
     parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--server', type=str, default='127.0.0.1', help='the mission server DNS or IP address')
@@ -39,6 +42,8 @@ if __name__ == '__main__':
     parser.add_argument('--saveimagesteps', type=int, default=0, help='save an image every N steps')
     parser.add_argument('--resync', type=int, default=0, help='exit and re-sync every N resets'
                                                               ' - default is 0 meaning never.')
+    parser.add_argument('--synctick', action='store_true', help='whether or not MalmoEnv'
+                                                                            'will run synchronously')
     parser.add_argument('--experimentUniqueId', type=str, default='test1', help="the experiment's unique id.")
     args = parser.parse_args()
     if args.server2 is None:
@@ -52,7 +57,8 @@ if __name__ == '__main__':
              server2=args.server2, port2=args.port2,
              role=args.role,
              exp_uid=args.experimentUniqueId,
-             episode=args.episode, resync=args.resync)
+             episode=args.episode, resync=args.resync,
+             synchronous=args.synctick)
 
     for i in range(args.episodes):
         print("reset " + str(i))
@@ -62,18 +68,35 @@ if __name__ == '__main__':
         done = False
         while not done and (args.episodemaxsteps <= 0 or steps < args.episodemaxsteps):
             action = env.action_space.sample()
+            # print("===================================\n")
+            # time.sleep(0.25)
+            char = getch.getch()
+            if(char == 'w'):
+                action = 0
+            elif char == 's':
+                action = 1
+            elif char == 'e':
+                action = 2
+            elif char == 'q':
+                action = 3
+            else:
+                action = 4
+
+            t0 = time.time()
 
             obs, reward, done, info = env.step(action)
+            print(reward)
             steps += 1
-            print("reward: " + str(reward))
+            # print("step {}".format(time.time() - t0)); t0 = time.time()
+            # print("reward: " + str(reward))
             # print("done: " + str(done))
-            print("obs: " + str(obs))
+            # print("obs: " + str(obs))
             # print("info" + info)
             if args.saveimagesteps > 0 and steps % args.saveimagesteps == 0:
                 h, w, d = env.observation_space.shape
                 img = Image.fromarray(obs.reshape(h, w, d))
                 img.save('image' + str(args.role) + '_' + str(steps) + '.png')
 
-            time.sleep(.05)
+            # time.sleep(1)
 
     env.close()
