@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------------
 
 import argparse
+import getch
 import time
 from pathlib import Path
 from xmlrpc.client import boolean
@@ -66,13 +67,27 @@ if __name__ == '__main__':
         steps = 0
         done = False
         while not done and (args.episodemaxsteps <= 0 or steps < args.episodemaxsteps):
-            action = env.action_space.sample()*0
-            print("===================================\n")
+            action = env.action_space.sample()
+            # print("===================================\n")
+            # time.sleep(0.25)
+            char = getch.getch()
+            if(char == 'w'):
+                action = 0
+            elif char == 's':
+                action = 1
+            elif char == 'e':
+                action = 2
+            elif char == 'q':
+                action = 3
+            else:
+                action = 4
+
             t0 = time.time()
 
             obs, reward, done, info = env.step(action)
+            print(reward)
             steps += 1
-            print("step {}".format(time.time() - t0)); t0 = time.time()
+            # print("step {}".format(time.time() - t0)); t0 = time.time()
             # print("reward: " + str(reward))
             # print("done: " + str(done))
             # print("obs: " + str(obs))
