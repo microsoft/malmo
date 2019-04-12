@@ -706,17 +706,24 @@ public class MalmoEnvServer implements IWantToQuit {
         DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
         byte[] obs;
         boolean done;
+        String info = "";
 
         lock.lock();
         try {
             obs = getObservation(false);
             done = envState.done;
+            info = envState.info;
+            envState.info = "";
         } finally {
             lock.unlock();
         }
 
         dout.writeInt(obs.length);
         dout.write(obs);
+
+        byte[] infoBytes = info.getBytes(utf8);
+        dout.writeInt(infoBytes.length);
+        dout.write(infoBytes);
 
         dout.writeInt(1);
         dout.writeByte(done ? 1 : 0);
