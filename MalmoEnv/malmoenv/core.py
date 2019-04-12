@@ -261,6 +261,7 @@ class Env:
             peek_message = "<Peek/>"
             comms.send_message(self.client_socket, peek_message.encode())
             obs = comms.recv_message(self.client_socket)
+            info = comms.recv_message(self.client_socket).decode('utf-8')
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
@@ -275,7 +276,7 @@ class Env:
 
         if obs is None or len(obs) == 0:
             obs = np.zeros((self.height, self.width, self.depth), dtype=np.int8)
-        return obs
+        return obs, info
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit/>".encode())
