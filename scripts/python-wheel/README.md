@@ -97,13 +97,13 @@ python3 -c 'import malmo.minecraftbootstrap; malmo.minecraftbootstrap.launch_min
 
 This may take some time (minutes if it's the first run as it needs to build Minecraft Forge).
 
-The malmo package includes a simple test mission which you can run as follows:
+The malmo package includes a simple test mission which you can run as follows in another shell / terminal session:
 
 ```
 python3 -c 'from malmo.run_mission import run; run()'
 ```
 
-(Again, add a `malmo.minecraftbootstrap.set_malmo_xsd_path()` statement if you have not set up the MALMO_XSD_PATH.)
+(In your sessond shell or terminal session, add a `malmo.minecraftbootstrap.set_malmo_xsd_path()` statement if you have not already set up the MALMO_XSD_PATH.)
 
 You can also run the mission from Jupyter. Simply create a Python3 notebook and 
 add `from malmo.run_mission import run; run()` to the notebook and execute it.
