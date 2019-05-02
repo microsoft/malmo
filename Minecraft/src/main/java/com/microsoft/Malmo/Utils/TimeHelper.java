@@ -60,6 +60,7 @@ public class TimeHelper
         static Boolean serverRunning = false;
         static Boolean tickCompleted = false;
         static Boolean shouldFlush = false;
+        static Boolean serverPistolFired = false;
 
         static Boolean isTicking = false;
 
@@ -95,6 +96,10 @@ public class TimeHelper
                 return false;
             }
         } 
+
+        public static synchronized void setPistolFired(Boolean hasIt){
+            serverPistolFired = hasIt;
+        }   
 
         public static synchronized Boolean shouldClientTick(){
             return shouldClientTick && isTicking || shouldFlush;
@@ -149,6 +154,10 @@ public class TimeHelper
 
         public static synchronized Boolean isTickCompleted(){
             return tickCompleted;
+        }
+
+        public static synchronized Boolean hasServerFiredPistol(){
+            return serverPistolFired;
         }
     }
 
