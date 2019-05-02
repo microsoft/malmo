@@ -814,8 +814,16 @@ public class MalmoEnvServer implements IWantToQuit {
     private void quit(String command, Socket socket) throws IOException {
         lock.lock();
         try {
-            if (!envState.done)
+            if (!envState.done){
+                
                 envState.quit = true;
+            
+                if(TimeHelper.SyncManager.isSynchronous()){
+                    // We want to dsynchronize everything.
+                    TimeHelper.SyncManager.setSynchronous(false);
+                }
+            }
+            
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
             dout.writeInt(envState.done ? 1 : 0);

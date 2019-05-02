@@ -89,6 +89,10 @@ public abstract class MixinMinecraftServerRun  {
                     i += j;
                     this.currentTime = k;
 
+                    if(i < 0){
+                        i = 0L;
+                    }
+
                     if (this.worlds[0].areAllPlayersAsleep())
                     {
                         this.tick();
@@ -96,31 +100,20 @@ public abstract class MixinMinecraftServerRun  {
                     }
                     else
                     {
-                        // In the future this mixin will allow synchronous stepping of the environment
-                        // And the simulator.
-                        // TODO: Add provision for when server should close.
-                        /*
-                        What's happening is that the the client stops ticking, 
-                        but server ticks are required to end the game?
-                        It's actually not clear. We could add some debug statements to make sure
-                        that we're not getting stuck in this loop on the serer tick.
-
-                        Todo: investigate how the save and close world button works.
-                        */
 
                         if (TimeHelper.SyncManager.isSynchronous()){
                             if(TimeHelper.SyncManager.shouldServerTick() && 
-                            (numTicks > 32 || i > TimeHelper.serverTickLength)
+                            (numTicks > 32)
                             ){
 
                                 this.tick();
                                 numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
-                                i -= TimeHelper.serverTickLength;
                             }
-
                         } else
                         {
+
+                            System.out.println("Regular ticking !" + Long.toString(i));
                             while (i > TimeHelper.serverTickLength )
                             {
                                 i -= TimeHelper.serverTickLength;
