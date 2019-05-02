@@ -1986,8 +1986,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // we don't check for commands, or send observations or rewards - until we get the SERVER_GO signal,
             // which is sent once the server's running episode has started.
 
-            if (!this.serverHasFiredStartingPistol)
+
+            TimeHelper.SyncManager.setPistolFired(this.serverHasFiredStartingPistol);
+            if (!this.serverHasFiredStartingPistol){
                 return;
+            }
                 
 
             // IF we are synchronous let's process the input before the tick otherwise we can do that wack MS shit -_-
