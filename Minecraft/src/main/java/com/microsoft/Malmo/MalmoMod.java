@@ -423,6 +423,7 @@ public class MalmoMod
                     mainThread = Minecraft.getMinecraft();
                 else
                     mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
+
                 mainThread.addScheduledTask(new Runnable()
                 {
                     @Override
