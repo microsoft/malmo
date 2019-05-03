@@ -20,55 +20,36 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import com.google.gson.JsonObject;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.JSONWorldDataHelper;
 
 /**
  * Simple IObservationProducer object that pings out a whole bunch of data.<br>
  */
-public class ObservationFromFullStatsImplementation extends ObservationFromServer
+public class ObservationFromFullStatsImplementation extends HandlerBase implements IObservationProducer
 {
-    public static class FullStatsRequestMessage extends ObservationFromServer.ObservationRequestMessage
+	@Override
+	public void prepare(MissionInit missionInit) {}
+
+	@Override
+	public void cleanup() {}
+
+	@Override
+    public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        @Override
-        void restoreState(ByteBuf buf)
-        {
-            // Nothing to do - no context needed.
-        }
-
-        @Override
-        void persistState(ByteBuf buf)
-        {
-            // Nothing to do - no context needed.
-        }
-    }
-
-    public static class FullStatsRequestMessageHandler extends ObservationFromServer.ObservationRequestMessageHandler implements IMessageHandler<FullStatsRequestMessage, IMessage>
-    {
-        @Override
-        void buildJson(JsonObject json, EntityPlayerMP player, ObservationRequestMessage message)
-        {
-            JSONWorldDataHelper.buildAchievementStats(json, player);
-            JSONWorldDataHelper.buildLifeStats(json, player);
-            JSONWorldDataHelper.buildPositionStats(json, player);
-            JSONWorldDataHelper.buildEnvironmentStats(json, player);
-        }
-
-        @Override
-        public IMessage onMessage(FullStatsRequestMessage message, MessageContext ctx)
-        {
-            return processMessage(message, ctx);
-        }
-    }
-
-    @Override
-    public ObservationRequestMessage createObservationRequestMessage()
-    {
-        return new FullStatsRequestMessage();
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        JSONWorldDataHelper.buildAchievementStats(json, player);
+        JSONWorldDataHelper.buildLifeStats(json, player);
+        JSONWorldDataHelper.buildPositionStats(json, player);
+        JSONWorldDataHelper.buildEnvironmentStats(json, player);
     }
 }

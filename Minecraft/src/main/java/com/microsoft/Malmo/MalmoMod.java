@@ -123,7 +123,9 @@ public class MalmoMod
         MalmoEnvServer.update(this.sessionConfig);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("Malmo");
-        network.registerMessage(ObservationFromFullStatsImplementation.FullStatsRequestMessageHandler.class, ObservationFromFullStatsImplementation.FullStatsRequestMessage.class, 1, Side.SERVER);
+
+        // Until we can do tighter message passing and syncing in sync ticking, we want to keep
+        // things client side.
         network.registerMessage(ObservationFromGridImplementation.GridRequestMessageHandler.class, ObservationFromGridImplementation.GridRequestMessage.class, 2, Side.SERVER);
         network.registerMessage(MalmoMessageHandler.class, MalmoMessage.class, 3, Side.CLIENT);	// Malmo messages from server to client
         network.registerMessage(SimpleCraftCommandsImplementation.CraftMessageHandler.class, SimpleCraftCommandsImplementation.CraftMessage.class, 4, Side.SERVER);
