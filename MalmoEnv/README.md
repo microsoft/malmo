@@ -46,7 +46,7 @@ In the two agent case, running each agent in it's own shell, the run script (for
 
 ## Running multi-threaded multi-agent examples: ##
 
-`python3 runmultiagent.py --mission missions/mobchase_two_agents.xml 
+`python3 runmultiagent.py --mission missions/mobchase_two_agents.xml`
 
 ## Installing with pip ##
 

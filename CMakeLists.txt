@@ -53,7 +53,7 @@ if( INCLUDE_PYTHON )
   set( USE_PYTHON_VERSIONS_DESC "Specifies which version of Python to build Malmo with Python bindings" )
   set( USE_PYTHON_VERSIONS 3.6 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
   set( BOOST_PYTHON_NAME_DESC "Specifies which Boost Python module to build Malmo with" )
-  set( BOOST_PYTHON_NAME "python3" CACHE STRING ${BOOST_PYTHON_NAME_DESC} )
+  execute_process(COMMAND python3 -c "import sys; print('python' + str(sys.version_info[0]) + str(sys.version_info[1]), end='')" OUTPUT_VARIABLE BOOST_PYTHON_NAME )
 endif()
 
 set( WARNINGS_AS_ERRORS OFF )
