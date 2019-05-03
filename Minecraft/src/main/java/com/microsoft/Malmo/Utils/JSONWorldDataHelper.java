@@ -21,6 +21,8 @@ package com.microsoft.Malmo.Utils;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
@@ -97,20 +99,26 @@ public class JSONWorldDataHelper
     /** Builds the basic achievement world data to be used as observation signals by the listener.
      * @param json a JSON object into which the achievement stats will be added.
      */
-    public static void buildAchievementStats(JsonObject json, EntityPlayerMP player)
+    public static void buildAchievementStats(JsonObject json, EntityPlayerSP player)
     {
-        StatisticsManagerServer sfw = player.getStatFile();
-        json.addProperty("DistanceTravelled", 
+        if(Minecraft.getMinecraft().isIntegratedServerRunning()){
+
+            StatisticsManagerServer sfw = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayerStatsFile(player);
+
+            json.addProperty("DistanceTravelled", 
                 sfw.readStat((StatBase)StatList.WALK_ONE_CM) 
                 + sfw.readStat((StatBase)StatList.SWIM_ONE_CM)
                 + sfw.readStat((StatBase)StatList.DIVE_ONE_CM) 
                 + sfw.readStat((StatBase)StatList.FALL_ONE_CM)
                 ); // TODO: there are many other ways of moving!
-        json.addProperty("TimeAlive", sfw.readStat((StatBase)StatList.TIME_SINCE_DEATH));
-        json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.MOB_KILLS));
-        json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.PLAYER_KILLS));
-        json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.DAMAGE_TAKEN));
-        json.addProperty("DamageDealt", sfw.readStat((StatBase)StatList.DAMAGE_DEALT));
+            json.addProperty("TimeAlive", sfw.readStat((StatBase)StatList.TIME_SINCE_DEATH));
+            json.addProperty("MobsKilled", sfw.readStat((StatBase)StatList.MOB_KILLS));
+            json.addProperty("PlayersKilled", sfw.readStat((StatBase)StatList.PLAYER_KILLS));
+            json.addProperty("DamageTaken", sfw.readStat((StatBase)StatList.DAMAGE_TAKEN));
+            json.addProperty("DamageDealt", sfw.readStat((StatBase)StatList.DAMAGE_DEALT));
+        }
+
+        
 
         /* Other potential reinforcement signals that may be worth researching:
         json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);
@@ -121,7 +129,7 @@ public class JSONWorldDataHelper
     /** Builds the basic life world data to be used as observation signals by the listener.
      * @param json a JSON object into which the life stats will be added.
      */
-    public static void buildLifeStats(JsonObject json, EntityPlayerMP player)
+    public static void buildLifeStats(JsonObject json, EntityPlayerSP player)
     {
         json.addProperty("Life", player.getHealth());
         json.addProperty("Score", player.getScore());    // Might always be the same as XP?
@@ -135,7 +143,7 @@ public class JSONWorldDataHelper
     /** Builds the player position data to be used as observation signals by the listener.
      * @param json a JSON object into which the positional information will be added.
      */
-    public static void buildPositionStats(JsonObject json, EntityPlayerMP player)
+    public static void buildPositionStats(JsonObject json, EntityPlayerSP player)
     {
         json.addProperty("XPos",  player.posX);
         json.addProperty("YPos",  player.posY);
@@ -144,7 +152,7 @@ public class JSONWorldDataHelper
         json.addProperty("Yaw", player.rotationYaw);
     }
 
-    public static void buildEnvironmentStats(JsonObject json, EntityPlayerMP player)
+    public static void buildEnvironmentStats(JsonObject json, EntityPlayerSP player)
     {
         json.addProperty("WorldTime", player.world.getWorldTime());  // Current time in ticks
         json.addProperty("TotalTime", player.world.getTotalWorldTime());  // Total time world has been running

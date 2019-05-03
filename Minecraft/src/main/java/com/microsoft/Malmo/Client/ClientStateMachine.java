@@ -1860,6 +1860,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 currentMissionBehaviour().commandHandler.setOverriding(false);
                 currentMissionBehaviour().commandHandler.deinstall(currentMissionInit());
             }
+
+
+            TimeHelper.SyncManager.setPistolFired(false);
             
 
             // Close our communication channels:
@@ -1991,7 +1994,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (!this.serverHasFiredStartingPistol){
                 return;
             }
-                
 
             // IF we are synchronous let's process the input before the tick otherwise we can do that wack MS shit -_-
             if(synchronous && phase == Phase.START){
@@ -2065,6 +2067,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private void sendData()
         {
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
+
             Minecraft.getMinecraft().mcProfiler.startSection("malmoSendData");
             // Create the observation data:
             String data = "";

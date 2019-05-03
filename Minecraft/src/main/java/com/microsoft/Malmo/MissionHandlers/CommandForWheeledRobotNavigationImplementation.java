@@ -180,12 +180,21 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
     	// Work out the time that has elapsed since we last updated the values.
     	// (We need to do this because we can't guarantee that this method will be
     	// called at a constant frequency.)
-    	long timeNow = System.currentTimeMillis();
-    	long deltaTime = timeNow - this.lastAngularUpdateTime;
+        long timeNow = System.currentTimeMillis();
+
+        long deltaTime =0;
+        double overclockScale = 1.0;
+        if(TimeHelper.SyncManager.isSynchronous()){
+            deltaTime = 50;
+        }
+        else{
+            deltaTime = timeNow - this.lastAngularUpdateTime;
+            overclockScale = 50.0 / (double)TimeHelper.serverTickLength;
+        }
+        
     	this.lastAngularUpdateTime = timeNow;
     	
     	// Work out how much the yaw and pitch should have changed in that time:
-    	double overclockScale = 50.0 / (double)TimeHelper.serverTickLength;
     	double deltaYaw = this.yawScale * overclockScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
     	double deltaPitch = this.pitchScale * overclockScale * this.maxAngularVelocityDegreesPerSecond * (deltaTime / 1000.0);
 

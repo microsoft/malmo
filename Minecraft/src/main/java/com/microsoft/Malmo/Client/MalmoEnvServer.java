@@ -710,14 +710,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
 
         try {
-            System.out.println("peeking");
-
-            System.out.println("waiting for server pistol to fire");
-
-
-            while(!TimeHelper.SyncManager.hasServerFiredPistol()){ 
-                System.out.println("has the pistol fired!");
-                
+            while(!TimeHelper.SyncManager.hasServerFiredPistol()){                 
                     // Now wait to run a tick
                 while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
 
@@ -728,17 +721,19 @@ public class MalmoEnvServer implements IWantToQuit {
                 
                 Thread.yield(); 
             }
-
-            System.out.println("One last tick!");
+            // Wait two ticks for the first observation from server to be propagated.
             while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
-
 
             // Then wait until the tick is finished
             while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
         
 
-            
-            System.out.println("did it!!");
+
+            while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
+
+            // Then wait until the tick is finished
+            while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
+        
             lock.lock();
 
             
@@ -746,9 +741,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
             obs = getObservation(false);
             done = envState.done;
-            System.out.println("Getting info! HIHIHI");
             info = envState.info;
-            System.out.println(info);
            
         } finally {
             lock.unlock();
@@ -765,7 +758,6 @@ public class MalmoEnvServer implements IWantToQuit {
         dout.writeByte(done ? 1 : 0);
 
         dout.flush();
-        System.out.println("done!");
     }
 
     // Get the current observation. If none and not done wait for a short time.
