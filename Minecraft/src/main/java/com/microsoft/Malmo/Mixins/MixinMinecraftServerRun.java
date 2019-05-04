@@ -62,7 +62,7 @@ public abstract class MixinMinecraftServerRun  {
                 net.minecraftforge.fml.common.FMLCommonHandler.instance().handleServerStarted();
                 this.currentTime = MinecraftServer.getCurrentTimeMillis();
                 long i = 0L;
-                long numTicks = 0;
+                TimeHelper.SyncManager.numTicks = 0;
                 this.statusResponse.setServerDescription(new TextComponentString(this.motd));
                 this.statusResponse.setVersion(new ServerStatusResponse.Version("1.11.2", 316));
                 this.applyServerIconToResponse(this.statusResponse);
@@ -101,13 +101,12 @@ public abstract class MixinMinecraftServerRun  {
                     else
                     {
 
-                        if (TimeHelper.SyncManager.isSynchronous() && numTicks > 32){
+                        if (TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.numTicks > 32){
                             if(TimeHelper.SyncManager.shouldServerTick() && 
-                            (numTicks > 32)
+                            (TimeHelper.SyncManager.numTicks > 32)
                             ){
-
                                 this.tick();
-                                numTicks += 1;
+                                TimeHelper.SyncManager.numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
                             }
                         } else
@@ -118,7 +117,7 @@ public abstract class MixinMinecraftServerRun  {
                             {
                                 i -= TimeHelper.serverTickLength;
                                 if( !TimeHelper.isPaused()) {
-                                    numTicks += 1;
+                                    TimeHelper.SyncManager.numTicks += 1;
                                     this.tick();
                                 } 
                             }
