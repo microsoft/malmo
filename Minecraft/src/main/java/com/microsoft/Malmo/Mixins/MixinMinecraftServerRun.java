@@ -101,7 +101,7 @@ public abstract class MixinMinecraftServerRun  {
                     else
                     {
 
-                        if (TimeHelper.SyncManager.isSynchronous()){
+                        if (TimeHelper.SyncManager.isSynchronous() && numTicks > 32){
                             if(TimeHelper.SyncManager.shouldServerTick() && 
                             (numTicks > 32)
                             ){
