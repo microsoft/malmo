@@ -904,7 +904,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 missionInit.getClientAgentConnection().setAgentIPAddress(comip.ipAddress);
                 System.out.println("Mission received: " + missionInit.getMission().getAbout().getSummary());
                 csMachine.currentMissionInit = missionInit;
-
+                TimeHelper.SyncManager.numTicks = 0;
                 ScoreHelper.logMissionInit(missionInit);
 
                 ClientStateMachine.this.createMissionControlSocket();
@@ -1725,6 +1725,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void execute()
         {
             totalTicks = 0;
+            TimeHelper.SyncManager.numTicks = 0;
         }
 
         @Override
