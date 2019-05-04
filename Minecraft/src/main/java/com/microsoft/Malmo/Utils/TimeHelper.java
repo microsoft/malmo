@@ -62,6 +62,7 @@ public class TimeHelper
         static Boolean shouldFlush = false;
         static Boolean serverPistolFired = false;
         public static long numTicks = 0;
+        final static Boolean verbose = false;
 
         static Boolean isTicking = false;
 
@@ -113,6 +114,12 @@ public class TimeHelper
 
         public static synchronized Boolean shouldRenderTick(){
             return isTicking && (serverTickCompleted || !serverRunning) && clientTickCompleted || shouldFlush;
+        }
+
+        public static void debugLog(String logger){
+            if(verbose){
+                System.out.println("SYNCMANAGER DEBUG: " + logger);
+            }
         }
 
 

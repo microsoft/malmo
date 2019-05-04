@@ -145,10 +145,6 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
      */
     protected boolean updateState()
     {
-        if (!overrideKeyboardInput)
-        {
-            return false;   // Let the class do the default thing.
-        }
         // Update movement:
         mTicksSinceLastVelocityChange++;
         if (mTicksSinceLastVelocityChange <= mInertiaTicks)
@@ -185,7 +181,12 @@ public class CommandForWheeledRobotNavigationImplementation extends CommandBase
         long deltaTime =0;
         double overclockScale = 1.0;
         if(TimeHelper.SyncManager.isSynchronous()){
-            deltaTime = 50;
+            if(Minecraft.getMinecraft().isGamePaused){
+                deltaTime = 0;
+            }
+            else{
+                deltaTime = 50;
+            }
         }
         else{
             deltaTime = timeNow - this.lastAngularUpdateTime;
