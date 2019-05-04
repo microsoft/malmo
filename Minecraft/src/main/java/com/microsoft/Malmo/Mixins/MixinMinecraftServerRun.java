@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.microsoft.Malmo.Utils.TimeHelper;
+import com.microsoft.Malmo.Utils.TimeHelper.SyncManager;
 import com.mojang.authlib.GameProfileRepository;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
@@ -102,17 +103,20 @@ public abstract class MixinMinecraftServerRun  {
                     {
 
                         if (TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.numTicks > 32){
+
                             if(TimeHelper.SyncManager.shouldServerTick() && 
                             (TimeHelper.SyncManager.numTicks > 32)
                             ){
+
+                                TimeHelper.SyncManager.debugLog("Server tick start." +Long.toString(SyncManager.numTicks));
                                 this.tick();
+                                TimeHelper.SyncManager.debugLog("Server tick end." +Long.toString(SyncManager.numTicks));
                                 TimeHelper.SyncManager.numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
                             }
                         } else
                         {
-
-                            System.out.println("Regular ticking !" + Long.toString(i));
+                            TimeHelper.SyncManager.debugLog("Regular ticking ! " +Long.toString(SyncManager.numTicks));
                             while (i > TimeHelper.serverTickLength )
                             {
                                 i -= TimeHelper.serverTickLength;

@@ -120,12 +120,17 @@ public abstract class MixinMinecraftGameloop {
             || TimeHelper.SyncManager.shouldFlush()){
             this.mcProfiler.startSection("waitForTick");
 
+            TimeHelper.SyncManager.debugLog("[Client] wait for tick");
+
             // Wait for the shouldClientTick to be true!
             while(!TimeHelper.SyncManager.shouldClientTick()) {
                 Thread.yield();
             }
             this.mcProfiler.endSection();
             this.mcProfiler.startSection("syncTickEventPre");
+
+
+            TimeHelper.SyncManager.debugLog("[Client] client tick.");
 
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             this.mcProfiler.endSection();
@@ -145,6 +150,7 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("serverTick");
 
             // Wait for the server tick to finish.
+            TimeHelper.SyncManager.debugLog("[Client] wait for server");
             while(!TimeHelper.SyncManager.shouldRenderTick()) {
                 Thread.yield();
             }
@@ -221,11 +227,16 @@ public abstract class MixinMinecraftGameloop {
             TimeHelper.SyncManager.isServerRunning() && 
             TimeHelper.SyncManager.shouldRenderTick() &&
             TimeHelper.SyncManager.isTicking()) || TimeHelper.SyncManager.shouldFlush()){
+            
+                TimeHelper.SyncManager.debugLog("[Client] complete tick.");
+                
+
             TimeHelper.SyncManager.completeTick();
 
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
+
 
         }
         Thread.yield();
