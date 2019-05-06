@@ -947,6 +947,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             catch (Exception e)
             {
                 // TODO
+                System.err.println("ERROR: Exception caught making agent handlers" + e.toString());
+                e.printStackTrace();
             }
             // Set up our command input poller. This is only checked during the MissionRunning episode, but
             // it needs to be started now, so we can report the port it's using back to the agent.
@@ -1990,7 +1992,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // we don't check for commands, or send observations or rewards - until we get the SERVER_GO signal,
             // which is sent once the server's running episode has started.
 
-
+            
             TimeHelper.SyncManager.setPistolFired(this.serverHasFiredStartingPistol);
             if (!this.serverHasFiredStartingPistol){
                 return;
@@ -2073,6 +2075,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Create the observation data:
             String data = "";
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
+
             if (currentMissionBehaviour() != null && currentMissionBehaviour().observationProducer != null)
             {
                 JsonObject json = new JsonObject();
@@ -2105,6 +2108,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             Minecraft.getMinecraft().mcProfiler.endSection(); //malmotcp
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherRewardSignal");
+            
             // Now create the reward signal:
             if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
             {
@@ -2113,6 +2117,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 
                 if (!reward.isEmpty())
                 {
+
                     String strReward = reward.getAsSimpleString();
                     Minecraft.getMinecraft().mcProfiler.startSection("malmoSendTCPReward");
 

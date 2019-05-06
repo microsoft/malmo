@@ -35,6 +35,7 @@ import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 /** Holder class for the various MissionHandler interfaces that together define the behaviour of the mission.<br>
  */
@@ -100,7 +101,6 @@ public class MissionBehaviour
     {
         reset();
         AgentHandlers handlerset = missionInit.getMission().getAgentSection().get(missionInit.getClientRole()).getAgentHandlers();
-
         // Instantiate the various handlers:
         for (Object handler : handlerset.getAgentMissionHandlers())
             createAndAddHandler(handler);

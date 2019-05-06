@@ -29,9 +29,15 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         this.params = (RewardForDistanceTraveledToCompassTarget)params;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        prevSpawn = player.world.getSpawnPoint();
-        BlockPos playerLoc = player.getPosition();
-        this.previousDistance = playerLoc.getDistance(prevSpawn.getX(), prevSpawn.getY(), prevSpawn.getZ());
+        if( player != null && player.world != null){
+            prevSpawn = player.world.getSpawnPoint();
+            BlockPos playerLoc = player.getPosition();
+            this.previousDistance = playerLoc.getDistance(prevSpawn.getX(), prevSpawn.getY(), prevSpawn.getZ());
+        }
+        else{
+            prevSpawn = new BlockPos(0,0,0);
+            previousDistance = 0;
+        }
 
         this.totalReward = 0;
         this.positionInitialized = false;

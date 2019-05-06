@@ -710,6 +710,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
 
         try {
+            TimeHelper.SyncManager.debugLog("Waiting for pistol to fire.");
             while(!TimeHelper.SyncManager.hasServerFiredPistol()){                 
                     // Now wait to run a tick
                 while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
@@ -721,6 +722,8 @@ public class MalmoEnvServer implements IWantToQuit {
                 
                 Thread.yield(); 
             }
+
+            TimeHelper.SyncManager.debugLog("Pistol fired!.");
             // Wait two ticks for the first observation from server to be propagated.
             while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
 
@@ -737,9 +740,12 @@ public class MalmoEnvServer implements IWantToQuit {
             lock.lock();
 
             
-
+            
+            TimeHelper.SyncManager.debugLog("Getting observation.");
 
             obs = getObservation(false);
+
+            TimeHelper.SyncManager.debugLog("Observation acquired.");
             done = envState.done;
             info = envState.info;
            
