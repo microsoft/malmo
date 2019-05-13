@@ -101,23 +101,32 @@ public class RewardForSmeltingItemImplementation extends RewardForItemBase imple
                 if (!params.isSparse()) {
                     if (savedSmelted != 0 && savedSmelted < matcher.matchSpec.getAmount()) {
                         for (int i = savedSmelted; i < matcher.matchSpec.getAmount()
-                                && i - savedSmelted < is.getCount(); i++)
-                            this.adjustAndDistributeReward(
+                                && i - savedSmelted < is.getCount(); i++) {
+                            int dimension = params.getDimension();
+                            float adjusted_reward = this.adjustAndDistributeReward(
                                     ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
                                     params.getDimension(),
                                     ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                            addCachedReward(dimension, adjusted_reward);
+                        }
                     } else if (savedSmelted == 0)
-                        for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++)
-                            this.adjustAndDistributeReward(
+                        for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++) {
+                            int dimension = params.getDimension();
+                            float adjusted_reward = this.adjustAndDistributeReward(
                                     ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
                                     params.getDimension(),
                                     ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                            addCachedReward(dimension, adjusted_reward);
+                        }
                 } else if (savedSmelted < matcher.matchSpec.getAmount()
-                        && savedSmelted + is.getCount() >= matcher.matchSpec.getAmount())
-                    this.adjustAndDistributeReward(
+                        && savedSmelted + is.getCount() >= matcher.matchSpec.getAmount()) {
+                    int dimension = params.getDimension();
+                    float adjusted_reward = this.adjustAndDistributeReward(
                             ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
                             params.getDimension(),
                             ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                    addCachedReward(dimension, adjusted_reward);
+                }
             }
         }
 

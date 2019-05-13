@@ -25,29 +25,49 @@ import java.util.HashMap;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.RewardForCraftingItem;
+import com.microsoft.Malmo.Schemas.RewardForCollectingItemQuantity;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 /**
  * @author Cayden Codel, Carnegie Mellon University
  * <p>
- * Sends a reward when the agent crafts the specified item with
- * specified amounts.
+ * Sends a reward when the agent collected the specified item with
+ * specified amounts. Counter is absolute.
  */
-public class RewardForCraftingItemImplementation extends RewardForItemBase implements IRewardProducer {
-    private RewardForCraftingItem params;
+public class RewardForCollectingItemQuantityImplementation extends RewardForItemBase implements IRewardProducer {
+    private RewardForCollectingItemQuantity params;
     private ArrayList<ItemMatcher> matchers;
-    private HashMap<String, Integer> craftedItems;
+    private HashMap<String, Integer> collectedItems;
+
+    @SubscribeEvent
+    public void onGainItem(RewardForCollectingItemImplementation.GainItemEvent event) {
+        if (event.stack != null && event.cause == 0)
+            checkForMatch(event.stack);
+    }
+
+    @SubscribeEvent
+    public void onPickupItem(EntityItemPickupEvent event) {
+        if (event.getItem() != null && event.getEntityPlayer() instanceof EntityPlayerMP)
+            checkForMatch(event.getItem().getEntityItem());
+    }
 
     @SubscribeEvent
     public void onItemCraft(PlayerEvent.ItemCraftedEvent event) {
         if (event.player instanceof EntityPlayerMP && !event.crafting.isEmpty())
             checkForMatch(event.crafting);
+    }
+
+    @SubscribeEvent
+    public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
+        if (event.player instanceof EntityPlayerMP && !event.smelting.isEmpty())
+            checkForMatch(event.smelting);
     }
 
     /**
@@ -71,39 +91,39 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase imple
         return false;
     }
 
-    private int getCraftedItemCount(ItemStack is) {
+    private int getCollectedItemCount(ItemStack is) {
         boolean variant = getVariant(is);
 
         if (variant)
-            return (craftedItems.get(is.getUnlocalizedName()) == null) ? 0 : craftedItems.get(is.getUnlocalizedName());
+            return (collectedItems.get(is.getUnlocalizedName()) == null) ? 0 : collectedItems.get(is.getUnlocalizedName());
         else
-            return (craftedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
-                    : craftedItems.get(is.getItem().getUnlocalizedName());
+            return (collectedItems.get(is.getItem().getUnlocalizedName()) == null) ? 0
+                    : collectedItems.get(is.getItem().getUnlocalizedName());
     }
 
-    private void addCraftedItemCount(ItemStack is) {
+    private void addCollectedItemCount(ItemStack is) {
         boolean variant = getVariant(is);
 
         if (variant) {
-            int prev = (craftedItems.get(is.getUnlocalizedName()) == null ? 0
-                    : craftedItems.get(is.getUnlocalizedName()));
-            craftedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+            int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
+                    : collectedItems.get(is.getUnlocalizedName()));
+            collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
         } else {
-            int prev = (craftedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
-                    : craftedItems.get(is.getItem().getUnlocalizedName()));
-            craftedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+            int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
+                    : collectedItems.get(is.getItem().getUnlocalizedName()));
+            collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
         }
     }
 
     private void checkForMatch(ItemStack is) {
-        int savedCrafted = getCraftedItemCount(is);
         if (is != null) {
             for (ItemMatcher matcher : this.matchers) {
+                int savedCollected = getCollectedItemCount(is) % matcher.matchSpec.getAmount();
                 if (matcher.matches(is)) {
                     if (!params.isSparse()) {
-                        if (savedCrafted != 0 && savedCrafted < matcher.matchSpec.getAmount()) {
-                            for (int i = savedCrafted; i < matcher.matchSpec.getAmount()
-                                    && i - savedCrafted < is.getCount(); i++) {
+                        if (savedCollected != 0 && savedCollected < matcher.matchSpec.getAmount()) {
+                            for (int i = savedCollected; i < matcher.matchSpec.getAmount()
+                                    && i - savedCollected < is.getCount(); i++) {
                                 int dimension = params.getDimension();
                                 float adjusted_reward = this.adjustAndDistributeReward(
                                         ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
@@ -111,19 +131,21 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase imple
                                         ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
                                 addCachedReward(dimension, adjusted_reward);
                             }
-                        } else if (savedCrafted == 0) {
+                        } else if (true || savedCollected == 0) {
                             for (int i = 0; i < is.getCount() && i < matcher.matchSpec.getAmount(); i++) {
                                 int dimension = params.getDimension();
                                 float adjusted_reward = this.adjustAndDistributeReward(
-                                        ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
-                                        params.getDimension(),
-                                        ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
+                                                ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
+                                                params.getDimension(),
+                                                ((BlockOrItemSpecWithReward) matcher.matchSpec).getDistribution());
                                 addCachedReward(dimension, adjusted_reward);
                             }
                         }
                     } else {
-                        if (savedCrafted < matcher.matchSpec.getAmount()
-                                && savedCrafted + is.getCount() >= matcher.matchSpec.getAmount()) {
+                        System.out.println("savedCollected " + savedCollected + " amount " + matcher.matchSpec.getAmount() + " count " + is.getCount());
+
+                        if (savedCollected < matcher.matchSpec.getAmount()
+                                && savedCollected + is.getCount() >= matcher.matchSpec.getAmount()) {
                             int dimension = params.getDimension();
                             float adjusted_reward = this.adjustAndDistributeReward(
                                     ((BlockOrItemSpecWithReward) matcher.matchSpec).getReward().floatValue(),
@@ -135,18 +157,18 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase imple
                 }
             }
 
-            addCraftedItemCount(is);
+            addCollectedItemCount(is);
         }
     }
 
     @Override
     public boolean parseParameters(Object params) {
-        if (!(params instanceof RewardForCraftingItem))
+        if (!(params instanceof RewardForCollectingItemQuantity))
             return false;
 
         matchers = new ArrayList<ItemMatcher>();
 
-        this.params = (RewardForCraftingItem) params;
+        this.params = (RewardForCollectingItemQuantity) params;
         for (BlockOrItemSpecWithReward spec : this.params.getItem())
             this.matchers.add(new ItemMatcher(spec));
 
@@ -157,7 +179,7 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase imple
     public void prepare(MissionInit missionInit) {
         super.prepare(missionInit);
         MinecraftForge.EVENT_BUS.register(this);
-        craftedItems = new HashMap<String, Integer>();
+        collectedItems = new HashMap<String, Integer>();
     }
 
     @Override

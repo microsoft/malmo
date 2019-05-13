@@ -2365,6 +2365,20 @@
         <xs:annotation>
             <xs:documentation>
                 Sends a reward when the agent collects a specific item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
+            </xs:choice>
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="RewardForCollectingItemQuantity">
+        <xs:annotation>
+            <xs:documentation>
+                Sends a reward when the agent collects a specific item.
 
                 If Sparse is set to true, will only give full reward on collecting entire amount.
 
@@ -2720,6 +2734,19 @@
         <xs:annotation>
             <xs:documentation>
                 When this is included the agent's mission will end when they collect (or craft) a specified item.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="Item" type="BlockOrItemSpecWithDescription"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AgentQuitFromCollectingItemQuantity">
+        <xs:annotation>
+            <xs:documentation>
+                When this is included the agent's mission will end when they collect (or craft) a specified number of the item.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
