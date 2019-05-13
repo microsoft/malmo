@@ -75,10 +75,7 @@ public class SimpleCraftCommandsImplementation extends CommandBase
             // Try crafting recipes first:
             List<IRecipe> matching_recipes;
             String[] split = message.parameters.split(" ");
-            if (split.length > 1)
-                matching_recipes = CraftingHelper.getRecipesForRequestedOutput(message.parameters, true);
-            else
-                matching_recipes = CraftingHelper.getRecipesForRequestedOutput(message.parameters, false);
+            matching_recipes = CraftingHelper.getRecipesForRequestedOutput(message.parameters, split.length > 1);
 
             for (IRecipe recipe : matching_recipes)
             {
