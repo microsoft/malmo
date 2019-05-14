@@ -84,7 +84,9 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 
 		IItemPropertyGetter angleGetter = compassStack.getItem().getPropertyGetter(new ResourceLocation("angle"));
 		float angle = angleGetter.apply(compassStack, mc.world, mc.player);
-		compassJson.addProperty("angle", angle); // Current compass angle [0 - 1]
+		angle = ((angle*360 + 180) % 360) - 180;
+
+		compassJson.addProperty("compassAngle", angle); // Current compass angle [-180 - 180]
 		compassJson.addProperty("hasCompass", hasCompass); // Player has compass in main inv or offhand
 		compassJson.addProperty("hasHotbarCompass", hasHotbarCompass); // Player has compass in HOTBAR
 		compassJson.addProperty("hasActiveCompass", hasMainHandCompass || hasOffHandCompass); // Player is holding a
@@ -93,7 +95,7 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 		compassJson.addProperty("hasOffHandCompass", hasOffHandCompass); // Player is holding an offhand compass
 
 		BlockPos spawn = mc.player.world.getSpawnPoint(); // Add distance observation in blocks (not vanilla!)
-		compassJson.addProperty("distance",
+		compassJson.addProperty("distanceToCompassTarget",
 				mc.player.getPosition().getDistance(spawn.getX(), spawn.getY(), spawn.getZ()));
 	}
 

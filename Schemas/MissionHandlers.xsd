@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://ProjectMalmo.microsoft.com"
-           xmlns="http://ProjectMalmo.microsoft.com"
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           elementFormDefault="qualified"
-           jaxb:version="2.1"
-           version="0.37">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ProjectMalmo.microsoft.com" 
+  xmlns="http://ProjectMalmo.microsoft.com" 
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" elementFormDefault="qualified" jaxb:version="2.1" version="0.37">
 
   <xs:include schemaLocation="Types.xsd" />
-  <xs:include schemaLocation="Mission.xsd" /> 
+  <xs:include schemaLocation="Mission.xsd" />
 
   <xs:complexType name="Pos">
     <xs:annotation>
@@ -165,7 +161,7 @@
           </xs:documentation>
         </xs:annotation>
       </xs:attribute>
-       <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
         <xs:annotation>
           <xs:documentation>
             Set this to true to force the world data files to be deleted after the mission is done.
@@ -177,40 +173,40 @@
   </xs:element>
 
   <xs:element name="BiomeGenerator">
-      <xs:annotation>
-          <xs:documentation>
+    <xs:annotation>
+      <xs:documentation>
               Generates a survival world with the specified biome.
-          </xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-          <xs:attribute name="biome" use="optional" type="xs:int">
-              <xs:annotation>
-                  <xs:documentation>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="biome" use="optional" type="xs:int">
+        <xs:annotation>
+          <xs:documentation>
                       The biome type for the world. Each chunk will be loaded with the biome specified.
 
                       If left blank, the world will be a normal survival world.
 
                       Biome ID #'s can be found here: https://minecraft.gamepedia.com/Biome#Biome_IDs
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:attribute>
-          <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
-              <xs:annotation>
-                  <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
                       Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
                       Force reloading is slow, but will guarantee that no world changes will carry over between missions.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:attribute>
-          <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
-              <xs:annotation>
-                  <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>
                       Set this to true to force the world data files to be deleted after the mission is done.
                       Enabling this setting prevents the disk being filled with old worlds.
-                  </xs:documentation>
-              </xs:annotation>
-          </xs:attribute>
-      </xs:complexType>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
   </xs:element>
 
   <!--============================================= WORLD DECORATORS ==============================================-->
@@ -604,7 +600,7 @@
         <xs:attribute name="colour" type="Colour" use="optional" />
         <xs:attribute name="face" type="Facing" use="optional" />
       </xs:extension>
-   </xs:complexContent>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="DrawSign">
@@ -628,27 +624,27 @@
         <xs:attribute name="line4" type="xs:string" use="optional" />
         <xs:attribute name="rotation" type="xs:int" use="optional" />
       </xs:extension>
-   </xs:complexContent>
+    </xs:complexContent>
   </xs:complexType>
-  
+
   <xs:complexType name="DrawEntity">
     <xs:annotation>
-        <xs:documentation>
+      <xs:documentation>
             Specify an entity by location and type.
-        </xs:documentation>
+      </xs:documentation>
     </xs:annotation>
     <xs:complexContent>
-        <xs:extension base="DrawObjectType">
-            <xs:attribute name="x" type="xs:decimal" use="required" />
-            <xs:attribute name="y" type="xs:decimal" use="required" />
-            <xs:attribute name="z" type="xs:decimal" use="required" />
-            <xs:attribute name="type" type="SpawnableTypes" use="required" />
-            <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0" />
-            <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0" />
-            <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0" />
-            <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0" />
-            <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0" />
-        </xs:extension>
+      <xs:extension base="DrawObjectType">
+        <xs:attribute name="x" type="xs:decimal" use="required" />
+        <xs:attribute name="y" type="xs:decimal" use="required" />
+        <xs:attribute name="z" type="xs:decimal" use="required" />
+        <xs:attribute name="type" type="SpawnableTypes" use="required" />
+        <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0" />
+        <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0" />
+        <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0" />
+        <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0" />
+        <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0" />
+      </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
@@ -955,47 +951,47 @@
       </xs:all>
     </xs:complexType>
   </xs:element>
-    <xs:complexType name="RandomPlacement">
-        <xs:all>
-            <xs:annotation>
-                <xs:documentation>
+  <xs:complexType name="RandomPlacement">
+    <xs:all>
+      <xs:annotation>
+        <xs:documentation>
                     Helps specify where random blocks should be placed in the world.
-                </xs:documentation>
-            </xs:annotation>
-            <xs:element name="origin" type="Pos" minOccurs="0" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
+        </xs:documentation>
+      </xs:annotation>
+      <xs:element name="origin" type="Pos" minOccurs="0" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
                         Specifies the origin point or spawn point in the Minecraft world.
 
                         If omitted, set to the world spawn point.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-                        <xs:element name="minRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="minRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
                         Specifies the minumum radius of the circle around which the block may be randomly placed.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="maxRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="maxRadius" type="xs:decimal" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
                         Specifies the maximum radius of the circle around which the block may be randomly placed.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
-                <xs:annotation>
-                    <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="block" type="BlockType" minOccurs="1" maxOccurs="1">
+        <xs:annotation>
+          <xs:documentation>
                         Specifies the block type of the block to be randomly placed.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="placement" minOccurs="0" maxOccurs="1">
-                <xs:simpleType>
-                    <xs:annotation>
-                        <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="placement" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:annotation>
+            <xs:documentation>
                             Specifies the placement behavior of the block. Default is "surface."
 
                             String of "sphere" will place equally randomly in a sphere of radius specified.
@@ -1003,96 +999,96 @@
                             String of "circle" will place randomly in a circle at the y-coordinate specified.
 
                             String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="sphere"/>
-                        <xs:enumeration value="circle"/>
-                        <xs:enumeration value="surface"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-            <xs:element name="randomizedRadius" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
-                <xs:annotation>
-                    <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="sphere"/>
+            <xs:enumeration value="circle"/>
+            <xs:enumeration value="surface"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="randomizedRadius" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
+        <xs:annotation>
+          <xs:documentation>
                         Sets whether or not the target block radius should be randomized within a certain radius.
                         If false, will set the default target  radius to the given radius.
                         If true, will set the default target radius randomly within the bound specified below.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="minRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="10">
-                <xs:annotation>
-                    <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="minRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="10">
+        <xs:annotation>
+          <xs:documentation>
                         The minimum distance for a randomly placed target block.
 
                         If omitted, and randomization of radius enabled, set to 10 blocks.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="maxRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="64">
-                <xs:annotation>
-                    <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="maxRandomizedRadius" type="xs:decimal" minOccurs="0" maxOccurs="1" default="64">
+        <xs:annotation>
+          <xs:documentation>
                         The maximum distance for a randomly placed target block.
 
                         If omitted, and randomization of radius enabled, set to 64 blocks.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:all>
-    </xs:complexType>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
 
-    
 
-    <xs:element name="NavigationDecorator">
-        <xs:annotation>
-            <xs:documentation>
+
+  <xs:element name="NavigationDecorator">
+    <xs:annotation>
+      <xs:documentation>
                 Adds a specified block to the world and sets compass to that block.
 
                 Block is placed randomly along a radius around the origin specified.
 
                 Can force the block to appear at the highest available y-value.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:all>
-                <xs:element name="randomPlacementProperties" type="RandomPlacement">
-                    <xs:annotation>
-                        <xs:documentation>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="randomPlacementProperties" type="RandomPlacement">
+          <xs:annotation>
+            <xs:documentation>
                             Properties for placing a block in the world randomly.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="randomizeCompassLocation" type="xs:boolean" minOccurs="1" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="randomizeCompassLocation" type="xs:boolean" minOccurs="1" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
                             Sets whether or not the compass location should be randomized within a certain radius.
                             If false, will set the compass location to the block that was randomly placed.
                             If true, will set the compass location to a random spot within the radius specified below.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="minRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0">
-                    <xs:annotation>
-                        <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="minRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0">
+          <xs:annotation>
+            <xs:documentation>
                             The minimum distance a randomized compass location must be from the block that was randomly placed.
 
                             If omitted, set to 0 blocks.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:element name="maxRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
-                    <xs:annotation>
-                        <xs:documentation>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="maxRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
+          <xs:annotation>
+            <xs:documentation>
                             The maximum distance a randomized compass location must be from the block that was randomly placed.
 
                             If omitted, set to 8 blocks.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-            </xs:all>
-        </xs:complexType>
-    </xs:element>
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
 
   <!--============================================== QUIT PRODUCERS ===============================================-->
 
@@ -1124,7 +1120,7 @@
   <!--=============================================================================================================-->
 
   <!--============================================== VIDEO PRODUCERS ==============================================-->
-  
+
   <xs:element name="DepthProducer">
     <xs:annotation>
       <xs:documentation>
@@ -1460,7 +1456,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-        <xs:enumeration value="craft" />
+      <xs:enumeration value="craft" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1524,7 +1520,7 @@
       <xs:enumeration value="moveMouse" />
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:simpleType name="Command">
     <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand HumanLevelCommand"/>
   </xs:simpleType>
@@ -1532,7 +1528,7 @@
   <xs:simpleType name="CommandList">
     <xs:list itemType="Command"/>
   </xs:simpleType>
-  
+
   <xs:complexType name="CommandListModifier">
     <xs:annotation>
       <xs:documentation>
@@ -1773,14 +1769,24 @@
       </xs:all>
     </xs:complexType>
   </xs:element>
-    <xs:element name="PauseCommand">
-        <xs:annotation>
-            <xs:documentation>
+  <xs:element name="PauseCommand">
+    <xs:annotation>
+      <xs:documentation>
                 When present, the Mod will accept the pause command for payusing missions.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType/>
-    </xs:element>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
+
+
+  <xs:element name="CameraCommands">
+    <xs:annotation>
+      <xs:documentation>
+                This command accepts camera commands.  The command is "camera {yaw} {pitch}"
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
+  </xs:element>
   <!--=========================================== OBSERVATION PRODUCERS ===========================================-->
 
   <xs:element name="ObservationFromRecentCommands">
@@ -1878,7 +1884,7 @@
       <xs:attribute name="includeNBT" type="xs:boolean" use="optional" default="false" />
     </xs:complexType>
   </xs:element>
-  
+
   <xs:element name="ObservationFromFullInventory">
     <xs:annotation>
       <xs:documentation>
@@ -1984,7 +1990,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:choice minOccurs="1" maxOccurs="unbounded" >
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Grid" type="GridDefinition" />
       </xs:choice>
     </xs:complexType>
@@ -2004,7 +2010,7 @@
     <xs:attribute name="zrange" type="xs:decimal" use="required" />
     <xs:attribute name="update_frequency" type="xs:int" use="optional" default="1"/>
   </xs:complexType>
-  
+
   <xs:element name="ObservationFromNearbyEntities">
     <xs:annotation>
       <xs:documentation>
@@ -2028,7 +2034,7 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:choice minOccurs="1" maxOccurs="unbounded" >
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
         <xs:element name="Range" type="RangeDefinition" />
       </xs:choice>
     </xs:complexType>
@@ -2049,10 +2055,10 @@
     </xs:annotation>
     <xs:complexType/>
   </xs:element>
-  
+
   <xs:element name="ObservationFromCompass">
-      <xs:annotation>
-         <xs:documentation>
+    <xs:annotation>
+      <xs:documentation>
              When present, the Mod will return observations that detail how the agent is facing and what position the agent is in with respect to a compass.
 
              A JSON element will be returned for the compass in the agent's inventory. The JSON will contain the following
@@ -2076,13 +2082,13 @@
              - normalized-offset: the number of degrees the agent is facing away, with the agent considered 0 degrees
 
              - distance: the distance from the agent's location to the compass's location
-         </xs:documentation>
-      </xs:annotation>
-      <xs:complexType/>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType/>
   </xs:element>
 
   <!--============================================= REWARD PRODUCERS ==============================================-->
-  
+
   <xs:simpleType name="Dimension">
     <xs:annotation>
       <xs:documentation>
@@ -2129,7 +2135,7 @@
       <xs:attributeGroup ref="RewardProducerAttributes"/>
     </xs:complexType>
   </xs:element>
-  
+
   <xs:element name="RewardForReachingPosition">
     <xs:annotation>
       <xs:documentation>
@@ -2216,7 +2222,7 @@
     <xs:attribute name="description" use="required" type="xs:string" />
     <xs:attribute name="reward" use="required" type="xs:decimal" />
     <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-   <xs:attribute name="regex" use="required" type="xs:string" />
+    <xs:attribute name="regex" use="required" type="xs:string" />
   </xs:complexType>
 
   <xs:element name="RewardForSendingMatchingChatMessage">
@@ -2348,8 +2354,8 @@
       </xs:all>
       <xs:attributeGroup ref="RewardProducerAttributes"/>
       <xs:attribute name="rewardScale" type="xs:decimal" use="optional" default="5.0">
-          <xs:annotation>
-            <xs:documentation>
+        <xs:annotation>
+          <xs:documentation>
               This is the reward to be added or deducted for each block event.
               
               The rewards are calculated as follows:
@@ -2359,17 +2365,17 @@
               - For placing an incorrect block: -1 * rewardScale
 
               If {{{RewardDensity}}} is set to {{{{PER_BLOCK}}}, this reward will arrive after each block transaction. If it's set to {{{MISSION_END}}}, the individual rewards will not be sent, but will be summed throughout the course of the mission, and the resulting total will be sent as the final reward.
-            </xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
-        <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
-          <xs:annotation>
-            <xs:documentation>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+      <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
+        <xs:annotation>
+          <xs:documentation>
               This is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
-            </xs:documentation>
-          </xs:annotation>
-        </xs:attribute>
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 
@@ -2407,9 +2413,9 @@
     </xs:complexType>
   </xs:element>
 
-      <xs:simpleType name="RewardDensityForDistanceTraveledToCompassTarget">
-        <xs:annotation>
-            <xs:documentation>
+  <xs:simpleType name="RewardDensityForDistanceTraveledToCompassTarget">
+    <xs:annotation>
+      <xs:documentation>
                 Reward type for {{{RewardForDistanceTraveledToCompassTarget}}}:
 
                 - {{{PER_TICK}}} - reward the distance traveled twards compass target each tick
@@ -2417,28 +2423,28 @@
                 - {{{PER_TICK_ACCUMULATED}}} - the reward will be adjusted by the delta at each tick, and the current total sent. E.G. If the agent moves forward to the target and then back to start the reward will be 0
 
                 - {{{MISSION_END}}} - the reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="PER_TICK"/>
-            <xs:enumeration value="PER_TICK_ACCUMULATED"/>
-            <xs:enumeration value="MISSION_END"/>
-        </xs:restriction>
-    </xs:simpleType>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PER_TICK"/>
+      <xs:enumeration value="PER_TICK_ACCUMULATED"/>
+      <xs:enumeration value="MISSION_END"/>
+    </xs:restriction>
+  </xs:simpleType>
 
-    <xs:element name="RewardForDistanceTraveledToCompassTarget">
-        <xs:annotation>
-            <xs:documentation>
+  <xs:element name="RewardForDistanceTraveledToCompassTarget">
+    <xs:annotation>
+      <xs:documentation>
                 Reward that is dependent on distance to compass target. Can be received per tick, or just once at the end.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:attributeGroup ref="RewardProducerAttributes"/>
-            <xs:attribute name="rewardPerBlock" type="xs:decimal" use="required"/>
-            <xs:attribute name="density" type="RewardDensityForDistanceTraveledToCompassTarget" use="required"/>
-            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
-        </xs:complexType>
-    </xs:element>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attributeGroup ref="RewardProducerAttributes"/>
+      <xs:attribute name="rewardPerBlock" type="xs:decimal" use="required"/>
+      <xs:attribute name="density" type="RewardDensityForDistanceTraveledToCompassTarget" use="required"/>
+      <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+    </xs:complexType>
+  </xs:element>
 
   <xs:complexType name="MobWithDescriptionAndReward">
     <xs:complexContent>
@@ -2554,7 +2560,7 @@
     <xs:attribute name="description" type="xs:string" use="optional" default=""/>
     <xs:attribute name="global" type="xs:boolean" use="optional" default="false"/>
   </xs:complexType>
- 
+
   <xs:element name="AgentQuitFromCatchingMob">
     <xs:annotation>
       <xs:documentation>
@@ -2599,7 +2605,7 @@
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
-  
+
   <xs:element name="AgentQuitFromReachingCommandQuota">
     <xs:annotation>
       <xs:documentation>
@@ -2630,5 +2636,5 @@
       </xs:attribute>
     </xs:complexType>
   </xs:element>
-  
+
 </xs:schema>

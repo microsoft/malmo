@@ -69,7 +69,7 @@ fi
 # Finally we can launch the Mod, which will load the config file
 while
 #    ./gradlew setupDecompWorkspace
-#    ./gradlew build
-    ./gradlew runClient
+#    ./gradlew build 
+    ./gradlew runClient --no-daemon
     [ $replaceable -gt 0 ]
 do :; done
