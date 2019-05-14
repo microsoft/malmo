@@ -94,7 +94,7 @@ if "!-replaceable!"=="true" (
 REM finally run Minecraft:
 #call gradlew setupDecompWorkspace
 #call gradlew build
-call gradlew runClient
+call gradlew runClient --no-daemon
 if "!-replaceable!"=="true" (
     goto :launchLoop
 )
