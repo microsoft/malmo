@@ -87,6 +87,13 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			placementX += originX;
 			placementZ += originZ;
 			placementY = world.getTopSolidOrLiquidBlock(new BlockPos(placementX, 0, placementZ)).getY() - 1;
+		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("fixed_surface")) {
+			placementX = ((0.42 - 0.5) * 2 * radius);
+			placementZ = (0.24 > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
+			// Change center to origin now
+			placementX += originX;
+			placementZ += originZ;
+			placementY = world.getTopSolidOrLiquidBlock(new BlockPos(placementX, 0, placementZ)).getY() - 1;
 		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("circle")) {
 			placementX = ((Math.random() - 0.5) * 2 * radius);
 			placementY = originY;
