@@ -1005,6 +1005,7 @@
             <xs:enumeration value="sphere"/>
             <xs:enumeration value="circle"/>
             <xs:enumeration value="surface"/>
+            <xs:enumeration value="fixed_surface"/>
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
