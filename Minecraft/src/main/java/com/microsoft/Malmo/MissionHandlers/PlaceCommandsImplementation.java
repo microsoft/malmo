@@ -44,6 +44,7 @@ public class PlaceCommandsImplementation extends CommandBase implements ICommand
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
+        System.out.println("Saw place command");
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player == null)
             return false;
