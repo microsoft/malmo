@@ -55,8 +55,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
     public static class SmeltNearbyMessage implements IMessage {
         String parameters;
 
-        public SmeltNearbyMessage() {
-        }
+        public SmeltNearbyMessage(){}
 
         public SmeltNearbyMessage(String parameters) {
             this.parameters = parameters;
@@ -90,6 +89,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
     public static class SmeltNearbyMessageHandler implements IMessageHandler<SmeltNearbyMessage, IMessage> {
         @Override
         public IMessage onMessage(SmeltNearbyMessage message, MessageContext ctx) {
+            System.out.println("Smelt mesage recieved");
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             Vec3d headPos = new Vec3d(player.posX, player.posY + 1.6, player.posZ);
 
@@ -142,7 +142,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (verb.equalsIgnoreCase(NearbySmeltCommand.SMELT_NEARBY.value())) {
+        if (verb.equalsIgnoreCase("nearbySmelt") && ! parameter.equalsIgnoreCase("none")) {
             MalmoMod.network.sendToServer(new SmeltNearbyMessage(parameter));
             return true;
         }

@@ -374,6 +374,7 @@
             <xs:element ref="NearbyCraftCommands" minOccurs="0"/>
             <xs:element ref="NearbySmeltCommands" minOccurs="0"/>
             <xs:element ref="PlaceCommands" minOccurs="0"/>
+            <xs:element ref="EquipCommands" minOccurs="0"/>
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>
             <xs:element ref="TurnBasedCommands" minOccurs="0"/>
             <xs:element ref="HumanLevelCommands" minOccurs="0"/>

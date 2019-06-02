@@ -56,8 +56,7 @@ public class NearbyCraftCommandsImplementation extends CommandBase {
     public static class CraftNearbyMessage implements IMessage {
         String parameters;
 
-        public CraftNearbyMessage() {
-        }
+        public CraftNearbyMessage(){}
 
         public CraftNearbyMessage(String parameters) {
             this.parameters = parameters;
@@ -150,7 +149,7 @@ public class NearbyCraftCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (verb.equalsIgnoreCase(NearbyCraftCommand.CRAFT_NEARBY.value())) {
+        if (verb.equalsIgnoreCase("nearbyCraft") && !parameter.equalsIgnoreCase("none   ")) {
             MalmoMod.network.sendToServer(new CraftNearbyMessage(parameter));
             return true;
         }

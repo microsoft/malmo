@@ -302,6 +302,10 @@ namespace malmo
             //! Adds a place command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
             //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
             void allowAllPlaceCommands();
+
+            //! Adds a equip command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
+            //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
+            void allowAllEquipCommands();
             
             // ------------------------- information --------------------------------------
             
