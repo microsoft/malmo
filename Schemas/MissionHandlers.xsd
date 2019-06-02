@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://ProjectMalmo.microsoft.com"
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://ProjectMalmo.microsoft.com"
            xmlns="http://ProjectMalmo.microsoft.com"
-           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-           elementFormDefault="qualified"
-           jaxb:version="2.1"
-           version="0.37">
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb" elementFormDefault="qualified" jaxb:version="2.1"
+           version="${MALMO_VERSION_MAJOR}.${MALMO_VERSION_MINOR}">
 
-    <xs:include schemaLocation="Types.xsd" />
-    <xs:include schemaLocation="Mission.xsd" />
+    <xs:include schemaLocation="Types.xsd"/>
+    <xs:include schemaLocation="Mission.xsd"/>
 
     <xs:complexType name="Pos">
         <xs:annotation>
@@ -17,9 +14,9 @@
                 An absolute position in the 3D Minecraft world.
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="x" type="xs:decimal" use="required" />
-        <xs:attribute name="y" type="xs:decimal" use="required" />
-        <xs:attribute name="z" type="xs:decimal" use="required" />
+        <xs:attribute name="x" type="xs:decimal" use="required"/>
+        <xs:attribute name="y" type="xs:decimal" use="required"/>
+        <xs:attribute name="z" type="xs:decimal" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="PosAndDirection">
@@ -83,8 +80,10 @@
             <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
                 <xs:annotation>
                     <xs:documentation>
-                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested generator string).
-                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                        Set this to true to force the world to be reloaded, otherwise the current world will be used
+                        (provided it matches the requested generator string).
+                        Force reloading is slow, but will guarantee that no world changes will carry over between
+                        missions.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -123,8 +122,10 @@
             <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
                 <xs:annotation>
                     <xs:documentation>
-                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
-                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                        Set this to true to force the world to be reloaded, otherwise the current world will be used
+                        (provided it matches the requested seed).
+                        Force reloading is slow, but will guarantee that no world changes will carry over between
+                        missions.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -142,9 +143,11 @@
     <xs:element name="FileWorldGenerator">
         <xs:annotation>
             <xs:documentation>
-                Loads a saved world from disk. You can find the saved worlds in "{{{Minecraft\run\saves}}}". Use the full path to one of those folders.
+                Loads a saved world from disk. You can find the saved worlds in "{{{Minecraft\run\saves}}}". Use the
+                full path to one of those folders.
 
-                If Minecraft is running on a different machine then copy the folder to a readable network location and update the path accordingly. Example:
+                If Minecraft is running on a different machine then copy the folder to a readable network location and
+                update the path accordingly. Example:
 
                 {{{&lt;FileWorldGenerator src=&quot;\\\\machine-id\\shared\\ProjectMalmo\\saved_maps\\arena&quot; /&gt;}}}
             </xs:documentation>
@@ -160,8 +163,10 @@
             <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
                 <xs:annotation>
                     <xs:documentation>
-                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested source filename).
-                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                        Set this to true to force the world to be reloaded, otherwise the current world will be used
+                        (provided it matches the requested source filename).
+                        Force reloading is slow, but will guarantee that no world changes will carry over between
+                        missions.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -197,8 +202,10 @@
             <xs:attribute name="forceReset" use="optional" type="xs:boolean" default="false">
                 <xs:annotation>
                     <xs:documentation>
-                        Set this to true to force the world to be reloaded, otherwise the current world will be used (provided it matches the requested seed).
-                        Force reloading is slow, but will guarantee that no world changes will carry over between missions.
+                        Set this to true to force the world to be reloaded, otherwise the current world will be used
+                        (provided it matches the requested seed).
+                        Force reloading is slow, but will guarantee that no world changes will carry over between
+                        missions.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -236,34 +243,36 @@
     </xs:simpleType>
 
     <xs:complexType name="MazeBlock">
-        <xs:attribute name="type" use="optional" type="BlockList" />
-        <xs:attribute name="variant" use="optional" type="VariantList" />
-        <xs:attribute name="colour" use="optional" type="ColourList" />
-        <xs:attribute name="height" use="optional" type="xs:int" default="1" />
-        <xs:attribute name="heightVariance" use="optional" type="xs:int" default="0" />
+        <xs:attribute name="type" use="optional" type="BlockList"/>
+        <xs:attribute name="variant" use="optional" type="VariantList"/>
+        <xs:attribute name="colour" use="optional" type="ColourList"/>
+        <xs:attribute name="height" use="optional" type="xs:int" default="1"/>
+        <xs:attribute name="heightVariance" use="optional" type="xs:int" default="0"/>
     </xs:complexType>
 
     <xs:complexType name="MazeTerminus">
         <xs:complexContent>
             <xs:extension base="MazeBlock">
-                <xs:attribute name="fixedToEdge" use="optional" type="xs:boolean" default="false" />
+                <xs:attribute name="fixedToEdge" use="optional" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="SnakeBlock">
-        <xs:attribute name="type" use="optional" type="BlockList" />
-        <xs:attribute name="variant" use="optional" type="VariantList" />
-        <xs:attribute name="colour" use="optional" type="ColourList" />
-        <xs:attribute name="lifetime" use="optional" type="xs:int" default="1" />
-        <xs:attribute name="lifetimeVariance" use="optional" type="xs:int" default="0" />
+        <xs:attribute name="type" use="optional" type="BlockList"/>
+        <xs:attribute name="variant" use="optional" type="VariantList"/>
+        <xs:attribute name="colour" use="optional" type="ColourList"/>
+        <xs:attribute name="lifetime" use="optional" type="xs:int" default="1"/>
+        <xs:attribute name="lifetimeVariance" use="optional" type="xs:int" default="0"/>
     </xs:complexType>
 
     <xs:element name="MovingTargetDecorator">
         <xs:annotation>
             <xs:documentation>
-                Creates a moving two-block target which takes random moves within a specified arena. Can be linked to the turn scheduler.
-                This can be made more general in the future, but is currently tailored specifically for the Malmo collaborative challenge.
+                Creates a moving two-block target which takes random moves within a specified arena. Can be linked to
+                the turn scheduler.
+                This can be made more general in the future, but is currently tailored specifically for the Malmo
+                collaborative challenge.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -296,7 +305,8 @@
                 <xs:element name="UpdateSpeed">
                     <xs:annotation>
                         <xs:documentation>
-                            The length, in ticks, between each update, or the string "turnbased" to use the turn scheduler.
+                            The length, in ticks, between each update, or the string "turnbased" to use the turn
+                            scheduler.
                         </xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
@@ -359,8 +369,8 @@
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:element>
-                <xs:element name="FreshBlock" type="SnakeBlock" />
-                <xs:element name="StaleBlock" type="SnakeBlock" />
+                <xs:element name="FreshBlock" type="SnakeBlock"/>
+                <xs:element name="StaleBlock" type="SnakeBlock"/>
                 <xs:element name="GapProbability">
                     <xs:complexType>
                         <xs:simpleContent>
@@ -432,7 +442,8 @@
                 <xs:element name="MaterialSeed" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation>
-                            Seed for the random number generator for determining block types - omit to allow master seed to control block types.
+                            Seed for the random number generator for determining block types - omit to allow master seed
+                            to control block types.
                         </xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
@@ -458,11 +469,11 @@
                         <xs:attribute name="zOrigin" type="xs:int" default="0"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="StartBlock" type="MazeTerminus" />
-                <xs:element name="EndBlock" type="MazeTerminus" />
-                <xs:element name="PathBlock" type="MazeBlock" />
-                <xs:element name="FloorBlock" type="MazeBlock" />
-                <xs:element name="GapBlock" type="MazeBlock" />
+                <xs:element name="StartBlock" type="MazeTerminus"/>
+                <xs:element name="EndBlock" type="MazeTerminus"/>
+                <xs:element name="PathBlock" type="MazeBlock"/>
+                <xs:element name="FloorBlock" type="MazeBlock"/>
+                <xs:element name="GapBlock" type="MazeBlock"/>
                 <xs:element name="OptimalPathBlock" type="MazeBlock" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation>
@@ -480,8 +491,8 @@
                 <xs:element name="Waypoints" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="WaypointBlock" type="MazeBlock" />
-                            <xs:element name="WaypointItem" type="BlockOrItemSpec" />
+                            <xs:element name="WaypointBlock" type="MazeBlock"/>
+                            <xs:element name="WaypointItem" type="BlockOrItemSpec"/>
                         </xs:choice>
                         <xs:attribute name="quantity" type="xs:int" use="required"/>
                     </xs:complexType>
@@ -523,10 +534,10 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawObjectType">
-                <xs:attribute name="type" type="BlockType" use="required" />
-                <xs:attribute name="variant" type="Variation" use="optional" />
-                <xs:attribute name="colour" type="Colour" use="optional" />
-                <xs:attribute name="face" type="Facing" use="optional" />
+                <xs:attribute name="type" type="BlockType" use="required"/>
+                <xs:attribute name="variant" type="Variation" use="optional"/>
+                <xs:attribute name="colour" type="Colour" use="optional"/>
+                <xs:attribute name="face" type="Facing" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -552,9 +563,9 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawBlockBasedObjectType">
-                <xs:attribute name="x" type="xs:int" use="required" />
-                <xs:attribute name="y" type="xs:int" use="required" />
-                <xs:attribute name="z" type="xs:int" use="required" />
+                <xs:attribute name="x" type="xs:int" use="required"/>
+                <xs:attribute name="y" type="xs:int" use="required"/>
+                <xs:attribute name="z" type="xs:int" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -567,22 +578,22 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawObjectType">
-                <xs:attribute name="x" type="xs:int" use="required" />
-                <xs:attribute name="y" type="xs:int" use="required" />
-                <xs:attribute name="z" type="xs:int" use="required" />
-                <xs:attribute name="type" type="BlockOrItem" use="required" />
-                <xs:attribute name="variant" type="Variation" use="optional" />
-                <xs:attribute name="colour" type="Colour" use="optional" />
-                <xs:attribute name="face" type="Facing" use="optional" />
+                <xs:attribute name="x" type="xs:int" use="required"/>
+                <xs:attribute name="y" type="xs:int" use="required"/>
+                <xs:attribute name="z" type="xs:int" use="required"/>
+                <xs:attribute name="type" type="BlockOrItem" use="required"/>
+                <xs:attribute name="variant" type="Variation" use="optional"/>
+                <xs:attribute name="colour" type="Colour" use="optional"/>
+                <xs:attribute name="face" type="Facing" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="ContainedObjectType">
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
-        <xs:attribute name="variant" use="optional" type="Variation" />
-        <xs:attribute name="colour" use="optional" type="Colour" />
-        <xs:attribute name="quantity" type="xs:int" use="optional" default="1" />
+        <xs:attribute name="variant" use="optional" type="Variation"/>
+        <xs:attribute name="colour" use="optional" type="Colour"/>
+        <xs:attribute name="quantity" type="xs:int" use="optional" default="1"/>
     </xs:complexType>
 
     <xs:complexType name="DrawContainer">
@@ -596,13 +607,13 @@
                 <xs:choice minOccurs="1" maxOccurs="unbounded">
                     <xs:element name="Object" type="ContainedObjectType"/>
                 </xs:choice>
-                <xs:attribute name="x" type="xs:int" use="required" />
-                <xs:attribute name="y" type="xs:int" use="required" />
-                <xs:attribute name="z" type="xs:int" use="required" />
-                <xs:attribute name="type" type="ContainerType" use="required" />
-                <xs:attribute name="variant" type="Variation" use="optional" />
-                <xs:attribute name="colour" type="Colour" use="optional" />
-                <xs:attribute name="face" type="Facing" use="optional" />
+                <xs:attribute name="x" type="xs:int" use="required"/>
+                <xs:attribute name="y" type="xs:int" use="required"/>
+                <xs:attribute name="z" type="xs:int" use="required"/>
+                <xs:attribute name="type" type="ContainerType" use="required"/>
+                <xs:attribute name="variant" type="Variation" use="optional"/>
+                <xs:attribute name="colour" type="Colour" use="optional"/>
+                <xs:attribute name="face" type="Facing" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -615,18 +626,18 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawObjectType">
-                <xs:attribute name="x" type="xs:int" use="required" />
-                <xs:attribute name="y" type="xs:int" use="required" />
-                <xs:attribute name="z" type="xs:int" use="required" />
-                <xs:attribute name="type" type="SignType" use="required" />
-                <xs:attribute name="variant" type="Variation" use="optional" />
-                <xs:attribute name="colour" type="Colour" use="optional" />
-                <xs:attribute name="face" type="Facing" use="optional" />
-                <xs:attribute name="line1" type="xs:string" use="optional" />
-                <xs:attribute name="line2" type="xs:string" use="optional" />
-                <xs:attribute name="line3" type="xs:string" use="optional" />
-                <xs:attribute name="line4" type="xs:string" use="optional" />
-                <xs:attribute name="rotation" type="xs:int" use="optional" />
+                <xs:attribute name="x" type="xs:int" use="required"/>
+                <xs:attribute name="y" type="xs:int" use="required"/>
+                <xs:attribute name="z" type="xs:int" use="required"/>
+                <xs:attribute name="type" type="SignType" use="required"/>
+                <xs:attribute name="variant" type="Variation" use="optional"/>
+                <xs:attribute name="colour" type="Colour" use="optional"/>
+                <xs:attribute name="face" type="Facing" use="optional"/>
+                <xs:attribute name="line1" type="xs:string" use="optional"/>
+                <xs:attribute name="line2" type="xs:string" use="optional"/>
+                <xs:attribute name="line3" type="xs:string" use="optional"/>
+                <xs:attribute name="line4" type="xs:string" use="optional"/>
+                <xs:attribute name="rotation" type="xs:int" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -639,15 +650,15 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawObjectType">
-                <xs:attribute name="x" type="xs:decimal" use="required" />
-                <xs:attribute name="y" type="xs:decimal" use="required" />
-                <xs:attribute name="z" type="xs:decimal" use="required" />
-                <xs:attribute name="type" type="SpawnableTypes" use="required" />
-                <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0" />
-                <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0" />
-                <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0" />
-                <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0" />
-                <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0" />
+                <xs:attribute name="x" type="xs:decimal" use="required"/>
+                <xs:attribute name="y" type="xs:decimal" use="required"/>
+                <xs:attribute name="z" type="xs:decimal" use="required"/>
+                <xs:attribute name="type" type="SpawnableTypes" use="required"/>
+                <xs:attribute name="yaw" type="xs:decimal" use="optional" default="0"/>
+                <xs:attribute name="pitch" type="xs:decimal" use="optional" default="0"/>
+                <xs:attribute name="xVel" type="xs:decimal" use="optional" default="0"/>
+                <xs:attribute name="yVel" type="xs:decimal" use="optional" default="0"/>
+                <xs:attribute name="zVel" type="xs:decimal" use="optional" default="0"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -660,12 +671,12 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawBlockBasedObjectType">
-                <xs:attribute name="x1" type="xs:int" use="required" />
-                <xs:attribute name="y1" type="xs:int" use="required" />
-                <xs:attribute name="z1" type="xs:int" use="required" />
-                <xs:attribute name="x2" type="xs:int" use="required" />
-                <xs:attribute name="y2" type="xs:int" use="required" />
-                <xs:attribute name="z2" type="xs:int" use="required" />
+                <xs:attribute name="x1" type="xs:int" use="required"/>
+                <xs:attribute name="y1" type="xs:int" use="required"/>
+                <xs:attribute name="z1" type="xs:int" use="required"/>
+                <xs:attribute name="x2" type="xs:int" use="required"/>
+                <xs:attribute name="y2" type="xs:int" use="required"/>
+                <xs:attribute name="z2" type="xs:int" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -678,10 +689,10 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawBlockBasedObjectType">
-                <xs:attribute name="x" type="xs:int" use="required" />
-                <xs:attribute name="y" type="xs:int" use="required" />
-                <xs:attribute name="z" type="xs:int" use="required" />
-                <xs:attribute name="radius" type="xs:int" use="required" />
+                <xs:attribute name="x" type="xs:int" use="required"/>
+                <xs:attribute name="y" type="xs:int" use="required"/>
+                <xs:attribute name="z" type="xs:int" use="required"/>
+                <xs:attribute name="radius" type="xs:int" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -694,13 +705,13 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="DrawBlockBasedObjectType">
-                <xs:attribute name="x1" type="xs:int" use="required" />
-                <xs:attribute name="y1" type="xs:int" use="required" />
-                <xs:attribute name="z1" type="xs:int" use="required" />
-                <xs:attribute name="x2" type="xs:int" use="required" />
-                <xs:attribute name="y2" type="xs:int" use="required" />
-                <xs:attribute name="z2" type="xs:int" use="required" />
-                <xs:attribute name="steptype" type="BlockType" use="optional" />
+                <xs:attribute name="x1" type="xs:int" use="required"/>
+                <xs:attribute name="y1" type="xs:int" use="required"/>
+                <xs:attribute name="z1" type="xs:int" use="required"/>
+                <xs:attribute name="x2" type="xs:int" use="required"/>
+                <xs:attribute name="y2" type="xs:int" use="required"/>
+                <xs:attribute name="z2" type="xs:int" use="required"/>
+                <xs:attribute name="steptype" type="BlockType" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -726,39 +737,39 @@
                 <xs:element name="complexity">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="building" type="ZeroToOne" />
-                            <xs:element name="path" type="ZeroToOne" />
-                            <xs:element name="division" type="ZeroToOne" />
-                            <xs:element name="obstacle" type="ZeroToOne" />
-                            <xs:element name="hint" type="ZeroToOne" />
+                            <xs:element name="building" type="ZeroToOne"/>
+                            <xs:element name="path" type="ZeroToOne"/>
+                            <xs:element name="division" type="ZeroToOne"/>
+                            <xs:element name="obstacle" type="ZeroToOne"/>
+                            <xs:element name="hint" type="ZeroToOne"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="specification">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="width" type="BuildingSize" />
-                            <xs:element name="height" type="BuildingSize" />
-                            <xs:element name="length" type="BuildingSize" />
-                            <xs:element name="pathLength" type="NonNegative" />
+                            <xs:element name="width" type="BuildingSize"/>
+                            <xs:element name="height" type="BuildingSize"/>
+                            <xs:element name="length" type="BuildingSize"/>
+                            <xs:element name="pathLength" type="NonNegative"/>
                             <xs:element name="divisions">
                                 <xs:complexType>
                                     <xs:all>
-                                        <xs:element name="southNorth" type="NonNegative" />
-                                        <xs:element name="eastWest" type="NonNegative" />
-                                        <xs:element name="aboveBelow" type="NonNegative" />
+                                        <xs:element name="southNorth" type="NonNegative"/>
+                                        <xs:element name="eastWest" type="NonNegative"/>
+                                        <xs:element name="aboveBelow" type="NonNegative"/>
                                     </xs:all>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element name="horizontalObstacles" type="HorizontalObstacles" />
-                            <xs:element name="verticalObstacles" type="VerticalObstacles" />
-                            <xs:element name="hintLikelihood" type="ZeroToOne" />
+                            <xs:element name="horizontalObstacles" type="HorizontalObstacles"/>
+                            <xs:element name="verticalObstacles" type="VerticalObstacles"/>
+                            <xs:element name="hintLikelihood" type="ZeroToOne"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:choice>
-            <xs:attribute name="seed" type="xs:string" use="optional" />
-            <xs:attribute name="palette" type="PaletteEnum" use="optional" />
+            <xs:attribute name="seed" type="xs:string" use="optional"/>
+            <xs:attribute name="palette" type="PaletteEnum" use="optional"/>
         </xs:complexType>
     </xs:element>
 
@@ -774,39 +785,39 @@
 
     <xs:complexType name="HorizontalObstacles">
         <xs:all>
-            <xs:element name="gap" type="NonNegative" />
-            <xs:element name="bridge" type="NonNegative" />
-            <xs:element name="door" type="NonNegative" />
-            <xs:element name="puzzle" type="NonNegative" />
-            <xs:element name="jump" type="NonNegative" />
+            <xs:element name="gap" type="NonNegative"/>
+            <xs:element name="bridge" type="NonNegative"/>
+            <xs:element name="door" type="NonNegative"/>
+            <xs:element name="puzzle" type="NonNegative"/>
+            <xs:element name="jump" type="NonNegative"/>
         </xs:all>
     </xs:complexType>
 
     <xs:complexType name="VerticalObstacles">
         <xs:all>
-            <xs:element name="stairs" type="NonNegative" />
-            <xs:element name="ladder" type="NonNegative" />
-            <xs:element name="jump" type="NonNegative" />
+            <xs:element name="stairs" type="NonNegative"/>
+            <xs:element name="ladder" type="NonNegative"/>
+            <xs:element name="jump" type="NonNegative"/>
         </xs:all>
     </xs:complexType>
 
     <xs:simpleType name="BuildingSize">
         <xs:restriction base="xs:int">
-            <xs:minInclusive value="7" />
-            <xs:maxInclusive value="50" />
+            <xs:minInclusive value="7"/>
+            <xs:maxInclusive value="50"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="ZeroToOne">
         <xs:restriction base="xs:double">
-            <xs:minInclusive value="0" />
-            <xs:maxInclusive value="1" />
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="1"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="NonNegative">
         <xs:restriction base="xs:int">
-            <xs:minInclusive value="0" />
+            <xs:minInclusive value="0"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -822,7 +833,8 @@
                     <xs:element name="Parametric">
                         <xs:annotation>
                             <xs:documentation>
-                                Create an animation where the (x,y,z) position are determined by parametric equations. Recognised tokens are:
+                                Create an animation where the (x,y,z) position are determined by parametric equations.
+                                Recognised tokens are:
 
                                 * basic arithmetic operations: +, -, /, *, % (modulo), ^ (to the power of)
                                 * basic trig: sin, cos, tan, asin, acos, atan
@@ -830,10 +842,12 @@
                                 * rand - replaces with a random float between 0 and 1
                                 * t - the integer time variable, incremented with each time interval
 
-                                For example, to create a structure which orbits in the x-z plane about the point (100,100,100) at a radius of 20, use:
+                                For example, to create a structure which orbits in the x-z plane about the point
+                                (100,100,100) at a radius of 20, use:
                                 "100+20*cos(t)" and "100+20*sin(t)" for the x and z strings.
 
-                                The parser is not robust to mismatched brackets, typos, unrecognised tokens etc, and will fail silently.
+                                The parser is not robust to mismatched brackets, typos, unrecognised tokens etc, and
+                                will fail silently.
                             </xs:documentation>
                         </xs:annotation>
                         <xs:complexType>
@@ -845,7 +859,8 @@
                             <xs:attribute name="seed">
                                 <xs:annotation>
                                     <xs:documentation>
-                                        The master seed for the random number generator used for any stochastic elements.
+                                        The master seed for the random number generator used for any stochastic
+                                        elements.
                                     </xs:documentation>
                                 </xs:annotation>
                                 <xs:simpleType>
@@ -864,9 +879,12 @@
                     <xs:element name="Linear">
                         <xs:annotation>
                             <xs:documentation>
-                                Create an animation where the (x,y,z) position is determined by the starting position, a constant velocity, and a bounding box.
+                                Create an animation where the (x,y,z) position is determined by the starting position, a
+                                constant velocity, and a bounding box.
 
-                                Each time step, the position is updated by adding the velocity values. If the object goes outside of the bounding box in one dimension, that dimension's velocity will be flipped to reverse the direction.
+                                Each time step, the position is updated by adding the velocity values. If the object
+                                goes outside of the bounding box in one dimension, that dimension's velocity will be
+                                flipped to reverse the direction.
                             </xs:documentation>
                         </xs:annotation>
                         <xs:complexType>
@@ -899,7 +917,8 @@
                 <xs:element ref="DrawingDecorator">
                     <xs:annotation>
                         <xs:documentation>
-                            Define the drawing, relative to (0,0,0), which will be drawn for each frame of the animation.
+                            Define the drawing, relative to (0,0,0), which will be drawn for each frame of the
+                            animation.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -917,9 +936,11 @@
     <xs:element name="BuildBattleDecorator">
         <xs:annotation>
             <xs:documentation>
-                Sets up a build battle area, with a source structure that can't be edited, and a goal structure, with optional recolouring of blocks to indicate correct/incorrect placement.
+                Sets up a build battle area, with a source structure that can't be edited, and a goal structure, with
+                optional recolouring of blocks to indicate correct/incorrect placement.
 
-                NOTE: Make sure to add a {{{RewardForStructureCopying}}} handler to the AgentHandlers if you want your agent to be rewarded for contributing to the build.
+                NOTE: Make sure to add a {{{RewardForStructureCopying}}} handler to the AgentHandlers if you want your
+                agent to be rewarded for contributing to the build.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -927,7 +948,9 @@
                 <xs:element name="GoalStructureBounds" type="UnnamedGridDefinition">
                     <xs:annotation>
                         <xs:documentation>
-                            Define the bounds of the structure to be copied. Anything in this volume when the mission starts will be used as the blueprint - eg anything drawn here using the {{{DrawingDecorator}}}, etc.
+                            Define the bounds of the structure to be copied. Anything in this volume when the mission
+                            starts will be used as the blueprint - eg anything drawn here using the
+                            {{{DrawingDecorator}}}, etc.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -941,7 +964,8 @@
                 <xs:element name="BlockTypeOnCorrectPlacement" type="DrawBlockBasedObjectType" minOccurs="0">
                     <xs:annotation>
                         <xs:documentation>
-                            If present, correctly placed blocks (in the source and the copy) will be changed to this block type.
+                            If present, correctly placed blocks (in the source and the copy) will be changed to this
+                            block type.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -1003,7 +1027,8 @@
 
                             String of "circle" will place randomly in a circle at the y-coordinate specified.
 
-                            String of "surface" will place randomly in a circle, then raise to the highest available block on the surface.
+                            String of "surface" will place randomly in a circle, then raise to the highest available
+                            block on the surface.
                         </xs:documentation>
                     </xs:annotation>
                     <xs:restriction base="xs:string">
@@ -1018,7 +1043,7 @@
                 <xs:annotation>
                     <xs:documentation>
                         Sets whether or not the target block radius should be randomized within a certain radius.
-                        If false, will set the default target  radius to the given radius.
+                        If false, will set the default target radius to the given radius.
                         If true, will set the default target radius randomly within the bound specified below.
                     </xs:documentation>
                 </xs:annotation>
@@ -1075,7 +1100,8 @@
                 <xs:element name="minRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0">
                     <xs:annotation>
                         <xs:documentation>
-                            The minimum distance a randomized compass location must be from the block that was randomly placed.
+                            The minimum distance a randomized compass location must be from the block that was randomly
+                            placed.
 
                             If omitted, set to 0 blocks.
                         </xs:documentation>
@@ -1084,7 +1110,8 @@
                 <xs:element name="maxRandomizedDistance" type="xs:decimal" minOccurs="0" maxOccurs="1" default="8">
                     <xs:annotation>
                         <xs:documentation>
-                            The maximum distance a randomized compass location must be from the block that was randomly placed.
+                            The maximum distance a randomized compass location must be from the block that was randomly
+                            placed.
 
                             If omitted, set to 8 blocks.
                         </xs:documentation>
@@ -1103,8 +1130,8 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="timeLimitMs" type="xs:decimal" use="required" />
-            <xs:attribute name="description" type="xs:string" use="optional" default="" />
+            <xs:attribute name="timeLimitMs" type="xs:decimal" use="required"/>
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
@@ -1115,7 +1142,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="description" type="xs:string" use="optional" default="" />
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
@@ -1133,8 +1160,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Width" type="xs:int" />
-                <xs:element name="Height" type="xs:int" />
+                <xs:element name="Width" type="xs:int"/>
+                <xs:element name="Height" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -1147,8 +1174,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Width" type="xs:int" />
-                <xs:element name="Height" type="xs:int" />
+                <xs:element name="Width" type="xs:int"/>
+                <xs:element name="Height" type="xs:int"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -1172,8 +1199,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Width" type="xs:int" />
-                <xs:element name="Height" type="xs:int" />
+                <xs:element name="Width" type="xs:int"/>
+                <xs:element name="Height" type="xs:int"/>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:element name="ColourSpec" type="MobWithColour"/>
                 </xs:choice>
@@ -1190,8 +1217,8 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Width" type="xs:int" />
-                <xs:element name="Height" type="xs:int" />
+                <xs:element name="Width" type="xs:int"/>
+                <xs:element name="Height" type="xs:int"/>
                 <xs:element name="DepthScaling" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:attribute name="min" default="0">
@@ -1213,7 +1240,8 @@
                         <xs:attribute name="autoscale" type="xs:boolean" default="true">
                             <xs:annotation>
                                 <xs:documentation>
-                                    Set to false to specify the min and max depths manually. Default is true, where uses the min and max depths in the scene.
+                                    Set to false to specify the min and max depths manually. Default is true, where uses
+                                    the min and max depths in the scene.
                                 </xs:documentation>
                             </xs:annotation>
                         </xs:attribute>
@@ -1254,32 +1282,37 @@
             <xs:documentation>
                 Commands for smooth movement. Some examples:
 
-                "{{{move 0.5}}}" - start moving forward at 50% of the normal walking speed (-ve = backward, +ve = forward).
+                "{{{move 0.5}}}" - start moving forward at 50% of the normal walking speed (-ve = backward, +ve =
+                forward).
 
                 "{{{strafe -1}}}" - start moving left at 100% of the normal walking speed (-ve = left, +ve = right).
 
-                "{{{pitch 0.1}}}" - start tilting the agent's head down at 10% of the maximum speed (-ve = up, +ve = down). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}.
+                "{{{pitch 0.1}}}" - start tilting the agent's head down at 10% of the maximum speed (-ve = up, +ve =
+                down). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}.
 
-                "{{{turn 0.1}}}" - start turning right at 10% of the maximum speed (-ve = anti-clockwise/left, +ve = clockwise/right). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}.
+                "{{{turn 0.1}}}" - start turning right at 10% of the maximum speed (-ve = anti-clockwise/left, +ve =
+                clockwise/right). The maximum speed is set by {{{turnSpeedDegs}}} in {{{ContinuousMovementCommands}}}.
 
                 "{{{jump 1}}}" - start jumping (1 = start, 0 = stop).
 
                 "{{{crouch 1}}}" - start crouching (1 = start, 0 = stop).
 
-                "{{{attack 1}}}" - start attacking (1 = start, 0 = stop). The 'attack' command is for destroying blocks and attacking mobs.
+                "{{{attack 1}}}" - start attacking (1 = start, 0 = stop). The 'attack' command is for destroying blocks
+                and attacking mobs.
 
-                "{{{use 1}}}" - start 'use'ing (1 = start, 0 = stop). The 'use' command is for placing blocks and for other things too.
+                "{{{use 1}}}" - start 'use'ing (1 = start, 0 = stop). The 'use' command is for placing blocks and for
+                other things too.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="move" />
-            <xs:enumeration value="strafe" />
-            <xs:enumeration value="pitch" />
-            <xs:enumeration value="turn" />
-            <xs:enumeration value="jump" />
-            <xs:enumeration value="crouch" />
-            <xs:enumeration value="attack" />
-            <xs:enumeration value="use" />
+            <xs:enumeration value="move"/>
+            <xs:enumeration value="strafe"/>
+            <xs:enumeration value="pitch"/>
+            <xs:enumeration value="turn"/>
+            <xs:enumeration value="jump"/>
+            <xs:enumeration value="crouch"/>
+            <xs:enumeration value="attack"/>
+            <xs:enumeration value="use"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1306,8 +1339,8 @@
             <xs:enumeration value="tpy"/>
             <xs:enumeration value="tpz"/>
             <xs:enumeration value="tp"/>
-            <xs:enumeration value="setYaw" />
-            <xs:enumeration value="setPitch" />
+            <xs:enumeration value="setYaw"/>
+            <xs:enumeration value="setPitch"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1354,24 +1387,24 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="move" />
-            <xs:enumeration value="jumpmove" />
-            <xs:enumeration value="strafe" />
-            <xs:enumeration value="jumpstrafe" />
-            <xs:enumeration value="turn" />
-            <xs:enumeration value="movenorth" />
-            <xs:enumeration value="moveeast" />
-            <xs:enumeration value="movesouth" />
-            <xs:enumeration value="movewest" />
-            <xs:enumeration value="jumpnorth" />
-            <xs:enumeration value="jumpeast" />
-            <xs:enumeration value="jumpsouth" />
-            <xs:enumeration value="jumpwest" />
-            <xs:enumeration value="jump" />
-            <xs:enumeration value="look" />
-            <xs:enumeration value="attack" />
-            <xs:enumeration value="use" />
-            <xs:enumeration value="jumpuse" />
+            <xs:enumeration value="move"/>
+            <xs:enumeration value="jumpmove"/>
+            <xs:enumeration value="strafe"/>
+            <xs:enumeration value="jumpstrafe"/>
+            <xs:enumeration value="turn"/>
+            <xs:enumeration value="movenorth"/>
+            <xs:enumeration value="moveeast"/>
+            <xs:enumeration value="movesouth"/>
+            <xs:enumeration value="movewest"/>
+            <xs:enumeration value="jumpnorth"/>
+            <xs:enumeration value="jumpeast"/>
+            <xs:enumeration value="jumpsouth"/>
+            <xs:enumeration value="jumpwest"/>
+            <xs:enumeration value="jump"/>
+            <xs:enumeration value="look"/>
+            <xs:enumeration value="attack"/>
+            <xs:enumeration value="use"/>
+            <xs:enumeration value="jumpuse"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1396,7 +1429,11 @@
 
                 Other commands:
 
-                "{{{combineInventoryItems x y}}}" - will attempt to combine the stacks in slots x and y, and leave the results in slot x. Eg if there are ten blocks of granite in slot 4, and 57 blocks of granite in slot 12, then {{{combineInventoryItems 4 12}}} will result in 64 (the max) blocks of granite in slot 4, and the remainder in slot 12. If the slots can't be combined (they are different types, or the first slot is full) then nothing will happen.
+                "{{{combineInventoryItems x y}}}" - will attempt to combine the stacks in slots x and y, and leave the
+                results in slot x. Eg if there are ten blocks of granite in slot 4, and 57 blocks of granite in slot 12,
+                then {{{combineInventoryItems 4 12}}} will result in 64 (the max) blocks of granite in slot 4, and the
+                remainder in slot 12. If the slots can't be combined (they are different types, or the first slot is
+                full) then nothing will happen.
 
                 "{{{discardCurrentItem}}}" - discards the currently held item.
 
@@ -1405,11 +1442,14 @@
                 "{{{hotbar.1 1}}}"
                 "{{{hotbar.1 0}}}"
 
-                Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use commands
+                Send both commands to select hotbar slot 1 as the currently-held tool. This affects the attack and use
+                commands
                 - e.g. if the agent does 'use' while holding a block item it will place the block into the world.
 
-                If the agent is currently pointed at a container item - eg a chest, shulker box, dispenser etc - then the swap and combine commands
-                can be extended to allow access to the container's inventory. To do this, simply prefix the slot number with the name of the foreign
+                If the agent is currently pointed at a container item - eg a chest, shulker box, dispenser etc - then
+                the swap and combine commands
+                can be extended to allow access to the container's inventory. To do this, simply prefix the slot number
+                with the name of the foreign
                 inventory (which will be provided by the {{{ObservationFromFullInventory}}} observations).
 
                 So to move an item out of the hotbar and into slot 0 of a chest, say:
@@ -1426,18 +1466,18 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="swapInventoryItems" />
-            <xs:enumeration value="combineInventoryItems" />
-            <xs:enumeration value="discardCurrentItem" />
-            <xs:enumeration value="hotbar.1" />
-            <xs:enumeration value="hotbar.2" />
-            <xs:enumeration value="hotbar.3" />
-            <xs:enumeration value="hotbar.4" />
-            <xs:enumeration value="hotbar.5" />
-            <xs:enumeration value="hotbar.6" />
-            <xs:enumeration value="hotbar.7" />
-            <xs:enumeration value="hotbar.8" />
-            <xs:enumeration value="hotbar.9" />
+            <xs:enumeration value="swapInventoryItems"/>
+            <xs:enumeration value="combineInventoryItems"/>
+            <xs:enumeration value="discardCurrentItem"/>
+            <xs:enumeration value="hotbar.1"/>
+            <xs:enumeration value="hotbar.2"/>
+            <xs:enumeration value="hotbar.3"/>
+            <xs:enumeration value="hotbar.4"/>
+            <xs:enumeration value="hotbar.5"/>
+            <xs:enumeration value="hotbar.6"/>
+            <xs:enumeration value="hotbar.7"/>
+            <xs:enumeration value="hotbar.8"/>
+            <xs:enumeration value="hotbar.9"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1452,7 +1492,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="craft" />
+            <xs:enumeration value="craft"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1467,7 +1507,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="craftNearby" />
+            <xs:enumeration value="craftNearby"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1482,7 +1522,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="smeltNearby" />
+            <xs:enumeration value="smeltNearby"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1496,7 +1536,7 @@
 
                 For basic objects, use BlockTypes found in Types.xsd. Eg:
 
-                "{{{equip diamond_pixkaxe}}}" will attempt to equip a diamond_pickaxe from the agent's inventory.
+                "{{{equip diamond_pickaxe}}}" will attempt to equip a diamond_pickaxe from the agent's inventory.
 
                 for more control over colours, types, etc, add a Variation or Colour. Eg:
 
@@ -1525,7 +1565,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="place" />
+            <xs:enumeration value="place"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1540,7 +1580,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="chat" />
+            <xs:enumeration value="chat"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1553,7 +1593,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="quit" />
+            <xs:enumeration value="quit"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1564,34 +1604,35 @@
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="forward" />
-            <xs:enumeration value="left" />
-            <xs:enumeration value="back" />
-            <xs:enumeration value="right" />
-            <xs:enumeration value="jump" />
-            <xs:enumeration value="sneak" />
-            <xs:enumeration value="sprint" />
-            <xs:enumeration value="inventory" />
-            <xs:enumeration value="swapHands" />
-            <xs:enumeration value="drop" />
-            <xs:enumeration value="use" />
-            <xs:enumeration value="attack" />
-            <xs:enumeration value="pickItem" />
-            <xs:enumeration value="hotbar.1" />
-            <xs:enumeration value="hotbar.2" />
-            <xs:enumeration value="hotbar.3" />
-            <xs:enumeration value="hotbar.4" />
-            <xs:enumeration value="hotbar.5" />
-            <xs:enumeration value="hotbar.6" />
-            <xs:enumeration value="hotbar.7" />
-            <xs:enumeration value="hotbar.8" />
-            <xs:enumeration value="hotbar.9" />
-            <xs:enumeration value="moveMouse" />
+            <xs:enumeration value="forward"/>
+            <xs:enumeration value="left"/>
+            <xs:enumeration value="back"/>
+            <xs:enumeration value="right"/>
+            <xs:enumeration value="jump"/>
+            <xs:enumeration value="sneak"/>
+            <xs:enumeration value="sprint"/>
+            <xs:enumeration value="inventory"/>
+            <xs:enumeration value="swapHands"/>
+            <xs:enumeration value="drop"/>
+            <xs:enumeration value="use"/>
+            <xs:enumeration value="attack"/>
+            <xs:enumeration value="pickItem"/>
+            <xs:enumeration value="hotbar.1"/>
+            <xs:enumeration value="hotbar.2"/>
+            <xs:enumeration value="hotbar.3"/>
+            <xs:enumeration value="hotbar.4"/>
+            <xs:enumeration value="hotbar.5"/>
+            <xs:enumeration value="hotbar.6"/>
+            <xs:enumeration value="hotbar.7"/>
+            <xs:enumeration value="hotbar.8"/>
+            <xs:enumeration value="hotbar.9"/>
+            <xs:enumeration value="moveMouse"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:simpleType name="Command">
-        <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand PlaceCommand EquipCommand SimpleCraftCommand NearbyCraftCommand NearbySmeltCommand MissionQuitCommand HumanLevelCommand"/>
+        <xs:union
+                memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand MissionQuitCommand HumanLevelCommand"/>
     </xs:simpleType>
 
     <xs:simpleType name="CommandList">
@@ -1601,7 +1642,8 @@
     <xs:complexType name="CommandListModifier">
         <xs:annotation>
             <xs:documentation>
-                Allow-list/deny-list base class - restricted by each command handler to only allow that handler's commands.
+                Allow-list/deny-list base class - restricted by each command handler to only allow that handler's
+                commands.
             </xs:documentation>
         </xs:annotation>
         <xs:choice maxOccurs="unbounded">
@@ -1634,7 +1676,8 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="ContinuousMovementCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="ContinuousMovementCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1644,9 +1687,11 @@
             <xs:attribute name="turnSpeedDegs" type="xs:decimal" use="optional" default="180">
                 <xs:annotation>
                     <xs:documentation>
-                        This sets the maximum speed for both turning the agent and adjusting the camera pitch, in degrees per second.
+                        This sets the maximum speed for both turning the agent and adjusting the camera pitch, in
+                        degrees per second.
 
-                        The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn left (anti-clockwise) at half this maximum speed.
+                        The turn and pitch command values are both scaled by this - eg "{{{turn -0.5}}}" to turn left
+                        (anti-clockwise) at half this maximum speed.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -1668,7 +1713,8 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="AbsoluteMovementCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="AbsoluteMovementCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1693,15 +1739,16 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="DiscreteMovementCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="DiscreteMovementCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
                     </xs:complexType>
                 </xs:element>
             </xs:all>
-            <xs:attribute name="autoFall" type="xs:boolean" use="optional" default="false" />
-            <xs:attribute name="autoJump" type="xs:boolean" use="optional" default="false" />
+            <xs:attribute name="autoFall" type="xs:boolean" use="optional" default="false"/>
+            <xs:attribute name="autoJump" type="xs:boolean" use="optional" default="false"/>
         </xs:complexType>
     </xs:element>
 
@@ -1718,7 +1765,8 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="InventoryCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="InventoryCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1736,13 +1784,14 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
+                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false"/>
                 <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="SimpleCraftCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="SimpleCraftCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1755,18 +1804,21 @@
     <xs:element name="NearbyCraftCommands">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will accept simple commands that implement a basic form of crafting. Success of the craft command depends on the presence of a nearby crafting table previously placed by the agent and within reach and in field of view.
+                When present, the Mod will accept simple commands that implement a basic form of crafting. Success of
+                the craft command depends on the presence of a nearby crafting table previously placed by the agent and
+                within reach and in field of view.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
+                <xs:element name="ViewToCraft" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false"/>
                 <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="NearbyCraftCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="NearbyCraftCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1779,7 +1831,10 @@
     <xs:element name="NearbySmeltCommands">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will accept simple commands that implement a basic form of smelting. Success of the smelt command depends on the presence of a nearby furnace previously placed by the agent and within reach and in field of view. Fails when a command corresponds to an item not able to be smelted. Each command takes fuel as if the agent had placed the items in a furnace.
+                When present, the Mod will accept simple commands that implement a basic form of smelting. Success of
+                the smelt command depends on the presence of a nearby furnace previously placed by the agent and within
+                reach and in field of view. Fails when a command corresponds to an item not able to be smelted. Each
+                command takes fuel as if the agent had placed the items in a furnace.
 
                 Eg:
 
@@ -1790,7 +1845,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
-                <xs:element name="ViewToSmelt" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false" />
+                <xs:element name="ViewToSmelt" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false"/>
                 <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:complexContent>
@@ -1836,11 +1891,14 @@
     <xs:element name="PlaceCommands">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will accept commands that allow for the placement of blocks. If the specified block is contained in the agent's inventory, then the agent will attempt to place the block in the world.
+                When present, the Mod will accept commands that allow for the placement of blocks. If the specified
+                block is contained in the agent's inventory, then the agent will attempt to place the block in the
+                world.
 
                 If a non-block is specified, the command fails.
 
-                If a block is specified, the block will swap to the hotbar, be placed, and then swapped back, so no changes to the inventory are made besides losing a block.
+                If a block is specified, the block will swap to the hotbar, be placed, and then swapped back, so no
+                changes to the inventory are made besides losing a block.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -1896,25 +1954,29 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="MissionQuitCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="MissionQuitCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
                     </xs:complexType>
                 </xs:element>
             </xs:all>
-            <xs:attribute name="quitDescription" type="xs:string" use="optional" default="" />
+            <xs:attribute name="quitDescription" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="TurnBasedCommands">
         <xs:annotation>
             <xs:documentation>
-                Allows a user to specify that certain commands must be sent on a turn-by-turn basis - ie, in a multi-agent mission, placing the {{{DiscreteMovementCommand}}} handler inside the TurnBasedCommands section will mean that each agent must take it in turns to send a discrete movement command. See turn_based_test.py in the Python Samples for a demonstration/explanation of this.
+                Allows a user to specify that certain commands must be sent on a turn-by-turn basis - ie, in a
+                multi-agent mission, placing the {{{DiscreteMovementCommand}}} handler inside the TurnBasedCommands
+                section will mean that each agent must take it in turns to send a discrete movement command. See
+                turn_based_test.py in the Python Samples for a demonstration/explanation of this.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:group ref="TurnBasedApplicableCommandHandlers" />
+            <xs:group ref="TurnBasedApplicableCommandHandlers"/>
             <xs:attribute name="requestedPosition">
                 <xs:simpleType>
                     <xs:restriction base="xs:integer">
@@ -1938,7 +2000,8 @@
                         <xs:complexContent>
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
-                                    <xs:element name="command" type="HumanLevelCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                    <xs:element name="command" type="HumanLevelCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>
@@ -1970,9 +2033,11 @@
     <xs:element name="ObservationFromRecentCommands">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return observations that say what commands have been acted on since the last report, in the JSON element {{{CommandsSinceLastObservation}}}.
+                When present, the Mod will return observations that say what commands have been acted on since the last
+                report, in the JSON element {{{CommandsSinceLastObservation}}}.
 
-                Note that the commands returned might not yet have taken effect, depending on the command and the way in which Minecraft responds to it -
+                Note that the commands returned might not yet have taken effect, depending on the command and the way in
+                which Minecraft responds to it -
                 but they will have been processed by the command handling chain.
             </xs:documentation>
         </xs:annotation>
@@ -1982,7 +2047,11 @@
     <xs:element name="ObservationFromTurnScheduler">
         <xs:annotation>
             <xs:documentation>
-                Automatically addd by Malmo when the user specifies the {{{TurnBasedCommands}}} handler. This provides vital observations back to the agent to allow them to make use of the turn scheduler. When it is the agent's turn, the JSON will contain {{{turn_number}}} - an integer which tracks the number of turns the agent has taken, and {{{turn_key}}} - a one-shot key which must be passed back to Malmo as a parameter in {{{sendCommand}}} in order for the command to be accepted.
+                Automatically addd by Malmo when the user specifies the {{{TurnBasedCommands}}} handler. This provides
+                vital observations back to the agent to allow them to make use of the turn scheduler. When it is the
+                agent's turn, the JSON will contain {{{turn_number}}} - an integer which tracks the number of turns the
+                agent has taken, and {{{turn_key}}} - a one-shot key which must be passed back to Malmo as a parameter
+                in {{{sendCommand}}} in order for the command to be accepted.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType/>
@@ -1991,7 +2060,8 @@
     <xs:element name="ObservationFromSubgoalPositionList">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return observations that indicate the direction to follow to the next subgoal.
+                When present, the Mod will return observations that indicate the direction to follow to the next
+                subgoal.
                 The value to turn by is returned in the JSON element {{{yawDelta}}}.
             </xs:documentation>
         </xs:annotation>
@@ -2007,8 +2077,10 @@
             <xs:documentation>
                 When present, the Mod will return observations that say what is in the hotbar.
 
-                Up to four values are returned for each slot, if not empty: e.g. {{{Hotbar_1_size}}} and {{{Hotbar_1_item}}} containing the number and
-                type of the item(s) in the slot, respectively, and {{{Hotbar_1_colour}}} and  {{{Hotbar_1_variant}}} if the item has a colour/variation. Hotbar slots are numbered 0 to 8 inclusive.
+                Up to four values are returned for each slot, if not empty: e.g. {{{Hotbar_1_size}}} and
+                {{{Hotbar_1_item}}} containing the number and
+                type of the item(s) in the slot, respectively, and {{{Hotbar_1_colour}}} and {{{Hotbar_1_variant}}} if
+                the item has a colour/variation. Hotbar slots are numbered 0 to 8 inclusive.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType/>
@@ -2019,10 +2091,12 @@
             <xs:documentation>
                 When present, the Mod will return several observations:
 
-                * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}}, {{{PlayersKilled}}}, {{{DamageTaken}}}, {{{DamageDealt}}}
+                * Achievement statistics: {{{DistanceTravelled}}}, {{{TimeAlive}}}, {{{MobsKilled}}},
+                {{{PlayersKilled}}}, {{{DamageTaken}}}, {{{DamageDealt}}}
                 * Life statistics: {{{Life}}}, {{{Score}}}, {{{Food}}}, {{{Air}}}, {{{XP}}}, {{{IsAlive}}}, {{{Name}}}
                 * Position statistics: {{{XPos}}}, {{{YPos}}}, {{{ZPos}}}, {{{Pitch}}}, {{{Yaw}}}
-                * Environment statistics: {{{WorldTime}}} - current time in ticks, {{{TotalTime}}} - total world time, unaffected by ServerInitialConditions
+                * Environment statistics: {{{WorldTime}}} - current time in ticks, {{{TotalTime}}} - total world time,
+                unaffected by ServerInitialConditions
             </xs:documentation>
         </xs:annotation>
         <xs:complexType/>
@@ -2040,7 +2114,8 @@
     <xs:element name="ObservationFromSystem">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return information on the current performance of the Minecraft system - eg tick speeds, etc.
+                When present, the Mod will return information on the current performance of the Minecraft system - eg
+                tick speeds, etc.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType/>
@@ -2049,17 +2124,27 @@
     <xs:element name="ObservationFromRay">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return a JSON object called "LineOfSight", containing observations about the block or entity which is currently in the centre of the screen:
+                When present, the Mod will return a JSON object called "LineOfSight", containing observations about the
+                block or entity which is currently in the centre of the screen:
 
-                * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the block/entity is within the agent's reach - ie attacking or using will have an effect on the object. {{{distance}}} gives the straight-line distance from the agent.
-                * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
+                * Hit details: {{{hitType}}} - will be "block" for a block, "entity" for an entity (eg spider, rabbit
+                etc) or "item" for a free-floating item that can be picked up. {{{inRange}}} will be true if the
+                block/entity is within the agent's reach - ie attacking or using will have an effect on the object.
+                {{{distance}}} gives the straight-line distance from the agent.
+                * Position: {{{x}}}, {{{y}}}, {{{z}}} - in the case of block hits, will be the precise point when the
+                ray intercepts the block. {{{yaw}}}, {{{pitch}}} are also added for entities.
                 * Type information: {{{type}}}, {{{colour}}}, {{{variant}}}, {{{facing}}}
-                * Extra properties: in the case of block types, any extra properties will be returned by their minecraft name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items, the stack size is returned in {{{stackSize}}}
-                * NBTTagCompound: for tile entity blocks, optionally returns a json object called "NBTTagCompound" which contains the entity's entire NBTTagCompound - eg useful for reading the text off signs, etc. Set {{{includeNBT}}} to true to receive this data.
+                * Extra properties: in the case of block types, any extra properties will be returned by their minecraft
+                name, prefixed with "prop_" (eg, for leaves, "prop_decayable" and "prop_check_decay") - this is the same
+                data as can be seen by exploring Minecraft with the F3 debug information displayed. For floating items,
+                the stack size is returned in {{{stackSize}}}
+                * NBTTagCompound: for tile entity blocks, optionally returns a json object called "NBTTagCompound" which
+                contains the entity's entire NBTTagCompound - eg useful for reading the text off signs, etc. Set
+                {{{includeNBT}}} to true to receive this data.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="includeNBT" type="xs:boolean" use="optional" default="false" />
+            <xs:attribute name="includeNBT" type="xs:boolean" use="optional" default="false"/>
         </xs:complexType>
     </xs:element>
 
@@ -2067,48 +2152,61 @@
         <xs:annotation>
             <xs:documentation>
                 When present, the Mod will return observations that describe the contents of the player's inventory.
-                There are two modes - "flat" (the default) is provided for backwards compatibility, and behaves like this:
+                There are two modes - "flat" (the default) is provided for backwards compatibility, and behaves like
+                this:
 
                 The inventory contents are returned in a flat format in the root of the json observations.
-                Up to four values are returned for each slot, if not empty: e.g. {{{InventorySlot_0_size}}} and {{{InventorySlot_0_item}}} containing the number and
-                type of the item(s) in the slot, respectively, and {{{InventorySlot_0_colour}}} and {{{InventorySlot_0_variant}}} if the item has a colour/variation.
+                Up to four values are returned for each slot, if not empty: e.g. {{{InventorySlot_0_size}}} and
+                {{{InventorySlot_0_item}}} containing the number and
+                type of the item(s) in the slot, respectively, and {{{InventorySlot_0_colour}}} and
+                {{{InventorySlot_0_variant}}} if the item has a colour/variation.
                 Inventory slots are numbered 0 to 39 inclusive.
-                If there is a container item available (eg the player is pointed at a chest), this will be returned in the same way, but "InventorySlot"
+                If there is a container item available (eg the player is pointed at a chest), this will be returned in
+                the same way, but "InventorySlot"
                 will be replaced by "ContainerNameSlot" - eg {{{ShulkerBoxSlot_0_item}}} etc.
 
-                If {{{flat}}} is false (recommended), the data is returned as an array of objects, one for each item in the inventory/inventories.
+                If {{{flat}}} is false (recommended), the data is returned as an array of objects, one for each item in
+                the inventory/inventories.
                 The JSON array is called "inventory", and each item in the array will contain:
                 * {{{type}}} - the type of the object in that ItemStack
                 * {{{colour}}} - the colour, if relevant
                 * {{{variant}}} - the variant, if relevant
                 * {{{quantity}}} - the number of objects in the ItemStack
                 * {{{index}}} - the slot number
-                * {{{inventory}}} - the name of the inventory - will be "Inventory" for the player, or, for example, "ShulkerBox", "Chest" etc, if a container is available.
-                This index and inventory information can be used to specify the item in the {{{InventoryCommands}}} - items are specified as inventory:index -
+                * {{{inventory}}} - the name of the inventory - will be "Inventory" for the player, or, for example,
+                "ShulkerBox", "Chest" etc, if a container is available.
+                This index and inventory information can be used to specify the item in the {{{InventoryCommands}}} -
+                items are specified as inventory:index -
                 eg "ShulkerBox:12"
 
-                In addition to this information, whether {{{flat}}} is true or false, an array called "inventoriesAvailable" will also be returned.
-                This will contain a list of all the inventories available (usually just the player's, but if the player is pointed at a container, this
+                In addition to this information, whether {{{flat}}} is true or false, an array called
+                "inventoriesAvailable" will also be returned.
+                This will contain a list of all the inventories available (usually just the player's, but if the player
+                is pointed at a container, this
                 will also be available.)
                 For each inventory, an object will be returned that specifies:
-                * {{{name}}} - the inventory name (same as will be returned in the {{{inventory}}} field for any items in that inventory)
+                * {{{name}}} - the inventory name (same as will be returned in the {{{inventory}}} field for any items
+                in that inventory)
                 * {{{size}}} - the number of slots the inventory provides.
 
                 For a working example please see inventory_test.py in the Python samples folder.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="flat" type="xs:boolean" use="optional" default="true" />
+            <xs:attribute name="flat" type="xs:boolean" use="optional" default="true"/>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="ObservationFromDiscreteCell">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return an observation of the player's position that is unique for every cell on the x/z plane.
-                This is useful for discrete-movement missions where we need to uniquely identify their location but don't mind how.
+                When present, the Mod will return an observation of the player's position that is unique for every cell
+                on the x/z plane.
+                This is useful for discrete-movement missions where we need to uniquely identify their location but
+                don't mind how.
 
-                The observation will contain the JSON element {{{cell}}} containing e.g. {{{(2,4)}}} if the player is standing at any location where
+                The observation will contain the JSON element {{{cell}}} containing e.g. {{{(2,4)}}} if the player is
+                standing at any location where
                 x = 2 and z = 4.
             </xs:documentation>
         </xs:annotation>
@@ -2118,7 +2216,7 @@
     <xs:complexType name="NamedPoint">
         <xs:complexContent>
             <xs:extension base="Pos">
-                <xs:attribute name="name" type="xs:Name" use="required" />
+                <xs:attribute name="name" type="xs:Name" use="required"/>
                 <!-- ObservationFromDistance handler will return JSON with property "distanceFrom<name>" -->
             </xs:extension>
         </xs:complexContent>
@@ -2129,13 +2227,14 @@
             <xs:documentation>
                 When present, the Mod will return an observation that specifies the distance to a named location.
 
-                A JSON element {{{distanceFromNAME}}} will be returned (where {{{NAME}}} is replaced with the name of the NamedPoint),
+                A JSON element {{{distanceFromNAME}}} will be returned (where {{{NAME}}} is replaced with the name of
+                the NamedPoint),
                 with a value that is the distance.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Marker" type="NamedPoint" />
+                <xs:element name="Marker" type="NamedPoint"/>
             </xs:choice>
         </xs:complexType>
     </xs:element>
@@ -2145,18 +2244,19 @@
             <xs:documentation>
                 {{{name}}} - Each grid has a text label to identify it.
 
-                {{{absoluteCoords}}} - If true, the min and max coordinates of the grid are interpreted as world coordinates. If false (the default)
+                {{{absoluteCoords}}} - If true, the min and max coordinates of the grid are interpreted as world
+                coordinates. If false (the default)
                 then the coordinates are relative to the player.
 
                 {{{min}}}, {{{max}}} - The corners of the grid.
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element name="min" type="Pos" />
-            <xs:element name="max" type="Pos" />
+            <xs:element name="min" type="Pos"/>
+            <xs:element name="max" type="Pos"/>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:Name" use="required" />
-        <xs:attribute name="absoluteCoords" type="xs:boolean" use="optional" default="false" />
+        <xs:attribute name="name" type="xs:Name" use="required"/>
+        <xs:attribute name="absoluteCoords" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:element name="ObservationFromGrid">
@@ -2164,12 +2264,13 @@
             <xs:documentation>
                 When present, the Mod will return observations that say what the nearby blocks are.
 
-                For each {{{Grid}}} entry, a named JSON element will be returned with a 1D array of block types, in order along the x, then z, then y axes.
+                For each {{{Grid}}} entry, a named JSON element will be returned with a 1D array of block types, in
+                order along the x, then z, then y axes.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Grid" type="GridDefinition" />
+                <xs:element name="Grid" type="GridDefinition"/>
             </xs:choice>
         </xs:complexType>
     </xs:element>
@@ -2177,24 +2278,30 @@
     <xs:complexType name="RangeDefinition">
         <xs:annotation>
             <xs:documentation>
-                Used by {{{ObservationFromNearbyEntities}}}. Defines the range within which entities will be returned. Eg a range of 10,1,10 will return all entities within +/-10 blocks of the agent in the x and z axes, and within +/-1 block vertically.
+                Used by {{{ObservationFromNearbyEntities}}}. Defines the range within which entities will be returned.
+                Eg a range of 10,1,10 will return all entities within +/-10 blocks of the agent in the x and z axes, and
+                within +/-1 block vertically.
 
-                {{{update_frequency}}} is measured in Minecraft world ticks, and allows the user to specify how often they would like to receive each observation. A value of 20, under normal Minecraft running conditions, for example, would return the entity list once per second.
+                {{{update_frequency}}} is measured in Minecraft world ticks, and allows the user to specify how often
+                they would like to receive each observation. A value of 20, under normal Minecraft running conditions,
+                for example, would return the entity list once per second.
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="name" type="xs:Name" use="required" />
-        <xs:attribute name="xrange" type="xs:decimal" use="required" />
-        <xs:attribute name="yrange" type="xs:decimal" use="required" />
-        <xs:attribute name="zrange" type="xs:decimal" use="required" />
+        <xs:attribute name="name" type="xs:Name" use="required"/>
+        <xs:attribute name="xrange" type="xs:decimal" use="required"/>
+        <xs:attribute name="yrange" type="xs:decimal" use="required"/>
+        <xs:attribute name="zrange" type="xs:decimal" use="required"/>
         <xs:attribute name="update_frequency" type="xs:int" use="optional" default="1"/>
     </xs:complexType>
 
     <xs:element name="ObservationFromNearbyEntities">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return observations that list the positions of all entities that fall within the given ranges of the agent.
+                When present, the Mod will return observations that list the positions of all entities that fall within
+                the given ranges of the agent.
 
-                A JSON array will be returned for each range requested, named using the {{{name}}} attribute of the range. Within the array will be a series of elements, one for each entity, containing the following:
+                A JSON array will be returned for each range requested, named using the {{{name}}} attribute of the
+                range. Within the array will be a series of elements, one for each entity, containing the following:
 
                 - name: a string describing the entity (eg from Types.xsd)
 
@@ -2208,12 +2315,13 @@
 
                 - colour: if the item is a tile entity, with a colour, this will be present to describe the colour
 
-                - variation: optional string to describe the variation - eg the type of egg, or brick, etc (see Types.xsd)
+                - variation: optional string to describe the variation - eg the type of egg, or brick, etc (see
+                Types.xsd)
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Range" type="RangeDefinition" />
+                <xs:element name="Range" type="RangeDefinition"/>
             </xs:choice>
         </xs:complexType>
     </xs:element>
@@ -2221,13 +2329,16 @@
     <xs:element name="ObservationFromChat">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return observations that say what chat messages have occurred and from which player.
+                When present, the Mod will return observations that say what chat messages have occurred and from which
+                player.
                 It will also return messages for any title or subtitle change (eg via Minecraft's title command)
 
                 A JSON element {{{Chat}}} will be returned, with a list of chat strings.
-                In the same way, title changes and subtitle changes will be returned in {{{Title}}} and {{{Subtitle}}} respectively.
+                In the same way, title changes and subtitle changes will be returned in {{{Title}}} and {{{Subtitle}}}
+                respectively.
 
-                Note that unless the AgentHost ObservationsPolicy is set to KEEP_ALL_OBSERVATIONS it is likely that chat messages will be missed.
+                Note that unless the AgentHost ObservationsPolicy is set to KEEP_ALL_OBSERVATIONS it is likely that chat
+                messages will be missed.
                 The default policy is LATEST_OBSERVATION_ONLY.
             </xs:documentation>
         </xs:annotation>
@@ -2237,9 +2348,11 @@
     <xs:element name="ObservationFromCompass">
         <xs:annotation>
             <xs:documentation>
-                When present, the Mod will return observations that detail how the agent is facing and what position the agent is in with respect to a compass.
+                When present, the Mod will return observations that detail how the agent is facing and what position the
+                agent is in with respect to a compass.
 
-                A JSON element will be returned for the compass in the agent's inventory. The JSON will contain the following
+                A JSON element will be returned for the compass in the agent's inventory. The JSON will contain the
+                following
 
                 - set: boolean on whether the compass is set
 
@@ -2270,7 +2383,8 @@
     <xs:simpleType name="Dimension">
         <xs:annotation>
             <xs:documentation>
-                For multi-dimensional rewards, specifies the dimension to allocate this reward to. All rewards on this dimension will be summed.
+                For multi-dimensional rewards, specifies the dimension to allocate this reward to. All rewards on this
+                dimension will be summed.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:int">
@@ -2280,24 +2394,24 @@
 
     <xs:attributeGroup name="RewardProducerAttributes">
         <!-- Common attributes that are shared by all reward producers. -->
-        <xs:attribute name="dimension" type="Dimension" use="optional" default="0" />
+        <xs:attribute name="dimension" type="Dimension" use="optional" default="0"/>
     </xs:attributeGroup>
 
     <xs:complexType name="PointWithReward">
         <xs:complexContent>
             <xs:extension base="Pos">
-                <xs:attribute name="reward" type="xs:decimal" use="required" />
-                <xs:attribute name="tolerance" type="xs:decimal" use="required" />
-                <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
-                <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+                <xs:attribute name="reward" type="xs:decimal" use="required"/>
+                <xs:attribute name="tolerance" type="xs:decimal" use="required"/>
+                <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true"/>
+                <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="MobWithReward">
         <xs:attribute name="type" type="MobList" use="required"/>
-        <xs:attribute name="reward" type="xs:decimal" use="required" />
-        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+        <xs:attribute name="reward" type="xs:decimal" use="required"/>
+        <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
     </xs:complexType>
 
     <xs:element name="RewardForDamagingEntity">
@@ -2329,26 +2443,26 @@
     </xs:element>
 
     <xs:complexType name="BlockSpec">
-        <xs:attribute name="type" use="required" type="BlockList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" default="1" />
-        <xs:attribute name="variant" use="optional" type="VariantList" />
-        <xs:attribute name="colour" use="optional" type="ColourList" />
+        <xs:attribute name="type" use="required" type="BlockList"/>
+        <xs:attribute name="amount" use="optional" type="xs:int" default="1"/>
+        <xs:attribute name="variant" use="optional" type="VariantList"/>
+        <xs:attribute name="colour" use="optional" type="ColourList"/>
     </xs:complexType>
 
     <xs:complexType name="BlockOrItemSpec">
-        <xs:attribute name="type" use="required" type="BlockOrItemList" />
-        <xs:attribute name="amount" use="optional" type="xs:int" default="1" />
-        <xs:attribute name="variant" use="optional" type="VariantList" />
-        <xs:attribute name="colour" use="optional" type="ColourList" />
+        <xs:attribute name="type" use="required" type="BlockOrItemList"/>
+        <xs:attribute name="amount" use="optional" type="xs:int" default="1"/>
+        <xs:attribute name="variant" use="optional" type="VariantList"/>
+        <xs:attribute name="colour" use="optional" type="ColourList"/>
     </xs:complexType>
 
     <xs:complexType name="BlockSpecWithRewardAndBehaviour">
         <xs:complexContent>
             <xs:extension base="BlockSpec">
-                <xs:attribute name="reward" use="required" type="xs:decimal" />
-                <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-                <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock" />
-                <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000" />
+                <xs:attribute name="reward" use="required" type="xs:decimal"/>
+                <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
+                <xs:attribute name="behaviour" type="Behaviour" use="optional" default="oncePerBlock"/>
+                <xs:attribute name="cooldownInMs" type="xs:decimal" use="optional" default="1000"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2356,18 +2470,18 @@
     <xs:complexType name="BlockOrItemSpecWithReward">
         <xs:complexContent>
             <xs:extension base="BlockOrItemSpec">
-                <xs:attribute name="reward" use="required" type="xs:decimal" />
-                <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+                <xs:attribute name="reward" use="required" type="xs:decimal"/>
+                <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:simpleType name="Behaviour">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="onceOnly" />
-            <xs:enumeration value="oncePerBlock" />
-            <xs:enumeration value="oncePerTimeSpan" />
-            <xs:enumeration value="constant" />
+            <xs:enumeration value="onceOnly"/>
+            <xs:enumeration value="oncePerBlock"/>
+            <xs:enumeration value="oncePerTimeSpan"/>
+            <xs:enumeration value="constant"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -2392,23 +2506,24 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0" />
-            <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
+            <xs:attribute name="reward" type="xs:decimal" use="optional" default="-1.0"/>
+            <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
 
     <xs:complexType name="ChatMatchSpec">
-        <xs:attribute name="description" use="required" type="xs:string" />
-        <xs:attribute name="reward" use="required" type="xs:decimal" />
-        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-        <xs:attribute name="regex" use="required" type="xs:string" />
+        <xs:attribute name="description" use="required" type="xs:string"/>
+        <xs:attribute name="reward" use="required" type="xs:decimal"/>
+        <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
+        <xs:attribute name="regex" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:element name="RewardForSendingMatchingChatMessage">
         <xs:annotation>
             <xs:documentation>
-                Sends a reward when the agent sends a chat message that matches a given regular expression (supports Java regex syntax).
+                Sends a reward when the agent sends a chat message that matches a given regular expression (supports
+                Java regex syntax).
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -2420,9 +2535,9 @@
     </xs:element>
 
     <xs:complexType name="ItemSpec">
-        <xs:attribute name="reward" use="required" type="xs:decimal" />
-        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-        <xs:attribute name="type" use="required" type="BlockOrItemList" />
+        <xs:attribute name="reward" use="required" type="xs:decimal"/>
+        <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
+        <xs:attribute name="type" use="required" type="BlockOrItemList"/>
     </xs:complexType>
 
     <xs:element name="RewardForCollectingItem">
@@ -2453,7 +2568,7 @@
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true"/>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
@@ -2472,7 +2587,7 @@
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true"/>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
@@ -2489,10 +2604,10 @@
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Item" type="BlockOrItemSpecWithReward" />
+                <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
-            <xs:attributeGroup ref="RewardProducerAttributes" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true"/>
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
 
@@ -2508,10 +2623,10 @@
         </xs:annotation>
         <xs:complexType>
             <xs:choice minOccurs="1" maxOccurs="unbounded">
-                <xs:element name="Item" type="BlockOrItemSpecWithReward" />
+                <xs:element name="Item" type="BlockOrItemSpecWithReward"/>
             </xs:choice>
-            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true" />
-            <xs:attributeGroup ref="RewardProducerAttributes" />
+            <xs:attribute name="Sparse" type="xs:boolean" use="optional" default="true"/>
+            <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
 
@@ -2530,9 +2645,9 @@
     </xs:element>
 
     <xs:complexType name="MissionEndRewardCase">
-        <xs:attribute name="reward" use="required" type="xs:decimal" />
-        <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-        <xs:attribute name="description" use="required" type="xs:string" />
+        <xs:attribute name="reward" use="required" type="xs:decimal"/>
+        <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
+        <xs:attribute name="description" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:element name="RewardForMissionEnd">
@@ -2545,8 +2660,8 @@
             <xs:choice minOccurs="1" maxOccurs="unbounded">
                 <xs:element name="Reward" type="MissionEndRewardCase"/>
             </xs:choice>
-            <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0" />
-            <xs:attribute name="rewardForDeathDistribution" type="xs:string" use="optional" default="" />
+            <xs:attribute name="rewardForDeath" type="xs:decimal" use="optional" default="0.0"/>
+            <xs:attribute name="rewardForDeathDistribution" type="xs:string" use="optional" default=""/>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
         </xs:complexType>
     </xs:element>
@@ -2556,9 +2671,13 @@
             <xs:documentation>
                 Reward type for {{{RewardForStructureCopying}}}:
 
-                - {{{PER_BLOCK}}} - reward will be given whenever a block is placed/destroyed in the goal volume, and will be determined by {{{RewardScale}}}. An additional reward of {{{RewardForCompletion}}} will be added the *first* time the copy is correctly completed.
+                - {{{PER_BLOCK}}} - reward will be given whenever a block is placed/destroyed in the goal volume, and
+                will be determined by {{{RewardScale}}}. An additional reward of {{{RewardForCompletion}}} will be added
+                the *first* time the copy is correctly completed.
 
-                - {{{MISSION_END}}} - no reward will be given until the mission ends. Reward will be scaled from 0-1, where 0 means "no blocks correct" and 1 means "all blocks correct", and then multipled by {{{RewardScale}}}.
+                - {{{MISSION_END}}} - no reward will be given until the mission ends. Reward will be scaled from 0-1,
+                where 0 means "no blocks correct" and 1 means "all blocks correct", and then multipled by
+                {{{RewardScale}}}.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
@@ -2571,16 +2690,16 @@
         <xs:sequence>
             <xs:element name="min">
                 <xs:complexType>
-                    <xs:attribute name="x" type="xs:int" use="required" />
-                    <xs:attribute name="y" type="xs:int" use="required" />
-                    <xs:attribute name="z" type="xs:int" use="required" />
+                    <xs:attribute name="x" type="xs:int" use="required"/>
+                    <xs:attribute name="y" type="xs:int" use="required"/>
+                    <xs:attribute name="z" type="xs:int" use="required"/>
                 </xs:complexType>
             </xs:element>
             <xs:element name="max">
                 <xs:complexType>
-                    <xs:attribute name="x" type="xs:int" use="required" />
-                    <xs:attribute name="y" type="xs:int" use="required" />
-                    <xs:attribute name="z" type="xs:int" use="required" />
+                    <xs:attribute name="x" type="xs:int" use="required"/>
+                    <xs:attribute name="y" type="xs:int" use="required"/>
+                    <xs:attribute name="z" type="xs:int" use="required"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
@@ -2600,7 +2719,9 @@
                 <xs:element name="AddQuitProducer" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            If present, the mission will end when the copy exactly matches the original. Set {{{description}}} to the quit code you'd like to receive when this happens. (See {{{RewardForMissionEnd}}}.)
+                            If present, the mission will end when the copy exactly matches the original. Set
+                            {{{description}}} to the quit code you'd like to receive when this happens. (See
+                            {{{RewardForMissionEnd}}}.)
                         </xs:documentation>
                     </xs:annotation>
                     <xs:complexType>
@@ -2620,15 +2741,19 @@
                         - For placing a correct block: +1 * rewardScale
                         - For placing an incorrect block: -1 * rewardScale
 
-                        If {{{RewardDensity}}} is set to {{{{PER_BLOCK}}}, this reward will arrive after each block transaction. If it's set to {{{MISSION_END}}}, the individual rewards will not be sent, but will be summed throughout the course of the mission, and the resulting total will be sent as the final reward.
+                        If {{{RewardDensity}}} is set to {{{{PER_BLOCK}}}, this reward will arrive after each block
+                        transaction. If it's set to {{{MISSION_END}}}, the individual rewards will not be sent, but will
+                        be summed throughout the course of the mission, and the resulting total will be sent as the
+                        final reward.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
-            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default=""/>
             <xs:attribute name="rewardForCompletion" type="xs:decimal" use="optional" default="200.0">
                 <xs:annotation>
                     <xs:documentation>
-                        This is the extra reward to be added when the copy exactly matches the original. (Will only be applied once.)
+                        This is the extra reward to be added when the copy exactly matches the original. (Will only be
+                        applied once.)
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -2640,11 +2765,16 @@
             <xs:documentation>
                 Reward type for {{{RewardForTimeTaken}}}:
 
-                - {{{PER_TICK}}} - only the reward delta will be sent as a reward, at each tick. The initial reward will be ignored.
+                - {{{PER_TICK}}} - only the reward delta will be sent as a reward, at each tick. The initial reward will
+                be ignored.
 
-                - {{{PER_TICK_ACCUMULATED}}} - the initial reward will be adjusted by the delta at each tick, and the current total sent. Eg: if the initial reward is 1000 and the delta is -1, the agent will receive rewards of 1000,999,998,997 for the first four ticks.
+                - {{{PER_TICK_ACCUMULATED}}} - the initial reward will be adjusted by the delta at each tick, and the
+                current total sent. Eg: if the initial reward is 1000 and the delta is -1, the agent will receive
+                rewards of 1000,999,998,997 for the first four ticks.
 
-                - {{{MISSION_END}}} - the initial reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+                - {{{MISSION_END}}} - the initial reward will be adjusted by the delta at each tick, but no reward will
+                be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs
+                for 800 ticks, then final reward sent will be 200.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
@@ -2665,7 +2795,7 @@
             <xs:attribute name="initialReward" type="xs:decimal" use="required"/>
             <xs:attribute name="delta" type="xs:decimal" use="required"/>
             <xs:attribute name="density" type="RewardDensityForTimeTaken" use="required"/>
-            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
@@ -2676,9 +2806,12 @@
 
                 - {{{PER_TICK}}} - reward the distance traveled twards compass target each tick
 
-                - {{{PER_TICK_ACCUMULATED}}} - the reward will be adjusted by the delta at each tick, and the current total sent. E.G. If the agent moves forward to the target and then back to start the reward will be 0
+                - {{{PER_TICK_ACCUMULATED}}} - the reward will be adjusted by the delta at each tick, and the current
+                total sent. E.G. If the agent moves forward to the target and then back to start the reward will be 0
 
-                - {{{MISSION_END}}} - the reward will be adjusted by the delta at each tick, but no reward will be sent until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800 ticks, then final reward sent will be 200.
+                - {{{MISSION_END}}} - the reward will be adjusted by the delta at each tick, but no reward will be sent
+                until the mission ends. Eg: if the initial reward is 1000, the delta is -1, and the mission runs for 800
+                ticks, then final reward sent will be 200.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
@@ -2691,23 +2824,24 @@
     <xs:element name="RewardForDistanceTraveledToCompassTarget">
         <xs:annotation>
             <xs:documentation>
-                Reward that is dependent on distance to compass target. Can be received per tick, or just once at the end.
+                Reward that is dependent on distance to compass target. Can be received per tick, or just once at the
+                end.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:attributeGroup ref="RewardProducerAttributes"/>
             <xs:attribute name="rewardPerBlock" type="xs:decimal" use="required"/>
             <xs:attribute name="density" type="RewardDensityForDistanceTraveledToCompassTarget" use="required"/>
-            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default="" />
+            <xs:attribute name="rewardDistribution" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
     <xs:complexType name="MobWithDescriptionAndReward">
         <xs:complexContent>
             <xs:extension base="MobWithDescription">
-                <xs:attribute name="reward" use="required" type="xs:decimal" />
-                <xs:attribute name="distribution" type="xs:string" use="optional" default="" />
-                <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true" />
+                <xs:attribute name="reward" use="required" type="xs:decimal"/>
+                <xs:attribute name="distribution" type="xs:string" use="optional" default=""/>
+                <xs:attribute name="oneshot" type="xs:boolean" use="optional" default="true"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2715,9 +2849,14 @@
     <xs:element name="RewardForCatchingMob">
         <xs:annotation>
             <xs:documentation>
-                Reward for cornering a mob, such that it cannot move from its current square without passing through an agent.
-                If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
-                For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+                Reward for cornering a mob, such that it cannot move from its current square without passing through an
+                agent.
+                If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they
+                must be adjacent to the mob.
+                For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north,
+                south, east or west of them for them to move into. (An air block is considered occupied if there is an
+                agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in
+                which mobs can escape by jumping or passing through agents.
                 If {{{oneshot}}} is true, the reward will only be counted once per entity.
             </xs:documentation>
         </xs:annotation>
@@ -2734,8 +2873,8 @@
     <xs:complexType name="PointWithToleranceAndDescription">
         <xs:complexContent>
             <xs:extension base="Pos">
-                <xs:attribute name="tolerance" type="xs:decimal" use="optional" default="0.5" />
-                <xs:attribute name="description" type="xs:string" use="optional" default="" />
+                <xs:attribute name="tolerance" type="xs:decimal" use="optional" default="0.5"/>
+                <xs:attribute name="description" type="xs:string" use="optional" default=""/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2743,7 +2882,7 @@
     <xs:complexType name="BlockSpecWithDescription">
         <xs:complexContent>
             <xs:extension base="BlockSpec">
-                <xs:attribute name="description" type="xs:string" use="optional" default="" />
+                <xs:attribute name="description" type="xs:string" use="optional" default=""/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2751,7 +2890,7 @@
     <xs:complexType name="BlockOrItemSpecWithDescription">
         <xs:complexContent>
             <xs:extension base="BlockOrItemSpec">
-                <xs:attribute name="description" type="xs:string" use="optional" default="" />
+                <xs:attribute name="description" type="xs:string" use="optional" default=""/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2776,15 +2915,16 @@
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
-            <xs:attribute name="timeLimitMs" type="xs:decimal" use="required" />
-            <xs:attribute name="description" type="xs:string" use="optional" default="" />
+            <xs:attribute name="timeLimitMs" type="xs:decimal" use="required"/>
+            <xs:attribute name="description" type="xs:string" use="optional" default=""/>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="AgentQuitFromTouchingBlockType">
         <xs:annotation>
             <xs:documentation>
-                When this is included the agent's mission will end when they come in contact with a specified block type.
+                When this is included the agent's mission will end when they come in contact with a specified block
+                type.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -2810,7 +2950,8 @@
     <xs:element name="AgentQuitFromCollectingItemQuantity">
         <xs:annotation>
             <xs:documentation>
-                When this is included the agent's mission will end when they collect (or craft) a specified number of the item.
+                When this is included the agent's mission will end when they collect (or craft) a specified number of
+                the item.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -2849,7 +2990,8 @@
     <xs:element name="AgentQuitFromPossessingItem">
         <xs:annotation>
             <xs:documentation>
-                When this is included the agent's mission will end when they possess the specified item in their inventory all at once.
+                When this is included the agent's mission will end when they possess the specified item in their
+                inventory all at once.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -2872,8 +3014,12 @@
     <xs:element name="AgentQuitFromCatchingMob">
         <xs:annotation>
             <xs:documentation>
-                Agent's mission will end when they corner a mob. If {{{global}}} is true then the agent doesn't have to be involved in catching the mob; otherwise they must be adjacent to the mob.
-                For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north, south, east or west of them for them to move into. (An air block is considered occupied if there is an agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in which mobs can escape by jumping or passing through agents.
+                Agent's mission will end when they corner a mob. If {{{global}}} is true then the agent doesn't have to
+                be involved in catching the mob; otherwise they must be adjacent to the mob.
+                For our purposes, a mob is deemed "caught" if there are no unoccupied air blocks immediately north,
+                south, east or west of them for them to move into. (An air block is considered occupied if there is an
+                agent standing in it.) This does not necessarily correspond to Minecraft's definition of caught, in
+                which mobs can escape by jumping or passing through agents.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -2886,15 +3032,20 @@
     <xs:complexType name="CommandQuota">
         <xs:annotation>
             <xs:documentation>
-                Set up a quota for a group of commands. {{{AgentQuitFromReachingCommandQuota}}} will fire once the quota is exceeded.
+                Set up a quota for a group of commands. {{{AgentQuitFromReachingCommandQuota}}} will fire once the quota
+                is exceeded.
             </xs:documentation>
         </xs:annotation>
         <xs:attribute name="commands" use="required" type="CommandList">
             <xs:annotation>
                 <xs:documentation>
-                    List of commands, separated by spaces, that will share this quota. Commands must be valid members of {{{ContinuousMovementCommand}}}, {{{AbsoluteMovementCommand}}}, {{{DiscreteMovementCommand}}}, {{{InventoryCommand}}}, or {{{ChatCommand}}}.
+                    List of commands, separated by spaces, that will share this quota. Commands must be valid members of
+                    {{{ContinuousMovementCommand}}}, {{{AbsoluteMovementCommand}}}, {{{DiscreteMovementCommand}}},
+                    {{{InventoryCommand}}}, or {{{ChatCommand}}}.
 
-                    For instance, if the command list contains {{{moveeast}}}, {{{movenorth}}}, {{{movesouth}}} and {{{movewest}}}, then the mission will end once the summed total usage of all four commands reaches the quota - even if the agent never used {{{movesouth}}}.
+                    For instance, if the command list contains {{{moveeast}}}, {{{movenorth}}}, {{{movesouth}}} and
+                    {{{movewest}}}, then the mission will end once the summed total usage of all four commands reaches
+                    the quota - even if the agent never used {{{movesouth}}}.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -2908,7 +3059,9 @@
         <xs:attribute name="description" type="xs:string" use="optional" default="">
             <xs:annotation>
                 <xs:documentation>
-                    String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if this quota is reached. This can be used in {{{RewardForMissionEnd}}}, and is also returned in the {{{MissionEnded}}} message.
+                    String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if this quota is
+                    reached. This can be used in {{{RewardForMissionEnd}}}, and is also returned in the
+                    {{{MissionEnded}}} message.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -2917,7 +3070,8 @@
     <xs:element name="AgentQuitFromReachingCommandQuota">
         <xs:annotation>
             <xs:documentation>
-                Count the commands acted on by the Mod, and signal the end of the mission when the defined quota of commands has been reached.
+                Count the commands acted on by the Mod, and signal the end of the mission when the defined quota of
+                commands has been reached.
 
                 A total number of commands can be specified, and/or groups of commands can be given their own quota.
             </xs:documentation>
@@ -2929,7 +3083,8 @@
             <xs:attribute name="total" type="xs:int" use="optional">
                 <xs:annotation>
                     <xs:documentation>
-                        Total number of commands allowed before the mission ends. (Note that a command must be acted on to be counted - sending malformed commands won't affect the total.)
+                        Total number of commands allowed before the mission ends. (Note that a command must be acted on
+                        to be counted - sending malformed commands won't affect the total.)
 
                         The check for total command use takes precedence over the individual group quotas, if used.
                     </xs:documentation>
@@ -2938,7 +3093,9 @@
             <xs:attribute name="description" type="xs:string" use="optional" default="">
                 <xs:annotation>
                     <xs:documentation>
-                        String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if the total allowed command usage is reached. This can be used in {{{RewardForMissionEnd}}}, and is also returned in the {{{MissionEnded}}} message.
+                        String that will be returned from the {{{AgentQuitFromReachingCommandQuota}}} if the total
+                        allowed command usage is reached. This can be used in {{{RewardForMissionEnd}}}, and is also
+                        returned in the {{{MissionEnded}}} message.
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>

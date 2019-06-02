@@ -1536,7 +1536,7 @@
 
                 For basic objects, use BlockTypes found in Types.xsd. Eg:
 
-                "{{{equip diamond_pixkaxe}}}" will attempt to equip a diamond_pickaxe from the agent's inventory.
+                "{{{equip diamond_pickaxe}}}" will attempt to equip a diamond_pickaxe from the agent's inventory.
 
                 for more control over colours, types, etc, add a Variation or Colour. Eg:
 
