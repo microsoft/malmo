@@ -1486,6 +1486,28 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="EquipCommand">
+        <xs:annotation>
+            <xs:documentation>
+                A command for equiping items in the agent's inventory:
+
+                Will look in the agent's inventory. If the item exists, will swap that stack with the agents currently
+                equiped hotbard slot.
+
+                For basic objects, use BlockTypes found in Types.xsd. Eg:
+
+                "{{{equip diamond_pixkaxe}}}" will attempt to equip a diamond_pickaxe from the agent's inventory.
+
+                for more control over colours, types, etc, add a Variation or Colour. Eg:
+
+                "{{{equip carpet PINK}}}"
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="equip" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="PlaceCommand">
         <xs:annotation>
             <xs:documentation>
@@ -1569,7 +1591,7 @@
     </xs:simpleType>
 
     <xs:simpleType name="Command">
-        <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand SimpleCraftCommand NearbyCraftCommand NearbySmeltCommand MissionQuitCommand HumanLevelCommand"/>
+        <xs:union memberTypes="ContinuousMovementCommand AbsoluteMovementCommand DiscreteMovementCommand InventoryCommand ChatCommand PlaceCommand EquipCommand SimpleCraftCommand NearbyCraftCommand NearbySmeltCommand MissionQuitCommand HumanLevelCommand"/>
     </xs:simpleType>
 
     <xs:simpleType name="CommandList">
@@ -1775,6 +1797,33 @@
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
                                     <xs:element name="command" type="NearbySmeltCommand" minOccurs="0" maxOccurs="unbounded"/>
+                                </xs:choice>
+                            </xs:restriction>
+                        </xs:complexContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="EquipCommands">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the Mod will accept commands that allow for equiping items of a given type in the players
+                inventory. If the specified block is contained in the agent's inventory, then the agent will attempt
+                to swap it to the current hotbar slot.
+
+                If a non-block is specified, the command fails.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:complexContent>
+                            <xs:restriction base="CommandListModifier">
+                                <xs:choice maxOccurs="unbounded">
+                                    <xs:element name="command" type="EquipCommand" minOccurs="0" maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>
                         </xs:complexContent>

@@ -34,6 +34,8 @@ class CommandParser:
     discreteMovementCommands = "DiscreteMovement"
     inventoryCommands = "Inventory"
     chatCommands = "Chat"
+    placeCommands = "Place"
+    equipCommands = "Equip"
     simpleCraftCommands = "SimpleCraft"
     nearbyCraftCommands = "NearbyCraft"
     nearbySmeltCommands = "NearbySmelt"
@@ -51,6 +53,8 @@ class CommandParser:
                      "hotbar.1", "hotbar.2", "hotbar.3", "hotbar.4", "hotbar.5", "hotbar.6",
                      "hotbar.7", "hotbar.8", "hotbar.9"]
     all_chat = ["chat"]
+    all_place = ["place"]
+    all_equip = ["equip"]
     all_simplecraft = ["craft"]
     all_nearbycraft = ["nearbyCraft"]
     all_nearbysmelt = ["nearbySmelt"]
@@ -129,6 +133,14 @@ class CommandParser:
             elif type == 'Chat':
                 if verb != 'chat':
                     raise CommandHandlerException("Invalid chat command")
+                actions.append(verb)
+            elif type == 'Place':
+                if verb != 'place':
+                    raise CommandHandlerException("Invalid place command")
+                actions.append(verb)
+            elif type == 'Equip':
+                if verb != 'equip':
+                    raise CommandHandlerException("Invalid equip command")
                 actions.append(verb)
             elif type == 'NearbyCraft':
                 if verb != 'nearbyCraft':
