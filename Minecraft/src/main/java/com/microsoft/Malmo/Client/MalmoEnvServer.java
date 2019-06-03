@@ -221,9 +221,12 @@ public class MalmoEnvServer implements IWantToQuit {
                         } catch (IOException ioe) {
                             ioe.printStackTrace();
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
+                            System.out.println("[ERROR] " + "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             try {
                                 if (running) {
                                     TCPUtils.Log(Level.INFO,"Want to quit on disconnect.");
+
+                                    System.out.println("[ERROR] " + "Want to quit on disconnect.");
                                     setWantToQuit();
                                 }
                                 socket.close();
@@ -909,7 +912,7 @@ public class MalmoEnvServer implements IWantToQuit {
         lock.lock();
         try {
              // We may exit before we get a chance to reply.
-
+            TimeHelper.SyncManager.setSynchronous(false);
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
             dout.writeInt(1);

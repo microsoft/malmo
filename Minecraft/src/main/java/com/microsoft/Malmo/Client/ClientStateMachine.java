@@ -1842,7 +1842,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             
             // Synchronization
             if (envServer != null){
-                TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
+                if(!envServer.doIWantToQuit(currentMissionInit())){
+                    TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
+                } else {
+                    TimeHelper.SyncManager.setSynchronous(false);
+                }
             }
         }
 
