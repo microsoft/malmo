@@ -19,12 +19,34 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import io.netty.buffer.ByteBuf;
+
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Schemas.*;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.IThreadListener;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+
+
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -42,13 +64,95 @@ import net.minecraft.util.math.RayTraceResult;
 public class PlaceCommandsImplementation extends CommandBase implements ICommandHandler {
     private boolean isOverriding;
 
+
+    public static class PlaceMessage implements IMessage
+    {
+        public BlockPos pos;
+        public ItemStack itemStack;
+        public Integer itemSlot;
+        public net.minecraft.util.EnumFacing face;
+        public net.minecraft.util.math.Vec3d hitVec;
+
+        public PlaceMessage()
+        {
+        }
+
+        public PlaceMessage(BlockPos pos, ItemStack itemStack, int itemSlot, net.minecraft.util.EnumFacing face, net.minecraft.util.math.Vec3d hitVec)
+        {
+            this.pos = pos;
+            this.itemStack = itemStack;
+            this.itemSlot = itemSlot;
+            this.face = face;
+            this.hitVec = hitVec;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf)
+        {
+            this.pos = new BlockPos( buf.readInt(), buf.readInt(), buf.readInt() );
+            this.itemStack = net.minecraftforge.fml.common.network.ByteBufUtils.readItemStack(buf);
+            this.itemSlot = buf.readInt();
+            this.face = net.minecraft.util.EnumFacing.values()[buf.readInt()];
+            this.hitVec = new net.minecraft.util.math.Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf)
+        {
+            buf.writeInt(this.pos.getX());
+            buf.writeInt(this.pos.getY());
+            buf.writeInt(this.pos.getZ());
+            net.minecraftforge.fml.common.network.ByteBufUtils.writeItemStack(buf, this.itemStack);
+            buf.writeInt(this.itemSlot);
+            buf.writeInt(this.face.ordinal());
+            buf.writeDouble(this.hitVec.xCoord);
+            buf.writeDouble(this.hitVec.yCoord);
+            buf.writeDouble(this.hitVec.zCoord);
+        }
+    }
+
+    public static class PlaceMessageHandler implements IMessageHandler<PlaceMessage, IMessage> {
+        @Override
+        public IMessage onMessage(PlaceMessage message, MessageContext ctx) {
+            System.out.println("Place message recieved");
+            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            if (player == null)
+                return null;
+
+            BlockPos pos = message.pos.add( message.face.getDirectionVec() );
+            Block b = Block.getBlockFromItem( message.itemStack.getItem() );
+            if( b != null ) {
+                net.minecraft.block.state.IBlockState blockType = b.getStateFromMeta( message.itemStack.getMetadata() );
+                if (player.world.setBlockState( pos, blockType ))
+                {
+                    net.minecraftforge.common.util.BlockSnapshot snapshot = new net.minecraftforge.common.util.BlockSnapshot(player.world, pos, blockType);
+                    net.minecraftforge.event.world.BlockEvent.PlaceEvent placeevent = new net.minecraftforge.event.world.BlockEvent.PlaceEvent(snapshot, player.world.getBlockState(message.pos), player);
+                    net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(placeevent);
+                    // We set the block, so remove it from the inventory.
+                    if (!player.isCreative())
+                    {
+                        if (player.inventory.mainInventory.get(message.itemSlot).getCount() > 1)
+                            player.inventory.mainInventory.get(message.itemSlot).setCount(player.inventory.mainInventory.get(message.itemSlot).getCount() - 1);
+                        else
+                            player.inventory.mainInventory.get(message.itemSlot).setCount(0);
+                    }
+                }
+            }
+
+            return null;
+            /////////////////////////////////////////////
+
+
+        }
+    }
+
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        EntityPlayerSP player = Minecraft.getMinecraft().player;
-        if (player == null)
+        if (!verb.equalsIgnoreCase("place"))
             return false;
 
-        if (!verb.equalsIgnoreCase("place"))
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player == null)
             return false;
 
         Item item = Item.getByNameOrId(parameter);
@@ -69,9 +173,9 @@ public class PlaceCommandsImplementation extends CommandBase implements ICommand
             }
         }
 
-        // We don't have that item in our inventories
+        // We don't have that block in our inventories
         if (!blockInInventory)
-            return false;
+            return true;
 
         RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
         if (mop.typeOfHit == RayTraceResult.Type.BLOCK) {
@@ -79,11 +183,7 @@ public class PlaceCommandsImplementation extends CommandBase implements ICommand
             // Can we place this block here?
             AxisAlignedBB axisalignedbb = block.getDefaultState().getCollisionBoundingBox(player.world, pos);
             if (axisalignedbb == null || player.world.checkNoEntityCollision(axisalignedbb.offset(pos), null)) {
-                MalmoMod.network.sendToServer(new DiscreteMovementCommandsImplementation.UseActionMessage(mop.getBlockPos(), new ItemStack(block), mop.sideHit, false, mop.hitVec));
-                if (stackInInventory.getCount() == 1)
-                    inv.setInventorySlotContents(stackIndex, new ItemStack(Block.getBlockById(0)));
-                else
-                    stackInInventory.setCount(stackInInventory.getCount() - 1);
+                MalmoMod.network.sendToServer(new PlaceMessage(mop.getBlockPos(), new ItemStack(block), stackIndex, mop.sideHit, mop.hitVec));
             }
         }
 
