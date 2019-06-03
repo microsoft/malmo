@@ -62,13 +62,20 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
         }
     }
     
-    public static class GainItemEvent extends Event
-    {
+    public static class GainItemEvent extends Event {
         public final ItemStack stack;
 
-        public GainItemEvent(ItemStack stack)
-        {
+        /**
+         * Sets the cause of the GainItemEvent. By default, is 0. If it is from auto-crafting, then is 1. If it is from auto-smelting, then is 2.
+         */
+        public int cause = 0;
+
+        public GainItemEvent(ItemStack stack) {
             this.stack = stack;
+        }
+
+        public void setCause(int cause) {
+            this.cause = cause;
         }
     }
 

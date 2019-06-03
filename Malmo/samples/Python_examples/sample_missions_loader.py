@@ -34,7 +34,9 @@ malmoutils.fix_print()
 # -- set up the mission -- #
 #mission_file_no_ext = '../Sample_missions/default_world_1'                 # Survive and find gold, diamond or redstone!
 #mission_file_no_ext = '../Sample_missions/default_flat_1'                  # Move to a wooden hut in a snow tempest!
-mission_file_no_ext = '../Sample_missions/tricky_arena_1'                  # Mind your step to the redstone! 
+# This is the default mission to run:
+mission_file_no_ext = '../Sample_missions/tricky_arena_1'                 # Mind your step to the redstone! 
+#mission_file_no_ext = '../Sample_missions/inventory_handlers'               # Tour of crafting, smelting, collecting! 
 #mission_file_no_ext = '../Sample_missions/eating_1'                        # Eat a healthy diet! 
 #mission_file_no_ext = '../Sample_missions/cliff_walking_1'                 # Burning lava! 
 

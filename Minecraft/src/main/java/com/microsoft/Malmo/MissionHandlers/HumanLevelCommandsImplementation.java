@@ -45,7 +45,7 @@ public class HumanLevelCommandsImplementation extends CommandGroup {
         keys.add(new CommandForKey("key.inventory"));
         keys.add(new CommandForKey("key.swapHands"));
         keys.add(new CommandForKey("key.drop"));
-    keys.add(new CommandForKey("key.use"));
+        keys.add(new CommandForKey("key.use"));
         keys.add(new CommandForKey("key.attack"));
         keys.add(new CommandForKey("key.pickItem"));
         for (int i = 1; i <= 9; i++) {

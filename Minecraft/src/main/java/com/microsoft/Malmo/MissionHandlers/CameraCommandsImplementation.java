@@ -46,32 +46,32 @@ public class CameraCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (verb.equals("camera")) {
-            try {
-                String[] camParams = parameter.split(" ");
+        if (!verb.equals("camera"))
+            return false;
+        try {
+            String[] camParams = parameter.split(" ");
 
-                float pitch = Float.parseFloat(camParams[0]);
-                float yaw = Float.parseFloat(camParams[1]);
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
-                if (player != null) {
-                    this.currentYaw = player.rotationYaw;
-                    this.currentPitch = player.rotationPitch;
+            float pitch = Float.parseFloat(camParams[0]);
+            float yaw = Float.parseFloat(camParams[1]);
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
+            if (player != null) {
+                this.currentYaw = player.rotationYaw;
+                this.currentPitch = player.rotationPitch;
 
-                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
+                player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
 
-                    this.currentYaw = player.rotationYaw;
-                    this.currentPitch = player.rotationPitch;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
-                return false;
+                this.currentYaw = player.rotationYaw;
+                this.currentPitch = player.rotationPitch;
             }
+        } catch (NumberFormatException e) {
+            System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
+            return false;
+        }
 
-            if (parameter.equals("1")) {
-                TimeHelper.pause();
-            } else if (parameter.equals("0")) {
-                TimeHelper.unpause();
-            }
+        if (parameter.equals("1")) {
+            TimeHelper.pause();
+        } else if (parameter.equals("0")) {
+            TimeHelper.unpause();
         }
         return true;
     }

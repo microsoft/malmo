@@ -524,7 +524,7 @@ public class MinecraftTypeHelper
 
 	/** Select the request variant of the Minecraft block, if applicable
 	 * @param state The block to be varied
-	 * @param colour The new variation
+	 * @param variant The new variation
 	 * @return A new blockstate which is the requested variant of the original, if such a variant exists; otherwise it returns the original block.
 	 */
     static IBlockState applyVariant(IBlockState state, Variation variant)
@@ -609,7 +609,7 @@ public class MinecraftTypeHelper
      * through the translation layer. This ensures the result matches what we use in Types.XSD,
      * and prevents things like "entity.ShulkerBullet.name" being returned, where there is no
      * translation provided in the .lang file.
-     * @param ent The entity
+     * @param e The entity
      * @return The entity's name.
      */
     public static String getUnlocalisedEntityName(Entity e)

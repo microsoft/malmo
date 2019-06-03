@@ -313,7 +313,6 @@ class Env:
             if withturnkey:
                 comms.send_message(self.client_socket, self.turn_key.encode())
             obs = comms.recv_message(self.client_socket)
-            print("recieve obs {}".format(time.time() - t0)); t0 = time.time()
 
             reply = comms.recv_message(self.client_socket)
             reward, done, sent = struct.unpack('!dbb', reply)

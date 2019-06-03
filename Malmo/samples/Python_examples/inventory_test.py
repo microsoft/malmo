@@ -187,7 +187,10 @@ for mission_no in range(num_missions):
     while world_state.is_mission_running:
         world_state = agent_host.getWorldState()
         if world_state.number_of_rewards_since_last_state > 0:
-            total_reward += world_state.rewards[-1].getValue()
+            reward = world_state.rewards[-1].getValue()
+            if reward != 0:
+                print("Got reward of " + str(reward))
+            total_reward += reward
         if world_state.number_of_observations_since_last_state > 0:
             obs = json.loads(world_state.observations[-1].text)
 
@@ -306,7 +309,10 @@ for mission_no in range(num_missions):
     # Mission has ended.
     # Get final reward:
     if world_state.number_of_rewards_since_last_state > 0:
-        total_reward += world_state.rewards[-1].getValue()
+        reward = world_state.rewards[-1].getValue()
+        if reward != 0:
+            print("Got final reward of " + str(reward))
+        total_reward += reward
 
     test_passed = True
     if False in list(completed_boxes.values()):

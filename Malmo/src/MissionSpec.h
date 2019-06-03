@@ -299,6 +299,14 @@ namespace malmo
             //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
             void allowAllChatCommands();
             
+            //! Adds a place command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
+            //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
+            void allowAllPlaceCommands();
+
+            //! Adds a equip command handler if none present, with neither an allow-list or a deny-list, thus allowing any command to be sent.
+            //! Only applies to the first agent in the mission. For multi-agent missions, specify the command handlers for each in the XML.
+            void allowAllEquipCommands();
+            
             // ------------------------- information --------------------------------------
             
             //! Returns the short description of the mission.
@@ -382,6 +390,8 @@ namespace malmo
             static const std::vector<std::string> all_discrete_movement_commands;
             static const std::vector<std::string> all_inventory_commands;
             static const std::vector<std::string> all_simplecraft_commands;
+            static const std::vector<std::string> all_nearbycraft_commands;
+            static const std::vector<std::string> all_nearbysmelt_commands;
             static const std::vector<std::string> all_chat_commands;
             static const std::vector<std::string> all_mission_quit_commands;
             static const std::vector<std::string> all_human_level_commands;

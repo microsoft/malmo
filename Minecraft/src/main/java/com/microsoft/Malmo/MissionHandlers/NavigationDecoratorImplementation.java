@@ -34,7 +34,7 @@ import net.minecraft.world.World;
 /**
  * Creates a decorator that sets a random block and then points all compasses
  * towards the block.
- * 
+ *
  * @author Cayden Codel, Carnegie Mellon University
  *
  */
