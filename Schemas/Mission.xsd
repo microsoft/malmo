@@ -329,6 +329,7 @@
         </xs:annotation>
         <xs:all>
             <xs:element ref="ObservationFromRecentCommands" minOccurs="0"/>
+            <xs:element ref="ObservationFromEquippedItem" minOccurs="0"/>
             <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
             <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
             <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>

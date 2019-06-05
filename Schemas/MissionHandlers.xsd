@@ -2047,6 +2047,15 @@
         <xs:complexType/>
     </xs:element>
 
+    <xs:element name="ObservationFromEquippedItem">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the Mod will return an observation of the equipped item by the agent along with its item durribility if available.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
+
     <xs:element name="ObservationFromTurnScheduler">
         <xs:annotation>
             <xs:documentation>
