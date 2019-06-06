@@ -354,6 +354,7 @@
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />
             <xs:element ref="RewardForSendingMatchingChatMessage" minOccurs="0" />
             <xs:element ref="RewardForCollectingItem" minOccurs="0" />
+            <xs:element ref="RewardForCollectingItemQuantity" minOccurs="0" />
             <xs:element ref="RewardForPossessingItem" minOccurs="0" />
             <xs:element ref="RewardForCraftingItem" minOccurs="0" />
             <xs:element ref="RewardForSmeltingItem" minOccurs="0" />

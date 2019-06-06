@@ -108,17 +108,25 @@ public class RewardForCollectingItemQuantityImplementation extends RewardForItem
             int prev = (collectedItems.get(is.getUnlocalizedName()) == null ? 0
                     : collectedItems.get(is.getUnlocalizedName()));
             collectedItems.put(is.getUnlocalizedName(), prev + is.getCount());
+
+            // System.out.println("addCollectedItemCount" + variant + " " + is.getUnlocalizedName() + " "+ is.getCount()+ " "+ collectedItems.get(is.getUnlocalizedName()));
         } else {
             int prev = (collectedItems.get(is.getItem().getUnlocalizedName()) == null ? 0
                     : collectedItems.get(is.getItem().getUnlocalizedName()));
             collectedItems.put(is.getItem().getUnlocalizedName(), prev + is.getCount());
+            // System.out.println("addCollectedItemCount" + variant + " " + is.getItem().getUnlocalizedName() + " "+ is.getCount()+ " "+ collectedItems.get(is.getItem().getUnlocalizedName()));
         }
     }
 
     private void checkForMatch(ItemStack is) {
         if (is != null) {
             for (ItemMatcher matcher : this.matchers) {
-                int savedCollected = getCollectedItemCount(is) % matcher.matchSpec.getAmount();
+                int savedCollected;
+                if(params.isOnce()){
+                    savedCollected = getCollectedItemCount(is);
+                } else{
+                    savedCollected = getCollectedItemCount(is) % matcher.matchSpec.getAmount();
+                }
                 if (matcher.matches(is)) {
                     if (!params.isSparse()) {
                         if (savedCollected != 0 && savedCollected < matcher.matchSpec.getAmount()) {
@@ -142,7 +150,7 @@ public class RewardForCollectingItemQuantityImplementation extends RewardForItem
                             }
                         }
                     } else {
-                        System.out.println("savedCollected " + savedCollected + " amount " + matcher.matchSpec.getAmount() + " count " + is.getCount());
+                        // System.out.println("savedCollected " + savedCollected + " amount " + matcher.matchSpec.getAmount() + " count " + is.getCount());
 
                         if (savedCollected < matcher.matchSpec.getAmount()
                                 && savedCollected + is.getCount() >= matcher.matchSpec.getAmount()) {
