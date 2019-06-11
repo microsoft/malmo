@@ -62,7 +62,7 @@ public class TimeHelper
         static Boolean shouldFlush = false;
         static Boolean serverPistolFired = false;
         public static long numTicks = 0;
-        final static Boolean verbose = false;
+        final static Boolean verbose = true;
 
         static Boolean isTicking = false;
 
