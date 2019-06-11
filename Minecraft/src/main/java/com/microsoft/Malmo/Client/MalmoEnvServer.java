@@ -226,7 +226,7 @@ public class MalmoEnvServer implements IWantToQuit {
                                 if (running) {
                                     TCPUtils.Log(Level.INFO,"Want to quit on disconnect.");
 
-                                    System.out.println("[ERROR] " + "Want to quit on disconnect.");
+                                    System.out.println("[LOGTOPY] " + "Want to quit on disconnect.");
                                     setWantToQuit();
                                 }
                                 socket.close();
