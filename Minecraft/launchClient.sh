@@ -70,6 +70,6 @@ fi
 while
 #    ./gradlew setupDecompWorkspace
 #    ./gradlew build 
-    ./gradlew runClient --offline  --no-daemon
+    ./gradlew runClient --no-daemon
     [ $replaceable -gt 0 ]
 do :; done
