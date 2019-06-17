@@ -76,6 +76,9 @@ public class TimeHelper
         }
         public static synchronized  void setSynchronous(Boolean value){
             if(value == true){
+                if(synchronous == false){
+                    isTicking = false;
+                }
                 synchronous = value;
                 shouldFlush = false;
             }
@@ -86,9 +89,9 @@ public class TimeHelper
         
         public static synchronized Boolean requestTick(){
             // Build a locking system.
-            if ( ! isTicking) {
+            if ( ! isTicking && synchronous) {
 
-                TimeHelper.SyncManager.debugLog("============ SYNC TICK STARTED ===========");
+                // TimeHelper.SyncManager.debugLog("============ SYNC TICK STARTED ===========");
                 shouldClientTick = true;
                 isTicking = true;
                 clientTickCompleted = false;
@@ -103,7 +106,7 @@ public class TimeHelper
 
         public static synchronized void setPistolFired(Boolean hasIt){
             if(hasIt && !serverPistolFired){
-                TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
+                // TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
             }
             serverPistolFired = hasIt;
         }   

@@ -120,7 +120,7 @@ public abstract class MixinMinecraftGameloop {
             || TimeHelper.SyncManager.shouldFlush()){
             this.mcProfiler.startSection("waitForTick");
 
-            TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
+            // TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
 
             // Wait for the shouldClientTick to be true!
             while(!TimeHelper.SyncManager.shouldClientTick()) {
@@ -130,7 +130,7 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("syncTickEventPre");
 
 
-            TimeHelper.SyncManager.debugLog("[Client] Starting client tick.");
+            // TimeHelper.SyncManager.debugLog("[Client] Starting client tick.");
 
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             this.mcProfiler.endSection();
@@ -150,7 +150,7 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("serverTick");
 
             // Wait for the server tick to finish.
-            TimeHelper.SyncManager.debugLog("[Client] Client tick end. Client Waiting for server to tick!");
+            // TimeHelper.SyncManager.debugLog("[Client] Client tick end. Client Waiting for server to tick!");
             while(!TimeHelper.SyncManager.shouldRenderTick()) {
                 Thread.yield();
             }
@@ -228,14 +228,16 @@ public abstract class MixinMinecraftGameloop {
             TimeHelper.SyncManager.shouldRenderTick() &&
             TimeHelper.SyncManager.isTicking()) || TimeHelper.SyncManager.shouldFlush()){
             
-                TimeHelper.SyncManager.debugLog("[Client] Tick fully complete..");
-                
-
-            TimeHelper.SyncManager.completeTick();
+            
 
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
+            
+            // TimeHelper.SyncManager.debugLog("[Client] Tick fully complete..");
+                
+
+            TimeHelper.SyncManager.completeTick();
 
 
         }

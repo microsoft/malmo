@@ -307,7 +307,6 @@ public class VideoHook {
                     this.videoProducer.getFrame(this.missionInit, this.buffer);
                     this.buffer.get(data); // Avoiding copy not simple as data is kept & written to a stream later.
                     time_after_render_ns = System.nanoTime();
-
                     envServer.addFrame(data);
                 } else {
                     time_after_render_ns = System.nanoTime();
@@ -346,7 +345,9 @@ public class VideoHook {
         }
         catch (Exception e)
         {
-            System.out.format(e.getMessage());
+            System.out.println(e);
+            e.printStackTrace();
+            // System.out.format(e.getMessage());
         }
         
         if (!success) {

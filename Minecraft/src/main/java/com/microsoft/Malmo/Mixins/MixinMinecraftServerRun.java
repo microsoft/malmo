@@ -108,15 +108,15 @@ public abstract class MixinMinecraftServerRun  {
                             (TimeHelper.SyncManager.numTicks > 32)
                             ){
 
-                                TimeHelper.SyncManager.debugLog("[SERVER] tick start." +Long.toString(SyncManager.numTicks));
+                                // TimeHelper.SyncManager.debugLog("[SERVER] tick start." +Long.toString(SyncManager.numTicks));
                                 this.tick();
-                                TimeHelper.SyncManager.debugLog("[SERVER] tick end." +Long.toString(SyncManager.numTicks));
+                                // TimeHelper.SyncManager.debugLog("[SERVER] tick end." +Long.toString(SyncManager.numTicks));
                                 TimeHelper.SyncManager.numTicks += 1;
                                 TimeHelper.SyncManager.completeServerTick();
                             }
                         } else
                         {
-                            TimeHelper.SyncManager.debugLog("[SERVER] Regular ticking ! " +Long.toString(SyncManager.numTicks));
+                            // TimeHelper.SyncManager.debugLog("[SERVER] Regular ticking ! " +Long.toString(SyncManager.numTicks));
                             while (i > TimeHelper.serverTickLength )
                             {
                                 i -= TimeHelper.serverTickLength;

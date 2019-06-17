@@ -41,6 +41,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer, IMalmoMessageListener
 {
@@ -95,6 +96,8 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onGainItem(GainItemEvent event)
     {
+
+        // TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
         if (event.stack != null)
         {
             accumulateReward(this.params.getDimension(), event.stack);
@@ -104,6 +107,8 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onPickupItem(EntityItemPickupEvent event)
     {
+
+        // TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
         if (event.getItem() != null && event.getEntityPlayer() instanceof EntityPlayerMP )
         {
             // This event is received on the server side, so we need to pass it to the client.
