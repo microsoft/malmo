@@ -457,7 +457,7 @@ public class MalmoEnvServer implements IWantToQuit {
             while(!TimeHelper.SyncManager.isTickCompleted() && !done ){ Thread.yield();}
 
 
-            System.out.println("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
+            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
 
 
 
