@@ -47,6 +47,8 @@ version = versionProp['malmomod.version']
 group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MalmoMod"
 
+
+
 minecraft {
     version = "1.11.2-13.20.0.2228"
     runDir = "run"
@@ -58,6 +60,11 @@ minecraft {
     // simply re-run your setup task after changing the mappings to update your workspace.
     mappings = "snapshot_20161220"
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+}
+runClient { 
+    if (project.hasProperty("runDir")) {
+        minecraft.runDir = project.getProperty("runDir")
+    }
 }
 
 repositories {

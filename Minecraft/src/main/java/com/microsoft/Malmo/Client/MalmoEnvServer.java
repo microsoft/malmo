@@ -215,9 +215,9 @@ public class MalmoEnvServer implements IWantToQuit {
                                 }
                             }
                         } catch (IOException ioe) {
-                            ioe.printStackTrace();
+                            // ioe.printStackTrace();
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
-                            System.out.println("[ERROR] " + "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
+                            // System.out.println("[ERROR] " + "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] MalmoEnv socket error");
                             try {
                                 if (running) {
