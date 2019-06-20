@@ -71,6 +71,6 @@ fi
 while
 #    ./gradlew setupDecompWorkspace
 #    ./gradlew build 
-    ./gradlew runClient --no-daemon --PrunDir="$rundir"
+    ./gradlew runClient --stacktrace --no-daemon -PrunDir="$runDir"
     [ $replaceable -gt 0 ]
 do :; done

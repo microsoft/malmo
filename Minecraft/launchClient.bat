@@ -92,7 +92,7 @@ if "!-replaceable!"=="true" (
 
 :launchLoop
 REM finally run Minecraft:
-call gradlew runClient --no-daemon --PrunDir="!-runDir!"
+call gradlew runClient --no-daemon -PrunDir="!-runDir!"
 if "!-replaceable!"=="true" (
     goto :launchLoop
 )
