@@ -77,6 +77,19 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
     private  int numTicksPassed = 0;
+    long lastUpdateTime = -1;
+
+    private static long MIN_TIME_TO_UPDATE = (long)1e9;
+
+    private void checkUpdateDisplay(){
+        long curTime = System.nanoTime();
+        if(lastUpdateTime == -1)
+            lastUpdateTime = curTime;
+        if(curTime - lastUpdateTime > MIN_TIME_TO_UPDATE){
+            this.updateDisplay();
+            lastUpdateTime = curTime;
+        }
+    }
 
     private void runGameLoop() throws IOException
     {
@@ -124,6 +137,7 @@ public abstract class MixinMinecraftGameloop {
 
             // Wait for the shouldClientTick to be true!
             while(!TimeHelper.SyncManager.shouldClientTick()) {
+                checkUpdateDisplay();
                 Thread.yield();
             }
             this.mcProfiler.endSection();
@@ -221,7 +235,7 @@ public abstract class MixinMinecraftGameloop {
 
         this.mcProfiler.startSection("root");
         this.updateDisplay();
-
+        lastUpdateTime = System.nanoTime();
         if(
             (TimeHelper.SyncManager.isSynchronous() && 
             TimeHelper.SyncManager.isServerRunning() && 
@@ -236,7 +250,6 @@ public abstract class MixinMinecraftGameloop {
             
             // TimeHelper.SyncManager.debugLog("[Client] Tick fully complete..");
                 
-
             TimeHelper.SyncManager.completeTick();
 
 
