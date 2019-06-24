@@ -2012,7 +2012,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return;
             }
 
-            // IF we are synchronous let's process the input before the tick otherwise we can do that wack MS shit -_-
+            // Perhaps the race condition could be that synchronous is then set to false when the quit command is recieved!
             if(synchronous && phase == Phase.START){
                 checkForControlCommand();
             }
@@ -2053,15 +2053,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     map.put("quitcode", this.quitCode);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
 
-                    if(this.shouldMissionEnd)
-                        onMissionEnded(ClientState.MISSION_ENDED, null);
-                    else
-                        onMissionEnded(ClientState.IDLING, null);
+                    onMissionEnded(ClientState.MISSION_ABORTED, null);
                 }
                 else
                 {
                     // If in the case that we are asynchronous, do this 
-                    // wack shit of checking input at the end of a tick...
+                    // wack stuff of checking input at the end of a tick...
                     if(!synchronous){
 
                         checkForControlCommand();
@@ -2347,7 +2344,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void execute()
         {
             totalTicks = 0;
-            TimeHelper.SyncManager.setSynchronous(false);
 
             // Get a text report:
             String errorFeedback = ClientStateMachine.this.getErrorDetails();

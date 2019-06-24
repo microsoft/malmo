@@ -1243,7 +1243,7 @@ public class ServerStateMachine extends StateMachine
             if (success)
             {
                 // Mission is over - wait for all agents to stop.
-                episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
+                episodeHasCompleted(ServerState.CLEAN_UP);
             }
         }
         

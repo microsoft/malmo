@@ -680,13 +680,17 @@ public class MalmoEnvServer implements IWantToQuit {
             if (!envState.done){
                 
                 envState.quit = true;
-            
-                if(TimeHelper.SyncManager.isSynchronous()){
-                    // We want to dsynchronize everything.
-                    TimeHelper.SyncManager.setSynchronous(false);
-                }
             }
+
+             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <PEEK>  Pistol fired!.");
+            // Wait two ticks for the first observation from server to be propagated.
+            while(!TimeHelper.SyncManager.requestTick() ){Thread.yield();} 
+
+            // Then wait until the tick is finished
+            while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
             
+            
+
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
             dout.writeInt(envState.done ? 1 : 0);
