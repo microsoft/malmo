@@ -22,6 +22,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Logger;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
@@ -64,9 +65,11 @@ public class MissionBehaviour
     	MissionBehaviour behaviour = new MissionBehaviour();
     	behaviour.initAgent(missionInit);
     	// TODO - can't throw and return a behaviour!!
-    	//if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
-    	//    throw new Exception(behaviour.getErrorReport());
+        if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
+            System.out.println("[ERROR] " + behaviour.getErrorReport());
     	
+        //    throw new Exception(behaviour.getErrorReport());
+        
     	return behaviour;
     }
 
@@ -75,8 +78,8 @@ public class MissionBehaviour
     	MissionBehaviour behaviour = new MissionBehaviour();
     	behaviour.initServer(missionInit);
     	// TODO - can't throw and return a behaviour!!
-    	//if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
-    	//    throw new Exception(behaviour.getErrorReport());
+        if (behaviour.getErrorReport() != null && behaviour.getErrorReport().length() > 0)
+            System.out.println("[ERROR] " + behaviour.getErrorReport());
     	
     	return behaviour;
     }
