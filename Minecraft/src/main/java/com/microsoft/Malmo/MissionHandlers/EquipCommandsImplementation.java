@@ -127,11 +127,12 @@ public class EquipCommandsImplementation extends CommandBase {
 
     @Override
     public boolean parseParameters(Object params) {
-        if (!(params instanceof PlaceCommands))
+        if (!(params instanceof EquipCommand))
             return false;
 
-        PlaceCommands pParams = (PlaceCommands) params;
-        setUpAllowAndDenyLists(pParams.getModifierList());
+        EquipCommand pParams = (EquipCommand) params;
+        // Todo: Implement allow and deny lists.
+        // setUpAllowAndDenyLists(pParams.getModifierList());
         return true;
     }
 
