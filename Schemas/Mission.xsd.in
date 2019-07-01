@@ -349,6 +349,8 @@
             <xs:element ref="DepthProducer" minOccurs="0"/>
             <xs:element ref="LuminanceProducer" minOccurs="0"/>
             <xs:element ref="ColourMapProducer" minOccurs="0"/>
+            
+            <xs:element ref="FileBasedPerformanceProducer" minOccurs="0"/>
 
             <xs:element ref="RewardForTouchingBlockType" minOccurs="0" />
             <xs:element ref="RewardForSendingCommand" minOccurs="0" />

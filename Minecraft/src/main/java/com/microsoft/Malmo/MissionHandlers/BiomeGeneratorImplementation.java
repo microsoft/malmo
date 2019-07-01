@@ -50,7 +50,6 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 
 	// Register the event with the Forge Bus
 	public BiomeGeneratorImplementation() {
-		MinecraftForge.TERRAIN_GEN_BUS.register(this);
 	}
 
 	/**
@@ -97,6 +96,7 @@ public class BiomeGeneratorImplementation extends HandlerBase implements IWorldG
 		if (params == null || !(params instanceof BiomeGenerator))
 			return false;
 		this.bparams = (BiomeGenerator) params;
+		MinecraftForge.TERRAIN_GEN_BUS.register(this);
 		return true;
 	}
 

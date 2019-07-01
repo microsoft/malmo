@@ -27,6 +27,7 @@ import java.util.logging.Logger;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IPerformanceProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
@@ -49,6 +50,7 @@ public class MissionBehaviour
     public IRewardProducer rewardProducer = null;
     public IWorldDecorator worldDecorator = null;
     public IWorldGenerator worldGenerator = null;
+    public IPerformanceProducer performanceProducer = null;
     public IWantToQuit quitProducer = null;
 
     private String failedHandlers = "";
@@ -98,6 +100,7 @@ public class MissionBehaviour
         this.rewardProducer = null;
         this.worldDecorator = null;
         this.quitProducer = null;
+        this.performanceProducer = null;
     }
 
     private void initAgent(MissionInit missionInit)
@@ -165,6 +168,8 @@ public class MissionBehaviour
             addVideoProducer((IVideoProducer)handler);
         else if (handler instanceof IAudioProducer)
             addAudioProducer((IAudioProducer)handler);
+        else if (handler instanceof IPerformanceProducer)
+            addPerformanceProducer((IPerformanceProducer)handler);
         else if (handler instanceof ICommandHandler)
             addCommandHandler((ICommandHandler)handler);
         else if (handler instanceof IObservationProducer)
@@ -189,6 +194,13 @@ public class MissionBehaviour
             this.videoProducers.add(handler);
     }
     
+    private void addPerformanceProducer(IPerformanceProducer handler){
+        if (this.performanceProducer != null)
+            this.failedHandlers += "Too many audio producers specified - only one allowed at present.\n";
+        else
+            this.performanceProducer = handler;
+    }
+
     private void addAudioProducer(IAudioProducer handler)
     {
         if (this.audioProducer != null)
@@ -351,7 +363,7 @@ public class MissionBehaviour
         {
             if (vp != null && vp instanceof HandlerBase)
                 handlers.add((HandlerBase)vp);
-        }
+        } 
         if (this.audioProducer != null && this.audioProducer instanceof HandlerBase)
             handlers.add((HandlerBase)this.audioProducer);
         if (this.commandHandler != null && this.commandHandler instanceof HandlerBase)
@@ -362,6 +374,8 @@ public class MissionBehaviour
             handlers.add((HandlerBase)this.rewardProducer);
         if (this.quitProducer != null && this.quitProducer instanceof HandlerBase)
             handlers.add((HandlerBase)this.quitProducer);
+        if (this.performanceProducer != null && this.performanceProducer instanceof HandlerBase)
+            handlers.add((HandlerBase)this.performanceProducer);
         return handlers;
     }
 }

@@ -2390,6 +2390,19 @@
         <xs:complexType/>
     </xs:element>
 
+
+    <xs:element name="FileBasedPerformanceProducer">
+        <xs:annotation>
+            <xs:documentation>
+                When present, writes reward performance and number of samples to a directory.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
+
+
+
+
     <!--============================================= REWARD PRODUCERS ==============================================-->
 
     <xs:simpleType name="Dimension">

@@ -1821,6 +1821,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (currentMissionBehaviour().rewardProducer != null)
                 currentMissionBehaviour().rewardProducer.prepare(currentMissionInit());
 
+            if (currentMissionBehaviour().performanceProducer != null)
+                currentMissionBehaviour().performanceProducer.prepare(currentMissionInit());
+
             for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
             {
                 VideoHook hook = new VideoHook();
@@ -1871,7 +1874,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
 
             this.shouldMissionEnd = false;
-            sendData();
+            sendData(true);
             if (AddressHelper.getMissionControlPort() == 0) {
                 if (envServer != null) {
                     byte[] obs = envServer.getObservation(false);
@@ -2066,7 +2069,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     
                     // Send off observation and reward data:
                     // And see if we have any incoming commands to act upon:
-                    sendData();
+                    sendData(false);
                 }
             }
         }
@@ -2084,7 +2087,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.rewardSocket.close();
         }
 
-        private void sendData()
+        private void sendData(boolean done)
         {
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
 
@@ -2158,8 +2161,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                             ClientStateMachine.this.getScreenHelper().addFragment("ERROR: Agent missed reward signal", TextCategory.TXT_CLIENT_WARNING, 5000);
                         }
                     }
+
                     Minecraft.getMinecraft().mcProfiler.endSection(); //sendTCP reward.
                 }
+                if (currentMissionBehaviour().performanceProducer != null)
+                    currentMissionBehaviour().performanceProducer.step(reward.getRewardTotal(), done);
+            }
+            else if(currentMissionBehaviour() != null){
+                if (currentMissionBehaviour().performanceProducer != null)
+                currentMissionBehaviour().performanceProducer.step(0, done);
             }
             Minecraft.getMinecraft().mcProfiler.endSection(); //Gather reward.
             Minecraft.getMinecraft().mcProfiler.endSection(); //sendData

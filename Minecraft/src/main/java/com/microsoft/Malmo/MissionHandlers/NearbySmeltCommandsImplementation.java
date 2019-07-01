@@ -89,7 +89,6 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
     public static class SmeltNearbyMessageHandler implements IMessageHandler<SmeltNearbyMessage, IMessage> {
         @Override
         public IMessage onMessage(SmeltNearbyMessage message, MessageContext ctx) {
-            System.out.println("Smelt mesage recieved");
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             Vec3d headPos = new Vec3d(player.posX, player.posY + 1.6, player.posZ);
 

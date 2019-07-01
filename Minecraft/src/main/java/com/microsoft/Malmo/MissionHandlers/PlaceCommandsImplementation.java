@@ -114,7 +114,6 @@ public class PlaceCommandsImplementation extends CommandBase implements ICommand
     public static class PlaceMessageHandler implements IMessageHandler<PlaceMessage, IMessage> {
         @Override
         public IMessage onMessage(PlaceMessage message, MessageContext ctx) {
-            System.out.println("Place message recieved");
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (player == null)
                 return null;

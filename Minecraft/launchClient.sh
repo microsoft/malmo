@@ -16,8 +16,9 @@ do
         -scorepolicy) scorepolicy="$2"; shift;;
         -env) env=1;;
         -runDir) runDir="$2"; shift;;
+        -performanceDir) performanceDir="$2"; shift;;
         *) echo >&2 \
-            "usage: $0 [-replaceable] [-port 10000] [-scorepolicy 0123] [-env]"
+            "usage: $0 [-replaceable] [-port 10000] [-scorepolicy 0123] [-env] [-runDir /home/asdasd] [-performanceDir /home/asdasd]"
             exit 1;;
     esac
     shift
@@ -50,6 +51,10 @@ malmoports {
 }
 malmoscore {
   I:policy=$scorepolicy
+}
+
+malmoperformance {
+  I:outDir=$performanceDir
 }
 " > run/config/malmomodCLIENT.cfg
 
