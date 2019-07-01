@@ -62,7 +62,7 @@ public class PerformanceHelper
     {
 
         outDir = configs.get(MalmoMod.PERFORMANCE_CONFIGS, "outDir", "").getString();
-        if(outDir.isEmpty() ||  ! Files.exists(Paths.get(outDir))){
+        if(outDir.isEmpty() || outDir == "NONE" ||  ! Files.exists(Paths.get(outDir)) ){
             performanceEnabled = false;
             System.out.println("[LOGTOPY] Performance directory not specified.");
         }

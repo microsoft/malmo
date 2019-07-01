@@ -28,7 +28,7 @@ setlocal enableDelayedExpansion
 ::
 :: The order of the definitions is not important.
 ::
-set "options=-port:0 -replaceable: -scorepolicy:0 -env: -runDir:run -performanceDir:"
+set "options=-port:0 -replaceable: -scorepolicy:0 -env: -runDir:run  -performanceDir:NONE"
 
 :: Set the default option values
 for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
