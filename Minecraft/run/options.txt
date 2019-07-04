@@ -2,7 +2,7 @@ version:922
 invertYMouse:false
 mouseSensitivity:0.5
 fov:1.5
-gamma:1.0
+gamma:2.0
 saturation:0.0
 renderDistance:4
 guiScale:0
