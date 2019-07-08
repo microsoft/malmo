@@ -34,6 +34,12 @@ using boost::asio::ip::tcp;
 
 #define LOG_COMPONENT Logger::LOG_TCP
 
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s)->get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s)->get_io_service())
+#endif
+
 namespace malmo
 {
     TCPServer::TCPServer( boost::asio::io_service& io_service, int port, boost::function<void(const TimestampedUnsignedCharVector) > callback, const std::string& log_name )
@@ -87,7 +93,7 @@ namespace malmo
         };
 
         this->connection = TCPConnection::create(
-            this->acceptor->get_io_service(),
+            GET_IO_SERVICE(this->acceptor),
             deliverMsgIfNotClosed,
             this->expect_size_header,
             this->log_name
