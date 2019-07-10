@@ -22,7 +22,7 @@ set( CPP_SOURCES
 )
 
 set( OTHER_FILES
-  ${CMAKE_SOURCE_DIR}/Malmo/samples/Python_examples/tutorial_6.xml
+  ${PROJECT_SOURCE_DIR}/Malmo/samples/Python_examples/tutorial_6.xml
 )
 
 python_add_module( MalmoPython SHARED ${CPP_SOURCES} )
