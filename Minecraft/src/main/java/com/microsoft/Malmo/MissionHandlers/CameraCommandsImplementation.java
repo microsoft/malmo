@@ -67,12 +67,6 @@ public class CameraCommandsImplementation extends CommandBase {
             System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
             return false;
         }
-
-        if (parameter.equals("1")) {
-            TimeHelper.pause();
-        } else if (parameter.equals("0")) {
-            TimeHelper.unpause();
-        }
         return true;
     }
 

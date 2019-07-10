@@ -13,8 +13,8 @@ maxFps:-1
 fboEnable:true
 difficulty:2
 fancyGraphics:false
-ao:0
-renderClouds:fast
+ao:2
+renderClouds:true
 resourcePacks:[]
 incompatibleResourcePacks:[]
 lastServer:
