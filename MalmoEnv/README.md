@@ -1,4 +1,4 @@
-# MalmoEnv (Prototype) #
+# MalmoEnv #
 
 MalmoEnv is an OpenAI "gym" like Python Environment for Malmo/Minecraft, directly implemented Python to Java Minecraft.
 
