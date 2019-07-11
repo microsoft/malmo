@@ -11,7 +11,7 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 MalmoEnv implements an Open AI "gym"-like environment in Python without any native code (communicating directly with Java Minecraft). If you only need this functionallity then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/master/MalmoEnv). It will be the preferred way to develop with Malmo Minecraft going forward.
 
-If you wish to use the "native" Malmo implementation, either install the "Malmo native wheel" (if available for your platform) or a binary release (more on these options below). Building Malmo yourself from source is always an option!
+If you wish to use the "native" Malmo implementation, either install the "Malmo native Python wheel" (if available for your platform) or a pre-built binary release (more on these options below). Building Malmo yourself from source is always an option!
 
 Advantages:
     
@@ -26,8 +26,6 @@ Disadvantages:
 1. The existing Malmo examples are not supported (as API used is different). 
 Marlo envs should work with this [port](https://github.com/AndKram/marLo/tree/malmoenv).
 2. The API is more limited (e.g. selecting video options) - can edit mission xml directly.
-
-Note: The Marlo competition (for now) uses the original Malmo "AgentHost" api with it's native code implementation. 
 
 ### Malmo as a native Python wheel ###
 
