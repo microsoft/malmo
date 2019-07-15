@@ -62,8 +62,8 @@ class VisualObservationSpace(gym.spaces.Box):
     """
     def __init__(self, width, height, depth):
         gym.spaces.Box.__init__(self,
-                                low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
-                                shape=(height, width, depth), dtype=np.int8)
+                                low=np.iinfo(np.uint8).min, high=np.iinfo(np.uint8).max,
+                                shape=(height, width, depth), dtype=np.uint8)
 
 
 class EnvException(Exception):
@@ -81,7 +81,7 @@ MAX_WAIT = 60 * 3
 
 class Env:
     """Malmo "Env" open ai gym compatible environment API"""
-    def __init__(self):
+    def __init__(self, reshape=False):
         self.action_space = None
         self.observation_space = None
         self.xml = None
@@ -103,6 +103,7 @@ class Env:
         self.width = 0
         self.height = 0
         self.depth = 0
+        self.reshape = reshape
 
     def init(self, xml, port, server=None,
              server2=None, port2=None,
@@ -268,7 +269,10 @@ class Env:
             obs = np.frombuffer(obs, dtype=np.uint8)
 
         if obs is None or len(obs) == 0:
-            obs = np.zeros((self.height, self.width, self.depth), dtype=np.int8)
+            if self.reshape:
+                obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
+            else: 
+                obs = np.zeros(self.height * self.width * self.depth, dtype=np.uint8)
         return obs
 
     def _quit_episode(self):
@@ -323,6 +327,8 @@ class Env:
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
+            if self.reshape:
+                obs = obs.reshape((self.height, self.width, self.depth), dtype=np.uint8)
 
         return obs, reward, self.done, info
 
