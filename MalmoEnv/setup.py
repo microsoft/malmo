@@ -24,7 +24,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="malmoenv",
-    version="0.0.1",
+    version="0.0.4",
     author="Andre Kramer",
     author_email="v-andkra@microsoft.com",
     description="A gym environemnt for Malmo",
