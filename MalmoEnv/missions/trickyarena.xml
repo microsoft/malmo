@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <About>
+      <Summary>Mind your step! Moving around an area to find a goal or get out of it</Summary>
+    </About>
+
+    <ModSettings>
+      <MsPerTick>50</MsPerTick>
+    </ModSettings>
+
+    <ServerSection>
+      <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
+      <ServerHandlers>
+        <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
+        <DrawingDecorator>
+          <DrawCuboid colour="PINK" type="stained_glass" x1="-21" x2="21" y1="226" y2="226" z1="-21" z2="21"/>
+          <DrawCuboid type="emerald_block" x1="-20" x2="20" y1="226" y2="226" z1="-20" z2="20"/>
+        </DrawingDecorator>
+        <DrawingDecorator>
+          <DrawBlock type="lava" x="8" y="226" z="10"/>
+          <DrawBlock type="water" x="-5" y="226" z="19"/>
+          <DrawBlock type="redstone_block" x="-7" y="226" z="12"/>
+          <DrawBlock type="obsidian" x="-14" y="226" z="8"/>
+          <DrawBlock type="lava" x="-15" y="226" z="15"/>
+          <DrawBlock type="water" x="-4" y="226" z="-6"/>
+          <DrawBlock type="water" x="10" y="226" z="14"/>
+          <DrawBlock type="lava" x="10" y="226" z="-11"/>
+          <DrawBlock type="redstone_block" x="-2" y="226" z="4"/>
+          <DrawBlock type="obsidian" x="-3" y="226" z="-7"/>
+          <DrawBlock type="lava" x="-17" y="226" z="-13"/>
+          <DrawBlock type="obsidian" x="1" y="226" z="2"/>
+          <DrawBlock type="water" x="16" y="226" z="-2"/>
+          <DrawBlock type="water" x="7" y="226" z="-1"/>
+          <DrawBlock type="water" x="-12" y="226" z="7"/>
+          <DrawBlock type="redstone_block" x="-4" y="226" z="-10"/>
+          <DrawBlock type="redstone_block" x="-6" y="226" z="3"/>
+          <DrawBlock type="obsidian" x="2" y="226" z="-1"/>
+          <DrawBlock type="redstone_block" x="-13" y="226" z="-10"/>
+          <DrawBlock type="water" x="13" y="226" z="11"/>
+          <DrawBlock type="water" x="4" y="226" z="-11"/>
+          <DrawBlock type="obsidian" x="2" y="226" z="10"/>
+          <DrawBlock type="lava" x="-19" y="226" z="1"/>
+          <DrawBlock type="redstone_block" x="-1" y="226" z="-18"/>
+          <DrawBlock type="obsidian" x="-20" y="226" z="16"/>
+          <DrawBlock type="lava" x="-1" y="226" z="-4"/>
+          <DrawBlock type="redstone_block" x="3" y="226" z="13"/>
+          <DrawBlock type="lava" x="-8" y="226" z="-13"/>
+          <DrawBlock type="obsidian" x="-3" y="226" z="-12"/>
+          <DrawBlock type="redstone_block" x="7" y="226" z="2"/>
+          <DrawBlock type="lava" x="-10" y="226" z="12"/>
+          <DrawBlock type="lava" x="2" y="226" z="-18"/>
+          <DrawBlock type="lava" x="16" y="226" z="-12"/>
+          <DrawBlock type="lava" x="0" y="226" z="7"/>
+          <DrawBlock type="lava" x="12" y="226" z="11"/>
+          <DrawBlock type="water" x="0" y="226" z="18"/>
+          <DrawBlock type="redstone_block" x="15" y="226" z="-20"/>
+          <DrawBlock type="water" x="7" y="226" z="5"/>
+          <DrawBlock type="water" x="-3" y="226" z="-1"/>
+          <DrawBlock type="water" x="10" y="226" z="1"/>
+          <DrawBlock type="water" x="17" y="226" z="-17"/>
+          <DrawBlock type="water" x="-9" y="226" z="0"/>
+          <DrawBlock type="obsidian" x="-12" y="226" z="-1"/>
+          <DrawBlock type="obsidian" x="-20" y="226" z="17"/>
+          <DrawBlock type="water" x="10" y="226" z="3"/>
+          <DrawBlock type="obsidian" x="-7" y="226" z="-13"/>
+          <DrawBlock type="lava" x="18" y="226" z="16"/>
+          <DrawBlock type="obsidian" x="9" y="226" z="-20"/>
+          <DrawBlock type="water" x="-7" y="226" z="11"/>
+          <DrawBlock type="lava" x="20" y="226" z="-18"/>
+          <DrawBlock type="obsidian" x="-1" y="226" z="14"/>
+          <DrawBlock type="lava" x="-10" y="226" z="-9"/>
+          <DrawBlock type="obsidian" x="18" y="226" z="12"/>
+          <DrawBlock type="redstone_block" x="15" y="226" z="-19"/>
+          <DrawBlock type="obsidian" x="17" y="226" z="-3"/>
+          <DrawBlock type="obsidian" x="-4" y="226" z="4"/>
+          <DrawBlock type="water" x="5" y="226" z="1"/>
+          <DrawBlock type="obsidian" x="1" y="226" z="7"/>
+          <DrawBlock type="lava" x="20" y="226" z="4"/>
+          <DrawBlock type="water" x="-20" y="226" z="-19"/>
+          <DrawBlock type="lava" x="1" y="226" z="10"/>
+          <DrawBlock type="obsidian" x="11" y="226" z="19"/>
+          <DrawBlock type="lava" x="0" y="226" z="-8"/>
+          <DrawBlock type="redstone_block" x="-11" y="226" z="-15"/>
+          <DrawBlock type="redstone_block" x="-9" y="226" z="-15"/>
+          <DrawBlock type="lava" x="-18" y="226" z="-3"/>
+          <DrawBlock type="water" x="-6" y="226" z="-18"/>
+          <DrawBlock type="lava" x="-15" y="226" z="-1"/>
+          <DrawBlock type="lava" x="5" y="226" z="-4"/>
+          <DrawBlock type="redstone_block" x="16" y="226" z="-20"/>
+          <DrawBlock type="water" x="15" y="226" z="-7"/>
+          <DrawBlock type="obsidian" x="-5" y="226" z="20"/>
+          <DrawBlock type="water" x="-8" y="226" z="-19"/>
+          <DrawBlock type="water" x="-2" y="226" z="-8"/>
+          <DrawBlock type="obsidian" x="9" y="226" z="-20"/>
+          <DrawBlock type="water" x="7" y="226" z="-7"/>
+          <DrawBlock type="water" x="-17" y="226" z="-12"/>
+          <DrawBlock type="lava" x="5" y="226" z="-20"/>
+          <DrawBlock type="redstone_block" x="-15" y="226" z="-15"/>
+          <DrawBlock type="water" x="-12" y="226" z="7"/>
+          <DrawBlock type="lava" x="16" y="226" z="-5"/>
+          <DrawBlock type="redstone_block" x="17" y="226" z="-14"/>
+          <DrawBlock type="water" x="3" y="226" z="-4"/>
+          <DrawBlock type="water" x="-6" y="226" z="-12"/>
+          <DrawBlock type="lava" x="7" y="226" z="-1"/>
+          <DrawBlock type="redstone_block" x="15" y="226" z="5"/>
+          <DrawBlock type="obsidian" x="-4" y="226" z="-17"/>
+          <DrawBlock type="obsidian" x="-9" y="226" z="-1"/>
+          <DrawBlock type="obsidian" x="-1" y="226" z="15"/>
+          <DrawBlock type="redstone_block" x="-19" y="226" z="8"/>
+          <DrawBlock type="water" x="-19" y="226" z="12"/>
+          <DrawBlock type="lava" x="-7" y="226" z="-8"/>
+          <DrawBlock type="obsidian" x="-14" y="226" z="-2"/>
+          <DrawBlock type="water" x="-18" y="226" z="16"/>
+          <DrawBlock type="water" x="18" y="226" z="-13"/>
+          <DrawBlock type="obsidian" x="-15" y="226" z="-15"/>
+          <DrawBlock type="lava" x="6" y="226" z="-10"/>
+          <DrawBlock type="lava" x="5" y="226" z="18"/>
+          <DrawBlock type="water" x="-13" y="226" z="-18"/>
+          <DrawBlock type="redstone_block" x="9" y="226" z="-20"/>
+        </DrawingDecorator>
+        <ServerQuitFromTimeUp description="out_of_time" timeLimitMs="15000"/>
+        <ServerQuitWhenAnyAgentFinishes description=""/>
+      </ServerHandlers>
+    </ServerSection>
+    
+    <AgentSection mode="Survival">
+      <Name>Agent0</Name>
+      <AgentStart>
+        <Placement pitch="0" x="0.5" y="227.0" yaw="0" z="0.5"/>
+        <Inventory/>
+      </AgentStart>
+      <AgentHandlers>
+        <VideoProducer want_depth="false">
+          <Width>640</Width>
+          <Height>480</Height>
+        </VideoProducer>
+        <ObservationFromFullStats />
+        <RewardForTouchingBlockType>
+          <Block behaviour="oncePerBlock" cooldownInMs="1000" reward="100" type="obsidian"/>
+        </RewardForTouchingBlockType>
+        <RewardForMissionEnd rewardForDeath="-1000">
+          <Reward description="out_of_time" reward="-900"/>
+          <Reward description="out_of_arena" reward="100"/>
+          <Reward description="drowned" reward="-800"/>
+          <Reward description="found_goal" reward="400"/>
+        </RewardForMissionEnd>
+        <ContinuousMovementCommands turnSpeedDegs="240">
+          <ModifierList type="deny-list">
+            <command>attack</command>
+          </ModifierList>
+        </ContinuousMovementCommands>
+        <MissionQuitCommands/>
+        <AgentQuitFromTouchingBlockType>
+          <Block description="out_of_arena" type="stained_glass"/>
+          <Block description="drowned" type="water"/>
+          <Block description="found_goal" type="redstone_block"/>
+        </AgentQuitFromTouchingBlockType>
+      </AgentHandlers>
+    </AgentSection>
+    
+  </Mission>

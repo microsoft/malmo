@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <About>
+    <Summary>Find the goal! Without a lift...</Summary>
+  </About>
+
+  <ModSettings>
+      <MsPerTick>50</MsPerTick>
+  </ModSettings>
+
+  <ServerSection>
+     <ServerInitialConditions>
+        <Time>
+          <StartTime>6000</StartTime>
+          <AllowPassageOfTime>false</AllowPassageOfTime>
+        </Time>
+        <Weather>clear</Weather>
+        <AllowSpawning>false</AllowSpawning>
+     </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" />
+      <ClassroomDecorator seed="__SEED__">
+        <specification>
+          <width>7</width>
+          <height>20</height>
+          <length>7</length>
+          <pathLength>2</pathLength>
+          <divisions>
+            <southNorth>0</southNorth>
+            <eastWest>0</eastWest>
+            <aboveBelow>2</aboveBelow>
+          </divisions>
+          <horizontalObstacles>
+            <gap>0</gap>
+            <bridge>0</bridge>
+            <door>0</door>
+            <puzzle>0</puzzle>
+            <jump>0</jump>
+          </horizontalObstacles>
+          <verticalObstacles>
+            <stairs>1</stairs>
+            <ladder>1</ladder>
+            <jump>0</jump>
+          </verticalObstacles>
+          <hintLikelihood>1</hintLikelihood>
+        </specification>
+      </ClassroomDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="45000" description="out_of_time"/>
+      <ServerQuitWhenAnyAgentFinishes />
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>Agent0</Name>
+    <AgentStart>
+      <Placement x="-203.5" y="81.0" z="217.5"/>
+    </AgentStart>
+    <AgentHandlers>
+      <VideoProducer want_depth="false">
+        <Width>320</Width>
+        <Height>240</Height>
+      </VideoProducer>
+      <ObservationFromFullStats />
+      <ContinuousMovementCommands turnSpeedDegs="180">
+        <ModifierList type="deny-list">
+          <command>attack</command>
+        </ModifierList>
+      </ContinuousMovementCommands>
+      <MissionQuitCommands/>
+      <RewardForMissionEnd rewardForDeath="-10000">
+        <Reward description="found_goal" reward="8000" />
+        <Reward description="out_of_time" reward="-1000" />
+      </RewardForMissionEnd>
+      <RewardForTouchingBlockType>
+        <Block type="gold_ore diamond_ore redstone_ore" reward="20" />
+      </RewardForTouchingBlockType>
+      <AgentQuitFromTouchingBlockType>
+        <Block type="gold_block diamond_block redstone_block" description="found_goal" />
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+</Mission>

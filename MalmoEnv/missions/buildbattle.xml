@@ -1,0 +1,277 @@
+<?xml version="1.0" ?>
+<!-- ~ Copyright (c) 2017 Microsoft 
+        Corporation. ~ ~ Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+        software and ~ associated documentation files (the "Software"), to deal in the Software without restriction, 
+        including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+        and/or sell copies of the Software, and to permit persons to whom the Software is ~ furnished to do so, 
+        subject to the following conditions: ~ ~ The above copyright notice and this permission notice shall be 
+        included in all copies or substantial portions of the Software. ~ ~ THE SOFTWARE IS PROVIDED "AS IS", 
+        WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+        COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+        TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+        THE SOFTWARE. -->
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+	
+            
+	<About>
+		
+                
+		<Summary> Build Battle where the task is to copy a built cuboid structure in a defined area. </Summary>
+		
+            
+	</About>
+	
+        
+	<ModSettings>
+		
+                        
+		<MsPerTick>5</MsPerTick>
+		
+                        
+		<PrioritiseOffscreenRendering>false</PrioritiseOffscreenRendering>
+		
+                  
+	</ModSettings>
+	
+                
+	<ServerSection>
+		
+                    
+		<ServerInitialConditions>
+			
+                        
+			<Time>
+				
+                            
+				<StartTime> 1000 </StartTime>
+				
+                            
+				<AllowPassageOfTime> false </AllowPassageOfTime>
+				
+                        
+			</Time>
+			
+                        
+			<Weather>clear</Weather>
+			
+                        
+			<AllowSpawning> false </AllowSpawning>
+			
+                    
+		</ServerInitialConditions>
+		
+                
+		<ServerHandlers>
+			<FlatWorldGenerator forceReset="true" generatorString="0;80;0"/>
+			<BuildBattleDecorator>
+				
+        
+				<PlayerStructureBounds>
+					
+                    
+					<min x="4" y="5" z="1"/>
+					  
+					<max x="5" y="5" z="1"/>
+				</PlayerStructureBounds>
+				
+                  
+				<GoalStructureBounds>
+					
+                    
+					<min x="0" y="5" z="0"/>
+					  
+					<max x="1" y="5" z="0"/>
+				</GoalStructureBounds>
+				
+        
+				<BlockTypeOnCorrectPlacement type="gold_block"/>
+				
+                  
+				<BlockTypeOnIncorrectPlacement type="redstone_block"/>
+				 
+        
+			</BuildBattleDecorator>
+			<DrawingDecorator>
+				<DrawCuboid type="air" x1="-3" x2="8" y1="4" y2="8" z1="-3" z2="4"/>
+				<DrawCuboid type="lapis_block" x1="0" x2="1" y1="5" y2="5" z1="0" z2="0"/>
+				<DrawBlock type="air" x="5" y="5" z="1"/>
+				<DrawBlock type="lapis_block" x="4" y="5" z="1"/>
+				<DrawCuboid type="glowstone" x1="-3" x2="8" y1="-1" y2="4" z1="-3" z2="4"/>
+				<DrawCuboid type="glowstone" x1="-3" x2="8" y1="8" y2="13" z1="-3" z2="4"/>
+				<DrawCuboid type="glowstone" x1="-8" x2="-3" y1="4" y2="8" z1="-3" z2="4"/>
+				
+                          
+				<DrawCuboid type="glowstone" x1="-3" x2="8" y1="4" y2="8" z1="-8" z2="-3"/>
+				
+                          
+				<DrawCuboid type="glowstone" x1="-3" x2="8" y1="4" y2="8" z1="4" z2="9"/>
+				
+                          
+				<DrawCuboid type="glowstone" x1="8" x2="13" y1="4" y2="8" z1="-3" z2="4"/>
+			</DrawingDecorator>
+			<ServerQuitFromTimeUp description="out_of_time" timeLimitMs="520000.0"/>
+			 
+                  
+			<ServerQuitWhenAnyAgentFinishes/>
+		</ServerHandlers>
+	</ServerSection>
+	<AgentSection mode="Creative">
+		<Name>Agent0</Name>
+		<AgentStart>
+			
+                    
+			<Placement x="3.5" y="6" z="0.5"/>
+			
+                        
+			<Inventory>
+				
+                            
+				<InventoryBlock quantity="1" slot="0" type="lapis_block"/>
+				
+                        
+			</Inventory>
+			
+                  
+		</AgentStart>
+		 
+		<AgentHandlers>
+			<TurnBasedCommands requestedPosition="1">
+				
+                    
+				<DiscreteMovementCommands/>
+				
+                  
+			</TurnBasedCommands>
+			
+                  
+            
+			<ObservationFromGrid>
+				
+                
+				<Grid absoluteCoords="true" name="board">
+					
+                    
+					<min x="-10" y="0" z="-10"/>
+					
+                    
+					<max x="10" y="10" z="10"/>
+					
+                
+				</Grid>
+				
+            
+			</ObservationFromGrid>
+			
+            
+			<ObservationFromFullStats/>
+			<RewardForSendingCommand reward="-0.02"/>
+			
+                  
+			<RewardForStructureCopying rewardDistribution="Agent0:0.2 Agent1:-0.1" rewardForCompletion="1" rewardScale="0.2">
+				
+                    
+				<RewardDensity>PER_BLOCK</RewardDensity>
+				
+                    
+				<AddQuitProducer description="structure_complete"/>
+				
+                  
+			</RewardForStructureCopying>
+			
+                  
+			<AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50"/>
+			
+                
+			<VideoProducer want_depth="false">
+				
+                    
+				<Width>640</Width>
+				
+                    
+				<Height>480</Height>
+				
+                
+			</VideoProducer>
+		</AgentHandlers>
+	</AgentSection>
+	<AgentSection mode="Creative">
+		<Name>Agent1</Name>
+		<AgentStart>
+			
+                    
+			<Placement x="2.5" y="6" z="0.5"/>
+			
+                        
+			<Inventory>
+				
+                            
+				<InventoryBlock quantity="1" slot="0" type="lapis_block"/>
+				
+                        
+			</Inventory>
+			
+                  
+		</AgentStart>
+		 
+		<AgentHandlers>
+			<TurnBasedCommands requestedPosition="2">
+				
+                    
+				<DiscreteMovementCommands/>
+				
+                  
+			</TurnBasedCommands>
+			
+                  
+            
+			<ObservationFromGrid>
+				
+                
+				<Grid absoluteCoords="true" name="board">
+					
+                    
+					<min x="-10" y="0" z="-10"/>
+					
+                    
+					<max x="10" y="10" z="10"/>
+					
+                
+				</Grid>
+				
+            
+			</ObservationFromGrid>
+			
+            
+			<ObservationFromFullStats/>
+			<RewardForSendingCommand reward="-0.02"/>
+			
+                  
+			<RewardForStructureCopying rewardDistribution="Agent1:0.2 Agent0:-0.1" rewardForCompletion="1" rewardScale="0.2">
+				
+                    
+				<RewardDensity>PER_BLOCK</RewardDensity>
+				
+                    
+				<AddQuitProducer description="structure_complete"/>
+				
+                  
+			</RewardForStructureCopying>
+			
+                  
+			<AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50"/>
+			
+                
+			<VideoProducer want_depth="false">
+				
+                    
+				<Width>640</Width>
+				
+                    
+				<Height>480</Height>
+				
+                
+			</VideoProducer>
+		</AgentHandlers>
+	</AgentSection>
+</Mission>
