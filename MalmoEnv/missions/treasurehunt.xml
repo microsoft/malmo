@@ -1,0 +1,306 @@
+<?xml version="1.0" ?>
+<!-- ~ Copyright (c) 2017 Microsoft 
+        Corporation. ~ ~ Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+        software and ~ associated documentation files (the "Software"), to deal in the Software without restriction, 
+        including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+        and/or sell copies of the Software, and to permit persons to whom the Software is ~ furnished to do so, 
+        subject to the following conditions: ~ ~ The above copyright notice and this permission notice shall be 
+        included in all copies or substantial portions of the Software. ~ ~ THE SOFTWARE IS PROVIDED "AS IS", 
+        WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+        COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+        TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+        THE SOFTWARE. -->
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+	
+                
+	<About>
+		
+                    
+		<Summary> Treasure Hunt </Summary>
+		
+                
+	</About>
+	
+            
+                        
+	<ModSettings>
+		
+                            
+		<MsPerTick>50</MsPerTick>
+		
+                        
+	</ModSettings>
+	
+                    
+	<ServerSection>
+		
+                        
+		<ServerInitialConditions>
+			
+                            
+			<Time>
+				
+                                
+				<StartTime> 0 </StartTime>
+				
+                                
+				<AllowPassageOfTime> false </AllowPassageOfTime>
+				
+                            
+			</Time>
+			
+                            
+			<Weather>clear</Weather>
+			
+                            
+			<AllowSpawning> false </AllowSpawning>
+			
+                        
+		</ServerInitialConditions>
+		
+                    
+		<ServerHandlers>
+			<FlatWorldGenerator generatorString="3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village"/>
+			<!-- Draw dungeon -->
+			<DrawingDecorator>
+				<DrawCuboid type="air" x1="-11" x2="11" y1="0" y2="25" z1="-10" z2="10"/>
+				<DrawCuboid type="glowstone" x1="-11" x2="11" y1="0" y2="10" z1="-10" z2="10"/>
+				<DrawCuboid type="glowstone" x1="-11" x2="-11" y1="10" y2="15" z1="-10" z2="10"/>
+				<DrawCuboid type="glowstone" x1="11" x2="11" y1="10" y2="15" z1="-10" z2="10"/>
+				<DrawCuboid type="glowstone" x1="-11" x2="11" y1="10" y2="15" z1="-10" z2="-10"/>
+				<DrawCuboid type="glowstone" x1="-11" x2="11" y1="10" y2="15" z1="10" z2="10"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="1" z2="1"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="2" z2="2"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="3" z2="3"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="4" z2="4"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="5" z2="5"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="6" z2="6"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="7" z2="7"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="8" z2="8"/>
+				<DrawCuboid type="glowstone" x1="0" x2="0" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="1" x2="1" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="1" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="1" x2="1" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="2" x2="2" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawItem type="iron_ingot" x="2" y="11" z="4"/>
+				<DrawBlock type="lava" x="2" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="2" x2="2" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="3" x2="3" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="3" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="3" x2="3" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="4" x2="4" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="dirt" x="4" y="10" z="8"/>
+				<DrawCuboid type="glowstone" x1="4" x2="4" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="5" x2="5" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="5" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="5" x2="5" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="6" x2="6" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="6" y="10" z="6"/>
+				<DrawBlock type="stone" x="6" y="11" z="8"/>
+				<DrawCuboid type="glowstone" x1="6" x2="6" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="7" x2="7" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="7" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="7" x2="7" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="8" x2="8" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="8" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="8" x2="8" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="9" x2="9" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawBlock type="lava" x="9" y="10" z="6"/>
+				<DrawCuboid type="glowstone" x1="9" x2="9" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="0" z2="0"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="1" z2="1"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="2" z2="2"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="3" z2="3"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="4" z2="4"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="5" z2="5"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="6" z2="6"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="7" z2="7"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="8" z2="8"/>
+				<DrawCuboid type="glowstone" x1="10" x2="10" y1="10" y2="15" z1="9" z2="9"/>
+				<DrawCuboid type="glowstone" x1="-11" x2="11" y1="15" y2="25" z1="-10" z2="10"/>
+			</DrawingDecorator>
+			<ServerQuitFromTimeUp description="out_of_time" timeLimitMs="10000000"/>
+			 
+                  
+			<ServerQuitWhenAnyAgentFinishes/>
+		</ServerHandlers>
+	</ServerSection>
+	<AgentSection mode="Survival">
+		<Name>Agent1</Name>
+		<AgentStart>
+			
+                        
+			<Placement pitch="30" x="2.5" y="14" yaw="0" z="8.5"/>
+			
+                        
+			<Inventory/>
+			
+                  
+		</AgentStart>
+		<AgentHandlers>
+			<TurnBasedCommands requestedPosition="1">
+				
+                  
+				<DiscreteMovementCommands>
+					
+                        
+					<ModifierList type="deny-list">
+						
+                            
+						<command>attack</command>
+						
+                        
+					</ModifierList>
+					
+                      
+				</DiscreteMovementCommands>
+				
+                  
+			</TurnBasedCommands>
+			<RewardForMissionEnd rewardForDeath="-1" rewardForDeathDistribution="Agent1:1 Agent2:1">
+				 
+                                
+				<Reward description="Agent1_died" reward="-1"/>
+				
+                            
+			</RewardForMissionEnd>
+			<RewardForSendingCommand reward="-0.02"/>
+			<RewardForTouchingBlockType>
+				
+                                
+				<Block behaviour="onceOnly" distribution="Agent1:1 Agent2:1" reward="0.5" type="dirt"/>
+				
+                            
+			</RewardForTouchingBlockType>
+			
+                            
+			<RewardForCollectingItem>
+				
+                                
+				<Item distribution="Agent1:1 Agent2:1" reward="0.25" type="iron_ingot"/>
+				
+                            
+			</RewardForCollectingItem>
+			
+                            
+			<AgentQuitFromReachingCommandQuota description="command_quota_reached" total="50"/>
+			
+                
+			<AgentQuitFromTouchingBlockType>
+				
+                    
+				<Block description="Agent1_reached_exit" type="dirt"/>
+				
+                
+			</AgentQuitFromTouchingBlockType>
+			
+                
+			<VideoProducer want_depth="false">
+				
+                
+				<Width>640</Width>
+				
+                
+				<Height>480</Height>
+				
+            
+			</VideoProducer>
+		</AgentHandlers>
+	</AgentSection>
+	<AgentSection mode="Survival">
+		<Name>Agent2</Name>
+		<AgentStart>
+			
+                        
+			<Placement pitch="30" x="8.5" y="14" yaw="90" z="3.5"/>
+			
+                        
+			<Inventory>
+				<InventoryBlock quantity="1" slot="39" type="golden_helmet"/>
+				<InventoryBlock quantity="1" slot="36" type="golden_boots"/>
+				<InventoryBlock quantity="1" slot="0" type="diamond_sword"/>
+				<InventoryBlock quantity="1" slot="1" type="stone"/>
+				<InventoryBlock quantity="1" slot="2" type="stone"/>
+				<InventoryBlock quantity="1" slot="3" type="stone"/>
+				<InventoryBlock quantity="1" slot="4" type="stone"/>
+				<InventoryBlock quantity="1" slot="5" type="stone"/>
+				<InventoryBlock quantity="1" slot="6" type="stone"/>
+				<InventoryBlock quantity="1" slot="7" type="stone"/>
+				<InventoryBlock quantity="1" slot="8" type="stone"/>
+				<InventoryBlock quantity="1" slot="9" type="stone"/>
+				<InventoryBlock quantity="1" slot="10" type="stone"/>
+				<InventoryBlock quantity="1" slot="11" type="stone"/>
+				<InventoryBlock quantity="1" slot="12" type="stone"/>
+				<InventoryBlock quantity="1" slot="13" type="stone"/>
+				<InventoryBlock quantity="1" slot="14" type="stone"/>
+				<InventoryBlock quantity="1" slot="15" type="stone"/>
+				<InventoryBlock quantity="1" slot="16" type="stone"/>
+				<InventoryBlock quantity="1" slot="17" type="stone"/>
+				<InventoryBlock quantity="1" slot="18" type="stone"/>
+				<InventoryBlock quantity="1" slot="19" type="stone"/>
+				<InventoryBlock quantity="1" slot="20" type="stone"/>
+				<InventoryBlock quantity="1" slot="21" type="stone"/>
+				<InventoryBlock quantity="1" slot="22" type="stone"/>
+				<InventoryBlock quantity="1" slot="23" type="stone"/>
+				<InventoryBlock quantity="1" slot="24" type="stone"/>
+				<InventoryBlock quantity="1" slot="25" type="stone"/>
+				<InventoryBlock quantity="1" slot="26" type="stone"/>
+				<InventoryBlock quantity="1" slot="27" type="stone"/>
+				<InventoryBlock quantity="1" slot="28" type="stone"/>
+				<InventoryBlock quantity="1" slot="29" type="stone"/>
+				<InventoryBlock quantity="1" slot="30" type="stone"/>
+				<InventoryBlock quantity="1" slot="31" type="stone"/>
+				<InventoryBlock quantity="1" slot="32" type="stone"/>
+				<InventoryBlock quantity="1" slot="33" type="stone"/>
+				<InventoryBlock quantity="1" slot="34" type="stone"/>
+				<InventoryBlock quantity="1" slot="35" type="stone"/>
+			</Inventory>
+			
+                  
+		</AgentStart>
+		<AgentHandlers>
+			<TurnBasedCommands requestedPosition="2">
+				
+                  
+				<DiscreteMovementCommands>
+					
+                        
+					<ModifierList type="deny-list">
+						
+                            
+						<command>use</command>
+						
+                            
+						<command>jumpuse</command>
+						
+                        
+					</ModifierList>
+					
+                      
+				</DiscreteMovementCommands>
+				
+                  
+			</TurnBasedCommands>
+			<RewardForMissionEnd rewardForDeath="-1" rewardForDeathDistribution="Agent1:1 Agent2:1">
+				 
+                                
+				<Reward description="Agent2_died" reward="-1"/>
+				
+                            
+			</RewardForMissionEnd>
+			<RewardForSendingCommand reward="-0.02"/>
+			<VideoProducer want_depth="false">
+				
+                
+				<Width>640</Width>
+				
+                
+				<Height>480</Height>
+				
+            
+			</VideoProducer>
+		</AgentHandlers>
+	</AgentSection>
+</Mission>

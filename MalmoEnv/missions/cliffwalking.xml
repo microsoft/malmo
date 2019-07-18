@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <About>
+    <Summary>Cliff walking mission based on Sutton and Barto.</Summary>
+  </About>
+
+  <ModSettings>
+      <MsPerTick>50</MsPerTick>
+  </ModSettings>
+
+  <ServerSection>
+      <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+      </ServerInitialConditions>
+    <ServerHandlers>
+      <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1"/>
+      <DrawingDecorator>
+        <!-- coordinates for cuboid are inclusive -->
+        <DrawCuboid x1="-2" y1="46" z1="-2" x2="7" y2="50" z2="18" type="air" />            <!-- limits of our arena -->
+        <DrawCuboid x1="-2" y1="45" z1="-2" x2="7" y2="45" z2="18" type="lava" />           <!-- lava floor -->
+        <DrawCuboid x1="1"  y1="45" z1="1"  x2="3" y2="45" z2="12" type="sandstone" />      <!-- floor of the arena -->
+        <DrawBlock   x="4"   y="45"  z="1"  type="cobblestone" />                           <!-- the starting marker -->
+        <DrawBlock   x="4"   y="45"  z="12" type="lapis_block" />                           <!-- the destination marker -->
+        <DrawItem    x="4"   y="46"  z="12" type="diamond" />                               <!-- another destination marker -->
+      </DrawingDecorator>
+      <ServerQuitFromTimeUp timeLimitMs="20000"/>
+      <ServerQuitWhenAnyAgentFinishes/>
+    </ServerHandlers>
+  </ServerSection>
+
+  <AgentSection mode="Survival">
+    <Name>Agent0</Name>
+    <AgentStart>
+      <Placement x="4.5" y="46.0" z="1.5" pitch="30" yaw="0"/>
+    </AgentStart>
+    <AgentHandlers>
+      <ObservationFromFullStats/>
+      <VideoProducer want_depth="false">
+          <Width>640</Width>
+          <Height>480</Height>
+      </VideoProducer>
+      <DiscreteMovementCommands>
+          <ModifierList type="deny-list">
+            <command>attack</command>
+          </ModifierList>
+      </DiscreteMovementCommands>
+      <MissionQuitCommands/>
+      <RewardForTouchingBlockType>
+        <Block reward="-100.0" type="lava" behaviour="onceOnly"/>
+        <Block reward="100.0" type="lapis_block" behaviour="onceOnly"/>
+      </RewardForTouchingBlockType>
+      <!--RewardForSendingCommand reward="-1"/-->
+      <AgentQuitFromTouchingBlockType>
+          <Block type="lava" description="drowned_in_lava"/>
+          <Block type="lapis_block" description="found_goal"/>
+      </AgentQuitFromTouchingBlockType>
+    </AgentHandlers>
+  </AgentSection>
+
+</Mission>
