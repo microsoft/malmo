@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--mission', type=str, default='missions/mobchase_single_agent.xml', help='the mission xml')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--server', type=str, default='127.0.0.1', help='the mission server DNS or IP address')
-    parser.add_argument('--port2', type=int, default=9000, help="(Multi-agent) role N's mission port")
+    parser.add_argument('--port2', type=int, default=None, help="(Multi-agent) role N's mission port. Defaults to server port.")
     parser.add_argument('--server2', type=str, default=None, help="(Multi-agent) role N's server DNS or IP")
     parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     parser.add_argument('--episode', type=int, default=0, help='the start episode - default is 0')
