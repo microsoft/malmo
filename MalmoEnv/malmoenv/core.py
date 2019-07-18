@@ -225,7 +225,7 @@ class Env:
         """gym api reset"""
 
         if self.resync_period > 0 and (self.resets + 1) % self.resync_period == 0:
-            self._exit_resync()
+            self.exit_resync()
 
         while not self.done:
             self.done = self._quit_episode()
