@@ -9,7 +9,7 @@ Project Malmö is a platform for Artificial Intelligence experimentation and res
 
 ### MalmoEnv ###
 
-MalmoEnv implements an Open AI "gym"-like environment in Python without any native code (communicating directly with Java Minecraft). If you only need this functionallity then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/master/MalmoEnv). It will be the preferred way to develop with Malmo Minecraft going forward.
+MalmoEnv implements an Open AI "gym"-like environment in Python without any native code (communicating directly with Java Minecraft). If you only need this functionallity then please see [MalmoEnv](https://github.com/Microsoft/malmo/tree/master/MalmoEnv). This will most likely be the preferred way to develop with Malmo Minecraft going forward.
 
 If you wish to use the "native" Malmo implementation, either install the "Malmo native Python wheel" (if available for your platform) or a pre-built binary release (more on these options below). Building Malmo yourself from source is always an option!
 
