@@ -39,12 +39,11 @@ public class SeedHelper
         String sSeed = configs.get(MalmoMod.SEED_CONFIGS, "seed", "NONE").getString();
         if(!sSeed.isEmpty() && sSeed != "NONE" ){
             sSeed = sSeed.replaceAll("\\s+","");
-            String[] sSeedList =  sSeed.split(",")
+            String[] sSeedList =  sSeed.split(",");
                 for(int i = 0; i < sSeedList.length; i++){
                 try{
                     long seed = Long.parseLong(sSeedList[i]);
                     seeds.push(seed);
-                    System.out.println("[ERROR] Added seed " + sSeedList[i]);
 
                 } catch(NumberFormatException e){
                     System.out.println("[ERROR] Seed specified was " + sSeedList[i] + ". Expected a long (integer).");
@@ -73,10 +72,13 @@ public class SeedHelper
             } 
         }
         else{
+
             if(nextSeed != null){
                 seedGenerator = new Random(nextSeed);
             }
-            seedGenerator = null;
+            else{
+                seedGenerator = null;
+            }
         }
         return true;
     }

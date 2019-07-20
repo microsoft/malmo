@@ -358,12 +358,11 @@ public class MalmoEnvServer implements IWantToQuit {
         envState.reset = reset;
         envState.synchronous = isSynchronous;
         envState.seed = seed;
-
-
-        return startUpMission(command, seed, ipOriginator);
+        
+        return startUpMission(command, ipOriginator);
     }
 
-    private boolean startUpMission(String command, Long seed, String ipOriginator) throws IOException {
+    private boolean startUpMission(String command, String ipOriginator) throws IOException {
 
         if (missionPoller == null)
             return false;
