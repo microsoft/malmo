@@ -96,6 +96,7 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.SeedHelper;
 import com.microsoft.Malmo.Utils.ScoreHelper;
 import com.microsoft.Malmo.Utils.TextureHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
@@ -939,6 +940,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Now try creating the handlers:
             try
             {
+                if(envServer != null){
+                    SeedHelper.advanceNextSeed(envServer.getSeed());
+                }
                 ClientStateMachine.this.missionBehaviour = MissionBehaviour.createAgentHandlersFromMissionInit(currentMissionInit());
                 if (envServer != null) {
                     ClientStateMachine.this.missionBehaviour.addQuitProducer(envServer);

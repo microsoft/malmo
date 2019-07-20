@@ -65,6 +65,7 @@ public class MalmoEnvServer implements IWantToQuit {
         int reset = 0;
         boolean quit = false;
         boolean synchronous = false;
+        Long seed = null;
 
         // OpenAI gym state:
         boolean done = false;
@@ -270,6 +271,9 @@ public class MalmoEnvServer implements IWantToQuit {
         int reset = Integer.parseInt(token[2]);
         int agentCount = Integer.parseInt(token[3]);
         Boolean isSynchronous = Boolean.parseBoolean(token[4]);
+        Long seed = null;
+        if(token.length > 5)
+            seed = Long.parseLong(token[5]);
 
         if(isSynchronous && agentCount > 1){
             throw new IOException("Synchronous mode currently does not support multiple agents.");
@@ -288,7 +292,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 String myToken = experimentId + ":0:" + reset;
                 if (!initTokens.containsKey(myToken)) {
                     TCPUtils.Log(Level.INFO,"(Pre)Start " + role + " reset " + reset);
-                    started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken, isSynchronous);
+                    started = startUp(command, ipOriginator, experimentId, reset, agentCount, myToken, seed, isSynchronous);
                     if (started)
                         initTokens.put(myToken, 0);
                 } else {
@@ -308,7 +312,7 @@ public class MalmoEnvServer implements IWantToQuit {
             } else {
                 TCPUtils.Log(Level.INFO, "Start " + role + " reset " + reset);
 
-                started = startUp(command, ipOriginator, experimentId, reset, agentCount, experimentId + ":" + role + ":" + reset, isSynchronous);
+                started = startUp(command, ipOriginator, experimentId, reset, agentCount, experimentId + ":" + role + ":" + reset, seed, isSynchronous);
             }
         } finally {
             lock.unlock();
@@ -336,7 +340,7 @@ public class MalmoEnvServer implements IWantToQuit {
         return allTokensConsumed;
     }
 
-    private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken, Boolean isSynchronous) throws IOException {
+    private boolean startUp(String command, String ipOriginator, String experimentId, int reset, int agentCount, String myToken, Long seed, Boolean isSynchronous) throws IOException {
 
         // Clear out mission state
         envState.reward = 0.0;
@@ -353,12 +357,13 @@ public class MalmoEnvServer implements IWantToQuit {
         envState.agentCount = agentCount;
         envState.reset = reset;
         envState.synchronous = isSynchronous;
+        envState.seed = seed;
 
 
-        return startUpMission(command, ipOriginator);
+        return startUpMission(command, seed, ipOriginator);
     }
 
-    private boolean startUpMission(String command, String ipOriginator) throws IOException {
+    private boolean startUpMission(String command, Long seed, String ipOriginator) throws IOException {
 
         if (missionPoller == null)
             return false;
@@ -853,6 +858,10 @@ public class MalmoEnvServer implements IWantToQuit {
         } finally {
             // lock.unlock();
         }
+    }
+
+    public Long getSeed(){
+        return envState.seed;
     }
 
     private void setWantToQuit() {
