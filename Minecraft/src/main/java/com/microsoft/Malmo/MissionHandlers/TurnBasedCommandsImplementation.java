@@ -10,18 +10,27 @@ import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.TurnBasedCommands;
+import com.microsoft.Malmo.Utils.SeedHelper;
 
 public class TurnBasedCommandsImplementation extends CommandGroup implements IMalmoMessageListener
 {
     private ObservationFromTurnSchedulerImplementation observationProducer;
     private int requestedPosition;
-    private Random rng = new Random();
+    private Random rng;
+    
     String agentName;
+
+    public TurnBasedCommandsImplementation(){
+        super();
+        if (rng == null)
+            rng = SeedHelper.getRandom();
+    }
 
     @Override
     public boolean parseParameters(Object params)
     {
         super.parseParameters(params);
+            
         if (params instanceof TurnBasedCommands)
         {
             TurnBasedCommands tbcparams = (TurnBasedCommands)params;

@@ -32,6 +32,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.DefaultWorldGenerator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.MapFileHelper;
+import com.microsoft.Malmo.Utils.SeedHelper;
 
 public class DefaultWorldGeneratorImplementation extends HandlerBase implements IWorldGenerator
 {
@@ -50,7 +51,7 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
     public static long getWorldSeedFromString(String seedString)
     {
         // This seed logic mirrors the Minecraft code in GuiCreateWorld.actionPerformed:
-        long seed = (new Random()).nextLong();
+        long seed = (SeedHelper.getRandom()).nextLong();
         if (seedString != null && !seedString.isEmpty())
         {
             try

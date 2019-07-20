@@ -41,11 +41,11 @@ public class SeedHelper
             seedingEnabled = false;
         }
         else{
-            System.out.println("[LOGTOPY] Seed set to " + sSeed);
             try{
                 seed = Long.parseLong(sSeed);
                 seedingEnabled = true;
                 seedGenerator = new Random(seed);
+                System.out.println("[LOGTOPY] Seed set to " + sSeed);
 
             } catch(NumberFormatException e){
                 System.out.println("[ERROR] Seed specified was " + sSeed + ". Expected a long (integer).");

@@ -80,7 +80,7 @@ public class MalmoMod
     public static final String AUTHENTICATION_CONFIGS = "malmologins";
     public static final String SCORING_CONFIGS = "malmoscore";
     public static final String PERFORMANCE_CONFIGS = "malmoperformance";
-    public static final String SEED_CONFIGS = "malmoseed`";
+    public static final String SEED_CONFIGS = "malmoseed";
     public static final String AGENT_DEAD_QUIT_CODE = "MALMO_AGENT_DIED";
     public static final String AGENT_UNRESPONSIVE_CODE = "MALMO_AGENT_NOT_RESPONDING";
     public static final String VIDEO_UNRESPONSIVE_CODE = "MALMO_VIDEO_NOT_RESPONDING";

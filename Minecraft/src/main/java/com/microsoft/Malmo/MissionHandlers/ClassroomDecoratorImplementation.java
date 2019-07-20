@@ -44,6 +44,7 @@ import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
 import com.microsoft.Malmo.Utils.Discrete;
+import com.microsoft.Malmo.Utils.SeedHelper;
 
 /**
  * This class provides a decorator that will generate a random building full of rooms, where moving
@@ -227,12 +228,12 @@ public class ClassroomDecoratorImplementation extends HandlerBase implements IWo
         
         
         if(classroomParams.getSeed() == null){
-            this.rand = new Random();
+            this.rand = SeedHelper.getRandom();
         }else{
         	try{
         		this.rand = new Random(Integer.parseInt(classroomParams.getSeed()));
         	}catch(NumberFormatException ex){
-        		this.rand = new Random();
+        		this.rand = SeedHelper.getRandom();
         	}
         }
         

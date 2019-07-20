@@ -35,6 +35,7 @@ import com.microsoft.Malmo.Schemas.AnimationDecorator.Linear;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.AnimationDrawingHelper;
 import com.microsoft.Malmo.Utils.EvaluationHelper;
+import com.microsoft.Malmo.Utils.SeedHelper;
 
 /** WorldBuilder that takes a DrawingDecorator object and animates it.<br>
  */
@@ -73,7 +74,7 @@ public class AnimationDecoratorImplementation extends HandlerBase implements IWo
             long seed = 0;
             String strSeed = this.params.getParametric().getSeed();
             if (strSeed == null || strSeed == "" || strSeed.equals("random"))
-                seed = System.currentTimeMillis();
+                seed = SeedHelper.getRandom().nextLong();
             else
                 seed = Long.parseLong(strSeed);
             this.rng = new Random(seed);

@@ -43,6 +43,7 @@ import com.microsoft.Malmo.Schemas.SnakeDecorator;
 import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+import com.microsoft.Malmo.Utils.SeedHelper;
 
 public class SnakeDecoratorImplementation extends HandlerBase implements IWorldDecorator
 {
@@ -52,8 +53,8 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
 	private int buildDirection = 0;
 	private int stairs = 0;
 	private int timeSinceLastBuild = 0;
-	private Random randomBuilder = new Random();
-	private Random randomBlocks = new Random();
+	private Random randomBuilder;
+	private Random randomBlocks;
 	ArrayList<BlockPos> path = new ArrayList<BlockPos>();
 	private boolean pendingBlock = false;
 	private IBlockState freshBlock = null;
@@ -75,6 +76,11 @@ public class SnakeDecoratorImplementation extends HandlerBase implements IWorldD
 	
 	public SnakeDecoratorImplementation()
 	{
+		if(randomBuilder == null)
+			randomBuilder = SeedHelper.getRandom();
+		if(randomBlocks == null)
+			randomBlocks = SeedHelper.getRandom();
+			
 		Block fresh = (Block)Block.REGISTRY.getObject(new ResourceLocation(this.freshBlockName));
 		Block stale = (Block)Block.REGISTRY.getObject(new ResourceLocation(this.staleBlockName));
 		this.freshBlock = (fresh != null) ? fresh.getDefaultState() : Blocks.GLOWSTONE.getDefaultState();
