@@ -20,12 +20,16 @@
 package com.microsoft.Malmo.Utils;
 
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MalmoMod;
 
 import java.util.Random;
 /** Class that helps to centralise optional logging of mission rewards.<br>
  */
+@Mod.EventBusSubscriber
 public class SeedHelper
 {
     private static Long seed;
@@ -60,5 +64,11 @@ public class SeedHelper
         } else{
             return new Random();
         }
+    } 
+
+
+    @SubscribeEvent
+    public static void onWorldCreate(WorldEvent.Load loadEvent){
+        loadEvent.getWorld().rand = getRandom();
     }
 }
