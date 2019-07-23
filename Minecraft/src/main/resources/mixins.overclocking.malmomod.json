@@ -3,7 +3,9 @@
     "package": "com.microsoft.Malmo.Mixins",
     "mixins": [
       "MixinMinecraftServerRun",
-      "MixinMinecraftGameloop"
+      "MixinMinecraftGameloop",
+      "MixinWorldProviderSpawn",
+      "MixinEntityRandom"
     ],
     "server": [
     ],

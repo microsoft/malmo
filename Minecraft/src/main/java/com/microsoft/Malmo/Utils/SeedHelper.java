@@ -19,18 +19,26 @@
 
 package com.microsoft.Malmo.Utils;
 
+import net.minecraft.item.Item;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MalmoMod;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
+@Mod.EventBusSubscriber
 public class SeedHelper
 {
     private static ArrayDeque<Long> seeds = new ArrayDeque<Long>();
-    private static Random seedGenerator;
+    private static Long currentSeed;
+    private static HashMap<String, Random> specificSeedGenerators = new HashMap<String, Random>();
+    private static int numRandoms = 0;
 
     /** Initialize seeding. */
     static public void update(Configuration configs)
@@ -53,19 +61,44 @@ public class SeedHelper
     }
 
     static public Random getRandom(){
-        if(seedGenerator != null){
-            return new Random(seedGenerator.nextLong());
-        } else{
-            return new Random();
+
+        numRandoms +=1;
+        return getRandom("");
+    } 
+
+    static synchronized public  Random getRandom(String key){
+        Random gen = specificSeedGenerators.get(key);
+
+        if(gen == null && currentSeed != null){
+            gen = new Random(currentSeed);
+            specificSeedGenerators.put(key, gen);
+        } else if(currentSeed == null){
+            gen = new Random();
         }
+        Long seed_inst = (gen.nextLong());
+        return new Random(seed_inst);
+    }
+
+
+    @SubscribeEvent
+    public static void onWorldCreate(WorldEvent.Load loadEvent){
+        loadEvent.getWorld().rand = getRandom(loadEvent.getWorld().toString());
+    }
+
+
+    public static void forceUpdateMinecraftRandoms(){
+        Item.itemRand = getRandom("item");
     }
 
     /**
      * Advances the seed manager to the next seed.
      */
     static public boolean advanceNextSeed(Long nextSeed){
+        numRandoms = 0;
+        specificSeedGenerators = new HashMap<String, Random>();
         if(seeds.size() > 0){
-            seedGenerator = new Random(seeds.pop());
+            currentSeed = seeds.pop();
+            forceUpdateMinecraftRandoms();
             if(nextSeed != null){
                 System.out.println("[LOGTOPY] Tried to set seed for environment, but overriden by initial seed list.");
                 return false;
@@ -74,10 +107,13 @@ public class SeedHelper
         else{
 
             if(nextSeed != null){
-                seedGenerator = new Random(nextSeed);
+                System.out.println("[LOGTOPY] Setting seed to: " + Long.toString(nextSeed));
+                currentSeed = nextSeed;
+                forceUpdateMinecraftRandoms();
             }
             else{
-                seedGenerator = null;
+                currentSeed = null;
+                forceUpdateMinecraftRandoms();
             }
         }
         return true;
