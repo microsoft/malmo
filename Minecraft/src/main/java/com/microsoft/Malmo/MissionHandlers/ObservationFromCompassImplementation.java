@@ -96,7 +96,6 @@ public class ObservationFromCompassImplementation extends HandlerBase implements
 
 		if(!compassSet || !hasCompass){
 			compassSet = true;
-			System.out.println("[ERROR] SETTING COMPASS OBJECT");
 			compassStack.getItem().addPropertyOverride(
 				new ResourceLocation("angle"),
 				 new IItemPropertyGetter(){

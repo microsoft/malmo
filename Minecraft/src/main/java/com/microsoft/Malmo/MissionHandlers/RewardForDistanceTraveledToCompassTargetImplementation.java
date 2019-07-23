@@ -68,10 +68,6 @@ public class RewardForDistanceTraveledToCompassTargetImplementation extends Rewa
         Vec3d playerLoc = player.getPositionVector();
         Vec3d spawnPos = new Vec3d(spawn.getX(), spawn.getY(), spawn.getZ());
 
-        if(!positionInitialized){
-            System.out.println("[ERROR] " + playerLoc.toString() + " " + spawnPos.toString());
-        }
-
         double currentDistance = playerLoc.distanceTo(spawnPos);
         float delta = !positionInitialized  ? 0.0f : (float)(this.previousDistance - currentDistance);
         
