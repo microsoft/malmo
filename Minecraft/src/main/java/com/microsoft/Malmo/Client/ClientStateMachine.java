@@ -1828,6 +1828,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (currentMissionBehaviour().performanceProducer != null)
                 currentMissionBehaviour().performanceProducer.prepare(currentMissionInit());
 
+            // Disable the gui for the episode!
+            Minecraft.getMinecraft().gameSettings.hideGUI = true;
+
             for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
             {
                 VideoHook hook = new VideoHook();
@@ -1892,6 +1895,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             for (VideoHook hook : this.videoHooks)
                 hook.stop(ClientStateMachine.this.missionEndedData);
+
+            
+            // Disable the gui for the episode!
+            Minecraft.getMinecraft().gameSettings.hideGUI = false;
 
             // Return Minecraft speed to "normal":
             TimeHelper.SyncManager.setPistolFired(false);
