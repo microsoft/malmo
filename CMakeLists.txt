@@ -106,8 +106,21 @@ SET(Boost_ADDITIONAL_VERSIONS "1.68" "1.68.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.69" "1.69.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.70" "1.70.0")
 
-SET(BOOST_PYTHON_MODULE_NAME "python")
-if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
+# Boost release variant builds have symbol visibility set to hidden by default 
+# (https://boostorg.github.io/build/manual/develop/index.html#bbv2.overview.builtins.features)
+# The line below adds compilation flags to make the visibility settings for compiling Malmo
+# consistent with the visibility settings for Boost, and fixes linking warnings emitted by the
+# GCC 9 compiler.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+
+# This allows users to override the Boost Python library name if different from
+# the defaults (this can occur with certain package managers - e.g. For Boost compiled against Python 3.6,
+# MacPorts would name the Boost Python library as libboost_python3 instead of libboost_python36).
+SET(BOOST_PYTHON_MODULE_NAME "python" CACHE STRING "Boost Python library name.")
+
+# From version 1.67 and up, Boost appends the Python version number to the library name by default.
+# (https://www.boost.org/users/history/version_1_67_0.html)
+if (Boost_VERSION VERSION_GREATER 1.67 )
   SET( BOOST_PYTHON_MODULE_NAME ${BOOST_PYTHON_NAME} )
 endif()
 
