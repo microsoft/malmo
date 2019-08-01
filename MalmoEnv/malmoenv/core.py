@@ -268,11 +268,14 @@ class Env:
 
             obs = np.frombuffer(obs, dtype=np.uint8)
 
-        if obs is None or len(obs) == 0:
+        if obs is None or len(obs) == 0 or obs.size == 0:
             if self.reshape:
                 obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
             else: 
                 obs = np.zeros(self.height * self.width * self.depth, dtype=np.uint8)
+        elif self.reshape:
+            obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
+
         return obs
 
     def _quit_episode(self):
@@ -327,8 +330,12 @@ class Env:
             if (obs is None or len(obs) == 0) or turn:
                 time.sleep(0.1)
             obs = np.frombuffer(obs, dtype=np.uint8)
-            if self.reshape:
-                obs = obs.reshape((self.height, self.width, self.depth), dtype=np.uint8)
+
+        if self.reshape:
+            if obs.size == 0:
+                obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
+            else:
+                obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
 
         return obs, reward, self.done, info
 
