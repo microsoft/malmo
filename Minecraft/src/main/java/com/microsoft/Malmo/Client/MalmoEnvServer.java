@@ -547,6 +547,7 @@ public class MalmoEnvServer implements IWantToQuit {
         boolean done;
         String info = "";
 
+        lock.lock();
 
         try {
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <PEEK> Waiting for pistol to fire.");
@@ -577,7 +578,6 @@ public class MalmoEnvServer implements IWantToQuit {
             // Then wait until the tick is finished
             while(!TimeHelper.SyncManager.isTickCompleted()){ Thread.yield();}
         
-            lock.lock();
 
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <PEEK> Getting observation.");
