@@ -27,6 +27,12 @@ If you are unsure of what to pre-install for your Linux flavour,
 the Malmo docker build files might be a good place to start
 ([Docker build files](https://github.com/Microsoft/malmo/tree/master/scripts/docker)).
 
+If you are not using the default/usual Python 3 version and are not finding a compatible wheel on pypi.org (the default) you could try installing from test.pypi.org:
+
+```
+pip3 install --index-url https://test.pypi.org/simple/ malmo
+```
+
 ## Using the prebuilt Docker image ##
 
 Rather than installing these dependencies manually it's simper to use docker to launch a docker container using our prebuilt docker image. 
