@@ -84,6 +84,7 @@ class Env:
     def __init__(self, reshape=False):
         self.action_space = None
         self.observation_space = None
+        self.metadata = {'render.modes': ['rgb_array']}
         self.xml = None
         self.integratedServerPort = 0
         self.role = 0
@@ -104,11 +105,12 @@ class Env:
         self.height = 0
         self.depth = 0
         self.reshape = reshape
+        self.last_obs = None
 
     def init(self, xml, port, server=None,
              server2=None, port2=None,
              role=0, exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0, action_space=None):
+             action_filter=None, resync=0, step_options=0, action_space=None, reshape=False):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -206,6 +208,7 @@ class Env:
                                       })
             self.xml.insert(2, e)
 
+        self.reshape = reshape
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
         video_producer = video_producers[self.role]
@@ -236,6 +239,7 @@ class Env:
 
     @retry
     def _start_up(self):
+        self.last_obs = None
         self.resets += 1
         if self.role != 0:
             self._find_server()
@@ -275,7 +279,7 @@ class Env:
                 obs = np.zeros(self.height * self.width * self.depth, dtype=np.uint8)
         elif self.reshape:
             obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
-
+        self.last_obs = obs
         return obs
 
     def _quit_episode(self):
@@ -284,9 +288,15 @@ class Env:
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def render(self):
+    def render(self, mode=None):
         """gym api render"""
-        pass
+        if self.last_obs is None:
+            if self.reshape:
+                self.last_obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
+            else:
+                self.last_obs = np.zeros(self.height * self.width * self.depth, dtype=np.uint8)
+
+        return np.flipud(self.last_obs)
 
     def seed(self):
         pass
@@ -336,6 +346,7 @@ class Env:
                 obs = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
             else:
                 obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
+        self.last_obs = obs
 
         return obs, reward, self.done, info
 
