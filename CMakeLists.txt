@@ -52,8 +52,26 @@ set( STATIC_BOOST        ON CACHE BOOL ${STATIC_BOOST_DESC} )
 if( INCLUDE_PYTHON )
   set( USE_PYTHON_VERSIONS_DESC "Specifies which version of Python to build Malmo with Python bindings" )
   set( USE_PYTHON_VERSIONS 3.6 CACHE STRING ${USE_PYTHON_VERSIONS_DESC} )
-  set( BOOST_PYTHON_NAME_DESC "Specifies which Boost Python module to build Malmo with" )
-  execute_process(COMMAND python3 -c "import sys; print('python' + str(sys.version_info[0]) + str(sys.version_info[1]), end='')" OUTPUT_VARIABLE BOOST_PYTHON_NAME )
+  if (NOT BOOST_PYTHON_NAME)
+    message("The name of the Boost Python library has not been set - trying to
+    determine it automatically...")
+    set(BOOST_PYTHON_NAME_DESC "Specifies which Boost Python module to build Malmo with" )
+
+    if (Boost_VERSION VERSION_GREATER 1.67 )
+      # From version 1.67 and up, Boost appends the Python version number to
+      # the library name by default.
+      # (https://www.boost.org/users/history/version_1_67_0.html)
+      execute_process(
+        COMMAND python3 -c "import sys; print('python' + str(sys.version_info[0]) + str(sys.version_info[1]), end='')" 
+        OUTPUT_VARIABLE BOOST_PYTHON_NAME
+      )
+    else()
+      set (BOOST_PYTHON_NAME "python")
+    endif()
+    message("BOOST_PYTHON_NAME set to ${BOOST_PYTHON_NAME}. To override it, add
+    the flag -DBOOST_PYTHON_NAME=<name> where <name> is the name of the Boost
+    Python library on your system (see https://github.com/boostorg/build/pull/250).")
+  endif()
 endif()
 
 set( WARNINGS_AS_ERRORS OFF )
@@ -106,18 +124,25 @@ SET(Boost_ADDITIONAL_VERSIONS "1.68" "1.68.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.69" "1.69.0")
 SET(Boost_ADDITIONAL_VERSIONS "1.70" "1.70.0")
 
-SET(BOOST_PYTHON_MODULE_NAME "python")
-if ( USE_PYTHON_VERSIONS VERSION_GREATER 3 )
-  SET( BOOST_PYTHON_MODULE_NAME ${BOOST_PYTHON_NAME} )
-endif()
+# Boost release variant builds have symbol visibility set to hidden by default 
+# (https://boostorg.github.io/build/manual/develop/index.html#bbv2.overview.builtins.features)
+# The line below adds compilation flags to make the visibility settings for compiling Malmo
+# consistent with the visibility settings for Boost, and fixes linking warnings emitted by the
+# GCC 9 compiler.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+
+# This allows users to override the Boost Python library name if different from
+# the defaults (this can occur with certain package managers - e.g. For Boost compiled against Python 3.6,
+# MacPorts would name the Boost Python library as libboost_python3 instead of libboost_python36).
+
 
 if( WIN32 )
   SET(Boost_USE_STATIC_LIBS ON)
-  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
+  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_NAME} regex system thread REQUIRED )
   add_definitions(-DBOOST_ALL_NO_LIB=1)  # Turn off auto-linking, creates problems when linking boost statically
 else()
   SET(Boost_USE_STATIC_LIBS ${STATIC_BOOST})
-  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_MODULE_NAME} regex system thread REQUIRED )
+  find_package( Boost COMPONENTS chrono date_time filesystem iostreams program_options ${BOOST_PYTHON_NAME} regex system thread REQUIRED )
   set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
   find_package( Threads REQUIRED )
 endif()
