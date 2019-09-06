@@ -35,6 +35,8 @@ class CommandParser:
     inventoryCommands = "Inventory"
     chatCommands = "Chat"
     simpleCraftCommands = "SimpleCraft"
+    nearbyCraftCommands = "NearbyCraft"
+    nearbySmeltCommands = "NearbySmelt"
     missionQuitCommands = "MissionQuit"
     humanLevelCommands = "HumanLevel"
 
@@ -50,6 +52,8 @@ class CommandParser:
                      "hotbar.7", "hotbar.8", "hotbar.9"]
     all_chat = ["chat"]
     all_simplecraft = ["craft"]
+    all_nearbycraft = ["nearbyCraft"]
+    all_nearbysmelt = ["nearbySmelt"]
     all_mission_quit = ["quit"]
     all_human_level = ["forward", "left", "right", "jump", "sneak", "sprint", "inventory",
                        "swapHands", "drop", "use", "attack", "moveMouse",
@@ -126,6 +130,14 @@ class CommandParser:
                 if verb != 'chat':
                     raise CommandHandlerException("Invalid chat command")
                 actions.append(verb)
+            elif type == 'NearbyCraft':
+                if verb != 'nearbyCraft':
+                    raise CommandHandlerException("Invalid nearby craft command")
+                actions.append(verb)
+            elif type == 'NearbySmelt':
+                if verb != 'nearbySmelt':
+                    raise CommandHandlerException("Invalid nearby smelt command")
+                actions.append(verb)
             elif type == 'SimpleCraft':
                 if verb != 'craft':
                     raise CommandHandlerException("Invalid craft command")
@@ -152,6 +164,10 @@ class CommandParser:
                 commands.extend(self._add_commands(CommandParser.chatCommands, turnbased, ch))
             elif ch.tag == CommandParser.ns + "SimpleCraftCommands":
                 commands.extend(self._add_commands(CommandParser.simpleCraftCommands, turnbased, ch))
+            elif ch.tag == CommandParser.ns + "NearbyCraftCommands":
+                commands.extend(self._add_commands(CommandParser.nearbyCraftCommands, turnbased, ch))
+            elif ch.tag == CommandParser.ns + "NearbySmeltCommands":
+                commands.extend(self._add_commands(CommandParser.nearbySmeltCommands, turnbased, ch))
             elif ch.tag == CommandParser.ns + "MissionQuitCommands":
                 commands.extend(self._add_commands(CommandParser.missionQuitCommands, turnbased, ch))
             elif ch.tag == CommandParser.ns + "HumanLevelCommands":
@@ -189,6 +205,10 @@ class CommandParser:
                 allow = [(command_type, turnbased, c) for c in CommandParser.all_human_level]
             elif command_type == CommandParser.simpleCraftCommands:
                 allow = [(command_type, turnbased, c) for c in CommandParser.all_simplecraft]
+            elif command_type == CommandParser.nearbyCraftCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_nearbycraft]
+            elif command_type == CommandParser.nearbySmeltCommands:
+                allow = [(command_type, turnbased, c) for c in CommandParser.all_nearbysmelt]
             elif command_type == CommandParser.missionQuitCommands:
                 allow = [(command_type, turnbased, c) for c in CommandParser.missionQuitCommands]
             elif command_type == CommandParser.chatCommands:

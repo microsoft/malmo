@@ -67,9 +67,18 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     {
         public final ItemStack stack;
 
+        /**
+         * Sets the cause of the LoseItemEvent. By default, is 0. If it is from auto-crafting, then is 1. If it is from auto-smelting, then is 2.
+         */
+        public int cause = 0;
+
         public LoseItemEvent(ItemStack stack)
         {
             this.stack = stack;
+        }
+
+        public void setCause(int cause) {
+            this.cause = cause;
         }
     }
 

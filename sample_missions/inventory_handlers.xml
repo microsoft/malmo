@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <About>
+        <Summary>A tour of rewards through collecting, possessing, crafting, and smelting</Summary>
+    </About>
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <DefaultWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp description="" timeLimitMs="1500000"/>
+            <ServerQuitWhenAnyAgentFinishes description=""/>
+        </ServerHandlers>
+    </ServerSection>
+
+    <AgentSection mode="Survival">
+        <Name>Magpie</Name>
+        <AgentStart>
+            <!-- An inventory of items that may be of use -->
+            <Inventory>
+                <InventoryObject slot="0" type="crafting_table" quantity="1"/>
+                <InventoryObject slot="1" type="furnace" quantity="1"/>
+                <InventoryObject slot="2" type="log" variant="birch" quantity="4"/>
+                <InventoryObject slot="3" type="coal" quantity="8"/>
+                <InventoryObject slot="4" type="iron_ore" quantity="8"/>
+            </Inventory>
+        </AgentStart>
+        <AgentHandlers>
+            <VideoProducer want_depth="false">
+                <Width>640</Width>
+                <Height>480</Height>
+            </VideoProducer>
+            
+            <!-- Rewards the agent for every plank possessed up until 8. Must be birch here -->
+            <RewardForPossessingItem Sparse="false">
+                <Item reward="10" type="planks" variant="birch" amount="8"/>
+            </RewardForPossessingItem>
+            
+            <!-- Rewards the agent for crafting the items. Only rewards when entire amount completed. -->
+            <RewardForCraftingItem Sparse="true">
+                <Item reward="20" type="wooden_pickaxe" amount="2"/>
+            </RewardForCraftingItem>
+            
+            <!-- Rewards the agent for collecting the items. This type of reward allows the agent to throw down the 
+                   object and pick it back up for another reward -->
+            <RewardForCollectingItem Sparse="false">
+                <Item reward="5" type="wheat_seeds" amount="5"/>
+            </RewardForCollectingItem>
+            
+            <!-- Rewards the agent for smelting the iron ore -->
+            <RewardForSmeltingItem Sparse="false">
+                <Item reward="50" type="iron_ingot" amount="8"/>
+            </RewardForSmeltingItem>
+            
+            <!-- Allows the agent to make craft commands when in the view of a crafting table -->
+            <NearbyCraftCommands/>
+            <!-- Allows the agent to make smelt commands when in the view of a furnace -->
+            <NearbySmeltCommands/>
+            
+            <ContinuousMovementCommands/>
+            
+            <!-- Quits the mission when the agent has accomplished one of these -->
+            <AgentQuitFromPossessingItem>
+                <Item type="iron_pickaxe" amount="2"/>
+                <Item type="stone_pickaxe" amount="3"/>
+            </AgentQuitFromPossessingItem>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>
