@@ -132,6 +132,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+            <xs:attribute name="generatorOptions" use="optional" type="xs:string" default="">
+                <xs:annotation>
+                    <xs:documentation>
+                        Set this to the desired world generator string for your minecraft world.
+                        See https://minecraft.tools/en/custom.php for examples.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
             <xs:attribute name="destroyAfterUse" use="optional" type="xs:boolean" default="true">
                 <xs:annotation>
                     <xs:documentation>
