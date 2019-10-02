@@ -25,6 +25,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.NavigationDecorator;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+import com.microsoft.Malmo.Utils.PositionHelper;
 import com.microsoft.Malmo.Utils.SeedHelper;
 
 import net.minecraft.block.state.IBlockState;
@@ -59,30 +60,6 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 	}
 
 
-	/**
-     * Finds the highest block on the x and z coordinate that is solid or liquid, and returns its y coord.
-     */
-    public BlockPos getTopSolidOrLiquidBlock(World world, BlockPos pos)
-    {
-        Chunk chunk = world.getChunkFromBlockCoords(pos);
-        BlockPos blockpos;
-        BlockPos blockpos1;
-
-        for (blockpos = new BlockPos(pos.getX(), chunk.getTopFilledSegment() + 16, pos.getZ()); blockpos.getY() >= 0; blockpos = blockpos1)
-        {
-            blockpos1 = blockpos.down();
-            IBlockState state = chunk.getBlockState(blockpos1);
-
-            if ((state.getMaterial().blocksMovement() || state.getMaterial().isLiquid()) && !state.getBlock().isLeaves(state, world, blockpos1) && !state.getBlock().isFoliage(world, blockpos1))
-            {
-                break;
-            }
-        }
-
-        return blockpos;
-    }
-
-
 	@Override
 	public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException {
 		if (nparams.getRandomPlacementProperties().getOrigin() != null)
@@ -113,14 +90,14 @@ public class NavigationDecoratorImplementation extends HandlerBase implements IW
 			// Change center to origin now
 			placementX += originX;
 			placementZ += originZ;
-			placementY = getTopSolidOrLiquidBlock(world, new BlockPos(placementX, 0, placementZ)).getY() - 1;
+			placementY = PositionHelper.getTopSolidOrLiquidBlock(world, new BlockPos(placementX, 0, placementZ)).getY() - 1;
 		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("fixed_surface")) {
 			placementX = ((0.42 - 0.5) * 2 * radius);
 			placementZ = (0.24 > 0.5 ? -1 : 1) * Math.sqrt((radius * radius) - (placementX * placementX));
 			// Change center to origin now
 			placementX += originX;
 			placementZ += originZ;
-			placementY = getTopSolidOrLiquidBlock(world, new BlockPos(placementX, 0, placementZ)).getY() - 1;
+			placementY = PositionHelper.getTopSolidOrLiquidBlock(world, new BlockPos(placementX, 0, placementZ)).getY() - 1;
 		} else if (nparams.getRandomPlacementProperties().getPlacement().equals("circle")) {
 			placementX = ((SeedHelper.getRandom().nextDouble() - 0.5) * 2 * radius);
 			placementY = originY;

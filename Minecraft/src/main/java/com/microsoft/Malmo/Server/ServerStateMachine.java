@@ -20,22 +20,27 @@
 package com.microsoft.Malmo.Server;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameType;
@@ -63,6 +68,7 @@ import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.AgentStart.EnderBoxInventory;
 import com.microsoft.Malmo.Schemas.AgentStart.Inventory;
+import com.microsoft.Malmo.Schemas.AgentStart.*;
 import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.EntityTypes;
 import com.microsoft.Malmo.Schemas.InventoryObjectType;
@@ -75,6 +81,7 @@ import com.microsoft.Malmo.Utils.EnvironmentHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
+import com.microsoft.Malmo.Utils.SeedHelper;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 /**
@@ -559,6 +566,8 @@ public class ServerStateMachine extends StateMachine
                     episodeHasCompleted(ServerState.ERROR);
                 }
             }
+
+
             if (builtOkay)
             {
                 // Now set up other attributes of the environment (eg weather)
@@ -803,7 +812,7 @@ public class ServerStateMachine extends StateMachine
             AgentSection as = getAgentSectionFromAgentName(agentname);
             EntityPlayerMP player = getPlayerFromUsername(username);
 
-            if (player != null && as != null)
+            if (player != null && as != null) 
             {
                 if ((player.getHealth() <= 0 || player.isDead || !player.isEntityAlive()))
                 {
@@ -821,6 +830,7 @@ public class ServerStateMachine extends StateMachine
 
                 // Set their initial position and speed:
                 PosAndDirection pos = as.getAgentStart().getPlacement();
+
                 if (pos != null) {
                     player.rotationYaw = pos.getYaw().floatValue();
                     player.rotationPitch = pos.getPitch().floatValue();
@@ -828,6 +838,8 @@ public class ServerStateMachine extends StateMachine
                     player.onUpdate();	// Needed to force scene to redraw
                 }
                 player.setVelocity(0, 0, 0);	// Minimise chance of drift!
+                as.getAgentStart().setPlacement(pos);
+                
 
                 // Set their inventory:
                 if (as.getAgentStart().getInventory() != null)
@@ -840,7 +852,7 @@ public class ServerStateMachine extends StateMachine
                 player.setGameType(GameType.SPECTATOR);
             }
         }
-
+        
         private boolean disablePlayerGracePeriod(EntityPlayerMP player)
         {
             // Are we in the dev environment or deployed?

@@ -1124,6 +1124,21 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="RandomizedStartDecorator">
+        <xs:annotation>
+            <xs:documentation>
+                Adds a random starting position for agents uniformly chosen at random from (0,0) to (Integer.max, Inteegr.max)
+
+                Spawn height is chosen using the default minecraft spawning rules - getTopSolidOrLiquidBlock() preventing spawning
+
+                on trees or non-solid blocks
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="test" type="xs:string" use="optional" default=""/>
+        </xs:complexType>
+    </xs:element>
+
     <!--============================================== QUIT PRODUCERS ===============================================-->
 
     <xs:element name="ServerQuitFromTimeUp">
@@ -2606,7 +2621,7 @@
 
                 If Sparse is set to true, will only give full reward on possessing the entire amount.
 
-                Otherwise, will give the rewards amount notated for each item crafted up to the amount noted.
+                Otherwise, will give the rewards amount notated for each item posessed up to the amount noted.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>

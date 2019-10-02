@@ -64,7 +64,11 @@ public abstract class RewardForItemBase extends RewardBase
         boolean matches(ItemStack stack)
         {
             String item = stack.getItem().getUnlocalizedName();
-            if (!this.allowedItemTypes.contains(item))
+            if (item.equals("log") || item.equals("log2")){
+                if (!this.allowedItemTypes.contains("log") && !this.allowedItemTypes.contains("log2"))
+                    return false;
+            }
+            else if (!this.allowedItemTypes.contains(item))
                 return false;
 
             // Our item type matches, but we may need to compare block attributes too:

@@ -1863,6 +1863,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected void onMissionEnded(IState nextState, String errorReport)
         {
+            //Send the final data associated with the misson here.
+            this.shouldMissionEnd = false;
+            sendData(true);
+
             // Tidy up our mission handlers:
             if (currentMissionBehaviour().rewardProducer != null)
                 currentMissionBehaviour().rewardProducer.cleanup();
@@ -1879,16 +1883,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 currentMissionBehaviour().commandHandler.deinstall(currentMissionInit());
             }
 
-
-            this.shouldMissionEnd = false;
-            sendData(true);
             if (AddressHelper.getMissionControlPort() == 0) {
                 if (envServer != null) {
                     byte[] obs = envServer.getObservation(false);
                     envServer.endMission();
                 }
             }
-            
 
             // Close our communication channels:
             closeSockets();

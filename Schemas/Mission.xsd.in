@@ -461,6 +461,7 @@
                     <xs:element ref="MovingTargetDecorator" />
                     <xs:element ref="BuildBattleDecorator" />
                     <xs:element ref="NavigationDecorator" />
+                    <xs:element ref="RandomizedStartDecorator" />
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
