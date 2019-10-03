@@ -73,7 +73,9 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
     {
         long seed = getWorldSeedFromString(this.dwparams.getSeed());
         WorldType.WORLD_TYPES[0].onGUICreateWorldPress();
-        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, WorldType.WORLD_TYPES[0]);
+        WorldType worldtype = this.dwparams.getGeneratorOptions().isEmpty() ? WorldType.DEFAULT : WorldType.CUSTOMIZED;
+
+        WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, worldtype);
         worldsettings.enableCommands();
         worldsettings.setGeneratorOptions(this.dwparams.getGeneratorOptions());
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
