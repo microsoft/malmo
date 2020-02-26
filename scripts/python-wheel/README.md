@@ -57,7 +57,7 @@ To access the container browse to `http://localhost:6901/?password=vncpassword` 
 Once Minecraft is completely launched in the container (which can take some minutes the first time the container is run) 
 you should see it in the VNC desktop in your open browser tab.
 
-After launching Minecraft, a Jupiter server is also started up and a connection advise hint is written on the docker container's output.
+After launching Minecraft, a Jupyter server is also started up and a connection advise hint is written on the docker container's output.
 Please follow the advice to cut & paste the url into another browser tab but substituting `localhost` for `0.0.0.0` or address URL part
 (as we are bridging port 8888 to the docker container).
 
