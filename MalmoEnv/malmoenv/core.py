@@ -495,5 +495,23 @@ class Env:
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
 
+class SyncEnv(gym.Wrapper):
+    def __init__(self, env, idle_action=4, idle_delay=0):
+        super().__init__(env)
+        self._idle_action = idle_action
+        self._idle_delay = idle_delay
+
+    def reset(self):
+        return super().reset()
+
+    def step(self, action):
+        o, r, d, i = super().step(action)
+        if d:
+            return o, r, d, i
+
+        time.sleep(self._idle_delay)
+
+        return super().step(self._idle_action)
+
 def make():
     return Env()

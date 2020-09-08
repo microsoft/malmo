@@ -91,26 +91,10 @@ class TrackingEnv(gym.Wrapper):
 
         return o, r, d, i
 
-
-class MalmoSyncEnv(gym.Wrapper):
-    def __init__(self, env, idle_action=4):
-        super().__init__(env)
-        self._idle_action = idle_action
-
-    def reset(self):
-        return super().reset()
-
-    def step(self, action):
-        o, r, d, i = super().step(action)
-        if d:
-            return o, r, d, i
-        return super().step(self._idle_action)
-
-
 def create_env(config):
     env = malmoenv.make()
     env.init(xml, COMMAND_PORT + config.worker_index, reshape=True)
-    env = MalmoSyncEnv(env)
+    env = malmoenv.SyncEnv(env, idle_action=4, idle_delay=0.01)
     env = TrackingEnv(env)
     return env
 

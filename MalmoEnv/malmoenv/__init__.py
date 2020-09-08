@@ -17,6 +17,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-from malmoenv.core import ActionSpace, StringActionSpace, VisualObservationSpace, Env, make
+from malmoenv.core import ActionSpace, StringActionSpace, VisualObservationSpace, Env, SyncEnv, make
 
-__all__ = ['ActionSpace', 'StringActionSpace', 'VisualObservationSpace', 'Env', 'make']
+__all__ = ['ActionSpace', 'StringActionSpace', 'VisualObservationSpace', 'Env', 'SyncEnv', 'make']
