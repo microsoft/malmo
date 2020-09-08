@@ -85,6 +85,7 @@ class Env:
         self.action_space = None
         self.observation_space = None
         self.metadata = {'render.modes': ['rgb_array']}
+        self.reward_range = (-float('inf'), float('inf'))
         self.xml = None
         self.integratedServerPort = 0
         self.role = 0
