@@ -349,6 +349,8 @@ class Env:
                 obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
         self.last_obs = obs
 
+        # RLlib requires info be returned as a dict rather than a string
+        info = { "raw_info": info }
         return obs, reward, self.done, info
 
     def close(self):
