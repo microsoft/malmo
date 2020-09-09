@@ -21,11 +21,13 @@ import ray
 from ray.tune import register_env, run_experiments
 from pathlib import Path
 import malmoenv
+from malmoenv.multiagentenv import RllibMultiAgentEnv, AgentConfig
 
-ENV_NAME = "malmo"
+SINGLE_AGENT_ENV = "malmo_single_agent"
+MULTI_AGENT_ENV = "malmo_multi_agent"
 MISSION_XML = "missions/rllib_multiagent.xml"
 COMMAND_PORT = 8999
-NUM_MINECRAFT_INSTANCES = 4
+NUM_ENVIRONMENT_INSTANCES = 2
 
 xml = Path(MISSION_XML).read_text()
 
@@ -91,31 +93,76 @@ class TrackingEnv(gym.Wrapper):
 
         return o, r, d, i
 
-def create_env(config):
+
+def env_factory(agent_id, xml, role, host_address, host_port, command_address, command_port):
     env = malmoenv.make()
-    env.init(xml, COMMAND_PORT + config.worker_index, reshape=True)
-    env = malmoenv.SyncEnv(env, idle_action=4, idle_delay=0.01)
+    env.init(xml, host_port,
+        server=host_address,
+        server2=command_address,
+        port2=command_port,
+        role=role,
+        exp_uid="multiagent",
+        reshape=True
+    )
+    env = malmoenv.SyncEnv(env, idle_action=4, idle_delay=0.02)
     env = TrackingEnv(env)
     return env
 
-register_env(ENV_NAME, create_env)
+def all_done_checker(env, obs, rewards, dones, infos):
+    """
+    Returns True when all agents are reported as done.
+    """
+    for done in dones.values():
+        if not done:
+            return False
+    return True
+
+def create_single_agent_env(config):
+    port = COMMAND_PORT + config.worker_index
+    return env_factory("agent0", xml, 0, "127.0.0.1", port, "127.0.0.1", port)
+
+def create_multi_agent_env(config):
+    port = COMMAND_PORT + (config.worker_index * 2)
+    agent_config = [
+        AgentConfig(id=f"agent1", address=port-1),
+        AgentConfig(id=f"agent2", address=port),
+    ]
+    env = RllibMultiAgentEnv(xml, agent_config,
+        env_factory=env_factory,
+#        all_done_checker=all_done_checker
+    )
+    return env
+
+
+register_env(SINGLE_AGENT_ENV, create_single_agent_env)
+register_env(MULTI_AGENT_ENV, create_multi_agent_env)
 
 run_experiments({
     "malmo": {
         "run": "IMPALA",
-        "env": ENV_NAME,
+        "env": MULTI_AGENT_ENV,
         "config": {
             "model": {
                 "dim": 42
             },
-            "num_workers": NUM_MINECRAFT_INSTANCES,
+            "num_workers": NUM_ENVIRONMENT_INSTANCES,
             "rollout_fragment_length": 50,
             "train_batch_size": 1024,
             "replay_buffer_num_slots": 4000,
             "replay_proportion": 10,
             "learner_queue_timeout": 900,
             "num_sgd_iter": 2,
-            "num_data_loader_buffers": 2,
+            "num_data_loader_buffers": 1,
+
+            "multiagent": {
+                "policies": { "shared_policy": (
+                    None,
+                    gym.spaces.Box(0, 255, shape=(84, 84, 3)),
+                    gym.spaces.Discrete(5),
+                    {}
+                )},
+                "policy_mapping_fn": (lambda agent_id: "shared_policy")
+            }
         }
     }
 })

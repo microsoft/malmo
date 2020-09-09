@@ -151,7 +151,7 @@ class _ConnectionContext:
         """
         assert self._task_thread is None
         self.env.close()
-        self.env.exit()
+        #self.env.exit()
 
     def _reset_task(self):
         try:
@@ -201,6 +201,7 @@ class RllibMultiAgentEnv(MultiAgentEnv):
 
         # The first agent is treated as the game session host
         host_address = agent_configs[0].address
+        self._id = host_address
         self._connections = {}
         self._reset_request_time = 0
 
@@ -231,6 +232,7 @@ class RllibMultiAgentEnv(MultiAgentEnv):
         return self._connections[agent_id].env.action_space
 
     def reset(self):
+        print(f"Resetting {self._id}...")
         obs = {}
         request_time = time.perf_counter()
         for agent_id, connection in self._connections.items():
@@ -240,10 +242,12 @@ class RllibMultiAgentEnv(MultiAgentEnv):
         # will complete their reset requests until all agents have issued a reset request
         _await_results(obs)
         self._reset_request_time = time.perf_counter() - request_time
+        print(f"Reset {self._id} complete")
 
         return obs
 
     def step(self, actions):
+        print(f"Stepping {self._id} - Actions: {actions}...")
         results = {}
         request_time = time.perf_counter()
         for agent_id, action in actions.items():
@@ -273,8 +277,10 @@ class RllibMultiAgentEnv(MultiAgentEnv):
 
         # Pass the results to the done checker to set the required __all__ value
         dones["__all__"] = self._all_done_checker(self, obs, rewards, dones, infos)
-        infos["step_request_time"] = request_time
-        infos["reset_request_time"] = self._reset_request_time
+#        infos["step_request_time"] = request_time
+#        infos["reset_request_time"] = self._reset_request_time
+
+        print(f"Step of {self._id} complete - {dones}")
 
         return obs, rewards, dones, infos
 
