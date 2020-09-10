@@ -147,7 +147,7 @@ run_experiments({
             },
             "num_workers": NUM_ENVIRONMENT_INSTANCES,
             "rollout_fragment_length": 50,
-            "train_batch_size": 1024,
+            "train_batch_size": 512,
             "replay_buffer_num_slots": 4000,
             "replay_proportion": 10,
             "learner_queue_timeout": 900,

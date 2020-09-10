@@ -82,7 +82,7 @@
     <Name>Agent1</Name>
 
     <AgentStart>
-      <Placement pitch="60" x="-0.5" y="4" yaw="90" z="4.5"/>
+      <Placement pitch="60" x="-0.5" y="4" yaw="270" z="4.5"/>
     </AgentStart>
 
     <AgentHandlers>
