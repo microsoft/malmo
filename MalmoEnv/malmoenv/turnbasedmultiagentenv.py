@@ -108,6 +108,7 @@ class _ConnectionContext:
         self.id = id
         self.address = address
         self.env = env
+        self.last_observation = None
 
         # Async task status tracking
         self._task_thread = None
@@ -136,37 +137,24 @@ class _ConnectionContext:
         self._task_thread.start()
         return self
 
+    def _reset_task(self):
+        try:
+            self._task_result = self.last_observation = self.env.reset()
+        except Exception as e:
+            self._task_result = e
+
     def step(self, action):
         """
         Issue a step request and return the async task immediately.
         """
-        assert self._task_thread is None
-        self._task_thread = Thread(target=self._step_task, args=(action,), name=f"Agent '{self.id}' step")
-        self._task_thread.start()
-        return self
+        self.last_observation, r, d, i = self.env.step(action)
+        return self.last_observation, r, d, i
 
     def close(self):
         """
         Shut down the Minecraft instance.
         """
-        assert self._task_thread is None
         self.env.close()
-        #self.env.exit()
-
-    def _reset_task(self):
-        try:
-            self._task_result = self.env.reset()
-        except Exception as e:
-            self._task_result = e
-
-    def _step_task(self, action):
-        try:
-            print(f"Stepping agent {self.id}, {self.address}...")
-            self._task_result = self.env.step(action)
-            print(f"Step agent {self.id}, {self.address} complete, done={self._task_result[2]}")
-        except Exception as e:
-            print(f"Exception with agent {self.id}, {self.address}")
-            self._task_result = e
 
 # Config for a single agent that will be present within the environment
 class AgentConfig:
@@ -184,7 +172,7 @@ class AgentConfig:
 # instances.
 # The first agent defined in the agent_configs is treated as the primary Minecraft instance that
 # will act as the game server.
-class RllibMultiAgentEnv(MultiAgentEnv):
+class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
     def __init__(self, xml, agent_configs, env_factory=None, all_done_checker=None):
         """
         An RLlib compatible multi-agent environment.
@@ -256,10 +244,20 @@ class RllibMultiAgentEnv(MultiAgentEnv):
         self._step += 1
         results = {}
         request_time = time.perf_counter()
-        for agent_id, action in actions.items():
-            results[agent_id] = self._connections[agent_id].step(action)
+        done = False
 
-        _await_results(results)
+        for agent_id, action in actions.items():
+            if not done:
+                time.sleep(0.5)
+                o, r, done, i = self._connections[agent_id].step(action)
+            else:
+                o = self._connections[agent_id].last_observation
+                r = 0.0
+                i = {}
+
+            assert self._connections[agent_id].env.observation_space.contains(o), f"Shape={o.shape}"
+            results[agent_id] = (o, r, done, i)
+
         request_time = time.perf_counter() - request_time
 
         # We need to repack the individual step results into dictionaries per data type to conform

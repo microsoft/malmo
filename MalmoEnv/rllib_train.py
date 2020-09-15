@@ -18,16 +18,19 @@
 # ------------------------------------------------------------------------------------------------
 import gym
 import ray
+from ray.rllib.env.atari_wrappers import FrameStack
 from ray.tune import register_env, run_experiments
 from pathlib import Path
 import malmoenv
 from malmoenv.multiagentenv import RllibMultiAgentEnv, AgentConfig
+from malmoenv.turnbasedmultiagentenv import TurnBasedRllibMultiAgentEnv
 
 SINGLE_AGENT_ENV = "malmo_single_agent"
 MULTI_AGENT_ENV = "malmo_multi_agent"
 MISSION_XML = "missions/rllib_multiagent.xml"
 COMMAND_PORT = 8999
 NUM_ENVIRONMENT_INSTANCES = 2
+FRAME_STACK = 2
 
 xml = Path(MISSION_XML).read_text()
 
@@ -41,12 +44,14 @@ class TrackingEnv(gym.Wrapper):
             self._turn_left,
             self._idle
         ]
+        self._step_count = 0
 
     def _reset_state(self):
         self._facing = (1, 0)
         self._position = (0, 0)
         self._visited = {}
         self._update_visited()
+        self._step_count = 0
 
     def _forward(self):
         self._position = (
@@ -91,6 +96,12 @@ class TrackingEnv(gym.Wrapper):
         if action == 4:
             r += -0.5
 
+        self._step_count += 1
+        if self._step_count == 50:
+            d = True
+        elif r < -0.9:
+            d = True
+
         return o, r, d, i
 
 
@@ -104,6 +115,7 @@ def env_factory(agent_id, xml, role, host_address, host_port, command_address, c
         exp_uid="multiagent",
         reshape=True
     )
+    env = FrameStack(env, FRAME_STACK)
     env = malmoenv.SyncEnv(env, idle_action=4, idle_delay=0.02)
     env = TrackingEnv(env)
     return env
@@ -127,7 +139,7 @@ def create_multi_agent_env(config):
         AgentConfig(id=f"agent1", address=port-1),
         AgentConfig(id=f"agent2", address=port),
     ]
-    env = RllibMultiAgentEnv(xml, agent_config,
+    env = TurnBasedRllibMultiAgentEnv(xml, agent_config,
         env_factory=env_factory,
 #        all_done_checker=all_done_checker
     )
@@ -146,6 +158,7 @@ run_experiments({
                 "dim": 42
             },
             "num_workers": NUM_ENVIRONMENT_INSTANCES,
+            "num_gpus": 0,
             "rollout_fragment_length": 50,
             "train_batch_size": 512,
             "replay_buffer_num_slots": 4000,
@@ -154,10 +167,17 @@ run_experiments({
             "num_sgd_iter": 2,
             "num_data_loader_buffers": 1,
 
+            "exploration_config": {
+                "type": "EpsilonGreedy",
+                "initial_epsilon": 1.0,
+                "final_epsilon": 0.02,
+                "epsilon_timesteps": 10000
+            },
+
             "multiagent": {
                 "policies": { "shared_policy": (
                     None,
-                    gym.spaces.Box(0, 255, shape=(84, 84, 3)),
+                    gym.spaces.Box(0, 255, shape=(84, 84, 3 * FRAME_STACK)),
                     gym.spaces.Discrete(5),
                     {}
                 )},

@@ -21,7 +21,7 @@
       <FlatWorldGenerator generatorString="3;minecraft:bedrock,2*minecraft:dirt,minecraft:grass;1;village"/>
 
       <DrawingDecorator>
-        <DrawCuboid x1="-2" y1="3" z1="-3" x2="8" y2="3" z2="7" type="lava" />
+        <DrawCuboid x1="-62" y1="3" z1="-63" x2="68" y2="3" z2="67" type="redstone_block" />
 
         <DrawCuboid x1="-1" y1="3" z1="1" x2="-1" y2="3" z2="3" type="cobblestone" />
         <DrawCuboid x1="0" y1="3" z1="2" x2="6" y2="3" z2="2" type="cobblestone" />
@@ -40,7 +40,7 @@
   </ServerSection>
 
   <AgentSection mode="Survival">
-    <Name>Agent0</Name>
+    <Name>Agent1</Name>
 
     <AgentStart>
       <Placement pitch="60" x="-0.5" y="4" yaw="270" z="0.5"/>
@@ -53,11 +53,13 @@
         <Height>84</Height>
       </VideoProducer>
 
-      <DiscreteMovementCommands>
-          <ModifierList type="deny-list">
-            <command>attack</command>
-          </ModifierList>
-      </DiscreteMovementCommands>
+      <TurnBasedCommands requestedPosition="1">
+        <DiscreteMovementCommands>
+            <ModifierList type="deny-list">
+              <command>attack</command>
+            </ModifierList>
+        </DiscreteMovementCommands>
+      </TurnBasedCommands>
 
       <RewardForMissionEnd>
         <Reward description="out_of_time" reward="-1" />
@@ -65,6 +67,7 @@
 
       <RewardForTouchingBlockType>
         <Block reward="-1.0" type="lava" behaviour="onceOnly"/>
+        <Block reward="-1.0" type="redstone_block" behaviour="onceOnly"/>
         <Block reward="1.0" type="lapis_block" behaviour="onceOnly"/>
       </RewardForTouchingBlockType>
 
@@ -74,12 +77,12 @@
         <Block type="lava" />
         <Block type="lapis_block" />
       </AgentQuitFromTouchingBlockType>
-      <AgentQuitFromReachingCommandQuota total="100"/>
+      <AgentQuitFromReachingCommandQuota total="300"/>
     </AgentHandlers>
   </AgentSection>
 
   <AgentSection mode="Survival">
-    <Name>Agent1</Name>
+    <Name>Agent2</Name>
 
     <AgentStart>
       <Placement pitch="60" x="-0.5" y="4" yaw="270" z="4.5"/>
@@ -92,11 +95,13 @@
         <Height>84</Height>
       </VideoProducer>
 
-      <DiscreteMovementCommands>
-          <ModifierList type="deny-list">
-            <command>attack</command>
-          </ModifierList>
-      </DiscreteMovementCommands>
+      <TurnBasedCommands requestedPosition="2">
+        <DiscreteMovementCommands>
+            <ModifierList type="deny-list">
+              <command>attack</command>
+            </ModifierList>
+        </DiscreteMovementCommands>
+      </TurnBasedCommands>
 
       <RewardForMissionEnd>
         <Reward description="out_of_time" reward="-1" />
@@ -104,6 +109,7 @@
 
       <RewardForTouchingBlockType>
         <Block reward="-1.0" type="lava" behaviour="onceOnly"/>
+        <Block reward="-1.0" type="redstone_block" behaviour="onceOnly"/>
         <Block reward="1.0" type="lapis_block" behaviour="onceOnly"/>
       </RewardForTouchingBlockType>
 
@@ -113,7 +119,7 @@
         <Block type="lava" />
         <Block type="lapis_block" />
       </AgentQuitFromTouchingBlockType>
-      <AgentQuitFromReachingCommandQuota total="100"/>
+      <AgentQuitFromReachingCommandQuota total="300"/>
     </AgentHandlers>
   </AgentSection>
 
