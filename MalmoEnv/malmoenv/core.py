@@ -311,18 +311,9 @@ class Env:
         withturnkey = self.step_options < 2
         withinfo = self.step_options == 0 or self.step_options == 2
 
-        warning_displayed = False
-        start_time = time.time()
-
         while not self.done and \
                 ((obs is None or len(obs) == 0) or
                  (withinfo and info is None) or turn):
-
-            if (time.time() - start_time > 10) and not warning_displayed:
-                warning_displayed = True
-                print(f"WARNING! Long step time for {self.server2}:{self.port2}")
-                o = len(obs) if obs is not None else "None"
-                print(f"Done={self.done}, len(obs)={o}, turn={turn}")
 
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
@@ -504,25 +495,6 @@ class Env:
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
-
-class SyncEnv(gym.Wrapper):
-    def __init__(self, env, idle_action=4, idle_delay=0):
-        super().__init__(env)
-        self._idle_action = idle_action
-        self._idle_delay = idle_delay
-
-    def reset(self):
-        time.sleep(self._idle_delay)
-        return super().reset()
-
-    def step(self, action):
-#        time.sleep(self._idle_delay)
-#        o, r, d, i = super().step(action)
-#        if d:
-#            return o, r, d, i
-
-        time.sleep(self._idle_delay)
-        return super().step(action)
 
 def make():
     return Env()

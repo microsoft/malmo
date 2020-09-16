@@ -34,7 +34,6 @@ def _validate_config(xml, agent_configs):
     xml_agent_count = len(xml.findall("{http://ProjectMalmo.microsoft.com}AgentSection"))
     assert len(agent_configs) == xml_agent_count
 
-
 def _parse_address(address):
     """
     Take addresses of various forms and convert them to a tuple of the form (HOST, PORT).
@@ -96,7 +95,7 @@ def _default_all_done_checker(env, obs, rewards, dones, infos):
             return True
     return False
 
-# Wraps a MalmoEnv instance and provides async reset and step operations
+# Wraps a MalmoEnv instance and provides async reset and sync step operations
 # Reset operations need to be executed async as none of the connected environments will complete
 # their reset operations until all environments have at least issued a reset request.
 class _ConnectionContext:
@@ -242,7 +241,6 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
         return obs
 
     def step(self, actions):
-#        print(f"Step {self._step} for agent {self._id} - Actions: {actions}...")
         self._step += 1
         results = {}
         request_time = time.perf_counter()
@@ -250,9 +248,14 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
 
         for agent_id, action in actions.items():
             if not done:
+                # We need to wait a small amount of time between each agent's step request to give
+                # the Minecraft instances time to sync up and agree whose turn to act it is
                 time.sleep(STEP_DELAY_TIME)
                 o, r, done, i = self._connections[agent_id].step(action)
             else:
+                # If any of the agents report themselves as "done", then we should stop taking turns
+                # so generate a dummy step result based on the last observation so that training
+                # receives valid looking data
                 o = self._connections[agent_id].last_observation
                 r = 0.0
                 i = {}
@@ -283,10 +286,6 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
 
         # Pass the results to the done checker to set the required __all__ value
         dones["__all__"] = self._all_done_checker(self, obs, rewards, dones, infos)
-#        infos["step_request_time"] = request_time
-#        infos["reset_request_time"] = self._reset_request_time
-
-#        print(f"Step of {self._id} complete - {dones}")
 
         return obs, rewards, dones, infos
 
@@ -299,6 +298,9 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
                 print(f"Error closing environment: {message}")
 
 
+# As Malmo returns stale observations for actions, this wrapper can be used to sync observations
+# and actions by issuing an idle action after the policy generated action to query the resultant
+# state of the environment
 class SyncRllibMultiAgentEnv(MultiAgentEnv):
     def __init__(self, env, idle_action):
         self.env = env
@@ -308,11 +310,16 @@ class SyncRllibMultiAgentEnv(MultiAgentEnv):
         return self.env.reset()
 
     def step(self, actions):
+        # The first step request to the environment returns stale data, so we want to ignore it
+        # unless Malmo reports one of the instances as "done"
         o, r, d, i = self.env.step(actions)
         for done in d.values():
             if done:
                 return o, r, d, i
 
+        # The second step request is really just a query for the environment state. When used with
+        # the turn based environment, there is a delay injected before the requests which allows
+        # the environment to settle into the new state
         return self.env.step({
             key: self.idle_action
             for key in actions

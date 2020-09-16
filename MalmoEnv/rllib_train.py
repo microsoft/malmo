@@ -22,8 +22,7 @@ from ray.rllib.env.atari_wrappers import FrameStack
 from ray.tune import register_env, run_experiments
 from pathlib import Path
 import malmoenv
-from malmoenv.multiagentenv import RllibMultiAgentEnv, AgentConfig
-from malmoenv.turnbasedmultiagentenv import TurnBasedRllibMultiAgentEnv, SyncRllibMultiAgentEnv
+from malmoenv.turnbasedmultiagentenv import AgentConfig, TurnBasedRllibMultiAgentEnv, SyncRllibMultiAgentEnv
 
 SINGLE_AGENT_ENV = "malmo_single_agent"
 MULTI_AGENT_ENV = "malmo_multi_agent"
@@ -34,6 +33,7 @@ FRAME_STACK = 1
 
 xml = Path(MISSION_XML).read_text()
 
+# An environment wrapper to shape rewards and determine episode terminality independently of Malmo
 class TrackingEnv(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
