@@ -314,7 +314,6 @@ class Env:
         while not self.done and \
                 ((obs is None or len(obs) == 0) or
                  (withinfo and info is None) or turn):
-
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"
