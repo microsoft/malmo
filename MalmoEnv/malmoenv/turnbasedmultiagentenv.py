@@ -23,6 +23,8 @@ from ray.rllib.env.multi_agent_env import MultiAgentEnv
 import malmoenv
 from malmoenv.core import EnvException
 
+STEP_DELAY_TIME = 0.15
+
 def _validate_config(xml, agent_configs):
     """
     Verify that the supplied agent config is compatible with the mission XML.
@@ -240,7 +242,7 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
         return obs
 
     def step(self, actions):
-        print(f"Step {self._step} for agent {self._id} - Actions: {actions}...")
+#        print(f"Step {self._step} for agent {self._id} - Actions: {actions}...")
         self._step += 1
         results = {}
         request_time = time.perf_counter()
@@ -248,7 +250,7 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
 
         for agent_id, action in actions.items():
             if not done:
-                time.sleep(0.5)
+                time.sleep(STEP_DELAY_TIME)
                 o, r, done, i = self._connections[agent_id].step(action)
             else:
                 o = self._connections[agent_id].last_observation
@@ -284,7 +286,7 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
 #        infos["step_request_time"] = request_time
 #        infos["reset_request_time"] = self._reset_request_time
 
-        print(f"Step of {self._id} complete - {dones}")
+#        print(f"Step of {self._id} complete - {dones}")
 
         return obs, rewards, dones, infos
 
@@ -295,3 +297,26 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
             except Exception as e:
                 message = getattr(e, "message", e)
                 print(f"Error closing environment: {message}")
+
+
+class SyncRllibMultiAgentEnv(MultiAgentEnv):
+    def __init__(self, env, idle_action):
+        self.env = env
+        self.idle_action = idle_action
+
+    def reset(self):
+        return self.env.reset()
+
+    def step(self, actions):
+        o, r, d, i = self.env.step(actions)
+        for done in d.values():
+            if done:
+                return o, r, d, i
+
+        return self.env.step({
+            key: self.idle_action
+            for key in actions
+        })
+
+    def close(self):
+        return self.env.close()

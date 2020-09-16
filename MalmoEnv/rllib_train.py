@@ -23,14 +23,14 @@ from ray.tune import register_env, run_experiments
 from pathlib import Path
 import malmoenv
 from malmoenv.multiagentenv import RllibMultiAgentEnv, AgentConfig
-from malmoenv.turnbasedmultiagentenv import TurnBasedRllibMultiAgentEnv
+from malmoenv.turnbasedmultiagentenv import TurnBasedRllibMultiAgentEnv, SyncRllibMultiAgentEnv
 
 SINGLE_AGENT_ENV = "malmo_single_agent"
 MULTI_AGENT_ENV = "malmo_multi_agent"
 MISSION_XML = "missions/rllib_multiagent.xml"
 COMMAND_PORT = 8999
 NUM_ENVIRONMENT_INSTANCES = 2
-FRAME_STACK = 2
+FRAME_STACK = 1
 
 xml = Path(MISSION_XML).read_text()
 
@@ -115,19 +115,10 @@ def env_factory(agent_id, xml, role, host_address, host_port, command_address, c
         exp_uid="multiagent",
         reshape=True
     )
-    env = FrameStack(env, FRAME_STACK)
-    env = malmoenv.SyncEnv(env, idle_action=4, idle_delay=0.02)
+    if FRAME_STACK > 1:
+        env = FrameStack(env, FRAME_STACK)
     env = TrackingEnv(env)
     return env
-
-def all_done_checker(env, obs, rewards, dones, infos):
-    """
-    Returns True when all agents are reported as done.
-    """
-    for done in dones.values():
-        if not done:
-            return False
-    return True
 
 def create_single_agent_env(config):
     port = COMMAND_PORT + config.worker_index
@@ -141,8 +132,8 @@ def create_multi_agent_env(config):
     ]
     env = TurnBasedRllibMultiAgentEnv(xml, agent_config,
         env_factory=env_factory,
-#        all_done_checker=all_done_checker
     )
+    env = SyncRllibMultiAgentEnv(env, idle_action=4)
     return env
 
 
@@ -160,7 +151,7 @@ run_experiments({
             "num_workers": NUM_ENVIRONMENT_INSTANCES,
             "num_gpus": 0,
             "rollout_fragment_length": 50,
-            "train_batch_size": 512,
+            "train_batch_size": 1024,
             "replay_buffer_num_slots": 4000,
             "replay_proportion": 10,
             "learner_queue_timeout": 900,
@@ -171,7 +162,7 @@ run_experiments({
                 "type": "EpsilonGreedy",
                 "initial_epsilon": 1.0,
                 "final_epsilon": 0.02,
-                "epsilon_timesteps": 10000
+                "epsilon_timesteps": 7000
             },
 
             "multiagent": {
