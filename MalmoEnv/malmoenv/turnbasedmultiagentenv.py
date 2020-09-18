@@ -225,7 +225,6 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
         return self._connections[agent_id].env.action_space
 
     def reset(self):
-        print(f"Resetting {self._id}...")
         self._step = 0
         obs = {}
         request_time = time.perf_counter()
@@ -236,7 +235,6 @@ class TurnBasedRllibMultiAgentEnv(MultiAgentEnv):
         # will complete their reset requests until all agents have issued a reset request
         _await_results(obs)
         self._reset_request_time = time.perf_counter() - request_time
-        print(f"Reset {self._id} complete")
 
         return obs
 
