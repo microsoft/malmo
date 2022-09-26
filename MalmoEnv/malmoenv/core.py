@@ -85,6 +85,7 @@ class Env:
         self.action_space = None
         self.observation_space = None
         self.metadata = {'render.modes': ['rgb_array']}
+        self.reward_range = (-float('inf'), float('inf'))
         self.xml = None
         self.integratedServerPort = 0
         self.role = 0
@@ -348,6 +349,8 @@ class Env:
                 obs = obs.reshape((self.height, self.width, self.depth)).astype(np.uint8)
         self.last_obs = obs
 
+        # RLlib requires info be returned as a dict rather than a string
+        info = { "raw_info": info }
         return obs, reward, self.done, info
 
     def close(self):

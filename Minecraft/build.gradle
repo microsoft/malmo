@@ -15,7 +15,11 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 // Read the version number from the Mod's version properties file.
 if (!file('src/main/resources/version.properties').exists()) {
-    ant.fail("version.properties file is missing - this is created automatically by CMake. If you are building from source, make sure you have built the full source tree, not just the Minecraft folder.")
+    // if version.properties doesn't exists make it from VERSION
+    File vers_file = new File("../VERSION")
+    version = vers_file.getText()
+    File out_file = new File("src/main/resources/version.properties")
+    out_file.write "malmomod.version=" + version
 }
 def propFile = file('src/main/resources/version.properties')
 def versionProp = new Properties()
