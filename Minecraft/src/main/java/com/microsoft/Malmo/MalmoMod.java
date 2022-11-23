@@ -72,6 +72,7 @@ import com.microsoft.Malmo.Client.MalmoEnvServer;
 public class MalmoMod
 {
     public static final String MODID = "malmomod";
+    public static final String RESOURCE_PREFIX = MODID.toLowerCase() + ":";
     public static final String SOCKET_CONFIGS = "malmoports";
     public static final String ENV_CONFIGS = "envtype";
     public static final String DIAGNOSTIC_CONFIGS = "malmodiags";
@@ -97,7 +98,7 @@ public class MalmoMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-         if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
+        if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
             throw new RuntimeException("This mod has been incorrectly built; check schema version numbers.");
 
         if (event.getModMetadata().version.equals("${version}"))

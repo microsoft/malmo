@@ -68,7 +68,7 @@ key_key.pickItem:-98
 key_key.command:53
 key_key.screenshot:60
 key_key.togglePerspective:63
-key_key.smoothCamera:0
+key_key.smoothCamera:56
 key_key.fullscreen:87
 key_key.spectatorOutlines:0
 key_key.swapHands:33

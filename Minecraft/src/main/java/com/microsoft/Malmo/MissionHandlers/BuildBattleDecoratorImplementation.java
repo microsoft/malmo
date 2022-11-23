@@ -46,6 +46,10 @@ import com.microsoft.Malmo.Schemas.BuildBattleDecorator;
 import com.microsoft.Malmo.Schemas.DrawBlockBasedObjectType;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.UnnamedGridDefinition;
+import com.microsoft.Malmo.Schemas.Colour;
+import com.microsoft.Malmo.Schemas.Facing;
+import com.microsoft.Malmo.Schemas.Variation;
+import com.microsoft.Malmo.Schemas.BlockType;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper;
 import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
 
@@ -65,6 +69,32 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private int currentScore = 0;
     private boolean valid = true;
     private boolean initialised = false;
+    // private HashMap<BlockType, BlockType> blockToGhostMap = new HashMap<BlockType, BlockType>();
+
+    private XMLBlockState getGhostVariant(XMLBlockState blockState) {
+        String bt = blockState.getBlock().getLocalizedName();
+        System.out.println("Localized: " + blockState.getBlock().getLocalizedName());
+        
+        if (bt.equals("Cobblestone")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_COBBLESTONE, null, null, null);
+        } else if (bt.equals("Dirt")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_DIRT, null, null, null);
+        } else if (bt.equals("Glass")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_GLASS, null, null, null);
+        } else if (bt.equals("Wood")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_LOG, null, null, null);
+        } else if (bt.equals("Stone")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_STONE, null, null, null);
+        } else if (bt.equals("Stone Bricks")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_STONEBRICK, null, null, null);
+        } else if (bt.equals("Wooden Planks")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_PLANKS, null, null, null);
+        } else if (bt.equals("Wool")) {
+            return new XMLBlockState(BlockType.TUTORIAL_GHOST_WOOL, null, null, null);
+        } else {
+            return new XMLBlockState(BlockType.AIR, null, null, null);
+        }
+    }
 
     /**
      * Attempt to parse the given object as a set of parameters for this handler.
@@ -102,8 +132,29 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     @Override
     public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
-        // Does nothing at the moment, though we could add an option to draw the bounds of the arenas here,
-        // if it seems to be something people want.
+        // this.buildBlockToGhostMap();
+        BlockDrawingHelper drawContext = new BlockDrawingHelper();
+        drawContext.beginDrawing(world);
+
+        int startX = sourceBounds.getMin().getX();
+        int startY = Math.max(2, sourceBounds.getMin().getY());
+        int startZ = sourceBounds.getMin().getZ();
+
+        for (int x = sourceBounds.getMin().getX(); x < sourceBounds.getMax().getX(); x++) {
+            for (int y = Math.max(2, sourceBounds.getMin().getY()); y <= sourceBounds.getMax().getY(); y++) {
+                for (int z = sourceBounds.getMin().getZ(); z < sourceBounds.getMax().getZ(); z++) {
+                    BlockPos sp = new BlockPos(x, y, z);
+                    BlockPos dp = sp.add(this.delta);
+                    
+                    XMLBlockState sourceBlock = new XMLBlockState(this.getDestBlockState(world, sp));
+                    XMLBlockState ghostVariant = this.getGhostVariant(sourceBlock);
+
+                    drawContext.setBlockState(world, dp, ghostVariant);
+                }
+            }
+        }
+
+        drawContext.endDrawing(world);
     }
 
     @Override
@@ -279,8 +330,13 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     {
         if (blockInBounds(event.getPos(), this.destBounds))
         {
+            System.out.println("in bounds!");
             this.valid  = false;
-            this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), Blocks.AIR.getDefaultState());
+            BlockPos sp = event.getPos().subtract(this.delta);
+            XMLBlockState sourceBlock = new XMLBlockState(this.getSourceBlockState(event.getWorld(), sp));
+            XMLBlockState ghostVariant = this.getGhostVariant(sourceBlock);
+            System.out.println("computed shit...");
+            this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), ghostVariant.getBlock().getDefaultState());
         }
     }
 
