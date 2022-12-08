@@ -1,0 +1,10 @@
+portOverride.tooltip=Explicitly set the Mission Control Port - WARNING: will affect all Mods subsequently launched on this machine.
+debugOutputLevel.tooltip=Set the level of debugging information to be displayed on the Minecraft screen.
+
+key.categories.malmo=Malmo
+key.toggleMalmo=Toggle AI/human control
+key.handyTestHook=Test hook (dump recipe list)
+
+auth.usernames=List of authenticated usernames
+auth.portToUserMappings=Map ports to usernames in format <port>:<username>
+auth.usernameToPasswordMappings=Map usernames to passwords in format <username>:<password>
