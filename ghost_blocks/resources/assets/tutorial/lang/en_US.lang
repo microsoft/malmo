@@ -1,0 +1,20 @@
+# Blocks
+
+tile.tutorial:tutorial_block.name=Tutorial Block
+tile.tutorial:ghost_dirt.name=Ghost Dirt
+tile.tutorial:ghost_cobblestone.name=Ghost Cobblestone
+tile.tutorial:ghost_glass.name=Ghost Glass
+tile.tutorial:ghost_log.name=Ghost Log
+tile.tutorial:ghost_planks.name=Ghost Planks
+tile.tutorial:ghost_stone.name=Ghost Stone
+tile.tutorial:ghost_stonebrick.name=Ghost Stonebrick
+tile.tutorial:ghost_wool.name=Ghost Wool
+
+# Items
+
+item.tutorial:tutorial_item.name=Tutorial Item
+item.tutorial:pickaxe.name=Tutorial Pickaxe
+
+# Creative Tab
+
+itemGroup.tutorial:creative_tab=Tutorial Mod's Tab

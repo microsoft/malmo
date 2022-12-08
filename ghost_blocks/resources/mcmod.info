@@ -1,0 +1,12 @@
+[
+{
+  "modid": "tutorial",
+  "name": "Silent's Awesome Tutorial Mod",
+  "description": "A tutorial mod for Minecraft 1.11",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/SilentChaos512/Tutorial-1.11",
+  "authors": [ "SilentChaos512" ],
+  "credits": ""
+}
+]
