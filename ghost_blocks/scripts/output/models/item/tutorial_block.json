@@ -1,6 +1,0 @@
-{
-  "parent": "tutorial:block/tutorial_block",
-  "textures": {
-    "layer0": "tutorial:blocks/tutorial_block"
-  }
-}
