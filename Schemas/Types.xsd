@@ -515,14 +515,6 @@
         <xs:enumeration value="red_shulker_box" />
         <xs:enumeration value="black_shulker_box" />
         <xs:enumeration value="structure_block" />
-	<xs:enumeration value="tutorial:ghost_dirt" />
-	<xs:enumeration value="tutorial:ghost_cobblestone" />
-	<xs:enumeration value="tutorial:ghost_glass" />
-	<xs:enumeration value="tutorial:ghost_log" />
-	<xs:enumeration value="tutorial:ghost_stone" />
-	<xs:enumeration value="tutorial:ghost_stonebrick" />
-	<xs:enumeration value="tutorial:ghost_planks" />
-	<xs:enumeration value="tutorial:ghost_wool" />
     </xs:restriction>
 </xs:simpleType>
 
