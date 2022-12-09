@@ -1,0 +1,57 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block",
+        "model": "cube_all",
+        "render": "translucent"
+    },
+    "variants": {
+        "block_type": {
+            "cobblestone": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_cobblestone"
+                }
+            },
+            "dirt": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_dirt"
+                }
+            },
+            "glass": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_glass"
+                }
+            },
+            "log": {
+                "textures": {
+                    "up": "malmomod:blocks/blueprint_log_top",
+                    "down": "malmomod:blocks/blueprint_log_top",
+                    "north": "malmomod:blocks/blueprint_log",
+                    "east": "malmomod:blocks/blueprint_log",
+                    "west": "malmomod:blocks/blueprint_log",
+                    "south": "malmomod:blocks/blueprint_log"
+                }
+            },
+            "planks": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_planks"
+                }
+            },
+            "stone": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_stone"
+                }
+            },
+            "stonebrick": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_stonebrick"
+                }
+            },
+            "wool": {
+                "textures": {
+                    "all": "malmomod:blocks/blueprint_wool"
+                }
+            }
+        }
+    }
+}
