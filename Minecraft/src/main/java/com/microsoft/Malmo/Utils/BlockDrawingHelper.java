@@ -126,11 +126,6 @@ public class BlockDrawingHelper
             return this.state != null ? this.state.getBlock() : null;
         }
 
-        public BlockType getBlockType()
-        {
-            return this.type;
-        }
-
         public boolean isValid()
         {
             return this.state != null;
