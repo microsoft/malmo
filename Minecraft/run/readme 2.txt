@@ -1,0 +1,1 @@
+We need this folder for `gradlew runClient` to work.

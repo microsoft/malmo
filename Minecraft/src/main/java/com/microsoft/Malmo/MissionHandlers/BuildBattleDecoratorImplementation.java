@@ -332,7 +332,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 
     @SubscribeEvent
     public void onHarvestDrops(HarvestDropsEvent event) {
-        if (blockInBounds(event.getPos(), this.destBounds)) {
+        if (blockInBounds(event.getPos(), this.destBounds) && event.getPos().getY() > 1) {
             BlockPos sp = event.getPos().subtract(this.delta);
             this.createBlueprintBlock(event.getWorld(), sp, event.getPos());
         }
