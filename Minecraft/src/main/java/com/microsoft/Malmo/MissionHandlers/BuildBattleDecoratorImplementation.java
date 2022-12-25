@@ -130,11 +130,15 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         // drawContext.beginDrawing(world);
 
         for (int x = sourceBounds.getMin().getX(); x < sourceBounds.getMax().getX(); x++) {
-            for (int y = Math.max(2, sourceBounds.getMin().getY()); y <= sourceBounds.getMax().getY(); y++) {
+            for (int y = Math.max(0, sourceBounds.getMin().getY()); y <= sourceBounds.getMax().getY(); y++) {
                 for (int z = sourceBounds.getMin().getZ(); z < sourceBounds.getMax().getZ(); z++) {
                     BlockPos sp = new BlockPos(x, y, z);
                     BlockPos dp = sp.add(this.delta);
-                    this.createBlueprintBlock(world, sp, dp);
+                    try {
+                        this.createBlueprintBlock(world, sp, dp);
+                    } catch (Exception e) {
+                        world.setBlockState(dp, this.getDestBlockState(world, sp), 3);
+                    }
                 }
             }
         }
@@ -332,9 +336,13 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 
     @SubscribeEvent
     public void onHarvestDrops(HarvestDropsEvent event) {
-        if (blockInBounds(event.getPos(), this.destBounds) && event.getPos().getY() > 1) {
+        if (blockInBounds(event.getPos(), this.destBounds)) {
             BlockPos sp = event.getPos().subtract(this.delta);
-            this.createBlueprintBlock(event.getWorld(), sp, event.getPos());
+            try {
+                this.createBlueprintBlock(event.getWorld(), sp, event.getPos());
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
     }
 
