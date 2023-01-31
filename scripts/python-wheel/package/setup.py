@@ -14,6 +14,7 @@ from distutils.core import Extension
 from pathlib import Path
 import os
 import sys
+import glob
 import platform
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
@@ -76,13 +77,21 @@ malmo_python_libs = [
 if platform.system() == "Linux":
     malmo_python_libs.append("rt")
 
+include_dirs = [malmo_src_dir]
+library_dirs = []
+if platform.system() == "Darwin":
+    boost_dir = glob.glob(os.path.join(root_dir, "boost_*/"))[0]
+    include_dirs.append(os.path.join(boost_dir, "include"))
+    library_dirs.append(os.path.join(boost_dir, "lib"))
+
 malmo_python_extension = Extension(
     "MalmoPython",
     sources=(
         [os.path.join(malmo_src_dir, "PythonWrapper", "python_module.cpp")]
         + [os.path.join(malmo_src_dir, source_file) for source_file in malmo_python_sources]
     ),
-    include_dirs=[malmo_src_dir],
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
     define_macros=[
         ("MALMO_VERSION", version),
     ],
