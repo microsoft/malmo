@@ -23,6 +23,8 @@
 // Local:
 #include "VideoFrameWriter.h"
 
+#include <stack>
+
 namespace malmo
 {
     class PosixFrameWriter : public VideoFrameWriter
