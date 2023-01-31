@@ -19,19 +19,12 @@ import platform
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
 
-version = Path('../../../VERSION').read_text().strip() 
+version = Path('VERSION').read_text().strip() 
 modversion = version + ".0"
 Path('malmo/version.py').write_text('version="{}"'.format(version))
 
-root_dir = os.path.realpath(
-    os.path.join(
-        os.path.dirname(__file__),
-        os.path.pardir,
-        os.path.pardir,
-        os.path.pardir,
-    ),
-)
-malmo_src_dir = os.path.join(root_dir, "Malmo", "src")
+root_dir = os.path.dirname(__file__)
+malmo_src_dir = os.path.join(root_dir, "src")
 malmo_python_sources = [
    "AgentHost.cpp",
    "ArgumentParser.cpp",
@@ -92,7 +85,6 @@ malmo_python_extension = Extension(
     include_dirs=[malmo_src_dir],
     define_macros=[
         ("MALMO_VERSION", version),
-        ("BOOST_PYTHON_STATIC_LIB", None),
     ],
     extra_link_args=[f"-l{lib}" for lib in malmo_python_libs],
 )
@@ -134,7 +126,7 @@ setup(
     #
     # This field corresponds to the "Description" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-optional
-    long_description=Path('../README.md').read_text(),  # Optional
+    # long_description=Path('../README.md').read_text(),  # Optional
 
     # Denotes that our long_description is in Markdown; valid values are
     # text/plain, text/x-rst, and text/markdown
