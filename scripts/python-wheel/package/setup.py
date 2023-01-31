@@ -12,6 +12,9 @@ from codecs import open
 from os import path
 from distutils.core import Extension
 from pathlib import Path
+import os
+import sys
+import platform
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
@@ -19,6 +22,80 @@ from pathlib import Path
 version = Path('../../../VERSION').read_text().strip() 
 modversion = version + ".0"
 Path('malmo/version.py').write_text('version="{}"'.format(version))
+
+root_dir = os.path.realpath(
+    os.path.join(
+        os.path.dirname(__file__),
+        os.path.pardir,
+        os.path.pardir,
+        os.path.pardir,
+    ),
+)
+malmo_src_dir = os.path.join(root_dir, "Malmo", "src")
+malmo_python_sources = [
+   "AgentHost.cpp",
+   "ArgumentParser.cpp",
+   "ErrorCodeSync.cpp",
+   "ClientConnection.cpp",
+   "ClientInfo.cpp",
+   "ClientPool.cpp",
+   "Logger.cpp",
+   "FindSchemaFile.cpp",
+   "RewardXML.cpp",
+   "MissionInitXML.cpp",
+   "MissionEndedXML.cpp",
+   "MissionInitSpec.cpp",
+   "MissionRecord.cpp",
+   "MissionRecordSpec.cpp",
+   "MissionSpec.cpp",
+   "ParameterSet.cpp",
+   "StringServer.cpp",
+   "TCPClient.cpp",
+   "TCPConnection.cpp",
+   "TCPServer.cpp",
+   "TimestampedReward.cpp",
+   "TimestampedString.cpp",
+   "TimestampedVideoFrame.cpp",
+   "VideoFrameWriter.cpp",
+   "BmpFrameWriter.cpp",
+   "VideoServer.cpp",
+   "WorldState.cpp",
+]
+if os.name == "nt":
+    malmo_python_sources.append("WindowsFrameWriter.cpp")
+else:
+    malmo_python_sources.append("PosixFrameWriter.cpp")
+
+malmo_python_libs = [
+    "boost_atomic",
+    "boost_chrono",
+    "boost_date_time",
+    "boost_filesystem",
+    "boost_iostreams",
+    "boost_program_options",
+    f"boost_python{sys.version_info[0]}{sys.version_info[1]}",
+    "boost_regex",
+    "boost_system",
+    "boost_thread",
+    "pthread",
+    "z",
+]
+if platform.system() == "Linux":
+    malmo_python_libs.append("rt")
+
+malmo_python_extension = Extension(
+    "MalmoPython",
+    sources=(
+        [os.path.join(malmo_src_dir, "PythonWrapper", "python_module.cpp")]
+        + [os.path.join(malmo_src_dir, source_file) for source_file in malmo_python_sources]
+    ),
+    include_dirs=[malmo_src_dir],
+    define_macros=[
+        ("MALMO_VERSION", version),
+        ("BOOST_PYTHON_STATIC_LIB", None),
+    ],
+    extra_link_args=[f"-l{lib}" for lib in malmo_python_libs],
+)
 
 setup(
     # This is the name of your project. The first time you publish this
@@ -87,7 +164,7 @@ setup(
 
 
     # Include a dummy extension so that a platform specific wheel is built.
-    ext_modules=[Extension('malmo.dummy', sources = ['malmo/dummy.c'])],
+    ext_modules=[malmo_python_extension],
 
     # Classifiers help users find your project by categorizing it.
     #
