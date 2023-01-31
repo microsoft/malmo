@@ -86,6 +86,7 @@ malmo_python_extension = Extension(
     define_macros=[
         ("MALMO_VERSION", version),
     ],
+    extra_compile_args=["-std=c++11"],
     extra_link_args=[f"-l{lib}" for lib in malmo_python_libs],
 )
 

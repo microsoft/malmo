@@ -23,12 +23,17 @@ jobs:
         env:
           CIBW_BUILD: cp38-* cp39-* cp310-* cp311-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
+          CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_ALL_LINUX: >
             yum install --disableplugin=fastestmirror -y wget &&
             mkdir /boost && cd /boost &&
             wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
             cd {package}
-          CIBW_BEFORE_BUILD_LINUX: ./install_boost.sh
+          CIBW_BEFORE_ALL_MACOS: 
+            wget https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2 &&
+            tar xf boost_1_76_0.tar.bz2
+          CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
+          CIBW_BEFORE_BUILD_MACOS: ./install_boost_macos.sh
         run: |
           cp VERSION scripts/python-wheel/package/
           cp -r Malmo/src scripts/python-wheel/package/src
