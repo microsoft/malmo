@@ -5,10 +5,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: [self-hosted, "${{ matrix.os }}"]
+    runs-on: ["${{ matrix.os }}"]
     strategy:
       matrix:
-        os: [macOS]  #, windows-2019, ubuntu-20.04]
+        os: [ubuntu-20.04, macOS]
 
     steps:
       - uses: actions/checkout@v3
@@ -19,21 +19,23 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.12.0
 
-      - name: Download dependencies
-        run: |
-          mkdir downloads
-          cd downloads
-          wget --no-verbose --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2'
-
       - name: Cache downloads
         uses: actions/cache@v3
         with:
           path: downloads
           key: ${{ runner.os }}-downloads
 
+      - name: Download dependencies
+        run: |
+          mkdir downloads
+          cd downloads
+          if [ ! -e boost_1_76_0.tar.bz2 ]; then
+            wget --no-verbose --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2'
+          fi
+
       - name: Build wheels
         env:
-          CIBW_BUILD: cp38-* cp39-* cp310-* cp311-*
+          CIBW_BUILD: cp39-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
