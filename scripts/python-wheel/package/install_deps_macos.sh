@@ -17,17 +17,17 @@ PY_INCLUDE_PATH="$(python -c 'from sysconfig import get_paths; print(get_paths()
 cd deps
 DEPS_DIR="$(pwd)"
 
-# cd xz-5.4.1
-# CFLAGS="-arch $CXX_ARCH" LDFLAGS="-arch $CXX_ARCH" ./configure --prefix="$DEPS_DIR"
-# make install
-# cd ..
+cd xz-5.4.1
+CFLAGS="-arch $CXX_ARCH" LDFLAGS="-arch $CXX_ARCH" ./configure --prefix="$DEPS_DIR"
+make install
+cd ..
 
-# cd zstd-1.5.2
-# rm -r builddir
-# cmake -B builddir -S build/cmake -DCMAKE_INSTALL_PREFIX="$DEPS_DIR" -DCMAKE_INSTALL_RPATH="$DEPS_DIR" -DCMAKE_OSX_ARCHITECTURES=$CXX_ARCH
-# cmake --build builddir
-# cmake --install builddir
-# cd ..
+cd zstd-1.5.2
+rm -r builddir
+cmake -B builddir -S build/cmake -DCMAKE_INSTALL_PREFIX="$DEPS_DIR" -DCMAKE_INSTALL_RPATH="$DEPS_DIR" -DCMAKE_OSX_ARCHITECTURES=$CXX_ARCH
+cmake --build builddir
+cmake --install builddir
+cd ..
 
 cd boost_1_76_0
 ./bootstrap.sh --with-libraries=atomic,chrono,date_time,filesystem,iostreams,program_options,python,regex,system,thread
