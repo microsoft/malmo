@@ -41,7 +41,7 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_BUILD: cp39-*
+          CIBW_BUILD: cp39-* cp310-* c311-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
@@ -51,6 +51,7 @@ jobs:
         run: |
           cp VERSION scripts/python-wheel/package/
           cp -r Malmo/src scripts/python-wheel/package/src
+          cp -r Minecraft scripts/python-wheel/package/malmo/Minecraft
           cd scripts/python-wheel/package
           mkdir deps
           cd deps
