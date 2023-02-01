@@ -5,10 +5,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: [self-hosted, "${{ matrix.os }}"]
+    runs-on: ["${{ matrix.os }}"]
     strategy:
       matrix:
-        os: [macOS]
+        os: [macOS-latest]
 
     steps:
       - uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_BUILD: cp39-* cp310-* c311-*
+          CIBW_BUILD: cp39-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
