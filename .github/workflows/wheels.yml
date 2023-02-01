@@ -29,9 +29,15 @@ jobs:
         run: |
           mkdir -p downloads
           cd downloads
-          if [ ! -e boost_1_76_0.tar.bz2 ]; then
-            wget --no-verbose --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2'
-          fi
+          for DEP in \
+            'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' \
+            'https://tukaani.org/xz/xz-5.4.1.tar.bz2' \
+            'https://github.com/facebook/zstd/archive/v1.5.2.tar.gz' \
+          ; do
+            if [ ! -e "$(basename "$DEP")" ]; then
+              wget --no-verbose --no-check-certificate "$DEP"
+            fi
+          done
 
       - name: Build wheels
         env:
@@ -46,8 +52,13 @@ jobs:
           cp VERSION scripts/python-wheel/package/
           cp -r Malmo/src scripts/python-wheel/package/src
           cd scripts/python-wheel/package
-          tar xf ../../../downloads/boost_1_76_0.tar.bz2
-          CIBW_ENVIRONMENT="REPAIR_LIBRARY_PATH=$(pwd)/boost_1_76_0/lib" python -m cibuildwheel --output-dir wheelhouse
+          mkdir deps
+          cd deps
+          tar xf ../../../../downloads/xz-5.4.1.tar.bz2
+          tar xf ../../../../downloads/boost_1_76_0.tar.bz2
+          tar xf ../../../../downloads/v1.5.2.tar.gz
+          cd ..
+          CIBW_ENVIRONMENT="REPAIR_LIBRARY_PATH=$(pwd)/deps/lib" python -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v3
         with:
