@@ -19,19 +19,23 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.12.0
 
+      - name: Download dependencies
+        run: |
+          mkdir downloads
+          cd downloads
+          wget --no-verbose --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2'
+
+      - name: Cache downloads
+        uses: actions/cache@v3
+        with:
+          path: downloads
+          key: ${{ runner.os }}-downloads
+
       - name: Build wheels
         env:
           CIBW_BUILD: cp38-* cp39-* cp310-* cp311-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
           CIBW_ARCHS_MACOS: x86_64 arm64
-          CIBW_BEFORE_ALL_LINUX: >
-            yum install --disableplugin=fastestmirror -y wget &&
-            mkdir /boost && cd /boost &&
-            wget --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' && 
-            cd {package}
-          CIBW_BEFORE_ALL_MACOS: 
-            wget https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2 &&
-            tar xf boost_1_76_0.tar.bz2
           CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
           CIBW_BEFORE_BUILD_MACOS: ./install_boost_macos.sh
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
@@ -40,6 +44,7 @@ jobs:
           cp VERSION scripts/python-wheel/package/
           cp -r Malmo/src scripts/python-wheel/package/src
           cd scripts/python-wheel/package
+          tar xf ../../../downloads/boost_1_76_0.tar.bz2
           CIBW_ENVIRONMENT="REPAIR_LIBRARY_PATH=$(pwd)/boost_1_76_0/lib" python -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v3
