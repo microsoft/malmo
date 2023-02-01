@@ -27,7 +27,7 @@ jobs:
 
       - name: Download dependencies
         run: |
-          mkdir downloads
+          mkdir -p downloads
           cd downloads
           if [ ! -e boost_1_76_0.tar.bz2 ]; then
             wget --no-verbose --no-check-certificate 'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2'
