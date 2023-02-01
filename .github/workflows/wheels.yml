@@ -52,6 +52,7 @@ jobs:
           cp VERSION scripts/python-wheel/package/
           cp -r Malmo/src scripts/python-wheel/package/src
           cp -r Minecraft scripts/python-wheel/package/malmo/Minecraft
+          cp -r Schemas scripts/python-wheel/package/malmo/Schemas
           cd scripts/python-wheel/package
           mkdir deps
           cd deps
