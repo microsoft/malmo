@@ -24,7 +24,7 @@ version = Path('VERSION').read_text().strip()
 modversion = version + ".0"
 Path('malmo/version.py').write_text('version="{}"'.format(version))
 
-root_dir = os.path.dirname(__file__)
+root_dir = "."
 malmo_src_dir = os.path.join(root_dir, "src")
 malmo_python_sources = [
    "AgentHost.cpp",
