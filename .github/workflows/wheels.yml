@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: [local-runner, "${{ matrix.os }}"]
+    runs-on: [self-hosted, "${{ matrix.os }}"]
     strategy:
       matrix:
         os: [macOS]
