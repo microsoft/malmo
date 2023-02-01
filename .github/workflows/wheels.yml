@@ -5,10 +5,10 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
-    runs-on: ["${{ matrix.os }}"]
+    runs-on: [self-hosted, "${{ matrix.os }}"]
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [ubuntu-20.04]
 
     steps:
       - uses: actions/checkout@v3
