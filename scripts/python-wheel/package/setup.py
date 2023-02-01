@@ -84,6 +84,10 @@ if platform.system() == "Darwin":
     include_dirs.append(os.path.join(deps_dir, "include"))
     library_dirs.append(os.path.join(deps_dir, "lib"))
 
+extra_link_args = [f"-l{lib}" for lib in malmo_python_libs]
+if platform.system() == "Darwin":
+    extra_link_args.append("-headerpad_max_install_names")
+
 malmo_python_extension = Extension(
     "MalmoPython",
     sources=(
@@ -96,10 +100,7 @@ malmo_python_extension = Extension(
         ("MALMO_VERSION", version),
     ],
     extra_compile_args=["-std=c++11"],
-    extra_link_args=(
-        ["-headerpad_max_install_names"]
-        + [f"-l{lib}" for lib in malmo_python_libs]
-    ),
+    extra_link_args=extra_link_args,
 )
 
 setup(
