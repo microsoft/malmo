@@ -105,7 +105,7 @@ jobs:
       - name: Install wheel
         run: |
           # Kind of janky, but loop through until we find the right wheel.
-          for WHEEL in wheelhouse/*.whl; do pip install "$WHEEL"; done
+          for WHEEL in wheelhouse/*.whl; do pip install "$WHEEL" || true; done
           
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1
