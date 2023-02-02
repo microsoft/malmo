@@ -6,7 +6,7 @@ set -x
 
 if [[ "$(uname -s)" =~ Linux* ]]; then
     DISPLAY=:1
-    Xvfb $DISPLAY &
+    Xvfb $DISPLAY -screen 0 1280x1024x24 -v &
 fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
