@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+trap 'trap - SIGTERM && kill 0' SIGINT SIGTERM EXIT
 
 set -x
 
