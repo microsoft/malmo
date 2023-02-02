@@ -156,6 +156,9 @@ def main():
     launch_parser.add_argument(
         "-p", "--port", type=int, nargs="+", help="port(s) to listen on"
     )
+    launch_parser.add_argument(
+        "--timeout", type=int, default=60, help="timeout in seconds"
+    )
     launch_parser.set_defaults(command="launch")
 
     args = parser.parse_args()
