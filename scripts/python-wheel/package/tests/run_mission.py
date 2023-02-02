@@ -25,7 +25,7 @@ import random
 import time
 import uuid
 
-import malmo
+from malmo import minecraft
 import MalmoPython
 import malmoutils
 
@@ -46,6 +46,8 @@ def run(argv=['']):
     if "MALMO_XSD_PATH" not in os.environ:
         print("Please set the MALMO_XSD_PATH environment variable.")
         return
+
+    minecraft_process, = minecraft.launch()
 
     malmoutils.fix_print()
 
@@ -119,6 +121,8 @@ def run(argv=['']):
             print("Frame:",frame.width,'x',frame.height,':',frame.channels,'channels')
             #image = Image.frombytes('RGB', (frame.width, frame.height), bytes(frame.pixels) ) # to convert to a PIL image
     print("Mission has stopped.")
+
+    minecraft_process.terminate()
 
 
 if __name__ == "__main__":
