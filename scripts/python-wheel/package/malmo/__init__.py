@@ -1,4 +1,3 @@
-
 import os
 
 # Set MALMO_XSD_PATH environment variable.

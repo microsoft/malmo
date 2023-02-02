@@ -107,6 +107,33 @@ def launch(num_instances=1, *, ports: Optional[List[int]] = None, timeout=60):
     os.environ["JAVA_HOME"] = java_home
     os.chdir(minecraft_dir)
 
+    # Download and patch ForgeGradle
+    subprocess.run(["./gradlew", "dependencies"])
+    forge_gradle_jar_path = subprocess.check_output(
+        [
+            "find",
+            os.path.expanduser("~/.gradle/caches"),
+            "-name",
+            "ForgeGradle-2.2-SNAPSHOT.jar",
+        ]
+    ).splitlines()[0]
+    os.chdir(os.path.join(minecraft_dir, "forgegradle"))
+    subprocess.run(
+        [
+            "zip",
+            forge_gradle_jar_path,
+            "net/minecraftforge/gradle/common/Constants$1.class",
+            "net/minecraftforge/gradle/common/Constants$2.class",
+            "net/minecraftforge/gradle/common/Constants$SystemArch.class",
+            "net/minecraftforge/gradle/common/Constants.class",
+            "net/minecraftforge/gradle/tasks/DownloadAssetsTask$1.class",
+            "net/minecraftforge/gradle/tasks/DownloadAssetsTask$Asset.class",
+            "net/minecraftforge/gradle/tasks/DownloadAssetsTask$GetAssetTask.class",
+            "net/minecraftforge/gradle/tasks/DownloadAssetsTask.class",
+        ]
+    )
+    os.chdir(minecraft_dir)
+
     # Compile Minecraft with Malmo mod.
     subprocess.run(["./gradlew", "setupDecompWorkspace"])
     subprocess.run(["./gradlew", "build"])
