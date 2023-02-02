@@ -44,7 +44,7 @@ jobs:
 
       - name: Build wheels
         env:
-          CIBW_BUILD: cp38-* cp39-* cp310-* cp311-*
+          CIBW_BUILD: cp38-* cp39-* cp310-*
           CIBW_SKIP: "*_i686 *-musllinux_*"
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
@@ -82,7 +82,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        pyversion: ['3.8', '3.9', '3.10', '3.11']
+        pyversion: ['3.8', '3.9', '3.10']
 
     steps:
       - uses: actions/checkout@v3
