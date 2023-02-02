@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04] #, macOS]
+        os: [ubuntu-20.04, macOS]
 
     steps:
       - uses: actions/checkout@v3
