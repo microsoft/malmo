@@ -54,6 +54,8 @@ jobs:
           CIBW_TEST_COMMAND: "{project}/test.sh"
         run: |
           cp VERSION scripts/python-wheel/package/
+          VERSION=$(cat VERSION)
+          echo "malmomod.version=${VERSION}" > Minecraft/src/main/resources/version.properties
           cp -r Malmo/src scripts/python-wheel/package/src
           cp -r Minecraft scripts/python-wheel/package/malmo/Minecraft
           cp -r Schemas scripts/python-wheel/package/malmo/Schemas

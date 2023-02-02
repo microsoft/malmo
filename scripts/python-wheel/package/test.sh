@@ -4,7 +4,7 @@ trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 set -x
 
-if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+if [[ "$(uname -s)" =~ Linux* ]]; then
     DISPLAY=:1
     Xvfb $DISPLAY &
 fi
