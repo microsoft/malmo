@@ -15,6 +15,4 @@ python -m malmo.minecraft launch --timeout 360 &
 until [ "$(bash -c 'exec 3<> /dev/tcp/localhost/10000;echo $?' 2>/dev/null)" = "0" ]; do sleep 1; jobs; done
 python "${SCRIPT_DIR}/tests/run_mission.py" -v
 
-trap 'sleep 0' SIGTERM
-kill 0
-exit 0
+kill $(jobs -p)
