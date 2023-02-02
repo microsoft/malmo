@@ -25,6 +25,7 @@ import random
 import time
 import uuid
 
+import malmo
 import MalmoPython
 import malmoutils
 
