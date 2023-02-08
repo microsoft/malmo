@@ -1,0 +1,113 @@
+name: Build wheels
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: [self-hosted, "${{ matrix.os }}"]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macOS]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Used to host cibuildwheel
+      - uses: actions/setup-python@v3
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.12.0
+
+      - name: Cache downloads
+        uses: actions/cache@v3
+        with:
+          path: downloads
+          key: ${{ runner.os }}-downloads-boost-xz-zstd
+          restore-keys: |
+            ${{ runner.os }}-downloads
+
+      - name: Download dependencies
+        run: |
+          mkdir -p downloads
+          cd downloads
+          for DEP in \
+            'https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2' \
+            'https://tukaani.org/xz/xz-5.4.1.tar.bz2' \
+            'https://github.com/facebook/zstd/archive/v1.5.2.tar.gz' \
+          ; do
+            if [ ! -e "$(basename "$DEP")" ]; then
+              wget --no-verbose --no-check-certificate "$DEP"
+            fi
+          done
+
+      - name: Build wheels
+        env:
+          CIBW_BUILD: cp38-* cp39-* cp310-*
+          CIBW_SKIP: "*_i686 *-musllinux_*"
+          CIBW_ARCHS_MACOS: x86_64 arm64
+          CIBW_BEFORE_BUILD_LINUX: ./install_boost_linux.sh
+          CIBW_BEFORE_BUILD_MACOS: ./install_deps_macos.sh
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+            DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --dylibs-only
+          CIBW_TEST_COMMAND_MACOS: "python {project}/tests/run_mission.py"
+        run: |
+          cp VERSION scripts/python-wheel/package/
+          VERSION=$(cat VERSION)
+          echo "malmomod.version=${VERSION}" > Minecraft/src/main/resources/version.properties
+          cp -r Malmo/src scripts/python-wheel/package/src
+          cp -r Minecraft scripts/python-wheel/package/malmo/Minecraft
+          cp -r Schemas scripts/python-wheel/package/malmo/Schemas
+          cd scripts/python-wheel/package
+          mkdir deps
+          cd deps
+          tar xf ../../../../downloads/xz-5.4.1.tar.bz2
+          tar xf ../../../../downloads/boost_1_76_0.tar.bz2
+          tar xf ../../../../downloads/v1.5.2.tar.gz
+          cd ..
+          CIBW_ENVIRONMENT="REPAIR_LIBRARY_PATH=$(pwd)/deps/lib" python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels-${{ matrix.os }}
+          path: scripts/python-wheel/package/wheelhouse/*.whl
+  
+  test_wheels:
+    name: Test wheels on ${{ matrix.os }} Python ${{ matrix.pyversion }}
+    needs: build_wheels
+    runs-on: [self-hosted, "${{ matrix.os }}"]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        pyversion: ['3.8', '3.9', '3.10']
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.pyversion }}
+        
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+
+      - name: Download wheels
+        uses: actions/download-artifact@v3
+        with:
+          name: wheels-${{ matrix.os }}
+          path: wheelhouse
+      
+      - name: Install wheel
+        run: |
+          # Kind of janky, but loop through until we find the right wheel.
+          for WHEEL in wheelhouse/*.whl; do pip install "$WHEEL" || true; done
+          
+      - name: Run tests
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: python scripts/python-wheel/package/tests/run_mission.py
