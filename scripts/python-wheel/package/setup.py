@@ -12,13 +12,96 @@ from codecs import open
 from os import path
 from distutils.core import Extension
 from pathlib import Path
+import os
+import sys
+import glob
+import platform
 
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
 
-version = Path('../../../VERSION').read_text().strip() 
+version = Path('VERSION').read_text().strip() 
 modversion = version + ".0"
 Path('malmo/version.py').write_text('version="{}"'.format(version))
+
+root_dir = "."
+malmo_src_dir = os.path.join(root_dir, "src")
+malmo_python_sources = [
+   "AgentHost.cpp",
+   "ArgumentParser.cpp",
+   "ErrorCodeSync.cpp",
+   "ClientConnection.cpp",
+   "ClientInfo.cpp",
+   "ClientPool.cpp",
+   "Logger.cpp",
+   "FindSchemaFile.cpp",
+   "RewardXML.cpp",
+   "MissionInitXML.cpp",
+   "MissionEndedXML.cpp",
+   "MissionInitSpec.cpp",
+   "MissionRecord.cpp",
+   "MissionRecordSpec.cpp",
+   "MissionSpec.cpp",
+   "ParameterSet.cpp",
+   "StringServer.cpp",
+   "TCPClient.cpp",
+   "TCPConnection.cpp",
+   "TCPServer.cpp",
+   "TimestampedReward.cpp",
+   "TimestampedString.cpp",
+   "TimestampedVideoFrame.cpp",
+   "VideoFrameWriter.cpp",
+   "BmpFrameWriter.cpp",
+   "VideoServer.cpp",
+   "WorldState.cpp",
+]
+if os.name == "nt":
+    malmo_python_sources.append("WindowsFrameWriter.cpp")
+else:
+    malmo_python_sources.append("PosixFrameWriter.cpp")
+
+malmo_python_libs = [
+    "boost_atomic",
+    "boost_chrono",
+    "boost_date_time",
+    "boost_filesystem",
+    "boost_iostreams",
+    "boost_program_options",
+    f"boost_python{sys.version_info[0]}{sys.version_info[1]}",
+    "boost_regex",
+    "boost_system",
+    "boost_thread",
+    "pthread",
+    "z",
+]
+if platform.system() == "Linux":
+    malmo_python_libs.append("rt")
+
+include_dirs = [malmo_src_dir]
+library_dirs = []
+if platform.system() == "Darwin":
+    deps_dir = os.path.join(root_dir, "deps")
+    include_dirs.append(os.path.join(deps_dir, "include"))
+    library_dirs.append(os.path.join(deps_dir, "lib"))
+
+extra_link_args = [f"-l{lib}" for lib in malmo_python_libs]
+if platform.system() == "Darwin":
+    extra_link_args.append("-headerpad_max_install_names")
+
+malmo_python_extension = Extension(
+    "MalmoPython",
+    sources=(
+        [os.path.join(malmo_src_dir, "PythonWrapper", "python_module.cpp")]
+        + [os.path.join(malmo_src_dir, source_file) for source_file in malmo_python_sources]
+    ),
+    include_dirs=include_dirs,
+    library_dirs=library_dirs,
+    define_macros=[
+        ("MALMO_VERSION", version),
+    ],
+    extra_compile_args=["-std=c++11"],
+    extra_link_args=extra_link_args,
+)
 
 setup(
     # This is the name of your project. The first time you publish this
@@ -57,7 +140,7 @@ setup(
     #
     # This field corresponds to the "Description" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#description-optional
-    long_description=Path('../README.md').read_text(),  # Optional
+    # long_description=Path('../README.md').read_text(),  # Optional
 
     # Denotes that our long_description is in Markdown; valid values are
     # text/plain, text/x-rst, and text/markdown
@@ -87,7 +170,7 @@ setup(
 
 
     # Include a dummy extension so that a platform specific wheel is built.
-    ext_modules=[Extension('malmo.dummy', sources = ['malmo/dummy.c'])],
+    ext_modules=[malmo_python_extension],
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -157,8 +240,9 @@ setup(
     #
     # If using Python 2.6 or earlier, then these have to be included in
     # MANIFEST.in as well.
+    include_package_data=True,
     package_data={  # Optional
-        '': ['*.so', '*.lib', '*.pyd'],
+        'malmo': ['Minecraft/**/*', 'Schemas/**/*'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
