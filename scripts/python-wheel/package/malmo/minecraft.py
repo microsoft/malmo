@@ -99,10 +99,6 @@ def launch(num_instances=1, *, ports: Optional[List[int]] = None, timeout=60):
     Launch one or more Minecraft instances which Malmo can connect to.
     """
 
-    if ports is None:
-        # Default is to use sequential ports starting at 10000.
-        ports = list(range(10000, 10000 + num_instances))
-
     java_home = get_java_home()
     os.environ["JAVA_HOME"] = java_home
     os.chdir(minecraft_dir)
@@ -140,7 +136,13 @@ def launch(num_instances=1, *, ports: Optional[List[int]] = None, timeout=60):
 
     # Start Minecraft instances.
     processes: List[subprocess.Popen] = []
-    for port in ports:
+    for instance_index in range(num_instances):
+        if ports is None:
+            port = 10000
+            while _port_has_listener(port):
+                port += 1
+        else:
+            port = ports[instance_index]
         config_dir = os.path.join(minecraft_dir, "run", "config")
         os.makedirs(config_dir, exist_ok=True)
         with open(
