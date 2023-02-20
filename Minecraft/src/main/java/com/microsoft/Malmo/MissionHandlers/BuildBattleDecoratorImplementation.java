@@ -28,6 +28,7 @@ import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockSnow;
+import net.minecraft.block.BlockDirt;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -68,6 +69,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private int currentScore = 0;
     private boolean valid = true;
     private boolean initialised = false;
+    private HashMap<BlockPos, IBlockState> structureMap = new HashMap<BlockPos, IBlockState>();
 
     /**
      * Attempt to parse the given object as a set of parameters for this handler.
@@ -135,7 +137,12 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
                     BlockPos sp = new BlockPos(x, y, z);
                     BlockPos dp = sp.add(this.delta);
                     try {
-                        this.createBlueprintBlock(world, sp, dp);
+                        this.structureMap.put(dp, this.getBlueprintBlockState(this.getDestBlockState(world, sp)));
+                        if (y == 1) {
+                            world.setBlockState(dp, Blocks.DIRT.getDefaultState(), 3);
+                        } else {
+                            this.createBlueprintBlock(world, sp, dp);
+                        }
                     } catch (Exception e) {
                         world.setBlockState(dp, this.getDestBlockState(world, sp), 3);
                     }
@@ -338,6 +345,11 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     public void onHarvestDrops(HarvestDropsEvent event) {
         if (blockInBounds(event.getPos(), this.destBounds)) {
             BlockPos sp = event.getPos().subtract(this.delta);
+            if (this.structureMap.containsKey(event.getPos())) {
+                event.getWorld().setBlockState(event.getPos(), this.structureMap.get(event.getPos()));
+                return;
+            }
+
             try {
                 this.createBlueprintBlock(event.getWorld(), sp, event.getPos());
             } catch (Exception e) {
