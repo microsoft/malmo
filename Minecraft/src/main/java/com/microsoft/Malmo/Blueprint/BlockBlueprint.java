@@ -15,6 +15,7 @@ import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.BlockStone;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -24,14 +25,14 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockSlime;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
+import net.minecraft.block.BlockPlanks;
 import net.minecraft.item.ItemBlock;
+
 
 public class BlockBlueprint extends BlockSlime {
     public static final String NAME = "blueprint_block";
-    public static final IProperty<EnumBlockType> BLOCK_TYPE =
-        PropertyEnum.create("block_type", EnumBlockType.class);
+    public static final IProperty<EnumBlockType> VARIANT =
+        PropertyEnum.create("variant", EnumBlockType.class);
     public static BlockBlueprint BLOCK;
 
     public BlockBlueprint() {
@@ -42,16 +43,16 @@ public class BlockBlueprint extends BlockSlime {
 
     @Override
     protected BlockStateContainer createBlockState() {
-        return new BlockStateContainer(this, BLOCK_TYPE);
+        return new BlockStateContainer(this, VARIANT);
     }
 
 	public IBlockState getStateFromMeta(int meta) {
-		return getDefaultState().withProperty(BLOCK_TYPE, EnumBlockType.fromBlockId(meta));
+		return getDefaultState().withProperty(VARIANT, EnumBlockType.fromBlockId(meta));
 	}
 
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return state.getValue(BLOCK_TYPE).getBlockId();
+		return state.getValue(VARIANT).getBlockId();
 	}
 
     @Nullable
@@ -64,7 +65,8 @@ public class BlockBlueprint extends BlockSlime {
     }
 
     public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid) {
-        return false;
+        // return false;
+        return true;
     }
 
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune) {
@@ -77,35 +79,48 @@ public class BlockBlueprint extends BlockSlime {
     public boolean isFullCube(IBlockState state) {
         return false;
     }
-
-    @Override
-    public String getUnlocalizedName() {
-        return "tile." + MalmoMod.RESOURCE_PREFIX + BlockBlueprint.NAME;
-    }
+    
+    // @Override
+    // public String getLocalizedName()
+    // {
+    //     return I18n.translateToLocal(this.getUnlocalizedName() + "." + BlockBlueprint.EnumBlockType.DIRT.getUnlocalizedName() + ".name");
+    // }
 
     public static void register() {
         ResourceLocation resourceLocation = 
             new ResourceLocation(MalmoMod.MODID, BlockBlueprint.NAME);
         BLOCK = new BlockBlueprint();
         GameRegistry.register(BLOCK, resourceLocation);
+
+        // register the item block
+        new ItemBlock(BLOCK).setRegistryName(BLOCK.getRegistryName());
+
     }
 
     public enum EnumBlockType implements IStringSerializable {
-        DIRT(2, "dirt"),
-        COBBLESTONE(3, "cobblestone"),
-        GLAS(4, "glass"),
-        LOG(5, "log"),
-        PLANKS(6, "planks"),
-        STONE(7, "stone"),
-        STONEBRICK(8, "stonebrick"),
-        WOOL(9, "wool");
+        DIRT(2, "dirt", true),
+        COBBLESTONE(3, "cobblestone", true),
+        GLASS(4, "glass", true),
+        LOG(5, "log", true),
+        PLANKS(6, "planks", true),
+        STONE(7, "stone", true),
+        STONEBRICK(8, "stonebrick", true),
+        WOOL(9, "wool", true);
 
         private int blockId;
         private String name;
+        private String unlocalizedName;
+        private boolean isNatural;
 
-        private EnumBlockType(int blockId, String name) {
+        private EnumBlockType(int blockId, String p_i46383_5_, boolean p_i46383_6_) {
+            this(blockId, p_i46383_5_, p_i46383_5_, p_i46383_6_);
+        }
+
+        private EnumBlockType(int blockId, String name, String unlocalizedName, boolean isNatural) {
             this.blockId = blockId;
             this.name = name;
+            this.unlocalizedName = unlocalizedName;
+            this.isNatural = isNatural;
         }
 
         @Override
@@ -115,6 +130,11 @@ public class BlockBlueprint extends BlockSlime {
 
         public int getBlockId() {
             return this.blockId;
+        }
+
+        public String getUnlocalizedName()
+        {
+            return this.unlocalizedName;
         }
 
         public static EnumBlockType fromString(String blockTypeStr) {
