@@ -110,9 +110,9 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             .getResourcePath();
         BlockBlueprint.EnumBlockType blockType = 
             BlockBlueprint.EnumBlockType.fromString(blockName);
-        IBlockState blueprintBlockState = BlockBlueprint.BLOCK
-            .getDefaultState()
-            .withProperty(BlockBlueprint.BLOCK_TYPE, blockType);
+        IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blockType)
+            .getDefaultState();
+        //    .withProperty(BlockBlueprint.VARIANT, blockType);
         return blueprintBlockState;
     }
 

@@ -9,11 +9,10 @@ auth.usernames=List of authenticated usernames
 auth.portToUserMappings=Map ports to usernames in format <port>:<username>
 auth.usernameToPasswordMappings=Map usernames to passwords in format <username>:<password>
 
-tile.malmomod:blueprint_block.name=Blueprint Block
-tile.malmomod:blueprint_block.dirt.name=Blueprint Dirt
+tile.malmomod:blueprint_block.dirt.name=Dirt
 tile.malmomod:blueprint_block.cobblestone.name=Cobblestone
 tile.malmomod:blueprint_block.glass.name=Glass
-tile.blueprint_block.log.name=Log
+tile.malmomod:blueprint_block.log.name=Log
 tile.malmomod:blueprint_block.planks.name=Planks
 tile.malmomod:blueprint_block.stone.name=Stone
 tile.malmomod:blueprint_block.stonebrick.name=Stone Brick
