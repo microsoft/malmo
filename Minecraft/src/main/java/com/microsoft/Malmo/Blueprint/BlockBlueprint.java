@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -26,7 +27,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockBlueprint extends Block {
     public static final String NAME = "blueprint_block";
+    public static final String BLUEPRINT_CONFIGS = "blueprint";
     public static Map<EnumBlockType, BlockBlueprint> BLOCKS;
+
+    public static boolean BLUEPRINT_VISIBLE = true;
 
     private EnumBlockType blockType;
 
@@ -35,6 +39,15 @@ public class BlockBlueprint extends Block {
         this.translucent = true;
         setCreativeTab(CreativeTabs.MISC);
         this.blockType = blockType;
+    }
+
+    public EnumBlockRenderType getRenderType(IBlockState state)
+    {
+        if (BLUEPRINT_VISIBLE) {
+            return super.getRenderType(state);
+        } else {
+            return EnumBlockRenderType.INVISIBLE;
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -53,8 +66,7 @@ public class BlockBlueprint extends Block {
     }
 
     public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid) {
-        // return false;
-        return true;
+        return BLUEPRINT_VISIBLE;
     }
 
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune) {
@@ -82,6 +94,9 @@ public class BlockBlueprint extends Block {
             GameRegistry.register(block, resourceLocation);
             new ItemBlock(block).setRegistryName(block.getRegistryName());
         }
+
+        BLUEPRINT_VISIBLE = MalmoMod.instance.getModPermanentConfigFile().get(
+            BLUEPRINT_CONFIGS, "visible", true).getBoolean();
     }
 
     public enum EnumBlockType implements IStringSerializable {
