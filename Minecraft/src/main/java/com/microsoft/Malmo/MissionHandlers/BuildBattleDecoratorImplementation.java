@@ -70,6 +70,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private boolean valid = true;
     private boolean initialised = false;
     private HashMap<BlockPos, IBlockState> structureMap = new HashMap<BlockPos, IBlockState>();
+    private HashMap<Integer, IBlockState> invalidBlocksMap = new HashMap<Integer, IBlockState>();
 
     /**
      * Attempt to parse the given object as a set of parameters for this handler.
@@ -84,6 +85,15 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             return false;
 
         this.params = (BuildBattleDecorator) params;
+
+        invalidBlocksMap.put(2, Blocks.COBBLESTONE.getDefaultState());
+        invalidBlocksMap.put(3, Blocks.GLASS.getDefaultState());
+        invalidBlocksMap.put(4, Blocks.LOG.getDefaultState());
+        invalidBlocksMap.put(5, Blocks.PLANKS.getDefaultState());
+        invalidBlocksMap.put(6, Blocks.STONE.getDefaultState());
+        invalidBlocksMap.put(7, Blocks.STONEBRICK.getDefaultState());
+        invalidBlocksMap.put(8, Blocks.WOOL.getDefaultState());
+        invalidBlocksMap.put(9, Blocks.DIRT.getDefaultState());
 
         this.sourceBounds = this.params.getGoalStructureBounds();
         this.destBounds = this.params.getPlayerStructureBounds();
@@ -105,15 +115,20 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     }
 
     private IBlockState getBlueprintBlockState(IBlockState blockState) {
+        BlockBlueprint.EnumBlockType blockType = this.getBlueprintBlockType(blockState);
+        IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blockType)
+            .getDefaultState();
+        //    .withProperty(BlockBlueprint.VARIANT, blockType);
+        return blueprintBlockState;
+    }
+
+    private BlockBlueprint.EnumBlockType getBlueprintBlockType(IBlockState blockState) {
         String blockName = Block.REGISTRY
             .getNameForObject(blockState.getBlock())
             .getResourcePath();
         BlockBlueprint.EnumBlockType blockType = 
             BlockBlueprint.EnumBlockType.fromString(blockName);
-        IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blockType)
-            .getDefaultState();
-        //    .withProperty(BlockBlueprint.VARIANT, blockType);
-        return blueprintBlockState;
+        return blockType;
     }
 
     private void createBlueprintBlock(World world, BlockPos sp, BlockPos dp) {
@@ -199,6 +214,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private IBlockState getSourceBlockState(World w, BlockPos pos)
     {
         int ind = blockPosToIndex(pos, this.sourceBounds);
+
         if (ind < 0 || ind >= this.structureVolume)
             return null;    // Out of bounds.
         
@@ -224,6 +240,23 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             this.dest.set(ind, state);
         }
         return state;
+    }
+
+    private boolean isBlockValid(World w, BlockPos pos)
+    {
+        try {
+
+            IBlockState sourceState = getSourceBlockState(w, pos.subtract(this.delta));
+            IBlockState testBlock = getDestBlockState(w, pos);
+
+            int sourceBlueprintId = this.getBlueprintBlockType(sourceState).getBlockId();
+            int testBlueprintId = this.getBlueprintBlockType(testBlock).getBlockId();
+
+            return sourceBlueprintId == testBlueprintId;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
+        }
     }
 
     private void updateAndScorePlayerVolume(World w, boolean updateReward)
@@ -338,6 +371,11 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         {
             this.valid = false;
             this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), event.getState());
+
+            if (this.structureMap.containsKey(event.getPos()) && !this.isBlockValid(event.getWorld(), event.getPos())) {
+                int blockId = this.getBlueprintBlockType(event.getState()).getBlockId();
+                event.getWorld().setBlockState(event.getPos(), this.invalidBlocksMap.get(blockId));
+            }
         }
     }
 
@@ -347,7 +385,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             BlockPos sp = event.getPos().subtract(this.delta);
             if (this.structureMap.containsKey(event.getPos())) {
                 event.getWorld().setBlockState(event.getPos(), this.structureMap.get(event.getPos()));
-                return;
+                // return;
             }
 
             try {
