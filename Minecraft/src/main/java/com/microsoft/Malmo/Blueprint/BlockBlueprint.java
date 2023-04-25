@@ -66,7 +66,7 @@ public class BlockBlueprint extends Block {
     }
 
     public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid) {
-        return BLUEPRINT_VISIBLE;
+        return false;
     }
 
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune) {
