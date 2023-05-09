@@ -67,6 +67,7 @@ import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Blueprint.BlockBlueprint;
+import com.microsoft.Malmo.Blueprint.ErrorBlock;
 import com.microsoft.Malmo.Client.MalmoEnvServer;
 
 
@@ -142,6 +143,7 @@ public class MalmoMod
         network.registerMessage(ObservationFromSystemImplementation.SystemRequestMessageHandler.class, ObservationFromSystemImplementation.SystemRequestMessage.class, 12, Side.SERVER);
 
         BlockBlueprint.register();
+        ErrorBlock.register();
     }
 
     @EventHandler

@@ -33,6 +33,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.microsoft.Malmo.Blueprint.BlockBlueprint;
+import com.microsoft.Malmo.Blueprint.ErrorBlock;
+import com.microsoft.Malmo.Blueprint.ErrorBlock.EnumBlockType;
 
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
@@ -182,6 +184,9 @@ public class JSONWorldDataHelper
                     IBlockState state = player.world.getBlockState(p);
                     if (state.getBlock() instanceof BlockBlueprint) {
                         name = "air";
+                    } else if (state.getBlock() instanceof ErrorBlock) {
+                        EnumBlockType type = ((ErrorBlock) state.getBlock()).getBlockType();
+                        name = type.getName();
                     } else {
                         Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
                         if (blockName instanceof ResourceLocation)

@@ -80,6 +80,10 @@ public class BlockBlueprint extends Block {
         return false;
     }
 
+    public EnumBlockType getBlockType() {
+        return this.blockType;
+    }
+
     public static void register() {
         BLOCKS = new HashMap<EnumBlockType, BlockBlueprint>();
         for (EnumBlockType blockType: EnumBlockType.values()) {

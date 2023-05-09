@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Blueprint.BlockBlueprint;
+import com.microsoft.Malmo.Blueprint.ErrorBlock;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.Schemas.BuildBattleDecorator;
@@ -86,14 +87,14 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 
         this.params = (BuildBattleDecorator) params;
 
-        invalidBlocksMap.put(2, Blocks.COBBLESTONE.getDefaultState());
-        invalidBlocksMap.put(3, Blocks.GLASS.getDefaultState());
-        invalidBlocksMap.put(4, Blocks.LOG.getDefaultState());
-        invalidBlocksMap.put(5, Blocks.PLANKS.getDefaultState());
-        invalidBlocksMap.put(6, Blocks.STONE.getDefaultState());
-        invalidBlocksMap.put(7, Blocks.STONEBRICK.getDefaultState());
-        invalidBlocksMap.put(8, Blocks.WOOL.getDefaultState());
-        invalidBlocksMap.put(9, Blocks.DIRT.getDefaultState());
+        invalidBlocksMap.put(2, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.DIRT).getDefaultState());
+        invalidBlocksMap.put(3, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.COBBLESTONE).getDefaultState());
+        invalidBlocksMap.put(4, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.GLASS).getDefaultState());
+        invalidBlocksMap.put(5, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.LOG).getDefaultState());
+        invalidBlocksMap.put(6, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.PLANKS).getDefaultState());
+        invalidBlocksMap.put(7, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.STONE).getDefaultState());
+        invalidBlocksMap.put(8, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.STONEBRICK).getDefaultState());
+        invalidBlocksMap.put(9, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.WOOL).getDefaultState());
 
         this.sourceBounds = this.params.getGoalStructureBounds();
         this.destBounds = this.params.getPlayerStructureBounds();
@@ -154,7 +155,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
                     try {
                         this.structureMap.put(dp, this.getBlueprintBlockState(this.getDestBlockState(world, sp)));
                         if (y == 1) {
-                            world.setBlockState(dp, Blocks.DIRT.getDefaultState(), 3);
+                            world.setBlockState(dp, Blocks.GRASS.getDefaultState(), 3);
                         } else {
                             this.createBlueprintBlock(world, sp, dp);
                         }

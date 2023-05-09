@@ -17,3 +17,12 @@ tile.malmomod:blueprint_block.planks.name=Oak Wood Planks
 tile.malmomod:blueprint_block.stone.name=Stone
 tile.malmomod:blueprint_block.stonebrick.name=Stone Bricks
 tile.malmomod:blueprint_block.wool.name=White Wool
+
+tile.malmomod:error_block.dirt.name=Dirt
+tile.malmomod:error_block.cobblestone.name=Cobblestone
+tile.malmomod:error_block.glass.name=Glass
+tile.malmomod:error_block.log.name=Oak Wood
+tile.malmomod:error_block.planks.name=Oak Wood Planks
+tile.malmomod:error_block.stone.name=Stone
+tile.malmomod:error_block.stonebrick.name=Stone Bricks
+tile.malmomod:error_block.wool.name=White Wool
