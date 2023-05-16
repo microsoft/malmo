@@ -155,7 +155,11 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
                     try {
                         this.structureMap.put(dp, this.getBlueprintBlockState(this.getDestBlockState(world, sp)));
                         if (y == 1) {
-                            world.setBlockState(dp, Blocks.GRASS.getDefaultState(), 3);
+                            if (this.getDestBlockState(world, sp).getBlock() instanceof BlockDirt) {
+                                world.setBlockState(dp, Blocks.GRASS.getDefaultState(), 3);
+                            } else {
+                                world.setBlockState(dp, invalidBlocksMap.get(2), 3);
+                            }
                         } else {
                             this.createBlueprintBlock(world, sp, dp);
                         }
