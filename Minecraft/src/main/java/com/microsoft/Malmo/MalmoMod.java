@@ -235,6 +235,7 @@ public class MalmoMod
         CLIENT_BAILED,				// Client has hit an error and been forced to enter error state
         CLIENT_SHARE_REWARD,        // Client has received a reward and needs to share it with other agents
         CLIENT_TURN_TAKEN,          // Client is telling the server turn scheduler that they have just taken their turn
+        CLIENT_TOGGLEFULLBLUEPRINT, // Toggle full blueprint for BuildBattleDecorator
         CLIENT_SOMEOTHERMESSAGE
     }
 

@@ -145,7 +145,7 @@ public class BlockBlueprint extends Block {
                     return blockType;
                 }
             }
-            throw new IllegalArgumentException("invalid block type: " + blockTypeStr);
+            return null;
         }
 
         public static EnumBlockType fromBlockId(int blockId) {
