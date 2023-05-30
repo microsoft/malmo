@@ -41,6 +41,7 @@ import com.microsoft.Malmo.Utils.BlockDrawingHelper.XMLBlockState;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockDirt;
+import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -216,7 +217,10 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
                     {
                         this.structureMap.put(dp, blueprintBlockState);
                         if (y == 1) {
-                            if (this.getDestBlockState(world, sp).getBlock() instanceof BlockDirt) {
+                            if (
+                                this.getDestBlockState(world, sp).getBlock() instanceof BlockDirt ||
+                                this.getDestBlockState(world, sp).getBlock() instanceof BlockGrass
+                            ) {
                                 world.setBlockState(dp, Blocks.GRASS.getDefaultState(), 3);
                             } else {
                                 world.setBlockState(dp, invalidBlocksMap.get(2), 3);
@@ -440,7 +444,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             this.valid = false;
             this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), event.getState());
 
-            if (this.structureMap.containsKey(event.getPos()) && !this.isBlockValid(event.getWorld(), event.getPos())) {
+            if (!this.isBlockValid(event.getWorld(), event.getPos())) {
                 int blockId = this.getBlueprintBlockType(event.getState()).getBlockId();
                 event.getWorld().setBlockState(event.getPos(), this.invalidBlocksMap.get(blockId));
             }
