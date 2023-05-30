@@ -8,12 +8,15 @@ import javax.annotation.Nullable;
 import com.microsoft.Malmo.MalmoMod;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -31,6 +34,7 @@ public class BlockBlueprint extends Block {
     public static Map<EnumBlockType, BlockBlueprint> BLOCKS;
 
     public static boolean BLUEPRINT_VISIBLE = true;
+    private static boolean showFullBlueprint = true;
 
     private EnumBlockType blockType;
 
@@ -54,6 +58,24 @@ public class BlockBlueprint extends Block {
     public BlockRenderLayer getBlockLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
+    }
+
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        if (showFullBlueprint) {
+            return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+        }
+        for (EnumFacing facing : EnumFacing.values()) {
+            BlockPos neighborPos = pos.offset(facing);
+            IBlockState neighborState = blockAccess.getBlockState(neighborPos);
+            if (
+                !(neighborState.getBlock() instanceof ErrorBlock)
+                && !(neighborState.getBlock() instanceof BlockAir)
+                && !(neighborState.getBlock() instanceof BlockBlueprint)
+            ) {
+                return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+            }
+        }
+        return false;
     }
 
     @Nullable
@@ -156,5 +178,11 @@ public class BlockBlueprint extends Block {
             }
             throw new IllegalArgumentException("invalid block ID: " + blockId);
         }
+    }
+
+    public static void toggleFullBlueprint() {
+        BlockBlueprint.showFullBlueprint = !BlockBlueprint.showFullBlueprint;
+        System.out.println("Toggling showFullBlueprint to " + BlockBlueprint.showFullBlueprint);
+        Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(0, 0, 0, 100, 200, 100);
     }
 }

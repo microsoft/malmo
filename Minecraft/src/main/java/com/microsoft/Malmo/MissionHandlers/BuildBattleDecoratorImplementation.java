@@ -73,7 +73,6 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private int currentScore = 0;
     private boolean valid = true;
     private boolean initialised = false;
-    private boolean showFullBlueprint = true;
     private HashMap<BlockPos, IBlockState> structureMap = new HashMap<BlockPos, IBlockState>();
     private HashMap<Integer, IBlockState> invalidBlocksMap = new HashMap<Integer, IBlockState>();
 
@@ -121,10 +120,13 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 
     private IBlockState getBlueprintBlockState(IBlockState blockState) {
         BlockBlueprint.EnumBlockType blockType = this.getBlueprintBlockType(blockState);
-        if (blockType == null) return null;
-        IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blockType)
+        return this.getBlueprintBlockState(blockType);
+    }
+
+    private IBlockState getBlueprintBlockState(BlockBlueprint.EnumBlockType blueprintBlockType) {
+        if (blueprintBlockType == null) return null;
+        IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blueprintBlockType)
             .getDefaultState();
-        //    .withProperty(BlockBlueprint.VARIANT, blockType);
         return blueprintBlockState;
     }
 
@@ -140,104 +142,42 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         return blockType;
     }
 
-    private void createBlueprintBlock(World world, BlockPos sp, BlockPos dp) {
-        IBlockState sourceBlockState = this.getSourceBlockState(world, sp);
-        IBlockState destBlockState = this.getDestBlockState(world, dp);
-
-        boolean shouldShowBlueprintBlock;
-        if (this.showFullBlueprint) {
-            shouldShowBlueprintBlock = true;
-        } else {
-            // Look at all the neighbors and only show the blueprint block if at least
-            // one neighbor is correct (i.e., the same as the source).
-            shouldShowBlueprintBlock = false;
-            for (EnumFacing facing : EnumFacing.values()) {
-                BlockPos neighborDestPos = dp.offset(facing);
-                if (!this.blockInBounds(neighborDestPos, this.destBounds)) {
-                    continue;
-                }
-                BlockPos neighborSourcePos = neighborDestPos.subtract(this.delta);
-                if (
-                    (
-                        this.isBlockValid(world, neighborDestPos)
-                        || world.getBlockState(neighborDestPos).equals(world.getBlockState(neighborSourcePos))
-                    )
-                    && !(world.getBlockState(neighborDestPos).getBlock() instanceof BlockBlueprint)
-                    && !(world.getBlockState(neighborDestPos).getBlock() instanceof ErrorBlock)
-                    && !(world.getBlockState(neighborDestPos).getBlock() instanceof BlockAir)
-                ) {
-                    shouldShowBlueprintBlock = true;
-                    break;
-                }
-            }
-
-            if (dp.getY() == this.destBounds.getMin().getY()) {
-                shouldShowBlueprintBlock = true;
-            }
-        }
-
-        System.out.println("dp: " + dp + " shouldShowBlueprintBlock: " + shouldShowBlueprintBlock);
-
-        if (shouldShowBlueprintBlock) {
-            if (
-                !(sourceBlockState.getBlock() instanceof BlockAir)
-                && destBlockState.getBlock() instanceof BlockAir
-            )
-            {
-                IBlockState blueprintBlockState = this.getBlueprintBlockState(sourceBlockState);
-                if (blueprintBlockState != null)
-                {
-                    world.setBlockState(dp, blueprintBlockState, 3);
-                }
+    private void createBlueprintOrErrorBlockIfNecessary(World world, BlockPos sp, BlockPos dp) {
+        BlockBlueprint.EnumBlockType sourceBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(sp));
+        BlockBlueprint.EnumBlockType destBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(dp));
+        if (destBlueprintBlockType == null) {
+            if (sourceBlueprintBlockType == null) {
+                // If there's no block in the source or destination, continue.
+            } else {
+                // If there's a block in the source, make a blueprint block in the destination.
+                world.setBlockState(dp, this.getBlueprintBlockState(sourceBlueprintBlockType), 3);
             }
         } else {
-            System.out.println("destBlockState: " + destBlockState);
-            System.out.println("destBlockState.getBlock(): " + destBlockState.getBlock());
-            System.out.println("world.getBlockState(dp).getBlock(): " + world.getBlockState(dp).getBlock());
-            if (world.getBlockState(dp).getBlock() instanceof BlockBlueprint) {
-                world.setBlockState(dp, Blocks.AIR.getDefaultState(), 3);
+            // This means there's a block in the destination. If it's
+            // different than the source, then make an error block.
+            if (destBlueprintBlockType != sourceBlueprintBlockType) {
+                world.setBlockState(dp, this.getErrorBlockState(destBlueprintBlockType), 3);
             }
         }
+    }
+
+    private IBlockState getErrorBlockState(BlockBlueprint.EnumBlockType blueprintBlockType) {
+        return this.invalidBlocksMap.get(blueprintBlockType.getBlockId());
     }
 
     @Override
     public void buildOnWorld(MissionInit missionInit, World world) throws DecoratorException
     {
-        // this.buildBlockToGhostMap();
-        // BlockDrawingHelper drawContext = new BlockDrawingHelper();
-        // drawContext.beginDrawing(world);
-
         for (int x = sourceBounds.getMin().getX(); x < sourceBounds.getMax().getX(); x++) {
             for (int y = Math.max(0, sourceBounds.getMin().getY()); y <= sourceBounds.getMax().getY(); y++) {
                 for (int z = sourceBounds.getMin().getZ(); z < sourceBounds.getMax().getZ(); z++) {
                     BlockPos sp = new BlockPos(x, y, z);
                     BlockPos dp = sp.add(this.delta);
-                    IBlockState blueprintBlockState = this.getBlueprintBlockState(this.getDestBlockState(world, sp));
-                    if (blueprintBlockState != null)
-                    {
-                        this.structureMap.put(dp, blueprintBlockState);
-                        if (y == 1) {
-                            if (
-                                this.getDestBlockState(world, sp).getBlock() instanceof BlockDirt ||
-                                this.getDestBlockState(world, sp).getBlock() instanceof BlockGrass
-                            ) {
-                                world.setBlockState(dp, Blocks.GRASS.getDefaultState(), 3);
-                            } else {
-                                world.setBlockState(dp, invalidBlocksMap.get(2), 3);
-                            }
-                        } else {
-                            this.createBlueprintBlock(world, sp, dp);
-                        }
-                    }
-                    else
-                    {
-                        world.setBlockState(dp, this.getDestBlockState(world, sp), 3);
-                    }
+
+                    this.createBlueprintOrErrorBlockIfNecessary(world, sp, dp);
                 }
             }
         }
-
-        // drawContext.endDrawing(world);
     }
 
     @Override
@@ -312,23 +252,6 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             this.dest.set(ind, state);
         }
         return state;
-    }
-
-    private boolean isBlockValid(World w, BlockPos pos)
-    {
-        IBlockState sourceState = getSourceBlockState(w, pos.subtract(this.delta));
-        IBlockState destBlock = getDestBlockState(w, pos);
-
-        BlockBlueprint.EnumBlockType sourceBlueprintBlockType = this.getBlueprintBlockType(sourceState);
-        BlockBlueprint.EnumBlockType destBlueprintBlockType = this.getBlueprintBlockType(destBlock);
-
-        System.out.println("pos: " + pos + " sourceBlueprintBlockType: " + sourceBlueprintBlockType + " destBlueprintBlockType: " + destBlueprintBlockType);
-
-        if (sourceBlueprintBlockType == null || destBlueprintBlockType == null) {
-            return false;
-        }
-
-        return sourceBlueprintBlockType.getBlockId() == destBlueprintBlockType.getBlockId();
     }
 
     private void updateAndScorePlayerVolume(World w, boolean updateReward)
@@ -444,27 +367,18 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             this.valid = false;
             this.dest.set(blockPosToIndex(event.getPos(), this.destBounds), event.getState());
 
-            if (!this.isBlockValid(event.getWorld(), event.getPos())) {
-                int blockId = this.getBlueprintBlockType(event.getState()).getBlockId();
-                event.getWorld().setBlockState(event.getPos(), this.invalidBlocksMap.get(blockId));
-            }
+            BlockPos dp = event.getPos();
+            BlockPos sp = dp.subtract(this.delta);
+            this.createBlueprintOrErrorBlockIfNecessary(event.getWorld(), sp, dp);
         }
     }
 
     @SubscribeEvent
     public void onHarvestDrops(HarvestDropsEvent event) {
         if (blockInBounds(event.getPos(), this.destBounds)) {
-            BlockPos sp = event.getPos().subtract(this.delta);
-            // if (this.structureMap.containsKey(event.getPos())) {
-            //     event.getWorld().setBlockState(event.getPos(), this.structureMap.get(event.getPos()));
-            //     // return;
-            // }
-
-            try {
-                this.createBlueprintBlock(event.getWorld(), sp, event.getPos());
-            } catch (Exception e) {
-                System.out.println(e);
-            }
+            BlockPos dp = event.getPos();
+            BlockPos sp = dp.subtract(this.delta);
+            this.createBlueprintOrErrorBlockIfNecessary(event.getWorld(), sp, dp);
         }
     }
 
@@ -504,7 +418,14 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
 	{
 		if (messageType == MalmoMessageType.CLIENT_TOGGLEFULLBLUEPRINT)
         {
-            this.toggleFullBlueprint();
+            Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(
+                this.destBounds.getMin().getX(),
+                this.destBounds.getMin().getY(),
+                this.destBounds.getMin().getZ(),
+                this.destBounds.getMax().getX(),
+                this.destBounds.getMax().getY(),
+                this.destBounds.getMax().getZ()
+            );
         }
 	}
 
@@ -532,21 +453,4 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     {
         // Does nothing.
     }
-
-    public void toggleFullBlueprint() {
-        this.showFullBlueprint = !this.showFullBlueprint;
-        System.out.println("Toggling showFullBlueprint to " + this.showFullBlueprint);
-
-        World world = Minecraft.getMinecraft().world;
-        for (int x = sourceBounds.getMin().getX(); x < sourceBounds.getMax().getX(); x++) {
-            for (int y = Math.max(0, sourceBounds.getMin().getY()); y <= sourceBounds.getMax().getY(); y++) {
-                for (int z = sourceBounds.getMin().getZ(); z < sourceBounds.getMax().getZ(); z++) {
-                    BlockPos sp = new BlockPos(x, y, z);
-                    BlockPos dp = sp.add(this.delta);
-                    this.createBlueprintBlock(world, sp, dp);
-                }
-            }
-        }
-    }
-
 }

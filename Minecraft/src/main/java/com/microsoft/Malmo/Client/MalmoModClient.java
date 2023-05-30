@@ -37,6 +37,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.Blueprint.BlockBlueprint;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 
 public class MalmoModClient
@@ -200,16 +201,8 @@ public class MalmoModClient
             @Override
             public void onPressed()
             {
+                BlockBlueprint.toggleFullBlueprint();
                 MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_TOGGLEFULLBLUEPRINT, ""));
-                MissionBehaviour missionBehaviour = stateMachine.currentMissionBehaviour();
-                System.out.println("missionBehaviour: " + missionBehaviour);
-                if (missionBehaviour != null) {
-                    System.out.println("worldDecorator: " + missionBehaviour.worldDecorator);
-                    if (missionBehaviour.worldDecorator instanceof BuildBattleDecoratorImplementation) {
-                        BuildBattleDecoratorImplementation buildBattleDecorator = (BuildBattleDecoratorImplementation) missionBehaviour.worldDecorator;
-                        buildBattleDecorator.toggleFullBlueprint();
-                    }
-                }
             }
         });
         this.keyManager = new KeyManager(settings, extraKeys);
