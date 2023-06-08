@@ -97,26 +97,6 @@ public class ErrorBlock extends Block {
         return new ItemStack(item, 1, 0);
     }
 
-    @Override
-    public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
-    {
-        super.dropBlockAsItemWithChance(worldIn, pos, state, chance, fortune);
-        System.out.println("Dropping block!");
-        if (!worldIn.isRemote && !worldIn.restoringBlockSnapshots) // do not drop items while restoring blockstates, prevents item dupe
-        {
-            java.util.List<ItemStack> items = getDrops(worldIn, pos, state, fortune);
-            chance = net.minecraftforge.event.ForgeEventFactory.fireBlockHarvesting(items, worldIn, pos, state, fortune, chance, false, harvesters.get());
-
-            for (ItemStack item : items)
-            {
-                if (worldIn.rand.nextFloat() <= chance)
-                {
-                    spawnAsEntity(worldIn, pos, item);
-                }
-            }
-        }
-    }
-
     public static void register() {
         BLOCKS = new HashMap<EnumBlockType, ErrorBlock>();
         // register dirt
