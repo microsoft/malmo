@@ -23,7 +23,6 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 
-
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -54,14 +53,18 @@ public class ErrorBlock extends Block {
 
     public ErrorBlock(EnumBlockType blockType, Material materialIn) {
         super(materialIn);
+        if (blockType == EnumBlockType.GLASS) {
+            this.translucent = true;
+            this.lightOpacity = 255;
+        }
+
         setCreativeTab(CreativeTabs.MISC);
         this.blockType = blockType;
     }
 
     @SideOnly(Side.CLIENT)
-    public BlockRenderLayer getBlockLayer()
-    {
-        return BlockRenderLayer.SOLID;
+    public BlockRenderLayer getBlockLayer() {
+        return this.blockType.getBlockLayer();
     }
 
     public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid) {
@@ -73,7 +76,19 @@ public class ErrorBlock extends Block {
     }
 
     public boolean isFullCube(IBlockState state) {
+        return this.blockType.isFullCube(state);
+    }
+
+    public boolean isOpaqueCube(IBlockState state) {
+        if (this.blockType == EnumBlockType.GLASS) {
+            return false;
+        }
+
         return true;
+    }
+
+    public boolean isToolEffective(String type, IBlockState state) {
+        return type != null & type.equals(this.blockType.getHarvestTool());
     }
 
     public boolean canSilkHarvest() {
@@ -85,14 +100,12 @@ public class ErrorBlock extends Block {
     }
 
     @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune)
-    {
+    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
         System.out.println("Dropping item!");
         return Item.getItemFromBlock(dropMap.get(this.getBlockType()));
     }
 
-    protected ItemStack getSilkTouchDrop(IBlockState state)
-    {
+    protected ItemStack getSilkTouchDrop(IBlockState state) {
         Item item = Item.getItemFromBlock(dropMap.get(this.getBlockType()));
         return new ItemStack(item, 1, 0);
     }
@@ -121,7 +134,8 @@ public class ErrorBlock extends Block {
         blocks[2] = (ErrorBlock) (new ErrorBlock(EnumBlockType.GLASS, Material.GLASS))
             .setHardness(0.3F)
             .setUnlocalizedName(MalmoMod.RESOURCE_PREFIX + "error_block"
-                + "." + EnumBlockType.GLASS.getName());
+                + "." + EnumBlockType.GLASS.getName())
+            .setLightOpacity(1);
         BLOCKS.put(EnumBlockType.GLASS, blocks[2]);
         
         // register log
@@ -174,23 +188,42 @@ public class ErrorBlock extends Block {
     }
 
     public enum EnumBlockType implements IStringSerializable {
-        DIRT(2, "dirt", Material.GROUND),
-        COBBLESTONE(3, "cobblestone", Material.CLAY),
-        GLASS(4, "glass", Material.GLASS),
-        LOG(5, "log", Material.WOOD),
-        PLANKS(6, "planks", Material.WOOD),
-        STONE(7, "stone", Material.CLAY),
-        STONEBRICK(8, "stonebrick", Material.CLAY),
-        WOOL(9, "wool", Material.CLOTH);
+        DIRT(2, "dirt", Material.GROUND, "shovel"),
+        COBBLESTONE(3, "cobblestone", Material.ROCK, "pickaxe"),
+        GLASS(4, "glass", Material.GLASS, null),
+        LOG(5, "log", Material.WOOD, "axe"),
+        PLANKS(6, "planks", Material.WOOD, "axe"),
+        STONE(7, "stone", Material.ROCK, "pickaxe"),
+        STONEBRICK(8, "stonebrick", Material.ROCK, "pickaxe"),
+        WOOL(9, "wool", Material.CLOTH, "shears");
 
         private int blockId;
         private String name;
         private Material materialIn;
+        private String harvestTool;
 
-        private EnumBlockType(int blockId, String name, Material materialIn) {
+        private EnumBlockType(int blockId, String name, Material materialIn, String harvestTool) {
             this.blockId = blockId;
             this.name = name;
             this.materialIn = materialIn;
+            this.harvestTool = harvestTool;
+        }
+
+        @SideOnly(Side.CLIENT)
+        public BlockRenderLayer getBlockLayer() {
+            if (this == EnumBlockType.GLASS) {
+                return BlockRenderLayer.TRANSLUCENT;
+            }
+
+            return BlockRenderLayer.SOLID;
+        }
+
+        public boolean isFullCube(IBlockState state) {
+            if (this == EnumBlockType.GLASS) {
+                return false;
+            }
+
+            return true;
         }
 
         @Override
@@ -215,6 +248,10 @@ public class ErrorBlock extends Block {
             return this.name;
         }
 
+        public String getHarvestTool() {
+            return this.harvestTool;
+        }
+
         public static EnumBlockType fromString(String blockTypeStr) {
             for (EnumBlockType blockType: EnumBlockType.values()) {
                 if (blockType.getName().equals(blockTypeStr)) {
@@ -230,6 +267,7 @@ public class ErrorBlock extends Block {
                     return blockType;
                 }
             }
+
             throw new IllegalArgumentException("invalid block ID: " + blockId);
         }
     }
