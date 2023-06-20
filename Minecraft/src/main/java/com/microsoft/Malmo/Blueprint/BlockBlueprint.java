@@ -34,9 +34,11 @@ public class BlockBlueprint extends Block {
     public static Map<EnumBlockType, BlockBlueprint> BLOCKS;
 
     public static boolean BLUEPRINT_VISIBLE = true;
-    private static boolean showFullBlueprint = true;
 
     private EnumBlockType blockType;
+
+    private enum BlueprintMode { FULL, PARTIAL, NONE; }
+    private static BlueprintMode blueprintMode = BlueprintMode.FULL;
 
     public BlockBlueprint(EnumBlockType blockType) {
         super(Material.CLAY);
@@ -61,8 +63,10 @@ public class BlockBlueprint extends Block {
     }
 
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
-        if (showFullBlueprint) {
+        if (BlockBlueprint.blueprintMode == BlueprintMode.FULL) {
             return super.shouldSideBeRendered(blockState, blockAccess, pos, side);
+        } else if (BlockBlueprint.blueprintMode == BlueprintMode.NONE) {
+            return false;
         }
         for (EnumFacing facing : EnumFacing.values()) {
             BlockPos neighborPos = pos.offset(facing);
@@ -181,9 +185,16 @@ public class BlockBlueprint extends Block {
         }
     }
 
-    public static void toggleFullBlueprint() {
-        BlockBlueprint.showFullBlueprint = !BlockBlueprint.showFullBlueprint;
-        System.out.println("Toggling showFullBlueprint to " + BlockBlueprint.showFullBlueprint);
+    public static void toggleBlueprintMode() {
+        if (BlockBlueprint.blueprintMode == BlueprintMode.FULL) {
+            BlockBlueprint.blueprintMode = BlueprintMode.PARTIAL;
+        } else if (BlockBlueprint.blueprintMode == BlueprintMode.PARTIAL) {
+            BlockBlueprint.blueprintMode = BlueprintMode.NONE;
+        } else if (BlockBlueprint.blueprintMode == BlueprintMode.NONE) {
+            BlockBlueprint.blueprintMode = BlueprintMode.FULL;
+        }
+
+        System.out.println("Toggling showFullBlueprint to " + BlockBlueprint.blueprintMode);
         Minecraft.getMinecraft().world.markBlockRangeForRenderUpdate(0, 0, 0, 100, 200, 100);
     }
 }

@@ -196,12 +196,12 @@ public class MalmoModClient
             }
         });
 
-        extraKeys.add(new InternalKey("key.toggleFullBlueprint", 19, "key.categories.malmo")
+        extraKeys.add(new InternalKey("key.toggleBlueprintMode", 19, "key.categories.malmo")
         {
             @Override
             public void onPressed()
             {
-                BlockBlueprint.toggleFullBlueprint();
+                BlockBlueprint.toggleBlueprintMode();
                 MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_TOGGLEFULLBLUEPRINT, ""));
             }
         });
