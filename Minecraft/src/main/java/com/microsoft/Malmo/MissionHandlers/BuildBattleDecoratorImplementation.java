@@ -126,18 +126,21 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         return blueprintBlockState;
     }
 
-    private BlockBlueprint.EnumBlockType getBlueprintBlockType(IBlockState blockState) {
+    private BlockBlueprint.EnumBlockType getBlueprintBlockType(IBlockState blockState, boolean mapGrassToDirt) {
         String blockName = Block.REGISTRY
             .getNameForObject(blockState.getBlock())
             .getResourcePath();
+        if (mapGrassToDirt && blockName.equals("grass")) {
+            blockName = "dirt";
+        }
         BlockBlueprint.EnumBlockType blockType = 
             BlockBlueprint.EnumBlockType.fromString(blockName);
         return blockType;
     }
 
     private void createBlueprintOrErrorBlockIfNecessary(World world, BlockPos sp, BlockPos dp) {
-        BlockBlueprint.EnumBlockType sourceBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(sp));
-        BlockBlueprint.EnumBlockType destBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(dp));
+        BlockBlueprint.EnumBlockType sourceBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(sp), true);
+        BlockBlueprint.EnumBlockType destBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(dp), true);
         
         if (destBlueprintBlockType == null) {
             if (sourceBlueprintBlockType == null) {
@@ -150,6 +153,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             // This means there's a block in the destination. If it's
             // different than the source, then make an error block.
             if (destBlueprintBlockType != sourceBlueprintBlockType) {
+                destBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(dp), false);
                 world.setBlockState(dp, this.getErrorBlockState(destBlueprintBlockType), 3);
             }
         }
