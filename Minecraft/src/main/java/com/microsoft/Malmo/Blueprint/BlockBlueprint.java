@@ -133,7 +133,8 @@ public class BlockBlueprint extends Block {
         PLANKS(6, "planks"),
         STONE(7, "stone"),
         STONEBRICK(8, "stonebrick"),
-        WOOL(9, "wool");
+        WOOL(9, "wool"),
+        GRASS(10, "grass");
 
         private int blockId;
         private String name;

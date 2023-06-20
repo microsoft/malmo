@@ -10,6 +10,7 @@ auth.portToUserMappings=Map ports to usernames in format <port>:<username>
 auth.usernameToPasswordMappings=Map usernames to passwords in format <username>:<password>
 
 tile.malmomod:blueprint_block.dirt.name=Dirt
+tile.malmomod:blueprint_block.grass.name=Grass
 tile.malmomod:blueprint_block.cobblestone.name=Cobblestone
 tile.malmomod:blueprint_block.glass.name=Glass
 tile.malmomod:blueprint_block.log.name=Oak Wood
@@ -19,6 +20,7 @@ tile.malmomod:blueprint_block.stonebrick.name=Stone Bricks
 tile.malmomod:blueprint_block.wool.name=White Wool
 
 tile.malmomod:error_block.dirt.name=Dirt
+tile.malmomod:error_block.grass.name=Grass
 tile.malmomod:error_block.cobblestone.name=Cobblestone
 tile.malmomod:error_block.glass.name=Glass
 tile.malmomod:error_block.log.name=Oak Wood

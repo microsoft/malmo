@@ -98,6 +98,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         invalidBlocksMap.put(7, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.STONE).getDefaultState());
         invalidBlocksMap.put(8, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.STONEBRICK).getDefaultState());
         invalidBlocksMap.put(9, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.WOOL).getDefaultState());
+        invalidBlocksMap.put(10, ErrorBlock.BLOCKS.get(ErrorBlock.EnumBlockType.GRASS).getDefaultState());
 
         this.sourceBounds = this.params.getGoalStructureBounds();
         this.destBounds = this.params.getPlayerStructureBounds();
@@ -118,11 +119,6 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         return true;
     }
 
-    private IBlockState getBlueprintBlockState(IBlockState blockState) {
-        BlockBlueprint.EnumBlockType blockType = this.getBlueprintBlockType(blockState);
-        return this.getBlueprintBlockState(blockType);
-    }
-
     private IBlockState getBlueprintBlockState(BlockBlueprint.EnumBlockType blueprintBlockType) {
         if (blueprintBlockType == null) return null;
         IBlockState blueprintBlockState = BlockBlueprint.BLOCKS.get(blueprintBlockType)
@@ -134,9 +130,6 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
         String blockName = Block.REGISTRY
             .getNameForObject(blockState.getBlock())
             .getResourcePath();
-        if (blockName.equals("grass")) {
-            blockName = "dirt";
-        }
         BlockBlueprint.EnumBlockType blockType = 
             BlockBlueprint.EnumBlockType.fromString(blockName);
         return blockType;
@@ -145,6 +138,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
     private void createBlueprintOrErrorBlockIfNecessary(World world, BlockPos sp, BlockPos dp) {
         BlockBlueprint.EnumBlockType sourceBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(sp));
         BlockBlueprint.EnumBlockType destBlueprintBlockType = this.getBlueprintBlockType(world.getBlockState(dp));
+        
         if (destBlueprintBlockType == null) {
             if (sourceBlueprintBlockType == null) {
                 // If there's no block in the source or destination, continue.

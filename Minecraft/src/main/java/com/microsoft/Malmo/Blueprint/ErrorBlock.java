@@ -1,8 +1,6 @@
 package com.microsoft.Malmo.Blueprint;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
-import javax.annotation.Nullable;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
@@ -11,17 +9,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
 import java.util.Random;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
 import net.minecraft.init.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.AxisAlignedBB;
 
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -42,6 +35,7 @@ public class ErrorBlock extends Block {
     public static Map<EnumBlockType, Block> dropMap = new HashMap<EnumBlockType, Block>();
     static {
         dropMap.put(EnumBlockType.DIRT, Blocks.DIRT);
+        dropMap.put(EnumBlockType.GRASS, Blocks.DIRT);
         dropMap.put(EnumBlockType.COBBLESTONE, Blocks.COBBLESTONE);
         dropMap.put(EnumBlockType.GLASS, Blocks.GLASS);
         dropMap.put(EnumBlockType.LOG, Blocks.LOG);
@@ -113,7 +107,7 @@ public class ErrorBlock extends Block {
     public static void register() {
         BLOCKS = new HashMap<EnumBlockType, ErrorBlock>();
         // register dirt
-        ErrorBlock[] blocks = new ErrorBlock[8];
+        ErrorBlock[] blocks = new ErrorBlock[9];
         blocks[0] = (ErrorBlock) (new ErrorBlock(EnumBlockType.DIRT, Material.GROUND))
             .setHardness(0.5F)
             .setUnlocalizedName(MalmoMod.RESOURCE_PREFIX + "error_block"
@@ -175,6 +169,13 @@ public class ErrorBlock extends Block {
                 + "." + EnumBlockType.WOOL.getName());
         BLOCKS.put(EnumBlockType.WOOL, blocks[7]);
 
+        // register grass
+        blocks[8] = (ErrorBlock) (new ErrorBlock(EnumBlockType.GRASS, Material.GRASS))
+            .setHardness(0.6F)
+            .setUnlocalizedName(MalmoMod.RESOURCE_PREFIX + "error_block"
+                + "." + EnumBlockType.GRASS.getName());
+        BLOCKS.put(EnumBlockType.GRASS, blocks[8]);
+
         for (ErrorBlock block : blocks) {
             System.out.println("Registering block: " + block.getBlockType().getName());
             ResourceLocation resourceLocation = new ResourceLocation(
@@ -195,7 +196,8 @@ public class ErrorBlock extends Block {
         PLANKS(6, "planks", Material.WOOD, "axe"),
         STONE(7, "stone", Material.ROCK, "pickaxe"),
         STONEBRICK(8, "stonebrick", Material.ROCK, "pickaxe"),
-        WOOL(9, "wool", Material.CLOTH, "shears");
+        WOOL(9, "wool", Material.CLOTH, "shears"),
+        GRASS(10, "grass", Material.GRASS, "shovel");
 
         private int blockId;
         private String name;
