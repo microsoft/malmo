@@ -1,0 +1,30 @@
+portOverride.tooltip=Explicitly set the Mission Control Port - WARNING: will affect all Mods subsequently launched on this machine.
+debugOutputLevel.tooltip=Set the level of debugging information to be displayed on the Minecraft screen.
+
+key.categories.malmo=Malmo
+key.toggleMalmo=Toggle AI/human control
+key.handyTestHook=Test hook (dump recipe list)
+
+auth.usernames=List of authenticated usernames
+auth.portToUserMappings=Map ports to usernames in format <port>:<username>
+auth.usernameToPasswordMappings=Map usernames to passwords in format <username>:<password>
+
+tile.malmomod:blueprint_block.dirt.name=Dirt
+tile.malmomod:blueprint_block.grass.name=Grass
+tile.malmomod:blueprint_block.cobblestone.name=Cobblestone
+tile.malmomod:blueprint_block.glass.name=Glass
+tile.malmomod:blueprint_block.log.name=Oak Wood
+tile.malmomod:blueprint_block.planks.name=Oak Wood Planks
+tile.malmomod:blueprint_block.stone.name=Stone
+tile.malmomod:blueprint_block.stonebrick.name=Stone Bricks
+tile.malmomod:blueprint_block.wool.name=White Wool
+
+tile.malmomod:error_block.dirt.name=Dirt
+tile.malmomod:error_block.grass.name=Grass
+tile.malmomod:error_block.cobblestone.name=Cobblestone
+tile.malmomod:error_block.glass.name=Glass
+tile.malmomod:error_block.log.name=Oak Wood
+tile.malmomod:error_block.planks.name=Oak Wood Planks
+tile.malmomod:error_block.stone.name=Stone
+tile.malmomod:error_block.stonebrick.name=Stone Bricks
+tile.malmomod:error_block.wool.name=White Wool

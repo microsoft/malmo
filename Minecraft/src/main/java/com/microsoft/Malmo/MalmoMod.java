@@ -54,6 +54,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -65,6 +66,8 @@ import com.microsoft.Malmo.Utils.ScoreHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.TCPUtils;
+import com.microsoft.Malmo.Blueprint.BlockBlueprint;
+import com.microsoft.Malmo.Blueprint.ErrorBlock;
 import com.microsoft.Malmo.Client.MalmoEnvServer;
 
 
@@ -72,6 +75,7 @@ import com.microsoft.Malmo.Client.MalmoEnvServer;
 public class MalmoMod
 {
     public static final String MODID = "malmomod";
+    public static final String RESOURCE_PREFIX = MODID.toLowerCase() + ":";
     public static final String SOCKET_CONFIGS = "malmoports";
     public static final String ENV_CONFIGS = "envtype";
     public static final String DIAGNOSTIC_CONFIGS = "malmodiags";
@@ -97,7 +101,7 @@ public class MalmoMod
     @EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-         if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
+        if (!SchemaHelper.testSchemaVersionNumbers(Loader.instance().activeModContainer().getVersion()))
             throw new RuntimeException("This mod has been incorrectly built; check schema version numbers.");
 
         if (event.getModMetadata().version.equals("${version}"))
@@ -137,6 +141,9 @@ public class MalmoMod
         network.registerMessage(ObservationFromFullInventoryImplementation.InventoryRequestMessageHandler.class, ObservationFromFullInventoryImplementation.InventoryRequestMessage.class, 10, Side.SERVER);
         network.registerMessage(InventoryCommandsImplementation.InventoryChangeMessageHandler.class, InventoryCommandsImplementation.InventoryChangeMessage.class, 11, Side.CLIENT);
         network.registerMessage(ObservationFromSystemImplementation.SystemRequestMessageHandler.class, ObservationFromSystemImplementation.SystemRequestMessage.class, 12, Side.SERVER);
+
+        BlockBlueprint.register();
+        ErrorBlock.register();
     }
 
     @EventHandler
@@ -228,6 +235,7 @@ public class MalmoMod
         CLIENT_BAILED,				// Client has hit an error and been forced to enter error state
         CLIENT_SHARE_REWARD,        // Client has received a reward and needs to share it with other agents
         CLIENT_TURN_TAKEN,          // Client is telling the server turn scheduler that they have just taken their turn
+        CLIENT_TOGGLEFULLBLUEPRINT, // Toggle full blueprint for BuildBattleDecorator
         CLIENT_SOMEOTHERMESSAGE
     }
 

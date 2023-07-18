@@ -324,6 +324,7 @@ public class MinecraftTypeHelper
         if (blockName instanceof ResourceLocation)
         {
             String name = ((ResourceLocation)blockName).getResourcePath();
+            name = name.replace("_error_block", "");
             BlockType type = BlockType.fromValue(name);
             block.setType(type);
         }
