@@ -74,13 +74,11 @@ jobs:
           name: wheels-${{ matrix.os }}
           path: scripts/python-wheel/package/wheelhouse/*.whl
       
-      - name: Upload wheels to PyPi
-        env:
-          TWINE_USERNAME: 'dylan.feng.01'
-          TWINE_PASSWORD: 'Dylan@5188'
-        run: |
-          pip install twine
-          twine upload scripts/python-wheel/package/wheelhouse/*.whl
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: scripts/python-wheel/package/wheelhouse/
+          password: ${{ secrets.PYPI_API_TOKEN }}
   
   test_wheels:
     name: Test wheels on ${{ matrix.os }} Python ${{ matrix.pyversion }}
