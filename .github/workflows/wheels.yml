@@ -83,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu]
         pyversion: ['3.8', '3.9', '3.10']
 
     steps:
