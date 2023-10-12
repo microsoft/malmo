@@ -16,7 +16,7 @@ jobs:
           github_token: ${{secrets.GITHUB_TOKEN}}
           branch: master
           workflow: wheels.yml
-          workflow_conclusion: success
+          workflow_conclusion: ''
       - name: Display output
         run: ls -R
         
