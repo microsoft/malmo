@@ -7,14 +7,16 @@ on:
 
 jobs:
   download-wheels:
-    name: Download wheels
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
-          name: wheels-macOS
-      - name: Display downloaded file
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: wheels.yml
+          branch: master
+      - name: Display output
         run: ls -R
         
   # publish:
