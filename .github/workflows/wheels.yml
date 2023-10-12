@@ -1,9 +1,6 @@
 name: Build wheels
 
-on:
-  push:
-    tags:
-      - v*
+on: [workflow_dispatch]
 
 jobs:
   build_wheels:
@@ -76,13 +73,6 @@ jobs:
         with:
           name: wheels-${{ matrix.os }}
           path: scripts/python-wheel/package/wheelhouse/*.whl
-      
-      - name: Publish distribution to PyPI
-        if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          packages-dir: scripts/python-wheel/package/wheelhouse/
-          password: ${{ secrets.PYPI_API_TOKEN }}
   
   test_wheels:
     name: Test wheels on ${{ matrix.os }} Python ${{ matrix.pyversion }}
