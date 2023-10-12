@@ -6,7 +6,7 @@ on:
       - v*
 
 jobs:
-  download-wheels:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Download wheels
@@ -17,8 +17,14 @@ jobs:
           branch: master
           workflow: wheels.yml
           workflow_conclusion: ''
+      - name: Copy wheels to dist
+        run: |
+          mkdir -p dist;
+          find . -type d -name 'wheels-*' -exec sh -c 'cp -v "$1"/* dist/' _ {} \;
       - name: Display output
-        run: ls -R
+        run: |
+          ls -l dist
+
         
   # publish:
   #   name: Publish to PyPI
