@@ -9,7 +9,7 @@ jobs:
   download-wheels:
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
+      - name: Download wheels
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
         with:
