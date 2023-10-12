@@ -14,8 +14,9 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: wheels.yml
           branch: master
+          workflow: wheels.yml
+          workflow_conclusion: success
       - name: Display output
         run: ls -R
         
