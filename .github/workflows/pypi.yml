@@ -5,6 +5,8 @@ on:
   push:
     tags:
       - v*
+    branches:
+      - dylan/publish-to-pypi
 
 jobs:
   publish:
