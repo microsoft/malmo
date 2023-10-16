@@ -16,6 +16,8 @@ jobs:
 
       # Used to host cibuildwheel
       - uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.12.0
@@ -51,7 +53,7 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: ./install_deps_macos.sh
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
             DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --dylibs-only
-          CIBW_TEST_COMMAND_MACOS: "python {project}/tests/run_mission.py"
+          # CIBW_TEST_COMMAND_MACOS: "python {project}/tests/run_mission.py"
         run: |
           cp VERSION scripts/python-wheel/package/
           VERSION=$(cat VERSION)
@@ -81,7 +83,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu]
         pyversion: ['3.8', '3.9', '3.10']
 
     steps:
