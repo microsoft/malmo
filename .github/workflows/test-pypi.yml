@@ -1,19 +1,22 @@
-name: Publish to PyPI
+name: Test Publish to PyPI
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - v*
+    branches-ignore:
+      - main
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu
     steps:
       - name: Download wheels
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2
         with:
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: wheels.yml
           workflow_conclusion: ''
 
@@ -21,14 +24,18 @@ jobs:
         run: |
           mkdir -p dist;
           find . -type d -name 'wheels-*' -exec sh -c 'cp -v "$1"/* dist/' _ {} \;
+          
+      - name: Display output
+        run: |
+          ls -l dist
 
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Publish distribution to PyPI
-        if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
