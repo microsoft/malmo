@@ -32,7 +32,7 @@ public class AddressHelper
 {
 	static public final int MIN_MISSION_CONTROL_PORT = 10000;
 	static public final int MIN_FREE_PORT = 10100;
-	static public final int MAX_FREE_PORT = 11000;
+	static public final int MAX_FREE_PORT = 10999;
 	static private int missionControlPortOverride = 0;
 	static private int missionControlPort = 0;
 	

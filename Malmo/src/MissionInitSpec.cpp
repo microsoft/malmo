@@ -192,4 +192,21 @@ namespace malmo
         this->mission_init.minecraft_server.connection_address = boost::algorithm::trim_copy(address);
         this->mission_init.minecraft_server.connection_port = port;
     }
+
+    boost::optional<int> MissionInitSpec::getMinecraftServerConnectionPort()
+    {
+        return this->mission_init.minecraft_server.connection_port;
+    }
+
+    boost::optional<std::string> MissionInitSpec::getMinecraftServerConnectionAddress()
+    {
+        return this->mission_init.minecraft_server.connection_address;
+    }
+
+    std::ostream& operator<<(std::ostream& os, const MissionInitSpec& mis)
+    {
+        os << "MissionInitSpec:\n";
+        os << mis.getAsXML(true);
+        return os;
+    }
 }

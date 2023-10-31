@@ -1,0 +1,15 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block",
+        "model": "cube_all",
+        "render": "translucent"
+    },
+    "variants": {
+        "normal": [{
+            "textures": {
+                "all": "malmomod:blocks/error_planks"
+            }
+        }]
+    }
+}

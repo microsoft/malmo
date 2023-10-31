@@ -18,6 +18,8 @@
 // --------------------------------------------------------------------------------------------------
 
 // Boost:
+#include <boost/noncopyable.hpp>
+#include <boost/optional.hpp>
 #include <boost/python.hpp>
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/register_ptr_to_python.hpp>
@@ -26,6 +28,7 @@
 
 // Malmo:
 #include <AgentHost.h>
+#include <MissionInitSpec.h>
 #include <Logger.h>
 #ifdef WRAP_ALE
     #include <ALEAgentHost.h>
@@ -38,6 +41,7 @@ using namespace malmo;
 // STL:
 #include <sstream>
 #include <cstdint>
+#include <string>
 
 // Python:
 #include <datetime.h>
@@ -64,6 +68,54 @@ void translateXMLStdException(std::exception const& e)
     oss << "Caught std::exception: " << e.what() << "\n";
     PyErr_SetString(PyExc_RuntimeError, oss.str().c_str() );
 }
+
+// From https://stackoverflow.com/a/28604575/200508
+template<typename T>
+struct python_optional : private boost::noncopyable {
+    struct conversion : public boost::python::converter::expected_from_python_type<T>
+    {
+        static PyObject* convert(boost::optional<T> const& value)
+        {
+            using namespace boost::python;
+            return incref((value ? object(*value) : object()).ptr());
+        }
+    };
+
+    static void* convertible(PyObject *obj) {
+        using namespace boost::python;
+        return obj == Py_None || extract<T>(obj).check() ? obj : NULL;
+    }
+
+    static void constructor(
+        PyObject *obj,
+        boost::python::converter::rvalue_from_python_stage1_data *data
+    ) {
+        using namespace boost::python;
+        void *const storage =
+        reinterpret_cast<
+            converter::rvalue_from_python_storage<boost::optional<T> >*
+        >(data)->storage.bytes;
+        if(obj == Py_None) {
+            new (storage) boost::optional<T>();
+        } else {
+            new (storage) boost::optional<T>(extract<T>(obj));
+        }
+        data->convertible = storage;
+    }
+
+    explicit python_optional() {
+        using namespace boost::python;
+        if(!extract<boost::optional<T> >(object()).check()) {
+            to_python_converter<boost::optional<T>, conversion, true>();
+            converter::registry::push_back(
+                &convertible,
+                &constructor,
+                type_id<boost::optional<T> >(),
+                &conversion::get_pytype
+            );
+        }
+    }
+};
 
 PyObject* missionExceptionType = NULL;
 
@@ -96,6 +148,9 @@ void (AgentHost::*sendCommandWithKey)(std::string, std::string) = &AgentHost::se
 
 void (MissionRecordSpec::*recordMP4General)(int, int64_t bit_rate) = &MissionRecordSpec::recordMP4;
 void (MissionRecordSpec::*recordMP4Specific)(TimestampedVideoFrame::FrameType, int, int64_t, bool) = &MissionRecordSpec::recordMP4;
+
+
+boost::shared_ptr<MissionInitSpec> (AgentHost::*getMissionInit)() = &AgentHost::getMissionInit;
 
 #ifdef WRAP_ALE
 void (ALEAgentHost::*startALEMissionSimple)(const MissionSpec&, const MissionRecordSpec&) = &ALEAgentHost::startMission;
@@ -136,6 +191,9 @@ BOOST_PYTHON_MODULE(MalmoPython)
     PyDateTime_IMPORT;
     to_python_converter<boost::posix_time::ptime, ptime_to_python_datetime>();
     to_python_converter<std::vector<unsigned char>, unsigned_char_vec_to_python_array>();
+
+    python_optional<int>();
+    python_optional<std::string>();
 
     enum_< MissionException::MissionErrorCode >("MissionErrorCode")
         .value("MISSION_BAD_ROLE_REQUEST", MissionException::MISSION_BAD_ROLE_REQUEST)
@@ -216,6 +274,39 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .value( "KEEP_ALL_OBSERVATIONS",    AgentHost::KEEP_ALL_OBSERVATIONS )
     ;
 
+    register_ptr_to_python< boost::shared_ptr< MissionInitSpec > >();
+    class_< MissionInitSpec >("MissionInitSpec", no_init)
+        .def("getAsXML",                       &MissionInitSpec::getAsXML)
+        .def("getExperimentID",                &MissionInitSpec::getExperimentID)
+        .def("getClientAddress",               &MissionInitSpec::getClientAddress)
+        .def("setClientAddress",               &MissionInitSpec::setClientAddress)
+        .def("getClientMissionControlPort",    &MissionInitSpec::getClientMissionControlPort)
+        .def("setClientMissionControlPort",    &MissionInitSpec::setClientMissionControlPort)
+        .def("getClientCommandsPort",          &MissionInitSpec::getClientCommandsPort)
+        .def("setClientCommandsPort",          &MissionInitSpec::setClientCommandsPort)
+        .def("getAgentAddress",                &MissionInitSpec::getAgentAddress)
+        .def("setAgentAddress",                &MissionInitSpec::setAgentAddress)
+        .def("getAgentMissionControlPort",     &MissionInitSpec::getAgentMissionControlPort)
+        .def("setAgentMissionControlPort",     &MissionInitSpec::setAgentMissionControlPort)
+        .def("getAgentVideoPort",              &MissionInitSpec::getAgentVideoPort)
+        .def("getAgentDepthPort",              &MissionInitSpec::getAgentDepthPort)
+        .def("getAgentLuminancePort",          &MissionInitSpec::getAgentLuminancePort)
+        .def("getAgentColourMapPort",          &MissionInitSpec::getAgentColourMapPort)
+        .def("setAgentVideoPort",              &MissionInitSpec::setAgentVideoPort)
+        .def("setAgentDepthPort",              &MissionInitSpec::setAgentDepthPort)
+        .def("setAgentLuminancePort",          &MissionInitSpec::setAgentLuminancePort)
+        .def("setAgentColourMapPort",          &MissionInitSpec::setAgentColourMapPort)
+        .def("getAgentObservationsPort",       &MissionInitSpec::getAgentObservationsPort)
+        .def("setAgentObservationsPort",       &MissionInitSpec::setAgentObservationsPort)
+        .def("getAgentRewardsPort",            &MissionInitSpec::getAgentRewardsPort)
+        .def("setAgentRewardsPort",            &MissionInitSpec::setAgentRewardsPort)
+        .def("hasMinecraftServerInformation",  &MissionInitSpec::hasMinecraftServerInformation)
+        .def("setMinecraftServerInformation",  &MissionInitSpec::setMinecraftServerInformation)
+        .def("getMinecraftServerConnectionPort", &MissionInitSpec::getMinecraftServerConnectionPort)
+        .def("getMinecraftServerConnectionAddress", &MissionInitSpec::getMinecraftServerConnectionAddress)
+        .def(self_ns::str(self_ns::self))
+    ;
+
     class_< AgentHost, bases< ArgumentParser >, boost::noncopyable >("AgentHost", init<>())
         .def( "startMission",                   startMissionSimple )
         .def( "startMission",                   startMissionComplex )
@@ -228,6 +319,7 @@ BOOST_PYTHON_MODULE(MalmoPython)
         .def( "sendCommand",                    sendCommand )
         .def( "sendCommand",                    sendCommandWithKey )
         .def("getRecordingTemporaryDirectory",  &AgentHost::getRecordingTemporaryDirectory)
+        .def( "getMissionInit",                 getMissionInit )
         .def( "setDebugOutput",                 &AgentHost::setDebugOutput )
         .def(self_ns::str(self_ns::self))
     ;

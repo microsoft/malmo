@@ -961,9 +961,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (ClientStateMachine.this.controlInputPoller == null)
             {
                 if (requestedPort == 0)
-                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(AddressHelper.MIN_FREE_PORT, AddressHelper.MAX_FREE_PORT, true, "com");
+                {
+                    int controlInputPort = cac.getClientMissionControlPort() + 1000;
+                    ClientStateMachine.this.controlInputPoller = new TCPInputPoller(controlInputPort, "com");
+                }
                 else
+                {
                     ClientStateMachine.this.controlInputPoller = new TCPInputPoller(requestedPort, "com");
+                }
                 ClientStateMachine.this.controlInputPoller.start();
             }
             // Make sure the cac is up-to-date:
