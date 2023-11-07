@@ -115,7 +115,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='malmo',  # Required
+    name='mbag-malmo',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -158,11 +158,11 @@ setup(
     #
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/Microsoft/malmo',  # Optional
+    url='https://github.com/cassidylaidlaw/malmo',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
-    author='Microsoft',  # Optional
+    author='Cassidy Laidlaw',  # Optional
 
     # This should be a valid email address corresponding to the author listed
     # above.
