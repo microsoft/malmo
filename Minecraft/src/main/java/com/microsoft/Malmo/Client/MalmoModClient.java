@@ -24,6 +24,8 @@ import java.util.ArrayList;
 
 import org.lwjgl.input.Mouse;
 
+import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
+import com.microsoft.Malmo.MissionHandlers.BuildBattleDecoratorImplementation;
 import com.microsoft.Malmo.Utils.CraftingHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper.TextCategory;
 import com.microsoft.Malmo.Utils.TextureHelper;
@@ -33,6 +35,10 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.MouseHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.Blueprint.BlockBlueprint;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 
 public class MalmoModClient
 {
@@ -187,6 +193,16 @@ public class MalmoModClient
                 {
                     e.printStackTrace();
                 }
+            }
+        });
+
+        extraKeys.add(new InternalKey("key.toggleBlueprintMode", 19, "key.categories.malmo")
+        {
+            @Override
+            public void onPressed()
+            {
+                BlockBlueprint.toggleBlueprintMode();
+                MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_TOGGLEFULLBLUEPRINT, ""));
             }
         });
         this.keyManager = new KeyManager(settings, extraKeys);

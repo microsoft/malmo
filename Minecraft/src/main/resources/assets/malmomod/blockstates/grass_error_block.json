@@ -1,0 +1,20 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "transform": "forge:default-block",
+        "model": "cube_all",
+        "render": "translucent"
+    },
+    "variants": {
+        "normal": [{
+            "textures": {
+                "up": "malmomod:blocks/error_grass_top",
+                "down": "malmomod:blocks/error_dirt",
+                "north": "malmomod:blocks/error_grass_side",
+                "east": "malmomod:blocks/error_grass_side",
+                "west": "malmomod:blocks/error_grass_side",
+                "south": "malmomod:blocks/error_grass_side"
+            }
+        }]
+    }
+}

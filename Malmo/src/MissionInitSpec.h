@@ -159,6 +159,11 @@ namespace malmo
         //! \param port The Minecraft server port.
         void setMinecraftServerInformation(const std::string& address, int port);
 
+        boost::optional<int> getMinecraftServerConnectionPort();
+        boost::optional<std::string> getMinecraftServerConnectionAddress();
+
+        friend std::ostream& operator<<(std::ostream& os, const MissionInitSpec& mis);
+
     private:
         MissionInitXML mission_init;
     };
