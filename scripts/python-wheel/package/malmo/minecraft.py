@@ -57,8 +57,12 @@ def get_java_home() -> str:
         java_home_output_lines = java_home_output.splitlines()
         for line in java_home_output_lines[1:]:  # First line is a header.
             java_home = line[line.find("/") :]
+            javac_path = os.path.join(java_home, "bin", "javac")
+            if not os.path.exists(javac_path):
+                continue
+
             version_output = subprocess.run(
-                [os.path.join(java_home, "bin", "java"), "-version"],
+                [javac_path, "-version"],
                 stderr=subprocess.PIPE,
             ).stderr.decode()
             if "1.8.0_152" in version_output:
